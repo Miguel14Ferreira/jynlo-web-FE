@@ -26,8 +26,8 @@ export function championshipModeAvailability(sport: string | null | undefined): 
   return {
     canOrganize: valid,
     scoringOptions: valid
-      ? (automaticIndividual || automaticTeam ? ['AUTOMATIC', 'CUSTOM_PENDING'] : ['CUSTOM_PENDING'])
-      : [],
+      ? (automaticIndividual || automaticTeam ? (['AUTOMATIC', 'CUSTOM_PENDING'] as const) : (['CUSTOM_PENDING'] as const))
+      : ([] as const),
     individualEngine: capabilities.individual,
     teamEngine: capabilities.team,
     automaticIndividual,
