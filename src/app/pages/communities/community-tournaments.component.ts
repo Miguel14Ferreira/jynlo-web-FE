@@ -119,6 +119,34 @@ export class CommunityTournamentsComponent implements OnChanges {
     });
   }
 
+  setChampionshipWinnerPoints(championship: CommunityChampionship,
+                              tournamentId: number, rawPoints: string): void {
+    const points = Number(rawPoints);
+    if (!this.canManage || this.championshipBusy
+        || !Number.isInteger(points) || points < 0 || points > 10000) {
+      this.championshipError = 'Define um número inteiro de pontos entre 0 e 10000.';
+      return;
+    }
+    this.championshipBusy = true;
+    this.championshipError = '';
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipsApi.setWinnerPoints(communityId, championship.id, tournamentId, points).subscribe({
+      next: updated => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championships = this.championships.map(item => item.id === updated.id ? updated : item);
+        this.championshipBusy = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipBusy = false;
+        this.championshipError = 'Não foi possível guardar os pontos da prova.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
   championshipAvailableTournaments(championship: CommunityChampionship): CommunityTournament[] {
     const attached = new Set(this.championships.flatMap(c => c.competitions.map(t => t.id)));
     return this.tournaments.filter(t => t.sport?.toLowerCase() === championship.sport.toLowerCase()
