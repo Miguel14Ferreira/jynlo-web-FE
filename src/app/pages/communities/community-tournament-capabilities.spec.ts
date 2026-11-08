@@ -3,11 +3,11 @@ import { formatForSport, SPORTS_BY_RESULT_FORMAT } from './community-round-sport
 import { RACE_CHAMPIONSHIP_SPORTS } from '../../services/community-tournaments.service';
 import { tournamentSportCapabilities, tournamentCreationModelForEvent, TournamentCreationModel } from './community-tournament-capabilities';
 
-describe('Tournament capabilities for all 121 modalities', () => {
+describe('Tournament capabilities for all 122 modalities', () => {
   it('classifies every registered sport exactly once without inventing result rules', () => {
     const all = Object.values(SPORTS_BY_RESULT_FORMAT).flat();
-    expect(SPORTS_CATALOG).toHaveSize(121);
-    expect(new Set(all).size).toBe(121);
+    expect(SPORTS_CATALOG).toHaveSize(122);
+    expect(new Set(all).size).toBe(122);
     expect(new Set(all)).toEqual(new Set(SPORTS_CATALOG));
     for (const sport of SPORTS_CATALOG) {
       const cap = tournamentSportCapabilities(sport);
