@@ -914,6 +914,7 @@ export class Events2Component implements OnInit, OnDestroy {
 
     const request: CreateSessionRequest = {
       sport: this.sport.trim(),
+      airsoftGameType: this.sport === 'Airsoft' ? (this.airsoftGameType || null) : null,
       ...(this.selectedPlayFormat ? { playFormat: this.selectedPlayFormat } : {}),
       gameDate: new Date(this.gameDate).toISOString(),
       city: this.city.trim(),
