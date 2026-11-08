@@ -126,6 +126,39 @@ export class CommunityTournamentsComponent implements OnChanges {
     });
   }
 
+  setChampionshipPlacementPoints(championship: CommunityChampionship,
+                                 tournamentId: number, pointsCsv: string): void {
+    const chunks = pointsCsv.split(',').map(value => value.trim());
+    const points = chunks.map(value => Number(value));
+    if (!this.canManage || this.championshipBusy) return;
+    if (chunks.length < 2 || chunks.length > 20
+        || chunks.some(value => !/^[0-9]{1,5}$/.test(value))
+        || points.some((point, index) => point > 10000
+          || (index > 0 && point > points[index - 1]))) {
+      this.championshipError = 'Indica entre 2 e 20 pontuações inteiras, por ordem decrescente (ex.: 25,18,15,10).';
+      return;
+    }
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipBusy = true;
+    this.championshipError = '';
+    this.championshipsApi.setPlacementPoints(
+      communityId, championship.id, tournamentId, points.join(',')).subscribe({
+      next: updated => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championships = this.championships.map(item => item.id === updated.id ? updated : item);
+        this.championshipBusy = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipBusy = false;
+        this.championshipError = 'Não foi possível guardar a pontuação por posição.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
   setChampionshipWinnerPoints(championship: CommunityChampionship,
                               tournamentId: number, rawPoints: string): void {
     const points = Number(rawPoints);
