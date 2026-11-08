@@ -1,4 +1,4 @@
-import { CommunityChampionshipsService, CommunityChampionship } from '../../services/community-championships.service';
+import { CommunityChampionshipsService, CommunityChampionship, CommunityChampionshipStandings } from '../../services/community-championships.service';
 import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { finalize, firstValueFrom, forkJoin, Observable, timeout } from 'rxjs';
 import { CommunityGroup } from '../model/community-group';
@@ -46,6 +46,27 @@ export class CommunityTournamentsComponent implements OnChanges {
 
   readonly championshipSports = SPORTS_CATALOG;
   championships: CommunityChampionship[] = [];
+  championshipAggregateStandings: Record<number, CommunityChampionshipStandings> = {};
+
+  loadChampionshipStandings(championshipId: number): void {
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipsApi.standings(communityId, championshipId).subscribe({
+      next: standings => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipAggregateStandings = {
+          ...this.championshipAggregateStandings, [championshipId]: standings
+        };
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipError = 'A classificação completa ainda não está disponível.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
   championshipNameDraft = '';
   championshipSeasonDraft = '2026/27';
   championshipSportDraft = '';
@@ -61,6 +82,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: championships => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championships = championships;
+        championships.forEach(item => this.loadChampionshipStandings(item.id));
         this.changeDetector.markForCheck();
       },
       error: () => {
@@ -90,6 +112,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: championship => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championships = [championship, ...this.championships];
+        this.loadChampionshipStandings(championship.id);
         this.championshipNameDraft = '';
         this.championshipOpen = false;
         this.championshipBusy = false;
@@ -114,6 +137,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: updated => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championships = this.championships.map(c => c.id === updated.id ? updated : c);
+        this.loadChampionshipStandings(updated.id);
         this.championshipBusy = false;
         this.changeDetector.markForCheck();
       },
@@ -147,6 +171,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: updated => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championships = this.championships.map(item => item.id === updated.id ? updated : item);
+        this.loadChampionshipStandings(updated.id);
         this.championshipBusy = false;
         this.changeDetector.markForCheck();
       },
@@ -1346,6 +1371,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     if (changes['community'] && this.community?.id) {
       ++this.championshipRevision;
       this.championships = [];
+      this.championshipAggregateStandings = {};
       this.championshipError = '';
       this.championshipOpen = false;
       this.championshipBusy = false;
