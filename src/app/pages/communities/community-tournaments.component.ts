@@ -1,4 +1,4 @@
-import { CommunityChampionshipsService, CommunityChampionship, CommunityChampionshipStandings } from '../../services/community-championships.service';
+import { CommunityChampionshipsService, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams } from '../../services/community-championships.service';
 import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { finalize, firstValueFrom, forkJoin, Observable, timeout } from 'rxjs';
 import { CommunityGroup } from '../model/community-group';
@@ -47,6 +47,73 @@ export class CommunityTournamentsComponent implements OnChanges {
   readonly championshipSports = SPORTS_CATALOG;
   championships: CommunityChampionship[] = [];
   championshipAggregateStandings: Record<number, CommunityChampionshipStandings> = {};
+  championshipTeamRegistries: Record<number, CommunityChampionshipTeams> = {};
+  championshipTeamDrafts: Record<number, string> = {};
+
+  loadChampionshipTeams(championshipId: number): void {
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipsApi.teams(communityId, championshipId).subscribe({
+      next: registry => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamRegistries = { ...this.championshipTeamRegistries, [championshipId]: registry };
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipError = 'Não foi possível carregar as equipas do campeonato.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  createChampionshipTeam(championshipId: number): void {
+    const name = (this.championshipTeamDrafts[championshipId] || '').trim();
+    if (!this.canManage || this.championshipBusy || !name || name.length > 100) return;
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipBusy = true;
+    this.championshipError = '';
+    this.championshipsApi.createTeam(communityId, championshipId, name).subscribe({
+      next: registry => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamRegistries = { ...this.championshipTeamRegistries, [championshipId]: registry };
+        this.championshipTeamDrafts[championshipId] = '';
+        this.championshipBusy = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipError = 'Não foi possível criar a equipa. Verifica se o nome já existe.';
+        this.championshipBusy = false;
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  linkChampionshipTeam(championshipId: number, tournamentTeamId: number, targetId: number): void {
+    if (!this.canManage || this.championshipBusy || !Number.isInteger(targetId) || targetId <= 0) return;
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipBusy = true;
+    this.championshipError = '';
+    this.championshipsApi.linkTeam(communityId, championshipId, tournamentTeamId, targetId).subscribe({
+      next: registry => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamRegistries = { ...this.championshipTeamRegistries, [championshipId]: registry };
+        this.championshipBusy = false;
+        this.loadChampionshipStandings(championshipId);
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipError = 'Não foi possível associar a equipa à prova.';
+        this.championshipBusy = false;
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
 
   loadChampionshipStandings(championshipId: number): void {
     const revision = this.championshipRevision;
@@ -82,7 +149,10 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: championships => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championships = championships;
-        championships.forEach(item => this.loadChampionshipStandings(item.id));
+        championships.forEach(item => {
+          this.loadChampionshipStandings(item.id);
+          this.loadChampionshipTeams(item.id);
+        });
         this.changeDetector.markForCheck();
       },
       error: () => {
@@ -113,6 +183,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championships = [championship, ...this.championships];
         this.loadChampionshipStandings(championship.id);
+        this.loadChampionshipTeams(championship.id);
         this.championshipNameDraft = '';
         this.championshipOpen = false;
         this.championshipBusy = false;
@@ -138,6 +209,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championships = this.championships.map(c => c.id === updated.id ? updated : c);
         this.loadChampionshipStandings(updated.id);
+        this.loadChampionshipTeams(updated.id);
         this.championshipBusy = false;
         this.changeDetector.markForCheck();
       },
