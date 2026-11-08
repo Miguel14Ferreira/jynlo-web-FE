@@ -17,6 +17,7 @@ import { CommunityTournamentsService, isRaceChampionshipSport, RaceChampionshipS
 import { AuthenticationService } from '../../services/authethication.service';
 import { tournamentScoreTerminology } from './community-tournament-scoring';
 import { tournamentSportCapabilities, tournamentCreationModelForEvent } from './community-tournament-capabilities';
+import { championshipModeAvailability } from './community-championship-mode';
 import { tournamentEventChoices, validatedTournamentEventType, tournamentEventReadiness, TournamentEventReadiness, SWIM_TOURNAMENT_DISCIPLINES, FIELD_TOURNAMENT_DISCIPLINES, TRACK_TOURNAMENT_DISTANCES, RELAY_TOURNAMENT_DISCIPLINES, CANOE_K1_DISCIPLINES, ROWING_SINGLE_DISCIPLINES } from './community-tournament-event-types';
 import { tournamentClassificationProfile } from './community-tournament-classification';
 import { summarizePublishedTeamJourney } from './community-team-journey';
@@ -299,6 +300,10 @@ export class CommunityTournamentsComponent implements OnChanges {
    * available when recording community rounds. Presentation only.
    */
   /** One result-contract decision for all 121 catalog sports and both creation flows. */
+  get championshipAvailability() {
+    return championshipModeAvailability(this.sportDraft);
+  }
+
   get selectedSportCapabilities() {
     return tournamentSportCapabilities(this.sportDraft);
   }
