@@ -54,7 +54,7 @@
         <div class="create-field">
           <label for="championship-sport">Modalidade</label>
           <select id="championship-sport" [(ngModel)]="championshipSportDraft">
-            @for (sport of communitySportOptions; track sport) {
+            @for (sport of championshipSports; track sport) {
               <option [value]="sport">{{ sport }}</option>
             }
           </select>
