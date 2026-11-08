@@ -204,6 +204,7 @@ describe('Events2Component', () => {
     expect(sessionService.create).toHaveBeenCalledWith(
       jasmine.objectContaining({
         sport: 'Airsoft',
+        airsoftGameType: 'MILSIM',
         meetingPointInstructions: 'Airsoft: MilSim · Entrada principal'
       }),
       undefined
