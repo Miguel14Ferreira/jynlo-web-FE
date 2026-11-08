@@ -2963,7 +2963,7 @@ describe('SessionDetailsComponent', () => {
     };
     component.generateTeams('EXCEL_POINTS');
     component.confirmTeams();
-    expect(sessionService.confirmTeams).toHaveBeenCalledWith(7, 'EXCEL_POINTS');
+    expect(sessionService.confirmTeams).toHaveBeenCalledWith(7, 'EXCEL_POINTS', component.teamSuggestion);
     expect(component.teamSuggestionPendingConfirmation).toBeFalse();
 
     component.generateTeams('FORM');
@@ -3046,7 +3046,7 @@ describe('SessionDetailsComponent', () => {
     component.session = { ...component.session!, participantCount: 9, maxParticipants: 10 };
     expect(component.canGenerateTeams()).toBeFalse();
     component.session = { ...component.session!, participantCount: 10, maxParticipants: 10, teamBalanceSupported: false };
-    expect(component.canGenerateTeams()).toBeFalse();
+    expect(component.canGenerateTeams()).toBeTrue();
   });
 
   it('distinguishes cancelling removal from the destructive confirm action', () => {
@@ -3664,8 +3664,10 @@ describe('SessionDetailsComponent', () => {
     expect(card.querySelector('.session-player-card__name')?.textContent).toContain('André (Borralho)');
   });
   it('offers random teams without standings and confirms the exact preview', () => {
+    (component as any).currentUsername = 'creator-user';
     component.session = {
-      ...session, communityId: 9, sport: 'Futebol', teamBalanceSupported: false,
+      ...session, creatorUsername: 'creator-user', joined: true,
+      communityId: 9, sport: 'Futebol', teamBalanceSupported: false,
       participantCount: 10, maxParticipants: 10, status: 'FULL'
     };
     fixture.detectChanges();
