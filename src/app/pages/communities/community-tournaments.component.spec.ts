@@ -81,8 +81,9 @@ describe('Community tournaments management', () => {
       markForCheck: jasmine.createSpy('markForCheck'),
       detectChanges: jasmine.createSpy('detectChanges')
     } as unknown as ChangeDetectorRef;
-    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints']);
+    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam']);
     championships.list.and.returnValue(of([]));
+    championships.teams.and.returnValue(of({ championshipId: 1, teams: [], competitionTeams: [] }));
     championships.standings.and.returnValue(of({
       championshipId: 1, standings: [], fullyScoredCompetitions: 0,
       winnerOnlyCompetitions: 0, pendingCompetitions: 0
