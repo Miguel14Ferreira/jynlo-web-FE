@@ -1,3 +1,4 @@
+import { CommunityChampionshipsService, CommunityChampionship } from '../../services/community-championships.service';
 import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { finalize, firstValueFrom, forkJoin, Observable, timeout } from 'rxjs';
 import { CommunityGroup } from '../model/community-group';
@@ -42,6 +43,87 @@ export class CommunityTournamentsComponent implements OnChanges {
   focusedPublishedFixtureId: number | null = null;
   readonly directFixtureMaxExtraPages = 20;
   private directFixtureExtraPages = 0;
+
+  championships: CommunityChampionship[] = [];
+  championshipNameDraft = '';
+  championshipSeasonDraft = '2026/27';
+  championshipSportDraft = '';
+  championshipOpen = false;
+  championshipBusy = false;
+  championshipError = '';
+  private championshipRevision = 0;
+
+  private loadChampionships(): void {
+    const revision = ++this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipsApi.list(communityId).subscribe({
+      next: championships => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championships = championships;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipError = 'Não foi possível carregar os campeonatos.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  createChampionship(): void {
+    const name = this.championshipNameDraft.trim();
+    const sport = this.championshipSportDraft;
+    const season = this.championshipSeasonDraft.trim();
+    if (!this.canManage || this.championshipBusy || !name || !sport || !season) return;
+    this.championshipBusy = true;
+    this.championshipError = '';
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipsApi.create(communityId, name, sport, season).subscribe({
+      next: championship => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championships = [championship, ...this.championships];
+        this.championshipNameDraft = '';
+        this.championshipOpen = false;
+        this.championshipBusy = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipBusy = false;
+        this.championshipError = 'Não foi possível criar o campeonato.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  linkChampionshipCompetition(championship: CommunityChampionship, tournamentId: number): void {
+    if (!this.canManage || this.championshipBusy || !Number.isFinite(tournamentId)) return;
+    this.championshipBusy = true;
+    this.championshipError = '';
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipsApi.addCompetition(communityId, championship.id, tournamentId).subscribe({
+      next: updated => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championships = this.championships.map(c => c.id === updated.id ? updated : c);
+        this.championshipBusy = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipBusy = false;
+        this.championshipError = 'Não foi possível associar esta prova. Confirma a modalidade e se já pertence a outro campeonato.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  championshipAvailableTournaments(championship: CommunityChampionship): CommunityTournament[] {
+    const attached = new Set(this.championships.flatMap(c => c.competitions.map(t => t.id)));
+    return this.tournaments.filter(t => t.sport?.toLowerCase() === championship.sport.toLowerCase()
+      && !attached.has(t.id));
+  }
 
   tournaments: CommunityTournament[] = [];
   selected?: CommunityTournament;
@@ -1187,12 +1269,20 @@ export class CommunityTournamentsComponent implements OnChanges {
 
   constructor(
     private readonly api: CommunityTournamentsService,
+    private readonly championshipsApi: CommunityChampionshipsService,
     private readonly authentication: AuthenticationService,
     private readonly changeDetector: ChangeDetectorRef
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['community'] && this.community?.id) {
+      ++this.championshipRevision;
+      this.championships = [];
+      this.championshipError = '';
+      this.championshipOpen = false;
+      this.championshipBusy = false;
+      this.championshipSportDraft = this.community.sports?.[0] || this.community.sport || '';
+      this.loadChampionships();
       ++this.listRevision;
       ++this.detailRevision;
       ++this.mutationRevision;
