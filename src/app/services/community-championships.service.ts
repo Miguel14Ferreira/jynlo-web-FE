@@ -32,8 +32,25 @@ export interface CommunityChampionship {
   winnerStandings: ChampionshipLeader[];
 }
 
+export interface CommunityChampionshipTeam {
+  id: number;
+  name: string;
+}
+export interface CommunityChampionshipCompetitionTeam {
+  id: number;
+  tournamentId: number;
+  tournamentName: string;
+  name: string;
+  championshipTeamId: number | null;
+}
+export interface CommunityChampionshipTeams {
+  championshipId: number;
+  teams: CommunityChampionshipTeam[];
+  competitionTeams: CommunityChampionshipCompetitionTeam[];
+}
+
 export interface ChampionshipAggregateStanding {
-  entryType: 'TEAM' | 'INDIVIDUAL';
+  entryType: 'TEAM' | 'TEAM_UNLINKED' | 'INDIVIDUAL';
   participantId: number;
   name: string;
   points: number;
@@ -54,6 +71,23 @@ export class CommunityChampionshipsService {
 
   private base(communityId: number): string {
     return environment.apiUrl + '/api/communities/' + communityId + '/championships';
+  }
+
+  teams(communityId: number, championshipId: number): Observable<CommunityChampionshipTeams> {
+    return this.http.get<CommunityChampionshipTeams>(
+      this.base(communityId) + '/' + championshipId + '/teams');
+  }
+
+  createTeam(communityId: number, championshipId: number, name: string): Observable<CommunityChampionshipTeams> {
+    return this.http.post<CommunityChampionshipTeams>(
+      this.base(communityId) + '/' + championshipId + '/teams', { name });
+  }
+
+  linkTeam(communityId: number, championshipId: number, tournamentTeamId: number,
+           championshipTeamId: number): Observable<CommunityChampionshipTeams> {
+    return this.http.put<CommunityChampionshipTeams>(
+      this.base(communityId) + '/' + championshipId + '/competition-teams/' + tournamentTeamId,
+      { championshipTeamId });
   }
 
   standings(communityId: number, championshipId: number): Observable<CommunityChampionshipStandings> {
