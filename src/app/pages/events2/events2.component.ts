@@ -375,6 +375,7 @@ export class Events2Component implements OnInit, OnDestroy {
       && this.locationMethod === 'maps' && this.hasCoordinates;
     return {
       sport: this.sport.trim(),
+      airsoftGameType: this.sport === 'Airsoft' && this.airsoftGameType ? this.airsoftGameType : null,
       playFormat: this.playFormat,
       city: this.city.trim(),
       address: this.address.trim(),
