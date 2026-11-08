@@ -6,7 +6,7 @@ export type AppLanguage = 'pt' | 'en';
 type Dictionary = Record<string, string>;
 
 const PT: Dictionary = {
-  'createSession.airsoftPrivateGameType': 'O tipo de jogo é guardado nas instruções do ponto de encontro e só é visível a quem tem acesso à localização exata.',
+  'createSession.airsoftPrivateGameType': 'O tipo de jogo é público. As instruções do ponto de encontro só são visíveis a quem tem acesso à localização exata.',
   'createSession.airsoftPreview': 'Pré-visualização das instruções da sessão',
   'createSession.airsoftGameType': 'Tipo de jogo de Airsoft',
   'createSession.airsoftTypeOptional': 'Não especificado',
