@@ -32,12 +32,33 @@ export interface CommunityChampionship {
   winnerStandings: ChampionshipLeader[];
 }
 
+export interface ChampionshipAggregateStanding {
+  entryType: 'TEAM' | 'INDIVIDUAL';
+  participantId: number;
+  name: string;
+  points: number;
+  victories: number;
+  awardedCompetitions: number;
+}
+export interface CommunityChampionshipStandings {
+  championshipId: number;
+  standings: ChampionshipAggregateStanding[];
+  fullyScoredCompetitions: number;
+  winnerOnlyCompetitions: number;
+  pendingCompetitions: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CommunityChampionshipsService {
   constructor(private readonly http: HttpClient) {}
 
   private base(communityId: number): string {
     return environment.apiUrl + '/api/communities/' + communityId + '/championships';
+  }
+
+  standings(communityId: number, championshipId: number): Observable<CommunityChampionshipStandings> {
+    return this.http.get<CommunityChampionshipStandings>(
+      this.base(communityId) + '/' + championshipId + '/standings');
   }
 
   list(communityId: number): Observable<CommunityChampionship[]> {
