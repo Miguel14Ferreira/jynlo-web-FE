@@ -211,6 +211,19 @@ describe('Events2Component', () => {
     );
   });
 
+  it('does not send an Airsoft game type for another sport', () => {
+    component.sport = 'Futebol';
+    component.airsoftGameType = 'MILSIM';
+    component.gameDate = '2099-10-15T18:00';
+    component.city = 'Lisboa';
+    component.address = 'Campo de jogo';
+    component.maxParticipants = 10;
+
+    component.createSession();
+    expect(sessionService.create).toHaveBeenCalled();
+    expect(sessionService.create.calls.mostRecent().args[0].airsoftGameType).toBeNull();
+  });
+
   it('warns accessibly when selecting an Airsoft type makes existing notes too long', () => {
     component.sport = 'Airsoft';
     component.meetingPointInstructions = 'x'.repeat(240);
