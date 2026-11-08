@@ -1,3 +1,4 @@
+import { CommunityChampionshipsService } from '../../services/community-championships.service';
 import { of, Subject, throwError } from 'rxjs';
 import { ChangeDetectorRef, SimpleChange } from '@angular/core';
 import { AuthenticationService } from '../../services/authethication.service';
@@ -80,7 +81,9 @@ describe('Community tournaments management', () => {
       markForCheck: jasmine.createSpy('markForCheck'),
       detectChanges: jasmine.createSpy('detectChanges')
     } as unknown as ChangeDetectorRef;
-    component = new CommunityTournamentsComponent(api, auth, cdr);
+    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition']);
+    championships.list.and.returnValue(of([]));
+    component = new CommunityTournamentsComponent(api, championships, auth, cdr);
     component.community = { ...community };
     component.ngOnChanges({ community: new SimpleChange(undefined, community, true) });
   });
