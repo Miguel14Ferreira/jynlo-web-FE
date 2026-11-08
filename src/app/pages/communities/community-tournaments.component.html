@@ -296,6 +296,17 @@
               </div>
               <p>{{ ('communities.tournaments.capabilities.model.' + selectedSportCreationModel) | t }}</p>
               <p class="tournament-sport-capability-note">{{ 'communities.tournaments.capabilities.noOfficialRules' | t }}</p>
+              @if (championshipAvailability.canOrganize) {
+                <p class="tournament-sport-capability-note" role="status">
+                  {{ 'communities.tournaments.championship.organizeAvailable' | t }}
+                  @if (championshipAvailability.automaticIndividual || championshipAvailability.automaticTeam) {
+                    {{ 'communities.tournaments.championship.automaticSupported' | t }}
+                  } @else {
+                    {{ 'communities.tournaments.championship.customPending' | t }}
+                  }
+                </p>
+              }
+
               @if (creationSportNoticeKey; as noticeKey) {
                 <p class="create-sport-notice" role="note">{{ noticeKey | t }}</p>
               }
