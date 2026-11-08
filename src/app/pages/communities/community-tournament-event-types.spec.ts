@@ -3,8 +3,8 @@ import { tournamentSportCapabilities } from './community-tournament-capabilities
 import { tournamentEventChoices, validatedTournamentEventType, tournamentEventReadiness, validCanoeDiscipline, validRowingDiscipline, validFieldTournamentDiscipline } from './community-tournament-event-types';
 
 describe('Sport-specific tournament event types',()=>{
-  it('maps all 121 catalog sports without invented event fallbacks',()=>{
-    expect(SPORTS_CATALOG.length).toBe(121);
+  it('maps all 122 catalog sports without invented event fallbacks',()=>{
+    expect(SPORTS_CATALOG.length).toBe(122);
     for(const sport of SPORTS_CATALOG){
       const caps=tournamentSportCapabilities(sport);
       for(const model of [caps.individual,caps.team]){
