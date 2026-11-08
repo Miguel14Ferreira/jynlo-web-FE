@@ -35,35 +35,19 @@ export class Events2Component implements OnInit, OnDestroy {
   airsoftGameType: '' | 'SKIRMISH' | 'MILSIM' | 'CAPTURE_THE_FLAG' = '';
 
   get meetingPointInputMaxLength(): number {
-    if (this.sport !== 'Airsoft' || !this.airsoftGameType) return 240;
-    const prefix = 'Airsoft: ' + t('createSession.airsoftType.' + this.airsoftGameType);
-    // The separator is added only when the organizer enters instructions.
-    return 240 - prefix.length - 3;
+    return 240;
   }
 
   get sessionMeetingInstructions(): string | null {
-    const instructions = this.meetingPointInstructions.trim();
-    if (this.sport !== 'Airsoft' || !this.airsoftGameType) return instructions || null;
-    const type = t('createSession.airsoftType.' + this.airsoftGameType);
-    // A checklist may have been inserted before the organizer chose a game type.
-    // Remove only its known leading sport label, preserving the organizer's notes.
-    const note = instructions.startsWith(t('createSession.airsoftTemplate'))
-      ? instructions.replace(/^Airsoft:\s*/i, '')
-      : instructions;
-    return ['Airsoft: ' + type, note].filter(Boolean).join(' · ');
+    return this.meetingPointInstructions.trim() || null;
   }
 
-
-  /** Optional organizer checklist stored in the existing session instructions field. */
+  /** Optional safety checklist, independent from the public Airsoft game type. */
   applyAirsoftInstructionsTemplate(): void {
     if (this.sport !== 'Airsoft' || this.meetingPointInstructions.trim()) return;
-    const template = t('createSession.airsoftTemplate');
-    // The selected game type already adds the Airsoft prefix to the saved note.
-    const note = this.airsoftGameType
-      ? template.replace(/^Airsoft:\s*/i, '')
-      : template;
-    this.meetingPointInstructions = note.slice(0, this.meetingPointInputMaxLength);
+    this.meetingPointInstructions = t('createSession.airsoftTemplate').slice(0, 240);
   }
+
   maxParticipants = 4;
   /** When enabled, the full capacity becomes the required minimum. */
   capacityIsMinimum = false;
