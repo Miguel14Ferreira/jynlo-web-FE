@@ -221,9 +221,9 @@ describe('Events2Component', () => {
     fixture.detectChanges();
     const input = fixture.nativeElement.querySelector('#create-meeting-point-instructions') as HTMLInputElement;
     const warning = fixture.nativeElement.querySelector('#create-meeting-point-error') as HTMLElement;
-    expect(warning).not.toBeNull();
-    expect(input.getAttribute('aria-invalid')).toBe('true');
-    expect(input.getAttribute('aria-describedby')).toContain('create-meeting-point-error');
+    expect(warning).toBeNull();
+    expect(input.getAttribute('aria-invalid')).toBeNull();
+    expect(input.getAttribute('aria-describedby')).not.toContain('create-meeting-point-error');
 
     component.airsoftGameType = '';
     fixture.detectChanges();
@@ -233,7 +233,7 @@ describe('Events2Component', () => {
   it('blocks an overlong Airsoft note rather than sending an invalid request', () => {
     component.sport = 'Airsoft';
     component.airsoftGameType = 'CAPTURE_THE_FLAG';
-    component.meetingPointInstructions = 'x'.repeat(240);
+    component.meetingPointInstructions = 'x'.repeat(241);
     component.gameDate = '2099-10-15T18:00';
     component.city = 'Lisboa';
     component.address = 'Campo de jogo';
@@ -258,7 +258,8 @@ describe('Events2Component', () => {
     expect(sessionService.create).toHaveBeenCalled();
     const payload = sessionService.create.calls.mostRecent().args[0];
     const instructions = payload.meetingPointInstructions ?? '';
-    expect(instructions.startsWith('Airsoft: MilSim · ')).toBeTrue();
+    expect(instructions.startsWith('Airsoft:')).toBeTrue();
+    expect(payload.airsoftGameType).toBe('MILSIM');
     expect(instructions.match(/Airsoft:/g)?.length).toBe(1);
     expect(instructions).toContain('proteção ocular');
   });
@@ -269,7 +270,7 @@ describe('Events2Component', () => {
     expect(component.meetingPointInstructions).toContain('Airsoft:');
 
     component.airsoftGameType = 'MILSIM';
-    expect(component.sessionMeetingInstructions).toContain('Airsoft: MilSim');
+    expect(component.sessionMeetingInstructions).not.toContain('Airsoft: MilSim');
     expect(component.sessionMeetingInstructions?.match(/Airsoft:/g)?.length).toBe(1);
     expect(component.sessionMeetingInstructions).toContain('proteção ocular');
   });
@@ -280,7 +281,7 @@ describe('Events2Component', () => {
     component.applyAirsoftInstructionsTemplate();
     expect(component.meetingPointInstructions.length).toBeLessThanOrEqual(component.meetingPointInputMaxLength);
     expect(component.sessionMeetingInstructions?.length).toBeLessThanOrEqual(240);
-    expect(component.sessionMeetingInstructions).toContain('Capture the Flag');
+    expect(component.sessionMeetingInstructions).not.toContain('Capture the Flag');
     expect(component.sessionMeetingInstructions?.match(/Airsoft:/g)?.length).toBe(1);
   });
 
@@ -290,7 +291,7 @@ describe('Events2Component', () => {
     fixture.detectChanges();
     const input = fixture.nativeElement.querySelector('#create-meeting-point-instructions') as HTMLInputElement;
     expect(input.maxLength).toBe(component.meetingPointInputMaxLength);
-    expect(input.maxLength).toBeLessThan(240);
+    expect(input.maxLength).toBe(240);
     component.meetingPointInstructions = 'x'.repeat(input.maxLength);
     expect(component.sessionMeetingInstructions?.length).toBe(240);
 
@@ -303,7 +304,7 @@ describe('Events2Component', () => {
     component.sport = 'Airsoft';
     component.airsoftGameType = 'CAPTURE_THE_FLAG';
     component.meetingPointInstructions = 'Entrada principal';
-    expect(component.sessionMeetingInstructions).toBe('Airsoft: Capture the Flag · Entrada principal');
+    expect(component.sessionMeetingInstructions).toBe('Entrada principal');
 
     component.sport = 'Padel';
     expect(component.sessionMeetingInstructions).toBe('Entrada principal');
