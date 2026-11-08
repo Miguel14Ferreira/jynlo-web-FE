@@ -110,6 +110,46 @@
           <p>Ainda não existem provas associadas.</p>
         }
         <div class="create-step">
+          <h5>Equipas do campeonato</h5>
+          <p>Associa as equipas de diferentes provas à mesma equipa do campeonato para acumular os pontos. A associação é manual e não depende apenas do nome.</p>
+          @if (championshipTeamRegistries[championship.id]; as registry) {
+            @if (canManage) {
+              <label [for]="'season-team-' + championship.id">Nome da equipa</label>
+              <input [id]="'season-team-' + championship.id" type="text" maxlength="100"
+                [value]="championshipTeamDrafts[championship.id] || ''"
+                (input)="championshipTeamDrafts[championship.id] = $any($event.target).value"
+                placeholder="Nova equipa do campeonato">
+              <button type="button" class="t-btn t-btn-secondary"
+                [disabled]="championshipBusy || !championshipTeamDrafts[championship.id]"
+                (click)="createChampionshipTeam(championship.id)">Criar equipa</button>
+            }
+            @for (team of registry.competitionTeams; track team.id) {
+              <div>
+                <strong>{{ team.name }}</strong> · {{ team.tournamentName }}
+                @if (canManage && registry.teams.length) {
+                  <select #canonicalTeamSelect
+                    [value]="team.championshipTeamId || ''"
+                    [attr.aria-label]="'Equipa do campeonato para ' + team.name">
+                    <option value="">Por associar</option>
+                    @for (seasonTeam of registry.teams; track seasonTeam.id) {
+                      <option [value]="seasonTeam.id">{{ seasonTeam.name }}</option>
+                    }
+                  </select>
+                  <button type="button" class="t-btn t-btn-secondary"
+                    [disabled]="championshipBusy || !canonicalTeamSelect.value"
+                    (click)="linkChampionshipTeam(championship.id, team.id, +canonicalTeamSelect.value)">
+                    Associar
+                  </button>
+                } @else {
+                  <span>{{ team.championshipTeamId ? 'Associada' : 'Por associar' }}</span>
+                }
+              </div>
+            }
+          } @else {
+            <p>Equipas ainda não carregadas.</p>
+          }
+        </div>
+        <div class="create-step">
           <h5>Classificação geral do campeonato</h5>
           @if (championshipAggregateStandings[championship.id]; as aggregate) {
             <p>
@@ -122,7 +162,7 @@
                 @for (leader of aggregate.standings; track leader.entryType + '-' + leader.participantId) {
                   <li>
                     <strong>{{ leader.name }}</strong>
-                    · {{ leader.entryType === 'TEAM' ? 'Equipa' : 'Individual' }}
+                    · {{ leader.entryType === 'TEAM' ? 'Equipa' : leader.entryType === 'TEAM_UNLINKED' ? 'Equipa por associar' : 'Individual' }}
                     · {{ leader.points }} pontos
                     · {{ leader.victories }} vitória(s)
                     · {{ leader.awardedCompetitions }} prova(s) pontuadas
