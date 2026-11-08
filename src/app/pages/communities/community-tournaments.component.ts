@@ -1444,6 +1444,8 @@ export class CommunityTournamentsComponent implements OnChanges {
       ++this.championshipRevision;
       this.championships = [];
       this.championshipAggregateStandings = {};
+      this.championshipTeamRegistries = {};
+      this.championshipTeamDrafts = {};
       this.championshipError = '';
       this.championshipOpen = false;
       this.championshipBusy = false;
