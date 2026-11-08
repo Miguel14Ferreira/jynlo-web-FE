@@ -10,6 +10,7 @@ export interface ChampionshipCompetition {
   status: string;
   winnerPoints: number;
   winnerConfirmed: boolean;
+  pointsByPlace: string | null;
 }
 
 export interface ChampionshipLeader {
@@ -46,6 +47,13 @@ export class CommunityChampionshipsService {
   create(communityId: number, name: string, sport: string,
          seasonLabel: string): Observable<CommunityChampionship> {
     return this.http.post<CommunityChampionship>(this.base(communityId), { name, sport, seasonLabel });
+  }
+
+  setPlacementPoints(communityId: number, championshipId: number,
+                     tournamentId: number, pointsByPlace: string): Observable<CommunityChampionship> {
+    return this.http.put<CommunityChampionship>(
+      this.base(communityId) + '/' + championshipId + '/competitions/' + tournamentId + '/placement-points',
+      { pointsByPlace });
   }
 
   setWinnerPoints(communityId: number, championshipId: number,
