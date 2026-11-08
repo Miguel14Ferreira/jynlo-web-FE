@@ -110,21 +110,35 @@
           <p>Ainda não existem provas associadas.</p>
         }
         <div class="create-step">
-          <h5>Classificação por vitórias nas provas</h5>
-          <p>Classificação provisória: soma apenas os pontos atribuídos a vencedores confirmados de provas concluídas. As restantes posições ainda não contam.</p>
-          @if (championship.winnerStandings.length) {
+          <h5>Classificação geral do campeonato</h5>
+          @if (championshipAggregateStandings[championship.id]; as aggregate) {
+            <p>
+              {{ aggregate.fullyScoredCompetitions }} prova(s) com posições verificadas ·
+              {{ aggregate.winnerOnlyCompetitions }} apenas com vencedor confirmado ·
+              {{ aggregate.pendingCompetitions }} pendente(s)
+            </p>
+            @if (aggregate.standings.length) {
+              <ol>
+                @for (leader of aggregate.standings; track leader.entryType + '-' + leader.participantId) {
+                  <li>
+                    <strong>{{ leader.name }}</strong>
+                    · {{ leader.entryType === 'TEAM' ? 'Equipa' : 'Individual' }}
+                    · {{ leader.points }} pontos
+                    · {{ leader.victories }} vitória(s)
+                    · {{ leader.awardedCompetitions }} prova(s) pontuadas
+                  </li>
+                }
+              </ol>
+            } @else {
+              <p>Ainda não existem provas concluídas com resultados verificáveis.</p>
+            }
+          } @else {
+            <p>Classificação detalhada ainda não disponível. A mostrar apenas vencedores confirmados.</p>
             <ol>
               @for (leader of championship.winnerStandings; track leader.entryType + '-' + leader.participantId) {
-                <li>
-                  <strong>{{ leader.name }}</strong>
-                  · {{ leader.entryType === 'TEAM' ? 'Equipa' : 'Individual' }}
-                  · {{ leader.victories }} vitória(s)
-                  · {{ leader.points }} pontos
-                </li>
+                <li><strong>{{ leader.name }}</strong> · {{ leader.points }} pontos</li>
               }
             </ol>
-          } @else {
-            <p>Ainda não há vencedores confirmados em provas concluídas.</p>
           }
         </div>
         @if (canManage && championshipAvailableTournaments(championship).length) {
