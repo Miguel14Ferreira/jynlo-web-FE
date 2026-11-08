@@ -4,7 +4,7 @@ import { tournamentClassificationProfile } from './community-tournament-classifi
 
 describe('Sport-aware tournament classification', () => {
   it('reuses every registered sport format instead of defaulting to football', () => {
-    expect(SPORTS_CATALOG.length).toBe(121);
+    expect(SPORTS_CATALOG.length).toBe(122);
     for (const sport of SPORTS_CATALOG) {
       const profile = tournamentClassificationProfile(sport);
       expect(profile.format).toBe(formatForSport(sport));
@@ -14,6 +14,12 @@ describe('Sport-aware tournament classification', () => {
         expect(profile.isRoundRobinSupported).withContext(sport).toBeFalse();
       }
     }
+  });
+
+  it('keeps Airsoft as an activity without inventing tournament points', () => {
+    const airsoft = tournamentClassificationProfile('Airsoft');
+    expect(airsoft.format).toBe('activity');
+    expect(airsoft.isRoundRobinSupported).toBeFalse();
   });
 
   it('distinguishes karting races from generic numeric head-to-head games', () => {
