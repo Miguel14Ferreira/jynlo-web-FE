@@ -2017,7 +2017,6 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       this.session
       && this.isCreator()
       && this.session.communityId
-      && this.session.teamBalanceSupported === true
       && this.isFull()
       && this.session.status !== 'CANCELLED'
       && this.session.status !== 'COMPLETED'
@@ -2032,11 +2031,11 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     this.teamsLoading = true;
     this.teamsError = '';
     this.teamsSuccess = '';
-    this.teamsScoreSource = source;
+    this.teamsScoreSource = this.session?.teamBalanceSupported ? source : 'RANDOM';
     this.teamSuggestion = undefined;
     this.teamSuggestionPendingConfirmation = false;
 
-    this.sessionService.teamSuggestion(this.sessionId, source)
+    this.sessionService.teamSuggestion(this.sessionId, this.teamsScoreSource)
       .pipe(
         timeout(10_000),
         finalize(() => this.teamsLoading = false)
@@ -2069,7 +2068,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     this.teamsError = '';
     this.teamsSuccess = '';
 
-    this.sessionService.confirmTeams(this.sessionId, this.teamsScoreSource)
+    this.sessionService.confirmTeams(this.sessionId, this.teamsScoreSource, this.teamSuggestion)
       .pipe(
         timeout(10_000),
         finalize(() => this.teamsConfirming = false)
