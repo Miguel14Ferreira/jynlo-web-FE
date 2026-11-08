@@ -8,6 +8,16 @@ export interface ChampionshipCompetition {
   name: string;
   format: string;
   status: string;
+  winnerPoints: number;
+  winnerConfirmed: boolean;
+}
+
+export interface ChampionshipLeader {
+  entryType: 'TEAM' | 'INDIVIDUAL';
+  participantId: number;
+  name: string;
+  victories: number;
+  points: number;
 }
 
 export interface CommunityChampionship {
@@ -18,6 +28,7 @@ export interface CommunityChampionship {
   seasonLabel: string;
   createdAt: string;
   competitions: ChampionshipCompetition[];
+  winnerStandings: ChampionshipLeader[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -35,6 +46,13 @@ export class CommunityChampionshipsService {
   create(communityId: number, name: string, sport: string,
          seasonLabel: string): Observable<CommunityChampionship> {
     return this.http.post<CommunityChampionship>(this.base(communityId), { name, sport, seasonLabel });
+  }
+
+  setWinnerPoints(communityId: number, championshipId: number,
+                  tournamentId: number, points: number): Observable<CommunityChampionship> {
+    return this.http.put<CommunityChampionship>(
+      this.base(communityId) + '/' + championshipId + '/competitions/' + tournamentId + '/winner-points',
+      { points });
   }
 
   addCompetition(communityId: number, championshipId: number,
