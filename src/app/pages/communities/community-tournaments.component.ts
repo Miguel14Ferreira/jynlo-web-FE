@@ -44,6 +44,7 @@ export class CommunityTournamentsComponent implements OnChanges {
   readonly directFixtureMaxExtraPages = 20;
   private directFixtureExtraPages = 0;
 
+  readonly championshipSports = SPORTS_CATALOG;
   championships: CommunityChampionship[] = [];
   championshipNameDraft = '';
   championshipSeasonDraft = '2026/27';
