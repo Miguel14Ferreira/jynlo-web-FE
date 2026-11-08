@@ -70,6 +70,12 @@ export class CommunityTournamentsComponent implements OnChanges {
     });
   }
 
+  refreshChampionships(): void {
+    if (this.championshipBusy) return;
+    this.championshipError = '';
+    this.loadChampionships();
+  }
+
   createChampionship(): void {
     const name = this.championshipNameDraft.trim();
     const sport = this.championshipSportDraft;
