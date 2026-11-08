@@ -864,6 +864,7 @@
                     <p>{{ 'sessionDetail.teamsText' | t }}</p>
                   </div>
                   <div class="team-generator-actions">
+                    @if (session.teamBalanceSupported) {
                     <button
                       type="button"
                       class="secondary-action jynlo-action jynlo-action--neutral"
@@ -880,6 +881,15 @@
                       (click)="generateTeams('EXCEL_POINTS')">
                       {{ 'guestAdmin.teamsFromExcel' | t }}
                     </button>
+                    }
+                    <button
+                      type="button"
+                      class="secondary-action jynlo-action jynlo-action--neutral"
+                      [disabled]="teamsLoading || teamsConfirming"
+                      [attr.aria-pressed]="teamsScoreSource === 'RANDOM'"
+                      (click)="generateTeams('RANDOM')">
+                      {{ 'sessionDetail.randomTeams' | t }}
+                    </button>
                   </div>
                 </div>
 
@@ -890,7 +900,7 @@
                 @if (teamSuggestion) {
                   <div class="team-suggestion">
                     <div class="team-card">
-                      <h3>{{ 'sessionDetail.teamA' | t }} <span>{{ teamSuggestion.teamAScore }}</span></h3>
+                      <h3>{{ 'sessionDetail.teamA' | t }} @if (teamsScoreSource !== 'RANDOM') { <span>{{ teamSuggestion.teamAScore }}</span> }</h3>
                       @for (player of teamSuggestion.teamA; track player.username) {
                         <div class="team-player">
                           @if(player.guest){
@@ -898,7 +908,9 @@
                           } @else {
                             <a class="session-profile-link" [routerLink]="['/menu/perfis',player.username]">{{ '@' + player.username }}</a>
                           }
-                          @if (teamsScoreSource === 'EXCEL_POINTS') {
+                          @if (teamsScoreSource === 'RANDOM') {
+                            <small>{{ 'sessionDetail.randomTeamsNoRanking' | t }}</small>
+                          } @else if (teamsScoreSource === 'EXCEL_POINTS') {
                             <small>{{ player.statsAvailable
                               ? ('sessionDetail.excelPlayerPoints' | t:{ points: player.strengthScore })
                               : ('sessionDetail.excelPlayerUnranked' | t:{ points: player.strengthScore }) }}</small>
@@ -912,7 +924,7 @@
                     </div>
 
                     <div class="team-card">
-                      <h3>{{ 'sessionDetail.teamB' | t }} <span>{{ teamSuggestion.teamBScore }}</span></h3>
+                      <h3>{{ 'sessionDetail.teamB' | t }} @if (teamsScoreSource !== 'RANDOM') { <span>{{ teamSuggestion.teamBScore }}</span> }</h3>
                       @for (player of teamSuggestion.teamB; track player.username) {
                         <div class="team-player">
                           @if(player.guest){
@@ -933,6 +945,7 @@
                       }
                     </div>
                   </div>
+                  @if (teamsScoreSource !== 'RANDOM') {
                   <p class="team-stats-note">
                     {{ (teamsScoreSource === 'EXCEL_POINTS'
                       ? 'sessionDetail.teamsExcelUsed'
@@ -941,6 +954,11 @@
                         total: teamSuggestion.totalPlayers
                       } }}
                   </p>
+                  }
+                  @if (teamsScoreSource === 'RANDOM') {
+                    <p class="team-stats-note">{{ 'sessionDetail.randomTeamsInfo' | t }}</p>
+                    <button type="button" class="secondary-action jynlo-action jynlo-action--neutral" [disabled]="teamsLoading || teamsConfirming" (click)="generateTeams('RANDOM')">{{ 'sessionDetail.randomTeamsAgain' | t }}</button>
+                  }
                   @if (teamsScoreSource === 'EXCEL_POINTS') {
                     <p class="team-stats-note">{{ 'sessionDetail.teamsExcelPrivacy' | t }}</p>
                   }
