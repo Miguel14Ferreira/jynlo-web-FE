@@ -81,8 +81,12 @@ describe('Community tournaments management', () => {
       markForCheck: jasmine.createSpy('markForCheck'),
       detectChanges: jasmine.createSpy('detectChanges')
     } as unknown as ChangeDetectorRef;
-    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition']);
+    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints']);
     championships.list.and.returnValue(of([]));
+    championships.standings.and.returnValue(of({
+      championshipId: 1, standings: [], fullyScoredCompetitions: 0,
+      winnerOnlyCompetitions: 0, pendingCompetitions: 0
+    }));
     component = new CommunityTournamentsComponent(api, championships, auth, cdr);
     component.community = { ...community };
     component.ngOnChanges({ community: new SimpleChange(undefined, community, true) });
