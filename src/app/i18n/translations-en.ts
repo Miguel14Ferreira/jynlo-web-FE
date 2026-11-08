@@ -1,6 +1,6 @@
 // Loaded only for users who choose English. Keep the original key/value table intact.
 export const EN: Record<string, string> = {
-  'createSession.airsoftPrivateGameType': 'The game type is saved in the meeting point instructions and is only visible to people with access to the exact location.',
+  'createSession.airsoftPrivateGameType': 'The game type is public. Meeting-point instructions are only visible to people with access to the exact location.',
   'createSession.airsoftPreview': 'Session instructions preview',
   'createSession.airsoftGameType': 'Airsoft game type',
   'createSession.airsoftTypeOptional': 'Not specified',
