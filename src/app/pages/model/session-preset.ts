@@ -1,6 +1,7 @@
 /** A reusable configuration, never a scheduled event. Passwords and dates are not persisted. */
 export interface SessionPresetSettings {
   sport: string;
+  airsoftGameType?: 'SKIRMISH' | 'MILSIM' | 'CAPTURE_THE_FLAG' | null;
   playFormat: 'INDIVIDUAL' | 'PAIRS';
   city: string;
   address: string;
