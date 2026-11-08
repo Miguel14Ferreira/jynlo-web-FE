@@ -214,6 +214,17 @@ describe('SessionDetailsComponent', () => {
     fixture.detectChanges();
   });
 
+  it('does not display an unknown Airsoft format from the API', () => {
+    component.session = {
+      ...session, sport: 'Airsoft',
+      airsoftGameType: 'UNRECOGNIZED' as any,
+      canSeeExactAddress: false
+    };
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('#session-airsoft-game-type')).toBeNull();
+    expect(fixture.nativeElement.querySelector('#session-meeting-point')).toBeNull();
+  });
+
   it('shows a public Airsoft game type without exposing private meeting instructions', () => {
     component.session = {
       ...session, sport: 'Airsoft', airsoftGameType: 'MILSIM',
