@@ -2013,10 +2013,25 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   canGenerateTeams(): boolean {
+    const sport = this.session?.sport;
+    const eligibleTeamSports = new Set([
+      'Andebol', 'Basebol', 'Basquetebol', 'Basquetebol 3x3', 'Corfebol',
+      'Cricket', 'Curling', 'Flag Football', 'Futebol', 'Futebol Americano',
+      'Futsal', 'Hóquei', 'Hóquei em Campo', 'Hóquei em Patins',
+      'Hóquei no Gelo', 'Lacrosse', 'Polo Aquático', 'Rugby',
+      'Rugby Sevens', 'Softbol', 'Voleibol', 'Voleibol de Praia'
+    ]);
+    const capacity = this.session?.maxParticipants ?? 0;
+    const validFormat = capacity >= 4 && capacity % 2 === 0
+      && (sport !== 'Basquetebol 3x3' || capacity === 6)
+      && (sport !== 'Rugby Sevens' || capacity === 14)
+      && (sport !== 'Voleibol de Praia' || capacity === 4);
     return Boolean(
       this.session
       && this.isCreator()
       && this.session.communityId
+      && sport && eligibleTeamSports.has(sport)
+      && validFormat
       && this.isFull()
       && this.session.status !== 'CANCELLED'
       && this.session.status !== 'COMPLETED'
