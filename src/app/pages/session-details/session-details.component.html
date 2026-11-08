@@ -932,7 +932,9 @@
                           } @else {
                             <a class="session-profile-link" [routerLink]="['/menu/perfis',player.username]">{{ '@' + player.username }}</a>
                           }
-                          @if (teamsScoreSource === 'EXCEL_POINTS') {
+                          @if (teamsScoreSource === 'RANDOM') {
+                            <small>{{ 'sessionDetail.randomTeamsNoRanking' | t }}</small>
+                          } @else if (teamsScoreSource === 'EXCEL_POINTS') {
                             <small>{{ player.statsAvailable
                               ? ('sessionDetail.excelPlayerPoints' | t:{ points: player.strengthScore })
                               : ('sessionDetail.excelPlayerUnranked' | t:{ points: player.strengthScore }) }}</small>
