@@ -2921,7 +2921,7 @@ describe('SessionDetailsComponent', () => {
 
     component.confirmTeams();
 
-    expect(sessionService.confirmTeams).toHaveBeenCalledWith(7, 'FORM');
+    expect(sessionService.confirmTeams).toHaveBeenCalledWith(7, 'FORM', component.teamSuggestion);
     expect(component.teamsSuccess).toContain('confirmadas');
     expect(component.teamSuggestionPendingConfirmation).toBeFalse();
     expect(component.hasConfirmedTeams()).toBeTrue();
@@ -3663,4 +3663,25 @@ describe('SessionDetailsComponent', () => {
     // Historical label is never rewritten as a real user's account name.
     expect(card.querySelector('.session-player-card__name')?.textContent).toContain('André (Borralho)');
   });
+  it('offers random teams without standings and confirms the exact preview', () => {
+    component.session = {
+      ...session, communityId: 9, sport: 'Futebol', teamBalanceSupported: false,
+      participantCount: 10, maxParticipants: 10, status: 'FULL'
+    };
+    fixture.detectChanges();
+    expect(component.canGenerateTeams()).toBeTrue();
+    const panel: HTMLElement = fixture.nativeElement.querySelector('.team-generator');
+    expect(panel).toBeTruthy();
+    expect(panel.querySelector('.team-generator-excel-action')).toBeNull();
+    const randomButton = Array.from(panel.querySelectorAll('button'))
+      .find(button => button.textContent?.includes('Equipas aleatórias')) as HTMLButtonElement;
+    expect(randomButton).toBeTruthy();
+    randomButton.click();
+    expect(sessionService.teamSuggestion).toHaveBeenCalledWith(7, 'RANDOM');
+    const preview = component.teamSuggestion;
+    expect(preview).toBeTruthy();
+    component.confirmTeams();
+    expect(sessionService.confirmTeams).toHaveBeenCalledWith(7, 'RANDOM', preview);
+  });
+
 });
