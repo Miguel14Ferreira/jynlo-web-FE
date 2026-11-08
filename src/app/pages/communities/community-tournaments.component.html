@@ -21,6 +21,83 @@
     </div>
   </div>
 
+
+  <section class="create-tournament" aria-label="Campeonatos da comunidade">
+    <div class="create-tournament-heading">
+      <div class="create-tournament-intro">
+        <p class="tournament-eyebrow">Épocas e competições</p>
+        <h4>Campeonatos</h4>
+        <p>Organiza várias ligas, taças ou provas independentes numa única época. Os torneios continuam a funcionar normalmente.</p>
+      </div>
+      @if (canManage) {
+        <button type="button" class="t-btn t-btn-primary" (click)="championshipOpen = !championshipOpen">
+          {{ championshipOpen ? 'Fechar' : 'Criar campeonato' }}
+        </button>
+      }
+    </div>
+    @if (championshipError) {
+      <p class="notice notice-error" role="alert">{{ championshipError }}</p>
+    }
+    @if (championshipOpen && canManage) {
+      <div class="create-controls">
+        <div class="create-field">
+          <label for="championship-name">Nome do campeonato</label>
+          <input id="championship-name" maxlength="120" [(ngModel)]="championshipNameDraft"
+            placeholder="Ex.: Campeonato da Comunidade">
+        </div>
+        <div class="create-field">
+          <label for="championship-season">Época</label>
+          <input id="championship-season" maxlength="50" [(ngModel)]="championshipSeasonDraft"
+            placeholder="Ex.: 2026/27">
+        </div>
+        <div class="create-field">
+          <label for="championship-sport">Modalidade</label>
+          <select id="championship-sport" [(ngModel)]="championshipSportDraft">
+            @for (sport of communitySportOptions; track sport) {
+              <option [value]="sport">{{ sport }}</option>
+            }
+          </select>
+        </div>
+        <button type="button" class="t-btn t-btn-primary"
+          [disabled]="championshipBusy || !championshipNameDraft.trim() || !championshipSeasonDraft.trim() || !championshipSportDraft"
+          (click)="createChampionship()">Guardar campeonato</button>
+      </div>
+    }
+    @for (championship of championships; track championship.id) {
+      <div class="create-step">
+        <div class="create-step-heading">
+          <div>
+            <h5>{{ championship.name }}</h5>
+            <p>{{ championship.sport }} · {{ championship.seasonLabel }}</p>
+          </div>
+        </div>
+        @if (championship.competitions.length) {
+          <ul>
+            @for (competition of championship.competitions; track competition.id) {
+              <li>{{ competition.name }} · {{ competition.format }} · {{ competition.status }}</li>
+            }
+          </ul>
+        } @else {
+          <p>Ainda não existem provas associadas.</p>
+        }
+        @if (canManage && championshipAvailableTournaments(championship).length) {
+          <div class="create-field">
+            <label [for]="'championship-add-' + championship.id">Associar prova existente</label>
+            <select [id]="'championship-add-' + championship.id" #competitionChoice>
+              <option value="">Escolher prova</option>
+              @for (competition of championshipAvailableTournaments(championship); track competition.id) {
+                <option [value]="competition.id">{{ competition.name }}</option>
+              }
+            </select>
+            <button type="button" class="t-btn t-btn-secondary"
+              [disabled]="championshipBusy || !competitionChoice.value"
+              (click)="linkChampionshipCompetition(championship, +competitionChoice.value)">Associar</button>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
   @if (error) {
     <div #errorNotice class="notice notice-error" role="alert" tabindex="-1">{{ error }}</div>
   }
