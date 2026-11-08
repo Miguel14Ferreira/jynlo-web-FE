@@ -78,6 +78,22 @@
               <li>
                 <strong>{{ competition.name }}</strong> · {{ competition.format }} · {{ competition.status }}
                 <span> · {{ competition.winnerPoints }} pontos por vitória na prova</span>
+                @if (competition.pointsByPlace) {
+                  <p>Pontos por posição configurados: {{ competition.pointsByPlace }}</p>
+                }
+                @if (canManage && competition.status === 'DRAFT') {
+                  <label [for]="'placement-points-' + competition.id">Pontuação por posição (1.º, 2.º, 3.º...)</label>
+                  <input [id]="'placement-points-' + competition.id"
+                    type="text" maxlength="120" #placementPointsInput
+                    [value]="competition.pointsByPlace || '25,18,15,10,8,6,4,2,1,0'"
+                    placeholder="25,18,15,10,8,6,4,2,1,0">
+                  <button type="button" class="t-btn t-btn-secondary"
+                    [disabled]="championshipBusy"
+                    (click)="setChampionshipPlacementPoints(championship, competition.id, placementPointsInput.value)">
+                    Guardar regulamento
+                  </button>
+                  <small>Os pontos das restantes posições serão aplicados apenas quando os resultados finais forem verificáveis.</small>
+                }
                 @if (canManage && competition.status === 'DRAFT') {
                   <label [for]="'winner-points-' + competition.id">Pontos:</label>
                   <input type="number" min="0" max="10000" step="1"
