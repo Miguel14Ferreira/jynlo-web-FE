@@ -178,7 +178,7 @@ describe('Community creation onboarding', () => {
       expect(label()).toBe('Community sports (optional)');
       expect(hint()).toContain('Choose one or more sports.');
       expect(selected()).toBe('Selected sports');
-      expect(remove()).toBe('Remove Padel');
+      expect(remove()).toBe('Remove Airsoft');
       expect(placeholder()).toBe('Search for a sport, e.g. padel');
       expect(suggestions()).toBe('Sport suggestions');
     } finally {
