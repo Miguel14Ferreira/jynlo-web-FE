@@ -74,12 +74,42 @@
         @if (championship.competitions.length) {
           <ul>
             @for (competition of championship.competitions; track competition.id) {
-              <li>{{ competition.name }} · {{ competition.format }} · {{ competition.status }}</li>
+              <li>
+                <strong>{{ competition.name }}</strong> · {{ competition.format }} · {{ competition.status }}
+                <span> · {{ competition.winnerPoints }} pontos por vitória na prova</span>
+                @if (canManage) {
+                  <label [for]="'winner-points-' + competition.id">Pontos:</label>
+                  <input type="number" min="0" max="10000" step="1"
+                    [id]="'winner-points-' + competition.id" [value]="competition.winnerPoints"
+                    #winnerPointsInput style="width:6rem">
+                  <button type="button" class="t-btn t-btn-secondary"
+                    [disabled]="championshipBusy"
+                    (click)="setChampionshipWinnerPoints(championship, competition.id, winnerPointsInput.value)">Guardar pontos</button>
+                }
+              </li>
             }
           </ul>
         } @else {
           <p>Ainda não existem provas associadas.</p>
         }
+        <div class="create-step">
+          <h5>Classificação por vitórias nas provas</h5>
+          <p>Classificação provisória: soma apenas os pontos atribuídos a vencedores confirmados de provas concluídas. As restantes posições ainda não contam.</p>
+          @if (championship.winnerStandings.length) {
+            <ol>
+              @for (leader of championship.winnerStandings; track leader.entryType + '-' + leader.participantId) {
+                <li>
+                  <strong>{{ leader.name }}</strong>
+                  · {{ leader.entryType === 'TEAM' ? 'Equipa' : 'Individual' }}
+                  · {{ leader.victories }} vitória(s)
+                  · {{ leader.points }} pontos
+                </li>
+              }
+            </ol>
+          } @else {
+            <p>Ainda não há vencedores confirmados em provas concluídas.</p>
+          }
+        </div>
         @if (canManage && championshipAvailableTournaments(championship).length) {
           <div class="create-field">
             <label [for]="'championship-add-' + championship.id">Associar prova existente</label>
