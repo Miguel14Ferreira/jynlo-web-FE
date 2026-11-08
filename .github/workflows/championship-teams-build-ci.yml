@@ -1,0 +1,24 @@
+name: Jynlo championship teams build CI
+on:
+  push:
+    branches: [develop]
+    paths:
+      - '.github/workflows/championship-teams-build-ci.yml'
+      - 'src/app/services/community-championships.service.ts'
+      - 'src/app/pages/communities/community-tournaments.component.ts'
+      - 'src/app/pages/communities/community-tournaments.component.html'
+      - 'src/app/pages/communities/community-tournaments.component.spec.ts'
+  workflow_dispatch:
+jobs:
+  production-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.3'
+          cache: npm
+      - run: npm ci
+      - name: Compile Angular production build separately from unrelated session tests
+        run: npm run build
