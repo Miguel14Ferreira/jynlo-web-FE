@@ -137,34 +137,21 @@ describe('Events2Component', () => {
     expect(component.airsoftGameType).toBe('');
   });
 
-  it('explains that the Airsoft game type is private while showing the preview', () => {
+  it('shows only private instructions in the Airsoft preview, not the public game type', () => {
     component.sport = 'Airsoft';
     component.airsoftGameType = 'MILSIM';
+    component.meetingPointInstructions = 'Entrada principal';
     fixture.detectChanges();
 
     const preview = fixture.nativeElement.querySelector('#airsoft-instructions-preview') as HTMLElement;
     expect(preview).not.toBeNull();
-    expect(preview.textContent).toContain(component.sessionMeetingInstructions!);
-    expect(preview.textContent).toContain('localização exata');
+    expect(preview.textContent).toContain('Entrada principal');
+    expect(preview.textContent).not.toContain('Airsoft: MilSim');
+    expect(preview.textContent).toContain('O tipo de jogo é público');
 
     component.airsoftGameType = '';
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('#airsoft-instructions-preview')).toBeNull();
-  });
-
-  it('warns organizers that Airsoft game type is visible only with meeting point access', () => {
-    component.sport = 'Airsoft';
-    component.airsoftGameType = 'MILSIM';
-    fixture.detectChanges();
-
-    const preview = fixture.nativeElement.querySelector('#airsoft-instructions-preview') as HTMLElement;
-    expect(preview).not.toBeNull();
-    expect(preview.textContent).toContain('Airsoft: MilSim');
-    expect(preview.textContent).toContain('localização exata');
-
-    component.airsoftGameType = '';
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('#airsoft-instructions-preview')).toBeNull();
+    expect(fixture.nativeElement.querySelector('#airsoft-instructions-preview')).not.toBeNull();
   });
 
   it('previews the exact Airsoft instructions sent to the API', () => {
@@ -205,7 +192,7 @@ describe('Events2Component', () => {
       jasmine.objectContaining({
         sport: 'Airsoft',
         airsoftGameType: 'MILSIM',
-        meetingPointInstructions: 'Airsoft: MilSim · Entrada principal'
+        meetingPointInstructions: 'Entrada principal'
       }),
       undefined
     );
