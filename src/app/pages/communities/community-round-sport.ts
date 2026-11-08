@@ -49,7 +49,7 @@ export const SPORTS_BY_RESULT_FORMAT: Record<CommunitySportFormat, readonly stri
     "Powerlifting", "Voo Livre",
   ],
   activity: [
-    "Caminhada", "Campismo", "Ginásio", "Montanhismo", "Musculação",
+    "Airsoft", "Caminhada", "Campismo", "Ginásio", "Montanhismo", "Musculação",
     "Pilates", "Yoga",
   ],
 };
