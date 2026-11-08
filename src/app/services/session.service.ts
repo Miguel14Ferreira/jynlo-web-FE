@@ -72,7 +72,7 @@ export interface SessionOverallRating {
   updatedAt: string;
 }
 
-export type SessionTeamScoreSource = 'FORM' | 'EXCEL_POINTS';
+export type SessionTeamScoreSource = 'FORM' | 'EXCEL_POINTS' | 'RANDOM';
 
 export interface SessionTeamPlayer {
   username: string;
@@ -386,10 +386,10 @@ export class SessionService {
     );
   }
 
-  confirmTeams(id: number, source: SessionTeamScoreSource = 'FORM'): Observable<SessionTeamSuggestion> {
+  confirmTeams(id: number, source: SessionTeamScoreSource = 'FORM', preview?: SessionTeamSuggestion): Observable<SessionTeamSuggestion> {
     return this.http.post<SessionTeamSuggestion>(
       this.baseUrl + '/' + id + '/teams/confirm',
-      null,
+      source === 'RANDOM' ? { teamA: preview?.teamA.map(player => player.username) ?? [], teamB: preview?.teamB.map(player => player.username) ?? [] } : null,
       { params: new HttpParams().set('source', source) }
     );
   }
