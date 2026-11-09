@@ -2621,6 +2621,47 @@ describe('SessionDetailsComponent', () => {
     expect(fixture.nativeElement.querySelector('.sync-status')).toBeNull();
   });
 
+  it('opens the session chat inline without redirecting to messages', () => {
+    component.session = {
+      ...session, joined: true, creatorUsername: 'different-user',
+      status: 'OPEN', gameDate: new Date(Date.now() + 3_600_000).toISOString()
+    };
+    sessionService.messages.and.returnValue(of([
+      { id: 11, sessionId: 7, senderUsername: 'player-one',
+        body: 'Levo a bola', createdAt: new Date().toISOString() }
+    ]));
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const toggle = root.querySelector<HTMLButtonElement>('.session-inline-chat-toggle');
+    expect(toggle).not.toBeNull();
+    expect(toggle?.getAttribute('aria-expanded')).toBe('false');
+    toggle!.click();
+    fixture.detectChanges();
+    expect(sessionService.messages).toHaveBeenCalledWith(7);
+    expect(root.querySelector('.session-inline-chat-messages')?.textContent).toContain('Levo a bola');
+    expect(root.querySelector('.session-inline-chat-compose textarea')).not.toBeNull();
+    expect(toggle?.getAttribute('aria-expanded')).toBe('true');
+    toggle!.click();
+    fixture.detectChanges();
+    expect(root.querySelector('.session-inline-chat-messages')).toBeNull();
+    expect(toggle?.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('keeps session chat read-only once the game starts', () => {
+    component.session = {
+      ...session, joined: true,
+      status: 'COMPLETED', gameDate: '2020-01-01T10:00:00Z'
+    };
+    sessionService.messages.and.returnValue(of([]));
+    fixture.detectChanges();
+    const toggle = fixture.nativeElement.querySelector('.session-inline-chat-toggle') as HTMLButtonElement;
+    expect(toggle).not.toBeNull();
+    toggle.click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.session-inline-chat-messages')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.session-inline-chat-compose')).toBeNull();
+  });
+
   it('blocks a second session POST after network loss until delivery is verified', async () => {
     component.session = {
       ...session, joined: true,
@@ -3708,7 +3749,7 @@ describe('SessionDetailsComponent', () => {
     fixture.detectChanges();
     const toolbar = fixture.nativeElement.querySelector('.session-top-actions') as HTMLElement;
     expect(toolbar).not.toBeNull();
-    const chat = toolbar.querySelector('a[href*="/menu/messages"]') as HTMLElement;
+    const chat = toolbar.querySelector('.session-inline-chat-toggle') as HTMLElement;
     const invite = toolbar.querySelector('.session-invite-toggle') as HTMLElement;
     expect(chat).not.toBeNull();
     expect(invite).not.toBeNull();
