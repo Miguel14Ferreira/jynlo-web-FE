@@ -147,6 +147,11 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                     <span class="connect-share-live"><span aria-hidden="true">●</span>
                       {{ 'calls.liveShare' | t }}
                     </span>
+                    <button type="button" class="connect-focus-toggle"
+                      [attr.aria-pressed]="focusOnly"
+                      (click)="focusOnly = !focusOnly">
+                      {{ (focusOnly ? 'calls.showMembers' : 'calls.hideMembers') | t }}
+                    </button>
                     @if (presentingParticipants.length > 1) {
                       <nav class="connect-share-switcher" [attr.aria-label]="'calls.chooseSharedScreen' | t">
                         @for (person of presentingParticipants; track person.identity) {
@@ -180,7 +185,8 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                       </button>
                     </div>
                   }
-                  <div class="connect-camera-strip" [attr.aria-label]="'calls.callParticipants' | t">
+                  <div class="connect-camera-strip" [class.is-focus-hidden]="focusOnly"
+                    [attr.aria-label]="'calls.callParticipants' | t">
                     @for (person of participants; track person.identity) {
                       <app-call-participant-tile [participant]="person"
                         [label]="participantLabel(person)" [local]="person === calls.room?.localParticipant"
@@ -706,6 +712,15 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
     .connect-share-switcher{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
     .connect-share-switcher button{font:inherit;font-size:.75rem;border:1px solid #42736c;border-radius:9px;background:#153b47;color:#defff2;padding:5px 10px;cursor:pointer}
     .connect-share-switcher button.is-selected{border-color:#54e5bf;background:#20665d}
+    .connect-focus-toggle{margin-left:auto;border:1px solid #41766f;border-radius:9px;
+      padding:7px 11px;background:#143c48;color:#e5fff5;cursor:pointer;font:inherit;font-size:.76rem}
+    .connect-focus-toggle:hover{background:#205b62}
+    .connect-focus-toggle:focus-visible{outline:2px solid #9bffe1;outline-offset:2px}
+    /* Keep participant tiles mounted for remote audio while hiding the video filmstrip. */
+    .connect-camera-strip.is-focus-hidden{position:absolute!important;width:1px!important;height:1px!important;
+      min-height:0!important;padding:0!important;border:0!important;overflow:hidden!important;
+      clip-path:inset(50%);pointer-events:none}
+
     .connect-share-switcher button:focus-visible,.connect-self-share-heading button:focus-visible{outline:2px solid #9bffe1;outline-offset:2px}
     .connect-self-share-preview{flex:0 0 auto;display:flex;flex-direction:column;gap:7px;padding:8px 11px;border:1px solid #356961;border-radius:13px;background:#0a2531}
     .connect-self-share-heading{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
@@ -824,6 +839,7 @@ export class DirectCallOverlayComponent implements OnDestroy {
   focusedPresentationIdentity: string | null = null;
   showOwnSharePreview = true;
   presentationZoomed = false;
+  focusOnly = false;
   private screenVolumes: Record<string, number> = {};
   screenVolumeFor(identity: string): number { return this.screenVolumes[identity] ?? 1; }
   setScreenVolume(identity: string, percent: number | string): void {
