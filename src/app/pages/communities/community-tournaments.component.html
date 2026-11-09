@@ -28,7 +28,19 @@
         <p class="tournament-eyebrow">Épocas e competições</p>
         <h4>Campeonatos</h4>
         <button type="button" class="t-btn t-btn-secondary" [disabled]="championshipBusy" (click)="refreshChampionships()">Atualizar classificações</button>
-        <p>Organiza várias ligas, taças ou provas independentes numa única época. Os torneios continuam a funcionar normalmente.</p>
+        <p>{{ 'communities.championshipConceptLead' | t }}</p>
+        <div class="championship-concept-compare" role="group"
+          [attr.aria-label]="'communities.championshipHelpTitle' | t">
+          <div class="championship-concept-card">
+            <h5>{{ 'communities.tournamentConceptTitle' | t }}</h5>
+            <p>{{ 'communities.tournamentConceptText' | t }}</p>
+          </div>
+          <div class="championship-concept-card championship-concept-card--series">
+            <h5>{{ 'communities.championshipConceptTitle' | t }}</h5>
+            <p>{{ 'communities.championshipConceptText' | t }}</p>
+          </div>
+        </div>
+        <p class="championship-concept-example">{{ 'communities.championshipConceptExample' | t }}</p>
         <button type="button" class="t-btn t-btn-secondary championship-learn-toggle"
           aria-controls="championship-explanation" [attr.aria-expanded]="championshipExplainerOpen"
           (click)="championshipExplainerOpen = !championshipExplainerOpen">
