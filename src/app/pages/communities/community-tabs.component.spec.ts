@@ -66,6 +66,39 @@ describe('CommunityTabsComponent', () => {
     expect(fixture.componentInstance.activeTab).toBe('home');
   });
 
+  it('navigates only visible community sections with arrow, Home and End keys', () => {
+    const fixture = render({ competitions: true, archives: true, rankings: true });
+    const buttons = Array.from((fixture.nativeElement as HTMLElement)
+      .querySelectorAll<HTMLButtonElement>('nav.community-tabs > button'));
+    const request = jasmine.createSpy('tab-request');
+    fixture.componentInstance.tabRequested.subscribe(request);
+    const move = (from: number, key: string, destination: number) => {
+      const focus = spyOn(buttons[destination], 'focus');
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      buttons[from].dispatchEvent(event);
+      expect(event.defaultPrevented).toBeTrue();
+      expect(focus).toHaveBeenCalled();
+    };
+    move(0, 'ArrowLeft', 7);
+    move(7, 'ArrowRight', 0);
+    move(2, 'ArrowRight', 3);
+    move(3, 'Home', 0);
+    move(0, 'End', 7);
+    expect(request).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.activeTab).toBe('home');
+  });
+
+  it('does not hijack Enter or unrelated keyboard shortcuts in community navigation', () => {
+    const fixture = render();
+    const button = (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLButtonElement>('nav.community-tabs > button')!;
+    for (const key of ['Enter', 'Escape', 'Tab']) {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      button.dispatchEvent(event);
+      expect(event.defaultPrevented).toBeFalse();
+    }
+  });
+
   it('keeps historical archive navigation without showing statistics when rankings are off', () => {
     const root = render({ archives: true, rankings: false }).nativeElement as HTMLElement;
     const buttons = root.querySelectorAll('.community-tabs button');
