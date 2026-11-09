@@ -12,6 +12,8 @@ on:
       - 'src/app/pages/communities/community-championship-team-profile.spec.ts'
       - 'src/app/pages/communities/community-championship-team-comparison.ts'
       - 'src/app/pages/communities/community-championship-team-comparison.spec.ts'
+      - 'src/app/pages/communities/community-championship-team-ranking-chart.ts'
+      - 'src/app/pages/communities/community-championship-team-ranking-chart.spec.ts'
       - 'src/app/pages/communities/community-team-honours-timeline.css'
   workflow_dispatch:
 jobs:
