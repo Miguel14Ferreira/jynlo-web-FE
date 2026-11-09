@@ -265,6 +265,82 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   sharingSession = false;
   cancelSessionConfirmOpen = false;
   cancelSessionWorking = false;
+  detailsEditing = false;
+  detailsSaving = false;
+  detailsError = '';
+  detailsSuccess = '';
+  detailsDraft = {
+    gameDate: '', maxParticipants: 2, minParticipants: 2,
+    priceAmount: 0, city: '', address: '', meetingPointInstructions: ''
+  };
+
+  beginDetailsEdit(): void {
+    if (!this.canEditCapacity() || this.detailsSaving || !this.session) return;
+    const value = new Date(this.session.gameDate);
+    const local = new Date(value.getTime() - value.getTimezoneOffset() * 60000);
+    this.detailsDraft = {
+      gameDate: local.toISOString().slice(0, 16),
+      maxParticipants: this.session.maxParticipants,
+      minParticipants: this.minimumToPlay(),
+      priceAmount: this.session.priceAmount ?? 0,
+      city: this.session.city || '',
+      address: this.session.address || '',
+      meetingPointInstructions: this.session.meetingPointInstructions || ''
+    };
+    this.detailsError = '';
+    this.detailsSuccess = '';
+    this.capacityEditing = false;
+    this.meetingPointEditing = false;
+    this.detailsEditing = true;
+  }
+
+  discardDetailsEdit(): void {
+    if (this.detailsSaving) return;
+    this.detailsEditing = false;
+    this.detailsError = '';
+  }
+
+  saveDetailsEdit(): void {
+    if (!this.detailsEditing || !this.canEditCapacity() || !this.sessionId
+        || !this.session || this.detailsSaving) return;
+    const d = this.detailsDraft;
+    const kickoff = new Date(d.gameDate);
+    if (!d.gameDate || !Number.isFinite(kickoff.getTime()) || kickoff.getTime() <= Date.now()
+        || !Number.isSafeInteger(d.maxParticipants) || d.maxParticipants < 2
+        || d.maxParticipants > 100 || !Number.isSafeInteger(d.minParticipants)
+        || d.minParticipants < 2 || d.minParticipants > d.maxParticipants
+        || d.maxParticipants < this.session.participantCount
+        || !Number.isFinite(d.priceAmount) || d.priceAmount < 0
+        || Math.round(d.priceAmount * 100) !== d.priceAmount * 100
+        || !d.city.trim() || !d.address.trim()) {
+      this.detailsError = t('sessionDetail.detailsInvalid');
+      return;
+    }
+    const id = this.sessionId;
+    this.detailsSaving = true;
+    this.detailsError = '';
+    this.detailsSuccess = '';
+    this.sessionService.updateDetails(id, {
+      gameDate: kickoff.toISOString(),
+      maxParticipants: d.maxParticipants,
+      minParticipants: d.minParticipants,
+      priceAmount: d.priceAmount,
+      city: d.city.trim(), address: d.address.trim(),
+      meetingPointInstructions: d.meetingPointInstructions.trim() || null
+    }).pipe(timeout(12000), finalize(() => this.detailsSaving = false)).subscribe({
+      next: detail => {
+        if (this.sessionId !== id) return;
+        this.session = detail;
+        this.detailsEditing = false;
+        this.detailsSuccess = t('sessionDetail.detailsSaved');
+        this.loadSessionParticipants(true);
+      },
+      error: error => {
+        this.detailsError = this.errorFrom(error, t('sessionDetail.detailsSaveError'));
+      }
+    });
+  }
+
   capacityEditing = false;
   capacityDraft = 0;
   capacitySaving = false;
