@@ -530,9 +530,17 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
 
   onCommunityChatEnter(event: Event): void {
     const keyboard = event as KeyboardEvent;
-    if (keyboard.shiftKey || keyboard.isComposing || keyboard.keyCode === 229) return;
+    if (keyboard.isComposing || keyboard.keyCode === 229) return;
+    if (keyboard.key === 'Escape') {
+      if (this.replyingToCommunityMessage && !this.timelineSending && !this.chatDeliveryUncertain) {
+        keyboard.preventDefault();
+        this.cancelCommunityReply();
+      }
+      return;
+    }
+    if (keyboard.key !== 'Enter' || keyboard.shiftKey || keyboard.ctrlKey || keyboard.altKey || keyboard.metaKey) return;
     keyboard.preventDefault();
-    this.sendTimeline();
+    if (!this.timelineSending && !this.chatDeliveryUncertain && this.chatDraft.trim()) this.sendTimeline();
   }
 
   private isUncertainChatError(error: unknown): boolean {
