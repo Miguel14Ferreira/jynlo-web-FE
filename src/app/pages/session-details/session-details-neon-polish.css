@@ -263,3 +263,98 @@
 .session-manual-team-move:hover { background: rgba(6, 104, 97, .55); }
 .session-manual-team-move:focus-visible { outline: 2px solid #8cffe5; outline-offset: 2px; }
 .session-manual-team-move:disabled { opacity: .5; cursor: not-allowed; }
+
+
+/* Inline session chat: the conversation remains on the session detail screen. */
+.session-inline-chat {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  margin: 16px 0;
+  padding: clamp(14px, 2vw, 22px);
+  border: 1px solid rgba(48, 214, 191, .35);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(5, 36, 50, .97), rgba(8, 50, 61, .96));
+}
+.session-inline-chat-heading, .session-inline-chat-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.session-inline-chat-heading h2 { margin: 0 0 5px; font-size: 1.15rem; color: #f2fffd; }
+.session-inline-chat-heading p { margin: 0; color: #bcd7dc; font-size: .86rem; }
+.session-inline-chat-actions { justify-content: flex-end; }
+.session-inline-chat-messages {
+  min-height: 180px;
+  max-height: min(52vh, 430px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(1, 20, 34, .62);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.session-inline-chat-day { align-self: center; color: #acced6; font-size: .75rem; }
+.session-inline-chat-message {
+  align-self: flex-start;
+  max-width: min(90%, 570px);
+  min-width: 0;
+  padding: 10px 13px;
+  border: 1px solid rgba(101, 167, 180, .24);
+  border-radius: 13px 13px 13px 3px;
+  background: #123646;
+  overflow-wrap: anywhere;
+}
+.session-inline-chat-message--own {
+  align-self: flex-end;
+  border-color: rgba(69, 230, 197, .3);
+  border-radius: 13px 13px 3px 13px;
+  background: #0d5254;
+}
+.session-inline-chat-message strong { font-size: .78rem; color: #8ce8d7; }
+.session-inline-chat-message p { margin: 5px 0; color: #f2fcfd; white-space: pre-wrap; line-height: 1.5; }
+.session-inline-chat-message blockquote {
+  margin: 6px 0;
+  padding: 6px 9px;
+  border-left: 3px solid #40d9bf;
+  color: #c8e5e9;
+  background: rgba(0, 15, 24, .2);
+}
+.session-inline-chat-message footer {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 12px; font-size: .72rem; color: #b4d3db;
+}
+.session-inline-chat-message footer button {
+  padding: 3px 0;
+  border: 0; background: transparent; color: #86efda;
+  cursor: pointer; font: inherit;
+}
+.session-inline-chat-empty, .session-inline-chat-closed {
+  margin: auto 0; color: #bcd4dc; text-align: center;
+}
+.session-inline-chat-reply { display: flex; justify-content: space-between; gap: 10px; color: #c9eee9; }
+.session-inline-chat-reply button { background: transparent; border: 0; color: #c9eee9; cursor: pointer; }
+.session-inline-chat-compose { display: flex; gap: 10px; align-items: flex-end; }
+.session-inline-chat-compose textarea {
+  flex: 1; min-width: 0; box-sizing: border-box;
+  resize: vertical; border: 1px solid rgba(116, 180, 188, .45);
+  border-radius: 12px; padding: 11px 13px; color: #f2fffd;
+  background: #061e2b; font: inherit;
+}
+.session-inline-chat-feedback { margin: 0; color: #ffc0c0; }
+.session-inline-chat-latest {
+  justify-self: center; padding: 7px 15px; border-radius: 100px;
+  border: 1px solid #4eecd4; color: #b3ffed; background: #075259;
+  cursor: pointer;
+}
+.session-inline-chat button:focus-visible, .session-inline-chat textarea:focus-visible {
+  outline: 2px solid #80ffdd; outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  .session-inline-chat-compose { flex-direction: column; align-items: stretch; }
+  .session-inline-chat-message { max-width: 95%; }
+}
