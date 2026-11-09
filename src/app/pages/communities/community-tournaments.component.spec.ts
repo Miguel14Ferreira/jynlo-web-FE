@@ -5946,6 +5946,40 @@ describe('Community tournaments management', () => {
     expect(component.championshipHistoryView).toBe('ACTIVE');
   });
 
+  it('clears historical team data on championship refresh to avoid stale cross-revision views', () => {
+    component.championships = [{
+      id: 11, communityId: 7, name: 'Época anterior',
+      seasonLabel: '2025/26', sport: 'Futebol', createdAt: '2025-01-01T00:00:00Z',
+      closedAt: '2026-01-01T00:00:00Z', competitions: [], winnerStandings: [],
+      championEntryType: 'TEAM', championParticipantId: 15, championDisplayName: 'Águias'
+    }];
+    component.championshipAggregateStandings = {
+      11: { championshipId: 11, standings: [], fullyScoredCompetitions: 0,
+        winnerOnlyCompetitions: 0, pendingCompetitions: 0 }
+    };
+    component.championshipTeamRegistries = {
+      11: { championshipId: 11, teams: [{ id: 15, name: 'Águias', permanentTeamId: 90 }],
+        competitionTeams: [] }
+    };
+    component.permanentTeamRegistry = {
+      communityId: 7, teams: [{ id: 90, name: 'Águias' }]
+    };
+    component.championshipHonours = {
+      communityId: 7, completedSeasons: 1,
+      titles: [], individualHonours: [], teamHonours: [], competitionTitles: []
+    };
+    component.openPermanentTeamProfile(90);
+    component.rankingChartSport = 'Futebol';
+    component.chooseComparisonOlder(11);
+    component.refreshChampionships();
+    expect(component.championships).toEqual([]);
+    expect(component.championshipTeamRegistries).toEqual({});
+    expect(component.championshipAggregateStandings).toEqual({});
+    expect(component.selectedPermanentTeamId).toBeNull();
+    expect(component.rankingChartSport).toBe('');
+    expect(component.comparisonOlderChampionshipId).toBeNull();
+  });
+
   it('opens and closes a permanent team detail only for this community', () => {
     component.permanentTeamRegistry = {
       communityId: 7, teams: [{ id: 90, name: 'Águias FC' }]
