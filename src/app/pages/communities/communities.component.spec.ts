@@ -1383,6 +1383,45 @@ describe('CommunitiesComponent public session eligibility', () => {
     expect(component.replyingToCommunityMessage).toBeNull();
   });
 
+  it('supports Escape to cancel replies and preserves Shift+Enter and modified Enter', () => {
+    component.selected = { id: 7 } as any;
+    component.activeTab = 'chat';
+    component.timelineSending = false;
+    component.chatDeliveryUncertain = false;
+    component.chatDraft = 'Olá';
+    component.replyingToCommunityMessage = {
+      id: 21, communityId: 7, kind: 'CHAT', username: 'ana', body: 'Vamos jogar?'
+    } as any;
+    const send = spyOn(component, 'sendTimeline');
+    const key = (value: string, flags: Partial<KeyboardEvent> = {}) => ({
+      key: value, shiftKey: false, ctrlKey: false, altKey: false, metaKey: false,
+      isComposing: false, keyCode: 0, preventDefault: jasmine.createSpy('preventDefault'),
+      ...flags
+    });
+    const escape = key('Escape');
+    component.onCommunityChatEnter(escape as unknown as Event);
+    expect(component.replyingToCommunityMessage).toBeNull();
+    expect(component.chatDraft).toBe('Olá');
+    expect(escape.preventDefault).toHaveBeenCalled();
+
+    for (const event of [key('Enter', { shiftKey: true }), key('Enter', { ctrlKey: true }),
+      key('a'), key('Enter', { isComposing: true })]) {
+      component.onCommunityChatEnter(event as unknown as Event);
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    }
+    const enter = key('Enter');
+    component.onCommunityChatEnter(enter as unknown as Event);
+    expect(enter.preventDefault).toHaveBeenCalled();
+    expect(send).toHaveBeenCalledTimes(1);
+
+    component.replyingToCommunityMessage = { id: 22 } as any;
+    component.chatDeliveryUncertain = true;
+    const locked = key('Escape');
+    component.onCommunityChatEnter(locked as unknown as Event);
+    expect(component.replyingToCommunityMessage?.id).toBe(22);
+    expect(locked.preventDefault).not.toHaveBeenCalled();
+  });
+
   it('shows Portuguese labels for standard English Excel headers without changing source mappings', () => {
     const previous = localStorage.getItem('d24-language');
     try {
