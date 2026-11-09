@@ -2884,6 +2884,48 @@ describe('SessionDetailsComponent', () => {
     expect(fixture.nativeElement.querySelector('.team-generator-excel-action')).toBeNull();
   });
 
+  it('lets an organizer choose teams manually and blocks uneven confirmation', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = {
+      ...session, creatorUsername: 'creator-user', joined: true,
+      communityId: 9, sport: 'Futebol', teamBalanceSupported: false,
+      participantCount: 4, maxParticipants: 4, status: 'FULL'
+    };
+    const player = (username: string) => ({
+      username, strengthScore: 0, statsAvailable: false,
+      games: 0, wins: 0, goals: 0, assists: 0
+    });
+    sessionService.teamSuggestion.and.returnValue(of({
+      teamA: [player('one'), player('two')],
+      teamB: [player('three'), player('four')],
+      teamAScore: 0, teamBScore: 0, playersWithStats: 0, totalPlayers: 4
+    }));
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const manual = Array.from(root.querySelectorAll<HTMLButtonElement>('.team-generator-actions button'))
+      .find(button => button.textContent?.includes('Escolher equipas manualmente'));
+    expect(manual).toBeDefined();
+    manual!.click();
+    fixture.detectChanges();
+    expect(sessionService.teamSuggestion).toHaveBeenCalledWith(7, 'MANUAL');
+    expect(component.teamsScoreSource).toBe('MANUAL');
+    expect(root.querySelectorAll('.session-manual-team-move').length).toBe(4);
+    component.moveSuggestedPlayer('two', 'A');
+    fixture.detectChanges();
+    expect(component.manualTeamsBalanced).toBeFalse();
+    expect(root.querySelector<HTMLButtonElement>('.team-suggestion button.primary-action')?.disabled).toBeTrue();
+    component.confirmTeams();
+    expect(sessionService.confirmTeams).not.toHaveBeenCalled();
+    component.moveSuggestedPlayer('three', 'B');
+    fixture.detectChanges();
+    expect(component.manualTeamsBalanced).toBeTrue();
+    component.confirmTeams();
+    expect(sessionService.confirmTeams).toHaveBeenCalledWith(7, 'MANUAL', jasmine.objectContaining({
+      teamA: jasmine.arrayContaining([jasmine.objectContaining({ username: 'three' })]),
+      teamB: jasmine.arrayContaining([jasmine.objectContaining({ username: 'two' })])
+    }));
+  });
+
   it('should generate balanced teams for a full community session created by the viewer', () => {
     (component as any).currentUsername = 'creator-user';
     component.session = {
