@@ -242,7 +242,7 @@ export class SessionService {
   }
 
   updateDetails(id: number, fields: {
-    gameDate: string; maxParticipants: number; minParticipants: number;
+    sport: string; gameDate: string; maxParticipants: number; minParticipants: number;
     priceAmount: number; city: string; address: string; meetingPointInstructions: string | null;
   }): Observable<SessionDetail> {
     return this.http.patch<SessionDetail>(this.baseUrl + '/' + id + '/details', fields);
