@@ -590,7 +590,10 @@
                 @if (replyingToCommunityMessage) {
                   <div class="community-chat-reply">
                     <span>{{ 'communities.chatReplyingTo' | t }} {{ replyingToCommunityMessage.username }}</span>
-                    <button type="button" (click)="cancelCommunityReply()">×</button>
+                    <button type="button" (click)="cancelCommunityReply()"
+                      [disabled]="timelineSending || chatDeliveryUncertain"
+                      [attr.aria-label]="'communities.chatCancelReply' | t"
+                      [title]="'communities.chatCancelReply' | t">×</button>
                   </div>
                 }
                 @if (chatDeliveryUncertain) {
