@@ -67,7 +67,7 @@ describe('SessionDetailsComponent', () => {
     directChatService.send.and.returnValue(of({} as any));
     sessionService = jasmine.createSpyObj<SessionService>(
       'SessionService',
-      ['detail', 'context', 'postGameCommunities', 'joinCommunityAfterGame', 'updateMeetingPoint', 'join', 'leave', 'cancel', 'complete', 'reportDidNotOccur', 'reportProblem', 'messages', 'postMessage', 'participants', 'removeParticipant', 'teamSuggestion', 'confirmTeams', 'futureExclusionStatus', 'excludeFromFutureSessions', 'allowFutureSessions', 'myOverallRating', 'rateOverall', 'myVenueRating', 'rateVenue', 'sentCompliments', 'receivedCompliments', 'giveCompliment', 'issueGuestLink', 'guestRequests', 'confirmedGuests', 'reviewGuestRequest', 'cancelGuestRequest']
+      ['detail', 'context', 'postGameCommunities', 'joinCommunityAfterGame', 'updateMeetingPoint', 'updateCapacity', 'join', 'leave', 'cancel', 'complete', 'reportDidNotOccur', 'reportProblem', 'messages', 'postMessage', 'participants', 'removeParticipant', 'teamSuggestion', 'confirmTeams', 'futureExclusionStatus', 'excludeFromFutureSessions', 'allowFutureSessions', 'myOverallRating', 'rateOverall', 'myVenueRating', 'rateVenue', 'sentCompliments', 'receivedCompliments', 'giveCompliment', 'issueGuestLink', 'guestRequests', 'confirmedGuests', 'reviewGuestRequest', 'cancelGuestRequest']
     );
     sessionService.detail.and.returnValue(of(session));
     sessionService.context.and.returnValue(of({communities:[],seasonGame:false,seasonName:null}));
@@ -86,6 +86,7 @@ describe('SessionDetailsComponent', () => {
     sessionService.updateMeetingPoint.and.returnValue(of({
       ...session, canSeeExactAddress: true, meetingPointInstructions: 'Novo portão'
     }));
+    sessionService.updateCapacity.and.returnValue(of({ ...session, maxParticipants: 6 }));
     sessionService.complete.and.returnValue(of(void 0));
     sessionService.reportDidNotOccur.and.returnValue(of(void 0));
     sessionService.reportProblem.and.returnValue(of(void 0));
