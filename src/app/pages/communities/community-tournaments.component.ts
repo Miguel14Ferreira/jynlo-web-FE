@@ -1,4 +1,5 @@
 import { CommunityChampionshipsService, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
+import { championshipTeamProfile, ChampionshipTeamProfile } from './community-championship-team-profile';
 import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { finalize, firstValueFrom, forkJoin, Observable, timeout } from 'rxjs';
 import { CommunityGroup } from '../model/community-group';
@@ -127,6 +128,26 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.changeDetector.markForCheck();
       }
     });
+  }
+
+  selectedPermanentTeamId: number | null = null;
+
+  get selectedPermanentTeamProfile(): ChampionshipTeamProfile | null {
+    if (this.selectedPermanentTeamId === null || !this.championshipHonours) return null;
+    return championshipTeamProfile(
+      this.selectedPermanentTeamId, this.championshipHonours,
+      this.championships, this.championshipTeamRegistries, this.permanentTeamRegistry);
+  }
+
+  openPermanentTeamProfile(permanentTeamId: number): void {
+    if (!this.permanentTeamRegistry?.teams.some(team => team.id === permanentTeamId)) return;
+    this.championshipHistoryView = 'HISTORY';
+    this.selectedPermanentTeamId = permanentTeamId;
+    this.expandedArchivedChampionshipId = null;
+  }
+
+  closePermanentTeamProfile(): void {
+    this.selectedPermanentTeamId = null;
   }
 
   championshipHonours: CommunityChampionshipHonours | null = null;
@@ -284,11 +305,13 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   showChampionshipHistory(): void {
+    this.selectedPermanentTeamId = null;
     this.championshipHistoryView = 'HISTORY';
     this.expandedArchivedChampionshipId = null;
   }
 
   showActiveChampionships(): void {
+    this.selectedPermanentTeamId = null;
     this.championshipHistoryView = 'ACTIVE';
     this.expandedArchivedChampionshipId = null;
   }
@@ -1610,6 +1633,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.championshipAggregateStandings = {};
       this.championshipHonours = null;
       this.permanentTeamRegistry = null;
+      this.selectedPermanentTeamId = null;
       this.permanentTeamNameDraft = '';
       this.championshipHonoursSportFilter = '';
       this.championshipHonoursError = '';
