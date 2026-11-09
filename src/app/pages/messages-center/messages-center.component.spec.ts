@@ -1410,6 +1410,34 @@ describe('Unified Jynlo message center', () => {
     expect(player.muted).toBeFalse();
   });
 
+  it('uses chat-style controls for a voice draft and resets playback on removal', () => {
+    component.selectedAttachment = new File(['audio'], 'voz.webm', {type: 'audio/webm'});
+    component.voicePreviewUrl = 'blob:voice-draft';
+    const revoke = spyOn(URL, 'revokeObjectURL').and.stub();
+    const player = {
+      paused: true, ended: false, muted: false, duration: 8, currentTime: 0,
+      pause: jasmine.createSpy('pause'), play: jasmine.createSpy('play').and.returnValue(Promise.resolve()),
+      removeAttribute: jasmine.createSpy('removeAttribute'),
+      load: jasmine.createSpy('load')
+    } as unknown as HTMLAudioElement;
+    component.onVoicePreviewTimeUpdate(player);
+    expect(component.voicePreviewTimeLabel()).toBe('0:00 / 0:08');
+    component.seekVoicePreview(player, {target: {value: '50'}} as unknown as Event);
+    expect(player.currentTime).toBe(4);
+    expect(component.voicePreviewProgress()).toBe(50);
+    component.toggleVoicePreviewMute(player);
+    expect(player.muted).toBeTrue();
+    component.toggleVoicePreview(player);
+    expect(player.play).toHaveBeenCalled();
+    component.removeAttachment();
+    expect(player.pause).toHaveBeenCalled();
+    expect(player.removeAttribute).toHaveBeenCalledWith('src');
+    expect(component.voicePreviewUrl).toBeNull();
+    expect(component.voicePreviewTimeLabel()).toBe('0:00 / 0:00');
+    expect(component.voicePreviewMuted).toBeFalse();
+    expect(revoke).toHaveBeenCalledOnceWith('blob:voice-draft');
+  });
+
   it('pauses the preceding voice note when another begins playback', () => {
     const peer = item('direct', 'bea');
     component.conversations = [peer];
