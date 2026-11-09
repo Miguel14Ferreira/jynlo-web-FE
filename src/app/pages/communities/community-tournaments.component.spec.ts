@@ -81,9 +81,10 @@ describe('Community tournaments management', () => {
       markForCheck: jasmine.createSpy('markForCheck'),
       detectChanges: jasmine.createSpy('detectChanges')
     } as unknown as ChangeDetectorRef;
-    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours']);
+    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam']);
     championships.list.and.returnValue(of([]));
-    championships.honours.and.returnValue(of({ communityId: 7, completedSeasons: 0, titles: [], individualHonours: [] }));
+    championships.honours.and.returnValue(of({ communityId: 7, completedSeasons: 0, titles: [], individualHonours: [], teamHonours: [] }));
+    championships.permanentTeams.and.returnValue(of({ communityId: 7, teams: [] }));
     championships.teams.and.returnValue(of({ championshipId: 1, teams: [], competitionTeams: [] }));
     championships.standings.and.returnValue(of({
       championshipId: 1, standings: [], fullyScoredCompetitions: 0,
@@ -5947,14 +5948,14 @@ describe('Community tournaments management', () => {
 
   it('filters official championship honours by sport without changing stored titles', () => {
     component.championshipHonours = {
-      communityId: 7, completedSeasons: 2, individualHonours: [],
+      communityId: 7, completedSeasons: 2, individualHonours: [], teamHonours: [],
       titles: [
         { championshipId: 1, championshipName: 'Liga', seasonLabel: '2025/26',
           sport: 'Futebol', closedAt: '2026-06-01T00:00:00Z', entryType: 'TEAM',
-          participantId: 55, championName: 'Águias' },
+          participantId: 55, championName: 'Águias', permanentTeamId: null },
         { championshipId: 2, championshipName: 'Torneio', seasonLabel: '2025/26',
           sport: 'Padel', closedAt: '2026-06-02T00:00:00Z', entryType: 'INDIVIDUAL',
-          participantId: 77, championName: 'Ana' }
+          participantId: 77, championName: 'Ana', permanentTeamId: null }
       ]
     };
     expect(component.championshipHonoursSports).toEqual(['Futebol', 'Padel']);
