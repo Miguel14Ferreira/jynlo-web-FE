@@ -180,6 +180,48 @@ describe('Community tournaments management', () => {
     expect(championships.scheduleOwnedLeague).not.toHaveBeenCalled();
   });
 
+  it('draws a championship-owned cup without touching standalone tournaments', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const championship = { id: 15, closedAt: null } as any;
+    const cup = { id: 101, championshipId: 15, name: 'Taça', format: 'CUP',
+      status: 'DRAFT', createdAt: '2026-11-09T18:00:00Z' } as const;
+    component.championshipOwnedEvents[15] = [cup];
+    component.championshipOwnedEventTeams[101] = [
+      { id: 901, championshipTeamId: 30, name: 'Águias' },
+      { id: 902, championshipTeamId: 31, name: 'Leões' },
+      { id: 903, championshipTeamId: 32, name: 'Tigres' }
+    ];
+    const draw = {
+      matches: [{ id: 700, round: 1, match: 1, homeTeamId: 30,
+        homeTeamName: 'Águias', awayTeamId: 31, awayTeamName: 'Leões' }],
+      byes: [{ id: 701, slot: 1, teamId: 32, teamName: 'Tigres' }]
+    };
+    const independent = JSON.stringify(component.tournaments);
+    championships.drawOwnedCup.and.returnValue(of(draw));
+    component.generateChampionshipCup(championship, cup);
+    expect(championships.drawOwnedCup).toHaveBeenCalledOnceWith(7, 15, 101);
+    expect(component.championshipCupDraws[101]).toEqual(draw);
+    expect(component.championshipOwnedEvents[15][0].status).toBe('SCHEDULED');
+    expect(JSON.stringify(component.tournaments)).toBe(independent);
+  });
+
+  it('rejects a cup draw without enough teams or on a league format', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const championship = { id: 15, closedAt: null } as any;
+    const cup = { id: 101, championshipId: 15, name: 'Taça', format: 'CUP',
+      status: 'DRAFT', createdAt: '2026-11-09T18:00:00Z' } as const;
+    const league = { ...cup, id: 102, format: 'LEAGUE' as const };
+    component.championshipOwnedEventTeams[101] =
+      [{ id: 901, championshipTeamId: 30, name: 'Águias' }];
+    component.championshipOwnedEventTeams[102] = [
+      { id: 901, championshipTeamId: 30, name: 'Águias' },
+      { id: 902, championshipTeamId: 31, name: 'Leões' }
+    ];
+    component.generateChampionshipCup(championship, cup);
+    component.generateChampionshipCup(championship, league);
+    expect(championships.drawOwnedCup).not.toHaveBeenCalled();
+  });
+
   it('translates championship creation actions, fields and placeholders in PT/EN', () => {
     const previous = localStorage.getItem('d24-language');
     try {
@@ -268,11 +310,12 @@ describe('Community tournaments management', () => {
       markForCheck: jasmine.createSpy('markForCheck'),
       detectChanges: jasmine.createSpy('detectChanges')
     } as unknown as ChangeDetectorRef;
-    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam', 'ownedEvents', 'createOwnedEvent', 'updateOwnedEvent', 'deleteOwnedEvent', 'ownedEventTeams', 'addOwnedEventTeam', 'removeOwnedEventTeam', 'ownedLeagueFixtures', 'scheduleOwnedLeague']);
+    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam', 'ownedEvents', 'createOwnedEvent', 'updateOwnedEvent', 'deleteOwnedEvent', 'ownedEventTeams', 'addOwnedEventTeam', 'removeOwnedEventTeam', 'ownedLeagueFixtures', 'scheduleOwnedLeague', 'ownedCupDraw', 'drawOwnedCup']);
     championships.list.and.returnValue(of([]));
     championships.ownedEvents.and.returnValue(of([]));
     championships.ownedEventTeams.and.returnValue(of([]));
     championships.ownedLeagueFixtures.and.returnValue(of([]));
+    championships.ownedCupDraw.and.returnValue(of({ matches: [], byes: [] }));
     championships.honours.and.returnValue(of({ communityId: 7, completedSeasons: 0, titles: [], individualHonours: [], teamHonours: [], competitionTitles: [] }));
     championships.permanentTeams.and.returnValue(of({ communityId: 7, teams: [] }));
     championships.teams.and.returnValue(of({ championshipId: 1, teams: [], competitionTeams: [] }));
