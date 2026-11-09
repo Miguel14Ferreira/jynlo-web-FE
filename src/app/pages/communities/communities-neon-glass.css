@@ -996,7 +996,7 @@
 .community-detail-page .community-chat-column {
   display: grid;
   gap: 1rem;
-  width: min(100%, 850px);
+  width: min(100%, 1080px);
   min-width: 0;
   margin-inline: auto;
   padding: clamp(1rem, 2vw, 1.4rem);
@@ -1018,8 +1018,8 @@
   flex-direction: column;
   gap: .6rem;
   overflow-y: auto;
-  min-height: 220px;
-  max-height: min(58vh, 550px);
+  min-height: clamp(280px, 46dvh, 460px);
+  max-height: min(68dvh, 720px);
   overscroll-behavior: contain;
   padding: 1rem;
   border: 1px solid rgba(139, 198, 199, .16);
@@ -1028,7 +1028,7 @@
 }
 .community-chat-bubble {
   align-self: flex-start;
-  max-width: min(90%, 560px);
+  max-width: min(85%, 660px);
   min-width: 0;
   border-radius: .85rem .85rem .85rem .2rem;
   padding: .6rem .85rem;
@@ -1072,3 +1072,21 @@
 .community-chat-new { justify-self: center; background: #0b605b; color: #e1fff9; border: 0; border-radius: 100px; padding: .45rem 1rem; cursor: pointer; }
 .community-chat-column button:focus-visible,.community-chat-column textarea:focus-visible { outline: 2px solid #8af8d9; outline-offset: 3px; }
 @media (max-width: 650px) { .community-chat-compose { flex-direction: column; align-items: stretch; } }
+
+/* Desktop-first community conversation: readable history with one scroll area.
+   Keep enough width for long replies without stretching every chat bubble. */
+@media (min-width: 1120px) {
+  .community-detail-page .community-chat-column {
+    padding: clamp(1.3rem, 2vw, 1.8rem);
+    gap: 1.1rem;
+  }
+  .community-chat-log { scrollbar-gutter: stable; }
+}
+@media (max-width: 650px) {
+  .community-chat-log {
+    min-height: 220px;
+    max-height: min(56dvh, 520px);
+    padding: .7rem;
+  }
+  .community-chat-bubble { max-width: 94%; }
+}
