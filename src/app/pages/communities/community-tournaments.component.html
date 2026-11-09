@@ -64,7 +64,81 @@
           (click)="createChampionship()">Guardar campeonato</button>
       </div>
     }
+    <div class="create-step" role="group" aria-label="Vista dos campeonatos">
+      <button type="button" class="t-btn t-btn-secondary"
+        [attr.aria-pressed]="championshipHistoryView === 'ACTIVE'"
+        (click)="showActiveChampionships()">Em curso ({{ activeChampionshipCount }})</button>
+      <button type="button" class="t-btn t-btn-secondary"
+        [attr.aria-pressed]="championshipHistoryView === 'HISTORY'"
+        (click)="showChampionshipHistory()">Histórico ({{ archivedChampionshipCount }})</button>
+    </div>
+    @if (championshipHistoryView === 'HISTORY') {
+      @if (archivedChampionshipCount === 0) {
+        <p>Ainda não existem épocas encerradas nesta comunidade.</p>
+      }
+      @for (championship of championships; track championship.id) {
+        @if (championship.closedAt) {
+          <article class="create-step">
+            <div class="create-step-heading">
+              <div>
+                <h5>{{ championship.name }} · {{ championship.seasonLabel }}</h5>
+                <p>{{ championship.sport }} · Encerrado a {{ championship.closedAt | date:'dd/MM/yyyy' }}</p>
+                <p><strong>Campeão: {{ championship.championDisplayName }}</strong></p>
+              </div>
+              <button type="button" class="t-btn t-btn-secondary"
+                [attr.aria-expanded]="expandedArchivedChampionshipId === championship.id"
+                [attr.aria-controls]="'championship-history-' + championship.id"
+                (click)="toggleArchivedChampionship(championship.id)">
+                {{ expandedArchivedChampionshipId === championship.id ? 'Fechar detalhes' : 'Ver época' }}
+              </button>
+            </div>
+            @if (expandedArchivedChampionshipId === championship.id) {
+              <div [id]="'championship-history-' + championship.id">
+                <h6>Classificação final</h6>
+                @if (championshipAggregateStandings[championship.id]; as archived) {
+                  <ol>
+                    @for (leader of archived.standings; track leader.entryType + '-' + leader.participantId) {
+                      <li>
+                        <strong>{{ leader.name }}</strong> · {{ leader.points }} pontos
+                        · {{ leader.victories }} vitória(s)
+                        · {{ leader.awardedCompetitions }} prova(s) pontuadas
+                      </li>
+                    }
+                  </ol>
+                  @if (!archived.standings.length) {
+                    <p>A classificação final não está disponível.</p>
+                  }
+                } @else {
+                  <p>A carregar classificação final guardada.</p>
+                }
+                <h6>Provas da época</h6>
+                @if (championship.competitions.length) {
+                  <ul>
+                    @for (competition of championship.competitions; track competition.id) {
+                      <li>{{ competition.name }} · {{ competition.format }}
+                        @if (competition.pointsByPlace) {
+                          · Pontuação: {{ competition.pointsByPlace }}
+                        } @else {
+                          · {{ competition.winnerPoints }} pontos por vitória
+                        }
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <p>Sem provas associadas.</p>
+                }
+                <small>Classificação e campeão consultados a partir do registo final arquivado.</small>
+              </div>
+            }
+          </article>
+        }
+      }
+    } @else {
+      @if (activeChampionshipCount === 0) {
+        <p>Ainda não existem campeonatos em curso.</p>
+      }
     @for (championship of championships; track championship.id) {
+      @if (!championship.closedAt) {
       <div class="create-step">
         <div class="create-step-heading">
           <div>
@@ -211,6 +285,8 @@
           </div>
         }
       </div>
+      }
+    }
     }
   </section>
 
