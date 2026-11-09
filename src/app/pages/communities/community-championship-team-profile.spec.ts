@@ -117,6 +117,34 @@ describe('championshipTeamProfile', () => {
     expect(seasons.find(s => s.championshipId === 12)?.positionChange).toBeNull();
   });
 
+  it('never gives a displayed-name tie an invented historical placing', () => {
+    const one = season(5, '2025/26', '2026-06-30T00:00:00Z');
+    const source = {
+      5: { championshipId: 5, fullyScoredCompetitions: 1,
+        winnerOnlyCompetitions: 0, pendingCompetitions: 0,
+        standings: [
+          { entryType: 'TEAM' as const, participantId: 55,
+            name: 'A Team', points: 20, victories: 2, awardedCompetitions: 2 },
+          { entryType: 'TEAM' as const, participantId: 18,
+            name: 'Águias FC', points: 20, victories: 2, awardedCompetitions: 2 }
+        ] }
+    };
+    const tied = championshipTeamProfile(90, honours, [one], teams, registry, source);
+    expect(tied?.seasons[0].position).toBeNull();
+    expect(tied?.seasons[0].points).toBeNull();
+    const unfinished = championshipTeamProfile(90, honours, [one], teams, registry, {
+      5: { ...source[5], pendingCompetitions: 1 }
+    });
+    expect(unfinished?.seasons[0].position).toBeNull();
+    const resolved = championshipTeamProfile(90, honours, [one], teams, registry, {
+      5: { ...source[5], standings: [
+        { ...source[5].standings[0], points: 22 },
+        source[5].standings[1]
+      ] }
+    });
+    expect(resolved?.seasons[0].position).toBe(2);
+  });
+
   it('shows registered teams with no trophies and no guessed participation', () => {
     const profile = championshipTeamProfile(91, honours, seasons, teams, registry);
     expect(profile?.championships).toBe(0);
