@@ -2232,6 +2232,32 @@ describe('Unified Jynlo message center', () => {
     expect(component.canSendMessage()).toBeTrue();
   });
 
+  it('opens a non-friend participant conversation only after backend authorization', () => {
+    friends.friends.and.returnValue(of([]));
+    direct.info.and.returnValue(of({chatBlocked:false, whoBlocked:null}));
+    direct.recentHistory.and.returnValue(of({content:[], last:true}));
+    component = new MessagesCenterComponent(friends, communities, sessions, direct, timeline,
+      realtime, inboxApi, { snapshot: { queryParamMap: { get: (key: string) =>
+        key === 'kind' ? 'direct' : key === 'id' ? 'new-player' : null } } } as any);
+    component.loadInbox();
+    expect(direct.info).toHaveBeenCalledWith('new-player');
+    expect(component.selectedKey).toBe('direct:new-player');
+    expect(component.conversations.some(c => c.key === 'direct:new-player')).toBeTrue();
+  });
+
+  it('never opens a non-friend deep link when the backend denies contact', () => {
+    friends.friends.and.returnValue(of([]));
+    direct.info.and.returnValue(throwError(() => new HttpErrorResponse({status:403})));
+    component = new MessagesCenterComponent(friends, communities, sessions, direct, timeline,
+      realtime, inboxApi, { snapshot: { queryParamMap: { get: (key: string) =>
+        key === 'kind' ? 'direct' : key === 'id' ? 'stranger' : null } } } as any);
+    component.loadInbox();
+    expect(direct.info).toHaveBeenCalledWith('stranger');
+    expect(component.selectedKey).toBeNull();
+    expect(component.conversations.some(c => c.key === 'direct:stranger')).toBeFalse();
+    expect(direct.recentHistory).not.toHaveBeenCalledWith('stranger');
+  });
+
   it('does not invent a conversation from a forged or expired deep link', () => {
     component = new MessagesCenterComponent(friends, communities, sessions, direct, timeline,
       realtime, inboxApi, { snapshot: { queryParamMap: { get: (key: string) =>
