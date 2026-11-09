@@ -2913,7 +2913,10 @@ describe('SessionDetailsComponent', () => {
     component.moveSuggestedPlayer('two', 'A');
     fixture.detectChanges();
     expect(component.manualTeamsBalanced).toBeFalse();
-    expect(root.querySelector<HTMLButtonElement>('.team-suggestion button.primary-action')?.disabled).toBeTrue();
+    const confirmationButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('button.primary-action'));
+    const confirmButton = confirmationButtons.find(button => button.textContent?.includes('Confirmar equipas'));
+    expect(confirmButton).toBeDefined();
+    expect(confirmButton?.disabled).toBeTrue();
     component.confirmTeams();
     expect(sessionService.confirmTeams).not.toHaveBeenCalled();
     component.moveSuggestedPlayer('three', 'B');
