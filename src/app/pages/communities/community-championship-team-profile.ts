@@ -54,8 +54,10 @@ export function championshipTeamProfile(
     if (!seasonTeam) continue;
 
     const snapshot = standingsByChampionship[championship.id];
-    const ranking = snapshot?.standings.filter(item => item.entryType === 'TEAM') ?? [];
-    const positionIndex = ranking.findIndex(item => item.participantId === seasonTeam.id);
+    const ranking = snapshot?.standings.filter(item =>
+      item.entryType === 'TEAM' || item.entryType === 'TEAM_UNLINKED') ?? [];
+    const positionIndex = ranking.findIndex(item =>
+      item.entryType === 'TEAM' && item.participantId === seasonTeam.id);
     // Standings use display-name as a last sorting key. Equal sporting
     // metrics must not be interpreted as a confirmed rank.
     const current = positionIndex >= 0 ? ranking[positionIndex] : null;
