@@ -1702,26 +1702,3 @@ input,textarea,select {
 .community-chat-compose-meta small { font-size: .76rem; line-height: 1.35; }
 .community-chat-compose-meta small:last-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
 
-/* Show the actual quoted message before replying; long messages never stretch the composer. */
-.community-chat-reply-preview {
-  min-width: 0;
-  padding: .7rem .85rem;
-  border-left: 3px solid #58d6bd;
-  border-radius: .6rem;
-  background: rgba(11, 58, 69, .72);
-}
-.community-chat-reply-content { min-width: 0; flex: 1 1 auto; }
-.community-chat-reply-content strong { display: block; color: #a7f8df; font-size: .83rem; }
-.community-chat-reply-content p {
-  margin: .25rem 0 0;
-  color: #d4e9e8;
-  line-height: 1.45;
-  font-size: .85rem;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-}
-.community-chat-reply-preview > button { flex: none; align-self: flex-start; }
