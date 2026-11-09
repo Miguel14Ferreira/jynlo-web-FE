@@ -177,6 +177,7 @@
 
           <div class="session-top-actions">
             @if (canAccessChat()) {
+              @if (canSendChat()) {
                 <button type="button" class="jynlo-action jynlo-action--primary session-inline-chat-toggle"
                   [attr.aria-expanded]="sessionChatOpen"
                   aria-controls="session-inline-chat"
@@ -184,6 +185,9 @@
                   <span aria-hidden="true">💬</span>
                   {{ (sessionChatOpen ? 'sessionDetail.hideChat' : 'sessionDetail.openChat') | t }}
                 </button>
+              } @else {
+                <span class="jynlo-action jynlo-action--neutral" role="status">{{ 'sessionDetail.chatUnavailable' | t }}</span>
+              }
             }
             @if (canJoinSession()) {
               <button type="button" class="join-shortcut" (click)="scrollToParticipation()">
@@ -239,7 +243,7 @@
                       (click)="requestCancelOwnSession()">{{ 'mySessions.cancelSession' | t }}</button>
             }
           </div>
-          @if (sessionChatOpen && canAccessChat()) {
+          @if (sessionChatOpen && canSendChat()) {
             <section id="session-inline-chat" class="session-inline-chat" aria-labelledby="session-inline-chat-title">
               <header class="session-inline-chat-heading">
                 <div>
