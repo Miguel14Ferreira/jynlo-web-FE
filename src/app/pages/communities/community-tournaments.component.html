@@ -82,24 +82,64 @@
           <p>Identidade permanente desta comunidade. Os títulos e as participações são apresentados apenas quando há associação explícita.</p>
           <div class="create-step">
             <h5>Troféus conquistados</h5>
-            <p><strong>{{ profile.championships }}</strong> Campeonato(s)
-              · <strong>{{ profile.leagues }}</strong> Liga(s)
-              · <strong>{{ profile.cups }}</strong> Taça(s)</p>
+            <div class="team-honours-trophies" role="group" aria-label="Títulos conquistados">
+              <div class="team-honours-trophy">
+                <span aria-hidden="true">🏆</span>
+                <strong>{{ profile.championships }}</strong>
+                <span>Campeonatos</span>
+              </div>
+              <div class="team-honours-trophy">
+                <span aria-hidden="true">🥇</span>
+                <strong>{{ profile.leagues }}</strong>
+                <span>Ligas</span>
+              </div>
+              <div class="team-honours-trophy">
+                <span aria-hidden="true">🏅</span>
+                <strong>{{ profile.cups }}</strong>
+                <span>Taças</span>
+              </div>
+            </div>
           </div>
           <div class="create-step">
-            <h5>Épocas registadas</h5>
+            <h5>Linha temporal das épocas</h5>
+            <p class="team-honours-muted">Participações associadas a esta equipa. A evolução compara apenas classificações finais verificadas da mesma modalidade.</p>
             @if (profile.seasons.length) {
-              <ol>
+              <ol class="team-honours-timeline">
                 @for (season of profile.seasons; track season.championshipId) {
-                  <li>
-                    <strong>{{ season.seasonLabel }}</strong> · {{ season.name }}
-                    · {{ season.sport }} · {{ season.teamName }}
-                    · {{ season.closedAt ? 'Concluída' : 'Em curso' }}
-                    @if (season.position !== null) {
-                      · {{ season.position }}.º lugar · {{ season.points }} pontos
-                    }
-                    @if (season.champion) {
-                      · Campeã
+                  <li class="team-honours-season">
+                    <div class="team-honours-season-header">
+                      <strong>{{ season.seasonLabel }}</strong>
+                      <span>{{ season.closedAt ? 'Concluída' : 'Em curso' }}</span>
+                      @if (season.champion) {
+                        <span class="team-honours-champion">🏆 Campeã</span>
+                      }
+                    </div>
+                    <div>{{ season.name }} · {{ season.sport }}</div>
+                    <div class="team-honours-muted">Equipa inscrita: {{ season.teamName }}</div>
+                    @if (season.position !== null && season.closedAt) {
+                      <div class="team-honours-result">
+                        <strong>{{ season.position }}.º lugar</strong>
+                        <span>{{ season.points }} pontos</span>
+                        @if (season.positionChange !== null) {
+                          <span [class.team-honours-improved]="season.positionChange > 0"
+                            [class.team-honours-declined]="season.positionChange < 0">
+                            @if (season.positionChange > 0) {
+                              ↑ {{ season.positionChange }} posição(ões)
+                            } @else if (season.positionChange < 0) {
+                              ↓ {{ -season.positionChange }} posição(ões)
+                            } @else {
+                              = Mesma posição
+                            }
+                          </span>
+                        } @else {
+                          <span>Primeira classificação comparável</span>
+                        }
+                      </div>
+                      @if (season.previousPoints !== null) {
+                        <small>Época anterior comparável: {{ season.previousPoints }} pontos. Os regulamentos podem variar entre temporadas.</small>
+                      }
+                    } @else {
+                      <p class="team-honours-muted">Sem classificação final verificável para esta época.</p>
                     }
                   </li>
                 }
