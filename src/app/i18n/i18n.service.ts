@@ -1802,6 +1802,7 @@ const PT: Dictionary = {
   'communities.sessionResult.conflict': 'Esta sessão já tem uma jornada ou não pode ser registada. Atualiza a página.',
   'communities.sessionsKicker': 'Comunidade',
   'communities.sessionsTitle': 'Sessões da comunidade',
+  'communities.seasonGameExplanation': 'Identifica uma sessão associada à época desta comunidade. Não significa, por si só, que faça parte de um torneio ou campeonato.',
   'communities.sessionMembersOnly': 'Apenas membros',
   'communities.sessionPublic': 'Aberta também a outros jogadores',
   'communities.openPublic': 'Procurar jogadores fora da comunidade',
