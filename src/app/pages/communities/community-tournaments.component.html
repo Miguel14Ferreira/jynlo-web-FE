@@ -677,8 +677,53 @@
           @if (championshipOwnedEvents[championship.id]?.length) {
             <ul>
               @for (event of championshipOwnedEvents[championship.id]; track event.id) {
-                <li>{{ event.name }} · {{ ('communities.championshipOwned.format.' + event.format) | t }}
-                  · {{ 'communities.championshipOwned.draft' | t }}</li>
+                <li>
+                  @if (editingChampionshipEventId === event.id && canManage && !championship.closedAt) {
+                    <div class="create-controls">
+                      <div class="create-field">
+                        <label [for]="'owned-edit-name-' + event.id">{{ 'communities.championshipOwned.name' | t }}</label>
+                        <input [id]="'owned-edit-name-' + event.id" maxlength="120"
+                          [(ngModel)]="editingChampionshipEventName">
+                      </div>
+                      <div class="create-field">
+                        <label [for]="'owned-edit-format-' + event.id">{{ 'communities.championshipOwned.formatLabel' | t }}</label>
+                        <select [id]="'owned-edit-format-' + event.id" [(ngModel)]="editingChampionshipEventFormat">
+                          <option value="LEAGUE">{{ 'communities.championshipOwned.format.LEAGUE' | t }}</option>
+                          <option value="CUP">{{ 'communities.championshipOwned.format.CUP' | t }}</option>
+                          <option value="SUPERCUP">{{ 'communities.championshipOwned.format.SUPERCUP' | t }}</option>
+                          <option value="OTHER">{{ 'communities.championshipOwned.format.OTHER' | t }}</option>
+                        </select>
+                      </div>
+                      <button type="button" class="t-btn t-btn-primary"
+                        [disabled]="championshipEventBusy || !editingChampionshipEventName.trim()"
+                        (click)="saveChampionshipEvent(championship, event)">{{ 'communities.championshipOwned.saveEdit' | t }}</button>
+                      <button type="button" class="t-btn t-btn-secondary"
+                        [disabled]="championshipEventBusy" (click)="cancelEditChampionshipEvent()">
+                        {{ 'communities.championshipOwned.cancel' | t }}</button>
+                    </div>
+                  } @else {
+                    <strong>{{ event.name }}</strong> · {{ ('communities.championshipOwned.format.' + event.format) | t }}
+                    · {{ 'communities.championshipOwned.draft' | t }}
+                    @if (canManage && !championship.closedAt && event.status === 'DRAFT') {
+                      <button type="button" class="t-btn t-btn-secondary"
+                        [disabled]="championshipEventBusy" (click)="beginEditChampionshipEvent(event)">
+                        {{ 'communities.championshipOwned.edit' | t }}</button>
+                      @if (deletingChampionshipEventId === event.id) {
+                        <span role="alert">{{ 'communities.championshipOwned.deleteConfirm' | t }}</span>
+                        <button type="button" class="t-btn t-btn-secondary"
+                          [disabled]="championshipEventBusy" (click)="deleteChampionshipEvent(championship, event)">
+                          {{ 'communities.championshipOwned.confirmDelete' | t }}</button>
+                        <button type="button" class="t-btn t-btn-secondary"
+                          [disabled]="championshipEventBusy" (click)="cancelDeleteChampionshipEvent()">
+                          {{ 'communities.championshipOwned.cancel' | t }}</button>
+                      } @else {
+                        <button type="button" class="t-btn t-btn-secondary"
+                          [disabled]="championshipEventBusy" (click)="requestDeleteChampionshipEvent(event)">
+                          {{ 'communities.championshipOwned.delete' | t }}</button>
+                      }
+                    }
+                  }
+                </li>
               }
             </ul>
           } @else {
