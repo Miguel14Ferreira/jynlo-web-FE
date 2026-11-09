@@ -1040,6 +1040,13 @@
                   </div>
                 </div>
 
+                @if (hasCommunitySeasonGames()) {
+                  <p class="community-session-season-help">
+                    <strong>{{ 'createSession.seasonGameTitle' | t }}:</strong>
+                    {{ 'communities.seasonGameExplanation' | t }}
+                  </p>
+                }
+
                 @if (sessionResultSuccess) {
                   <p class="community-session-result-counted" role="status">{{ sessionResultSuccess }}</p>
                 }
