@@ -8,6 +8,8 @@ on:
       - 'src/app/pages/communities/community-tournaments.component.ts'
       - 'src/app/pages/communities/community-tournaments.component.html'
       - 'src/app/pages/communities/community-tournaments.component.spec.ts'
+      - 'src/app/pages/communities/community-championship-team-profile.ts'
+      - 'src/app/pages/communities/community-championship-team-profile.spec.ts'
   workflow_dispatch:
 jobs:
   production-build:
