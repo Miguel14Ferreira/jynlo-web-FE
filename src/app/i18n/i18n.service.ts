@@ -1724,7 +1724,7 @@ const PT: Dictionary = {
   'communities.chatLoading': 'A carregar mensagens…',
   'communities.chatEmpty': 'Ainda não há mensagens. Começa a conversa.',
   'communities.chatReply': 'Responder',
-  'communities.chatNewMessages': 'Ver novas mensagens ({count}) ↓',
+  'communities.chatNewMessages': 'Ver novas mensagens ({{count}}) ↓',
   'communities.chatReplyingTo': 'A responder a',
   'communities.chatVerify': 'Verificar entrega',
   'communities.chatResume': 'Continuar a escrever',
