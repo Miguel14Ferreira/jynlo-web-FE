@@ -68,6 +68,30 @@ describe('Global incoming call popup', () => {
     localStorage.removeItem('d24-language');
   });
 
+  it('resets presentation, focus and both playback volumes between calls', () => {
+    state.next({...invitation('video'), phase: 'active', startedAt: Date.now()});
+    const overlay = fixture.componentInstance;
+    overlay.focusedPresentationIdentity = 'old-presenter';
+    overlay.showOwnSharePreview = false;
+    overlay.presentationZoomed = true;
+    overlay.focusOnly = true;
+    overlay.setVolume('old-member', 25);
+    overlay.setScreenVolume('old-member', 40);
+
+    state.next(null);
+    expect(overlay.focusedPresentationIdentity).toBeNull();
+    expect(overlay.showOwnSharePreview).toBeTrue();
+    expect(overlay.presentationZoomed).toBeFalse();
+    expect(overlay.focusOnly).toBeFalse();
+    expect(overlay.volumeFor('old-member')).toBe(1);
+    expect(overlay.screenVolumeFor('old-member')).toBe(1);
+
+    state.next({...invitation('video'), id: 'call-two', phase: 'active', startedAt: Date.now()});
+    fixture.detectChanges();
+    expect(overlay.focusOnly).toBeFalse();
+    expect(overlay.presentationZoomed).toBeFalse();
+  });
+
   it('does not cover or block any page while there is no call', () => {
     const host: HTMLElement = fixture.nativeElement;
     expect(host.querySelector('.call-incoming-float')).toBeNull();
