@@ -481,7 +481,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         this.chatRealtimeConnected = connected;
         if (connected) {
           this.chatEverConnected = true;
-          if (this.sessionChatOpen && this.canAccessChat()) this.refreshMessages(false);
+          if (this.sessionChatOpen && this.canSendChat()) this.refreshMessages(false);
         }
       })
     );
@@ -521,8 +521,8 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
 
     if (this.pendingChatScroll) {
       this.pendingChatScroll = false;
-      if (this.canAccessChat()) {
-        document.getElementById('session-chat')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (this.canSendChat()) {
+        document.getElementById('session-inline-chat')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
 
@@ -1573,7 +1573,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   private markVisibleMessagesRead(): void {
     // Never acknowledge messages until the inline chat is actually visible.
     if (!this.sessionChatOpen || !this.chatMessageList?.nativeElement
-        || !this.sessionId || !this.canAccessChat()
+        || !this.sessionId || !this.canSendChat()
         || this.chatLoading || this.chatError || this.messages.length === 0) return;
     const highestId = this.messages.reduce((max, message) => Math.max(max, message.id), 0);
     this.readSync.markVisible('session', this.sessionId,
@@ -1586,7 +1586,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   toggleInlineSessionChat(): void {
-    if (!this.canAccessChat()) return;
+    if (!this.canSendChat()) return;
     this.sessionChatOpen = !this.sessionChatOpen;
     this.typing.stop();
     if (this.sessionChatOpen) {
@@ -1599,7 +1599,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   refreshMessages(showLoading = true): void {
-    if (!this.sessionId || !this.canAccessChat() || this.chatLoading) {
+    if (!this.sessionId || !this.canSendChat() || this.chatLoading) {
       return;
     }
 
@@ -2803,7 +2803,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
 
           // Preserve the visible conversation across silent roster refreshes.
           // Deep-linked chat opens only after membership has been verified.
-          if (!this.canAccessChat()) {
+          if (!this.canSendChat()) {
             this.sessionChatOpen = false;
             this.messages = [];
             this.chatError = '';
