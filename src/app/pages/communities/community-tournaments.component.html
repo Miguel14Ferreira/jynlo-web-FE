@@ -799,6 +799,34 @@
                       }
                     </section>
                   }
+                  @if (event.format === 'CUP') {
+                    <section class="create-step" [attr.aria-label]="'communities.championshipOwned.cupTitle' | t">
+                      <h6>{{ 'communities.championshipOwned.cupTitle' | t }}</h6>
+                      @if (championshipCupDraws[event.id]; as draw) {
+                        @if (draw.matches.length || draw.byes.length) {
+                          <strong>{{ 'communities.championshipOwned.cupOpeningRound' | t }}</strong>
+                          <ul>
+                            @for (match of draw.matches; track match.id) {
+                              <li>{{ match.homeTeamName }} · {{ 'communities.championshipOwned.versus' | t }} · {{ match.awayTeamName }}</li>
+                            }
+                            @for (bye of draw.byes; track bye.id) {
+                              <li>{{ bye.teamName }} — {{ 'communities.championshipOwned.cupBye' | t }}</li>
+                            }
+                          </ul>
+                          <p class="team-honours-muted">{{ 'communities.championshipOwned.cupNextRoundNotice' | t }}</p>
+                        } @else if (canManage && !championship.closedAt && event.status === 'DRAFT') {
+                          <p>{{ 'communities.championshipOwned.cupDrawHint' | t }}</p>
+                          <button type="button" class="t-btn t-btn-primary"
+                            [disabled]="championshipCupBusy || championshipEventBusy ||
+                              (championshipOwnedEventTeams[event.id]?.length || 0) < 2 ||
+                              (championshipOwnedEventTeams[event.id]?.length || 0) > 64"
+                            (click)="generateChampionshipCup(championship, event)">
+                            {{ 'communities.championshipOwned.drawCup' | t }}
+                          </button>
+                        }
+                      }
+                    </section>
+                  }
                 </li>
               }
             </ul>
