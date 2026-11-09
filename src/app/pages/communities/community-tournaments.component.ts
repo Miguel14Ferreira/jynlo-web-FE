@@ -49,7 +49,8 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipAggregateStandings: Record<number, CommunityChampionshipStandings> = {};
   championshipTeamRegistries: Record<number, CommunityChampionshipTeams> = {};
   closeChampionship(championship: CommunityChampionship): void {
-    if (!this.canManage || this.championshipBusy || championship.closedAt) return;
+    if (!this.canManage || this.championshipBusy || championship.closedAt
+        || !this.championshipCloseConfirmed[championship.id]) return;
     const communityId = this.community.id;
     const revision = this.championshipRevision;
     this.championshipBusy = true;
@@ -59,6 +60,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championships = this.championships.map(item => item.id === result.id ? result : item);
         this.championshipBusy = false;
+        this.championshipCloseConfirmed[result.id] = false;
         this.loadChampionshipStandings(result.id);
         this.changeDetector.markForCheck();
       },
@@ -73,6 +75,7 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   championshipTeamDrafts: Record<number, string> = {};
+  championshipCloseConfirmed: Record<number, boolean> = {};
 
   loadChampionshipTeams(championshipId: number): void {
     const revision = this.championshipRevision;
@@ -1472,6 +1475,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.championshipAggregateStandings = {};
       this.championshipTeamRegistries = {};
       this.championshipTeamDrafts = {};
+      this.championshipCloseConfirmed = {};
       this.championshipError = '';
       this.championshipOpen = false;
       this.championshipBusy = false;
