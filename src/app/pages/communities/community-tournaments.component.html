@@ -543,6 +543,22 @@
                 [disabled]="championshipBusy || !championshipTeamDrafts[championship.id]"
                 (click)="createChampionshipTeam(championship.id)">Criar equipa</button>
             }
+            @if (registry.teams.length) {
+              <h6>Equipas inscritas nesta época</h6>
+              @for (seasonTeam of registry.teams; track seasonTeam.id) {
+                <div>
+                  <strong>{{ seasonTeam.name }}</strong>
+                  @if (seasonTeam.permanentTeamId) {
+                    <button type="button" class="t-btn t-btn-secondary"
+                      (click)="openPermanentTeamProfile(seasonTeam.permanentTeamId)">
+                      Ver palmarés
+                    </button>
+                  } @else {
+                    <small>Sem identidade permanente associada</small>
+                  }
+                </div>
+              }
+            }
             @if (canManage && registry.teams.length && permanentTeamRegistry?.teams?.length) {
               <h6>Identidade permanente entre épocas</h6>
               @for (seasonTeam of registry.teams; track seasonTeam.id) {
