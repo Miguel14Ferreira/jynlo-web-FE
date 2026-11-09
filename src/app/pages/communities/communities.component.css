@@ -1687,3 +1687,51 @@ input,textarea,select {
   color: #8cf0c8;
   font-size: .75rem;
 }
+
+/* Discovery cards: protect lettering and media from clipping at all widths. */
+.communities-page:not(.community-detail-page) .community-discovery-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+  gap: 1rem;
+}
+.communities-page:not(.community-detail-page) .community-discovery-grid .community-card {
+  min-width: 0;
+  padding: 1.1rem;
+  text-align: left;
+}
+.communities-page:not(.community-detail-page) .community-card-main {
+  align-items: flex-start;
+  gap: 1rem;
+}
+.communities-page:not(.community-detail-page) .community-card-copy {
+  min-width: 0;
+  gap: .5rem;
+}
+.communities-page:not(.community-detail-page) .community-card-copy strong {
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+.communities-page:not(.community-detail-page) .community-avatar {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+  font-size: 2.1rem;
+  line-height: 1;
+  text-align: center;
+}
+.communities-page:not(.community-detail-page) .community-avatar > span:first-child {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  font-size: inherit;
+  line-height: 1;
+}
+.communities-page:not(.community-detail-page) .community-discovery-card-footer {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  gap: .75rem;
+}
+.communities-page:not(.community-detail-page) .community-discovery-results-heading {
+  padding-block: .5rem 1rem;
+  gap: 1rem;
+}
