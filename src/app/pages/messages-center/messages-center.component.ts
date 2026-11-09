@@ -853,7 +853,9 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     if (next === this.observedDeepLinkKey) return;
     this.observedDeepLinkKey = next;
     this.pendingDeepLinkKey = next;
-    this.openPendingDeepLink();
+    // Initial navigation must wait until membership lists have been built.
+    // Otherwise a synchronous authorization response is overwritten by loadInbox.
+    if (this.inboxVersion > 0 && !this.loading) this.openPendingDeepLink();
   }
 
   private validatingDirectDeepLink: string | null = null;
