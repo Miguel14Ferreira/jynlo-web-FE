@@ -26,6 +26,22 @@ describe('Community tournaments management', () => {
     championTied: false
   };
 
+  it('distinguishes championship-owned competitions from standalone tournaments', () => {
+    const previous = localStorage.getItem('d24-language');
+    try {
+      localStorage.setItem('d24-language', 'pt');
+      expect(t('communities.championshipOwned.distinction')).toContain('exclusivamente');
+      expect(t('communities.championshipOwned.format.LEAGUE')).toBe('Liga');
+      expect(t('communities.championshipOwned.format.CUP')).toBe('Taça');
+      localStorage.setItem('d24-language', 'en');
+      expect(t('communities.championshipOwned.distinction')).toContain('exclusively');
+      expect(t('communities.championshipOwned.format.CUP')).toBe('Cup');
+    } finally {
+      if (previous === null) localStorage.removeItem('d24-language');
+      else localStorage.setItem('d24-language', previous);
+    }
+  });
+
   it('translates championship creation actions, fields and placeholders in PT/EN', () => {
     const previous = localStorage.getItem('d24-language');
     try {
@@ -114,8 +130,9 @@ describe('Community tournaments management', () => {
       markForCheck: jasmine.createSpy('markForCheck'),
       detectChanges: jasmine.createSpy('detectChanges')
     } as unknown as ChangeDetectorRef;
-    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam']);
+    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam', 'ownedEvents', 'createOwnedEvent']);
     championships.list.and.returnValue(of([]));
+    championships.ownedEvents.and.returnValue(of([]));
     championships.honours.and.returnValue(of({ communityId: 7, completedSeasons: 0, titles: [], individualHonours: [], teamHonours: [], competitionTitles: [] }));
     championships.permanentTeams.and.returnValue(of({ communityId: 7, teams: [] }));
     championships.teams.and.returnValue(of({ championshipId: 1, teams: [], competitionTeams: [] }));
