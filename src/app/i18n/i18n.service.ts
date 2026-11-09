@@ -1720,6 +1720,8 @@ const PT: Dictionary = {
   'communities.chatColumnTitle': 'Conversa da comunidade',
   'communities.chatColumnHint': 'Conversa com os membros sem sair da comunidade.',
   'communities.chatRefresh': 'Atualizar',
+  'communities.chatViewSessions': 'Ver sessões',
+  'communities.sessionsViewChat': 'Abrir chat',
   'communities.chatOlder': 'Carregar mensagens anteriores',
   'communities.chatLoading': 'A carregar mensagens…',
   'communities.chatEmpty': 'Ainda não há mensagens. Começa a conversa.',
