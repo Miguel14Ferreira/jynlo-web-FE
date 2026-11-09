@@ -10,7 +10,7 @@ export interface ChampionshipOwnedEvent {
   championshipId: number;
   name: string;
   format: ChampionshipOwnedEventFormat;
-  status: 'DRAFT';
+  status: 'DRAFT' | 'SCHEDULED';
   createdAt: string;
 }
 
@@ -18,6 +18,16 @@ export interface ChampionshipOwnedEventTeam {
   id: number;
   championshipTeamId: number;
   name: string;
+}
+
+export interface ChampionshipOwnedLeagueFixture {
+  id: number;
+  round: number;
+  match: number;
+  homeTeamId: number;
+  homeTeamName: string;
+  awayTeamId: number;
+  awayTeamName: string;
 }
 
 export interface ChampionshipCompetition {
@@ -261,6 +271,19 @@ export class CommunityChampionshipsService {
     return this.http.delete<void>(
       this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId +
       '/teams/' + championshipTeamId);
+  }
+
+  ownedLeagueFixtures(communityId: number, championshipId: number,
+                      eventId: number): Observable<ChampionshipOwnedLeagueFixture[]> {
+    return this.http.get<ChampionshipOwnedLeagueFixture[]>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId + '/fixtures');
+  }
+
+  scheduleOwnedLeague(communityId: number, championshipId: number, eventId: number,
+                      legs: 1 | 2): Observable<ChampionshipOwnedLeagueFixture[]> {
+    return this.http.post<ChampionshipOwnedLeagueFixture[]>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId + '/schedule',
+      { legs });
   }
 
   addCompetition(communityId: number, championshipId: number,
