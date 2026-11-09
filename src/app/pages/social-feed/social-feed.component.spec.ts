@@ -27,6 +27,10 @@ describe('SocialFeedComponent discovery sidebar', () => {
   let groups: jasmine.SpyObj<CommunityGroupsService>;
 
   beforeEach(async () => {
+    // Feed onboarding is persisted per user: isolate repeated component renders.
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith('jynlo:feed-welcome:v1:')) localStorage.removeItem(key);
+    }
     feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'createPost']);
     feed.feed.and.returnValue(of([]));
     sessions = jasmine.createSpyObj<SessionService>('SessionService', ['discover', 'mine', 'detail']);
@@ -56,6 +60,38 @@ describe('SocialFeedComponent discovery sidebar', () => {
     fixture = TestBed.createComponent(SocialFeedComponent);
     component = fixture.componentInstance;
   });
+
+  it('shows onboarding for two visits and then preserves the regular feed', fakeAsync(() => {
+    const first = fixture;
+    first.detectChanges();
+    tick(351);
+    expect(first.nativeElement.querySelector('.feed-v3-welcome')).not.toBeNull();
+    const key = 'jynlo:feed-welcome:v1:' + component.currentUsername.toLocaleLowerCase();
+    if (!component.currentUsername) {
+      // Anonymous fallback deliberately does not persist an account-specific key.
+      component.ngOnDestroy();
+      return;
+    }
+    expect(localStorage.getItem(key)).toBe('1');
+    component.ngOnDestroy();
+    first.destroy();
+
+    const second = TestBed.createComponent(SocialFeedComponent);
+    second.detectChanges();
+    tick(351);
+    expect(second.nativeElement.querySelector('.feed-v3-welcome')).not.toBeNull();
+    expect(localStorage.getItem(key)).toBe('2');
+    second.componentInstance.ngOnDestroy();
+    second.destroy();
+
+    const third = TestBed.createComponent(SocialFeedComponent);
+    third.detectChanges();
+    tick(351);
+    expect(third.nativeElement.querySelector('.feed-v3-welcome')).toBeNull();
+    expect(third.nativeElement.querySelector('.week-hub')).not.toBeNull();
+    third.componentInstance.ngOnDestroy();
+    third.destroy();
+  }));
 
   it('uses the approved premium Concept One feed with genuine existing interactions', fakeAsync(() => {
     fixture.detectChanges();
