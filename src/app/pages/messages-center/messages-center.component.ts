@@ -1872,6 +1872,10 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     if (player.paused || player.ended) {
       this.voicePlaying.delete(id);
     } else {
+      if (this.voicePreviewPlayer && !this.voicePreviewPlayer.paused) {
+        this.voicePreviewPlayer.pause();
+        this.voicePreviewPlaying = false;
+      }
       // Only one voice note can be audible at a time. Pause on the actual
       // "playing" event, not on click: a browser may reject play() outright.
       for (const [otherId, otherPlayer] of this.voicePlayers) {
