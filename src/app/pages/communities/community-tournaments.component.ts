@@ -383,6 +383,10 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipLeagueLegs: Record<number, 1 | 2> = {};
   championshipLeagueBusy = false;
 
+  setChampionshipLeagueLegs(eventId: number, selection: string): void {
+    this.championshipLeagueLegs[eventId] = selection === '2' ? 2 : 1;
+  }
+
   leagueRounds(eventId: number): number[] {
     return [...new Set((this.championshipLeagueFixtures[eventId] || [])
       .map(fixture => fixture.round))].sort((a, b) => a - b);
