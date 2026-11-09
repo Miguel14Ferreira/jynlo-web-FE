@@ -1,4 +1,4 @@
-import { CommunityChampionshipsService, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams } from '../../services/community-championships.service';
+import { CommunityChampionshipsService, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours } from '../../services/community-championships.service';
 import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { finalize, firstValueFrom, forkJoin, Observable, timeout } from 'rxjs';
 import { CommunityGroup } from '../model/community-group';
@@ -48,6 +48,28 @@ export class CommunityTournamentsComponent implements OnChanges {
   championships: CommunityChampionship[] = [];
   championshipAggregateStandings: Record<number, CommunityChampionshipStandings> = {};
   championshipTeamRegistries: Record<number, CommunityChampionshipTeams> = {};
+  championshipHonours: CommunityChampionshipHonours | null = null;
+  championshipHonoursError = '';
+
+  loadChampionshipHonours(): void {
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipsApi.honours(communityId).subscribe({
+      next: result => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipHonours = result;
+        this.championshipHonoursError = '';
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipHonoursError = 'Não foi possível carregar o palmarés.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+
   closeChampionship(championship: CommunityChampionship): void {
     if (!this.canManage || this.championshipBusy || championship.closedAt
         || !this.championshipCloseConfirmed[championship.id]) return;
@@ -59,6 +81,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: result => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championships = this.championships.map(item => item.id === result.id ? result : item);
+        this.loadChampionshipHonours();
         this.championshipBusy = false;
         this.championshipCloseConfirmed[result.id] = false;
         this.showChampionshipHistory();
@@ -207,6 +230,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: championships => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championships = championships;
+        this.loadChampionshipHonours();
         championships.forEach(item => {
           this.loadChampionshipStandings(item.id);
           this.loadChampionshipTeams(item.id);
@@ -1502,6 +1526,8 @@ export class CommunityTournamentsComponent implements OnChanges {
       ++this.championshipRevision;
       this.championships = [];
       this.championshipAggregateStandings = {};
+      this.championshipHonours = null;
+      this.championshipHonoursError = '';
       this.championshipTeamRegistries = {};
       this.championshipTeamDrafts = {};
       this.championshipCloseConfirmed = {};
