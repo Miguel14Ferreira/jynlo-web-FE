@@ -145,6 +145,22 @@ describe('championshipTeamProfile', () => {
     expect(resolved?.seasons[0].position).toBe(2);
   });
 
+  it('counts unlinked opponents ahead of a known team without inventing their identity', () => {
+    const current = season(5, '2025/26', '2026-06-30T00:00:00Z');
+    const result = championshipTeamProfile(90, honours, [current], teams, registry, {
+      5: { championshipId: 5, fullyScoredCompetitions: 0,
+        winnerOnlyCompetitions: 1, pendingCompetitions: 0,
+        standings: [
+          { entryType: 'TEAM_UNLINKED', participantId: 99, name: 'Rival',
+            points: 30, victories: 3, awardedCompetitions: 2 },
+          { entryType: 'TEAM', participantId: 18, name: 'Águias FC',
+            points: 20, victories: 2, awardedCompetitions: 2 }
+        ] }
+    });
+    expect(result?.seasons[0].position).toBe(2);
+    expect(result?.seasons[0].points).toBe(20);
+  });
+
   it('shows registered teams with no trophies and no guessed participation', () => {
     const profile = championshipTeamProfile(91, honours, seasons, teams, registry);
     expect(profile?.championships).toBe(0);
