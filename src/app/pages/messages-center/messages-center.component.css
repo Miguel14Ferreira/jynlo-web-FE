@@ -224,6 +224,21 @@
 .inbox-bubble--voice .inbox-bubble-meta { gap:9px; align-items:center; }
 .inbox-bubble--voice .inbox-reply-action { margin-top:3px; padding:2px 4px; }
 .inbox-bubble--voice .inbox-attachment { margin-top:5px; }
+/* Draft notes use the exact same controls as audio messages in the thread. */
+.inbox-voice-draft { display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:5px 0; min-width:0; }
+.inbox-voice-draft .inbox-voice-inline { width:min(360px,100%); flex:0 1 360px; }
+.inbox-voice-draft-remove {
+  border:1px solid rgba(130,230,212,.32); border-radius:9px;
+  background:transparent; color:#8df3da; padding:8px 10px;
+  font:inherit; font-size:.78rem; cursor:pointer;
+}
+.inbox-voice-draft-remove:hover:not(:disabled) { background:#205554; }
+.inbox-voice-draft-remove:focus-visible { outline:2px solid #a7ffe3; outline-offset:2px; }
+.inbox-voice-draft-remove:disabled { opacity:.5; cursor:not-allowed; }
+@media (max-width:600px) {
+  .inbox-voice-draft { gap:8px; }
+  .inbox-voice-draft .inbox-voice-inline { min-width:0; flex:1 1 230px; }
+}
 .inbox-voice-inline {
   width:100%; min-width:260px; max-width:360px;
   display:flex; align-items:center; flex-wrap:nowrap;
