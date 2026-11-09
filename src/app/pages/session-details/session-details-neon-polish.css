@@ -215,3 +215,33 @@
 @media(prefers-reduced-motion:reduce) {
   :host .detail-page.jynlo-session-detail-premium .session-player-card {transition:none;}
 }
+
+/* Accessible inline explanation for optional community-season rankings. */
+.session-ranking-learn-more {
+  border: 0;
+  padding: .3rem .1rem;
+  background: transparent;
+  color: #70f3d7;
+  font: inherit;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: .2rem;
+  cursor: pointer;
+}
+.session-ranking-learn-more:focus-visible {
+  outline: 2px solid #70f3d7;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.session-ranking-benefits {
+  display: grid;
+  gap: .45rem;
+  margin-top: .8rem;
+  padding: 1rem;
+  border: 1px solid rgba(112, 243, 215, .25);
+  border-radius: .85rem;
+  background: rgba(13, 75, 79, .22);
+  line-height: 1.5;
+}
+.session-ranking-benefits strong { color: #f0fffb; }
+.session-ranking-benefits p { margin: 0; color: #c4e2e6; }
