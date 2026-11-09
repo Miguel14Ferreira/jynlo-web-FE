@@ -27,7 +27,11 @@ type ExploreCategory = 'all' | 'venues' | 'sessions' | 'people' | 'communities';
 export class DiscoverComponent implements OnInit {
   activeTab: ExploreCategory = 'all';
   sessionView: 'map' | 'list' = 'list';
-  setSessionView(view: 'map' | 'list'): void { this.sessionView = view; }
+  setSessionView(view: 'map' | 'list'): void {
+    this.sessionView = view;
+    // The map needs the full-width focused panel, even from the overview tab.
+    if (view === 'map') this.activeTab = 'sessions';
+  }
   readonly quickSports = ['Padel', 'Futebol', 'Ténis'];
   selectedMapVenueId: number | null = null;
   private cachedVenueMapSource = '';
