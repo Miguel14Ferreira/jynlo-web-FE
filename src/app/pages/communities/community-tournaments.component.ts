@@ -437,7 +437,6 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.loadChampionshipTeams(championship.id);
         this.championshipNameDraft = '';
         this.championshipOpen = false;
-      this.championshipExplainerOpen = false;
         this.championshipBusy = false;
         this.changeDetector.markForCheck();
       },
@@ -1709,6 +1708,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.showActiveChampionships();
       this.championshipError = '';
       this.championshipOpen = false;
+      this.championshipExplainerOpen = false;
       this.championshipBusy = false;
       this.championshipSportDraft = this.community.sports?.[0] || this.community.sport || '';
       this.loadChampionships();
