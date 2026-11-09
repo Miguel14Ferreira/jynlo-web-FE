@@ -511,9 +511,37 @@
               <span>{{ 'mySessions.date' | t }}</span>
               <strong>{{ session.gameDate | date:'dd/MM/yyyy HH:mm' }}</strong>
             </div>
-            <div>
+            <div class="session-capacity-field">
               <span>{{ 'mySessions.participants' | t }}</span>
               <strong>{{ session.participantCount }}/{{ session.maxParticipants }}</strong>
+              @if (canEditCapacity() && !capacityEditing) {
+                <button type="button" class="session-capacity-edit-action"
+                  (click)="beginCapacityEdit()">{{ 'sessionDetail.capacityEdit' | t }}</button>
+              }
+              @if (capacityEditing && canEditCapacity()) {
+                <div class="session-capacity-editor">
+                  <label for="session-capacity-input">{{ 'sessionDetail.capacityLabel' | t }}</label>
+                  <input id="session-capacity-input" type="number" min="2" max="100" step="1"
+                    [(ngModel)]="capacityDraft" [disabled]="capacitySaving">
+                  <small>{{ 'sessionDetail.capacityHint' | t }}</small>
+                  <div class="session-capacity-editor-actions">
+                    <button type="button" class="jynlo-action jynlo-action--primary"
+                      [disabled]="capacitySaving" (click)="saveCapacity()">
+                      {{ (capacitySaving ? 'profile.saving' : 'sessionDetail.capacitySave') | t }}
+                    </button>
+                    <button type="button" class="jynlo-action jynlo-action--neutral"
+                      [disabled]="capacitySaving" (click)="discardCapacityEdit()">
+                      {{ 'common.cancel' | t }}
+                    </button>
+                  </div>
+                </div>
+              }
+              @if (capacityError) {
+                <small class="session-capacity-error" role="alert">{{ capacityError }}</small>
+              }
+              @if (capacitySuccess) {
+                <small class="session-capacity-success" role="status">{{ capacitySuccess }}</small>
+              }
             </div>
             <div>
               <span>{{ 'mySessions.price' | t }}</span>
