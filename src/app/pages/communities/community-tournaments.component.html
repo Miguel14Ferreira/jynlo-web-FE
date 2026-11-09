@@ -75,8 +75,13 @@
               <p><strong>Campeão: {{ championship.championDisplayName }}</strong></p>
               <small>Classificação final arquivada; alterações posteriores às provas não modificam este histórico.</small>
             } @else if (canManage) {
+              <label>
+                <input type="checkbox" [checked]="!!championshipCloseConfirmed[championship.id]"
+                  (change)="championshipCloseConfirmed[championship.id] = $any($event.target).checked">
+                Confirmo que pretendo encerrar esta época definitivamente.
+              </label>
               <button type="button" class="t-btn t-btn-secondary"
-                [disabled]="championshipBusy || !championshipAggregateStandings[championship.id]"
+                [disabled]="championshipBusy || !championshipAggregateStandings[championship.id] || !championshipCloseConfirmed[championship.id]"
                 (click)="closeChampionship(championship)">Encerrar época e guardar campeão</button>
               <small>O fecho é definitivo. Todas as provas devem estar concluídas e o primeiro lugar desempatado.</small>
             }
