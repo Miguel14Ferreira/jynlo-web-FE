@@ -328,7 +328,13 @@
               [attr.aria-pressed]="sessionView === 'list'" (click)="setSessionView('list')">☷ Lista</button>
           </div>
           @if (sessionView === 'map') {
-            <app-session-discovery-map [sessions]="sessions"></app-session-discovery-map>
+            <app-session-discovery-map [sessions]="sessions" (searchArea)="searchMapArea($event)"></app-session-discovery-map>
+            @if (mapSearchPosition) {
+              <div class="jynlo-map-search-status" role="status">
+                Pesquisa por zona aproximada · raio {{ mapSearchRadiusKm }} km
+                <button type="button" (click)="clearMapSearch()">Limpar pesquisa no mapa</button>
+              </div>
+            }
           } @else {
           @if (topSessions.length === 0) {
             <div class="pillar-empty session-empty">
