@@ -1,4 +1,4 @@
-import { CommunityChampionshipsService, ChampionshipOwnedEvent, ChampionshipOwnedEventTeam, ChampionshipOwnedLeagueFixture, ChampionshipOwnedEventFormat, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
+import { CommunityChampionshipsService, ChampionshipOwnedEvent, ChampionshipOwnedEventTeam, ChampionshipOwnedLeagueFixture, ChampionshipCupOpeningRound, ChampionshipOwnedEventFormat, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
 import { championshipTeamProfile, ChampionshipTeamProfile } from './community-championship-team-profile';
 import { compareTeamSeasons, comparableTeamSeasons, TeamSeasonComparison } from './community-championship-team-comparison';
 import { teamRankingChart, teamRankingSports, TeamRankingChart } from './community-championship-team-ranking-chart';
@@ -382,6 +382,53 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipLeagueFixtures: Record<number, ChampionshipOwnedLeagueFixture[]> = {};
   championshipLeagueLegs: Record<number, 1 | 2> = {};
   championshipLeagueBusy = false;
+  championshipCupDraws: Record<number, ChampionshipCupOpeningRound> = {};
+  championshipCupBusy = false;
+
+  loadChampionshipCupDraw(championshipId: number, eventId: number): void {
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipsApi.ownedCupDraw(communityId, championshipId, eventId).subscribe({
+      next: draw => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipCupDraws[eventId] = draw;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipError = t('communities.championshipOwned.cupLoadError');
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  generateChampionshipCup(championship: CommunityChampionship, event: ChampionshipOwnedEvent): void {
+    const count = (this.championshipOwnedEventTeams[event.id] || []).length;
+    if (!this.canManage || this.championshipCupBusy || championship.closedAt
+        || event.format !== 'CUP' || event.status !== 'DRAFT' || count < 2 || count > 64) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipCupBusy = true;
+    this.championshipError = '';
+    this.championshipsApi.drawOwnedCup(communityId, championship.id, event.id).subscribe({
+      next: draw => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipCupDraws[event.id] = draw;
+        this.championshipOwnedEvents[championship.id] = (this.championshipOwnedEvents[championship.id] || [])
+          .map(item => item.id === event.id ? { ...item, status: 'SCHEDULED' as const } : item);
+        this.championshipCupBusy = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipCupBusy = false;
+        this.championshipError = t('communities.championshipOwned.cupDrawError');
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+
 
   setChampionshipLeagueLegs(eventId: number, selection: string): void {
     this.championshipLeagueLegs[eventId] = selection === '2' ? 2 : 1;
@@ -614,6 +661,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.championshipOwnedEvents[championshipId] = events;
         events.forEach(event => this.loadChampionshipOwnedEventTeams(championshipId, event.id));
         events.filter(event => event.format === 'LEAGUE').forEach(event => this.loadChampionshipLeagueFixtures(championshipId, event.id));
+        events.filter(event => event.format === 'CUP').forEach(event => this.loadChampionshipCupDraw(championshipId, event.id));
         this.changeDetector.markForCheck();
       },
       error: () => {
@@ -670,6 +718,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipOwnedEventTeams = {};
     this.championshipOwnedTeamDrafts = {};
     this.championshipLeagueFixtures = {};
+    this.championshipCupDraws = {};
     this.championshipLeagueLegs = {};
     this.editingChampionshipEventId = null;
     this.editingChampionshipEventName = '';
