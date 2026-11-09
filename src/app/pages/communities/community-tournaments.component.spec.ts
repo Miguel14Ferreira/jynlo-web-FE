@@ -5946,6 +5946,24 @@ describe('Community tournaments management', () => {
     expect(component.championshipHistoryView).toBe('ACTIVE');
   });
 
+  it('shows permanent team titles only after confirmed backend associations', () => {
+    component.championshipHonours = {
+      communityId: 7, completedSeasons: 2, individualHonours: [],
+      teamHonours: [{ permanentTeamId: 90, name: 'Águias FC', titles: 2,
+        championshipIds: [11, 12] }],
+      titles: [
+        { championshipId: 11, championshipName: 'Época 1', seasonLabel: '2024/25',
+          sport: 'Futebol', closedAt: '2025-07-01T00:00:00Z',
+          entryType: 'TEAM', participantId: 1, championName: 'Águias A', permanentTeamId: 90 },
+        { championshipId: 12, championshipName: 'Época 2', seasonLabel: '2025/26',
+          sport: 'Futebol', closedAt: '2026-07-01T00:00:00Z',
+          entryType: 'TEAM', participantId: 3, championName: 'Águias B', permanentTeamId: 90 }
+      ]
+    };
+    expect(component.championshipHonours.teamHonours[0].titles).toBe(2);
+    expect(component.filteredChampionshipTitles.map(t => t.permanentTeamId)).toEqual([90, 90]);
+  });
+
   it('filters official championship honours by sport without changing stored titles', () => {
     component.championshipHonours = {
       communityId: 7, completedSeasons: 2, individualHonours: [], teamHonours: [],
