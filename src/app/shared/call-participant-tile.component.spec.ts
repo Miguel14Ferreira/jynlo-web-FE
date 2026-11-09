@@ -54,6 +54,37 @@ describe('Call participant tile track selection', () => {
     component.ngOnDestroy();
   });
 
+  it('separately adjusts remote microphone and shared-screen audio playback', () => {
+    const microphone = track();
+    const screenSound = track();
+    const remote = {
+      ...participant,
+      audioTrackPublications: new Map([
+        ['mic', {source: Track.Source.Microphone, track: microphone, isMuted:false}],
+        ['screen', {source: Track.Source.ScreenShareAudio, track: screenSound, isMuted:false}]
+      ])
+    } as unknown as LocalParticipant;
+    const component = new CallParticipantTileComponent();
+    component.participant = remote;
+    const micElement = document.createElement('audio');
+    const shareElement = document.createElement('audio');
+    (component as any).audioElement = {nativeElement: micElement};
+    (component as any).screenAudioElement = {nativeElement: shareElement};
+    component.microphoneVolume = 0.75;
+    component.screenShareVolume = 0.2;
+    component.ngAfterViewChecked();
+    expect(micElement.volume).toBeCloseTo(0.75);
+    expect(shareElement.volume).toBeCloseTo(0.2);
+    component.microphoneVolume = 0;
+    component.screenShareVolume = 1;
+    component.ngAfterViewChecked();
+    expect(micElement.volume).toBe(0);
+    expect(shareElement.volume).toBe(1);
+    expect(microphone.attach).toHaveBeenCalledOnceWith(micElement);
+    expect(screenSound.attach).toHaveBeenCalledOnceWith(shareElement);
+    component.ngOnDestroy();
+  });
+
   it('routes microphone and shared-screen sound to the chosen speaker only when it changes', async () => {
     const microphone=track();
     const screenSound=track();
