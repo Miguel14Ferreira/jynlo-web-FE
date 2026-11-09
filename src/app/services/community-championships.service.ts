@@ -225,6 +225,18 @@ export class CommunityChampionshipsService {
       { name, format });
   }
 
+  updateOwnedEvent(communityId: number, championshipId: number, eventId: number,
+                   name: string, format: ChampionshipOwnedEventFormat): Observable<ChampionshipOwnedEvent> {
+    return this.http.put<ChampionshipOwnedEvent>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId,
+      { name, format });
+  }
+
+  deleteOwnedEvent(communityId: number, championshipId: number, eventId: number): Observable<void> {
+    return this.http.delete<void>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId);
+  }
+
   addCompetition(communityId: number, championshipId: number,
                  tournamentId: number): Observable<CommunityChampionship> {
     return this.http.post<CommunityChampionship>(
