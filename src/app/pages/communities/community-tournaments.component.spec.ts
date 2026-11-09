@@ -6153,6 +6153,28 @@ describe('Community tournaments management', () => {
     expect(component.isSportFormatSupported).toBeTrue();
   });
 
+  it('explains standalone tournaments and multi-competition championships in Portuguese and English', () => {
+    const previous = localStorage.getItem('d24-language');
+    try {
+      for (const language of ['pt', 'en']) {
+        localStorage.setItem('d24-language', language);
+        const tournament = t('communities.tournamentConceptText');
+        const championship = t('communities.championshipConceptText');
+        const example = t('communities.championshipConceptExample');
+        expect(tournament).not.toBe('communities.tournamentConceptText');
+        expect(championship).not.toBe('communities.championshipConceptText');
+        expect(example).not.toBe('communities.championshipConceptExample');
+        expect(tournament).not.toBe(championship);
+        expect(example).toContain('2026/27');
+        expect(t('communities.tournamentConceptTitle'))
+          .not.toBe(t('communities.championshipConceptTitle'));
+      }
+    } finally {
+      if (previous === null) localStorage.removeItem('d24-language');
+      else localStorage.setItem('d24-language', previous);
+    }
+  });
+
   it('keeps the championship explanation optional and resets it on another community', () => {
     expect(component.championshipExplainerOpen).toBeFalse();
     component.championshipExplainerOpen = true;
