@@ -5494,8 +5494,9 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
           this.loadCompetition(this.selected as CommunityGroup, this.selectedSeasonId);
         },
         error: error => {
-          this.errorMessage = error.error?.message
-            || t('feedback.communities.roundSaveError');
+          this.errorMessage = error.status === 409
+            ? t('feedback.communities.roundConflict')
+            : (error.error?.message || t('feedback.communities.roundSaveError'));
         }
       });
   }
