@@ -479,6 +479,27 @@ describe('Global incoming call popup', () => {
     expect(calls.end).not.toHaveBeenCalled();
   });
 
+  it('lets users change the other participant voice volume even without a shared screen', () => {
+    const local = {identity:'local', videoTrackPublications:new Map(),
+      audioTrackPublications:new Map(), isSpeaking:false, isMicrophoneEnabled:true};
+    const remote = {identity:'remote', videoTrackPublications:new Map(),
+      audioTrackPublications:new Map(), isSpeaking:false, isMicrophoneEnabled:true};
+    calls.room = {localParticipant:local,remoteParticipants:new Map([['remote',remote]])};
+    state.next({...invitation('voice'),phase:'active',startedAt:Date.now()});
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.querySelector('.connect-presentation-stage')).toBeNull();
+    const mixer = host.querySelector('.connect-share-audio');
+    const sliders = mixer?.querySelectorAll('input[type="range"]');
+    expect(sliders?.length).toBe(1);
+    const voice = sliders?.[0] as HTMLInputElement;
+    voice.value = '65';
+    voice.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.volumeFor('remote')).toBeCloseTo(0.65);
+    expect(calls.end).not.toHaveBeenCalled();
+  });
+
   it('shows a useful message when device enumeration is unavailable', () => {
     state.next({...invitation('voice'),phase:'active',startedAt:Date.now()});
     fixture.detectChanges();
