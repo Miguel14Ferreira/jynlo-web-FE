@@ -477,19 +477,45 @@
               </div>
             }
             @if (selectedAttachment; as file) {
-              <div class="inbox-attachment-draft" [class.inbox-pasted-image-draft]="!!selectedAttachmentPreviewUrl">
-                @if (selectedAttachmentPreviewUrl; as imagePreview) {
-                  <img class="inbox-pasted-image-preview" [src]="imagePreview" [alt]="'chat.pastedImage' | t">
-                } @else {
-                  <span aria-hidden="true">{{ file.type.startsWith('audio/') ? '🎤' : '📎' }}</span>
-                }
-                <span>{{ file.type.startsWith('audio/') ? ('chat.voicePreview' | t) : file.name }}</span>
-                <button type="button" [disabled]="sending || deliveryUncertain"
-                  (click)="removeAttachment()">{{ 'chat.attachmentRemove' | t }}</button>
-              </div>
-              @if (voicePreviewUrl) {
-                <audio controls preload="metadata" [src]="voicePreviewUrl"
-                  [attr.aria-label]="'chat.voicePreview' | t"></audio>
+              @if (voicePreviewUrl; as previewUrl) {
+                <div class="inbox-voice-draft" [attr.aria-label]="'chat.voicePreview' | t">
+                  <div class="inbox-voice-inline">
+                    <audio #draftVoicePlayer class="inbox-voice-media" preload="metadata" [src]="previewUrl"
+                      (loadedmetadata)="onVoicePreviewTimeUpdate(draftVoicePlayer)"
+                      (timeupdate)="onVoicePreviewTimeUpdate(draftVoicePlayer)"
+                      (playing)="onVoicePreviewPlaybackEvent(draftVoicePlayer)"
+                      (pause)="onVoicePreviewPlaybackEvent(draftVoicePlayer)"
+                      (ended)="onVoicePreviewPlaybackEvent(draftVoicePlayer)"></audio>
+                    <button type="button" class="inbox-voice-control"
+                      [attr.aria-label]="(voicePreviewPlaying ? 'chat.voicePause' : 'chat.voicePlayback') | t"
+                      (click)="toggleVoicePreview(draftVoicePlayer)">
+                      <span aria-hidden="true">{{ voicePreviewPlaying ? 'Ⅱ' : '▶' }}</span>
+                    </button>
+                    <input class="inbox-voice-seek" type="range" min="0" max="100" step="1"
+                      [value]="voicePreviewProgress()" [attr.aria-label]="'chat.voiceSeek' | t"
+                      (input)="seekVoicePreview(draftVoicePlayer, $event)">
+                    <time class="inbox-voice-clock">{{ voicePreviewTimeLabel() }}</time>
+                    <button type="button" class="inbox-voice-mute"
+                      [attr.aria-label]="(voicePreviewMuted ? 'chat.voiceUnmute' : 'chat.voiceMute') | t"
+                      (click)="toggleVoicePreviewMute(draftVoicePlayer)">
+                      <span aria-hidden="true">{{ voicePreviewMuted ? '🔇' : '🔊' }}</span>
+                    </button>
+                  </div>
+                  <button type="button" class="inbox-voice-draft-remove"
+                    [disabled]="sending || deliveryUncertain"
+                    (click)="removeAttachment()">{{ 'chat.attachmentRemove' | t }}</button>
+                </div>
+              } @else {
+                <div class="inbox-attachment-draft" [class.inbox-pasted-image-draft]="!!selectedAttachmentPreviewUrl">
+                  @if (selectedAttachmentPreviewUrl; as imagePreview) {
+                    <img class="inbox-pasted-image-preview" [src]="imagePreview" [alt]="'chat.pastedImage' | t">
+                  } @else {
+                    <span aria-hidden="true">📎</span>
+                  }
+                  <span>{{ file.name }}</span>
+                  <button type="button" [disabled]="sending || deliveryUncertain"
+                    (click)="removeAttachment()">{{ 'chat.attachmentRemove' | t }}</button>
+                </div>
               }
             }
             <div class="inbox-compose-toolbar">
