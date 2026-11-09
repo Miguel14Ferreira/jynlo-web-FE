@@ -571,7 +571,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   get sessionCallingAvailable(): boolean {
-    return !!this.sessionCalls?.available$.value && !this.sessionCalls.state$.value;
+    return !!this.sessionCalls && this.sessionCalls.available$.value && !this.sessionCalls.state$.value;
   }
 
   // Only a known, internal navigation source can change the back destination.
