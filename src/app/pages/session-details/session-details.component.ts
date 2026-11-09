@@ -41,6 +41,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   });
   session?: SessionDetail;
   sessionContext: SessionContext | null = null;
+  showRankingBenefits = false;
   sessionContextLoading = false;
   sessionContextError = '';
   invitePanelOpen = false;
