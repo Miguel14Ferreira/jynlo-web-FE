@@ -8,6 +8,8 @@ on:
       - 'src/app/pages/communities/communities.component.ts'
       - 'src/app/pages/communities/communities.component.spec.ts'
       - 'src/app/pages/communities/community-tournaments.component.html'
+      - 'src/app/pages/communities/community-tournaments.component.ts'
+      - 'src/app/services/community-championships.service.ts'
       - 'src/app/pages/communities/community-tournaments.component.spec.ts'
       - 'src/app/i18n/i18n.service.ts'
       - 'src/app/i18n/translations-en.ts'
