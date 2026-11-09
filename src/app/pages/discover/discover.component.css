@@ -874,3 +874,38 @@ button.pillar-action {
 @media (max-width: 520px) {
   .explore-map-actions > a { flex: 1 1 100%; }
 }
+
+
+/* Session discovery has room for a real pan/zoom map in its focused tab. */
+.discovery-grid.is-focused #explore-sessions:not([hidden]) {
+  grid-column: 1 / -1;
+}
+.jynlo-session-view-toggle {
+  display: flex;
+  gap: .35rem;
+  padding: .3rem;
+  margin: 0 0 .8rem;
+  border: 1px solid rgba(52,211,196,.24);
+  border-radius: .8rem;
+  background: rgba(4,28,42,.65);
+}
+.jynlo-session-view-toggle button {
+  flex: 1;
+  min-height: 42px;
+  border: 0;
+  border-radius: .6rem;
+  background: transparent;
+  color: #d0e8ef;
+  font: inherit;
+  font-size: .88rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+.jynlo-session-view-toggle button.is-selected {
+  background: #2bd8c7;
+  color: #062a34;
+}
+.jynlo-session-view-toggle button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
