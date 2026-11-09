@@ -31,7 +31,7 @@ import { formatKartingDuration, kartingRaceAward, orderedKartingRaceEntries } fr
 @Component({
   selector: 'app-community-tournaments',
   templateUrl: './community-tournaments.component.html',
-  styleUrls: ['./community-tournaments.component.css', './community-tournaments-v3-finish.css', './community-tournaments-team-journey.css'],
+  styleUrls: ['./community-tournaments.component.css', './community-tournaments-v3-finish.css', './community-tournaments-team-journey.css', './community-team-honours-timeline.css'],
   standalone: false
 })
 export class CommunityTournamentsComponent implements OnChanges {
