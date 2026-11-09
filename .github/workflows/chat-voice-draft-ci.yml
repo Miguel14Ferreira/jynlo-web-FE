@@ -1,0 +1,31 @@
+name: Jynlo voice draft playback regression
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - '.github/workflows/chat-voice-draft-ci.yml'
+      - 'src/app/pages/messages-center/messages-center.component.ts'
+      - 'src/app/pages/messages-center/messages-center.component.html'
+      - 'src/app/pages/messages-center/messages-center.component.css'
+      - 'src/app/pages/messages-center/messages-center.component.spec.ts'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  voice-draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Validate message center voice recording and playback
+        run: npx ng test --watch=false --browsers=ChromeHeadless --include=src/app/pages/messages-center/messages-center.component.spec.ts
