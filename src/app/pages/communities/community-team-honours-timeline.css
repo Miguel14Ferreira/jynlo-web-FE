@@ -100,3 +100,19 @@
   .team-honours-compare-selectors,
   .team-honours-comparison { grid-template-columns: 1fr; }
 }
+
+/* Historical ranking chart: position 1 stays at the top. */
+.team-ranking-chart {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--border-color, #d9e3df);
+  border-radius: 12px;
+  background: var(--surface-color, rgba(126, 146, 136, .06));
+}
+.team-ranking-chart svg { display: block; width: 100%; height: auto; max-height: 290px; overflow: visible; }
+.team-ranking-gridline { stroke: currentColor; stroke-opacity: .15; stroke-dasharray: 7 7; }
+.team-ranking-line { stroke: var(--primary-color, #249569); stroke-width: 5; fill: none; stroke-linejoin: round; stroke-linecap: round; }
+.team-ranking-dot { fill: var(--primary-color, #249569); stroke: var(--card-background, #fff); stroke-width: 3; }
+.team-ranking-axis-label, .team-ranking-position-label { fill: currentColor; font-size: 22px; font-weight: 600; }
+.team-ranking-chart-legend { margin: 10px 0 0; padding-left: 24px; }
+.team-ranking-chart-legend li { padding: 3px 0; font-variant-numeric: tabular-nums; }
