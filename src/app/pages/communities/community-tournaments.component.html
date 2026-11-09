@@ -98,13 +98,13 @@
           (click)="createChampionship()">{{ 'communities.championshipUi.save' | t }}</button>
       </div>
     }
-    <div class="create-step" role="group" aria-label="Vista dos campeonatos">
+    <div class="create-step" role="group" [attr.aria-label]="'communities.championshipUi.viewLabel' | t">
       <button type="button" class="t-btn t-btn-secondary"
         [attr.aria-pressed]="championshipHistoryView === 'ACTIVE'"
-        (click)="showActiveChampionships()">Em curso ({{ activeChampionshipCount }})</button>
+        (click)="showActiveChampionships()">{{ 'communities.championshipUi.active' | t }} ({{ activeChampionshipCount }})</button>
       <button type="button" class="t-btn t-btn-secondary"
         [attr.aria-pressed]="championshipHistoryView === 'HISTORY'"
-        (click)="showChampionshipHistory()">Histórico ({{ archivedChampionshipCount }})</button>
+        (click)="showChampionshipHistory()">{{ 'communities.championshipUi.history' | t }} ({{ archivedChampionshipCount }})</button>
     </div>
     @if (championshipHistoryView === 'HISTORY') {
       @if (selectedPermanentTeamProfile; as profile) {
