@@ -26,6 +26,8 @@ type ExploreCategory = 'all' | 'venues' | 'sessions' | 'people' | 'communities';
 })
 export class DiscoverComponent implements OnInit {
   activeTab: ExploreCategory = 'all';
+  sessionView: 'map' | 'list' = 'list';
+  setSessionView(view: 'map' | 'list'): void { this.sessionView = view; }
   readonly quickSports = ['Padel', 'Futebol', 'Ténis'];
   selectedMapVenueId: number | null = null;
   private cachedVenueMapSource = '';
