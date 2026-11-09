@@ -61,6 +61,8 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.championships = this.championships.map(item => item.id === result.id ? result : item);
         this.championshipBusy = false;
         this.championshipCloseConfirmed[result.id] = false;
+        this.showChampionshipHistory();
+        this.expandedArchivedChampionshipId = result.id;
         this.loadChampionshipStandings(result.id);
         this.changeDetector.markForCheck();
       },
@@ -166,6 +168,33 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipNameDraft = '';
   championshipSeasonDraft = '2026/27';
   championshipSportDraft = '';
+  championshipHistoryView: 'ACTIVE' | 'HISTORY' = 'ACTIVE';
+  expandedArchivedChampionshipId: number | null = null;
+
+  get activeChampionshipCount(): number {
+    return this.championships.filter(championship => !championship.closedAt).length;
+  }
+
+  get archivedChampionshipCount(): number {
+    return this.championships.filter(championship => !!championship.closedAt).length;
+  }
+
+  showChampionshipHistory(): void {
+    this.championshipHistoryView = 'HISTORY';
+    this.expandedArchivedChampionshipId = null;
+  }
+
+  showActiveChampionships(): void {
+    this.championshipHistoryView = 'ACTIVE';
+    this.expandedArchivedChampionshipId = null;
+  }
+
+  toggleArchivedChampionship(championshipId: number): void {
+    if (!this.championships.some(championship => championship.id === championshipId && championship.closedAt)) return;
+    this.expandedArchivedChampionshipId =
+      this.expandedArchivedChampionshipId === championshipId ? null : championshipId;
+  }
+
   championshipOpen = false;
   championshipBusy = false;
   championshipError = '';
@@ -1476,6 +1505,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.championshipTeamRegistries = {};
       this.championshipTeamDrafts = {};
       this.championshipCloseConfirmed = {};
+      this.showActiveChampionships();
       this.championshipError = '';
       this.championshipOpen = false;
       this.championshipBusy = false;
