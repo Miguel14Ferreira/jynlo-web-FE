@@ -143,6 +143,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     }
   }
 
+  sessionChatOpen = false;
   messages: SessionMessage[] = [];
   replyingToSessionMessage: SessionMessage | null = null;
   creatorReliability?: ReliabilitySummary;
@@ -445,12 +446,8 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     }
 
     this.sessionId = id;
-    if (this.pendingChatScroll) {
-      void this.router.navigate(['/menu/messages'], {
-        queryParams: { kind: 'session', id }, replaceUrl: true
-      });
-      return;
-    }
+    // Deep links can open the chat right here without leaving the session.
+    this.sessionChatOpen = this.pendingChatScroll;
     this.restoreRatingDismissal();
     this.loadSession();
     // Run the clock outside Angular so fixture.whenStable() and browser
@@ -484,7 +481,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         this.chatRealtimeConnected = connected;
         if (connected) {
           this.chatEverConnected = true;
-          // The session details page has no chat log. Only the inbox loads it.
+          if (this.sessionChatOpen && this.canAccessChat()) this.refreshMessages(false);
         }
       })
     );
@@ -1574,10 +1571,9 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   private markVisibleMessagesRead(): void {
-    // Session details can be opened without opening/seeing the chat.
-    // The session details screen no longer renders a chat log. Never mark
-    // hidden messages as read; the unified inbox owns read acknowledgements.
-    if (!this.chatMessageList?.nativeElement || !this.sessionId || !this.canAccessChat()
+    // Never acknowledge messages until the inline chat is actually visible.
+    if (!this.sessionChatOpen || !this.chatMessageList?.nativeElement
+        || !this.sessionId || !this.canAccessChat()
         || this.chatLoading || this.chatError || this.messages.length === 0) return;
     const highestId = this.messages.reduce((max, message) => Math.max(max, message.id), 0);
     this.readSync.markVisible('session', this.sessionId,
@@ -1587,6 +1583,19 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   private isNearChatBottom(): boolean {
     const el = this.chatMessageList?.nativeElement;
     return !el || el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+  }
+
+  toggleInlineSessionChat(): void {
+    if (!this.canAccessChat()) return;
+    this.sessionChatOpen = !this.sessionChatOpen;
+    this.typing.stop();
+    if (this.sessionChatOpen) {
+      this.scrollChatToBottomRequested = true;
+      this.refreshMessages();
+    } else {
+      this.showEmojiPicker = false;
+      this.replyingToSessionMessage = null;
+    }
   }
 
   refreshMessages(showLoading = true): void {
