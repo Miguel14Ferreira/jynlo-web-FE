@@ -764,6 +764,41 @@
                       }
                     }
                   </div>
+                  @if (event.format === 'LEAGUE') {
+                    <section class="create-step" [attr.aria-label]="'communities.championshipOwned.fixturesTitle' | t">
+                      <h6>{{ 'communities.championshipOwned.fixturesTitle' | t }}</h6>
+                      @if (leagueRounds(event.id).length) {
+                        @for (round of leagueRounds(event.id); track round) {
+                          <div class="create-step">
+                            <strong>{{ 'communities.championshipOwned.round' | t }} {{ round }}</strong>
+                            <ul>
+                              @for (fixture of leagueRoundFixtures(event.id, round); track fixture.id) {
+                                <li>{{ fixture.homeTeamName }} · {{ 'communities.championshipOwned.versus' | t }} · {{ fixture.awayTeamName }}</li>
+                              }
+                            </ul>
+                          </div>
+                        }
+                      } @else if (canManage && !championship.closedAt && event.status === 'DRAFT') {
+                        <p>{{ 'communities.championshipOwned.scheduleHint' | t }}</p>
+                        <label [for]="'owned-league-legs-' + event.id">{{ 'communities.championshipOwned.legsLabel' | t }}</label>
+                        <select [id]="'owned-league-legs-' + event.id"
+                          [value]="championshipLeagueLegs[event.id] || 1"
+                          (change)="setChampionshipLeagueLegs(event.id, $any($event.target).value)">
+                          <option value="1">{{ 'communities.championshipOwned.oneLeg' | t }}</option>
+                          <option value="2">{{ 'communities.championshipOwned.twoLegs' | t }}</option>
+                        </select>
+                        <button type="button" class="t-btn t-btn-primary"
+                          [disabled]="championshipLeagueBusy || championshipEventBusy ||
+                            (championshipOwnedEventTeams[event.id]?.length || 0) < 2 ||
+                            (championshipOwnedEventTeams[event.id]?.length || 0) > 64"
+                          (click)="generateChampionshipLeague(championship, event)">
+                          {{ 'communities.championshipOwned.generateSchedule' | t }}
+                        </button>
+                      } @else {
+                        <p>{{ 'communities.championshipOwned.schedulePending' | t }}</p>
+                      }
+                    </section>
+                  }
                 </li>
               }
             </ul>
