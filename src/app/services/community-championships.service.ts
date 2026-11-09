@@ -92,6 +92,19 @@ export interface ChampionshipTeamHonour {
   name: string;
   titles: number;
   championshipIds: number[];
+  leagues: number;
+  cups: number;
+}
+export interface ChampionshipCompetitionTitle {
+  championshipId: number;
+  tournamentId: number;
+  tournamentName: string;
+  seasonLabel: string;
+  sport: string;
+  format: 'LEAGUE' | 'KNOCKOUT' | 'GROUP_KNOCKOUT';
+  entryType: 'TEAM' | 'INDIVIDUAL';
+  winnerName: string;
+  permanentTeamId: number | null;
 }
 export interface CommunityPermanentTeam {
   id: number;
@@ -108,6 +121,7 @@ export interface CommunityChampionshipHonours {
   titles: ChampionshipHistoricalTitle[];
   individualHonours: ChampionshipIndividualHonour[];
   teamHonours: ChampionshipTeamHonour[];
+  competitionTitles: ChampionshipCompetitionTitle[];
 }
 
 @Injectable({ providedIn: 'root' })
