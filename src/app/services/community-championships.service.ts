@@ -14,6 +14,12 @@ export interface ChampionshipOwnedEvent {
   createdAt: string;
 }
 
+export interface ChampionshipOwnedEventTeam {
+  id: number;
+  championshipTeamId: number;
+  name: string;
+}
+
 export interface ChampionshipCompetition {
   id: number;
   name: string;
@@ -235,6 +241,26 @@ export class CommunityChampionshipsService {
   deleteOwnedEvent(communityId: number, championshipId: number, eventId: number): Observable<void> {
     return this.http.delete<void>(
       this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId);
+  }
+
+  ownedEventTeams(communityId: number, championshipId: number,
+                  eventId: number): Observable<ChampionshipOwnedEventTeam[]> {
+    return this.http.get<ChampionshipOwnedEventTeam[]>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId + '/teams');
+  }
+
+  addOwnedEventTeam(communityId: number, championshipId: number, eventId: number,
+                    championshipTeamId: number): Observable<ChampionshipOwnedEventTeam> {
+    return this.http.post<ChampionshipOwnedEventTeam>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId + '/teams',
+      { championshipTeamId });
+  }
+
+  removeOwnedEventTeam(communityId: number, championshipId: number, eventId: number,
+                       championshipTeamId: number): Observable<void> {
+    return this.http.delete<void>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId +
+      '/teams/' + championshipTeamId);
   }
 
   addCompetition(communityId: number, championshipId: number,
