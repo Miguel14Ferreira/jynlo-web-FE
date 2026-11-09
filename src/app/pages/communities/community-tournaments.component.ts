@@ -1,6 +1,7 @@
 import { CommunityChampionshipsService, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
 import { championshipTeamProfile, ChampionshipTeamProfile } from './community-championship-team-profile';
 import { compareTeamSeasons, comparableTeamSeasons, TeamSeasonComparison } from './community-championship-team-comparison';
+import { teamRankingChart, teamRankingSports, TeamRankingChart } from './community-championship-team-ranking-chart';
 import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { finalize, firstValueFrom, forkJoin, Observable, timeout } from 'rxjs';
 import { CommunityGroup } from '../model/community-group';
@@ -131,6 +132,26 @@ export class CommunityTournamentsComponent implements OnChanges {
     });
   }
 
+  rankingChartSport = '';
+
+  get availableRankingChartSports(): string[] {
+    const profile = this.selectedPermanentTeamProfile;
+    return profile ? teamRankingSports(profile) : [];
+  }
+
+  get selectedRankingChart(): TeamRankingChart | null {
+    const profile = this.selectedPermanentTeamProfile;
+    if (!profile) return null;
+    const sports = teamRankingSports(profile);
+    const sport = sports.find(s => s.toLocaleLowerCase() === this.rankingChartSport.toLocaleLowerCase())
+      ?? sports[0];
+    return sport ? teamRankingChart(profile, sport) : null;
+  }
+
+  chooseRankingChartSport(sport: string): void {
+    this.rankingChartSport = sport;
+  }
+
   comparisonOlderChampionshipId: number | null = null;
   comparisonNewerChampionshipId: number | null = null;
 
@@ -167,6 +188,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     if (!this.permanentTeamRegistry?.teams.some(team => team.id === permanentTeamId)) return;
     this.championshipHistoryView = 'HISTORY';
     this.selectedPermanentTeamId = permanentTeamId;
+    this.rankingChartSport = '';
     this.comparisonOlderChampionshipId = null;
     this.comparisonNewerChampionshipId = null;
     this.expandedArchivedChampionshipId = null;
@@ -174,6 +196,7 @@ export class CommunityTournamentsComponent implements OnChanges {
 
   closePermanentTeamProfile(): void {
     this.selectedPermanentTeamId = null;
+    this.rankingChartSport = '';
     this.comparisonOlderChampionshipId = null;
     this.comparisonNewerChampionshipId = null;
   }
@@ -1662,6 +1685,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.championshipHonours = null;
       this.permanentTeamRegistry = null;
       this.selectedPermanentTeamId = null;
+      this.rankingChartSport = '';
       this.permanentTeamNameDraft = '';
       this.championshipHonoursSportFilter = '';
       this.championshipHonoursError = '';
