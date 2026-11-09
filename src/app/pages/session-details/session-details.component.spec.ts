@@ -2455,10 +2455,11 @@ describe('SessionDetailsComponent', () => {
     expect(component.actionError).toContain('palavra-passe');
   });
 
-  it('should load chat messages for a participant', () => {
+  it('should load chat messages for a participant before kickoff', () => {
     component.session = {
       ...session,
-      joined: true
+      joined: true,
+      gameDate: new Date(Date.now() + 3_600_000).toISOString()
     };
 
     component.refreshMessages();
@@ -2486,7 +2487,8 @@ describe('SessionDetailsComponent', () => {
     expect(fixture.nativeElement.querySelector('.chat-panel')).toBeNull();
     expect(fixture.nativeElement.querySelector('.message-composer')).toBeNull();
     expect(fixture.nativeElement.textContent).toContain('Chat indisponível');
-    expect(component.messages.some(item => item.body === 'Até ao próximo jogo!')).toBeTrue();
+    expect(sessionService.messages).not.toHaveBeenCalled();
+    expect(component.messages).toEqual([]);
 
     component.messageBody = 'Tentar enviar depois do jogo';
     component.sendMessage();
