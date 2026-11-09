@@ -70,6 +70,16 @@
           <div>
             <h5>{{ championship.name }}</h5>
             <p>{{ championship.sport }} · {{ championship.seasonLabel }}</p>
+            @if (championship.closedAt) {
+              <p><strong>Época encerrada</strong> · {{ championship.closedAt | date:'dd/MM/yyyy' }}</p>
+              <p><strong>Campeão: {{ championship.championDisplayName }}</strong></p>
+              <small>Classificação final arquivada; alterações posteriores às provas não modificam este histórico.</small>
+            } @else if (canManage) {
+              <button type="button" class="t-btn t-btn-secondary"
+                [disabled]="championshipBusy || !championshipAggregateStandings[championship.id]"
+                (click)="closeChampionship(championship)">Encerrar época e guardar campeão</button>
+              <small>O fecho é definitivo. Todas as provas devem estar concluídas e o primeiro lugar desempatado.</small>
+            }
           </div>
         </div>
         @if (championship.competitions.length) {
@@ -81,7 +91,7 @@
                 @if (competition.pointsByPlace) {
                   <p>Pontos por posição configurados: {{ competition.pointsByPlace }}</p>
                 }
-                @if (canManage && competition.status === 'DRAFT') {
+                @if (canManage && !championship.closedAt && competition.status === 'DRAFT') {
                   <label [for]="'placement-points-' + competition.id">Pontuação por posição (1.º, 2.º, 3.º...)</label>
                   <input [id]="'placement-points-' + competition.id"
                     type="text" maxlength="120" #placementPointsInput
@@ -113,7 +123,7 @@
           <h5>Equipas do campeonato</h5>
           <p>Associa as equipas de diferentes provas à mesma equipa do campeonato para acumular os pontos. A associação é manual e não depende apenas do nome.</p>
           @if (championshipTeamRegistries[championship.id]; as registry) {
-            @if (canManage) {
+            @if (canManage && !championship.closedAt) {
               <label [for]="'season-team-' + championship.id">Nome da equipa</label>
               <input [id]="'season-team-' + championship.id" type="text" maxlength="100"
                 [value]="championshipTeamDrafts[championship.id] || ''"
@@ -126,7 +136,7 @@
             @for (team of registry.competitionTeams; track team.id) {
               <div>
                 <strong>{{ team.name }}</strong> · {{ team.tournamentName }}
-                @if (canManage && registry.teams.length) {
+                @if (canManage && !championship.closedAt && registry.teams.length) {
                   <select #canonicalTeamSelect
                     [value]="team.championshipTeamId || ''"
                     [attr.aria-label]="'Equipa do campeonato para ' + team.name">
@@ -181,7 +191,7 @@
             </ol>
           }
         </div>
-        @if (canManage && championshipAvailableTournaments(championship).length) {
+        @if (canManage && !championship.closedAt && championshipAvailableTournaments(championship).length) {
           <div class="create-field">
             <label [for]="'championship-add-' + championship.id">Associar prova existente</label>
             <select [id]="'championship-add-' + championship.id" #competitionChoice>
