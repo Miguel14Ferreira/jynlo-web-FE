@@ -169,6 +169,33 @@ describe('championshipTeamProfile', () => {
     expect(profile?.seasons[0].closedAt).toBeNull();
   });
 
+  it('ignores season registries and rankings belonging to another championship', () => {
+    const mismatchedRegistry: Record<number, CommunityChampionshipTeams> = {
+      ...teams,
+      5: { ...teams[5], championshipId: 4 }
+    };
+    const ranked = {
+      5: { championshipId: 4, fullyScoredCompetitions: 1,
+        winnerOnlyCompetitions: 0, pendingCompetitions: 0,
+        standings: [{ entryType: 'TEAM' as const, participantId: 18,
+          name: 'Águias FC', points: 99, victories: 9, awardedCompetitions: 9 }] }
+    };
+    const ignored = championshipTeamProfile(90, honours, seasons,
+      mismatchedRegistry, registry, ranked);
+    expect(ignored?.seasons.map(item => item.championshipId)).toEqual([4]);
+
+    const correctRegistry = championshipTeamProfile(90, honours, seasons,
+      teams, registry, ranked);
+    expect(correctRegistry?.seasons[0].championshipId).toBe(5);
+    expect(correctRegistry?.seasons[0].points).toBeNull();
+    expect(correctRegistry?.seasons[0].position).toBeNull();
+  });
+
+  it('rejects honours belonging to another community', () => {
+    const otherHonours = { ...honours, communityId: 999 };
+    expect(championshipTeamProfile(90, otherHonours, seasons, teams, registry)).toBeNull();
+  });
+
   it('does not expose details for a team outside the community registry', () => {
     expect(championshipTeamProfile(999, honours, seasons, teams, registry)).toBeNull();
   });
