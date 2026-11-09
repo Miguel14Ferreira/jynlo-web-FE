@@ -83,7 +83,7 @@ describe('Community tournaments management', () => {
     } as unknown as ChangeDetectorRef;
     const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam']);
     championships.list.and.returnValue(of([]));
-    championships.honours.and.returnValue(of({ communityId: 7, completedSeasons: 0, titles: [], individualHonours: [], teamHonours: [] }));
+    championships.honours.and.returnValue(of({ communityId: 7, completedSeasons: 0, titles: [], individualHonours: [], teamHonours: [], competitionTitles: [] }));
     championships.permanentTeams.and.returnValue(of({ communityId: 7, teams: [] }));
     championships.teams.and.returnValue(of({ championshipId: 1, teams: [], competitionTeams: [] }));
     championships.standings.and.returnValue(of({
@@ -5946,11 +5946,33 @@ describe('Community tournaments management', () => {
     expect(component.championshipHistoryView).toBe('ACTIVE');
   });
 
+  it('keeps separate league and cup totals for a permanent team', () => {
+    component.championshipHonours = {
+      communityId: 7, completedSeasons: 1, individualHonours: [],
+      titles: [], teamHonours: [
+        { permanentTeamId: 8, name: 'Águias', titles: 1,
+          championshipIds: [4], leagues: 2, cups: 1 }
+      ],
+      competitionTitles: [
+        { championshipId: 4, tournamentId: 11, tournamentName: 'Liga',
+          seasonLabel: '2025/26', sport: 'Futebol', format: 'LEAGUE',
+          entryType: 'TEAM', winnerName: 'Águias', permanentTeamId: 8 },
+        { championshipId: 4, tournamentId: 12, tournamentName: 'Taça',
+          seasonLabel: '2025/26', sport: 'Futebol', format: 'KNOCKOUT',
+          entryType: 'TEAM', winnerName: 'Águias', permanentTeamId: 8 }
+      ]
+    };
+    expect(component.championshipHonours.teamHonours[0].titles).toBe(1);
+    expect(component.championshipHonours.teamHonours[0].leagues).toBe(2);
+    expect(component.championshipHonours.teamHonours[0].cups).toBe(1);
+    expect(component.championshipHonours.competitionTitles.length).toBe(2);
+  });
+
   it('shows permanent team titles only after confirmed backend associations', () => {
     component.championshipHonours = {
-      communityId: 7, completedSeasons: 2, individualHonours: [],
+      communityId: 7, completedSeasons: 2, individualHonours: [], competitionTitles: [],
       teamHonours: [{ permanentTeamId: 90, name: 'Águias FC', titles: 2,
-        championshipIds: [11, 12] }],
+        championshipIds: [11, 12], leagues: 1, cups: 2 }],
       titles: [
         { championshipId: 11, championshipName: 'Época 1', seasonLabel: '2024/25',
           sport: 'Futebol', closedAt: '2025-07-01T00:00:00Z',
@@ -5966,7 +5988,7 @@ describe('Community tournaments management', () => {
 
   it('filters official championship honours by sport without changing stored titles', () => {
     component.championshipHonours = {
-      communityId: 7, completedSeasons: 2, individualHonours: [], teamHonours: [],
+      communityId: 7, completedSeasons: 2, individualHonours: [], teamHonours: [], competitionTitles: [],
       titles: [
         { championshipId: 1, championshipName: 'Liga', seasonLabel: '2025/26',
           sport: 'Futebol', closedAt: '2026-06-01T00:00:00Z', entryType: 'TEAM',
