@@ -35,6 +35,8 @@ describe('Community tournaments management', () => {
       expect(t('communities.championshipUi.name')).toBe('Nome do campeonato');
       expect(t('communities.championshipUi.season')).toBe('Época');
       expect(t('communities.championshipUi.sport')).toBe('Modalidade');
+      expect(t('communities.championshipUi.active')).toBe('Em curso');
+      expect(t('communities.championshipUi.history')).toBe('Histórico');
 
       localStorage.setItem('d24-language', 'en');
       expect(t('communities.championshipUi.openForm')).toBe('Create championship');
@@ -42,6 +44,8 @@ describe('Community tournaments management', () => {
       expect(t('communities.championshipUi.name')).toBe('Championship name');
       expect(t('communities.championshipUi.season')).toBe('Season');
       expect(t('communities.championshipUi.sport')).toBe('Sport');
+      expect(t('communities.championshipUi.active')).toBe('Active');
+      expect(t('communities.championshipUi.history')).toBe('History');
       expect(t('communities.championshipUi.namePlaceholder')).toContain('Community Championship');
     } finally {
       if (previous === null) localStorage.removeItem('d24-language');
