@@ -95,6 +95,9 @@
                     <strong>{{ season.seasonLabel }}</strong> · {{ season.name }}
                     · {{ season.sport }} · {{ season.teamName }}
                     · {{ season.closedAt ? 'Concluída' : 'Em curso' }}
+                    @if (season.position !== null) {
+                      · {{ season.position }}.º lugar · {{ season.points }} pontos
+                    }
                     @if (season.champion) {
                       · Campeã
                     }
