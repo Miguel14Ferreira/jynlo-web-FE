@@ -100,6 +100,51 @@
               </div>
             </div>
           </div>
+          <section class="create-step" aria-label="Gráfico de evolução das classificações">
+            <h5>Evolução da classificação</h5>
+            <p class="team-honours-muted">Posições finais verificadas, por ordem cronológica. O 1.º lugar está no topo e cada modalidade tem o seu próprio gráfico.</p>
+            @if (availableRankingChartSports.length > 1) {
+              <label for="team-ranking-sport">Modalidade</label>
+              <select id="team-ranking-sport"
+                [value]="selectedRankingChart?.sport || ''"
+                (change)="chooseRankingChartSport($any($event.target).value)">
+                @for (sport of availableRankingChartSports; track sport) {
+                  <option [value]="sport">{{ sport }}</option>
+                }
+              </select>
+            }
+            @if (selectedRankingChart; as rankingChart) {
+              <div class="team-ranking-chart" role="group"
+                [attr.aria-label]="'Evolução das classificações em ' + rankingChart.sport">
+                <svg viewBox="0 0 1000 225" preserveAspectRatio="xMidYMid meet"
+                  role="img" [attr.aria-label]="'Gráfico de posições finais em ' + rankingChart.sport">
+                  <line x1="45" y1="35" x2="950" y2="35" class="team-ranking-gridline"/>
+                  <line x1="45" y1="180" x2="950" y2="180" class="team-ranking-gridline"/>
+                  <text x="4" y="40" class="team-ranking-axis-label">1.º</text>
+                  @if (rankingChart.maximumPosition > 1) {
+                    <text x="4" y="185" class="team-ranking-axis-label">{{ rankingChart.maximumPosition }}.º</text>
+                  }
+                  <polyline [attr.points]="rankingChart.polyline"
+                    class="team-ranking-line"/>
+                  @for (point of rankingChart.points; track point.championshipId) {
+                    <circle [attr.cx]="point.x" [attr.cy]="point.y" r="8"
+                      class="team-ranking-dot"/>
+                    <text [attr.x]="point.x" [attr.y]="point.y - 17"
+                      class="team-ranking-position-label" text-anchor="middle">{{ point.position }}.º</text>
+                  }
+                </svg>
+                <ol class="team-ranking-chart-legend">
+                  @for (point of rankingChart.points; track point.championshipId) {
+                    <li><strong>{{ point.seasonLabel }}</strong>
+                      · {{ point.championshipName }} · {{ point.position }}.º lugar
+                      · {{ point.points }} pontos</li>
+                  }
+                </ol>
+              </div>
+            } @else {
+              <p>Não existem classificações finais verificadas suficientes para apresentar a evolução.</p>
+            }
+          </section>
           <div class="create-step">
             <h5>Linha temporal das épocas</h5>
             <p class="team-honours-muted">Participações associadas a esta equipa. A evolução compara apenas classificações finais verificadas da mesma modalidade.</p>
