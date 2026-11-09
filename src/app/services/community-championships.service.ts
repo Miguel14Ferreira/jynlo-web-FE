@@ -30,6 +30,18 @@ export interface ChampionshipOwnedLeagueFixture {
   awayTeamName: string;
 }
 
+export interface ChampionshipCupBye {
+  id: number;
+  slot: number;
+  teamId: number;
+  teamName: string;
+}
+
+export interface ChampionshipCupOpeningRound {
+  matches: ChampionshipOwnedLeagueFixture[];
+  byes: ChampionshipCupBye[];
+}
+
 export interface ChampionshipCompetition {
   id: number;
   name: string;
@@ -284,6 +296,18 @@ export class CommunityChampionshipsService {
     return this.http.post<ChampionshipOwnedLeagueFixture[]>(
       this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId + '/schedule',
       { legs });
+  }
+
+  ownedCupDraw(communityId: number, championshipId: number,
+               eventId: number): Observable<ChampionshipCupOpeningRound> {
+    return this.http.get<ChampionshipCupOpeningRound>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId + '/cup-draw');
+  }
+
+  drawOwnedCup(communityId: number, championshipId: number,
+               eventId: number): Observable<ChampionshipCupOpeningRound> {
+    return this.http.post<ChampionshipCupOpeningRound>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId + '/cup-draw', {});
   }
 
   addCompetition(communityId: number, championshipId: number,
