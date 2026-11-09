@@ -2485,7 +2485,7 @@ describe('SessionDetailsComponent', () => {
     expect(component.canSendChat()).toBeFalse();
     expect(fixture.nativeElement.querySelector('.chat-panel')).toBeNull();
     expect(fixture.nativeElement.querySelector('.message-composer')).toBeNull();
-    expect(fixture.nativeElement.textContent).toContain('Chat indisponível');
+    expect(fixture.nativeElement.querySelector('.session-inline-chat-toggle')).not.toBeNull();
     expect(component.messages.some(item => item.body === 'Até ao próximo jogo!')).toBeTrue();
 
     component.messageBody = 'Tentar enviar depois do jogo';
@@ -2503,7 +2503,7 @@ describe('SessionDetailsComponent', () => {
 
     expect(component.canSendChat()).toBeFalse();
     expect(fixture.nativeElement.querySelector('.message-composer')).toBeNull();
-    expect(fixture.nativeElement.textContent).toContain('Chat indisponível');
+    expect(fixture.nativeElement.querySelector('.session-inline-chat-toggle')).not.toBeNull();
   });
 
   it('immediately closes chat when the game is completed, cancelled or did not occur', () => {
@@ -2524,14 +2524,14 @@ describe('SessionDetailsComponent', () => {
     expect(component.canSendChat()).toBeFalse();
   });
 
-  it('does not render another chat UI for a concluded session', () => {
+  it('keeps concluded sessions closed to sending until the archive is opened', () => {
     component.session = { ...session, joined: true };
     component.messages = [];
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('.empty-chat')).toBeNull();
     expect(fixture.nativeElement.querySelector('.message-composer')).toBeNull();
-    expect(fixture.nativeElement.textContent).toContain('Chat indisponível');
+    expect(fixture.nativeElement.querySelector('.session-inline-chat-toggle')).not.toBeNull();
   });
 
   it('should send a chat message and append it locally', () => {
@@ -2607,7 +2607,7 @@ describe('SessionDetailsComponent', () => {
     expect(component.messages.length).toBe(1);
   });
 
-  it('shows one inbox chat entry instead of another session chat header', () => {
+  it('shows one inline chat toggle without opening the conversation by default', () => {
     component.session = {
       ...session, joined: true,
       gameDate: new Date(Date.now() + 3_600_000).toISOString()
