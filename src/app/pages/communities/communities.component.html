@@ -1059,12 +1059,8 @@
                       <app-community-session-card
                         [session]="session"
                         [formattedDate]="formatSessionDate(session.gameDate)"
+                        [seasonGame]="session.seasonCommunityId === selected.id"
                       ></app-community-session-card>
-                      @if (session.seasonCommunityId === selected.id) {
-                        <p class="community-session-result-counted">
-                          {{ 'createSession.seasonGameTitle' | t }}
-                        </p>
-                      }
                       @if (canRecordCommunitySession(session)) {
                         <div class="community-session-result-actions">
                           @if (recordedCommunitySessionIds.has(session.id)) {
