@@ -3,6 +3,17 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environment/environment';
 
+export type ChampionshipOwnedEventFormat = 'LEAGUE' | 'CUP' | 'SUPERCUP' | 'OTHER';
+
+export interface ChampionshipOwnedEvent {
+  id: number;
+  championshipId: number;
+  name: string;
+  format: ChampionshipOwnedEventFormat;
+  status: 'DRAFT';
+  createdAt: string;
+}
+
 export interface ChampionshipCompetition {
   id: number;
   name: string;
@@ -200,6 +211,18 @@ export class CommunityChampionshipsService {
     return this.http.put<CommunityChampionship>(
       this.base(communityId) + '/' + championshipId + '/competitions/' + tournamentId + '/winner-points',
       { points });
+  }
+
+  ownedEvents(communityId: number, championshipId: number): Observable<ChampionshipOwnedEvent[]> {
+    return this.http.get<ChampionshipOwnedEvent[]>(
+      this.base(communityId) + '/' + championshipId + '/owned-events');
+  }
+
+  createOwnedEvent(communityId: number, championshipId: number, name: string,
+                   format: ChampionshipOwnedEventFormat): Observable<ChampionshipOwnedEvent> {
+    return this.http.post<ChampionshipOwnedEvent>(
+      this.base(communityId) + '/' + championshipId + '/owned-events',
+      { name, format });
   }
 
   addCompetition(communityId: number, championshipId: number,
