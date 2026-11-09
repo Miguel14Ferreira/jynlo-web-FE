@@ -241,6 +241,12 @@ export class SessionService {
     return this.http.get<SessionDetail>(this.baseUrl + '/' + id);
   }
 
+  updateCapacity(id: number, maxParticipants: number): Observable<SessionDetail> {
+    return this.http.patch<SessionDetail>(
+      this.baseUrl + '/' + id + '/capacity', null,
+      { params: new HttpParams().set('maxParticipants', String(maxParticipants)) });
+  }
+
   /** Private organiser-only update; the backend enforces ownership and timing. */
   updateMeetingPoint(id: number, instructions: string | null): Observable<SessionDetail> {
     return this.http.patch<SessionDetail>(this.baseUrl + '/' + id + '/meeting-point',
