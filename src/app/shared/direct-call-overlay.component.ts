@@ -141,17 +141,32 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
               <div class="connect-participants" [class.connect-participants--video]="videoActive"
                 [class.connect-participants--presenting]="hasPresentation">
                 @if (hasPresentation) {
-                  <div class="connect-presentation-stage" [attr.aria-label]="'calls.sharedScreens' | t">
-                    @for (person of participants; track person.identity) {
-                      @if (personHasScreenShare(person)) {
-                        <app-call-participant-tile class="connect-presentation-tile"
-                          [participant]="person" [presentation]="true"
-                          [label]="participantLabel(person) + ' · Ecrã'"
-                          [local]="person === calls.room?.localParticipant">
-                        </app-call-participant-tile>
-                      }
+                  <div class="connect-share-bar">
+                    <span class="connect-share-live"><span aria-hidden="true">●</span>
+                      {{ 'calls.liveShare' | t }}
+                    </span>
+                    @if (presentingParticipants.length > 1) {
+                      <nav class="connect-share-switcher" [attr.aria-label]="'calls.chooseSharedScreen' | t">
+                        @for (person of presentingParticipants; track person.identity) {
+                          <button type="button"
+                            [class.is-selected]="focusedPresentation?.identity === person.identity"
+                            [attr.aria-pressed]="focusedPresentation?.identity === person.identity"
+                            (click)="focusPresentation(person.identity)">
+                            {{ participantLabel(person) }}
+                          </button>
+                        }
+                      </nav>
                     }
                   </div>
+                  @if (focusedPresentation; as presenter) {
+                    <div class="connect-presentation-stage" [attr.aria-label]="'calls.sharedScreens' | t">
+                      <app-call-participant-tile class="connect-presentation-tile"
+                        [participant]="presenter" [presentation]="true"
+                        [label]="participantLabel(presenter) + ' · ' + appTranslateLabel('calls.screen')"
+                        [local]="presenter === calls.room?.localParticipant">
+                      </app-call-participant-tile>
+                    </div>
+                  }
                   <div class="connect-camera-strip" [attr.aria-label]="'calls.callParticipants' | t">
                     @for (person of participants; track person.identity) {
                       <app-call-participant-tile [participant]="person"
@@ -161,6 +176,26 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                       </app-call-participant-tile>
                     }
                   </div>
+                  @if (localHasScreenShare) {
+                    <div class="connect-self-share-preview" [class.is-collapsed]="!showOwnSharePreview">
+                      <div class="connect-self-share-heading">
+                        <strong>{{ 'calls.selfSharePreview' | t }}</strong>
+                        <span>{{ 'calls.selfShareHelp' | t }}</span>
+                        <button type="button" (click)="showOwnSharePreview = !showOwnSharePreview"
+                          [attr.aria-expanded]="showOwnSharePreview">
+                          {{ (showOwnSharePreview ? 'calls.hideSharePreview' : 'calls.showSharePreview') | t }}
+                        </button>
+                        <button type="button" class="connect-self-stop" [disabled]="calls.busyMedia$ | async"
+                          (click)="calls.setScreenShare(false)">{{ 'calls.stopSharing' | t }}</button>
+                      </div>
+                      @if (showOwnSharePreview && calls.room?.localParticipant; as self) {
+                        <app-call-participant-tile class="connect-self-share-tile"
+                          [participant]="self" [presentation]="true" [local]="true"
+                          [label]="'calls.selfSharePreview' | t">
+                        </app-call-participant-tile>
+                      }
+                    </div>
+                  }
                 } @else {
                   @for (person of participants; track person.identity) {
                     <app-call-participant-tile [participant]="person"
@@ -622,6 +657,22 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
        The complete shared desktop remains visible while both cameras stay accessible. */
     .call-panel:has(.connect-participants--presenting){width:min(100%,1600px);height:calc(100dvh - 20px)}
     .connect-participants--presenting{display:flex;flex-direction:column;overflow:hidden;gap:10px}
+    .connect-share-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;min-height:32px}
+    .connect-share-live{display:inline-flex;align-items:center;gap:8px;padding:5px 10px;border:1px solid #3e8276;border-radius:99px;background:#0a353d;color:#a3f5df;font-size:.74rem;font-weight:750}
+    .connect-share-live span{color:#54ebaf;font-size:.6rem}
+    .connect-share-switcher{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .connect-share-switcher button{font:inherit;font-size:.75rem;border:1px solid #42736c;border-radius:9px;background:#153b47;color:#defff2;padding:5px 10px;cursor:pointer}
+    .connect-share-switcher button.is-selected{border-color:#54e5bf;background:#20665d}
+    .connect-share-switcher button:focus-visible,.connect-self-share-heading button:focus-visible{outline:2px solid #9bffe1;outline-offset:2px}
+    .connect-self-share-preview{flex:0 0 auto;display:flex;flex-direction:column;gap:7px;padding:8px 11px;border:1px solid #356961;border-radius:13px;background:#0a2531}
+    .connect-self-share-heading{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+    .connect-self-share-heading strong{color:#a8ffe2;font-size:.8rem}
+    .connect-self-share-heading span{font-size:.72rem;color:#b6d0d0;margin-right:auto}
+    .connect-self-share-heading button{font:inherit;font-size:.72rem;cursor:pointer;padding:5px 9px;border-radius:8px;border:1px solid #478879;background:#123c44;color:#e4fff8}
+    .connect-self-share-heading .connect-self-stop{border-color:#a96d72;color:#ffe0e1;background:#512e38}
+    .connect-self-share-tile{display:block;height:clamp(95px,12vh,165px);width:min(320px,100%);align-self:flex-start}
+    .connect-self-share-tile::ng-deep .connect-tile{min-height:0}
+    @media(max-width:600px){.connect-self-share-heading span{display:none}.connect-self-share-tile{height:105px}}
     .connect-presentation-stage{flex:1;min-height:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:10px;overflow:auto}
     .connect-presentation-tile{min-height:0;min-width:0;height:100%;width:100%}
     .connect-camera-strip{flex:0 0 auto;display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;min-height:130px;padding:2px}
@@ -709,6 +760,24 @@ export class DirectCallOverlayComponent implements OnDestroy {
   contactsError = false;
   private contactsRequested = false;
   minimized = false;
+  focusedPresentationIdentity: string | null = null;
+  showOwnSharePreview = true;
+  appTranslateLabel(key: string): string { return appTranslate(key); }
+  get presentingParticipants(): (LocalParticipant | RemoteParticipant)[] {
+    return this.participants.filter(person => this.personHasScreenShare(person));
+  }
+  get focusedPresentation(): LocalParticipant | RemoteParticipant | null {
+    const people = this.presentingParticipants;
+    return people.find(person => person.identity === this.focusedPresentationIdentity)
+      ?? people.find(person => person !== this.calls.room?.localParticipant)
+      ?? people[0] ?? null;
+  }
+  get localHasScreenShare(): boolean {
+    const local = this.calls.room?.localParticipant;
+    return !!local && this.personHasScreenShare(local);
+  }
+  focusPresentation(identity: string): void { this.focusedPresentationIdentity = identity; }
+
   private volumes: Record<string,number> = {};
 
   volumeFor(identity: string): number { return this.volumes[identity] ?? 1; }
