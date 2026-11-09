@@ -75,6 +75,24 @@
     @if (championshipHistoryView === 'HISTORY') {
       <section class="create-step" aria-label="Palmarés da comunidade">
         <h5>Palmarés da comunidade</h5>
+        @if (championshipHonours?.teamHonours?.length) {
+          <h6>Equipas com mais títulos</h6>
+          <ol>
+            @for (team of championshipHonours!.teamHonours; track team.permanentTeamId) {
+              <li><strong>{{ team.name }}</strong> · {{ team.titles }} título(s)</li>
+            }
+          </ol>
+        }
+        @if (canManage) {
+          <h6>Identidade permanente das equipas</h6>
+          <p>Cria uma identidade comum e associa as equipas de épocas diferentes. Não são agrupadas pelo nome automaticamente.</p>
+          <label for="new-permanent-team">Nome da equipa permanente</label>
+          <input id="new-permanent-team" type="text" maxlength="100"
+            [(ngModel)]="permanentTeamNameDraft" placeholder="Ex.: Águias FC">
+          <button type="button" class="t-btn t-btn-secondary"
+            [disabled]="championshipBusy || !permanentTeamNameDraft.trim()"
+            (click)="createPermanentTeam()">Criar equipa permanente</button>
+        }
         @if (championshipHonours; as honours) {
           <p>{{ honours.completedSeasons }} campeonato(s) concluído(s)</p>
           @if (honours.individualHonours.length) {
@@ -107,7 +125,7 @@
           } @else {
             <p>Ainda não existem títulos oficialmente atribuídos.</p>
           }
-          <small>Os títulos individuais são agrupados pela conta do atleta. As equipas de épocas diferentes não são unificadas apenas pelo nome.</small>
+          <small>Os títulos individuais são agrupados pela conta. Os títulos das equipas são agrupados apenas quando existe uma associação permanente explícita.</small>
         } @else if (championshipHonoursError) {
           <p role="status">{{ championshipHonoursError }}</p>
         } @else {
@@ -135,6 +153,28 @@
             </div>
             @if (expandedArchivedChampionshipId === championship.id) {
               <div [id]="'championship-history-' + championship.id">
+                @if (canManage && championshipTeamRegistries[championship.id]; as registry) {
+                  @if (registry.teams.length && permanentTeamRegistry?.teams?.length) {
+                    <h6>Associar equipas desta época</h6>
+                    @for (team of registry.teams; track team.id) {
+                      <div>
+                        <strong>{{ team.name }}</strong>
+                        <select #permanentChoice [value]="team.permanentTeamId || ''"
+                          [attr.aria-label]="'Equipa permanente para ' + team.name">
+                          <option value="">Por associar</option>
+                          @for (permanent of permanentTeamRegistry!.teams; track permanent.id) {
+                            <option [value]="permanent.id">{{ permanent.name }}</option>
+                          }
+                        </select>
+                        <button type="button" class="t-btn t-btn-secondary"
+                          [disabled]="championshipBusy || !permanentChoice.value"
+                          (click)="linkPermanentTeam(championship.id, team.id, +permanentChoice.value)">
+                          Associar
+                        </button>
+                      </div>
+                    }
+                  }
+                }
                 <h6>Classificação final</h6>
                 @if (championshipAggregateStandings[championship.id]; as archived) {
                   <ol>
