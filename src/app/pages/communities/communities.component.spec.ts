@@ -55,6 +55,26 @@ describe('CommunitiesComponent public session eligibility', () => {
     expect(navigate).toHaveBeenCalledOnceWith(['/menu/communities']);
   });
 
+  it('provides a clear localized explanation for conflicting community round participants', () => {
+    const previous = localStorage.getItem('d24-language');
+    try {
+      localStorage.setItem('d24-language', 'pt');
+      const pt = t('feedback.communities.roundConflict');
+      expect(pt).toContain('conflito');
+      expect(pt).toContain('participantes');
+      expect(pt).not.toBe('feedback.communities.roundConflict');
+
+      localStorage.setItem('d24-language', 'en');
+      const en = t('feedback.communities.roundConflict');
+      expect(en).toContain('participant');
+      expect(en).toContain('conflict');
+      expect(en).not.toBe(pt);
+    } finally {
+      if (previous === null) localStorage.removeItem('d24-language');
+      else localStorage.setItem('d24-language', previous);
+    }
+  });
+
   it('keeps regular standings and tournament history explanations and column abbreviations translated PT/EN', () => {
     const previous = localStorage.getItem('d24-language');
     try {
