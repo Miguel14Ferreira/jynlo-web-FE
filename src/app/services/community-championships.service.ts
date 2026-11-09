@@ -69,12 +69,39 @@ export interface CommunityChampionshipStandings {
   pendingCompetitions: number;
 }
 
+export interface ChampionshipHistoricalTitle {
+  championshipId: number;
+  championshipName: string;
+  seasonLabel: string;
+  sport: string;
+  closedAt: string;
+  entryType: 'TEAM' | 'INDIVIDUAL';
+  participantId: number;
+  championName: string;
+}
+export interface ChampionshipIndividualHonour {
+  profileId: number;
+  name: string;
+  titles: number;
+  championshipIds: number[];
+}
+export interface CommunityChampionshipHonours {
+  communityId: number;
+  completedSeasons: number;
+  titles: ChampionshipHistoricalTitle[];
+  individualHonours: ChampionshipIndividualHonour[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class CommunityChampionshipsService {
   constructor(private readonly http: HttpClient) {}
 
   private base(communityId: number): string {
     return environment.apiUrl + '/api/communities/' + communityId + '/championships';
+  }
+
+  honours(communityId: number): Observable<CommunityChampionshipHonours> {
+    return this.http.get<CommunityChampionshipHonours>(this.base(communityId) + '/honours');
   }
 
   teams(communityId: number, championshipId: number): Observable<CommunityChampionshipTeams> {
