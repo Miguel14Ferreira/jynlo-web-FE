@@ -1345,6 +1345,18 @@ describe('CommunitiesComponent public session eligibility', () => {
     expect(component.competition?.settings.rankingsEnabled).toBeFalse();
   });
 
+  it('renders the pending chat message count through the localized action', () => {
+    const prior = localStorage.getItem('d24-language');
+    try {
+      localStorage.setItem('d24-language', 'pt');
+      expect(t('communities.chatNewMessages', { count: 3 })).toContain('(3)');
+      expect(t('communities.chatNewMessages', { count: 3 })).not.toContain('{{count}}');
+    } finally {
+      if (prior === null) localStorage.removeItem('d24-language');
+      else localStorage.setItem('d24-language', prior);
+    }
+  });
+
   it('shows a new chat arrival counter only for the opened community', () => {
     component.selected = { id: 7 } as any;
     component.activeTab = 'chat';
