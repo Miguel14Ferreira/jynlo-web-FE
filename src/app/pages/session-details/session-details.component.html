@@ -178,11 +178,13 @@
           <div class="session-top-actions">
             @if (canAccessChat()) {
               @if (canSendChat()) {
-                <a class="jynlo-action jynlo-action--primary"
-                   [routerLink]="['/menu/messages']"
-                   [queryParams]="{ kind: 'session', id: session.id }">
-                  <span aria-hidden="true">💬</span> {{ 'sessionDetail.openChat' | t }}
-                </a>
+                <button type="button" class="jynlo-action jynlo-action--primary session-inline-chat-toggle"
+                  [attr.aria-expanded]="sessionChatOpen"
+                  aria-controls="session-inline-chat"
+                  (click)="toggleInlineSessionChat()">
+                  <span aria-hidden="true">💬</span>
+                  {{ (sessionChatOpen ? 'sessionDetail.hideChat' : 'sessionDetail.openChat') | t }}
+                </button>
               } @else {
                 <span class="jynlo-action jynlo-action--neutral"
                       role="status">{{ 'sessionDetail.chatUnavailable' | t }}</span>
@@ -242,6 +244,95 @@
                       (click)="requestCancelOwnSession()">{{ 'mySessions.cancelSession' | t }}</button>
             }
           </div>
+          @if (sessionChatOpen && canAccessChat()) {
+            <section id="session-inline-chat" class="session-inline-chat" aria-labelledby="session-inline-chat-title">
+              <header class="session-inline-chat-heading">
+                <div>
+                  <h2 id="session-inline-chat-title">{{ 'sessionDetail.openChat' | t }}</h2>
+                  <p>{{ 'sessionDetail.inlineChatHelp' | t }}</p>
+                </div>
+                <div class="session-inline-chat-actions">
+                  <button type="button" class="jynlo-action jynlo-action--neutral"
+                    [disabled]="chatLoading" (click)="refreshMessages()">
+                    {{ (chatLoading ? 'chat.refreshing' : 'chat.refresh') | t }}
+                  </button>
+                  <button type="button" class="jynlo-action jynlo-action--neutral"
+                    (click)="toggleInlineSessionChat()">{{ 'sessionDetail.hideChat' | t }}</button>
+                </div>
+              </header>
+              @if (chatError) {
+                <p class="session-inline-chat-feedback" role="alert">{{ chatError }}</p>
+                @if (chatDeliveryUncertain) {
+                  <div class="session-inline-chat-actions">
+                    <button type="button" class="jynlo-action jynlo-action--neutral"
+                      [disabled]="chatDeliveryChecking" (click)="verifyChatDelivery()">
+                      {{ 'sessionDetail.verifyChatDelivery' | t }}
+                    </button>
+                    <button type="button" class="jynlo-action jynlo-action--neutral"
+                      [disabled]="chatDeliveryChecking" (click)="resumeChatAfterUncertainSend()">
+                      {{ 'sessionDetail.resumeChatDraft' | t }}
+                    </button>
+                  </div>
+                }
+              }
+              <div #chatMessageList class="session-inline-chat-messages" role="log"
+                aria-live="polite" [attr.aria-label]="'chat.messages' | t"
+                (scroll)="onSessionChatScroll()">
+                @if (chatLoading && messages.length === 0) {
+                  <p class="session-inline-chat-empty" role="status">{{ 'chat.refreshing' | t }}</p>
+                } @else if (messages.length === 0 && !chatError) {
+                  <p class="session-inline-chat-empty">{{ 'chat.empty' | t }}</p>
+                }
+                @for (message of messages; track message.id; let index = $index) {
+                  @if (dayLabelAt(index); as day) {
+                    <div class="session-inline-chat-day">{{ day }}</div>
+                  }
+                  <article class="session-inline-chat-message"
+                    [class.session-inline-chat-message--own]="isOwnMessage(message)">
+                    @if (!continuesGroupAt(index)) {
+                      <strong>{{ message.senderUsername }}</strong>
+                    }
+                    @if (message.replyToText) {
+                      <blockquote>{{ message.replyToSender }}: {{ message.replyToText }}</blockquote>
+                    }
+                    <p>{{ message.deletedAt ? ('chat.messageDeleted' | t) : message.body }}</p>
+                    <footer>
+                      <time>{{ messageDate(message) }}</time>
+                      @if (canSendChat() && !message.deletedAt) {
+                        <button type="button" (click)="replyToSessionMessage(message)">
+                          {{ 'chat.replyToMessage' | t }}
+                        </button>
+                      }
+                    </footer>
+                  </article>
+                }
+              </div>
+              @if (newMessagesPending > 0) {
+                <button type="button" class="session-inline-chat-latest"
+                  (click)="jumpToLatestMessages()">{{ 'sessionDetail.newChatMessages' | t }}</button>
+              }
+              @if (canSendChat()) {
+                @if (replyingToSessionMessage) {
+                  <div class="session-inline-chat-reply">
+                    <span>{{ 'chat.replyingTo' | t }} {{ replyingToSessionMessage.senderUsername }}</span>
+                    <button type="button" (click)="cancelSessionReply()"
+                      [disabled]="messageSending || chatDeliveryUncertain">×</button>
+                  </div>
+                }
+                <div class="session-inline-chat-compose">
+                  <textarea #sessionComposer rows="2" maxlength="2000"
+                    [placeholder]="'sessionDetail.chatPlaceholder' | t"
+                    [(ngModel)]="messageBody" (ngModelChange)="onTypingInput()"
+                    (keydown.enter)="onChatEnter($event)"></textarea>
+                  <button type="button" class="jynlo-action jynlo-action--primary"
+                    [disabled]="messageSending || chatDeliveryUncertain || !messageBody.trim()"
+                    (click)="sendMessage()">{{ (messageSending ? 'chat.sending' : 'chat.send') | t }}</button>
+                </div>
+              } @else {
+                <p class="session-inline-chat-closed">{{ 'sessionDetail.chatClosedDescription' | t }}</p>
+              }
+            </section>
+          }
           @if (showInvitePanel()) {
               <section class="guest-organizer-panel" [attr.aria-label]="'guestAdmin.title' | t">
                 <header>
