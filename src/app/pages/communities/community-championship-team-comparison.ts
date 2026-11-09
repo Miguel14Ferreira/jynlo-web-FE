@@ -19,7 +19,8 @@ export interface TeamSeasonComparison {
 /** Only final standings from a single sport can be compared. No name-based joins. */
 export function comparableTeamSeasons(profile: ChampionshipTeamProfile): ChampionshipTeamSeason[] {
   return profile.seasons.filter(s => s.closedAt !== null && s.position !== null &&
-    s.points !== null && Number.isFinite(s.points) && s.position > 0);
+    s.points !== null && Number.isFinite(s.points) &&
+    Number.isInteger(s.position) && s.position > 0);
 }
 
 export function compareTeamSeasons(
