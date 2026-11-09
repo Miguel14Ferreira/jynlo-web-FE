@@ -48,6 +48,19 @@ export class CommunityTournamentsComponent implements OnChanges {
   championships: CommunityChampionship[] = [];
   championshipAggregateStandings: Record<number, CommunityChampionshipStandings> = {};
   championshipTeamRegistries: Record<number, CommunityChampionshipTeams> = {};
+  championshipHonoursSportFilter = '';
+  get championshipHonoursSports(): string[] {
+    return [...new Set((this.championshipHonours?.titles || []).map(title => title.sport))]
+      .sort((a, b) => a.localeCompare(b, 'pt'));
+  }
+
+  get filteredChampionshipTitles(): CommunityChampionshipHonours['titles'] {
+    const titles = this.championshipHonours?.titles || [];
+    return this.championshipHonoursSportFilter
+      ? titles.filter(title => title.sport === this.championshipHonoursSportFilter)
+      : titles;
+  }
+
   championshipHonours: CommunityChampionshipHonours | null = null;
   championshipHonoursError = '';
 
@@ -1527,6 +1540,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.championships = [];
       this.championshipAggregateStandings = {};
       this.championshipHonours = null;
+      this.championshipHonoursSportFilter = '';
       this.championshipHonoursError = '';
       this.championshipTeamRegistries = {};
       this.championshipTeamDrafts = {};
