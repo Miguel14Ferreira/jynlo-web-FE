@@ -1,4 +1,4 @@
-import { CommunityChampionshipsService, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours } from '../../services/community-championships.service';
+import { CommunityChampionshipsService, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
 import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { finalize, firstValueFrom, forkJoin, Observable, timeout } from 'rxjs';
 import { CommunityGroup } from '../model/community-group';
@@ -59,6 +59,74 @@ export class CommunityTournamentsComponent implements OnChanges {
     return this.championshipHonoursSportFilter
       ? titles.filter(title => title.sport === this.championshipHonoursSportFilter)
       : titles;
+  }
+
+  permanentTeamRegistry: CommunityPermanentTeams | null = null;
+  permanentTeamNameDraft = '';
+
+  loadPermanentTeams(): void {
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipsApi.permanentTeams(communityId).subscribe({
+      next: registry => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.permanentTeamRegistry = registry;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipError = 'Não foi possível carregar as equipas permanentes.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  createPermanentTeam(): void {
+    const name = this.permanentTeamNameDraft.trim();
+    if (!this.canManage || this.championshipBusy || !name || name.length > 100) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipBusy = true;
+    this.championshipsApi.createPermanentTeam(communityId, name).subscribe({
+      next: registry => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.permanentTeamRegistry = registry;
+        this.permanentTeamNameDraft = '';
+        this.championshipBusy = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipBusy = false;
+        this.championshipError = 'Não foi possível criar a equipa permanente.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  linkPermanentTeam(championshipId: number, seasonTeamId: number, permanentTeamId: number): void {
+    if (!this.canManage || this.championshipBusy || !Number.isInteger(permanentTeamId)
+        || permanentTeamId <= 0) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipBusy = true;
+    this.championshipsApi.linkPermanentTeam(
+      communityId, championshipId, seasonTeamId, permanentTeamId).subscribe({
+      next: registry => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.permanentTeamRegistry = registry;
+        this.championshipBusy = false;
+        this.loadChampionshipTeams(championshipId);
+        this.loadChampionshipHonours();
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipBusy = false;
+        this.championshipError = 'Não foi possível associar a equipa permanente.';
+        this.changeDetector.markForCheck();
+      }
+    });
   }
 
   championshipHonours: CommunityChampionshipHonours | null = null;
@@ -244,6 +312,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championships = championships;
         this.loadChampionshipHonours();
+        this.loadPermanentTeams();
         championships.forEach(item => {
           this.loadChampionshipStandings(item.id);
           this.loadChampionshipTeams(item.id);
@@ -1540,6 +1609,8 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.championships = [];
       this.championshipAggregateStandings = {};
       this.championshipHonours = null;
+      this.permanentTeamRegistry = null;
+      this.permanentTeamNameDraft = '';
       this.championshipHonoursSportFilter = '';
       this.championshipHonoursError = '';
       this.championshipTeamRegistries = {};
