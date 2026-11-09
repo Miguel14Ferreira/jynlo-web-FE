@@ -518,6 +518,13 @@
               <h2>{{ 'sessionDetail.editSession' | t }}</h2>
               <p>{{ 'sessionDetail.detailsHelp' | t }}</p>
               <div class="session-details-editor-fields">
+                <label>{{ 'sessionDetail.sportLabel' | t }}
+                  <select [(ngModel)]="detailsDraft.sport" [disabled]="detailsSaving">
+                    @for (sport of editableSports; track sport) {
+                      <option [value]="sport">{{ sport }}</option>
+                    }
+                  </select>
+                </label>
                 <label>{{ 'mySessions.date' | t }}
                   <input type="datetime-local" [(ngModel)]="detailsDraft.gameDate"
                     [disabled]="detailsSaving || !!session.recurrenceSeriesId">
