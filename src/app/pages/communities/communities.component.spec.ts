@@ -1387,6 +1387,7 @@ describe('CommunitiesComponent public session eligibility', () => {
       body: 'Vamos jogar?', createdAt: new Date().toISOString() };
     component.replyToCommunityMessage(entry as any);
     expect(component.replyingToCommunityMessage?.id).toBe(21);
+    expect(component.replyingToCommunityMessage?.body).toBe('Vamos jogar?');
     component.cancelCommunityReply();
     expect(component.replyingToCommunityMessage).toBeNull();
     component.replyToCommunityMessage({ ...entry, communityId: 9 } as any);
