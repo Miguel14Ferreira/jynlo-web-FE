@@ -19,7 +19,7 @@ describe('CommunityTabsComponent', () => {
   it('keeps base tabs, localized labels and current state without extra competition tabs', () => {
     const root = render().nativeElement as HTMLElement;
     const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('.community-tabs button'));
-    expect(buttons.length).toBe(4);
+    expect(buttons.length).toBe(5);
     expect(root.querySelector('nav[aria-label]')).not.toBeNull();
     expect(buttons[0].getAttribute('aria-current')).toBe('true');
     expect(buttons.slice(1).every(button => button.getAttribute('aria-current') === null)).toBeTrue();
@@ -37,12 +37,12 @@ describe('CommunityTabsComponent', () => {
     const root = render({ competitions: true, archives: true, rankings: true, active: 'ranking' })
       .nativeElement as HTMLElement;
     const buttons = root.querySelectorAll<HTMLButtonElement>('.community-tabs button');
-    expect(buttons.length).toBe(7);
-    expect(buttons[4].getAttribute('aria-current')).toBe('true');
+    expect(buttons.length).toBe(8);
+    expect(buttons[5].getAttribute('aria-current')).toBe('true');
     expect(buttons[0].getAttribute('aria-current')).toBeNull();
   });
 
-  it('keeps all seven enabled tabs in a readable horizontal rail', () => {
+  it('keeps all eight enabled tabs in a readable horizontal rail', () => {
     const root = render({ competitions:true, archives:true, rankings:true }).nativeElement as HTMLElement;
     const nav = root.querySelector<HTMLElement>('.community-tabs')!;
     const buttons = Array.from(nav.querySelectorAll<HTMLButtonElement>('button'));
@@ -60,14 +60,15 @@ describe('CommunityTabsComponent', () => {
     const root = fixture.nativeElement as HTMLElement;
     const buttons = root.querySelectorAll<HTMLButtonElement>('.community-tabs button');
     buttons[1].click();
-    buttons[4].click();
-    expect(handler.calls.allArgs()).toEqual([['feed'], ['ranking']]);
+    buttons[2].click();
+    buttons[5].click();
+    expect(handler.calls.allArgs()).toEqual([['feed'], ['chat'], ['ranking']]);
     expect(fixture.componentInstance.activeTab).toBe('home');
   });
 
   it('keeps historical archive navigation without showing statistics when rankings are off', () => {
     const root = render({ archives: true, rankings: false }).nativeElement as HTMLElement;
     const buttons = root.querySelectorAll('.community-tabs button');
-    expect(buttons.length).toBe(5);
+    expect(buttons.length).toBe(6);
   });
 });
