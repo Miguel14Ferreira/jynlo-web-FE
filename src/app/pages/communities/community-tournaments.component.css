@@ -515,3 +515,36 @@
 :host .tournaments .team-player-identity a{display:grid;gap:2px;min-width:0;color:inherit;text-decoration:none}
 :host .tournaments .team-player-identity a:hover strong{text-decoration:underline}
 :host .tournaments .team-player-identity a:focus-visible{outline:2px solid #91fbe0;outline-offset:3px}
+
+
+/* Lightweight, progressive disclosure in the championship creation section. */
+.championship-learn-toggle {
+  justify-self: start;
+  min-height: 34px;
+  font-size: .8rem;
+  padding: .35rem .65rem;
+}
+.championship-explainer {
+  display: grid;
+  gap: .9rem;
+  padding: clamp(1rem, 2vw, 1.3rem);
+  border: 1px solid rgba(110, 231, 183, .28);
+  border-radius: .9rem;
+  background: rgba(5, 45, 48, .55);
+  line-height: 1.55;
+}
+.championship-explainer h5 { margin: 0 0 .4rem; color: #ebfffa; }
+.championship-explainer p { margin: 0; color: #c9e3e1; }
+.championship-explainer strong { color: #e8fff8; }
+.championship-explainer ol {
+  margin: 0;
+  padding-left: 1.3rem;
+  display: grid;
+  gap: .5rem;
+  color: #d2edeb;
+}
+.championship-explainer-example {
+  padding: .8rem 1rem;
+  border-radius: .65rem;
+  background: rgba(16, 185, 129, .1);
+}
