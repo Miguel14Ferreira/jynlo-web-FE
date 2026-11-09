@@ -29,6 +29,11 @@
         <h4>Campeonatos</h4>
         <button type="button" class="t-btn t-btn-secondary" [disabled]="championshipBusy" (click)="refreshChampionships()">Atualizar classificações</button>
         <p>Organiza várias ligas, taças ou provas independentes numa única época. Os torneios continuam a funcionar normalmente.</p>
+        <button type="button" class="t-btn t-btn-secondary championship-learn-toggle"
+          aria-controls="championship-explanation" [attr.aria-expanded]="championshipExplainerOpen"
+          (click)="championshipExplainerOpen = !championshipExplainerOpen">
+          {{ championshipExplainerOpen ? 'Mostrar menos' : 'O que é um campeonato? Saber mais' }}
+        </button>
       </div>
       @if (canManage) {
         <button type="button" class="t-btn t-btn-primary" (click)="championshipOpen = !championshipOpen">
@@ -36,6 +41,22 @@
         </button>
       }
     </div>
+    @if (championshipExplainerOpen) {
+      <section id="championship-explanation" class="championship-explainer" aria-label="Como funcionam os campeonatos">
+        <div>
+          <h5>Campeonato vs. torneio</h5>
+          <p>Um <strong>torneio</strong> é uma prova individual, com os seus participantes, resultados e vencedor. Um <strong>campeonato</strong> organiza várias dessas provas ao longo de uma época, com regras e classificações próprias da comunidade.</p>
+        </div>
+        <ol>
+          <li><strong>Cria uma época</strong> — por exemplo, 2026/27 para a comunidade.</li>
+          <li><strong>Adiciona competições</strong> — uma Liga, uma Taça e outras provas, conforme a modalidade.</li>
+          <li><strong>Regista resultados</strong> — a Jynlo reúne os pontos, as vitórias e as classificações segundo as regras de cada competição.</li>
+          <li><strong>Constrói o palmarés</strong> — os títulos e os resultados das épocas ficam associados às equipas e aos participantes.</li>
+        </ol>
+        <p class="championship-explainer-example"><strong>Exemplo:</strong> Campeonato 2026/27 = Liga de Outono + Taça de Inverno + Liga de Primavera. Cada prova mantém o seu vencedor e o campeonato pode ter uma classificação geral.</p>
+        <p>O campeonato é opcional: podes continuar a organizar apenas torneios ou sessões, sem criar um campeonato.</p>
+      </section>
+    }
     @if (championshipError) {
       <p class="notice notice-error" role="alert">{{ championshipError }}</p>
     }
