@@ -1003,6 +1003,11 @@ export class DirectCallOverlayComponent implements OnDestroy {
         this.contacts=[];
         this.contactsRequested=false;
         this.volumes={};
+        this.screenVolumes={};
+        this.focusedPresentationIdentity=null;
+        this.showOwnSharePreview=true;
+        this.presentationZoomed=false;
+        this.focusOnly=false;
       }
     });
   }
