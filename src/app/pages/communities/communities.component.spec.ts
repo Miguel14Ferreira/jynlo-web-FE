@@ -1345,6 +1345,18 @@ describe('CommunitiesComponent public session eligibility', () => {
     expect(component.competition?.settings.rankingsEnabled).toBeFalse();
   });
 
+  it('localizes direct navigation between community sessions and chat', () => {
+    const previous = localStorage.getItem('d24-language');
+    try {
+      localStorage.setItem('d24-language', 'pt');
+      expect(t('communities.chatViewSessions')).toBe('Ver sessões');
+      expect(t('communities.sessionsViewChat')).toBe('Abrir chat');
+    } finally {
+      if (previous === null) localStorage.removeItem('d24-language');
+      else localStorage.setItem('d24-language', previous);
+    }
+  });
+
   it('renders the pending chat message count through the localized action', () => {
     const prior = localStorage.getItem('d24-language');
     try {
