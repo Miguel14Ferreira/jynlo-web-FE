@@ -723,6 +723,47 @@
                       }
                     }
                   }
+                  <div class="create-step" [attr.aria-label]="'communities.championshipOwned.teamsTitle' | t">
+                    <h6>{{ 'communities.championshipOwned.teamsTitle' | t }}</h6>
+                    @if (championshipOwnedEventTeams[event.id]?.length) {
+                      <ul>
+                        @for (registration of championshipOwnedEventTeams[event.id]; track registration.id) {
+                          <li>
+                            {{ registration.name }}
+                            @if (canManage && !championship.closedAt && event.status === 'DRAFT') {
+                              <button type="button" class="t-btn t-btn-secondary"
+                                [disabled]="championshipEventBusy"
+                                (click)="unregisterChampionshipEventTeam(championship, event, registration.championshipTeamId)">
+                                {{ 'communities.championshipOwned.removeTeam' | t }}
+                              </button>
+                            }
+                          </li>
+                        }
+                      </ul>
+                    } @else {
+                      <p>{{ 'communities.championshipOwned.noTeams' | t }}</p>
+                    }
+                    @if (canManage && !championship.closedAt && event.status === 'DRAFT') {
+                      @if (championshipTeamRegistries[championship.id]?.teams?.length) {
+                        <label [for]="'owned-team-' + event.id">{{ 'communities.championshipOwned.chooseTeam' | t }}</label>
+                        <select [id]="'owned-team-' + event.id"
+                          [value]="championshipOwnedTeamDrafts[event.id] ?? ''"
+                          (change)="championshipOwnedTeamDrafts[event.id] = +$any($event.target).value">
+                          <option value="">{{ 'communities.championshipOwned.chooseTeam' | t }}</option>
+                          @for (team of availableChampionshipTeams(championship.id, event.id); track team.id) {
+                            <option [value]="team.id">{{ team.name }}</option>
+                          }
+                        </select>
+                        <button type="button" class="t-btn t-btn-secondary"
+                          [disabled]="championshipEventBusy || !championshipOwnedTeamDrafts[event.id]"
+                          (click)="registerChampionshipEventTeam(championship, event)">
+                          {{ 'communities.championshipOwned.addTeam' | t }}
+                        </button>
+                      } @else {
+                        <p>{{ 'communities.championshipOwned.createTeamFirst' | t }}</p>
+                      }
+                    }
+                  </div>
                 </li>
               }
             </ul>
