@@ -4821,6 +4821,8 @@ const PT: Dictionary = {
   'calls.shareAudioMixer': 'Controlos de áudio da chamada',
   'calls.microphoneVolume': 'Volume da voz',
   'calls.sharedAudioVolume': 'Volume do ecrã',
+  'calls.hideMembers': 'Ocultar participantes',
+  'calls.showMembers': 'Mostrar participantes',
   'calls.sharedScreens': 'Ecrãs partilhados',
   'calls.callParticipants': 'Participantes na chamada',
   'calls.screenShareCancelled': 'A partilha foi cancelada ou bloqueada pelo navegador. Seleciona um ecrã e permite a partilha para tentar novamente.',
