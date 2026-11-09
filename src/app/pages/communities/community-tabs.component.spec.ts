@@ -72,12 +72,14 @@ describe('CommunityTabsComponent', () => {
       .querySelectorAll<HTMLButtonElement>('nav.community-tabs > button'));
     const request = jasmine.createSpy('tab-request');
     fixture.componentInstance.tabRequested.subscribe(request);
+    const focusSpies = buttons.map(button => spyOn(button, 'focus'));
     const move = (from: number, key: string, destination: number) => {
-      const focus = spyOn(buttons[destination], 'focus');
+      focusSpies.forEach(focus => focus.calls.reset());
       const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
       buttons[from].dispatchEvent(event);
       expect(event.defaultPrevented).toBeTrue();
-      expect(focus).toHaveBeenCalled();
+      expect(focusSpies[destination]).toHaveBeenCalledTimes(1);
+      expect(focusSpies.filter(focus => focus.calls.any()).length).toBe(1);
     };
     move(0, 'ArrowLeft', 7);
     move(7, 'ArrowRight', 0);
