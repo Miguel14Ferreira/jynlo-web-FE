@@ -145,6 +145,32 @@ describe('championshipTeamProfile', () => {
     expect(resolved?.seasons[0].position).toBe(2);
   });
 
+  it('does not show corrupted non-finite points or victories as final standings', () => {
+    const completed = season(5, '2025/26', '2026-06-30T00:00:00Z');
+    const standings = {
+      championshipId: 5, fullyScoredCompetitions: 1,
+      winnerOnlyCompetitions: 0, pendingCompetitions: 0,
+      standings: [
+        { entryType: 'TEAM' as const, participantId: 18, name: 'Águias FC',
+          points: Infinity, victories: 2, awardedCompetitions: 1 },
+        { entryType: 'TEAM' as const, participantId: 20, name: 'Rival',
+          points: 10, victories: 1, awardedCompetitions: 1 }
+      ]
+    };
+    const badPoints = championshipTeamProfile(90, honours, [completed],
+      teams, registry, { 5: standings });
+    expect(badPoints?.seasons[0].points).toBeNull();
+    expect(badPoints?.seasons[0].position).toBeNull();
+
+    const badVictories = championshipTeamProfile(90, honours, [completed],
+      teams, registry, { 5: { ...standings, standings: [
+        { ...standings.standings[0], points: 20, victories: NaN },
+        standings.standings[1]
+      ] } });
+    expect(badVictories?.seasons[0].position).toBeNull();
+    expect(badVictories?.seasons[0].points).toBeNull();
+  });
+
   it('counts unlinked opponents ahead of a known team without inventing their identity', () => {
     const current = season(5, '2025/26', '2026-06-30T00:00:00Z');
     const result = championshipTeamProfile(90, honours, [current], teams, registry, {
