@@ -265,6 +265,69 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   sharingSession = false;
   cancelSessionConfirmOpen = false;
   cancelSessionWorking = false;
+  capacityEditing = false;
+  capacityDraft = 0;
+  capacitySaving = false;
+  capacityError = '';
+  capacitySuccess = '';
+
+  canEditCapacity(): boolean {
+    if (!this.session || !this.isCreator()
+        || (this.session.status !== 'OPEN' && this.session.status !== 'FULL')) return false;
+    const kickoff = Date.parse(this.session.gameDate);
+    return Number.isFinite(kickoff) && kickoff > Date.now();
+  }
+
+  beginCapacityEdit(): void {
+    if (!this.canEditCapacity() || this.capacitySaving) return;
+    this.capacityDraft = this.session!.maxParticipants;
+    this.capacityError = '';
+    this.capacitySuccess = '';
+    this.capacityEditing = true;
+  }
+
+  discardCapacityEdit(): void {
+    if (this.capacitySaving) return;
+    this.capacityEditing = false;
+    this.capacityError = '';
+  }
+
+  saveCapacity(): void {
+    if (!this.capacityEditing || !this.canEditCapacity() || !this.sessionId
+        || this.capacitySaving) return;
+    if (!Number.isSafeInteger(this.capacityDraft) || this.capacityDraft < 2
+        || this.capacityDraft > 100) {
+      this.capacityError = t('sessionDetail.capacityInvalid');
+      return;
+    }
+    if (this.capacityDraft < this.session!.participantCount) {
+      this.capacityError = t('sessionDetail.capacityTooSmall');
+      return;
+    }
+    if (this.capacityDraft === this.session!.maxParticipants) {
+      this.discardCapacityEdit();
+      return;
+    }
+    const id = this.sessionId;
+    this.capacitySaving = true;
+    this.capacityError = '';
+    this.capacitySuccess = '';
+    this.sessionService.updateCapacity(id, this.capacityDraft)
+      .pipe(timeout(10_000), finalize(() => this.capacitySaving = false))
+      .subscribe({
+        next: detail => {
+          if (this.sessionId !== id) return;
+          this.session = detail;
+          this.capacityEditing = false;
+          this.capacitySuccess = t('sessionDetail.capacitySaved');
+          this.loadSessionParticipants(true);
+        },
+        error: error => {
+          this.capacityError = this.errorFrom(error, t('sessionDetail.capacitySaveError'));
+        }
+      });
+  }
+
   meetingPointEditing = false;
   meetingPointDraft = '';
   meetingPointSaving = false;
