@@ -500,6 +500,24 @@ describe('Global incoming call popup', () => {
     expect(calls.end).not.toHaveBeenCalled();
   });
 
+  it('uses uniformly sized SVG icons in active-call controls instead of font glyphs', () => {
+    state.next({...invitation('video'),phase:'active',startedAt:Date.now()});
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const actions = Array.from(host.querySelectorAll('.call-buttons button'))
+      .filter(button => button.querySelector('.call-action-icon'));
+    expect(actions.length).toBeGreaterThanOrEqual(4);
+    for (const action of actions) {
+      const icon = action.querySelector('.call-action-icon') as SVGElement;
+      expect(icon.getAttribute('viewBox')).toBe('0 0 24 24');
+      expect(icon.getAttribute('aria-hidden')).toBe('true');
+      expect(getComputedStyle(icon).width).toBe('18px');
+      expect(getComputedStyle(icon).height).toBe('18px');
+      expect(getComputedStyle(action).alignItems).toBe('center');
+      expect(getComputedStyle(action).justifyContent).toBe('center');
+    }
+  });
+
   it('shows a useful message when device enumeration is unavailable', () => {
     state.next({...invitation('voice'),phase:'active',startedAt:Date.now()});
     fixture.detectChanges();
