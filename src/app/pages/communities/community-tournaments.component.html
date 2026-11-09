@@ -73,6 +73,40 @@
         (click)="showChampionshipHistory()">Histórico ({{ archivedChampionshipCount }})</button>
     </div>
     @if (championshipHistoryView === 'HISTORY') {
+      <section class="create-step" aria-label="Palmarés da comunidade">
+        <h5>Palmarés da comunidade</h5>
+        @if (championshipHonours; as honours) {
+          <p>{{ honours.completedSeasons }} campeonato(s) concluído(s)</p>
+          @if (honours.individualHonours.length) {
+            <h6>Atletas com mais títulos</h6>
+            <ol>
+              @for (athlete of honours.individualHonours; track athlete.profileId) {
+                <li><strong>{{ athlete.name }}</strong> · {{ athlete.titles }} título(s)</li>
+              }
+            </ol>
+          }
+          <h6>Campeões por época</h6>
+          @if (honours.titles.length) {
+            <ul>
+              @for (title of honours.titles; track title.championshipId) {
+                <li>
+                  <strong>{{ title.championName }}</strong>
+                  · {{ title.seasonLabel }} · {{ title.sport }}
+                  · {{ title.championshipName }}
+                  <span>({{ title.entryType === 'TEAM' ? 'Equipa' : 'Individual' }})</span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p>Ainda não existem títulos oficialmente atribuídos.</p>
+          }
+          <small>Os títulos individuais são agrupados pela conta do atleta. As equipas de épocas diferentes não são unificadas apenas pelo nome.</small>
+        } @else if (championshipHonoursError) {
+          <p role="status">{{ championshipHonoursError }}</p>
+        } @else {
+          <p>A carregar palmarés...</p>
+        }
+      </section>
       @if (archivedChampionshipCount === 0) {
         <p>Ainda não existem épocas encerradas nesta comunidade.</p>
       }
