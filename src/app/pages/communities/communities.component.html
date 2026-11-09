@@ -585,7 +585,8 @@
                 </div>
                 @if (newMessagesPending > 0) {
                   <button type="button" class="community-chat-new"
-                    (click)="jumpToLatestMessages()">{{ 'communities.chatNewMessages' | t }}</button>
+                    (click)="jumpToLatestMessages()"
+                    [attr.aria-label]="'communities.chatNewMessages' | t:{ count: newMessagesPending }">{{ 'communities.chatNewMessages' | t:{ count: newMessagesPending } }}</button>
                 }
                 @if (replyingToCommunityMessage) {
                   <div class="community-chat-reply">
