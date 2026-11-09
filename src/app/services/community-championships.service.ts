@@ -39,6 +39,7 @@ export interface CommunityChampionship {
 export interface CommunityChampionshipTeam {
   id: number;
   name: string;
+  permanentTeamId: number | null;
 }
 export interface CommunityChampionshipCompetitionTeam {
   id: number;
@@ -78,6 +79,7 @@ export interface ChampionshipHistoricalTitle {
   entryType: 'TEAM' | 'INDIVIDUAL';
   participantId: number;
   championName: string;
+  permanentTeamId: number | null;
 }
 export interface ChampionshipIndividualHonour {
   profileId: number;
@@ -85,11 +87,27 @@ export interface ChampionshipIndividualHonour {
   titles: number;
   championshipIds: number[];
 }
+export interface ChampionshipTeamHonour {
+  permanentTeamId: number;
+  name: string;
+  titles: number;
+  championshipIds: number[];
+}
+export interface CommunityPermanentTeam {
+  id: number;
+  name: string;
+}
+export interface CommunityPermanentTeams {
+  communityId: number;
+  teams: CommunityPermanentTeam[];
+}
+
 export interface CommunityChampionshipHonours {
   communityId: number;
   completedSeasons: number;
   titles: ChampionshipHistoricalTitle[];
   individualHonours: ChampionshipIndividualHonour[];
+  teamHonours: ChampionshipTeamHonour[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -98,6 +116,22 @@ export class CommunityChampionshipsService {
 
   private base(communityId: number): string {
     return environment.apiUrl + '/api/communities/' + communityId + '/championships';
+  }
+
+  permanentTeams(communityId: number): Observable<CommunityPermanentTeams> {
+    return this.http.get<CommunityPermanentTeams>(this.base(communityId) + '/permanent-teams');
+  }
+
+  createPermanentTeam(communityId: number, name: string): Observable<CommunityPermanentTeams> {
+    return this.http.post<CommunityPermanentTeams>(
+      this.base(communityId) + '/permanent-teams', { name });
+  }
+
+  linkPermanentTeam(communityId: number, championshipId: number,
+                    seasonTeamId: number, permanentTeamId: number): Observable<CommunityPermanentTeams> {
+    return this.http.put<CommunityPermanentTeams>(
+      this.base(communityId) + '/' + championshipId + '/teams/' + seasonTeamId + '/permanent-team',
+      { championshipTeamId: permanentTeamId });
   }
 
   honours(communityId: number): Observable<CommunityChampionshipHonours> {
