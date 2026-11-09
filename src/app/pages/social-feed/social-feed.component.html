@@ -2,6 +2,7 @@
   <div class="feed-shell feed-v3-shell">
     <div class="feed-layout jynlo-premium-feed-grid">
       <div class="feed-main">
+    @if (showWelcomeHero) {
     <header class="page-header jynlo-feed-hero feed-v3-welcome">
       <div>
         <span class="feed-v3-greeting">{{ 'feed.v3.greeting' | t }} {{ currentUsername || ('nav.account.profile' | t) }} 👋</span>
@@ -12,6 +13,7 @@
         <span aria-hidden="true">+</span> {{ 'week.create' | t }}
       </a>
     </header>
+    }
 
     <app-social-stories></app-social-stories>
 
