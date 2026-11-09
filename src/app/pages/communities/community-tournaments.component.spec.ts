@@ -91,6 +91,50 @@ describe('Community tournaments management', () => {
     expect(component.championshipOwnedEvents[15]).toEqual([]);
   });
 
+  it('registers season teams independently in an owned cup without changing standalone tournaments', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const championship = { id: 15, closedAt: null } as any;
+    const cup = {
+      id: 101, championshipId: 15, name: 'Taça',
+      format: 'CUP', status: 'DRAFT', createdAt: '2026-11-09T18:00:00Z'
+    } as const;
+    component.championshipTeamRegistries[15] = {
+      championshipId: 15,
+      teams: [{ id: 30, name: 'Águias', permanentTeamId: null }],
+      competitionTeams: []
+    };
+    component.championshipOwnedEventTeams[101] = [];
+    component.championshipOwnedTeamDrafts[101] = 30;
+    const standalone = JSON.stringify(component.tournaments);
+    championships.addOwnedEventTeam.and.returnValue(of({
+      id: 900, championshipTeamId: 30, name: 'Águias'
+    }));
+    component.registerChampionshipEventTeam(championship, cup);
+    expect(championships.addOwnedEventTeam).toHaveBeenCalledOnceWith(7, 15, 101, 30);
+    expect(component.championshipOwnedEventTeams[101].length).toBe(1);
+    expect(component.availableChampionshipTeams(15, 101)).toEqual([]);
+    expect(JSON.stringify(component.tournaments)).toBe(standalone);
+  });
+
+  it('removes one owned competition team without removing the season team identity', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const championship = { id: 15, closedAt: null } as any;
+    const league = {
+      id: 101, championshipId: 15, name: 'Liga',
+      format: 'LEAGUE', status: 'DRAFT', createdAt: '2026-11-09T18:00:00Z'
+    } as const;
+    component.championshipTeamRegistries[15] = {
+      championshipId: 15, teams: [{ id: 30, name: 'Águias', permanentTeamId: null }],
+      competitionTeams: []
+    };
+    component.championshipOwnedEventTeams[101] = [{ id: 900, championshipTeamId: 30, name: 'Águias' }];
+    championships.removeOwnedEventTeam.and.returnValue(of(undefined));
+    component.unregisterChampionshipEventTeam(championship, league, 30);
+    expect(championships.removeOwnedEventTeam).toHaveBeenCalledOnceWith(7, 15, 101, 30);
+    expect(component.championshipOwnedEventTeams[101]).toEqual([]);
+    expect(component.championshipTeamRegistries[15].teams.length).toBe(1);
+  });
+
   it('translates championship creation actions, fields and placeholders in PT/EN', () => {
     const previous = localStorage.getItem('d24-language');
     try {
@@ -179,9 +223,10 @@ describe('Community tournaments management', () => {
       markForCheck: jasmine.createSpy('markForCheck'),
       detectChanges: jasmine.createSpy('detectChanges')
     } as unknown as ChangeDetectorRef;
-    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam', 'ownedEvents', 'createOwnedEvent', 'updateOwnedEvent', 'deleteOwnedEvent']);
+    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam', 'ownedEvents', 'createOwnedEvent', 'updateOwnedEvent', 'deleteOwnedEvent', 'ownedEventTeams', 'addOwnedEventTeam', 'removeOwnedEventTeam']);
     championships.list.and.returnValue(of([]));
     championships.ownedEvents.and.returnValue(of([]));
+    championships.ownedEventTeams.and.returnValue(of([]));
     championships.honours.and.returnValue(of({ communityId: 7, completedSeasons: 0, titles: [], individualHonours: [], teamHonours: [], competitionTitles: [] }));
     championships.permanentTeams.and.returnValue(of({ communityId: 7, teams: [] }));
     championships.teams.and.returnValue(of({ championshipId: 1, teams: [], competitionTeams: [] }));
