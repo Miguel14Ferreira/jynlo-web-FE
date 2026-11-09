@@ -1,6 +1,7 @@
-import { AfterViewInit, Component, HostListener, Input, OnChanges } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, HostListener, Input, OnChanges, Output } from '@angular/core';
 import { SessionSummary } from '../model/session-summary';
 
+export interface SessionMapSearchArea { latitude: number; longitude: number; radiusKm: number; }
 interface Tile { key: string; url: string; left: number; top: number; }
 interface MapPin { session: SessionSummary; sessions: SessionSummary[]; left: number; top: number; }
 type MapArea = 'mainland' | 'azores' | 'madeira';
@@ -21,6 +22,10 @@ type MapArea = 'mainland' | 'azores' | 'madeira';
         <button type="button" (click)="showArea('madeira')">Madeira</button>
         <button type="button" (click)="zoomBy(1)" aria-label="Aproximar mapa">+</button>
         <button type="button" (click)="zoomBy(-1)" aria-label="Afastar mapa">−</button>
+      </div>
+      <div class="jynlo-session-map-actions">
+        <button type="button" (click)="searchCurrentArea()">⌕ Pesquisar nesta área</button>
+        <span>Pesquisa aproximada na zona visível</span>
       </div>
       <div class="jynlo-session-map-viewport" aria-label="Mapa das zonas aproximadas dos jogos"
         (pointerdown)="startPan($event)" (pointermove)="movePan($event)"
@@ -61,6 +66,9 @@ type MapArea = 'mainland' | 'azores' | 'madeira';
     .jynlo-session-map{display:grid;gap:.7rem;min-width:0}
     .jynlo-session-map-toolbar{display:flex;flex-wrap:wrap;gap:.4rem}
     .jynlo-session-map-toolbar button{background:#0d3443;border:1px solid #257485;border-radius:.6rem;color:#f4fbfd;padding:.45rem .7rem;cursor:pointer;font-weight:700}
+    .jynlo-session-map-actions{display:flex;flex-wrap:wrap;align-items:center;gap:.65rem}
+    .jynlo-session-map-actions button{border:0;border-radius:.65rem;padding:.65rem .85rem;background:#1acdbb;color:#062933;font-weight:900;cursor:pointer}
+    .jynlo-session-map-actions span{color:#b4cdd5;font-size:.75rem}
     .jynlo-session-map-toolbar button:hover,.jynlo-session-map-toolbar button:focus-visible{background:#176175}
     .jynlo-session-map-viewport{height:420px;overflow:hidden;position:relative;background:#133f4b;border:1px solid #276074;border-radius:1rem;touch-action:none;user-select:none;cursor:grab}
     .jynlo-session-map-viewport:active{cursor:grabbing}
@@ -83,6 +91,7 @@ type MapArea = 'mainland' | 'azores' | 'madeira';
 })
 export class SessionDiscoveryMapComponent implements OnChanges, AfterViewInit {
   @Input() sessions: SessionSummary[] = [];
+  @Output() searchArea = new EventEmitter<SessionMapSearchArea>();
   tiles: Tile[] = [];
   pins: MapPin[] = [];
   selected: SessionSummary | null = null;
@@ -122,6 +131,18 @@ export class SessionDiscoveryMapComponent implements OnChanges, AfterViewInit {
   zoomBy(delta: number): void {
     this.zoom = Math.max(4, Math.min(13, this.zoom + delta));
     this.update();
+  }
+
+  /** Emit only after an explicit user click, never during pan/zoom. */
+  searchCurrentArea(): void {
+    const latitude = this.center.latitude;
+    const longitude = this.center.longitude;
+    // Cover the viewport approximately with a radius around its centre.
+    // Backend applies its existing coarse-grained distance privacy policy.
+    const kmPerPixel = 156.543 * Math.cos(latitude * Math.PI / 180) / 2 ** this.zoom;
+    const radiusKm = Math.max(5, Math.min(500,
+      Math.ceil(Math.hypot(this.width / 2, this.height / 2) * kmPerPixel)));
+    this.searchArea.emit({latitude, longitude, radiusKm});
   }
 
   select(session: SessionSummary): void { this.selected = session; this.selectedGroup = [session]; }
