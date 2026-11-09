@@ -83,13 +83,13 @@ describe('SessionDiscoveryMapComponent', () => {
   it('expands map clusters as zoom increases', () => {
     const map = new SessionDiscoveryMapComponent();
     map.sessions = [
-      game(31, {latitude: 38.72, longitude: -9.15}),
-      game(32, {latitude: 38.83, longitude: -9.15})
+      game(31, {latitude: 39.45, longitude: -8.0}),
+      game(32, {latitude: 39.55, longitude: -8.0})
     ];
     map.ngOnChanges();
     const initialCount = map.pins.length;
-    map.zoomBy(5);
-    expect(map.pins.length).toBeGreaterThanOrEqual(initialCount);
+    map.zoomBy(4);
+    expect(map.pins.length).toBeGreaterThan(initialCount);
   });
 
 });
