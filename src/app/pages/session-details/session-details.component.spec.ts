@@ -2456,6 +2456,50 @@ describe('SessionDetailsComponent', () => {
     expect(component.actionError).toContain('palavra-passe');
   });
 
+  it('lets the organizer correct player capacity on the session detail page', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = {
+      ...session, joined: true,
+      status: 'OPEN', gameDate: new Date(Date.now() + 3_600_000).toISOString()
+    };
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const edit = root.querySelector<HTMLButtonElement>('.session-capacity-edit-action');
+    expect(edit).not.toBeNull();
+    edit!.click();
+    fixture.detectChanges();
+    expect(component.capacityEditing).toBeTrue();
+    component.capacityDraft = 6;
+    component.saveCapacity();
+    fixture.detectChanges();
+    expect(sessionService.updateCapacity).toHaveBeenCalledWith(7, 6);
+    expect(component.session?.maxParticipants).toBe(6);
+    expect(component.capacityEditing).toBeFalse();
+    expect(root.textContent).toContain('2/6');
+  });
+
+  it('rejects capacity below confirmed players and hides edit for others or past sessions', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = {
+      ...session, joined: true, participantCount: 3,
+      status: 'OPEN', gameDate: new Date(Date.now() + 3_600_000).toISOString()
+    };
+    component.beginCapacityEdit();
+    component.capacityDraft = 2;
+    component.saveCapacity();
+    expect(sessionService.updateCapacity).not.toHaveBeenCalled();
+    expect(component.capacityError).toContain('confirmadas');
+
+    (component as any).currentUsername = 'player-one';
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.session-capacity-edit-action')).toBeNull();
+
+    (component as any).currentUsername = 'creator-user';
+    component.session = { ...component.session, gameDate: '2020-01-01T10:00:00Z' };
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.session-capacity-edit-action')).toBeNull();
+  });
+
   it('should load chat messages for a participant before kickoff', () => {
     component.session = {
       ...session,
