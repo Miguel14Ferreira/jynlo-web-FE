@@ -2801,9 +2801,15 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
             this.sessionParticipantsError = '';
           }
 
-          // Never fetch a hidden chat on session details.
-          this.messages = [];
-          this.chatError = '';
+          // Preserve the visible conversation across silent roster refreshes.
+          // Deep-linked chat opens only after membership has been verified.
+          if (!this.canAccessChat()) {
+            this.sessionChatOpen = false;
+            this.messages = [];
+            this.chatError = '';
+          } else if (this.sessionChatOpen && showPageLoader) {
+            this.refreshMessages();
+          }
         },
         error: () => {
           if (showPageLoader) {
