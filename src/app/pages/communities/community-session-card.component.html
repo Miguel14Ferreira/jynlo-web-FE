@@ -15,6 +15,11 @@
                             {{ session.participantCount }}/{{ session.maxParticipants }}
                             {{ 'communities.participantsShort' | t }}
                           </span>
+                          @if (seasonGame) {
+                            <span class="competition-badge" data-testid="community-season-game">
+                              {{ 'createSession.seasonGameTitle' | t }}
+                            </span>
+                          }
                           @if (session.recurrenceSeriesId) {
                             <span class="competition-badge">
                               {{ 'communities.recurringSession' | t }}
