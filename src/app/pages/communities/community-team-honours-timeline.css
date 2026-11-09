@@ -1,0 +1,70 @@
+/* Team profile: restrained, responsive cards matching the existing tournament surfaces. */
+.team-honours-trophies {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.team-honours-trophy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--border-color, #d9e3df);
+  border-radius: 14px;
+  background: var(--surface-color, rgba(126, 146, 136, .08));
+}
+.team-honours-trophy strong {
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.team-honours-trophy span:last-child { font-weight: 600; }
+.team-honours-timeline {
+  position: relative;
+  margin: 16px 0 0 8px;
+  padding: 0 0 0 30px;
+  list-style: none;
+  border-left: 2px solid var(--border-color, #d9e3df);
+}
+.team-honours-season {
+  position: relative;
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-color, #d9e3df);
+  border-radius: 12px;
+  background: var(--surface-color, rgba(126, 146, 136, .06));
+}
+.team-honours-season::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: -38px;
+  width: 12px;
+  height: 12px;
+  border: 3px solid var(--primary-color, #249569);
+  border-radius: 50%;
+  background: var(--card-background, #fff);
+}
+.team-honours-season-header,
+.team-honours-result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.team-honours-season-header strong { font-size: 1.05rem; }
+.team-honours-season-header span,
+.team-honours-result span {
+  font-variant-numeric: tabular-nums;
+}
+.team-honours-muted { opacity: .75; }
+.team-honours-champion { font-weight: 700; }
+.team-honours-improved { color: #147a47; font-weight: 600; }
+.team-honours-declined { color: #ab423c; font-weight: 600; }
+@media (max-width: 580px) {
+  .team-honours-trophies { grid-template-columns: 1fr; }
+  .team-honours-trophy { padding: 12px; }
+}
