@@ -22,12 +22,12 @@
   </div>
 
 
-  <section class="create-tournament" aria-label="Campeonatos da comunidade">
+  <section class="create-tournament" [attr.aria-label]="'communities.championshipUi.section' | t">
     <div class="create-tournament-heading">
       <div class="create-tournament-intro">
-        <p class="tournament-eyebrow">Épocas e competições</p>
-        <h4>Campeonatos</h4>
-        <button type="button" class="t-btn t-btn-secondary" [disabled]="championshipBusy" (click)="refreshChampionships()">Atualizar classificações</button>
+        <p class="tournament-eyebrow">{{ 'communities.championshipUi.eyebrow' | t }}</p>
+        <h4>{{ 'communities.championshipUi.title' | t }}</h4>
+        <button type="button" class="t-btn t-btn-secondary" [disabled]="championshipBusy" (click)="refreshChampionships()">{{ 'communities.championshipUi.refresh' | t }}</button>
         <p>{{ 'communities.championshipConceptLead' | t }}</p>
         <div class="championship-concept-compare" role="group"
           [attr.aria-label]="'communities.championshipHelpTitle' | t">
@@ -49,7 +49,7 @@
       </div>
       @if (canManage) {
         <button type="button" class="t-btn t-btn-primary" (click)="championshipOpen = !championshipOpen">
-          {{ championshipOpen ? 'Fechar' : 'Criar campeonato' }}
+          {{ (championshipOpen ? 'communities.championshipUi.closeForm' : 'communities.championshipUi.openForm') | t }}
         </button>
       }
     </div>
@@ -76,17 +76,17 @@
     @if (championshipOpen && canManage) {
       <div class="create-controls">
         <div class="create-field">
-          <label for="championship-name">Nome do campeonato</label>
+          <label for="championship-name">{{ 'communities.championshipUi.name' | t }}</label>
           <input id="championship-name" maxlength="120" [(ngModel)]="championshipNameDraft"
-            placeholder="Ex.: Campeonato da Comunidade">
+            [placeholder]="'communities.championshipUi.namePlaceholder' | t">
         </div>
         <div class="create-field">
-          <label for="championship-season">Época</label>
+          <label for="championship-season">{{ 'communities.championshipUi.season' | t }}</label>
           <input id="championship-season" maxlength="50" [(ngModel)]="championshipSeasonDraft"
-            placeholder="Ex.: 2026/27">
+            [placeholder]="'communities.championshipUi.seasonPlaceholder' | t">
         </div>
         <div class="create-field">
-          <label for="championship-sport">Modalidade</label>
+          <label for="championship-sport">{{ 'communities.championshipUi.sport' | t }}</label>
           <select id="championship-sport" [(ngModel)]="championshipSportDraft">
             @for (sport of championshipSports; track sport) {
               <option [value]="sport">{{ sport }}</option>
@@ -95,7 +95,7 @@
         </div>
         <button type="button" class="t-btn t-btn-primary"
           [disabled]="championshipBusy || !championshipNameDraft.trim() || !championshipSeasonDraft.trim() || !championshipSportDraft"
-          (click)="createChampionship()">Guardar campeonato</button>
+          (click)="createChampionship()">{{ 'communities.championshipUi.save' | t }}</button>
       </div>
     }
     <div class="create-step" role="group" aria-label="Vista dos campeonatos">
