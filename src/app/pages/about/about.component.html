@@ -1,23 +1,26 @@
 <section class="about-page">
   <div class="about-shell">
     <header class="page-header">
+      <p class="eyebrow">{{ 'about.eyebrow' | t }}</p>
       <h1>{{ 'about.title' | t }}</h1>
       <p class="subtitle">{{ 'about.subtitle' | t }}</p>
+      <div class="about-actions about-actions--hero">
+        <a class="primary-action jynlo-action jynlo-action--primary" routerLink="/login/registerNewUser">{{ 'about.join' | t }}</a>
+        <a class="secondary-action jynlo-action jynlo-action--neutral" routerLink="/menu/explore">{{ 'about.explore' | t }}</a>
+      </div>
     </header>
 
-    <div class="about-grid">
+    <div class="about-grid about-grid--intro">
       <article class="about-card">
         <span class="card-number">01</span>
         <h2>{{ 'about.who.title' | t }}</h2>
         <p>{{ 'about.who.text' | t }}</p>
       </article>
-
       <article class="about-card">
         <span class="card-number">02</span>
         <h2>{{ 'about.goal.title' | t }}</h2>
         <p>{{ 'about.goal.text' | t }}</p>
       </article>
-
       <article class="about-card">
         <span class="card-number">03</span>
         <h2>{{ 'about.more.title' | t }}</h2>
@@ -25,9 +28,65 @@
       </article>
     </div>
 
-    <div class="about-actions">
-      <a class="primary-action jynlo-action jynlo-action--primary" routerLink="/login/registerNewUser">{{ 'about.join' | t }}</a>
-      <a class="secondary-action jynlo-action jynlo-action--neutral" routerLink="/contact">{{ 'about.contact' | t }}</a>
-    </div>
+    <section class="about-features" aria-labelledby="about-features-heading">
+      <div class="about-section-heading">
+        <p class="eyebrow">{{ 'about.features.eyebrow' | t }}</p>
+        <h2 id="about-features-heading">{{ 'about.features.title' | t }}</h2>
+        <p>{{ 'about.features.subtitle' | t }}</p>
+      </div>
+      <div class="about-feature-grid">
+        <article class="about-feature-card">
+          <span class="feature-symbol" aria-hidden="true">⚽</span>
+          <h3>{{ 'about.features.sessions.title' | t }}</h3>
+          <p>{{ 'about.features.sessions.text' | t }}</p>
+        </article>
+        <article class="about-feature-card">
+          <span class="feature-symbol" aria-hidden="true">🤝</span>
+          <h3>{{ 'about.features.communities.title' | t }}</h3>
+          <p>{{ 'about.features.communities.text' | t }}</p>
+        </article>
+        <article class="about-feature-card">
+          <span class="feature-symbol" aria-hidden="true">🏆</span>
+          <h3>{{ 'about.features.competitions.title' | t }}</h3>
+          <p>{{ 'about.features.competitions.text' | t }}</p>
+        </article>
+        <article class="about-feature-card">
+          <span class="feature-symbol" aria-hidden="true">📊</span>
+          <h3>{{ 'about.features.stats.title' | t }}</h3>
+          <p>{{ 'about.features.stats.text' | t }}</p>
+        </article>
+        <article class="about-feature-card">
+          <span class="feature-symbol" aria-hidden="true">📍</span>
+          <h3>{{ 'about.features.venues.title' | t }}</h3>
+          <p>{{ 'about.features.venues.text' | t }}</p>
+        </article>
+        <article class="about-feature-card">
+          <span class="feature-symbol" aria-hidden="true">💬</span>
+          <h3>{{ 'about.features.social.title' | t }}</h3>
+          <p>{{ 'about.features.social.text' | t }}</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="about-journey" aria-labelledby="about-journey-heading">
+      <div class="about-section-heading">
+        <p class="eyebrow">{{ 'about.journey.eyebrow' | t }}</p>
+        <h2 id="about-journey-heading">{{ 'about.journey.title' | t }}</h2>
+      </div>
+      <div class="about-journey-grid">
+        <div><span>01</span><strong>{{ 'about.journey.discover.title' | t }}</strong><p>{{ 'about.journey.discover.text' | t }}</p></div>
+        <div><span>02</span><strong>{{ 'about.journey.play.title' | t }}</strong><p>{{ 'about.journey.play.text' | t }}</p></div>
+        <div><span>03</span><strong>{{ 'about.journey.connect.title' | t }}</strong><p>{{ 'about.journey.connect.text' | t }}</p></div>
+      </div>
+    </section>
+
+    <footer class="about-footer">
+      <h2>{{ 'about.cta.title' | t }}</h2>
+      <p>{{ 'about.cta.text' | t }}</p>
+      <div class="about-actions">
+        <a class="primary-action jynlo-action jynlo-action--primary" routerLink="/login/registerNewUser">{{ 'about.join' | t }}</a>
+        <a class="secondary-action jynlo-action jynlo-action--neutral" routerLink="/contact">{{ 'about.contact' | t }}</a>
+      </div>
+    </footer>
   </div>
 </section>
