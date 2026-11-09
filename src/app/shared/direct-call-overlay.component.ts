@@ -180,30 +180,6 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                       </button>
                     </div>
                   }
-                  <div class="connect-share-audio" [attr.aria-label]="'calls.shareAudioMixer' | t">
-                    @for (person of participants; track person.identity) {
-                      @if (person !== calls.room?.localParticipant) {
-                        <label>
-                          {{ participantLabel(person) }} · {{ 'calls.microphoneVolume' | t }}
-                          <input type="range" min="0" max="100" step="5"
-                            [value]="volumeFor(person.identity) * 100"
-                            (input)="setVolume(person.identity,$any($event.target).value)"
-                            [attr.aria-label]="('calls.microphoneVolume' | t) + ' · ' + participantLabel(person)">
-                          <strong>{{ volumeFor(person.identity) * 100 | number:'1.0-0' }}%</strong>
-                        </label>
-                        @if (personHasScreenShare(person)) {
-                          <label>
-                            {{ participantLabel(person) }} · {{ 'calls.sharedAudioVolume' | t }}
-                            <input type="range" min="0" max="100" step="5"
-                              [value]="screenVolumeFor(person.identity) * 100"
-                              (input)="setScreenVolume(person.identity,$any($event.target).value)"
-                              [attr.aria-label]="('calls.sharedAudioVolume' | t) + ' · ' + participantLabel(person)">
-                            <strong>{{ screenVolumeFor(person.identity) * 100 | number:'1.0-0' }}%</strong>
-                          </label>
-                        }
-                      }
-                    }
-                  </div>
                   <div class="connect-camera-strip" [attr.aria-label]="'calls.callParticipants' | t">
                     @for (person of participants; track person.identity) {
                       <app-call-participant-tile [participant]="person"
@@ -240,11 +216,39 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                     <app-call-participant-tile [participant]="person"
                       [label]="participantLabel(person)" [local]="person === calls.room?.localParticipant"
                       [volume]="volumeFor(person.identity)"
+                      [microphoneVolume]="volumeFor(person.identity)"
+                      [screenShareVolume]="screenVolumeFor(person.identity)"
                       [audioOutputDeviceId]="(calls.selectedDevices$ | async)?.audiooutput">
                     </app-call-participant-tile>
                   }
                 }
               </div>
+              @if (participantCount > 1) {
+                  <div class="connect-share-audio" [attr.aria-label]="'calls.shareAudioMixer' | t">
+                    @for (person of participants; track person.identity) {
+                      @if (person !== calls.room?.localParticipant) {
+                        <label>
+                          {{ participantLabel(person) }} · {{ 'calls.microphoneVolume' | t }}
+                          <input type="range" min="0" max="100" step="5"
+                            [value]="volumeFor(person.identity) * 100"
+                            (input)="setVolume(person.identity,$any($event.target).value)"
+                            [attr.aria-label]="('calls.microphoneVolume' | t) + ' · ' + participantLabel(person)">
+                          <strong>{{ volumeFor(person.identity) * 100 | number:'1.0-0' }}%</strong>
+                        </label>
+                        @if (personHasScreenShare(person)) {
+                          <label>
+                            {{ participantLabel(person) }} · {{ 'calls.sharedAudioVolume' | t }}
+                            <input type="range" min="0" max="100" step="5"
+                              [value]="screenVolumeFor(person.identity) * 100"
+                              (input)="setScreenVolume(person.identity,$any($event.target).value)"
+                              [attr.aria-label]="('calls.sharedAudioVolume' | t) + ' · ' + participantLabel(person)">
+                            <strong>{{ screenVolumeFor(person.identity) * 100 | number:'1.0-0' }}%</strong>
+                          </label>
+                        }
+                      }
+                    }
+                  </div>
+              }
             }
           }
           <div class="call-feedback" aria-live="polite">
