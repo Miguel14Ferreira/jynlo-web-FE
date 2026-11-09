@@ -27,6 +27,24 @@ type ExploreCategory = 'all' | 'venues' | 'sessions' | 'people' | 'communities';
 export class DiscoverComponent implements OnInit {
   activeTab: ExploreCategory = 'all';
   sessionView: 'map' | 'list' = 'list';
+  mapSearchPosition: { latitude: number; longitude: number } | null = null;
+  mapSearchRadiusKm = 25;
+  searchMapArea(area: {latitude: number; longitude: number; radiusKm: number}): void {
+    if (![area.latitude, area.longitude, area.radiusKm].every(Number.isFinite)
+      || Math.abs(area.latitude) > 90 || Math.abs(area.longitude) > 180
+      || area.radiusKm < 5 || area.radiusKm > 500) return;
+    this.disableNearbySessions();
+    this.mapSearchPosition = { latitude: area.latitude, longitude: area.longitude };
+    this.mapSearchRadiusKm = area.radiusKm;
+    this.sessionView = 'map';
+    this.activeTab = 'sessions';
+    this.search();
+  }
+  clearMapSearch(): void {
+    this.mapSearchPosition = null;
+    this.search();
+  }
+
   setSessionView(view: 'map' | 'list'): void {
     this.sessionView = view;
     // The map needs the full-width focused panel, even from the overview tab.
@@ -201,6 +219,7 @@ export class DiscoverComponent implements OnInit {
     this.playerName = '';
     this.appliedPlayerName = '';
     this.disableNearbySessions();
+    this.mapSearchPosition = null;
     this.disableNearbyVenues();
   }
 
@@ -258,6 +277,7 @@ export class DiscoverComponent implements OnInit {
   }
 
   enableNearbySessions(): void {
+    this.mapSearchPosition = null;
     if (this.locatingSessions) {
       return;
     }
@@ -343,14 +363,15 @@ export class DiscoverComponent implements OnInit {
       sessions: this.withRecovery(
         this.sessionService.discover({
           sport: sport || undefined,
-          city: this.nearbyPosition ? undefined : location || undefined,
-          latitude: this.nearbyPosition?.latitude,
-          longitude: this.nearbyPosition?.longitude,
-          radiusKm: this.nearbyPosition ? this.nearbyRadiusKm : undefined,
+          city: this.nearbyPosition || this.mapSearchPosition ? undefined : location || undefined,
+          latitude: this.mapSearchPosition?.latitude ?? this.nearbyPosition?.latitude,
+          longitude: this.mapSearchPosition?.longitude ?? this.nearbyPosition?.longitude,
+          radiusKm: this.mapSearchPosition ? this.mapSearchRadiusKm
+            : this.nearbyPosition ? this.nearbyRadiusKm : undefined,
           // Include FULL sessions so players can discover their waitlists.
           // The card only shows a join shortcut when participation is viable.
           availability: undefined,
-          sort: this.nearbyPosition ? 'distance' : 'date'
+          sort: this.nearbyPosition || this.mapSearchPosition ? 'distance' : 'date'
         }),
         [] as SessionSummary[], 'sessions', requestId
       ),
