@@ -1,7 +1,7 @@
 import {
   CommunityChampionship, CommunityChampionshipHonours,
   CommunityChampionshipTeams, ChampionshipCompetitionTitle, ChampionshipHistoricalTitle,
-  CommunityPermanentTeams
+  CommunityPermanentTeams, CommunityChampionshipStandings
 } from '../../services/community-championships.service';
 
 export interface ChampionshipTeamSeason {
@@ -12,6 +12,8 @@ export interface ChampionshipTeamSeason {
   closedAt: string | null;
   teamName: string;
   champion: boolean;
+  points: number | null;
+  position: number | null;
 }
 
 export interface ChampionshipTeamProfile {
@@ -35,7 +37,8 @@ export function championshipTeamProfile(
   honours: CommunityChampionshipHonours,
   championships: CommunityChampionship[],
   registries: Record<number, CommunityChampionshipTeams>,
-  permanentTeams: CommunityPermanentTeams | null
+  permanentTeams: CommunityPermanentTeams | null,
+  standingsByChampionship: Record<number, CommunityChampionshipStandings> = {}
 ): ChampionshipTeamProfile | null {
   const team = honours.teamHonours.find(item => item.permanentTeamId === permanentTeamId);
   const registered = permanentTeams?.teams.find(item => item.id === permanentTeamId);
@@ -47,6 +50,9 @@ export function championshipTeamProfile(
     const seasonTeam = registry?.teams.find(item => item.permanentTeamId === permanentTeamId);
     if (!seasonTeam) continue;
 
+    const ranking = standingsByChampionship[championship.id]?.standings ?? [];
+    const positionIndex = ranking.findIndex(item =>
+      item.entryType === 'TEAM' && item.participantId === seasonTeam.id);
     seasons.push({
       championshipId: championship.id,
       name: championship.name,
@@ -54,6 +60,8 @@ export function championshipTeamProfile(
       sport: championship.sport,
       closedAt: championship.closedAt,
       teamName: seasonTeam.name,
+      points: positionIndex >= 0 ? ranking[positionIndex].points : null,
+      position: positionIndex >= 0 ? positionIndex + 1 : null,
       champion: honours.titles.some(title =>
         title.championshipId === championship.id &&
         title.entryType === 'TEAM' &&
