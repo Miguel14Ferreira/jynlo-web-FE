@@ -71,7 +71,7 @@ export function championshipTeamProfile(
       sport: championship.sport,
       closedAt: championship.closedAt,
       teamName: seasonTeam.name,
-      points: verifiedRank ? current.points : null,
+      points: verifiedRank && current !== null ? current.points : null,
       position: verifiedRank ? positionIndex + 1 : null,
       previousPosition: null,
       positionChange: null,
