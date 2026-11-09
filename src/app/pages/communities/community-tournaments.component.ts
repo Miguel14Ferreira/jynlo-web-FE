@@ -1,4 +1,4 @@
-import { CommunityChampionshipsService, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
+import { CommunityChampionshipsService, ChampionshipOwnedEvent, ChampionshipOwnedEventFormat, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
 import { championshipTeamProfile, ChampionshipTeamProfile } from './community-championship-team-profile';
 import { compareTeamSeasons, comparableTeamSeasons, TeamSeasonComparison } from './community-championship-team-comparison';
 import { teamRankingChart, teamRankingSports, TeamRankingChart } from './community-championship-team-ranking-chart';
@@ -373,6 +373,55 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.expandedArchivedChampionshipId === championshipId ? null : championshipId;
   }
 
+  championshipOwnedEvents: Record<number, ChampionshipOwnedEvent[]> = {};
+  championshipEventNames: Record<number, string> = {};
+  championshipEventFormats: Record<number, ChampionshipOwnedEventFormat> = {};
+  championshipEventBusy = false;
+
+  loadChampionshipOwnedEvents(championshipId: number): void {
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipsApi.ownedEvents(communityId, championshipId).subscribe({
+      next: events => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipOwnedEvents[championshipId] = events;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipError = t('communities.championshipUi.ownedLoadError');
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  createChampionshipOwnedEvent(championship: CommunityChampionship): void {
+    const name = (this.championshipEventNames[championship.id] || '').trim();
+    const format = this.championshipEventFormats[championship.id] || 'LEAGUE';
+    if (!this.canManage || this.championshipEventBusy || championship.closedAt
+        || !name || name.length > 120) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipEventBusy = true;
+    this.championshipError = '';
+    this.championshipsApi.createOwnedEvent(communityId, championship.id, name, format).subscribe({
+      next: created => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipOwnedEvents[championship.id] =
+          [...(this.championshipOwnedEvents[championship.id] || []), created];
+        this.championshipEventNames[championship.id] = '';
+        this.championshipEventBusy = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipEventBusy = false;
+        this.championshipError = t('communities.championshipUi.ownedCreateError');
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
   championshipExplainerOpen = false;
   championshipOpen = false;
   championshipBusy = false;
@@ -385,6 +434,9 @@ export class CommunityTournamentsComponent implements OnChanges {
     // A new request invalidates every dependent snapshot. Otherwise the
     // profile can momentarily combine results from different data revisions.
     this.championships = [];
+    this.championshipOwnedEvents = {};
+    this.championshipEventNames = {};
+    this.championshipEventFormats = {};
     this.championshipAggregateStandings = {};
     this.championshipTeamRegistries = {};
     this.championshipHonours = null;
@@ -403,6 +455,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         championships.forEach(item => {
           this.loadChampionshipStandings(item.id);
           this.loadChampionshipTeams(item.id);
+          this.loadChampionshipOwnedEvents(item.id);
         });
         this.changeDetector.markForCheck();
       },
@@ -435,6 +488,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.championships = [championship, ...this.championships];
         this.loadChampionshipStandings(championship.id);
         this.loadChampionshipTeams(championship.id);
+        this.championshipOwnedEvents[championship.id] = [];
         this.championshipNameDraft = '';
         this.championshipOpen = false;
         this.championshipBusy = false;
