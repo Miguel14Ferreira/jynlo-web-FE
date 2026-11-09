@@ -1,0 +1,35 @@
+name: Jynlo call screen zoom and audio mixer
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - '.github/workflows/call-screen-zoom-audio-ci.yml'
+      - 'src/app/shared/direct-call-overlay.component.ts'
+      - 'src/app/shared/direct-call-overlay.component.spec.ts'
+      - 'src/app/shared/call-participant-tile.component.ts'
+      - 'src/app/shared/call-participant-tile.component.spec.ts'
+      - 'src/app/i18n/i18n.service.ts'
+      - 'src/app/i18n/translations-en.ts'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-calls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Type check Angular production bundle
+        run: npx ng build --configuration production
+      - name: Test call overlay and media tile playback
+        run: npx ng test --watch=false --browsers=ChromeHeadless --include=src/app/shared/direct-call-overlay.component.spec.ts --include=src/app/shared/call-participant-tile.component.spec.ts
