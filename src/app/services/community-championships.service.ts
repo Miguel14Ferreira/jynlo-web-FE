@@ -30,6 +30,10 @@ export interface CommunityChampionship {
   createdAt: string;
   competitions: ChampionshipCompetition[];
   winnerStandings: ChampionshipLeader[];
+  closedAt: string | null;
+  championEntryType: 'TEAM' | 'INDIVIDUAL' | null;
+  championParticipantId: number | null;
+  championDisplayName: string | null;
 }
 
 export interface CommunityChampionshipTeam {
@@ -88,6 +92,11 @@ export class CommunityChampionshipsService {
     return this.http.put<CommunityChampionshipTeams>(
       this.base(communityId) + '/' + championshipId + '/competition-teams/' + tournamentTeamId,
       { championshipTeamId });
+  }
+
+  close(communityId: number, championshipId: number): Observable<CommunityChampionship> {
+    return this.http.post<CommunityChampionship>(
+      this.base(communityId) + '/' + championshipId + '/close', {});
   }
 
   standings(communityId: number, championshipId: number): Observable<CommunityChampionshipStandings> {
