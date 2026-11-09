@@ -311,7 +311,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         || d.minParticipants < 2 || d.minParticipants > d.maxParticipants
         || d.maxParticipants < this.session.participantCount
         || !Number.isFinite(d.priceAmount) || d.priceAmount < 0
-        || Math.round(d.priceAmount * 100) !== d.priceAmount * 100
+        || Math.abs(Math.round(d.priceAmount * 100) - d.priceAmount * 100) > 0.000001
         || !d.city.trim() || !d.address.trim()) {
       this.detailsError = t('sessionDetail.detailsInvalid');
       return;
