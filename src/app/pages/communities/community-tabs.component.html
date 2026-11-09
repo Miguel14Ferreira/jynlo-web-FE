@@ -7,6 +7,9 @@
               <button type="button" [class.active]="activeTab === 'feed'"
                 [attr.aria-current]="activeTab === 'feed' ? 'true' : null"
                 (click)="tabRequested.emit('feed')">{{ 'communities.tab.feed' | t }}</button>
+              <button type="button" [class.active]="activeTab === 'chat'"
+                [attr.aria-current]="activeTab === 'chat' ? 'true' : null"
+                (click)="tabRequested.emit('chat')">{{ 'communities.tab.chat' | t }}</button>
               <button type="button" [class.active]="activeTab === 'sessions'"
                 [attr.aria-current]="activeTab === 'sessions' ? 'true' : null"
                 (click)="tabRequested.emit('sessions')">
