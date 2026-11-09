@@ -5916,6 +5916,34 @@ describe('Community tournaments management', () => {
     expect(api.recordInlineSpeedTrial).toHaveBeenCalledTimes(1);
   });
 
+  it('separates ongoing championships and lets members expand an archived season', () => {
+    const open = {
+      id: 101, communityId: 7, name: 'Época atual', sport: 'Futebol',
+      seasonLabel: '2026/27', createdAt: '2026-11-01T00:00:00Z',
+      competitions: [], winnerStandings: [], closedAt: null,
+      championEntryType: null, championParticipantId: null, championDisplayName: null
+    };
+    const archived = {
+      ...open, id: 100, name: 'Época anterior', seasonLabel: '2025/26',
+      closedAt: '2026-06-30T00:00:00Z',
+      championEntryType: 'TEAM' as const, championParticipantId: 55,
+      championDisplayName: 'Águias'
+    };
+    component.championships = [open, archived];
+    expect(component.activeChampionshipCount).toBe(1);
+    expect(component.archivedChampionshipCount).toBe(1);
+    component.showChampionshipHistory();
+    expect(component.championshipHistoryView).toBe('HISTORY');
+    component.toggleArchivedChampionship(100);
+    expect(component.expandedArchivedChampionshipId).toBe(100);
+    component.toggleArchivedChampionship(101);
+    expect(component.expandedArchivedChampionshipId).toBe(100);
+    component.toggleArchivedChampionship(100);
+    expect(component.expandedArchivedChampionshipId).toBeNull();
+    component.showActiveChampionships();
+    expect(component.championshipHistoryView).toBe('ACTIVE');
+  });
+
   it('keeps regular individual league points intact for other sports', async () => {
     component.startIndividualCreation();
     component.nameDraft = 'Liga de Futebol';
