@@ -97,8 +97,22 @@
                   </strong>
                 } @else {
                   <span>{{ 'sessionDetail.seasonNo' | t }}</span>
+                  <button type="button" class="session-ranking-learn-more"
+                    [attr.aria-expanded]="showRankingBenefits"
+                    aria-controls="session-ranking-benefits"
+                    (click)="showRankingBenefits = !showRankingBenefits">
+                    {{ (showRankingBenefits ? 'sessionDetail.rankingsLearnLess' : 'sessionDetail.rankingsLearnMore') | t }}
+                  </button>
                 }
               </div>
+              @if (!sessionContext.seasonGame && showRankingBenefits) {
+                <div id="session-ranking-benefits" class="session-ranking-benefits" role="note">
+                  <strong>{{ 'sessionDetail.rankingsBenefitsTitle' | t }}</strong>
+                  <p>{{ 'sessionDetail.rankingsBenefitsResults' | t }}</p>
+                  <p>{{ 'sessionDetail.rankingsBenefitsTeams' | t }}</p>
+                  <p>{{ 'sessionDetail.rankingsBenefitsOptional' | t }}</p>
+                </div>
+              }
             </section>
           } @else if (sessionContextError && (session.communityId || session.audience === 'COMMUNITY_ONLY')) {
             <p class="session-context-error" role="status">{{ sessionContextError }}</p>
