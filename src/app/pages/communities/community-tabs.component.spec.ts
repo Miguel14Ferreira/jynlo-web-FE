@@ -46,7 +46,7 @@ describe('CommunityTabsComponent', () => {
     const root = render({ competitions:true, archives:true, rankings:true }).nativeElement as HTMLElement;
     const nav = root.querySelector<HTMLElement>('.community-tabs')!;
     const buttons = Array.from(nav.querySelectorAll<HTMLButtonElement>('button'));
-    expect(buttons.length).toBe(7);
+    expect(buttons.length).toBe(8);
     expect(getComputedStyle(nav).overflowX).toBe('auto');
     expect(buttons.every(button => button.type === 'button')).toBeTrue();
     expect(buttons.every(button => getComputedStyle(button).whiteSpace === 'nowrap')).toBeTrue();
