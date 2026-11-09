@@ -381,6 +381,18 @@ export class CommunityTournamentsComponent implements OnChanges {
   private loadChampionships(): void {
     const revision = ++this.championshipRevision;
     const communityId = this.community.id;
+    // A new request invalidates every dependent snapshot. Otherwise the
+    // profile can momentarily combine results from different data revisions.
+    this.championships = [];
+    this.championshipAggregateStandings = {};
+    this.championshipTeamRegistries = {};
+    this.championshipHonours = null;
+    this.championshipHonoursError = '';
+    this.permanentTeamRegistry = null;
+    this.selectedPermanentTeamId = null;
+    this.rankingChartSport = '';
+    this.comparisonOlderChampionshipId = null;
+    this.comparisonNewerChampionshipId = null;
     this.championshipsApi.list(communityId).subscribe({
       next: championships => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
