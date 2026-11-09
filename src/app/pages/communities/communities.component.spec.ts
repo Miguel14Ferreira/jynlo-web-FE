@@ -61,7 +61,7 @@ describe('CommunitiesComponent public session eligibility', () => {
       localStorage.setItem('d24-language', 'pt');
       const pt = t('feedback.communities.roundConflict');
       expect(pt).toContain('conflito');
-      expect(pt).toContain('participantes');
+      expect(pt).toContain('época');
       expect(pt).not.toBe('feedback.communities.roundConflict');
 
       localStorage.setItem('d24-language', 'en');
