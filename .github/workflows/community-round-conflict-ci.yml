@@ -7,6 +7,8 @@ on:
       - '.github/workflows/community-round-conflict-ci.yml'
       - 'src/app/pages/communities/communities.component.ts'
       - 'src/app/pages/communities/communities.component.spec.ts'
+      - 'src/app/pages/communities/community-tournaments.component.html'
+      - 'src/app/pages/communities/community-tournaments.component.spec.ts'
       - 'src/app/i18n/i18n.service.ts'
       - 'src/app/i18n/translations-en.ts'
       - 'package.json'
@@ -30,3 +32,5 @@ jobs:
         run: npm ci
       - name: Validate community round regression tests
         run: npx ng test --watch=false --browsers=ChromeHeadless --include=src/app/pages/communities/communities.component.spec.ts
+      - name: Validate championship creation localization tests
+        run: npx ng test --watch=false --browsers=ChromeHeadless --include=src/app/pages/communities/community-tournaments.component.spec.ts
