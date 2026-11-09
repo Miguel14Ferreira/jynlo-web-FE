@@ -377,6 +377,89 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipEventNames: Record<number, string> = {};
   championshipEventFormats: Record<number, ChampionshipOwnedEventFormat> = {};
   championshipEventBusy = false;
+  editingChampionshipEventId: number | null = null;
+  editingChampionshipEventName = '';
+  editingChampionshipEventFormat: ChampionshipOwnedEventFormat = 'LEAGUE';
+  deletingChampionshipEventId: number | null = null;
+
+  beginEditChampionshipEvent(event: ChampionshipOwnedEvent): void {
+    if (!this.canManage || this.championshipEventBusy || event.status !== 'DRAFT') return;
+    this.deletingChampionshipEventId = null;
+    this.editingChampionshipEventId = event.id;
+    this.editingChampionshipEventName = event.name;
+    this.editingChampionshipEventFormat = event.format;
+  }
+
+  cancelEditChampionshipEvent(): void {
+    if (this.championshipEventBusy) return;
+    this.editingChampionshipEventId = null;
+    this.editingChampionshipEventName = '';
+  }
+
+  saveChampionshipEvent(championship: CommunityChampionship, event: ChampionshipOwnedEvent): void {
+    const name = this.editingChampionshipEventName.trim();
+    if (!this.canManage || this.championshipEventBusy || championship.closedAt
+        || this.editingChampionshipEventId !== event.id || event.status !== 'DRAFT'
+        || !name || name.length > 120) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipEventBusy = true;
+    this.championshipError = '';
+    this.championshipsApi.updateOwnedEvent(communityId, championship.id, event.id,
+      name, this.editingChampionshipEventFormat).subscribe({
+      next: updated => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipOwnedEvents[championship.id] = (this.championshipOwnedEvents[championship.id] || [])
+          .map(item => item.id === updated.id ? updated : item);
+        this.championshipEventBusy = false;
+        this.editingChampionshipEventId = null;
+        this.editingChampionshipEventName = '';
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipEventBusy = false;
+        this.championshipError = t('communities.championshipOwned.editError');
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  requestDeleteChampionshipEvent(event: ChampionshipOwnedEvent): void {
+    if (!this.canManage || this.championshipEventBusy || event.status !== 'DRAFT') return;
+    this.cancelEditChampionshipEvent();
+    this.deletingChampionshipEventId = event.id;
+  }
+
+  cancelDeleteChampionshipEvent(): void {
+    this.deletingChampionshipEventId = null;
+  }
+
+  deleteChampionshipEvent(championship: CommunityChampionship, event: ChampionshipOwnedEvent): void {
+    if (!this.canManage || this.championshipEventBusy || championship.closedAt
+        || event.status !== 'DRAFT' || this.deletingChampionshipEventId !== event.id) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipEventBusy = true;
+    this.championshipError = '';
+    this.championshipsApi.deleteOwnedEvent(communityId, championship.id, event.id).subscribe({
+      next: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipOwnedEvents[championship.id] = (this.championshipOwnedEvents[championship.id] || [])
+          .filter(item => item.id !== event.id);
+        this.deletingChampionshipEventId = null;
+        this.championshipEventBusy = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipEventBusy = false;
+        this.championshipError = t('communities.championshipOwned.deleteError');
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
 
   loadChampionshipOwnedEvents(championshipId: number): void {
     const revision = this.championshipRevision;
@@ -437,6 +520,9 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipOwnedEvents = {};
     this.championshipEventNames = {};
     this.championshipEventFormats = {};
+    this.editingChampionshipEventId = null;
+    this.editingChampionshipEventName = '';
+    this.deletingChampionshipEventId = null;
     this.championshipAggregateStandings = {};
     this.championshipTeamRegistries = {};
     this.championshipHonours = null;
