@@ -66,7 +66,7 @@ export function championshipTeamProfile(
     b.championshipId - a.championshipId);
 
   return {
-    id: team.permanentTeamId,
+    id: permanentTeamId,
     name: registered.name,
     championships: team?.titles ?? 0,
     leagues: team?.leagues ?? 0,
