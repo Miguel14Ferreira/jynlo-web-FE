@@ -555,6 +555,29 @@ async function main() {
           assert.ok(overflow <= 2,
             route + ' (' + width + 'px ' + language + ') horizontal overflow: '
             + JSON.stringify(measure));
+          if (route === '/menu/events') {
+            const heroInset = await page.locator(
+              '.sessions-page.jynlo-activities-v3 .sessions-shell > .page-header'
+            ).evaluate(header => {
+              const rect = header.getBoundingClientRect();
+              const heading = header.querySelector('h1')?.getBoundingClientRect();
+              const actions = header.querySelector('.header-actions')?.getBoundingClientRect();
+              const css = getComputedStyle(header);
+              return {
+                paddingLeft: parseFloat(css.paddingLeft),
+                paddingRight: parseFloat(css.paddingRight),
+                headingInset: heading ? heading.left - rect.left : null,
+                actionsRightInset: actions ? rect.right - actions.right : null
+              };
+            });
+            assert.ok(heroInset.headingInset !== null && heroInset.headingInset >= 18
+              && heroInset.paddingLeft >= 18 && heroInset.paddingRight >= 18,
+              'Sessions hero heading must have real internal spacing (' + width
+              + 'px ' + language + '): ' + JSON.stringify(heroInset));
+            assert.ok(heroInset.actionsRightInset !== null && heroInset.actionsRightInset >= 16,
+              'Sessions hero actions must stay inside the padded card (' + width
+              + 'px ' + language + '): ' + JSON.stringify(heroInset));
+          }
           // A desktop flex-basis on the text column becomes a tall empty
           // box when its parent switches to a column on tablet/mobile.
           if (width <= 768 && (route === '/menu/events' || route === '/menu/communities')) {
