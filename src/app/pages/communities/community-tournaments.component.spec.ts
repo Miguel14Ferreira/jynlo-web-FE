@@ -5946,6 +5946,28 @@ describe('Community tournaments management', () => {
     expect(component.championshipHistoryView).toBe('ACTIVE');
   });
 
+  it('opens and closes a permanent team detail only for this community', () => {
+    component.permanentTeamRegistry = {
+      communityId: 7, teams: [{ id: 90, name: 'Águias FC' }]
+    };
+    component.championshipHonours = {
+      communityId: 7, completedSeasons: 0, titles: [], individualHonours: [],
+      teamHonours: [], competitionTitles: []
+    };
+    component.openPermanentTeamProfile(90);
+    expect(component.selectedPermanentTeamId).toBe(90);
+    expect(component.championshipHistoryView).toBe('HISTORY');
+    expect(component.selectedPermanentTeamProfile?.name).toBe('Águias FC');
+    expect(component.selectedPermanentTeamProfile?.championships).toBe(0);
+    component.openPermanentTeamProfile(100);
+    expect(component.selectedPermanentTeamId).toBe(90);
+    component.closePermanentTeamProfile();
+    expect(component.selectedPermanentTeamId).toBeNull();
+    component.openPermanentTeamProfile(90);
+    component.showActiveChampionships();
+    expect(component.selectedPermanentTeamId).toBeNull();
+  });
+
   it('keeps separate league and cup totals for a permanent team', () => {
     component.championshipHonours = {
       communityId: 7, completedSeasons: 1, individualHonours: [],
