@@ -173,8 +173,10 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                         [attr.aria-pressed]="presentationZoomed"
                         (click)="togglePresentationZoom()"
                         (keydown.escape)="presentationZoomed=false; $event.stopPropagation()">
-                        <span aria-hidden="true">{{ presentationZoomed ? '↙' : '⤢' }}</span>
-                        {{ (presentationZoomed ? 'calls.restoreSharedScreen' : 'calls.enlargeSharedScreen') | t }}
+                        <span class="connect-presentation-zoom-chip">
+                          <span aria-hidden="true">{{ presentationZoomed ? '↙' : '⤢' }}</span>
+                          {{ (presentationZoomed ? 'calls.restoreSharedScreen' : 'calls.enlargeSharedScreen') | t }}
+                        </span>
                       </button>
                     </div>
                   }
@@ -711,10 +713,13 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
     .connect-self-share-tile::ng-deep .connect-tile{min-height:0}
     @media(max-width:600px){.connect-self-share-heading span{display:none}.connect-self-share-tile{height:105px}}
     .connect-presentation-stage{position:relative}
-    .connect-presentation-zoom-hit{position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:7px;
-      color:#eafff6;background:#0b2737db;border:1px solid #51998b;border-radius:11px;padding:9px 12px;
-      font:inherit;font-size:.77rem;cursor:zoom-in;z-index:2;box-shadow:0 4px 16px #001a21a8}
-    .connect-presentation-zoom-hit:hover{background:#1d5b5e}
+    .connect-presentation-zoom-hit{position:absolute;inset:0;display:flex;justify-content:flex-end;align-items:flex-start;
+      color:#eafff6;background:transparent;border:0;border-radius:11px;padding:12px;
+      font:inherit;font-size:.77rem;cursor:zoom-in;z-index:2;text-align:right}
+    .connect-presentation-zoom-chip{display:inline-flex;align-items:center;gap:7px;
+      border:1px solid #51998b;border-radius:11px;padding:9px 12px;background:#0b2737e8;
+      box-shadow:0 4px 16px #001a21a8}
+    .connect-presentation-zoom-hit:hover .connect-presentation-zoom-chip{background:#1d5b5e}
     .connect-presentation-zoom-hit:focus-visible{outline:3px solid #a0ffe6;outline-offset:2px}
     .connect-presentation-stage.is-zoomed{position:fixed;inset:max(10px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px));
       z-index:9000;border:1px solid #56a69a;border-radius:17px;background:#081a23;box-shadow:0 0 0 100vmax #000c}
