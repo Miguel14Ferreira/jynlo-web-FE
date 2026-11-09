@@ -12,8 +12,8 @@ export interface TeamSeasonComparisonSide {
 export interface TeamSeasonComparison {
   older: TeamSeasonComparisonSide;
   newer: TeamSeasonComparisonSide;
-  positionImprovement: number | null;
-  pointsDifference: number | null;
+  positionImprovement: number;
+  pointsDifference: number;
 }
 
 /** Only final standings from a single sport can be compared. No name-based joins. */
