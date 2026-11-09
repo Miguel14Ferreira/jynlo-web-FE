@@ -1736,6 +1736,34 @@ describe('SessionDetailsComponent', () => {
       .toContain('Não ativada para esta sessão');
   });
 
+  it('explains optional rankings without claiming the session is a season game', () => {
+    component.session = { ...session, audience: 'COMMUNITY_ONLY', communityId: null };
+    component.sessionContext = {
+      communities: [{ id: 12, name: 'Colégio Pio' }],
+      seasonGame: false, seasonName: null
+    };
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const help = root.querySelector<HTMLButtonElement>('.session-ranking-learn-more');
+    expect(help).not.toBeNull();
+    expect(help?.getAttribute('aria-expanded')).toBe('false');
+    help!.click();
+    fixture.detectChanges();
+    expect(help?.getAttribute('aria-expanded')).toBe('true');
+    const benefits = root.querySelector('.session-ranking-benefits');
+    expect(benefits?.textContent).toContain('equipas mais equilibradas');
+    expect(benefits?.textContent).toContain('resultados');
+    help!.click();
+    fixture.detectChanges();
+    expect(root.querySelector('.session-ranking-benefits')).toBeNull();
+    component.sessionContext = {
+      communities: [{ id: 12, name: 'Colégio Pio' }],
+      seasonGame: true, seasonName: 'Época 2026/27'
+    };
+    fixture.detectChanges();
+    expect(root.querySelector('.session-ranking-learn-more')).toBeNull();
+  });
+
   it('does not expose guest invitations to non-creators or closed/private games', () => {
     (component as any).currentUsername='creator-user';
     for(const detail of [
