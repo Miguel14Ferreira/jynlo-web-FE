@@ -6153,4 +6153,14 @@ describe('Community tournaments management', () => {
     expect(component.isSportFormatSupported).toBeTrue();
   });
 
+  it('keeps the championship explanation optional and resets it on another community', () => {
+    expect(component.championshipExplainerOpen).toBeFalse();
+    component.championshipExplainerOpen = true;
+    expect(component.championshipExplainerOpen).toBeTrue();
+    component.ngOnChanges({ community: new SimpleChange(community, {
+      ...community, id: 9, name: 'Outra comunidade'
+    }, false) });
+    expect(component.championshipExplainerOpen).toBeFalse();
+  });
+
 });
