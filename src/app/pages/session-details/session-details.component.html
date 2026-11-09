@@ -506,6 +506,66 @@
             </section>
           }
 
+          @if (canEditCapacity() && !detailsEditing) {
+            <div class="session-edit-master-action">
+              <button type="button" class="jynlo-action jynlo-action--primary"
+                (click)="beginDetailsEdit()">{{ 'sessionDetail.editSession' | t }}</button>
+              @if (detailsSuccess) { <span role="status">{{ detailsSuccess }}</span> }
+            </div>
+          }
+          @if (detailsEditing && canEditCapacity()) {
+            <section class="session-details-editor" [attr.aria-label]="'sessionDetail.editSession' | t">
+              <h2>{{ 'sessionDetail.editSession' | t }}</h2>
+              <p>{{ 'sessionDetail.detailsHelp' | t }}</p>
+              <div class="session-details-editor-fields">
+                <label>{{ 'mySessions.date' | t }}
+                  <input type="datetime-local" [(ngModel)]="detailsDraft.gameDate"
+                    [disabled]="detailsSaving || !!session.recurrenceSeriesId">
+                </label>
+                <label>{{ 'sessionDetail.capacityLabel' | t }}
+                  <input type="number" min="2" max="100" step="1"
+                    [(ngModel)]="detailsDraft.maxParticipants" [disabled]="detailsSaving">
+                </label>
+                <label>{{ 'sessionDetail.minimumLabel' | t }}
+                  <input type="number" min="2" max="100" step="1"
+                    [(ngModel)]="detailsDraft.minParticipants" [disabled]="detailsSaving">
+                </label>
+                <label>{{ 'mySessions.price' | t }} (€)
+                  <input type="number" min="0" step="0.01"
+                    [(ngModel)]="detailsDraft.priceAmount" [disabled]="detailsSaving">
+                </label>
+                <label>{{ 'sessionDetail.cityLabel' | t }}
+                  <input type="text" maxlength="120" [(ngModel)]="detailsDraft.city"
+                    [disabled]="detailsSaving || !!session.venue">
+                </label>
+                <label>{{ 'sessionDetail.addressLabel' | t }}
+                  <input type="text" maxlength="255" [(ngModel)]="detailsDraft.address"
+                    [disabled]="detailsSaving || !!session.venue">
+                </label>
+                <label class="session-details-editor-wide">{{ 'sessionDetail.meetingPoint' | t }}
+                  <input type="text" maxlength="240"
+                    [(ngModel)]="detailsDraft.meetingPointInstructions" [disabled]="detailsSaving">
+                </label>
+              </div>
+              @if (session.venue) {
+                <p>{{ 'sessionDetail.venueEditRestriction' | t }}</p>
+              }
+              @if (session.recurrenceSeriesId) {
+                <p>{{ 'sessionDetail.recurrenceEditRestriction' | t }}</p>
+              }
+              @if (detailsError) { <p class="session-capacity-error" role="alert">{{ detailsError }}</p> }
+              <div class="session-capacity-editor-actions">
+                <button type="button" class="jynlo-action jynlo-action--primary"
+                  [disabled]="detailsSaving" (click)="saveDetailsEdit()">
+                  {{ (detailsSaving ? 'profile.saving' : 'sessionDetail.saveDetails') | t }}
+                </button>
+                <button type="button" class="jynlo-action jynlo-action--neutral"
+                  [disabled]="detailsSaving" (click)="discardDetailsEdit()">
+                  {{ 'common.cancel' | t }}
+                </button>
+              </div>
+            </section>
+          }
           <div class="detail-grid">
             <div>
               <span>{{ 'mySessions.date' | t }}</span>
@@ -514,10 +574,7 @@
             <div class="session-capacity-field">
               <span>{{ 'mySessions.participants' | t }}</span>
               <strong>{{ session.participantCount }}/{{ session.maxParticipants }}</strong>
-              @if (canEditCapacity() && !capacityEditing) {
-                <button type="button" class="session-capacity-edit-action"
-                  (click)="beginCapacityEdit()">{{ 'sessionDetail.capacityEdit' | t }}</button>
-              }
+
               @if (capacityEditing && canEditCapacity()) {
                 <div class="session-capacity-editor">
                   <label for="session-capacity-input">{{ 'sessionDetail.capacityLabel' | t }}</label>
