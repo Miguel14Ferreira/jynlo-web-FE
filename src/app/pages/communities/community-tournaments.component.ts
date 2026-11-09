@@ -136,7 +136,8 @@ export class CommunityTournamentsComponent implements OnChanges {
     if (this.selectedPermanentTeamId === null || !this.championshipHonours) return null;
     return championshipTeamProfile(
       this.selectedPermanentTeamId, this.championshipHonours,
-      this.championships, this.championshipTeamRegistries, this.permanentTeamRegistry);
+      this.championships, this.championshipTeamRegistries, this.permanentTeamRegistry,
+      this.championshipAggregateStandings);
   }
 
   openPermanentTeamProfile(permanentTeamId: number): void {
