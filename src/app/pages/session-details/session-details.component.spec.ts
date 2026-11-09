@@ -2485,7 +2485,7 @@ describe('SessionDetailsComponent', () => {
     expect(component.canSendChat()).toBeFalse();
     expect(fixture.nativeElement.querySelector('.chat-panel')).toBeNull();
     expect(fixture.nativeElement.querySelector('.message-composer')).toBeNull();
-    expect(fixture.nativeElement.querySelector('.session-inline-chat-toggle')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Chat indisponível');
     expect(component.messages.some(item => item.body === 'Até ao próximo jogo!')).toBeTrue();
 
     component.messageBody = 'Tentar enviar depois do jogo';
@@ -2503,7 +2503,7 @@ describe('SessionDetailsComponent', () => {
 
     expect(component.canSendChat()).toBeFalse();
     expect(fixture.nativeElement.querySelector('.message-composer')).toBeNull();
-    expect(fixture.nativeElement.querySelector('.session-inline-chat-toggle')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Chat indisponível');
   });
 
   it('immediately closes chat when the game is completed, cancelled or did not occur', () => {
@@ -2531,7 +2531,7 @@ describe('SessionDetailsComponent', () => {
 
     expect(fixture.nativeElement.querySelector('.empty-chat')).toBeNull();
     expect(fixture.nativeElement.querySelector('.message-composer')).toBeNull();
-    expect(fixture.nativeElement.querySelector('.session-inline-chat-toggle')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Chat indisponível');
   });
 
   it('should send a chat message and append it locally', () => {
@@ -2647,19 +2647,17 @@ describe('SessionDetailsComponent', () => {
     expect(toggle?.getAttribute('aria-expanded')).toBe('false');
   });
 
-  it('keeps session chat read-only once the game starts', () => {
+  it('does not open an inline chat after kickoff because the API forbids history access', () => {
     component.session = {
       ...session, joined: true,
       status: 'COMPLETED', gameDate: '2020-01-01T10:00:00Z'
     };
-    sessionService.messages.and.returnValue(of([]));
     fixture.detectChanges();
-    const toggle = fixture.nativeElement.querySelector('.session-inline-chat-toggle') as HTMLButtonElement;
-    expect(toggle).not.toBeNull();
-    toggle.click();
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.session-inline-chat-messages')).not.toBeNull();
-    expect(fixture.nativeElement.querySelector('.session-inline-chat-compose')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.session-inline-chat-toggle')).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Chat indisponível');
+    component.toggleInlineSessionChat();
+    expect(component.sessionChatOpen).toBeFalse();
+    expect(sessionService.messages).not.toHaveBeenCalled();
   });
 
   it('blocks a second session POST after network loss until delivery is verified', async () => {
