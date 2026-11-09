@@ -65,7 +65,9 @@ export function championshipTeamProfile(
       index !== positionIndex && other.points === current.points &&
       other.victories === current.victories);
     const verifiedRank = championship.closedAt !== null &&
-      snapshot?.pendingCompetitions === 0 && current !== null && !tied;
+      snapshot?.pendingCompetitions === 0 && current !== null && !tied &&
+      Number.isInteger(positionIndex + 1) && positionIndex >= 0 &&
+      Number.isFinite(current.points) && Number.isFinite(current.victories);
     seasons.push({
       championshipId: championship.id,
       name: championship.name,
