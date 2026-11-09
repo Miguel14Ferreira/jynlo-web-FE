@@ -1796,6 +1796,7 @@ export const EN: Record<string, string> = {
   'communities.sessionResult.conflict': 'This session already has a round or cannot be recorded. Refresh the page.',
   'communities.sessionsKicker': 'Community',
   'communities.sessionsTitle': 'Community sessions',
+  'communities.seasonGameExplanation': 'Identifies a session linked to this community’s season. On its own, it does not mean the session belongs to a tournament or championship.',
   'communities.sessionMembersOnly': 'Members only',
   'communities.sessionPublic': 'Also open to other players',
   'communities.openPublic': 'Find players outside the community',
