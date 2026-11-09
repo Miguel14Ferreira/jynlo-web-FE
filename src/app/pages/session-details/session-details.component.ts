@@ -2047,7 +2047,8 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     this.teamsLoading = true;
     this.teamsError = '';
     this.teamsSuccess = '';
-    this.teamsScoreSource = this.session?.teamBalanceSupported ? source : 'RANDOM';
+    this.teamsScoreSource = (this.session?.teamBalanceSupported || source === 'MANUAL' || source === 'RANDOM')
+      ? source : 'RANDOM';
     this.teamSuggestion = undefined;
     this.teamSuggestionPendingConfirmation = false;
 
@@ -2069,12 +2070,33 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       });
   }
 
+  moveSuggestedPlayer(username: string, from: 'A' | 'B'): void {
+    if (this.teamsScoreSource !== 'MANUAL' || !this.teamSuggestion
+      || !this.teamSuggestionPendingConfirmation || this.teamsLoading || this.teamsConfirming) return;
+    const source = from === 'A' ? this.teamSuggestion.teamA : this.teamSuggestion.teamB;
+    const player = source.find(item => item.username === username);
+    if (!player) return;
+    this.teamSuggestion = {
+      ...this.teamSuggestion,
+      teamA: from === 'A' ? source.filter(item => item.username !== username)
+        : [...this.teamSuggestion.teamA, player],
+      teamB: from === 'B' ? source.filter(item => item.username !== username)
+        : [...this.teamSuggestion.teamB, player]
+    };
+  }
+
+  get manualTeamsBalanced(): boolean {
+    return !!this.teamSuggestion &&
+      Math.abs(this.teamSuggestion.teamA.length - this.teamSuggestion.teamB.length) <= 1;
+  }
+
   confirmTeams(): void {
     if (
       !this.sessionId
       || !this.teamSuggestion
       || !this.canGenerateTeams()
       || !this.teamSuggestionPendingConfirmation
+      || (this.teamsScoreSource === 'MANUAL' && !this.manualTeamsBalanced)
       || this.teamsConfirming
     ) {
       return;
