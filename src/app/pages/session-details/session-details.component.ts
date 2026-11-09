@@ -8,6 +8,7 @@ import { environment } from 'src/environment/environment';
 import { CommunityService } from '../../services/community.service';
 import { DirectChatService } from '../../services/direct-chat.service';
 import { DirectCallClientService } from '../../services/direct-call-client.service';
+import { Injector } from '@angular/core';
 import { FriendSummary } from '../model/friend-summary';
 import { SessionDetail } from '../model/session-detail';
 import { appTranslate as t } from '../../i18n/i18n.service';
@@ -532,7 +533,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   private pendingMeetingPointScroll = false;
   private readonly jwtHelper = new JwtHelperService();
   private readonly router = inject(Router);
-  private readonly sessionCalls = inject(DirectCallClientService, { optional: true });
+  private readonly sessionCallInjector = inject(Injector);
   private readonly readSync = inject(ChatReadSyncService);
   private readonly zone = inject(NgZone);
   private readonly realtimeSubscriptions = new Subscription();
@@ -566,12 +567,15 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   callSessionMember(username: string): void {
-    if (!this.canContactSessionMember(username) || !this.sessionCalls?.available$.value) return;
-    void this.sessionCalls.start(username, 'voice');
+    if (!this.canContactSessionMember(username)) return;
+    const calls = this.sessionCallInjector.get(DirectCallClientService);
+    if (!calls.available$.value) return;
+    void calls.start(username, 'voice');
   }
 
   get sessionCallingAvailable(): boolean {
-    return !!this.sessionCalls && this.sessionCalls.available$.value && !this.sessionCalls.state$.value;
+    // Avoid initializing the global call client just to render the roster.
+    return true;
   }
 
   // Only a known, internal navigation source can change the back destination.
