@@ -67,6 +67,9 @@ export class CallParticipantTileComponent implements AfterViewChecked, OnDestroy
   @Input() audioOnly = false;
   /** Independently adjustable playback volume for every remote microphone. */
   @Input() volume = 1;
+  /** Incoming microphone gain is independent of shared-tab/system audio. */
+  @Input() microphoneVolume?: number;
+  @Input() screenShareVolume?: number;
   /** Route custom remote audio elements to the speaker chosen in call settings. */
   @Input() audioOutputDeviceId?: string;
   @ViewChild('video') private videoElement?: ElementRef<HTMLVideoElement>;
@@ -113,7 +116,7 @@ export class CallParticipantTileComponent implements AfterViewChecked, OnDestroy
       if (video) nextVideo?.attach(video);
     }
     const audio=this.audioElement?.nativeElement;
-    if (audio) audio.volume=Math.max(0,Math.min(1,this.volume));
+    if (audio) audio.volume=Math.max(0,Math.min(1,this.microphoneVolume ?? this.volume));
     this.syncAudioOutput(audio);
     // A shared screen has its own video tile, but must not attach the same
     // remote microphone a second time (otherwise callers hear an echo).
@@ -129,7 +132,7 @@ export class CallParticipantTileComponent implements AfterViewChecked, OnDestroy
     // Screen-share audio is an independent track. Play it once from the
     // participant's camera tile, never from the separate presentation stage.
     const screenAudio=this.screenAudioElement?.nativeElement;
-    if (screenAudio) screenAudio.volume=Math.max(0,Math.min(1,this.volume));
+    if (screenAudio) screenAudio.volume=Math.max(0,Math.min(1,this.screenShareVolume ?? this.volume));
     this.syncAudioOutput(screenAudio);
     const nextScreenAudio=(this.local || this.presentation) ? null :
       ([...this.participant.audioTrackPublications.values()]
