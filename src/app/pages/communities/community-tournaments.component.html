@@ -555,13 +555,13 @@
                     #winnerPointsInput style="width:6rem">
                   <button type="button" class="t-btn t-btn-secondary"
                     [disabled]="championshipBusy"
-                    (click)="setChampionshipWinnerPoints(championship, competition.id, winnerPointsInput.value)">Guardar pontos</button>
+                    (click)="setChampionshipWinnerPoints(championship, competition.id, winnerPointsInput.value)">{{ 'communities.championshipUi.savePoints' | t }}</button>
                 }
               </li>
             }
           </ul>
         } @else {
-          <p>Ainda não existem provas associadas.</p>
+          <p>{{ 'communities.championshipUi.noCompetitions' | t }}</p>
         }
         <div class="create-step">
           <h5>Equipas do campeonato</h5>
@@ -673,16 +673,16 @@
         </div>
         @if (canManage && !championship.closedAt && championshipAvailableTournaments(championship).length) {
           <div class="create-field">
-            <label [for]="'championship-add-' + championship.id">Associar prova existente</label>
+            <label [for]="'championship-add-' + championship.id">{{ 'communities.championshipUi.linkExisting' | t }}</label>
             <select [id]="'championship-add-' + championship.id" #competitionChoice>
-              <option value="">Escolher prova</option>
+              <option value="">{{ 'communities.championshipUi.chooseCompetition' | t }}</option>
               @for (competition of championshipAvailableTournaments(championship); track competition.id) {
                 <option [value]="competition.id">{{ competition.name }}</option>
               }
             </select>
             <button type="button" class="t-btn t-btn-secondary"
               [disabled]="championshipBusy || !competitionChoice.value"
-              (click)="linkChampionshipCompetition(championship, +competitionChoice.value)">Associar</button>
+              (click)="linkChampionshipCompetition(championship, +competitionChoice.value)">{{ 'communities.championshipUi.link' | t }}</button>
           </div>
         }
       </div>
