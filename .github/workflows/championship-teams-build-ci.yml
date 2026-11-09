@@ -10,6 +10,9 @@ on:
       - 'src/app/pages/communities/community-tournaments.component.spec.ts'
       - 'src/app/pages/communities/community-championship-team-profile.ts'
       - 'src/app/pages/communities/community-championship-team-profile.spec.ts'
+      - 'src/app/pages/communities/community-championship-team-comparison.ts'
+      - 'src/app/pages/communities/community-championship-team-comparison.spec.ts'
+      - 'src/app/pages/communities/community-team-honours-timeline.css'
   workflow_dispatch:
 jobs:
   production-build:
