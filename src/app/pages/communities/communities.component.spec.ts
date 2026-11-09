@@ -2421,6 +2421,13 @@ describe('CommunitiesComponent public session eligibility', () => {
     group.teamTournamentsEnabled = true;
     expect(component.hasCompetitions(group)).toBeTrue();
     component.selected = group;
+    component.setTab('tournaments');
+    expect(component.activeTab).toBe('tournaments');
+    group.teamTournamentsEnabled = false;
+    component.setTab('home');
+    component.setTab('tournaments');
+    expect(component.activeTab).toBe('home');
+    group.teamTournamentsEnabled = true;
     expect(component.canBrowseHistoricalArchives).toBeTrue();
     component.setTab('ranking');
     expect(component.activeTab).toBe('ranking');
