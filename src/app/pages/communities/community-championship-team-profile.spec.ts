@@ -60,6 +60,21 @@ describe('championshipTeamProfile', () => {
     expect(profile?.seasons.map(item => item.seasonLabel)).toEqual(['2025/26', '2024/25']);
     expect(profile?.seasons.every(item => item.champion)).toBeTrue();
     expect(profile?.competitionTitles.map(t => t.tournamentId)).toEqual([30, 31]);
+    const ranked = championshipTeamProfile(90, honours, seasons, teams, registry, {
+      5: {
+        championshipId: 5, fullyScoredCompetitions: 1,
+        winnerOnlyCompetitions: 0, pendingCompetitions: 0,
+        standings: [
+          { entryType: 'TEAM', participantId: 18, name: 'Águias FC',
+            points: 42, victories: 2, awardedCompetitions: 2 },
+          { entryType: 'TEAM', participantId: 19, name: 'Leões',
+            points: 30, victories: 0, awardedCompetitions: 2 }
+        ]
+      }
+    });
+    expect(ranked?.seasons[0].points).toBe(42);
+    expect(ranked?.seasons[0].position).toBe(1);
+    expect(ranked?.seasons[1].points).toBeNull();
   });
 
   it('shows registered teams with no trophies and no guessed participation', () => {
