@@ -321,6 +321,15 @@
             }
           </div>
 
+          <div class="jynlo-session-view-toggle" role="group" aria-label="Visualização das sessões">
+            <button type="button" [class.is-selected]="sessionView === 'map'"
+              [attr.aria-pressed]="sessionView === 'map'" (click)="setSessionView('map')">⌖ Mapa</button>
+            <button type="button" [class.is-selected]="sessionView === 'list'"
+              [attr.aria-pressed]="sessionView === 'list'" (click)="setSessionView('list')">☷ Lista</button>
+          </div>
+          @if (sessionView === 'map') {
+            <app-session-discovery-map [sessions]="sessions"></app-session-discovery-map>
+          } @else {
           @if (topSessions.length === 0) {
             <div class="pillar-empty session-empty">
               <strong>{{ 'discover.when.emptyTitle' | t }}</strong>
@@ -374,6 +383,16 @@
                 </a>
               }
             </div>
+          }
+
+          }
+
+          @if (sessionView === 'list' && sessions.length > topSessionResults.length) {
+            <button type="button" class="jynlo-action jynlo-action--neutral"
+              [attr.aria-expanded]="showAllSessions"
+              (click)="toggleAllSessions()">
+              {{ showAllSessions ? ('discover.when.showLess' | t) : ('discover.when.showAllCount' | t:{ count: sessions.length }) }}
+            </button>
           }
 
           @if (sessions.length > topSessionResults.length) {
