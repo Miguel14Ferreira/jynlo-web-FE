@@ -1728,6 +1728,7 @@ const PT: Dictionary = {
   'communities.chatReplyingTo': 'A responder a',
   'communities.chatVerify': 'Verificar entrega',
   'communities.chatResume': 'Continuar a escrever',
+  'communities.chatKeyboardHint': 'Enter para enviar · Shift+Enter para mudar de linha',
   'communities.chatPlaceholder': 'Escreve uma mensagem…',
   'communities.chatSend': 'Enviar',
   'communities.championshipConceptLead': 'São duas formas diferentes de organizar a competição na tua comunidade.',
