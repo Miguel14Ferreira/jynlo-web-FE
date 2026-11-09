@@ -671,20 +671,47 @@
             </ol>
           }
         </div>
-        @if (canManage && !championship.closedAt && championshipAvailableTournaments(championship).length) {
-          <div class="create-field">
-            <label [for]="'championship-add-' + championship.id">{{ 'communities.championshipUi.linkExisting' | t }}</label>
-            <select [id]="'championship-add-' + championship.id" #competitionChoice>
-              <option value="">{{ 'communities.championshipUi.chooseCompetition' | t }}</option>
-              @for (competition of championshipAvailableTournaments(championship); track competition.id) {
-                <option [value]="competition.id">{{ competition.name }}</option>
+        <section class="create-step" [attr.aria-label]="'communities.championshipOwned.title' | t">
+          <h5>{{ 'communities.championshipOwned.title' | t }}</h5>
+          <p>{{ 'communities.championshipOwned.distinction' | t }}</p>
+          @if (championshipOwnedEvents[championship.id]?.length) {
+            <ul>
+              @for (event of championshipOwnedEvents[championship.id]; track event.id) {
+                <li>{{ event.name }} · {{ ('communities.championshipOwned.format.' + event.format) | t }}
+                  · {{ 'communities.championshipOwned.draft' | t }}</li>
               }
-            </select>
-            <button type="button" class="t-btn t-btn-secondary"
-              [disabled]="championshipBusy || !competitionChoice.value"
-              (click)="linkChampionshipCompetition(championship, +competitionChoice.value)">{{ 'communities.championshipUi.link' | t }}</button>
-          </div>
-        }
+            </ul>
+          } @else {
+            <p>{{ 'communities.championshipOwned.empty' | t }}</p>
+          }
+          @if (canManage && !championship.closedAt) {
+            <div class="create-controls">
+              <div class="create-field">
+                <label [for]="'owned-name-' + championship.id">{{ 'communities.championshipOwned.name' | t }}</label>
+                <input [id]="'owned-name-' + championship.id" maxlength="120"
+                  [value]="championshipEventNames[championship.id] || ''"
+                  (input)="championshipEventNames[championship.id] = $any($event.target).value">
+              </div>
+              <div class="create-field">
+                <label [for]="'owned-format-' + championship.id">{{ 'communities.championshipOwned.formatLabel' | t }}</label>
+                <select [id]="'owned-format-' + championship.id"
+                  [value]="championshipEventFormats[championship.id] || 'LEAGUE'"
+                  (change)="championshipEventFormats[championship.id] = $any($event.target).value">
+                  <option value="LEAGUE">{{ 'communities.championshipOwned.format.LEAGUE' | t }}</option>
+                  <option value="CUP">{{ 'communities.championshipOwned.format.CUP' | t }}</option>
+                  <option value="SUPERCUP">{{ 'communities.championshipOwned.format.SUPERCUP' | t }}</option>
+                  <option value="OTHER">{{ 'communities.championshipOwned.format.OTHER' | t }}</option>
+                </select>
+              </div>
+              <button type="button" class="t-btn t-btn-primary"
+                [disabled]="championshipEventBusy || !(championshipEventNames[championship.id] || '').trim()"
+                (click)="createChampionshipOwnedEvent(championship)">
+                {{ 'communities.championshipOwned.add' | t }}
+              </button>
+            </div>
+          }
+          <p class="team-honours-muted">{{ 'communities.championshipOwned.draftNotice' | t }}</p>
+        </section>
       </div>
       }
     }
