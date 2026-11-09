@@ -1722,6 +1722,7 @@ export const EN: Record<string, string> = {
   'communities.chatReplyingTo': 'Replying to',
   'communities.chatVerify': 'Check delivery',
   'communities.chatResume': 'Resume writing',
+  'communities.chatKeyboardHint': 'Enter to send · Shift+Enter for a new line',
   'communities.chatPlaceholder': 'Write a message…',
   'communities.chatSend': 'Send',
   'communities.championshipConceptLead': 'Two different ways to organise competition in your community.',
