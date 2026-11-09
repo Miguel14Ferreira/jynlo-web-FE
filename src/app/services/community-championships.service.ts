@@ -131,7 +131,7 @@ export class CommunityChampionshipsService {
                     seasonTeamId: number, permanentTeamId: number): Observable<CommunityPermanentTeams> {
     return this.http.put<CommunityPermanentTeams>(
       this.base(communityId) + '/' + championshipId + '/teams/' + seasonTeamId + '/permanent-team',
-      { championshipTeamId: permanentTeamId });
+      { permanentTeamId });
   }
 
   honours(communityId: number): Observable<CommunityChampionshipHonours> {
