@@ -1718,7 +1718,7 @@ export const EN: Record<string, string> = {
   'communities.chatLoading': 'Loading messages…',
   'communities.chatEmpty': 'No messages yet. Start the conversation.',
   'communities.chatReply': 'Reply',
-  'communities.chatNewMessages': 'See new messages ({count}) ↓',
+  'communities.chatNewMessages': 'See new messages ({{count}}) ↓',
   'communities.chatReplyingTo': 'Replying to',
   'communities.chatVerify': 'Check delivery',
   'communities.chatResume': 'Resume writing',
