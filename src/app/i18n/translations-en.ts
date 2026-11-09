@@ -4813,6 +4813,8 @@ export const EN: Record<string, string> = {
   'calls.shareAudioMixer': 'Call audio controls',
   'calls.microphoneVolume': 'Voice volume',
   'calls.sharedAudioVolume': 'Screen audio volume',
+  'calls.hideMembers': 'Hide participants',
+  'calls.showMembers': 'Show participants',
   'calls.sharedScreens': 'Shared screens',
   'calls.callParticipants': 'Call participants',
   'calls.screenShareCancelled': 'Screen sharing was cancelled or blocked by the browser. Choose a screen and allow sharing to try again.',
