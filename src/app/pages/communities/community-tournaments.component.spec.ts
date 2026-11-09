@@ -35,11 +35,15 @@ describe('Community tournaments management', () => {
       expect(t('communities.championshipOwned.format.CUP')).toBe('Taça');
       expect(t('communities.championshipOwned.edit')).toBe('Editar');
       expect(t('communities.championshipOwned.confirmDelete')).toBe('Confirmar eliminação');
+      expect(t('communities.championshipOwned.generateSchedule')).toBe('Gerar jornadas');
+      expect(t('communities.championshipOwned.scheduled')).toBe('Calendário gerado');
       localStorage.setItem('d24-language', 'en');
       expect(t('communities.championshipOwned.distinction')).toContain('exclusively');
       expect(t('communities.championshipOwned.format.CUP')).toBe('Cup');
       expect(t('communities.championshipOwned.edit')).toBe('Edit');
       expect(t('communities.championshipOwned.confirmDelete')).toBe('Confirm deletion');
+      expect(t('communities.championshipOwned.generateSchedule')).toBe('Generate fixtures');
+      expect(t('communities.championshipOwned.scheduled')).toBe('Scheduled');
     } finally {
       if (previous === null) localStorage.removeItem('d24-language');
       else localStorage.setItem('d24-language', previous);
