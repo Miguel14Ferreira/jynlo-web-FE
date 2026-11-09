@@ -42,6 +42,51 @@ describe('Community tournaments management', () => {
     }
   });
 
+  it('allows editing a championship-owned draft without changing a standalone tournament', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const championship = {
+      id: 15, communityId: 7, name: 'Época 2026/27', sport: 'Futebol',
+      seasonLabel: '2026/27', closedAt: null
+    } as any;
+    const draftEvent = {
+      id: 100, championshipId: 15, name: 'Liga Principal',
+      format: 'LEAGUE', status: 'DRAFT', createdAt: '2026-11-09T18:00:00Z'
+    } as const;
+    const standaloneSnapshot = JSON.stringify(component.tournaments);
+    component.championshipOwnedEvents[15] = [draftEvent];
+    component.beginEditChampionshipEvent(draftEvent);
+    component.editingChampionshipEventName = 'Taça de Inverno';
+    component.editingChampionshipEventFormat = 'CUP';
+    const updated = { ...draftEvent, name: 'Taça de Inverno', format: 'CUP' as const };
+    championships.updateOwnedEvent.and.returnValue(of(updated));
+    component.saveChampionshipEvent(championship, draftEvent);
+    expect(championships.updateOwnedEvent).toHaveBeenCalledOnceWith(
+      7, 15, 100, 'Taça de Inverno', 'CUP');
+    expect(component.championshipOwnedEvents[15]).toEqual([updated]);
+    expect(JSON.stringify(component.tournaments)).toBe(standaloneSnapshot);
+  });
+
+  it('requires explicit confirmation before deleting an owned draft', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const championship = { id: 15, closedAt: null } as any;
+    const event = {
+      id: 101, championshipId: 15, name: 'Supertaça',
+      format: 'SUPERCUP', status: 'DRAFT', createdAt: '2026-11-09T18:00:00Z'
+    } as const;
+    component.championshipOwnedEvents[15] = [event];
+    championships.deleteOwnedEvent.and.returnValue(of(undefined));
+    component.deleteChampionshipEvent(championship, event);
+    expect(championships.deleteOwnedEvent).not.toHaveBeenCalled();
+    component.requestDeleteChampionshipEvent(event);
+    expect(component.deletingChampionshipEventId).toBe(101);
+    component.cancelDeleteChampionshipEvent();
+    expect(component.deletingChampionshipEventId).toBeNull();
+    component.requestDeleteChampionshipEvent(event);
+    component.deleteChampionshipEvent(championship, event);
+    expect(championships.deleteOwnedEvent).toHaveBeenCalledOnceWith(7, 15, 101);
+    expect(component.championshipOwnedEvents[15]).toEqual([]);
+  });
+
   it('translates championship creation actions, fields and placeholders in PT/EN', () => {
     const previous = localStorage.getItem('d24-language');
     try {
@@ -130,7 +175,7 @@ describe('Community tournaments management', () => {
       markForCheck: jasmine.createSpy('markForCheck'),
       detectChanges: jasmine.createSpy('detectChanges')
     } as unknown as ChangeDetectorRef;
-    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam', 'ownedEvents', 'createOwnedEvent']);
+    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam', 'ownedEvents', 'createOwnedEvent', 'updateOwnedEvent', 'deleteOwnedEvent']);
     championships.list.and.returnValue(of([]));
     championships.ownedEvents.and.returnValue(of([]));
     championships.honours.and.returnValue(of({ communityId: 7, completedSeasons: 0, titles: [], individualHonours: [], teamHonours: [], competitionTitles: [] }));
