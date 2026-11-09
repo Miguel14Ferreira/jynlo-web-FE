@@ -1687,3 +1687,17 @@ input,textarea,select {
   color: #8cf0c8;
   font-size: .75rem;
 }
+
+/* Keep the community chat composer readable and safe while delivery is pending. */
+.community-chat-compose-input { flex: 1 1 0; min-width: 0; }
+.community-chat-compose-input textarea { display: block; width: 100%; box-sizing: border-box; }
+.community-chat-compose-meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .75rem;
+  padding-top: .35rem;
+  color: #a9c7c9;
+}
+.community-chat-compose-meta small { font-size: .76rem; line-height: 1.35; }
+.community-chat-compose-meta small:last-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
