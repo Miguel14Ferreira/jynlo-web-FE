@@ -516,17 +516,6 @@
                       <span>{{ 'communities.features.competitionsTab' | t }}</span>
                     }
                   </div>
-                  <div class="row-actions community-hero-actions">
-                    <a class="jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary"
-                       [routerLink]="['/menu/messages']"
-                       [queryParams]="{ kind: 'community', id: selected.id }">
-                      <span aria-hidden="true">💬</span> {{ 'communities.openChat' | t }}
-                    </a>
-                    <button type="button" class="jynlo-action jynlo-action--neutral"
-                      (click)="setTab('members')">{{ 'communities.tab.members' | t }}</button>
-                    <button type="button" class="jynlo-action jynlo-action--neutral"
-                      (click)="setTab('sessions')">{{ 'communities.tab.sessions' | t }}</button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -538,6 +527,91 @@
               [rankingsEnabled]="selected.rankingsEnabled"
               (tabRequested)="setTab($event)"
             ></app-community-tabs>
+
+            @if (activeTab === 'chat') {
+              <section class="community-tab-panel community-chat-column"
+                [attr.aria-label]="'communities.tab.chat' | t">
+                <header class="community-chat-column-header">
+                  <div>
+                    <span class="section-kicker">{{ 'communities.tab.chat' | t }}</span>
+                    <h3>{{ 'communities.chatColumnTitle' | t }}</h3>
+                    <p>{{ 'communities.chatColumnHint' | t }}</p>
+                  </div>
+                  <button type="button" class="jynlo-action jynlo-action--neutral"
+                    [disabled]="timelineLoading" (click)="loadTimeline()">
+                    {{ 'communities.chatRefresh' | t }}
+                  </button>
+                </header>
+                @if (timelineError) {
+                  <p class="feedback error-feedback" role="alert">{{ timelineError }}</p>
+                }
+                <div #communityChatLog class="community-chat-log" role="log"
+                  aria-live="polite" (scroll)="onCommunityChatScroll()">
+                  @if (chatHasOlder) {
+                    <button type="button" class="jynlo-action jynlo-action--neutral"
+                      [disabled]="chatOlderLoading" (click)="loadOlderCommunityMessages()">
+                      {{ 'communities.chatOlder' | t }}
+                    </button>
+                  }
+                  @if (chatOlderError) { <p role="alert">{{ chatOlderError }}</p> }
+                  @if (timelineLoading && timelineEntries.length === 0) {
+                    <p class="community-chat-empty">{{ 'communities.chatLoading' | t }}</p>
+                  } @else if (!timelineLoading && timelineEntries.length === 0 && !timelineError) {
+                    <p class="community-chat-empty">{{ 'communities.chatEmpty' | t }}</p>
+                  }
+                  @for (entry of timelineEntries; track entry.id; let index = $index) {
+                    @if (entry.kind === 'CHAT') {
+                      @if (chatDayLabelAt(index)) {
+                        <div class="community-chat-day">{{ chatDayLabelAt(index) }}</div>
+                      }
+                      <article class="community-chat-bubble"
+                        [class.community-chat-bubble--own]="isMyChatEntry(entry)">
+                        @if (!chatContinuesGroupAt(index)) {
+                          <strong>{{ communityFeedAuthorName(entry.username) }}</strong>
+                        }
+                        @if (entry.replyToText) {
+                          <blockquote>{{ entry.replyToSender }}: {{ entry.replyToText }}</blockquote>
+                        }
+                        <p>{{ entry.body }}</p>
+                        <footer>
+                          <small>{{ entry.createdAt | date:'shortTime' }}</small>
+                          <button type="button" (click)="replyToCommunityMessage(entry)">
+                            {{ 'communities.chatReply' | t }}
+                          </button>
+                        </footer>
+                      </article>
+                    }
+                  }
+                </div>
+                @if (newMessagesPending > 0) {
+                  <button type="button" class="community-chat-new"
+                    (click)="jumpToLatestMessages()">{{ 'communities.chatNewMessages' | t }}</button>
+                }
+                @if (replyingToCommunityMessage) {
+                  <div class="community-chat-reply">
+                    <span>{{ 'communities.chatReplyingTo' | t }} {{ replyingToCommunityMessage.username }}</span>
+                    <button type="button" (click)="cancelCommunityReply()">×</button>
+                  </div>
+                }
+                @if (chatDeliveryUncertain) {
+                  <div class="community-chat-reply" role="alert">
+                    <button type="button" (click)="verifyCommunityChatDelivery()"
+                      [disabled]="chatDeliveryChecking">{{ 'communities.chatVerify' | t }}</button>
+                    <button type="button" (click)="resumeCommunityChatAfterUncertainSend()"
+                      [disabled]="chatDeliveryChecking">{{ 'communities.chatResume' | t }}</button>
+                  </div>
+                }
+                <div class="community-chat-compose">
+                  <textarea #communityComposer rows="2" maxlength="2000"
+                    [(ngModel)]="chatDraft" (ngModelChange)="onTypingInput()"
+                    (keydown.enter)="onCommunityChatEnter($event)"
+                    [placeholder]="'communities.chatPlaceholder' | t"></textarea>
+                  <button type="button" class="jynlo-action jynlo-action--primary"
+                    [disabled]="timelineSending || chatDeliveryUncertain || !chatDraft.trim()"
+                    (click)="sendTimeline()">{{ 'communities.chatSend' | t }}</button>
+                </div>
+              </section>
+            }
 
             @if (activeTab === 'feed') {
               <section class="community-tab-panel community-timeline community-feed"
