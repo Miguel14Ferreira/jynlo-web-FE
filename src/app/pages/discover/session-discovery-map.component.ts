@@ -2,7 +2,7 @@ import { AfterViewInit, Component, HostListener, Input, OnChanges } from '@angul
 import { SessionSummary } from '../model/session-summary';
 
 interface Tile { key: string; url: string; left: number; top: number; }
-interface MapPin { session: SessionSummary; left: number; top: number; }
+interface MapPin { session: SessionSummary; sessions: SessionSummary[]; left: number; top: number; }
 type MapArea = 'mainland' | 'azores' | 'madeira';
 
 /**
@@ -31,17 +31,25 @@ type MapArea = 'mainland' | 'azores' | 'madeira';
         }
         @for (pin of pins; track pin.session.id) {
           <button type="button" class="jynlo-session-map-pin" [style.left.px]="pin.left"
-            [style.top.px]="pin.top" [attr.aria-label]="'Ver ' + pin.session.sport + ' em ' + pin.session.city"
-            (pointerdown)="$event.stopPropagation()" (click)="select(pin.session)">
-            <span aria-hidden="true">●</span>
+            [style.top.px]="pin.top" [attr.aria-label]="pin.sessions.length > 1 ? 'Ver ' + pin.sessions.length + ' jogos nesta zona' : 'Ver ' + pin.session.sport + ' em ' + pin.session.city"
+            [class.jynlo-session-map-pin--cluster]="pin.sessions.length > 1"
+            (pointerdown)="$event.stopPropagation()" (click)="selectPin(pin)">
+            <span aria-hidden="true">{{ pin.sessions.length > 1 ? pin.sessions.length : '●' }}</span>
           </button>
         }
       </div>
       <p class="jynlo-session-map-caption">© OpenStreetMap contributors · Os marcadores indicam zonas aproximadas, não pontos de encontro exatos.</p>
-      @if (selected; as session) {
-        <div class="jynlo-session-map-selected">
-          <div><strong>{{ session.sport }}</strong><span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span></div>
-          <a [routerLink]="['/menu/events', session.id]">Ver jogo →</a>
+      @if (selectedGroup.length) {
+        <div class="jynlo-session-map-group" aria-live="polite">
+          <strong>{{ selectedGroup.length === 1 ? 'Jogo selecionado' : selectedGroup.length + ' jogos nesta zona' }}</strong>
+          <div class="jynlo-session-map-group-list">
+            @for (session of selectedGroup; track session.id) {
+              <a [routerLink]="['/menu/events', session.id]">
+                <span><b>{{ session.sport }}</b><small>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</small></span>
+                <span aria-hidden="true">→</span>
+              </a>
+            }
+          </div>
         </div>
       }
       @if (pins.length === 0) {
@@ -58,8 +66,15 @@ type MapArea = 'mainland' | 'azores' | 'madeira';
     .jynlo-session-map-viewport:active{cursor:grabbing}
     .jynlo-session-map-tile{position:absolute;width:256px;height:256px;max-width:none;pointer-events:none}
     .jynlo-session-map-pin{position:absolute;transform:translate(-50%,-100%);z-index:1;border:2px solid #f6fffe;border-radius:100%;width:26px;height:26px;background:#00bca9;color:#002b30;display:grid;place-items:center;cursor:pointer;box-shadow:0 3px 12px #052d46a8}
+    .jynlo-session-map-pin--cluster{width:38px;height:38px;background:#17d5c7;font-weight:900;font-size:.9rem}
     .jynlo-session-map-pin:hover,.jynlo-session-map-pin:focus-visible{background:#fff;transform:translate(-50%,-100%) scale(1.18)}
     .jynlo-session-map-caption,.jynlo-session-map-empty{font-size:.76rem;color:#bad0d7;margin:0;line-height:1.5}
+    .jynlo-session-map-group{display:grid;gap:.65rem;padding:.8rem;border-radius:.8rem;border:1px solid #245669;background:rgba(12,42,56,.6)}
+    .jynlo-session-map-group-list{display:grid;gap:.35rem;max-height:270px;overflow-y:auto}
+    .jynlo-session-map-group-list a{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.6rem;color:#f4fbfd;border-radius:.6rem;text-decoration:none;background:rgba(255,255,255,.05)}
+    .jynlo-session-map-group-list a:hover,.jynlo-session-map-group-list a:focus-visible{background:rgba(30,215,201,.17)}
+    .jynlo-session-map-group-list a span:first-child{display:grid;gap:.2rem}
+    .jynlo-session-map-group-list small{color:#abcbd0}
     .jynlo-session-map-selected{display:flex;justify-content:space-between;gap:1rem;align-items:center;border:1px solid #245669;border-radius:.8rem;padding:.75rem}
     .jynlo-session-map-selected div{display:grid;gap:.2rem;min-width:0}
     .jynlo-session-map-selected span{font-size:.79rem;color:#9cc4cf}
@@ -71,6 +86,7 @@ export class SessionDiscoveryMapComponent implements OnChanges, AfterViewInit {
   tiles: Tile[] = [];
   pins: MapPin[] = [];
   selected: SessionSummary | null = null;
+  selectedGroup: SessionSummary[] = [];
   private center = { latitude: 39.5, longitude: -8.0 };
   private zoom = 7;
   private width = 850;
@@ -81,6 +97,7 @@ export class SessionDiscoveryMapComponent implements OnChanges, AfterViewInit {
 
   ngOnChanges(): void {
     if (this.selected && !this.sessions.some(s => s.id === this.selected?.id)) this.selected = null;
+    this.selectedGroup = this.selectedGroup.filter(old => this.sessions.some(s => s.id === old.id));
     this.update();
   }
 
@@ -98,6 +115,7 @@ export class SessionDiscoveryMapComponent implements OnChanges, AfterViewInit {
     this.center = { latitude: target.latitude, longitude: target.longitude };
     this.zoom = target.zoom;
     this.selected = null;
+    this.selectedGroup = [];
     this.update();
   }
 
@@ -106,7 +124,12 @@ export class SessionDiscoveryMapComponent implements OnChanges, AfterViewInit {
     this.update();
   }
 
-  select(session: SessionSummary): void { this.selected = session; }
+  select(session: SessionSummary): void { this.selected = session; this.selectedGroup = [session]; }
+
+  selectPin(pin: MapPin): void {
+    this.selected = pin.session;
+    this.selectedGroup = [...pin.sessions].sort((a,b) => Date.parse(a.gameDate) - Date.parse(b.gameDate));
+  }
 
   startPan(event: PointerEvent): void {
     if (event.button !== 0) return;
@@ -155,7 +178,7 @@ export class SessionDiscoveryMapComponent implements OnChanges, AfterViewInit {
       }
     }
     this.tiles = tiles;
-    this.pins = this.sessions.filter(session =>
+    const visible = this.sessions.filter(session =>
       session.privateGame !== true && session.audience !== 'COMMUNITY_ONLY' &&
       typeof session.latitude === 'number' && typeof session.longitude === 'number' &&
       Number.isFinite(session.latitude) && Number.isFinite(session.longitude) &&
@@ -164,5 +187,22 @@ export class SessionDiscoveryMapComponent implements OnChanges, AfterViewInit {
       const point = this.project(session.latitude!, session.longitude!);
       return { session, left: point.x - left, top: point.y - top };
     }).filter(pin => pin.left >= 0 && pin.left <= this.width && pin.top >= 0 && pin.top <= this.height);
+    // Cluster in screen-space. Pins sharing a public coarse cell never overlap,
+    // and distinct nearby cells merge as the user zooms out.
+    const cells = new Map<string, MapPin>();
+    const cellSize = 54;
+    for (const marker of visible) {
+      const key = `${Math.floor(marker.left / cellSize)}:${Math.floor(marker.top / cellSize)}`;
+      const existing = cells.get(key);
+      if (existing) {
+        const count = existing.sessions.length;
+        existing.left = (existing.left * count + marker.left) / (count + 1);
+        existing.top = (existing.top * count + marker.top) / (count + 1);
+        existing.sessions.push(marker.session);
+      } else {
+        cells.set(key, { ...marker, sessions: [marker.session] });
+      }
+    }
+    this.pins = [...cells.values()];
   }
 }
