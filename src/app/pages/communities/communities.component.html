@@ -765,7 +765,7 @@
               ></app-community-feature-settings>
             }
 
-            @if (canManage() && (activeTab === 'home' || activeTab === 'members')) {
+            @if (canManage() && activeTab === 'members') {
               <app-community-whatsapp-share
                 [visibility]="selected.visibility"
                 [feedback]="groupInviteFeedback"
