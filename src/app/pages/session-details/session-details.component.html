@@ -878,6 +878,13 @@
                     <p>{{ 'sessionDetail.teamsText' | t }}</p>
                   </div>
                   <div class="team-generator-actions">
+                    <button type="button"
+                      class="secondary-action jynlo-action jynlo-action--neutral"
+                      [disabled]="teamsLoading || teamsConfirming"
+                      [attr.aria-pressed]="teamsScoreSource === 'MANUAL'"
+                      (click)="generateTeams('MANUAL')">
+                      {{ 'sessionDetail.manualTeams' | t }}
+                    </button>
                     @if (session.teamBalanceSupported) {
                     <button
                       type="button"
@@ -914,7 +921,7 @@
                 @if (teamSuggestion) {
                   <div class="team-suggestion">
                     <div class="team-card">
-                      <h3>{{ 'sessionDetail.teamA' | t }} @if (teamsScoreSource !== 'RANDOM') { <span>{{ teamSuggestion.teamAScore }}</span> }</h3>
+                      <h3>{{ 'sessionDetail.teamA' | t }} @if (teamsScoreSource !== 'RANDOM' && teamsScoreSource !== 'MANUAL') { <span>{{ teamSuggestion.teamAScore }}</span> }</h3>
                       @for (player of teamSuggestion.teamA; track player.username) {
                         <div class="team-player">
                           @if(player.guest){
@@ -922,7 +929,7 @@
                           } @else {
                             <a class="session-profile-link" [routerLink]="['/menu/perfis',player.username]">{{ '@' + player.username }}</a>
                           }
-                          @if (teamsScoreSource === 'RANDOM') {
+                          @if (teamsScoreSource === 'RANDOM' || teamsScoreSource === 'MANUAL') {
                             <small>{{ 'sessionDetail.randomTeamsNoRanking' | t }}</small>
                           } @else if (teamsScoreSource === 'EXCEL_POINTS') {
                             <small>{{ player.statsAvailable
@@ -933,12 +940,19 @@
                           } @else {
                             <small>{{ 'sessionDetail.noStats' | t }}</small>
                           }
+                          @if (teamsScoreSource === 'MANUAL') {
+                            <button type="button" class="session-manual-team-move"
+                              [disabled]="teamsConfirming"
+                              (click)="moveSuggestedPlayer(player.username, 'A')">
+                              {{ 'sessionDetail.moveToTeamB' | t }}
+                            </button>
+                          }
                         </div>
                       }
                     </div>
 
                     <div class="team-card">
-                      <h3>{{ 'sessionDetail.teamB' | t }} @if (teamsScoreSource !== 'RANDOM') { <span>{{ teamSuggestion.teamBScore }}</span> }</h3>
+                      <h3>{{ 'sessionDetail.teamB' | t }} @if (teamsScoreSource !== 'RANDOM' && teamsScoreSource !== 'MANUAL') { <span>{{ teamSuggestion.teamBScore }}</span> }</h3>
                       @for (player of teamSuggestion.teamB; track player.username) {
                         <div class="team-player">
                           @if(player.guest){
@@ -946,7 +960,7 @@
                           } @else {
                             <a class="session-profile-link" [routerLink]="['/menu/perfis',player.username]">{{ '@' + player.username }}</a>
                           }
-                          @if (teamsScoreSource === 'RANDOM') {
+                          @if (teamsScoreSource === 'RANDOM' || teamsScoreSource === 'MANUAL') {
                             <small>{{ 'sessionDetail.randomTeamsNoRanking' | t }}</small>
                           } @else if (teamsScoreSource === 'EXCEL_POINTS') {
                             <small>{{ player.statsAvailable
@@ -957,11 +971,18 @@
                           } @else {
                             <small>{{ 'sessionDetail.noStats' | t }}</small>
                           }
+                          @if (teamsScoreSource === 'MANUAL') {
+                            <button type="button" class="session-manual-team-move"
+                              [disabled]="teamsConfirming"
+                              (click)="moveSuggestedPlayer(player.username, 'B')">
+                              {{ 'sessionDetail.moveToTeamA' | t }}
+                            </button>
+                          }
                         </div>
                       }
                     </div>
                   </div>
-                  @if (teamsScoreSource !== 'RANDOM') {
+                  @if (teamsScoreSource !== 'RANDOM' && teamsScoreSource !== 'MANUAL') {
                   <p class="team-stats-note">
                     {{ (teamsScoreSource === 'EXCEL_POINTS'
                       ? 'sessionDetail.teamsExcelUsed'
@@ -978,10 +999,16 @@
                   @if (teamsScoreSource === 'EXCEL_POINTS') {
                     <p class="team-stats-note">{{ 'sessionDetail.teamsExcelPrivacy' | t }}</p>
                   }
+                  @if (teamsScoreSource === 'MANUAL') {
+                    <p class="team-stats-note">{{ 'sessionDetail.manualTeamsHint' | t }}</p>
+                    @if (!manualTeamsBalanced) {
+                      <p class="team-stats-note" role="alert">{{ 'sessionDetail.manualTeamsBalanceRequired' | t }}</p>
+                    }
+                  }
                   <button
                     type="button"
                     class="primary-action jynlo-action jynlo-action--primary"
-                    [disabled]="teamsConfirming || !teamSuggestionPendingConfirmation"
+                    [disabled]="teamsConfirming || !teamSuggestionPendingConfirmation || (teamsScoreSource === 'MANUAL' && !manualTeamsBalanced)"
                     (click)="confirmTeams()">
                     {{
                       teamsConfirming
