@@ -579,8 +579,10 @@ async function main() {
           // real controls, but should no longer delay the first results row.
           if (width === 1366 && route.startsWith('/menu/communities/77?')) {
             const tabs = page.locator('nav.community-tabs > button');
-            assert.equal(await tabs.count(), 7,
-              'Synthetic community must expose all seven authorized sections');
+            assert.equal(await tabs.count(), 8,
+              'Synthetic community must expose all eight authorized sections, including chat');
+            assert.equal(await page.locator('nav.community-tabs > button').filter({ hasText: /^(Chat|Conversa)$/i }).count(), 1,
+              'Community navigation must expose exactly one chat section');
             const current = await tabs.evaluateAll(items =>
               items.filter(el => el.getAttribute('aria-current') === 'true'));
             assert.equal(current.length, 1,
