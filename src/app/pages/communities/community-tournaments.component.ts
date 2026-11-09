@@ -373,6 +373,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.expandedArchivedChampionshipId === championshipId ? null : championshipId;
   }
 
+  championshipExplainerOpen = false;
   championshipOpen = false;
   championshipBusy = false;
   championshipError = '';
@@ -436,6 +437,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.loadChampionshipTeams(championship.id);
         this.championshipNameDraft = '';
         this.championshipOpen = false;
+      this.championshipExplainerOpen = false;
         this.championshipBusy = false;
         this.changeDetector.markForCheck();
       },
