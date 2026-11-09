@@ -299,20 +299,28 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
               } @else {
                 <button type="button" (click)="calls.setMicrophone(!call.micEnabled)"
                   [attr.aria-pressed]="!call.micEnabled" [class.call-off]="!call.micEnabled">
-                  <span aria-hidden="true">{{ call.micEnabled ? '🎙' : '⊘' }}</span>
+                  @if (call.micEnabled) {
+                    <svg class="call-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/></svg>
+                  } @else {
+                    <svg class="call-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 9v3a3 3 0 0 0 5.2 2M15 9V5a3 3 0 0 0-5.3-1.9M5 10v2a7 7 0 0 0 12 4.9M19 10v2a7 7 0 0 1-.3 2M12 19v3m-4 0h8M3 3l18 18"/></svg>
+                  }
                   {{ (call.micEnabled ? 'calls.mute' : 'calls.unmute') | t }}
                 </button>
                 <button type="button" [disabled]="calls.busyMedia$ | async"
                     (click)="calls.setCamera(!call.cameraEnabled)"
                     [attr.aria-pressed]="!call.cameraEnabled" [class.call-off]="!call.cameraEnabled">
-                    <span aria-hidden="true">▣</span>
+                    @if (call.cameraEnabled) {
+                      <svg class="call-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="m17 10 5-3v10l-5-3"/></svg>
+                    } @else {
+                      <svg class="call-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="m17 10 5-3v10l-5-3M3 3l18 18"/></svg>
+                    }
                     {{ (call.cameraEnabled ? 'calls.cameraOff' : 'calls.cameraOn') | t }}
                   </button>
                 @if (calls.canShareScreen) {
                   <button type="button" [disabled]="calls.busyMedia$ | async"
                     (click)="calls.setScreenShare(!calls.screenShareEnabled$.value)"
                     [attr.aria-pressed]="calls.screenShareEnabled$ | async">
-                    <span aria-hidden="true">▧</span>
+                    <svg class="call-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="13" rx="2"/><path d="M8 21h8M12 16v5"/></svg>
                     {{ ((calls.screenShareEnabled$ | async) ? 'calls.stopSharing' : 'calls.shareScreen') | t }}
                   </button>
                 }
@@ -330,19 +338,19 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                 @if (call.phase === 'active') {
                   <button type="button" class="connect-invite-button" [attr.aria-expanded]="inviteOpen"
                     (click)="toggleInvites()">
-                    <span aria-hidden="true">＋</span> {{ 'calls.inviteMembers' | t }}
+                    <svg class="call-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> {{ 'calls.inviteMembers' | t }}
                   </button>
                 }
                 <button type="button" class="connect-chat-button"
                   (click)="openChat(call.peer)" [attr.aria-label]="'calls.openChatKeepCall' | t">
-                  <span aria-hidden="true">▤</span> Chat
+                  <svg class="call-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5Z"/></svg> Chat
                 </button>
                 <button type="button" class="call-settings-button"
                   [attr.aria-expanded]="settingsOpen" (click)="toggleSettings();inviteOpen=false">
-                  <span aria-hidden="true">⚙</span> {{ 'calls.settings' | t }}
+                  <svg class="call-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l-1.8 1.8a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21h-2.5v-1.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-1.8-1.8a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H5v-2.5h1.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l1.8-1.8a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V3h2.5v1.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l1.8 1.8a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1H21v2.5h-1.1a1.7 1.7 0 0 0-1.5 1Z"/></svg> {{ 'calls.settings' | t }}
                 </button>
                 <button type="button" class="call-decline" (click)="calls.end()">
-                  <span aria-hidden="true">✕</span> {{ 'calls.hangUp' | t }}
+                  <svg class="call-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg> {{ 'calls.hangUp' | t }}
                 </button>
               }
             </div>
@@ -645,6 +653,10 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
       padding:10px 13px;min-height:43px;border-radius:11px;
       border:1px solid #427871;background:#1c5654;color:#ecfff8;
       cursor:pointer;font:inherit;font-size:.83rem;font-weight:650}
+    /* Stable, centered icons across platforms instead of font/emoji baselines. */
+    .call-buttons .call-action-icon{box-sizing:border-box;display:block;width:18px;height:18px;
+      min-width:18px;flex:0 0 18px;align-self:center;vertical-align:middle;pointer-events:none}
+    .call-buttons button{line-height:1.25;text-align:center}
     .call-buttons button:hover,.call-retry:hover{filter:brightness(1.16)}
     .call-buttons button:disabled,.call-retry:disabled{opacity:.5;cursor:wait}
     .call-buttons button:focus-visible,.call-device-panel :is(button,select):focus-visible{
