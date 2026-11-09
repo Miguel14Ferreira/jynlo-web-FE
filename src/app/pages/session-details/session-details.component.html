@@ -930,7 +930,7 @@
                             <a class="session-profile-link" [routerLink]="['/menu/perfis',player.username]">{{ '@' + player.username }}</a>
                           }
                           @if (teamsScoreSource === 'RANDOM' || teamsScoreSource === 'MANUAL') {
-                            <small>{{ 'sessionDetail.randomTeamsNoRanking' | t }}</small>
+                            <small>{{ (teamsScoreSource === 'MANUAL' ? 'sessionDetail.manualTeamsPlayer' : 'sessionDetail.randomTeamsNoRanking') | t }}</small>
                           } @else if (teamsScoreSource === 'EXCEL_POINTS') {
                             <small>{{ player.statsAvailable
                               ? ('sessionDetail.excelPlayerPoints' | t:{ points: player.strengthScore })
@@ -961,7 +961,7 @@
                             <a class="session-profile-link" [routerLink]="['/menu/perfis',player.username]">{{ '@' + player.username }}</a>
                           }
                           @if (teamsScoreSource === 'RANDOM' || teamsScoreSource === 'MANUAL') {
-                            <small>{{ 'sessionDetail.randomTeamsNoRanking' | t }}</small>
+                            <small>{{ (teamsScoreSource === 'MANUAL' ? 'sessionDetail.manualTeamsPlayer' : 'sessionDetail.randomTeamsNoRanking') | t }}</small>
                           } @else if (teamsScoreSource === 'EXCEL_POINTS') {
                             <small>{{ player.statsAvailable
                               ? ('sessionDetail.excelPlayerPoints' | t:{ points: player.strengthScore })
