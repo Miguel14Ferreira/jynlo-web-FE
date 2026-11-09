@@ -1357,6 +1357,19 @@ describe('CommunitiesComponent public session eligibility', () => {
     }
   });
 
+  it('shows the season-game explanation only for sessions linked to the selected community', () => {
+    component.selected = { id: 7 } as any;
+    component.communitySessions = [
+      { id: 11, seasonCommunityId: 8 },
+      { id: 12, seasonCommunityId: null }
+    ] as any;
+    expect(component.hasCommunitySeasonGames()).toBeFalse();
+    component.communitySessions.push({ id: 13, seasonCommunityId: 7 } as any);
+    expect(component.hasCommunitySeasonGames()).toBeTrue();
+    component.selected = { id: 9 } as any;
+    expect(component.hasCommunitySeasonGames()).toBeFalse();
+  });
+
   it('renders the pending chat message count through the localized action', () => {
     const prior = localStorage.getItem('d24-language');
     try {
