@@ -4097,7 +4097,7 @@ const PT: Dictionary = {
   'feedback.communities.competitionSettingsError': 'Não foi possível guardar a configuração da competição.',
   'feedback.communities.roundRequired': 'Indica o nome, a data e pelo menos um participante para a jornada.',
   'feedback.communities.roundSaveError': 'Não foi possível guardar a jornada.',
-  'feedback.communities.roundConflict': 'Não foi possível registar a jornada porque há um conflito nos dados dos participantes. Atualiza a comunidade e tenta novamente.',
+  'feedback.communities.roundConflict': 'Não foi possível registar a jornada porque há um conflito com os dados atuais da comunidade ou da competição. Atualiza a página, confirma a época e os participantes e tenta novamente.',
   'feedback.communities.roundSportRequired': 'Seleciona a modalidade desta jornada.',
   'feedback.communities.raceInvalidMetrics': 'Confirma as posições (sem repetições) e os tempos da prova. Os tempos devem ser positivos e ter até 3 casas decimais.',
   'feedback.communities.roundDeleteError': 'Não foi possível apagar a jornada.',
