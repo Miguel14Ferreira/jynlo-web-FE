@@ -537,10 +537,14 @@
                     <h3>{{ 'communities.chatColumnTitle' | t }}</h3>
                     <p>{{ 'communities.chatColumnHint' | t }}</p>
                   </div>
-                  <button type="button" class="jynlo-action jynlo-action--neutral"
-                    [disabled]="timelineLoading" (click)="loadTimeline()">
-                    {{ 'communities.chatRefresh' | t }}
-                  </button>
+                  <div class="row-actions">
+                    <button type="button" class="jynlo-action jynlo-action--neutral"
+                      (click)="setTab('sessions')">{{ 'communities.chatViewSessions' | t }}</button>
+                    <button type="button" class="jynlo-action jynlo-action--neutral"
+                      [disabled]="timelineLoading" (click)="loadTimeline()">
+                      {{ 'communities.chatRefresh' | t }}
+                    </button>
+                  </div>
                 </header>
                 @if (timelineError) {
                   <p class="feedback error-feedback" role="alert">{{ timelineError }}</p>
@@ -1024,12 +1028,16 @@
                     <span class="section-kicker">{{ 'communities.sessionsKicker' | t }}</span>
                     <h3>{{ 'communities.sessionsTitle' | t }}</h3>
                   </div>
-                  @if (selected.membersCanCreateSessions !== false || canManage()) {
-                    <a class="primary-action button-link small jynlo-action jynlo-action--primary jynlo-action--compact"
-                      routerLink="/menu/createEvent" [queryParams]="{ community: selected.id }">
-                      {{ 'communities.createSession' | t }}
-                    </a>
-                  }
+                  <div class="row-actions">
+                    <button type="button" class="jynlo-action jynlo-action--neutral jynlo-action--compact"
+                      (click)="setTab('chat')">{{ 'communities.sessionsViewChat' | t }}</button>
+                    @if (selected.membersCanCreateSessions !== false || canManage()) {
+                      <a class="primary-action button-link small jynlo-action jynlo-action--primary jynlo-action--compact"
+                        routerLink="/menu/createEvent" [queryParams]="{ community: selected.id }">
+                        {{ 'communities.createSession' | t }}
+                      </a>
+                    }
+                  </div>
                 </div>
 
                 @if (sessionResultSuccess) {
