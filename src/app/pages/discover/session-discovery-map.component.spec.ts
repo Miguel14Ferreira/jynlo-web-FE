@@ -92,4 +92,20 @@ describe('SessionDiscoveryMapComponent', () => {
     expect(map.pins.length).toBeGreaterThan(initialCount);
   });
 
+  it('requests an approximate map area only after explicit interaction', () => {
+    const map = new SessionDiscoveryMapComponent();
+    const emitted: Array<{latitude:number;longitude:number;radiusKm:number}> = [];
+    map.searchArea.subscribe(area => emitted.push(area));
+    map.ngOnChanges();
+    map.showArea('madeira');
+    map.zoomBy(1);
+    expect(emitted.length).toBe(0);
+    map.searchCurrentArea();
+    expect(emitted.length).toBe(1);
+    expect(emitted[0].latitude).toBeCloseTo(32.7, 3);
+    expect(emitted[0].longitude).toBeCloseTo(-16.9, 3);
+    expect(emitted[0].radiusKm).toBeGreaterThanOrEqual(5);
+    expect(emitted[0].radiusKm).toBeLessThanOrEqual(500);
+  });
+
 });
