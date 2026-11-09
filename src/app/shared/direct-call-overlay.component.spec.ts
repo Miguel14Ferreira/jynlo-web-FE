@@ -429,6 +429,56 @@ describe('Global incoming call popup', () => {
     expect(host.querySelector('.connect-self-share-preview')).toBeNull();
   });
 
+  it('expands the shared screen on click and restores the call layout', () => {
+    const track = {attach: jasmine.createSpy('attach'), detach: jasmine.createSpy('detach')};
+    const local = {identity:'local', videoTrackPublications:new Map(),
+      audioTrackPublications:new Map(), isSpeaking:false, isMicrophoneEnabled:true};
+    const remote = {identity:'remote', videoTrackPublications:new Map([
+      ['screen', {source:Track.Source.ScreenShare, track, isMuted:false}]
+    ]),audioTrackPublications:new Map(),isSpeaking:false,isMicrophoneEnabled:true};
+    calls.room = {localParticipant:local,remoteParticipants:new Map([['remote',remote]])};
+    state.next({...invitation('video'),phase:'active',startedAt:Date.now()});
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const stage = host.querySelector('.connect-presentation-stage') as HTMLElement;
+    const hit = host.querySelector('.connect-presentation-zoom-hit') as HTMLButtonElement;
+    expect(hit).toBeTruthy();
+    expect(stage.classList.contains('is-zoomed')).toBeFalse();
+    hit.click();
+    fixture.detectChanges();
+    expect(stage.classList.contains('is-zoomed')).toBeTrue();
+    expect(hit.getAttribute('aria-label')).toContain('Reduzir');
+    hit.click();
+    fixture.detectChanges();
+    expect(stage.classList.contains('is-zoomed')).toBeFalse();
+    expect(calls.end).not.toHaveBeenCalled();
+  });
+
+  it('adjusts remote voice and screen-share audio separately without changing the call', () => {
+    const track = {attach: jasmine.createSpy('attach'), detach: jasmine.createSpy('detach')};
+    const local = {identity:'local', videoTrackPublications:new Map(),
+      audioTrackPublications:new Map(), isSpeaking:false, isMicrophoneEnabled:true};
+    const remote = {identity:'remote', videoTrackPublications:new Map([
+      ['screen', {source:Track.Source.ScreenShare, track, isMuted:false}]
+    ]),audioTrackPublications:new Map(),isSpeaking:false,isMicrophoneEnabled:true};
+    calls.room = {localParticipant:local,remoteParticipants:new Map([['remote',remote]])};
+    state.next({...invitation('video'),phase:'active',startedAt:Date.now()});
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const sliders = host.querySelectorAll('.connect-share-audio input[type="range"]');
+    expect(sliders.length).toBe(2);
+    const voice = sliders[0] as HTMLInputElement;
+    const screen = sliders[1] as HTMLInputElement;
+    voice.value = '40';
+    voice.dispatchEvent(new Event('input'));
+    screen.value = '85';
+    screen.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.volumeFor('remote')).toBeCloseTo(0.4);
+    expect(fixture.componentInstance.screenVolumeFor('remote')).toBeCloseTo(0.85);
+    expect(calls.end).not.toHaveBeenCalled();
+  });
+
   it('shows a useful message when device enumeration is unavailable', () => {
     state.next({...invitation('voice'),phase:'active',startedAt:Date.now()});
     fixture.detectChanges();
