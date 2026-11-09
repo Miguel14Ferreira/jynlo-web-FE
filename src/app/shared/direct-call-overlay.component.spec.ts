@@ -363,6 +363,72 @@ describe('Global incoming call popup', () => {
     expect(calls.end).not.toHaveBeenCalled();
   });
 
+  it('always shows the publisher their own screen preview while spotlighting a remote share', () => {
+    const track = () => ({
+      attach: jasmine.createSpy('attach'),
+      detach: jasmine.createSpy('detach')
+    });
+    const local = {
+      identity: 'local',
+      videoTrackPublications: new Map([
+        ['screen', {source: Track.Source.ScreenShare, track: track(), isMuted: false}],
+        ['camera', {source: Track.Source.Camera, track: track(), isMuted: false}]
+      ]),
+      audioTrackPublications: new Map(), isSpeaking: false, isMicrophoneEnabled: true
+    };
+    const remote = {
+      identity: 'remote',
+      videoTrackPublications: new Map([
+        ['screen', {source: Track.Source.ScreenShare, track: track(), isMuted: false}]
+      ]),
+      audioTrackPublications: new Map(), isSpeaking: false, isMicrophoneEnabled: true
+    };
+    calls.room = { localParticipant: local, remoteParticipants: new Map([['remote', remote]]) };
+    calls.setScreenShare = jasmine.createSpy('setScreenShare');
+    state.next({...invitation('video'), phase: 'active', startedAt: Date.now()});
+    fixture.detectChanges();
+
+    const host = fixture.nativeElement as HTMLElement;
+    expect(fixture.componentInstance.focusedPresentation?.identity).toBe('remote');
+    expect(host.querySelectorAll('.connect-presentation-tile').length).toBe(1);
+    expect(host.querySelectorAll('.connect-self-share-tile').length).toBe(1);
+    expect(host.textContent).toContain('A tua partilha');
+
+    const switcher = host.querySelector('.connect-share-switcher');
+    expect(switcher?.querySelectorAll('button').length).toBe(2);
+    (switcher?.querySelector('button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.focusedPresentation?.identity).toBe('local');
+    expect(host.querySelectorAll('.connect-self-share-tile').length).toBe(1);
+
+    (host.querySelector('.connect-self-share-heading button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(host.querySelector('.connect-self-share-tile')).toBeNull();
+    expect(host.querySelector('.connect-self-share-heading')).toBeTruthy();
+
+    (host.querySelector('.connect-self-share-heading button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(host.querySelector('.connect-self-share-tile')).toBeTruthy();
+    (host.querySelector('.connect-self-stop') as HTMLButtonElement).click();
+    expect(calls.setScreenShare).toHaveBeenCalledWith(false);
+    expect(calls.end).not.toHaveBeenCalled();
+  });
+
+  it('does not display a local publisher preview when only the remote person shares', () => {
+    const track = () => ({attach: jasmine.createSpy('attach'), detach: jasmine.createSpy('detach')});
+    const local = {identity:'local', videoTrackPublications:new Map(),
+      audioTrackPublications:new Map(), isSpeaking:false, isMicrophoneEnabled:true};
+    const remote = {identity:'remote',videoTrackPublications:new Map([
+      ['screen',{source:Track.Source.ScreenShare,track:track(),isMuted:false}]
+    ]),audioTrackPublications:new Map(), isSpeaking:false, isMicrophoneEnabled:true};
+    calls.room = {localParticipant:local,remoteParticipants:new Map([['remote',remote]])};
+    state.next({...invitation('video'),phase:'active',startedAt:Date.now()});
+    fixture.detectChanges();
+    const host=fixture.nativeElement as HTMLElement;
+    expect(host.querySelector('.connect-presentation-tile')).toBeTruthy();
+    expect(host.querySelector('.connect-self-share-preview')).toBeNull();
+  });
+
   it('shows a useful message when device enumeration is unavailable', () => {
     state.next({...invitation('voice'),phase:'active',startedAt:Date.now()});
     fixture.detectChanges();
