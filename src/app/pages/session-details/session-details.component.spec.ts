@@ -67,7 +67,7 @@ describe('SessionDetailsComponent', () => {
     directChatService.send.and.returnValue(of({} as any));
     sessionService = jasmine.createSpyObj<SessionService>(
       'SessionService',
-      ['detail', 'context', 'postGameCommunities', 'joinCommunityAfterGame', 'updateMeetingPoint', 'updateCapacity', 'join', 'leave', 'cancel', 'complete', 'reportDidNotOccur', 'reportProblem', 'messages', 'postMessage', 'participants', 'removeParticipant', 'teamSuggestion', 'confirmTeams', 'futureExclusionStatus', 'excludeFromFutureSessions', 'allowFutureSessions', 'myOverallRating', 'rateOverall', 'myVenueRating', 'rateVenue', 'sentCompliments', 'receivedCompliments', 'giveCompliment', 'issueGuestLink', 'guestRequests', 'confirmedGuests', 'reviewGuestRequest', 'cancelGuestRequest']
+      ['detail', 'context', 'postGameCommunities', 'joinCommunityAfterGame', 'updateMeetingPoint', 'updateCapacity', 'updateDetails', 'join', 'leave', 'cancel', 'complete', 'reportDidNotOccur', 'reportProblem', 'messages', 'postMessage', 'participants', 'removeParticipant', 'teamSuggestion', 'confirmTeams', 'futureExclusionStatus', 'excludeFromFutureSessions', 'allowFutureSessions', 'myOverallRating', 'rateOverall', 'myVenueRating', 'rateVenue', 'sentCompliments', 'receivedCompliments', 'giveCompliment', 'issueGuestLink', 'guestRequests', 'confirmedGuests', 'reviewGuestRequest', 'cancelGuestRequest']
     );
     sessionService.detail.and.returnValue(of(session));
     sessionService.context.and.returnValue(of({communities:[],seasonGame:false,seasonName:null}));
@@ -87,6 +87,7 @@ describe('SessionDetailsComponent', () => {
       ...session, canSeeExactAddress: true, meetingPointInstructions: 'Novo portão'
     }));
     sessionService.updateCapacity.and.returnValue(of({ ...session, maxParticipants: 6 }));
+    sessionService.updateDetails.and.returnValue(of({ ...session, maxParticipants: 6 }));
     sessionService.complete.and.returnValue(of(void 0));
     sessionService.reportDidNotOccur.and.returnValue(of(void 0));
     sessionService.reportProblem.and.returnValue(of(void 0));
@@ -2456,48 +2457,48 @@ describe('SessionDetailsComponent', () => {
     expect(component.actionError).toContain('palavra-passe');
   });
 
-  it('lets the organizer correct player capacity on the session detail page', () => {
+  it('lets the organizer update main details in the same session page', () => {
     (component as any).currentUsername = 'creator-user';
     component.session = {
-      ...session, joined: true,
+      ...session, joined: true, address: 'Rua do Campo',
       status: 'OPEN', gameDate: new Date(Date.now() + 3_600_000).toISOString()
     };
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
-    const edit = root.querySelector<HTMLButtonElement>('.session-capacity-edit-action');
+    const edit = root.querySelector<HTMLButtonElement>('.session-edit-master-action button');
     expect(edit).not.toBeNull();
     edit!.click();
     fixture.detectChanges();
-    expect(component.capacityEditing).toBeTrue();
-    component.capacityDraft = 6;
-    component.saveCapacity();
+    expect(component.detailsEditing).toBeTrue();
+    component.detailsDraft.maxParticipants = 6;
+    component.detailsDraft.priceAmount = 6.5;
+    component.saveDetailsEdit();
     fixture.detectChanges();
-    expect(sessionService.updateCapacity).toHaveBeenCalledWith(7, 6);
+    expect(sessionService.updateDetails).toHaveBeenCalledWith(7,
+      jasmine.objectContaining({ maxParticipants: 6, priceAmount: 6.5 }));
+    expect(component.detailsEditing).toBeFalse();
     expect(component.session?.maxParticipants).toBe(6);
-    expect(component.capacityEditing).toBeFalse();
-    expect(root.textContent).toContain('2/6');
   });
 
-  it('rejects capacity below confirmed players and hides edit for others or past sessions', () => {
+  it('rejects editing below confirmed places and hides the editor from non-organizers', () => {
     (component as any).currentUsername = 'creator-user';
     component.session = {
-      ...session, joined: true, participantCount: 3,
+      ...session, joined: true, address: 'Rua do Campo', participantCount: 3,
       status: 'OPEN', gameDate: new Date(Date.now() + 3_600_000).toISOString()
     };
-    component.beginCapacityEdit();
-    component.capacityDraft = 2;
-    component.saveCapacity();
-    expect(sessionService.updateCapacity).not.toHaveBeenCalled();
-    expect(component.capacityError).toContain('confirmadas');
+    component.beginDetailsEdit();
+    component.detailsDraft.maxParticipants = 2;
+    component.saveDetailsEdit();
+    expect(sessionService.updateDetails).not.toHaveBeenCalled();
+    expect(component.detailsError).toBeTruthy();
 
     (component as any).currentUsername = 'player-one';
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.session-capacity-edit-action')).toBeNull();
-
+    expect(fixture.nativeElement.querySelector('.session-edit-master-action')).toBeNull();
     (component as any).currentUsername = 'creator-user';
     component.session = { ...component.session, gameDate: '2020-01-01T10:00:00Z' };
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.session-capacity-edit-action')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.session-edit-master-action')).toBeNull();
   });
 
   it('should load chat messages for a participant before kickoff', () => {
