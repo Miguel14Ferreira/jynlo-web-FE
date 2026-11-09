@@ -53,9 +53,17 @@ export function championshipTeamProfile(
     const seasonTeam = registry?.teams.find(item => item.permanentTeamId === permanentTeamId);
     if (!seasonTeam) continue;
 
-    const ranking = standingsByChampionship[championship.id]?.standings ?? [];
-    const positionIndex = ranking.findIndex(item =>
-      item.entryType === 'TEAM' && item.participantId === seasonTeam.id);
+    const snapshot = standingsByChampionship[championship.id];
+    const ranking = snapshot?.standings.filter(item => item.entryType === 'TEAM') ?? [];
+    const positionIndex = ranking.findIndex(item => item.participantId === seasonTeam.id);
+    // Standings use display-name as a last sorting key. Equal sporting
+    // metrics must not be interpreted as a confirmed rank.
+    const current = positionIndex >= 0 ? ranking[positionIndex] : null;
+    const tied = current !== null && ranking.some((other, index) =>
+      index !== positionIndex && other.points === current.points &&
+      other.victories === current.victories);
+    const verifiedRank = championship.closedAt !== null &&
+      snapshot?.pendingCompetitions === 0 && current !== null && !tied;
     seasons.push({
       championshipId: championship.id,
       name: championship.name,
@@ -63,8 +71,8 @@ export function championshipTeamProfile(
       sport: championship.sport,
       closedAt: championship.closedAt,
       teamName: seasonTeam.name,
-      points: positionIndex >= 0 ? ranking[positionIndex].points : null,
-      position: positionIndex >= 0 ? positionIndex + 1 : null,
+      points: verifiedRank ? current.points : null,
+      position: verifiedRank ? positionIndex + 1 : null,
       previousPosition: null,
       positionChange: null,
       previousPoints: null,
