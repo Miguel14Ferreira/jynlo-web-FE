@@ -602,10 +602,19 @@
                   </div>
                 }
                 <div class="community-chat-compose">
-                  <textarea #communityComposer rows="2" maxlength="2000"
-                    [(ngModel)]="chatDraft" (ngModelChange)="onTypingInput()"
-                    (keydown.enter)="onCommunityChatEnter($event)"
-                    [placeholder]="'communities.chatPlaceholder' | t"></textarea>
+                  <div class="community-chat-compose-input">
+                    <textarea #communityComposer rows="2" maxlength="2000"
+                      [(ngModel)]="chatDraft" (ngModelChange)="onTypingInput()"
+                      (keydown.enter)="onCommunityChatEnter($event)"
+                      [disabled]="timelineSending || chatDeliveryUncertain"
+                      [attr.aria-label]="'communities.chatPlaceholder' | t"
+                      [attr.aria-describedby]="'community-chat-compose-help'"
+                      [placeholder]="'communities.chatPlaceholder' | t"></textarea>
+                    <div class="community-chat-compose-meta" id="community-chat-compose-help">
+                      <small>{{ 'communities.chatKeyboardHint' | t }}</small>
+                      <small>{{ chatDraft.length }}/2000</small>
+                    </div>
+                  </div>
                   <button type="button" class="jynlo-action jynlo-action--primary"
                     [disabled]="timelineSending || chatDeliveryUncertain || !chatDraft.trim()"
                     (click)="sendTimeline()">{{ 'communities.chatSend' | t }}</button>
