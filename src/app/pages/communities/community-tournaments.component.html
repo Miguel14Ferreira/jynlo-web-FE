@@ -148,6 +148,76 @@
               <p>Ainda não existem épocas associadas a esta equipa.</p>
             }
           </div>
+          <section class="create-step" aria-label="Comparar duas épocas da equipa">
+            <h5>Comparar duas épocas</h5>
+            <p class="team-honours-muted">Escolhe duas épocas concluídas com classificação final verificada da mesma modalidade. As diferenças de pontos não pressupõem regulamentos iguais.</p>
+            @if (selectableTeamSeasons.length >= 2) {
+              <div class="team-honours-compare-selectors">
+                <div>
+                  <label for="team-compare-older">Primeira época</label>
+                  <select id="team-compare-older"
+                    [value]="comparisonOlderChampionshipId ?? ''"
+                    (change)="chooseComparisonOlder($any($event.target).value ? +$any($event.target).value : null)">
+                    <option value="">Selecionar época</option>
+                    @for (season of selectableTeamSeasons; track season.championshipId) {
+                      <option [value]="season.championshipId">
+                        {{ season.seasonLabel }} · {{ season.name }} · {{ season.sport }}
+                      </option>
+                    }
+                  </select>
+                </div>
+                <div>
+                  <label for="team-compare-newer">Segunda época</label>
+                  <select id="team-compare-newer"
+                    [value]="comparisonNewerChampionshipId ?? ''"
+                    (change)="chooseComparisonNewer($any($event.target).value ? +$any($event.target).value : null)">
+                    <option value="">Selecionar época</option>
+                    @for (season of selectableTeamSeasons; track season.championshipId) {
+                      <option [value]="season.championshipId">
+                        {{ season.seasonLabel }} · {{ season.name }} · {{ season.sport }}
+                      </option>
+                    }
+                  </select>
+                </div>
+              </div>
+              @if (selectedTeamSeasonComparison; as comparison) {
+                <div class="team-honours-comparison">
+                  <article class="team-honours-comparison-side">
+                    <h6>{{ comparison.older.season.seasonLabel }}</h6>
+                    <p>{{ comparison.older.season.name }} · {{ comparison.older.season.sport }}</p>
+                    <p><strong>{{ comparison.older.season.position }}.º lugar</strong> · {{ comparison.older.season.points }} pontos</p>
+                    <p>🏆 {{ comparison.older.championships }} Campeonato(s)
+                      · 🥇 {{ comparison.older.leagues }} Liga(s)
+                      · 🏅 {{ comparison.older.cups }} Taça(s)</p>
+                  </article>
+                  <article class="team-honours-comparison-side">
+                    <h6>{{ comparison.newer.season.seasonLabel }}</h6>
+                    <p>{{ comparison.newer.season.name }} · {{ comparison.newer.season.sport }}</p>
+                    <p><strong>{{ comparison.newer.season.position }}.º lugar</strong> · {{ comparison.newer.season.points }} pontos</p>
+                    <p>🏆 {{ comparison.newer.championships }} Campeonato(s)
+                      · 🥇 {{ comparison.newer.leagues }} Liga(s)
+                      · 🏅 {{ comparison.newer.cups }} Taça(s)</p>
+                  </article>
+                </div>
+                <p class="team-honours-compare-result"
+                  [class.team-honours-improved]="comparison.positionImprovement !== null && comparison.positionImprovement > 0"
+                  [class.team-honours-declined]="comparison.positionImprovement !== null && comparison.positionImprovement < 0">
+                  @if (comparison.positionImprovement > 0) {
+                    ↑ Subiu {{ comparison.positionImprovement }} posição(ões)
+                  } @else if (comparison.positionImprovement < 0) {
+                    ↓ Desceu {{ -comparison.positionImprovement }} posição(ões)
+                  } @else {
+                    = Manteve a posição
+                  }
+                  · Diferença de pontos: {{ comparison.pointsDifference! > 0 ? '+' : '' }}{{ comparison.pointsDifference }}
+                </p>
+              } @else if (comparisonOlderChampionshipId !== null && comparisonNewerChampionshipId !== null) {
+                <p role="status">Seleciona épocas diferentes e da mesma modalidade. Não é possível comparar resultados incompatíveis.</p>
+              }
+            } @else {
+              <p>São necessárias pelo menos duas épocas concluídas com classificação final verificável.</p>
+            }
+          </section>
           <div class="create-step">
             <h5>Campeonatos conquistados</h5>
             @if (profile.seasonTitles.length) {
