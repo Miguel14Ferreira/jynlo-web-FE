@@ -1,5 +1,6 @@
 import { CommunityChampionshipsService, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
 import { championshipTeamProfile, ChampionshipTeamProfile } from './community-championship-team-profile';
+import { compareTeamSeasons, comparableTeamSeasons, TeamSeasonComparison } from './community-championship-team-comparison';
 import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { finalize, firstValueFrom, forkJoin, Observable, timeout } from 'rxjs';
 import { CommunityGroup } from '../model/community-group';
@@ -130,6 +131,28 @@ export class CommunityTournamentsComponent implements OnChanges {
     });
   }
 
+  comparisonOlderChampionshipId: number | null = null;
+  comparisonNewerChampionshipId: number | null = null;
+
+  get selectableTeamSeasons(): ReturnType<typeof comparableTeamSeasons> {
+    const profile = this.selectedPermanentTeamProfile;
+    return profile ? comparableTeamSeasons(profile) : [];
+  }
+
+  get selectedTeamSeasonComparison(): TeamSeasonComparison | null {
+    const profile = this.selectedPermanentTeamProfile;
+    return profile ? compareTeamSeasons(profile,
+      this.comparisonOlderChampionshipId, this.comparisonNewerChampionshipId) : null;
+  }
+
+  chooseComparisonOlder(championshipId: number | null): void {
+    this.comparisonOlderChampionshipId = championshipId;
+  }
+
+  chooseComparisonNewer(championshipId: number | null): void {
+    this.comparisonNewerChampionshipId = championshipId;
+  }
+
   selectedPermanentTeamId: number | null = null;
 
   get selectedPermanentTeamProfile(): ChampionshipTeamProfile | null {
@@ -144,11 +167,15 @@ export class CommunityTournamentsComponent implements OnChanges {
     if (!this.permanentTeamRegistry?.teams.some(team => team.id === permanentTeamId)) return;
     this.championshipHistoryView = 'HISTORY';
     this.selectedPermanentTeamId = permanentTeamId;
+    this.comparisonOlderChampionshipId = null;
+    this.comparisonNewerChampionshipId = null;
     this.expandedArchivedChampionshipId = null;
   }
 
   closePermanentTeamProfile(): void {
     this.selectedPermanentTeamId = null;
+    this.comparisonOlderChampionshipId = null;
+    this.comparisonNewerChampionshipId = null;
   }
 
   championshipHonours: CommunityChampionshipHonours | null = null;
