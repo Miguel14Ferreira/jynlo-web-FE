@@ -32,7 +32,7 @@
         <button type="button" class="t-btn t-btn-secondary championship-learn-toggle"
           aria-controls="championship-explanation" [attr.aria-expanded]="championshipExplainerOpen"
           (click)="championshipExplainerOpen = !championshipExplainerOpen">
-          {{ championshipExplainerOpen ? 'Mostrar menos' : 'O que é um campeonato? Saber mais' }}
+          {{ (championshipExplainerOpen ? 'communities.championshipHelpLess' : 'communities.championshipHelpMore') | t }}
         </button>
       </div>
       @if (canManage) {
@@ -42,19 +42,20 @@
       }
     </div>
     @if (championshipExplainerOpen) {
-      <section id="championship-explanation" class="championship-explainer" aria-label="Como funcionam os campeonatos">
+      <section id="championship-explanation" class="championship-explainer"
+        [attr.aria-label]="'communities.championshipHelpLabel' | t">
         <div>
-          <h5>Campeonato vs. torneio</h5>
-          <p>Um <strong>torneio</strong> é uma prova individual, com os seus participantes, resultados e vencedor. Um <strong>campeonato</strong> organiza várias dessas provas ao longo de uma época, com regras e classificações próprias da comunidade.</p>
+          <h5>{{ 'communities.championshipHelpTitle' | t }}</h5>
+          <p>{{ 'communities.championshipHelpIntro' | t }}</p>
         </div>
         <ol>
-          <li><strong>Cria uma época</strong> — por exemplo, 2026/27 para a comunidade.</li>
-          <li><strong>Adiciona competições</strong> — uma Liga, uma Taça e outras provas, conforme a modalidade.</li>
-          <li><strong>Regista resultados</strong> — a Jynlo reúne os pontos, as vitórias e as classificações segundo as regras de cada competição.</li>
-          <li><strong>Constrói o palmarés</strong> — os títulos e os resultados das épocas ficam associados às equipas e aos participantes.</li>
+          <li>{{ 'communities.championshipHelpStep1' | t }}</li>
+          <li>{{ 'communities.championshipHelpStep2' | t }}</li>
+          <li>{{ 'communities.championshipHelpStep3' | t }}</li>
+          <li>{{ 'communities.championshipHelpStep4' | t }}</li>
         </ol>
-        <p class="championship-explainer-example"><strong>Exemplo:</strong> Campeonato 2026/27 = Liga de Outono + Taça de Inverno + Liga de Primavera. Cada prova mantém o seu vencedor e o campeonato pode ter uma classificação geral.</p>
-        <p>O campeonato é opcional: podes continuar a organizar apenas torneios ou sessões, sem criar um campeonato.</p>
+        <p class="championship-explainer-example">{{ 'communities.championshipHelpExample' | t }}</p>
+        <p>{{ 'communities.championshipHelpOptional' | t }}</p>
       </section>
     }
     @if (championshipError) {
