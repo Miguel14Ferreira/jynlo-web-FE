@@ -73,6 +73,66 @@
         (click)="showChampionshipHistory()">Histórico ({{ archivedChampionshipCount }})</button>
     </div>
     @if (championshipHistoryView === 'HISTORY') {
+      @if (selectedPermanentTeamProfile; as profile) {
+        <section class="create-step" aria-label="Ficha da equipa">
+          <button type="button" class="t-btn t-btn-secondary"
+            (click)="closePermanentTeamProfile()">Voltar ao palmarés</button>
+          <p class="tournament-eyebrow">Palmarés da equipa</p>
+          <h4>{{ profile.name }}</h4>
+          <p>Identidade permanente desta comunidade. Os títulos e as participações são apresentados apenas quando há associação explícita.</p>
+          <div class="create-step">
+            <h5>Troféus conquistados</h5>
+            <p><strong>{{ profile.championships }}</strong> Campeonato(s)
+              · <strong>{{ profile.leagues }}</strong> Liga(s)
+              · <strong>{{ profile.cups }}</strong> Taça(s)</p>
+          </div>
+          <div class="create-step">
+            <h5>Épocas registadas</h5>
+            @if (profile.seasons.length) {
+              <ol>
+                @for (season of profile.seasons; track season.championshipId) {
+                  <li>
+                    <strong>{{ season.seasonLabel }}</strong> · {{ season.name }}
+                    · {{ season.sport }} · {{ season.teamName }}
+                    · {{ season.closedAt ? 'Concluída' : 'Em curso' }}
+                    @if (season.champion) {
+                      · Campeã
+                    }
+                  </li>
+                }
+              </ol>
+            } @else {
+              <p>Ainda não existem épocas associadas a esta equipa.</p>
+            }
+          </div>
+          <div class="create-step">
+            <h5>Campeonatos conquistados</h5>
+            @if (profile.seasonTitles.length) {
+              <ul>
+                @for (title of profile.seasonTitles; track title.championshipId) {
+                  <li>{{ title.championshipName }} · {{ title.seasonLabel }}
+                    · {{ title.sport }} · {{ title.closedAt | date:'dd/MM/yyyy' }}</li>
+                }
+              </ul>
+            } @else {
+              <p>A equipa ainda não tem títulos de Campeonato confirmados.</p>
+            }
+          </div>
+          <div class="create-step">
+            <h5>Ligas e Taças conquistadas</h5>
+            @if (profile.competitionTitles.length) {
+              <ul>
+                @for (trophy of profile.competitionTitles; track trophy.championshipId + '-' + trophy.tournamentId) {
+                  <li>{{ trophy.format === 'LEAGUE' ? 'Liga' : 'Taça / Eliminatórias' }}
+                    · {{ trophy.tournamentName }} · {{ trophy.seasonLabel }} · {{ trophy.sport }}</li>
+                }
+              </ul>
+            } @else {
+              <p>Não há troféus de provas confirmados no histórico disponível.</p>
+            }
+          </div>
+        </section>
+      } @else {
       <section class="create-step" aria-label="Palmarés da comunidade">
         <h5>Palmarés da comunidade</h5>
         @if (championshipHonours?.teamHonours?.length) {
@@ -80,11 +140,20 @@
           <ol>
             @for (team of championshipHonours!.teamHonours; track team.permanentTeamId) {
               <li>
-                <strong>{{ team.name }}</strong> · {{ team.titles }} Campeonato(s)
+                <button type="button" class="t-btn t-btn-secondary"
+                  (click)="openPermanentTeamProfile(team.permanentTeamId)">{{ team.name }} · Ver ficha</button>
+                · {{ team.titles }} Campeonato(s)
                 · {{ team.leagues }} Liga(s) · {{ team.cups }} Taça(s)
               </li>
             }
           </ol>
+        }
+        @if (permanentTeamRegistry?.teams?.length) {
+          <h6>Consultar equipas</h6>
+          @for (registered of permanentTeamRegistry!.teams; track registered.id) {
+            <button type="button" class="t-btn t-btn-secondary"
+              (click)="openPermanentTeamProfile(registered.id)">{{ registered.name }}</button>
+          }
         }
         @if (canManage) {
           <h6>Identidade permanente das equipas</h6>
@@ -235,6 +304,7 @@
             }
           </article>
         }
+      }
       }
     } @else {
       @if (activeChampionshipCount === 0) {
