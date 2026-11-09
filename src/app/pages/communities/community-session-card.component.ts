@@ -18,4 +18,5 @@ import { SessionSummary } from '../model/session-summary';
 export class CommunitySessionCardComponent {
   @Input() session!: SessionSummary;
   @Input() formattedDate = '';
+  @Input() seasonGame = false;
 }
