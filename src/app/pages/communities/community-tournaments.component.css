@@ -548,3 +548,29 @@
   border-radius: .65rem;
   background: rgba(16, 185, 129, .1);
 }
+
+/* Make the distinction between a single tournament and a multi-event championship visible. */
+.championship-concept-compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+  width: 100%;
+  margin-block: .7rem;
+}
+.championship-concept-card {
+  min-width: 0;
+  padding: .9rem 1rem;
+  border: 1px solid rgba(148, 163, 184, .3);
+  border-radius: .8rem;
+  background: rgba(15, 23, 42, .36);
+}
+.championship-concept-card--series {
+  border-color: rgba(110, 231, 183, .45);
+  background: rgba(5, 65, 59, .38);
+}
+.championship-concept-card h5 { margin: 0 0 .4rem; color: #eafff9; }
+.championship-concept-card p { margin: 0; color: #d3e8e6; line-height: 1.55; }
+.championship-concept-example { color: #b9dcd6; line-height: 1.5; }
+@media (max-width: 700px) {
+  .championship-concept-compare { grid-template-columns: 1fr; }
+}
