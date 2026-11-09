@@ -7,6 +7,7 @@ import { catchError, concatMap, finalize, forkJoin, from, map, mergeMap, of, ret
 import { environment } from 'src/environment/environment';
 import { CommunityService } from '../../services/community.service';
 import { DirectChatService } from '../../services/direct-chat.service';
+import { DirectCallClientService } from '../../services/direct-call-client.service';
 import { FriendSummary } from '../model/friend-summary';
 import { SessionDetail } from '../model/session-detail';
 import { appTranslate as t } from '../../i18n/i18n.service';
@@ -531,6 +532,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   private pendingMeetingPointScroll = false;
   private readonly jwtHelper = new JwtHelperService();
   private readonly router = inject(Router);
+  private readonly sessionCalls = inject(DirectCallClientService, { optional: true });
   private readonly readSync = inject(ChatReadSyncService);
   private readonly zone = inject(NgZone);
   private readonly realtimeSubscriptions = new Subscription();
@@ -547,6 +549,30 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     this.typing = new ChatTypingTracker(realtimeService);
   }
 
+
+  /** The server is authoritative; UI only avoids offering contact to strangers. */
+  canContactSessionMember(username: string | null | undefined): boolean {
+    if (!this.session || !username || !this.currentUsername
+        || username.toLowerCase() === this.currentUsername.toLowerCase()
+        || !(this.session.joined || this.isCreator())
+        || !['OPEN', 'FULL'].includes(this.session.status)
+        || !this.session.gameDate || Date.parse(this.session.gameDate) <= Date.now()) return false;
+    return true;
+  }
+
+  contactSessionMember(username: string): void {
+    if (!this.canContactSessionMember(username)) return;
+    void this.router.navigate(['/menu/messages'], { queryParams: { kind: 'direct', id: username } });
+  }
+
+  callSessionMember(username: string): void {
+    if (!this.canContactSessionMember(username) || !this.sessionCalls?.available$.value) return;
+    void this.sessionCalls.start(username, 'voice');
+  }
+
+  get sessionCallingAvailable(): boolean {
+    return !!this.sessionCalls?.available$.value && !this.sessionCalls.state$.value;
+  }
 
   // Only a known, internal navigation source can change the back destination.
   get backToPath(): string {
