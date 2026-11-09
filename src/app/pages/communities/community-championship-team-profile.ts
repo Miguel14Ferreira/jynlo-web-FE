@@ -14,6 +14,9 @@ export interface ChampionshipTeamSeason {
   champion: boolean;
   points: number | null;
   position: number | null;
+  previousPosition: number | null;
+  positionChange: number | null;
+  previousPoints: number | null;
 }
 
 export interface ChampionshipTeamProfile {
@@ -62,6 +65,9 @@ export function championshipTeamProfile(
       teamName: seasonTeam.name,
       points: positionIndex >= 0 ? ranking[positionIndex].points : null,
       position: positionIndex >= 0 ? positionIndex + 1 : null,
+      previousPosition: null,
+      positionChange: null,
+      previousPoints: null,
       champion: honours.titles.some(title =>
         title.championshipId === championship.id &&
         title.entryType === 'TEAM' &&
@@ -72,6 +78,21 @@ export function championshipTeamProfile(
   seasons.sort((a, b) =>
     (b.closedAt || '').localeCompare(a.closedAt || '') ||
     b.championshipId - a.championshipId);
+
+  // Compare only finalized results within the same sport. Never infer a
+  // ranking from an in-progress season or from an unverified result.
+  const previousBySport = new Map<string, ChampionshipTeamSeason>();
+  for (const season of [...seasons].reverse()) {
+    if (season.closedAt === null || season.position === null) continue;
+    const sportKey = season.sport.trim().toLocaleLowerCase();
+    const previous = previousBySport.get(sportKey);
+    if (previous) {
+      season.previousPosition = previous.position;
+      season.positionChange = (previous.position ?? 0) - season.position;
+      season.previousPoints = previous.points;
+    }
+    previousBySport.set(sportKey, season);
+  }
 
   return {
     id: permanentTeamId,
