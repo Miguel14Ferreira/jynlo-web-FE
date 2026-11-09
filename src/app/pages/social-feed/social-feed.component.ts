@@ -120,6 +120,22 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   manualShareUrl = '';
 
   readonly currentUsername: string;
+  showWelcomeHero = true;
+
+  private updateWelcomeVisibility(): void {
+    // Keep the first two feed visits welcoming without repeating a large banner forever.
+    // The key is per account and per browser; storage failures leave the banner visible.
+    if (!this.currentUsername || typeof localStorage === 'undefined') return;
+    try {
+      const key = 'jynlo:feed-welcome:v1:' + this.currentUsername.toLocaleLowerCase();
+      const visits = Number(localStorage.getItem(key) ?? '0');
+      const count = Number.isSafeInteger(visits) && visits >= 0 ? visits : 0;
+      this.showWelcomeHero = count < 2;
+      localStorage.setItem(key, String(Math.min(count + 1, 2)));
+    } catch {
+      this.showWelcomeHero = true;
+    }
+  }
 
   constructor(
     private feedService: SocialFeedService,
@@ -134,6 +150,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.updateWelcomeVisibility();
     this.load();
     this.loadSuggestedPeople();
     this.preparePostGameMoment();
