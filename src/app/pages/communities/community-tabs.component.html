@@ -1,4 +1,5 @@
-            <nav class="community-tabs" [attr.aria-label]="'communities.tabsLabel' | t">
+            <nav class="community-tabs" [attr.aria-label]="'communities.tabsLabel' | t"
+              (keydown)="onNavigationKeydown($event)">
               <button type="button" [class.active]="activeTab === 'home'"
                 [attr.aria-current]="activeTab === 'home' ? 'true' : null"
                 (click)="tabRequested.emit('home')">
