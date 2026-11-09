@@ -358,3 +358,27 @@
   .session-inline-chat-compose { flex-direction: column; align-items: stretch; }
   .session-inline-chat-message { max-width: 95%; }
 }
+
+
+/* Organizer capacity correction stays beside the session's player count. */
+.session-capacity-field { min-width: 0; }
+.session-capacity-edit-action {
+  display: inline-flex; align-items: center; margin-top: .45rem;
+  padding: .2rem .1rem; border: 0; background: none;
+  color: #7ff6df; font: inherit; font-size: .83rem; font-weight: 700;
+  text-decoration: underline; text-underline-offset: .2rem; cursor: pointer;
+}
+.session-capacity-editor { display: grid; gap: .65rem; margin-top: .7rem; min-width: 0; }
+.session-capacity-editor label { color: #e4faf6; font-size: .84rem; }
+.session-capacity-editor input {
+  width: min(160px, 100%); min-height: 42px; box-sizing: border-box;
+  border: 1px solid rgba(112, 239, 210, .5); border-radius: 10px;
+  padding: 8px 12px; background: #062838; color: #f5fffd; font: inherit;
+}
+.session-capacity-editor small { max-width: 330px; color: #b9d6da; line-height: 1.45; }
+.session-capacity-editor-actions { display: flex; gap: .55rem; flex-wrap: wrap; }
+.session-capacity-error { display: block; margin-top: .4rem; color: #ffc2c2; }
+.session-capacity-success { display: block; margin-top: .4rem; color: #8bf6d6; }
+.session-capacity-edit-action:focus-visible, .session-capacity-editor input:focus-visible {
+  outline: 2px solid #8fffe8; outline-offset: 3px;
+}
