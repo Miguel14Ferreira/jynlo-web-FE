@@ -1714,6 +1714,8 @@ export const EN: Record<string, string> = {
   'communities.chatColumnTitle': 'Community chat',
   'communities.chatColumnHint': 'Talk with members without leaving the community.',
   'communities.chatRefresh': 'Refresh',
+  'communities.chatViewSessions': 'View sessions',
+  'communities.sessionsViewChat': 'Open chat',
   'communities.chatOlder': 'Load older messages',
   'communities.chatLoading': 'Loading messages…',
   'communities.chatEmpty': 'No messages yet. Start the conversation.',
