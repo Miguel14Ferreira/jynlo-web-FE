@@ -70,6 +70,23 @@ describe('permanent team historical season comparison', () => {
     expect(compareTeamSeasons(invalid, 2, 9)).toBeNull();
   });
 
+  it('counts each tournament title only once within a championship', () => {
+    const league = profile.competitionTitles[0];
+    const cup = profile.competitionTitles[1];
+    const repeated: ChampionshipTeamProfile = {
+      ...profile,
+      competitionTitles: [
+        league, { ...league }, cup, { ...cup },
+        { ...cup, tournamentId: 32, tournamentName: 'Supertaça' }
+      ]
+    };
+    const comparison = compareTeamSeasons(repeated, 1, 2);
+    expect(comparison?.older.leagues).toBe(1);
+    expect(comparison?.older.cups).toBe(0);
+    expect(comparison?.newer.cups).toBe(2);
+    expect(comparison?.newer.leagues).toBe(0);
+  });
+
   it('does not mutate historical results when comparing', () => {
     const before = JSON.stringify(profile);
     compareTeamSeasons(profile, 1, 2);
