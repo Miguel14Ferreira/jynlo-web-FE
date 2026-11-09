@@ -2385,6 +2385,12 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     });
   }
 
+  hasCommunitySeasonGames(): boolean {
+    return !!this.selected && this.communitySessions.some(
+      session => session.seasonCommunityId === this.selected?.id
+    );
+  }
+
   setTab(tab: CommunityTab): void {
     if ((tab === 'tournaments' && !this.hasCompetitions(this.selected))
         || (tab === 'ranking' && !this.canBrowseHistoricalArchives)
