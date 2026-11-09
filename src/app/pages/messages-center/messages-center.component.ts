@@ -856,12 +856,46 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.openPendingDeepLink();
   }
 
+  private validatingDirectDeepLink: string | null = null;
+
   private openPendingDeepLink(): void {
-    if (!this.pendingDeepLinkKey) return;
-    const target = this.conversations.find(item => item.key === this.pendingDeepLinkKey);
-    if (!target) return; // Never add a forged or expired conversation.
-    this.pendingDeepLinkKey = null;
-    if (target.key !== this.selectedKey) this.selectConversation(target);
+    const key = this.pendingDeepLinkKey;
+    if (!key) return;
+    const target = this.conversations.find(item => item.key === key);
+    if (target) {
+      this.pendingDeepLinkKey = null;
+      if (target.key !== this.selectedKey) this.selectConversation(target);
+      return;
+    }
+    // A fellow confirmed player is not necessarily a friend. Never infer
+    // permission from a URL: only the backend can authorize this conversation.
+    if (!key.startsWith('direct:') || this.validatingDirectDeepLink === key) return;
+    const username = key.slice('direct:'.length);
+    if (!/^[a-zA-Z0-9_.-]{1,80}$/.test(username)) {
+      this.pendingDeepLinkKey = null;
+      return;
+    }
+    this.validatingDirectDeepLink = key;
+    this.direct.info(username).pipe(timeout(10000)).subscribe({
+      next: () => {
+        this.validatingDirectDeepLink = null;
+        if (this.pendingDeepLinkKey !== key || this.accountSessionRevoked) return;
+        this.pendingDeepLinkKey = null;
+        const authorized: InboxConversation = {
+          key, kind: 'direct', id: username, title: '@' + username,
+          subtitle: '@' + username, newThisVisit: 0
+        };
+        if (!this.conversations.some(item => item.key === key)) {
+          this.conversations = orderInbox([...this.conversations, authorized]);
+        }
+        const selected = this.conversations.find(item => item.key === key);
+        if (selected) this.selectConversation(selected);
+      },
+      error: () => {
+        this.validatingDirectDeepLink = null;
+        if (this.pendingDeepLinkKey === key) this.pendingDeepLinkKey = null;
+      }
+    });
   }
 
   isSelectedSessionOpen(): boolean {
