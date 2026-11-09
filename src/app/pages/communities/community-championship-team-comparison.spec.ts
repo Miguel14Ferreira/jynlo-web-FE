@@ -54,6 +54,22 @@ describe('permanent team historical season comparison', () => {
     expect(comparableTeamSeasons(profile).map(s => s.championshipId)).toEqual([1, 2, 3]);
   });
 
+  it('excludes fractional, zero and non-finite positions from comparison', () => {
+    const invalid: ChampionshipTeamProfile = {
+      ...profile,
+      seasons: [
+        ...profile.seasons,
+        season(6, 'Futebol', 1.5, 12, '2027-06-30T00:00:00Z'),
+        season(7, 'Futebol', 0, 12, '2028-06-30T00:00:00Z'),
+        season(8, 'Futebol', Infinity, 12, '2029-06-30T00:00:00Z'),
+        season(9, 'Futebol', 2, NaN, '2030-06-30T00:00:00Z')
+      ]
+    };
+    expect(comparableTeamSeasons(invalid).map(s => s.championshipId)).toEqual([1, 2, 3]);
+    expect(compareTeamSeasons(invalid, 1, 6)).toBeNull();
+    expect(compareTeamSeasons(invalid, 2, 9)).toBeNull();
+  });
+
   it('does not mutate historical results when comparing', () => {
     const before = JSON.stringify(profile);
     compareTeamSeasons(profile, 1, 2);
