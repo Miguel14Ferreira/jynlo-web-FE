@@ -5945,6 +5945,25 @@ describe('Community tournaments management', () => {
     expect(component.championshipHistoryView).toBe('ACTIVE');
   });
 
+  it('filters official championship honours by sport without changing stored titles', () => {
+    component.championshipHonours = {
+      communityId: 7, completedSeasons: 2, individualHonours: [],
+      titles: [
+        { championshipId: 1, championshipName: 'Liga', seasonLabel: '2025/26',
+          sport: 'Futebol', closedAt: '2026-06-01T00:00:00Z', entryType: 'TEAM',
+          participantId: 55, championName: 'Águias' },
+        { championshipId: 2, championshipName: 'Torneio', seasonLabel: '2025/26',
+          sport: 'Padel', closedAt: '2026-06-02T00:00:00Z', entryType: 'INDIVIDUAL',
+          participantId: 77, championName: 'Ana' }
+      ]
+    };
+    expect(component.championshipHonoursSports).toEqual(['Futebol', 'Padel']);
+    expect(component.filteredChampionshipTitles.length).toBe(2);
+    component.championshipHonoursSportFilter = 'Padel';
+    expect(component.filteredChampionshipTitles.map(title => title.championName)).toEqual(['Ana']);
+    expect(component.championshipHonours.titles.length).toBe(2);
+  });
+
   it('keeps regular individual league points intact for other sports', async () => {
     component.startIndividualCreation();
     component.nameDraft = 'Liga de Futebol';
