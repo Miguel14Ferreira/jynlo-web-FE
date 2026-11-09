@@ -6,6 +6,9 @@ export interface SessionSummary {
   city: string;
   gameDate: string;
   distanceKm: number | null;
+  /** Coarse public discovery grid coordinates; not precise meeting-point GPS. */
+  latitude?: number | null;
+  longitude?: number | null;
   participantCount: number;
   maxParticipants: number;
   priceAmount: number;
