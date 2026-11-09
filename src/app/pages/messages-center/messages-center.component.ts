@@ -229,6 +229,74 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     return Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
   }
   voicePreviewUrl: string | null = null;
+  voicePreviewPlaying = false;
+  voicePreviewMuted = false;
+  voicePreviewDuration = 0;
+  voicePreviewPosition = 0;
+  private voicePreviewPlayer: HTMLAudioElement | null = null;
+
+  voicePreviewProgress(): number {
+    return this.voicePreviewDuration > 0
+      ? Math.min(100, Math.max(0, Math.round(this.voicePreviewPosition / this.voicePreviewDuration * 100)))
+      : 0;
+  }
+
+  voicePreviewTimeLabel(): string {
+    const format = (seconds: number) => {
+      const value = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
+      return Math.floor(value / 60) + ':' + String(value % 60).padStart(2, '0');
+    };
+    return format(this.voicePreviewPosition) + ' / ' + format(this.voicePreviewDuration);
+  }
+
+  toggleVoicePreview(player: HTMLAudioElement): void {
+    if (!this.voicePreviewUrl || !this.selectedAttachment || this.sending || this.deliveryUncertain) return;
+    if (player.paused) {
+      for (const other of this.voicePlayers.values()) {
+        if (!other.paused) other.pause();
+      }
+      void player.play().catch(() => { /* Browser remains authoritative. */ });
+    } else {
+      player.pause();
+    }
+  }
+
+  onVoicePreviewTimeUpdate(player: HTMLAudioElement): void {
+    if (!this.voicePreviewUrl) return;
+    this.voicePreviewPlayer = player;
+    if (Number.isFinite(player.duration) && player.duration > 0)
+      this.voicePreviewDuration = player.duration;
+    if (Number.isFinite(player.currentTime) && player.currentTime >= 0)
+      this.voicePreviewPosition = player.currentTime;
+  }
+
+  onVoicePreviewPlaybackEvent(player: HTMLAudioElement): void {
+    if (!this.voicePreviewUrl) {
+      if (!player.paused) player.pause();
+      this.voicePreviewPlaying = false;
+      return;
+    }
+    this.onVoicePreviewTimeUpdate(player);
+    this.voicePreviewPlaying = !player.paused && !player.ended;
+    if (this.voicePreviewPlaying) {
+      for (const other of this.voicePlayers.values()) {
+        if (!other.paused) other.pause();
+      }
+    }
+  }
+
+  seekVoicePreview(player: HTMLAudioElement, event: Event): void {
+    if (!Number.isFinite(player.duration) || player.duration <= 0) return;
+    const percent = Number((event.target as HTMLInputElement).value);
+    if (!Number.isFinite(percent)) return;
+    player.currentTime = Math.max(0, Math.min(player.duration, percent * player.duration / 100));
+    this.onVoicePreviewTimeUpdate(player);
+  }
+
+  toggleVoicePreviewMute(player: HTMLAudioElement): void {
+    player.muted = !player.muted;
+    this.voicePreviewMuted = player.muted;
+  }
   private voiceRecorder: MediaRecorder | null = null;
   private voiceStream: MediaStream | null = null;
   private voiceTimer?: ReturnType<typeof setTimeout>;
@@ -1574,6 +1642,16 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   private clearVoicePreview(): void {
+    if (this.voicePreviewPlayer) {
+      this.voicePreviewPlayer.pause();
+      this.voicePreviewPlayer.removeAttribute('src');
+      this.voicePreviewPlayer.load();
+    }
+    this.voicePreviewPlayer = null;
+    this.voicePreviewPlaying = false;
+    this.voicePreviewMuted = false;
+    this.voicePreviewDuration = 0;
+    this.voicePreviewPosition = 0;
     if (this.voicePreviewUrl) URL.revokeObjectURL(this.voicePreviewUrl);
     this.voicePreviewUrl = null;
   }
