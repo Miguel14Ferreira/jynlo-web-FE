@@ -1,0 +1,32 @@
+name: Jynlo community round conflict regression
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - '.github/workflows/community-round-conflict-ci.yml'
+      - 'src/app/pages/communities/communities.component.ts'
+      - 'src/app/pages/communities/communities.component.spec.ts'
+      - 'src/app/i18n/i18n.service.ts'
+      - 'src/app/i18n/translations-en.ts'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  round-conflict:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Validate community round regression tests
+        run: npx ng test --watch=false --browsers=ChromeHeadless --include=src/app/pages/communities/communities.component.spec.ts
