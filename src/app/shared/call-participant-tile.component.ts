@@ -22,7 +22,9 @@ import { LocalParticipant, RemoteParticipant, Track } from 'livekit-client';
       <div class="connect-person">
         <span class="connect-speaker" aria-hidden="true"></span>
         <strong>{{ label }}</strong>
-        @if (local) { <span class="connect-self">{{ 'calls.you' | t }}</span> }
+        @if (local && label !== ('calls.you' | t)) {
+          <span class="connect-self">{{ 'calls.you' | t }}</span>
+        }
         @if (participant.isMicrophoneEnabled === false) {
           <span class="connect-muted" [attr.aria-label]="'calls.micOff' | t">⌁</span>
         }
