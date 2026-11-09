@@ -45,16 +45,16 @@ export function championshipTeamProfile(
 ): ChampionshipTeamProfile | null {
   const team = honours.teamHonours.find(item => item.permanentTeamId === permanentTeamId);
   const registered = permanentTeams?.teams.find(item => item.id === permanentTeamId);
-  if (!registered) return null;
+  if (!registered || !permanentTeams || honours.communityId !== permanentTeams.communityId) return null;
 
   const seasons: ChampionshipTeamSeason[] = [];
   for (const championship of championships) {
     const registry = registries[championship.id];
     const seasonTeam = registry?.teams.find(item => item.permanentTeamId === permanentTeamId);
-    if (!seasonTeam) continue;
+    if (!seasonTeam || registry?.championshipId !== championship.id) continue;
 
     const snapshot = standingsByChampionship[championship.id];
-    const ranking = snapshot?.standings.filter(item =>
+    const ranking = (snapshot?.championshipId === championship.id ? snapshot.standings : []).filter(item =>
       item.entryType === 'TEAM' || item.entryType === 'TEAM_UNLINKED') ?? [];
     const positionIndex = ranking.findIndex(item =>
       item.entryType === 'TEAM' && item.participantId === seasonTeam.id);
