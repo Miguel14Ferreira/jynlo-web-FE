@@ -36,26 +36,28 @@ describe('Community feed/chat UI state isolation', () => {
     spyOn(component, 'canManage').and.returnValue(true);
   });
 
-  it('requests only the feed and redirects the old chat tab to the inbox', () => {
+  it('loads the feed and community chat separately without leaving the page', () => {
     component.setTab('home');
     expect(list).not.toHaveBeenCalled();
     component.setTab('feed');
-    expect(list).toHaveBeenCalledOnceWith(7, 'POST');
+    expect(list).toHaveBeenCalledWith(7, 'POST');
     component.setTab('chat');
-    expect(list).toHaveBeenCalledTimes(1);
-    expect((component as any).router.navigate).toHaveBeenCalledWith(['/menu/messages'],
-      { queryParams: { kind: 'community', id: 7 } });
+    expect(list).toHaveBeenCalledWith(7, 'CHAT');
+    expect(list).toHaveBeenCalledTimes(2);
+    expect(component.activeTab).toBe('chat');
+    expect((component as any).router.navigate).not.toHaveBeenCalled();
   });
 
-  it('keeps feed content separate when navigating to the central chat', () => {
+  it('discards stale feed responses after switching to the local chat', () => {
     const earlier = new Subject<CommunityTimelineEntry[]>();
-    list.and.returnValue(earlier.asObservable());
+    list.and.callFake((_id: number, kind: string) =>
+      kind === 'POST' ? earlier.asObservable() : of([message('CHAT')]));
     component.setTab('feed');
     component.setTab('chat');
     earlier.next([message('POST')]);
     earlier.complete();
-    expect(component.timelineEntries.map(item => item.kind)).toEqual(['POST']);
-    expect(list).toHaveBeenCalledTimes(1);
+    expect(component.timelineEntries.map(item => item.kind)).toEqual(['CHAT']);
+    expect(list).toHaveBeenCalledTimes(2);
     expect(component.timelineLoading).toBeFalse();
   });
 
