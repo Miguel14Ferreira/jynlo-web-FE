@@ -43,6 +43,21 @@ describe('CommunitySessionCardComponent', () => {
     expect(root.querySelector('.community-session-meta')?.textContent).toContain('8/10');
   });
 
+  it('labels a season game inside its own session card without changing the route', () => {
+    const fixture = render({ seasonCommunityId: 7 });
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('[data-testid="community-season-game"]')).toBeNull();
+    fixture.componentRef.setInput('seasonGame', true);
+    fixture.detectChanges();
+    expect(root.querySelector('[data-testid="community-season-game"]')?.textContent)
+      .toContain('Jogo de época');
+    expect(root.querySelector('a.community-session-card')?.getAttribute('href'))
+      .toBe('/menu/events/218');
+    fixture.componentRef.setInput('seasonGame', false);
+    fixture.detectChanges();
+    expect(root.querySelector('[data-testid="community-season-game"]')).toBeNull();
+  });
+
   it('shows a recurring badge and available spaces without changing the audience', () => {
     const root = render({ recurrenceSeriesId: 'weekly-32' }).nativeElement as HTMLElement;
     expect(root.querySelector('.competition-badge')).not.toBeNull();
