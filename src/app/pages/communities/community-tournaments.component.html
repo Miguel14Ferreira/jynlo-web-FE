@@ -87,8 +87,15 @@
           }
           <h6>Campeões por época</h6>
           @if (honours.titles.length) {
+            <label for="championship-honours-sport-filter">Filtrar por modalidade</label>
+            <select id="championship-honours-sport-filter" [(ngModel)]="championshipHonoursSportFilter">
+              <option value="">Todas as modalidades</option>
+              @for (sport of championshipHonoursSports; track sport) {
+                <option [value]="sport">{{ sport }}</option>
+              }
+            </select>
             <ul>
-              @for (title of honours.titles; track title.championshipId) {
+              @for (title of filteredChampionshipTitles; track title.championshipId) {
                 <li>
                   <strong>{{ title.championName }}</strong>
                   · {{ title.seasonLabel }} · {{ title.sport }}
