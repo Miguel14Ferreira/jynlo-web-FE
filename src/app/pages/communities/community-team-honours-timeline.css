@@ -68,3 +68,35 @@
   .team-honours-trophies { grid-template-columns: 1fr; }
   .team-honours-trophy { padding: 12px; }
 }
+
+.team-honours-compare-selectors,
+.team-honours-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 12px 0;
+}
+.team-honours-compare-selectors label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.team-honours-compare-selectors select {
+  width: 100%;
+  max-width: 100%;
+}
+.team-honours-comparison-side {
+  padding: 16px;
+  border: 1px solid var(--border-color, #d9e3df);
+  border-radius: 12px;
+  background: var(--surface-color, rgba(126, 146, 136, .06));
+}
+.team-honours-comparison-side h6 { margin: 0 0 10px; }
+.team-honours-compare-result {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 580px) {
+  .team-honours-compare-selectors,
+  .team-honours-comparison { grid-template-columns: 1fr; }
+}
