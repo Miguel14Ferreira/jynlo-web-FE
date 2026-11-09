@@ -241,6 +241,13 @@ export class SessionService {
     return this.http.get<SessionDetail>(this.baseUrl + '/' + id);
   }
 
+  updateDetails(id: number, fields: {
+    gameDate: string; maxParticipants: number; minParticipants: number;
+    priceAmount: number; city: string; address: string; meetingPointInstructions: string | null;
+  }): Observable<SessionDetail> {
+    return this.http.patch<SessionDetail>(this.baseUrl + '/' + id + '/details', fields);
+  }
+
   updateCapacity(id: number, maxParticipants: number): Observable<SessionDetail> {
     return this.http.patch<SessionDetail>(
       this.baseUrl + '/' + id + '/capacity', null,
