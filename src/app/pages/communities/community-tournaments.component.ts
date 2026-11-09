@@ -1,4 +1,4 @@
-import { CommunityChampionshipsService, ChampionshipOwnedEvent, ChampionshipOwnedEventTeam, ChampionshipOwnedEventFormat, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
+import { CommunityChampionshipsService, ChampionshipOwnedEvent, ChampionshipOwnedEventTeam, ChampionshipOwnedLeagueFixture, ChampionshipOwnedEventFormat, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
 import { championshipTeamProfile, ChampionshipTeamProfile } from './community-championship-team-profile';
 import { compareTeamSeasons, comparableTeamSeasons, TeamSeasonComparison } from './community-championship-team-comparison';
 import { teamRankingChart, teamRankingSports, TeamRankingChart } from './community-championship-team-ranking-chart';
@@ -379,6 +379,65 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipEventBusy = false;
   championshipOwnedEventTeams: Record<number, ChampionshipOwnedEventTeam[]> = {};
   championshipOwnedTeamDrafts: Record<number, number | null> = {};
+  championshipLeagueFixtures: Record<number, ChampionshipOwnedLeagueFixture[]> = {};
+  championshipLeagueLegs: Record<number, 1 | 2> = {};
+  championshipLeagueBusy = false;
+
+  leagueRounds(eventId: number): number[] {
+    return [...new Set((this.championshipLeagueFixtures[eventId] || [])
+      .map(fixture => fixture.round))].sort((a, b) => a - b);
+  }
+
+  leagueRoundFixtures(eventId: number, round: number): ChampionshipOwnedLeagueFixture[] {
+    return (this.championshipLeagueFixtures[eventId] || [])
+      .filter(fixture => fixture.round === round);
+  }
+
+  loadChampionshipLeagueFixtures(championshipId: number, eventId: number): void {
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipsApi.ownedLeagueFixtures(communityId, championshipId, eventId).subscribe({
+      next: matches => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipLeagueFixtures[eventId] = matches;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipError = t('communities.championshipOwned.fixturesLoadError');
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  generateChampionshipLeague(championship: CommunityChampionship, event: ChampionshipOwnedEvent): void {
+    const teamCount = (this.championshipOwnedEventTeams[event.id] || []).length;
+    if (!this.canManage || this.championshipLeagueBusy || championship.closedAt
+        || event.status !== 'DRAFT' || event.format !== 'LEAGUE'
+        || teamCount < 2 || teamCount > 64) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    const legs = this.championshipLeagueLegs[event.id] || 1;
+    this.championshipLeagueBusy = true;
+    this.championshipError = '';
+    this.championshipsApi.scheduleOwnedLeague(communityId, championship.id, event.id, legs).subscribe({
+      next: fixtures => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipLeagueFixtures[event.id] = fixtures;
+        this.championshipOwnedEvents[championship.id] = (this.championshipOwnedEvents[championship.id] || [])
+          .map(item => item.id === event.id ? { ...item, status: 'SCHEDULED' as const } : item);
+        this.championshipLeagueBusy = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipLeagueBusy = false;
+        this.championshipError = t('communities.championshipOwned.scheduleError');
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
 
   loadChampionshipOwnedEventTeams(championshipId: number, eventId: number): void {
     const revision = this.championshipRevision;
@@ -550,6 +609,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipOwnedEvents[championshipId] = events;
         events.forEach(event => this.loadChampionshipOwnedEventTeams(championshipId, event.id));
+        events.filter(event => event.format === 'LEAGUE').forEach(event => this.loadChampionshipLeagueFixtures(championshipId, event.id));
         this.changeDetector.markForCheck();
       },
       error: () => {
@@ -605,6 +665,8 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipEventFormats = {};
     this.championshipOwnedEventTeams = {};
     this.championshipOwnedTeamDrafts = {};
+    this.championshipLeagueFixtures = {};
+    this.championshipLeagueLegs = {};
     this.editingChampionshipEventId = null;
     this.editingChampionshipEventName = '';
     this.deletingChampionshipEventId = null;
