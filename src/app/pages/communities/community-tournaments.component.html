@@ -200,8 +200,8 @@
                   </article>
                 </div>
                 <p class="team-honours-compare-result"
-                  [class.team-honours-improved]="comparison.positionImprovement !== null && comparison.positionImprovement > 0"
-                  [class.team-honours-declined]="comparison.positionImprovement !== null && comparison.positionImprovement < 0">
+                  [class.team-honours-improved]="comparison.positionImprovement > 0"
+                  [class.team-honours-declined]="comparison.positionImprovement < 0">
                   @if (comparison.positionImprovement > 0) {
                     ↑ Subiu {{ comparison.positionImprovement }} posição(ões)
                   } @else if (comparison.positionImprovement < 0) {
@@ -209,7 +209,7 @@
                   } @else {
                     = Manteve a posição
                   }
-                  · Diferença de pontos: {{ comparison.pointsDifference! > 0 ? '+' : '' }}{{ comparison.pointsDifference }}
+                  · Diferença de pontos: {{ comparison.pointsDifference > 0 ? '+' : '' }}{{ comparison.pointsDifference }}
                 </p>
               } @else if (comparisonOlderChampionshipId !== null && comparisonNewerChampionshipId !== null) {
                 <p role="status">Seleciona épocas diferentes e da mesma modalidade. Não é possível comparar resultados incompatíveis.</p>
