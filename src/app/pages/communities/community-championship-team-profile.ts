@@ -1,6 +1,7 @@
 import {
   CommunityChampionship, CommunityChampionshipHonours,
-  CommunityChampionshipTeams, ChampionshipCompetitionTitle, ChampionshipHistoricalTitle
+  CommunityChampionshipTeams, ChampionshipCompetitionTitle, ChampionshipHistoricalTitle,
+  CommunityPermanentTeams
 } from '../../services/community-championships.service';
 
 export interface ChampionshipTeamSeason {
@@ -33,10 +34,12 @@ export function championshipTeamProfile(
   permanentTeamId: number,
   honours: CommunityChampionshipHonours,
   championships: CommunityChampionship[],
-  registries: Record<number, CommunityChampionshipTeams>
+  registries: Record<number, CommunityChampionshipTeams>,
+  permanentTeams: CommunityPermanentTeams | null
 ): ChampionshipTeamProfile | null {
   const team = honours.teamHonours.find(item => item.permanentTeamId === permanentTeamId);
-  if (!team) return null;
+  const registered = permanentTeams?.teams.find(item => item.id === permanentTeamId);
+  if (!registered) return null;
 
   const seasons: ChampionshipTeamSeason[] = [];
   for (const championship of championships) {
@@ -64,10 +67,10 @@ export function championshipTeamProfile(
 
   return {
     id: team.permanentTeamId,
-    name: team.name,
-    championships: team.titles,
-    leagues: team.leagues,
-    cups: team.cups,
+    name: registered.name,
+    championships: team?.titles ?? 0,
+    leagues: team?.leagues ?? 0,
+    cups: team?.cups ?? 0,
     seasons,
     seasonTitles: honours.titles.filter(item =>
       item.entryType === 'TEAM' && item.permanentTeamId === permanentTeamId),
