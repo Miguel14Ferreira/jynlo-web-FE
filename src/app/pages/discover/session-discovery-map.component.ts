@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnChanges } from '@angular/core';
+import { AfterViewInit, Component, HostListener, Input, OnChanges } from '@angular/core';
 import { SessionSummary } from '../model/session-summary';
 
 interface Tile { key: string; url: string; left: number; top: number; }
@@ -66,7 +66,7 @@ type MapArea = 'mainland' | 'azores' | 'madeira';
     .jynlo-session-map-selected a{white-space:nowrap;color:#3ce5d2;font-weight:800}
   `]
 })
-export class SessionDiscoveryMapComponent implements OnChanges {
+export class SessionDiscoveryMapComponent implements OnChanges, AfterViewInit {
   @Input() sessions: SessionSummary[] = [];
   tiles: Tile[] = [];
   pins: MapPin[] = [];
@@ -76,6 +76,8 @@ export class SessionDiscoveryMapComponent implements OnChanges {
   private width = 850;
   private readonly height = 420;
   private drag: { x: number; y: number; lat: number; lon: number } | null = null;
+
+  ngAfterViewInit(): void { this.update(); }
 
   ngOnChanges(): void {
     if (this.selected && !this.sessions.some(s => s.id === this.selected?.id)) this.selected = null;
