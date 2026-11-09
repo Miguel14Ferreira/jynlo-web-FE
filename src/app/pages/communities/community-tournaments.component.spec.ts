@@ -26,6 +26,29 @@ describe('Community tournaments management', () => {
     championTied: false
   };
 
+  it('translates championship creation actions, fields and placeholders in PT/EN', () => {
+    const previous = localStorage.getItem('d24-language');
+    try {
+      localStorage.setItem('d24-language', 'pt');
+      expect(t('communities.championshipUi.openForm')).toBe('Criar campeonato');
+      expect(t('communities.championshipUi.save')).toBe('Guardar campeonato');
+      expect(t('communities.championshipUi.name')).toBe('Nome do campeonato');
+      expect(t('communities.championshipUi.season')).toBe('Época');
+      expect(t('communities.championshipUi.sport')).toBe('Modalidade');
+
+      localStorage.setItem('d24-language', 'en');
+      expect(t('communities.championshipUi.openForm')).toBe('Create championship');
+      expect(t('communities.championshipUi.save')).toBe('Save championship');
+      expect(t('communities.championshipUi.name')).toBe('Championship name');
+      expect(t('communities.championshipUi.season')).toBe('Season');
+      expect(t('communities.championshipUi.sport')).toBe('Sport');
+      expect(t('communities.championshipUi.namePlaceholder')).toContain('Community Championship');
+    } finally {
+      if (previous === null) localStorage.removeItem('d24-language');
+      else localStorage.setItem('d24-language', previous);
+    }
+  });
+
   beforeEach(() => {
     api = jasmine.createSpyObj<CommunityTournamentsService>('CommunityTournamentsService', [
       'list', 'create', 'participants', 'join', 'leave', 'confirm', 'removeParticipant',
