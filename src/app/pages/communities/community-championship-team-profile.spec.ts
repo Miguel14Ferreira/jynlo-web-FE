@@ -77,6 +77,46 @@ describe('championshipTeamProfile', () => {
     expect(ranked?.seasons[1].points).toBeNull();
   });
 
+  it('compares only confirmed seasons within the same sport and ignores unfinished rankings', () => {
+    const four = season(10, '2023/24', '2024-06-30T00:00:00Z');
+    const five = season(11, '2024/25', '2025-06-30T00:00:00Z');
+    const open = season(12, '2025/26', null);
+    const padel = { ...season(13, '2024/25', '2025-07-01T00:00:00Z'), sport: 'Padel' };
+    const mapped: Record<number, CommunityChampionshipTeams> = {};
+    for (const s of [four, five, open, padel]) {
+      mapped[s.id] = {
+        championshipId: s.id,
+        teams: [{ id: s.id + 100, name: 'Águias FC', permanentTeamId: 90 }],
+        competitionTeams: []
+      };
+    }
+    const rank = (id: number, index: number, points: number) => ({
+      championshipId: id, fullyScoredCompetitions: 1,
+      winnerOnlyCompetitions: 0, pendingCompetitions: 0,
+      standings: Array.from({ length: index + 1 }, (_, k) => ({
+        entryType: 'TEAM' as const,
+        participantId: k === index ? id + 100 : k + 1000,
+        name: k === index ? 'Águias FC' : 'Rival',
+        points: k === index ? points : 50 - k,
+        victories: 1, awardedCompetitions: 1
+      }))
+    });
+    const profile = championshipTeamProfile(90, honours, [four, five, open, padel],
+      mapped, registry, {
+        10: rank(10, 2, 20), 11: rank(11, 0, 28),
+        12: rank(12, 3, 5), 13: rank(13, 0, 11)
+      });
+    const seasons = profile?.seasons ?? [];
+    const latest = seasons.find(s => s.championshipId === 11);
+    expect(latest?.position).toBe(1);
+    expect(latest?.previousPosition).toBe(3);
+    expect(latest?.positionChange).toBe(2);
+    expect(latest?.previousPoints).toBe(20);
+    expect(seasons.find(s => s.championshipId === 10)?.positionChange).toBeNull();
+    expect(seasons.find(s => s.championshipId === 13)?.positionChange).toBeNull();
+    expect(seasons.find(s => s.championshipId === 12)?.positionChange).toBeNull();
+  });
+
   it('shows registered teams with no trophies and no guessed participation', () => {
     const profile = championshipTeamProfile(91, honours, seasons, teams, registry);
     expect(profile?.championships).toBe(0);
