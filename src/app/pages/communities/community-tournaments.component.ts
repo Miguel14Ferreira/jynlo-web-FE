@@ -48,6 +48,30 @@ export class CommunityTournamentsComponent implements OnChanges {
   championships: CommunityChampionship[] = [];
   championshipAggregateStandings: Record<number, CommunityChampionshipStandings> = {};
   championshipTeamRegistries: Record<number, CommunityChampionshipTeams> = {};
+  closeChampionship(championship: CommunityChampionship): void {
+    if (!this.canManage || this.championshipBusy || championship.closedAt) return;
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipBusy = true;
+    this.championshipError = '';
+    this.championshipsApi.close(communityId, championship.id).subscribe({
+      next: result => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championships = this.championships.map(item => item.id === result.id ? result : item);
+        this.championshipBusy = false;
+        this.loadChampionshipStandings(result.id);
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipBusy = false;
+        this.championshipError =
+          'Não foi possível encerrar: verifica as provas, equipas associadas e empates no topo.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
   championshipTeamDrafts: Record<number, string> = {};
 
   loadChampionshipTeams(championshipId: number): void {
@@ -69,7 +93,8 @@ export class CommunityTournamentsComponent implements OnChanges {
 
   createChampionshipTeam(championshipId: number): void {
     const name = (this.championshipTeamDrafts[championshipId] || '').trim();
-    if (!this.canManage || this.championshipBusy || !name || name.length > 100) return;
+    if (!this.canManage || this.championshipBusy || !name || name.length > 100
+        || this.championships.some(item => item.id === championshipId && !!item.closedAt)) return;
     const communityId = this.community.id;
     const revision = this.championshipRevision;
     this.championshipBusy = true;
@@ -92,7 +117,8 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   linkChampionshipTeam(championshipId: number, tournamentTeamId: number, targetId: number): void {
-    if (!this.canManage || this.championshipBusy || !Number.isInteger(targetId) || targetId <= 0) return;
+    if (!this.canManage || this.championshipBusy || !Number.isInteger(targetId) || targetId <= 0
+        || this.championships.some(item => item.id === championshipId && !!item.closedAt)) return;
     const communityId = this.community.id;
     const revision = this.championshipRevision;
     this.championshipBusy = true;
