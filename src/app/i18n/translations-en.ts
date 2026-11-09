@@ -4089,7 +4089,7 @@ export const EN: Record<string, string> = {
   'feedback.communities.competitionSettingsError': 'We could not save the competition settings.',
   'feedback.communities.roundRequired': 'Enter a name, date and at least one participant for the round.',
   'feedback.communities.roundSaveError': 'We could not save the round.',
-  'feedback.communities.roundConflict': 'We could not save the round because participant data conflicts with existing records. Refresh the community and try again.',
+  'feedback.communities.roundConflict': 'We could not save the round because its details conflict with the current community or competition data. Refresh the page, check the season and participants, then try again.',
   'feedback.communities.roundSportRequired': 'Choose the sport for this round.',
   'feedback.communities.raceInvalidMetrics': 'Check unique finishing positions and positive times with up to 3 decimal places.',
   'feedback.communities.roundDeleteError': 'We could not delete the round.',
