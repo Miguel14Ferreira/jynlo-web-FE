@@ -74,6 +74,8 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
               @if (person !== calls.room?.localParticipant) {
                 <app-call-participant-tile [participant]="person" [label]="participantLabel(person)"
                   [audioOnly]="true" [volume]="volumeFor(person.identity)"
+                  [microphoneVolume]="volumeFor(person.identity)"
+                  [screenShareVolume]="screenVolumeFor(person.identity)"
                   [audioOutputDeviceId]="(calls.selectedDevices$ | async)?.audiooutput"/>
               }
             }
@@ -159,19 +161,54 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                     }
                   </div>
                   @if (focusedPresentation; as presenter) {
-                    <div class="connect-presentation-stage" [attr.aria-label]="'calls.sharedScreens' | t">
+                    <div class="connect-presentation-stage" [class.is-zoomed]="presentationZoomed"
+                      [attr.aria-label]="'calls.sharedScreens' | t">
                       <app-call-participant-tile class="connect-presentation-tile"
                         [participant]="presenter" [presentation]="true"
                         [label]="participantLabel(presenter) + ' · ' + appTranslateLabel('calls.screen')"
                         [local]="presenter === calls.room?.localParticipant">
                       </app-call-participant-tile>
+                      <button type="button" class="connect-presentation-zoom-hit"
+                        [attr.aria-label]="(presentationZoomed ? 'calls.restoreSharedScreen' : 'calls.enlargeSharedScreen') | t"
+                        [attr.aria-pressed]="presentationZoomed"
+                        (click)="togglePresentationZoom()"
+                        (keydown.escape)="presentationZoomed=false; $event.stopPropagation()">
+                        <span aria-hidden="true">{{ presentationZoomed ? '↙' : '⤢' }}</span>
+                        {{ (presentationZoomed ? 'calls.restoreSharedScreen' : 'calls.enlargeSharedScreen') | t }}
+                      </button>
                     </div>
                   }
+                  <div class="connect-share-audio" [attr.aria-label]="'calls.shareAudioMixer' | t">
+                    @for (person of participants; track person.identity) {
+                      @if (person !== calls.room?.localParticipant) {
+                        <label>
+                          {{ participantLabel(person) }} · {{ 'calls.microphoneVolume' | t }}
+                          <input type="range" min="0" max="100" step="5"
+                            [value]="volumeFor(person.identity) * 100"
+                            (input)="setVolume(person.identity,$any($event.target).value)"
+                            [attr.aria-label]="('calls.microphoneVolume' | t) + ' · ' + participantLabel(person)">
+                          <strong>{{ volumeFor(person.identity) * 100 | number:'1.0-0' }}%</strong>
+                        </label>
+                        @if (personHasScreenShare(person)) {
+                          <label>
+                            {{ participantLabel(person) }} · {{ 'calls.sharedAudioVolume' | t }}
+                            <input type="range" min="0" max="100" step="5"
+                              [value]="screenVolumeFor(person.identity) * 100"
+                              (input)="setScreenVolume(person.identity,$any($event.target).value)"
+                              [attr.aria-label]="('calls.sharedAudioVolume' | t) + ' · ' + participantLabel(person)">
+                            <strong>{{ screenVolumeFor(person.identity) * 100 | number:'1.0-0' }}%</strong>
+                          </label>
+                        }
+                      }
+                    }
+                  </div>
                   <div class="connect-camera-strip" [attr.aria-label]="'calls.callParticipants' | t">
                     @for (person of participants; track person.identity) {
                       <app-call-participant-tile [participant]="person"
                         [label]="participantLabel(person)" [local]="person === calls.room?.localParticipant"
                         [volume]="volumeFor(person.identity)"
+                        [microphoneVolume]="volumeFor(person.identity)"
+                        [screenShareVolume]="screenVolumeFor(person.identity)"
                         [audioOutputDeviceId]="(calls.selectedDevices$ | async)?.audiooutput">
                       </app-call-participant-tile>
                     }
@@ -673,6 +710,21 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
     .connect-self-share-tile{display:block;height:clamp(95px,12vh,165px);width:min(320px,100%);align-self:flex-start}
     .connect-self-share-tile::ng-deep .connect-tile{min-height:0}
     @media(max-width:600px){.connect-self-share-heading span{display:none}.connect-self-share-tile{height:105px}}
+    .connect-presentation-stage{position:relative}
+    .connect-presentation-zoom-hit{position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:7px;
+      color:#eafff6;background:#0b2737db;border:1px solid #51998b;border-radius:11px;padding:9px 12px;
+      font:inherit;font-size:.77rem;cursor:zoom-in;z-index:2;box-shadow:0 4px 16px #001a21a8}
+    .connect-presentation-zoom-hit:hover{background:#1d5b5e}
+    .connect-presentation-zoom-hit:focus-visible{outline:3px solid #a0ffe6;outline-offset:2px}
+    .connect-presentation-stage.is-zoomed{position:fixed;inset:max(10px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px));
+      z-index:9000;border:1px solid #56a69a;border-radius:17px;background:#081a23;box-shadow:0 0 0 100vmax #000c}
+    .connect-presentation-stage.is-zoomed .connect-presentation-zoom-hit{cursor:zoom-out}
+    .connect-presentation-tile{min-height:0}
+    .connect-share-audio{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:7px 0}
+    .connect-share-audio label{display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+      font-size:.76rem;color:#d9f8f0}
+    .connect-share-audio input{accent-color:#56e8c0;width:clamp(80px,10vw,145px)}
+    .connect-share-audio strong{color:#b9e9dc;font-variant-numeric:tabular-nums;font-weight:650}
     .connect-presentation-stage{flex:1;min-height:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:10px;overflow:auto}
     .connect-presentation-tile{min-height:0;min-width:0;height:100%;width:100%}
     .connect-camera-strip{flex:0 0 auto;display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;min-height:130px;padding:2px}
@@ -762,6 +814,15 @@ export class DirectCallOverlayComponent implements OnDestroy {
   minimized = false;
   focusedPresentationIdentity: string | null = null;
   showOwnSharePreview = true;
+  presentationZoomed = false;
+  private screenVolumes: Record<string, number> = {};
+  screenVolumeFor(identity: string): number { return this.screenVolumes[identity] ?? 1; }
+  setScreenVolume(identity: string, percent: number | string): void {
+    const value = Number(percent);
+    if (Number.isFinite(value)) this.screenVolumes[identity] = Math.max(0, Math.min(1, value / 100));
+  }
+  togglePresentationZoom(): void { this.presentationZoomed = !this.presentationZoomed; }
+
   appTranslateLabel(key: string): string { return appTranslate(key); }
   get presentingParticipants(): (LocalParticipant | RemoteParticipant)[] {
     return this.participants.filter(person => this.personHasScreenShare(person));
@@ -776,7 +837,9 @@ export class DirectCallOverlayComponent implements OnDestroy {
     const local = this.calls.room?.localParticipant;
     return !!local && this.personHasScreenShare(local);
   }
-  focusPresentation(identity: string): void { this.focusedPresentationIdentity = identity; }
+  focusPresentation(identity: string): void {
+    this.focusedPresentationIdentity = identity;
+  }
 
   private volumes: Record<string,number> = {};
 
