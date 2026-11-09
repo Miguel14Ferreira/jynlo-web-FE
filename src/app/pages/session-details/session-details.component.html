@@ -1394,6 +1394,20 @@
                             <span class="session-player-card__name">{{ '@' + participant.username }}</span>
                             <span class="session-player-card__badge">{{ 'guestAdmin.memberBadge' | t }}</span>
                                                       </a>
+                            @if (canContactSessionMember(participant.username)) {
+                              <div class="session-player-card__contact-actions" role="group"
+                                   [attr.aria-label]="'Contactar ' + participant.username">
+                                <button type="button" class="jynlo-action jynlo-action--neutral"
+                                  (click)="contactSessionMember(participant.username)">
+                                  <span aria-hidden="true">💬</span> Mensagem
+                                </button>
+                                <button type="button" class="jynlo-action jynlo-action--neutral"
+                                  [disabled]="!sessionCallingAvailable"
+                                  (click)="callSessionMember(participant.username)">
+                                  <span aria-hidden="true">📞</span> Ligar
+                                </button>
+                              </div>
+                            }
                             @if (canCancelRegisteredPresence(participant)) {
                               <div class="session-player-card__guest-actions">
                                 @if (pendingRemovalId === participant.id) {
@@ -1459,6 +1473,20 @@
                             <span class="session-player-card__name">{{ '@' + participant.username }}</span>
                             <span class="session-player-card__badge">{{ 'guestAdmin.memberBadge' | t }}</span>
                                                       </a>
+                            @if (canContactSessionMember(participant.username)) {
+                              <div class="session-player-card__contact-actions" role="group"
+                                   [attr.aria-label]="'Contactar ' + participant.username">
+                                <button type="button" class="jynlo-action jynlo-action--neutral"
+                                  (click)="contactSessionMember(participant.username)">
+                                  <span aria-hidden="true">💬</span> Mensagem
+                                </button>
+                                <button type="button" class="jynlo-action jynlo-action--neutral"
+                                  [disabled]="!sessionCallingAvailable"
+                                  (click)="callSessionMember(participant.username)">
+                                  <span aria-hidden="true">📞</span> Ligar
+                                </button>
+                              </div>
+                            }
                             @if (canCancelRegisteredPresence(participant)) {
                               <div class="session-player-card__guest-actions">
                                 @if (pendingRemovalId === participant.id) {
@@ -1524,6 +1552,20 @@
                             <span class="session-player-card__name">{{ '@' + participant.username }}</span>
                             <span class="session-player-card__badge">{{ 'guestAdmin.memberBadge' | t }}</span>
                                                       </a>
+                            @if (canContactSessionMember(participant.username)) {
+                              <div class="session-player-card__contact-actions" role="group"
+                                   [attr.aria-label]="'Contactar ' + participant.username">
+                                <button type="button" class="jynlo-action jynlo-action--neutral"
+                                  (click)="contactSessionMember(participant.username)">
+                                  <span aria-hidden="true">💬</span> Mensagem
+                                </button>
+                                <button type="button" class="jynlo-action jynlo-action--neutral"
+                                  [disabled]="!sessionCallingAvailable"
+                                  (click)="callSessionMember(participant.username)">
+                                  <span aria-hidden="true">📞</span> Ligar
+                                </button>
+                              </div>
+                            }
                             @if (canCancelRegisteredPresence(participant)) {
                               <div class="session-player-card__guest-actions">
                                 @if (pendingRemovalId === participant.id) {
