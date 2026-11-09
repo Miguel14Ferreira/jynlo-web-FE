@@ -293,6 +293,26 @@
                 [disabled]="championshipBusy || !championshipTeamDrafts[championship.id]"
                 (click)="createChampionshipTeam(championship.id)">Criar equipa</button>
             }
+            @if (canManage && registry.teams.length && permanentTeamRegistry?.teams?.length) {
+              <h6>Identidade permanente entre épocas</h6>
+              @for (seasonTeam of registry.teams; track seasonTeam.id) {
+                <div>
+                  <strong>{{ seasonTeam.name }}</strong>
+                  <select #activePermanentChoice [value]="seasonTeam.permanentTeamId || ''"
+                    [attr.aria-label]="'Identidade permanente de ' + seasonTeam.name">
+                    <option value="">Por associar</option>
+                    @for (permanent of permanentTeamRegistry!.teams; track permanent.id) {
+                      <option [value]="permanent.id">{{ permanent.name }}</option>
+                    }
+                  </select>
+                  <button type="button" class="t-btn t-btn-secondary"
+                    [disabled]="championshipBusy || !activePermanentChoice.value"
+                    (click)="linkPermanentTeam(championship.id, seasonTeam.id, +activePermanentChoice.value)">
+                    Associar
+                  </button>
+                </div>
+              }
+            }
             @for (team of registry.competitionTeams; track team.id) {
               <div>
                 <strong>{{ team.name }}</strong> · {{ team.tournamentName }}
