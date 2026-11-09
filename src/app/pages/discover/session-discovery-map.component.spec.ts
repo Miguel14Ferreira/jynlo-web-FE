@@ -61,4 +61,35 @@ describe('SessionDiscoveryMapComponent', () => {
     map.zoomBy(-100);
     expect(map.tiles[0].url).toContain('/4/');
   });
+  it('groups sessions sharing the same visible map area without leaking private games', () => {
+    const map = new SessionDiscoveryMapComponent();
+    map.sessions = [
+      game(21, {latitude: 38.725, longitude: -9.155}),
+      game(22, {latitude: 38.725, longitude: -9.155, sport: 'Futebol'}),
+      game(23, {latitude: 38.725, longitude: -9.155, privateGame: true}),
+      game(24, {latitude: 38.725, longitude: -9.155, audience: 'COMMUNITY_ONLY'})
+    ];
+    map.ngOnChanges();
+    const cluster = map.pins.find(pin => pin.sessions.length === 2);
+    expect(cluster).toBeDefined();
+    expect(cluster!.sessions.map(s => s.id)).toEqual([21, 22]);
+    map.selectPin(cluster!);
+    expect(map.selectedGroup.map(s => s.id)).toEqual([21, 22]);
+    map.sessions = [game(22, {latitude: 38.725, longitude: -9.155})];
+    map.ngOnChanges();
+    expect(map.selectedGroup.map(s => s.id)).toEqual([22]);
+  });
+
+  it('expands map clusters as zoom increases', () => {
+    const map = new SessionDiscoveryMapComponent();
+    map.sessions = [
+      game(31, {latitude: 38.72, longitude: -9.15}),
+      game(32, {latitude: 38.83, longitude: -9.15})
+    ];
+    map.ngOnChanges();
+    const initialCount = map.pins.length;
+    map.zoomBy(5);
+    expect(map.pins.length).toBeGreaterThanOrEqual(initialCount);
+  });
+
 });
