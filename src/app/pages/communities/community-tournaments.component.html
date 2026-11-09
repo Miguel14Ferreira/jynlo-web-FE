@@ -79,7 +79,10 @@
           <h6>Equipas com mais títulos</h6>
           <ol>
             @for (team of championshipHonours!.teamHonours; track team.permanentTeamId) {
-              <li><strong>{{ team.name }}</strong> · {{ team.titles }} título(s)</li>
+              <li>
+                <strong>{{ team.name }}</strong> · {{ team.titles }} Campeonato(s)
+                · {{ team.leagues }} Liga(s) · {{ team.cups }} Taça(s)
+              </li>
             }
           </ol>
         }
@@ -102,6 +105,25 @@
                 <li><strong>{{ athlete.name }}</strong> · {{ athlete.titles }} título(s)</li>
               }
             </ol>
+          }
+          <h6>Vencedores das provas</h6>
+          @if (honours.competitionTitles?.length) {
+            <ul>
+              @for (trophy of honours.competitionTitles; track trophy.championshipId + '-' + trophy.tournamentId) {
+                @if (!championshipHonoursSportFilter || trophy.sport === championshipHonoursSportFilter) {
+                  <li>
+                    <strong>{{ trophy.winnerName }}</strong> · {{ trophy.tournamentName }}
+                    · {{ trophy.format === 'LEAGUE' ? 'Liga' : 'Taça / Eliminatórias' }}
+                    · {{ trophy.seasonLabel }} · {{ trophy.sport }}
+                    @if (trophy.entryType === 'TEAM' && !trophy.permanentTeamId) {
+                      <small>Equipa ainda sem identidade permanente</small>
+                    }
+                  </li>
+                }
+              }
+            </ul>
+          } @else {
+            <p>Não existem troféus de provas arquivados. As épocas encerradas anteriormente mantêm o seu histórico original.</p>
           }
           <h6>Campeões por época</h6>
           @if (honours.titles.length) {
