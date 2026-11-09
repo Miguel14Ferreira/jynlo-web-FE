@@ -15,6 +15,7 @@ import { venueHasPortugueseCoordinates, venueDirectionsUrl, VenueTravelMode } fr
 import { venueUsableAddress } from '../../shared/venue-location';
 import { playerAvatarInitials, playerAvatarUrl } from '../../shared/player-avatar';
 import { suggestedMinimumPlayers } from '../../shared/session-minimum-players';
+import { SPORTS_CATALOG } from '../../shared/sports-catalog';
 import { SessionMessage } from '../model/session-message';
 import { ReliabilitySummary } from '../model/reliability-summary';
 import { SessionParticipant } from '../model/session-participant';
@@ -265,12 +266,14 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   sharingSession = false;
   cancelSessionConfirmOpen = false;
   cancelSessionWorking = false;
+  readonly editableSports = SPORTS_CATALOG;
+
   detailsEditing = false;
   detailsSaving = false;
   detailsError = '';
   detailsSuccess = '';
   detailsDraft = {
-    gameDate: '', maxParticipants: 2, minParticipants: 2,
+    sport: '', gameDate: '', maxParticipants: 2, minParticipants: 2,
     priceAmount: 0, city: '', address: '', meetingPointInstructions: ''
   };
 
@@ -279,7 +282,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     const value = new Date(this.session.gameDate);
     const local = new Date(value.getTime() - value.getTimezoneOffset() * 60000);
     this.detailsDraft = {
-      gameDate: local.toISOString().slice(0, 16),
+      sport: this.session.sport, gameDate: local.toISOString().slice(0, 16),
       maxParticipants: this.session.maxParticipants,
       minParticipants: this.minimumToPlay(),
       priceAmount: this.session.priceAmount ?? 0,
@@ -312,7 +315,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         || d.maxParticipants < this.session.participantCount
         || !Number.isFinite(d.priceAmount) || d.priceAmount < 0
         || Math.abs(Math.round(d.priceAmount * 100) - d.priceAmount * 100) > 0.000001
-        || !d.city.trim() || !d.address.trim()) {
+        || !this.editableSports.includes(d.sport) || !d.city.trim() || !d.address.trim()) {
       this.detailsError = t('sessionDetail.detailsInvalid');
       return;
     }
@@ -321,7 +324,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     this.detailsError = '';
     this.detailsSuccess = '';
     this.sessionService.updateDetails(id, {
-      gameDate: kickoff.toISOString(),
+      sport: d.sport, gameDate: kickoff.toISOString(),
       maxParticipants: d.maxParticipants,
       minParticipants: d.minParticipants,
       priceAmount: d.priceAmount,
