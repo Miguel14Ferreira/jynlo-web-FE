@@ -3,6 +3,26 @@ import { AdminPlayersComponent } from './admin-players.component';
 import { AdminPlayer, AdminPlayersService } from '../../services/admin-players.service';
 import { AuthenticationService } from '../../services/authethication.service';
 
+describe('AdminPlayersComponent paginated list', () => {
+  it('loads 10 players without requiring a name and clears back to the full list', () => {
+    const service = jasmine.createSpyObj<AdminPlayersService>('AdminPlayersService', ['search']);
+    const auth = jasmine.createSpyObj<AuthenticationService>('AuthenticationService', ['hasAnyRole']);
+    const player: AdminPlayer = { id: 1, username: 'joao', fullName: 'João',
+      nickname: null, role: 'ROLE_USER', enabled: true, notLocked: true };
+    service.search.and.returnValue(of({ players: [player], page: 0, hasMore: false }));
+    const component = new AdminPlayersComponent(service, auth);
+    component.ngOnInit();
+    expect(service.search).toHaveBeenCalledWith('', 0);
+    expect(component.players).toEqual([player]);
+    component.name = 'ana';
+    component.search();
+    expect(service.search).toHaveBeenCalledWith('ana', 0);
+    component.clear();
+    expect(service.search).toHaveBeenCalledWith('', 0);
+    component.ngOnDestroy();
+  });
+});
+
 describe('AdminPlayersComponent role changes', () => {
   let component: AdminPlayersComponent;
   let service: jasmine.SpyObj<AdminPlayersService>;
