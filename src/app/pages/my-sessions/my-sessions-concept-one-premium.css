@@ -134,3 +134,26 @@
   .jynlo-sessions-premium .history-filters {grid-template-columns:minmax(0,1fr)}
   .jynlo-sessions-premium .history-filter.search {grid-column:auto}
 }
+
+
+/* Empty upcoming sessions: keep the primary and history actions visually distinct. */
+.jynlo-sessions-premium .empty-session-actions {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:14px;
+}
+.jynlo-sessions-premium .empty-session-actions > .jynlo-action {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  margin:0;
+  min-height:42px;
+}
+@media (max-width:420px) {
+  .jynlo-sessions-premium .empty-session-actions > .jynlo-action {
+    flex:1 1 140px;
+  }
+}
