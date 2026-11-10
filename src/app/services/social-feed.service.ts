@@ -42,6 +42,15 @@ export class SocialFeedService {
     );
   }
 
+  /** Creates or retrieves a persistent post linked to a public attendance activity. */
+  ensureAttendancePost(sessionId: number, attendeeUsername: string): Observable<number> {
+    return this.http.post<number>(
+      this.baseUrl + '/activities/attendance/' + sessionId + '/'
+        + encodeURIComponent(attendeeUsername) + '/post',
+      null
+    );
+  }
+
   likePost(postId: number): Observable<PostLikeStatus> {
     return this.http.post<PostLikeStatus>(
       this.baseUrl + '/posts/' + postId + '/likes',
