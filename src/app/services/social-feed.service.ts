@@ -56,6 +56,10 @@ export class SocialFeedService {
     return this.http.get<FollowProfile[]>(this.baseUrl + '/posts/' + postId + '/likers');
   }
 
+  setLikersHidden(postId: number, hidden: boolean): Observable<boolean> {
+    return this.http.put<boolean>(this.baseUrl + '/posts/' + postId + '/likers/privacy', { hidden });
+  }
+
   likePost(postId: number): Observable<PostLikeStatus> {
     return this.http.post<PostLikeStatus>(
       this.baseUrl + '/posts/' + postId + '/likes',
