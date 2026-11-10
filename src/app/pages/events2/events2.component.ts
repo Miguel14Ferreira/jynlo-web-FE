@@ -1086,6 +1086,18 @@ export class Events2Component implements OnInit, OnDestroy {
     if (this.sportSelected && chosen !== SEARCH_ALL_DISTRICTS && chosen) this.loadVenues();
   }
 
+  private manualLocationTextRevision = 0;
+
+  onManualCityChanged(value: string): void {
+    ++this.manualLocationTextRevision;
+    this.onCityChanged(value);
+  }
+
+  onManualAddressChanged(value: string): void {
+    ++this.manualLocationTextRevision;
+    this.address = value;
+  }
+
   onCityChanged(value: string): void {
     this.city = value;
     if (this.sportSelected && this.venueDistrict && this.selectedVenueId === null) this.queueVenueLookup();
@@ -1625,6 +1637,7 @@ export class Events2Component implements OnInit, OnDestroy {
     source: 'gps' | 'map'
   ): void {
     const requestId = this.gpsRequestId;
+    const textRevision = this.manualLocationTextRevision;
     const startingCity = this.city;
     const startingAddress = this.address;
     this.gpsAddressLoading = true;
@@ -1637,7 +1650,8 @@ export class Events2Component implements OnInit, OnDestroy {
     ).subscribe({
       next: value => {
         if (this.gpsRequestId !== requestId || this.locationSource !== source
-            || this.latitude !== latitude || this.longitude !== longitude) return;
+            || this.latitude !== latitude || this.longitude !== longitude
+            || this.manualLocationTextRevision !== textRevision) return;
         const city = value.city?.trim().slice(0,120) || '';
         const address = value.address?.trim().slice(0,250) || '';
         if (city && this.city === startingCity) {
