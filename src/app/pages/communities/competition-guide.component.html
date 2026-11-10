@@ -4,17 +4,26 @@
     <h4>{{ 'communities.tournaments.overview.guideTitle' | t }}</h4>
     <p>{{ 'communities.tournaments.overview.guideDescription' | t }}</p>
   </div>
+  <label class="guide-sport-picker">
+    <span>{{ 'communities.competitionGuide.chooseSport' | t }}</span>
+    <select [value]="selectedSport" (change)="selectedSport = $any($event.target).value">
+      @for (option of sports; track option) {
+        <option [value]="option">{{ option }}</option>
+      }
+    </select>
+    <small>{{ 'communities.competitionGuide.supportNote' | t }}</small>
+  </label>
   <div class="guide-options">
     <article class="guide-option">
       <div class="guide-option-top">
         <span aria-hidden="true">👤</span><strong>{{ 'communities.tournaments.overview.individualTitle' | t }}</strong>
-        <span class="guide-tag">{{ 'communities.tournaments.overview.available' | t }}</span>
+        <span class="guide-tag" [class.guide-tag-pending]="!individualSupported">{{ (individualSupported ? 'communities.tournaments.overview.available' : 'communities.competitionGuide.notAvailable') | t }}</span>
       </div>
       <p>{{ 'communities.tournaments.overview.individualDescription' | t }}</p>
-      <p class="guide-example">{{ 'communities.tournaments.overview.individualExample' | t }}</p>
-      @if (canManage && individualEnabled) {
+      <p class="guide-example">{{ 'communities.competitionGuide.recommended' | t }}: {{ formatKey(capabilities.individual) | t }}</p>
+      @if (canManage && individualSupported) {
         <button type="button" class="t-btn t-btn-primary"
-          (click)="individualSelected.emit()">{{ 'communities.tournaments.overview.createIndividual' | t }}</button>
+          (click)="individualSelected.emit(selectedSport)">{{ 'communities.tournaments.overview.createIndividual' | t }}</button>
       } @else if (canManage) {
         <p class="guide-coming">{{ 'communities.tournaments.overview.individualDisabled' | t }}</p>
       }
@@ -22,21 +31,21 @@
     <article class="guide-option">
       <div class="guide-option-top">
         <span aria-hidden="true">👥</span><strong>{{ 'communities.tournaments.overview.teamsTitle' | t }}</strong>
-        <span class="guide-tag">{{ 'communities.tournaments.overview.teamFormats' | t }}</span>
+        <span class="guide-tag" [class.guide-tag-pending]="!teamSupported">{{ (teamSupported ? 'communities.tournaments.overview.available' : 'communities.competitionGuide.notAvailable') | t }}</span>
       </div>
       <p>{{ 'communities.tournaments.overview.teamsDescription' | t }}</p>
-      <p class="guide-example">{{ 'communities.tournaments.overview.teamsExample' | t }}</p>
+      <p class="guide-example">{{ 'communities.competitionGuide.recommended' | t }}: {{ formatKey(capabilities.team) | t }}</p>
       <p>{{ 'communities.tournaments.overview.teamsHelp' | t }}</p>
-      @if (canManage && teamEnabled) {
-        <button type="button" class="t-btn t-btn-primary" (click)="teamSelected.emit()">{{ 'communities.tournaments.overview.createTeams' | t }}</button>
+      @if (canManage && teamSupported) {
+        <button type="button" class="t-btn t-btn-primary" (click)="teamSelected.emit(selectedSport)">{{ 'communities.tournaments.overview.createTeams' | t }}</button>
       } @else if (canManage) {
         <p class="guide-coming">{{ 'communities.tournaments.overview.teamsDisabled' | t }}</p>
       }
     </article>
   </div>
   <div class="guide-community-note" role="note">
-    <strong>{{ 'communities.tournaments.overview.weeklyTitle' | t }}</strong>
-    <p>{{ 'communities.tournaments.overview.weeklyDescription' | t }}</p>
+    <strong>{{ 'communities.competitionGuide.rulesNoteTitle' | t }}</strong>
+    <p>{{ 'communities.competitionGuide.rulesNote' | t }}</p>
   </div>
   <button type="button" class="t-btn t-btn-secondary" (click)="closeRequested.emit()">{{ 'communities.tournaments.overview.closeGuide' | t }}</button>
 </section>
