@@ -618,9 +618,12 @@
                 Confirmo que pretendo encerrar esta época definitivamente.
               </label>
               <button type="button" class="t-btn t-btn-secondary"
-                [disabled]="championshipBusy || !championshipAggregateStandings[championship.id] || !championshipCloseConfirmed[championship.id]"
+                [disabled]="championshipBusy || !championshipAggregateStandings[championship.id] || !championshipCloseConfirmed[championship.id] || (championshipOwnedEvents[championship.id] || []).length > 0"
                 (click)="closeChampionship(championship)">Encerrar época e guardar campeão</button>
               <small>O fecho é definitivo. Todas as provas devem estar concluídas e o primeiro lugar desempatado.</small>
+              @if ((championshipOwnedEvents[championship.id] || []).length > 0) {
+                <p class="team-honours-muted" role="note">Esta época ainda tem provas internas cujo apuramento final não está implementado. Podes registar jogos de liga de Futebol e Futsal, mas o fecho só ficará disponível quando essas provas tiverem classificação final verificada.</p>
+              }
             }
           </div>
         </div>
