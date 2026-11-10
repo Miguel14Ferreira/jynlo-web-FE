@@ -1050,13 +1050,7 @@
                     <span class="section-kicker">{{ 'communities.sessionsKicker' | t }}</span>
                     <h3>{{ 'communities.sessionsTitle' | t }}</h3>
                   </div>
-                  <div class="row-actions">
-                    <button type="button" class="jynlo-action jynlo-action--neutral jynlo-action--compact"
-                      (click)="setTab('chat')">{{ 'communities.sessionsViewChat' | t }}</button>
-                    @if (hasCompetitions(selected)) {
-                      <button type="button" class="jynlo-action jynlo-action--neutral jynlo-action--compact"
-                        (click)="setTab('tournaments')">{{ 'communities.features.competitionsTab' | t }}</button>
-                    }
+                  <div class="row-actions community-session-create-action">
                     @if (selected.membersCanCreateSessions !== false || canManage()) {
                       <a class="primary-action button-link small jynlo-action jynlo-action--primary jynlo-action--compact"
                         routerLink="/menu/createEvent" [queryParams]="{ community: selected.id }">
