@@ -2430,8 +2430,14 @@ describe('SessionDetailsComponent', () => {
     expect(component.session?.joined).toBeTrue();
     expect(component.session?.waitlisted).toBeFalse();
     expect(component.session?.waitlistPosition).toBeNull();
+    expect(component.actionSuccess).toContain('promovido');
     expect(sessionService.join).not.toHaveBeenCalled();
     expect(sessionService.participants).toHaveBeenCalledWith(session.id);
+
+    // Ordinary refreshes after promotion must not replay the announcement.
+    component.actionSuccess = 'Mensagem posterior';
+    component.syncVisibleRoster();
+    expect(component.actionSuccess).toBe('Mensagem posterior');
   });
 
   it('does not poll roster details for a visitor who is neither confirmed nor waitlisted', () => {
