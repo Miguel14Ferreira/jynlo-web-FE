@@ -5330,6 +5330,7 @@ const PT: Dictionary = {
   'sessionDetail.organizerTitle': 'Preparação do jogo',
   'sessionDetail.organizerConfirmed': 'confirmados',
   'sessionDetail.organizerMissing': 'Faltam {{count}} jogadores para completar a sessão.',
+  'sessionDetail.organizerMissingOne': 'Falta 1 jogador para completar a sessão.',
   'sessionDetail.organizerReady': 'As vagas estão preenchidas.',
   'sessionDetail.organizerFull': 'A sessão está marcada como cheia. A contagem pode ainda estar a atualizar.',
   'sessionDetail.organizerFindPlayers': 'Encontrar jogadores',
