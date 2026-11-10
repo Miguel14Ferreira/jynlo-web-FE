@@ -555,10 +555,14 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   canContactSessionMember(username: string | null | undefined): boolean {
     if (!this.session || !username || !this.currentUsername
         || username.toLowerCase() === this.currentUsername.toLowerCase()
-        || !(this.session.joined || this.isCreator())
-        || !['OPEN', 'FULL'].includes(this.session.status)
-        || !this.session.gameDate || Date.parse(this.session.gameDate) <= Date.now()) return false;
-    return true;
+        || !['OPEN', 'FULL'].includes(this.session.status)) return false;
+    const kickoff = Date.parse(this.session.gameDate ?? '');
+    if (!Number.isFinite(kickoff) || Date.now() >= kickoff + 4 * 60 * 60 * 1000) return false;
+    // Creating the session alone does not grant contact rights: the backend
+    // requires two ACTIVE participation rows in the same session.
+    const confirmed = (name: string) => this.sessionParticipants.some(
+      participant => participant.username.toLowerCase() === name.toLowerCase());
+    return confirmed(this.currentUsername) && confirmed(username);
   }
 
   contactSessionMember(username: string): void {
