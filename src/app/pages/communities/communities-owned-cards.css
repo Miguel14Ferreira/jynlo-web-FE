@@ -1,105 +1,140 @@
-/* My communities use the same visual hierarchy as discovery search results. */
-.communities-page:not(.community-detail-page) .community-mine-grid {
+/* One card contract for search results and the user's communities.
+   This file loads last and replaces the old compact/list-only overrides. */
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid,
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .communities-layout > aside.community-list.community-discovery-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 235px), 1fr));
   align-items: stretch;
-  gap: .9rem;
+  align-content: start;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
 }
-.communities-page:not(.community-detail-page) .community-mine-grid > .list-heading {
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > .list-heading {
   grid-column: 1 / -1;
+  margin-bottom: 6px;
 }
-.communities-page:not(.community-detail-page) .community-mine-grid > .community-card {
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid > button.community-card,
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .communities-layout > aside.community-mine-grid > button.community-card {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
   justify-content: space-between;
-  min-width: 0;
-  min-height: 280px;
-  padding: 1rem;
-  text-align: left;
-  background: #0c2b38;
-  border: 1px solid rgba(27, 188, 194, .4);
-  border-radius: 1rem;
-  transition: border-color .15s ease, background-color .15s ease;
-}
-.communities-page:not(.community-detail-page) .community-mine-grid > .community-card:hover,
-.communities-page:not(.community-detail-page) .community-mine-grid > .community-card:focus-visible {
-  border-color: rgba(43, 219, 201, .85);
-  background: #103342;
-}
-.communities-page:not(.community-detail-page) .community-mine-grid > .community-card .community-card-main {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+  align-items: stretch;
   width: 100%;
   min-width: 0;
+  min-height: 225px;
+  height: 100%;
+  padding: 17px;
+  gap: 14px;
+  border: 1px solid rgba(37,193,202,.42);
+  border-radius: 17px;
+  background: linear-gradient(145deg,rgba(12,51,65,.98),rgba(8,34,48,.98));
+  color: #f1fffb;
+  text-align: left;
+  cursor: pointer;
 }
-.communities-page:not(.community-detail-page) .community-mine-grid > .community-card .community-avatar {
-  width: 66px;
-  height: 66px;
-  flex: 0 0 66px;
-  border-radius: .85rem;
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid > button.community-card:hover,
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card:hover {
+  border-color: rgba(43,219,201,.85);
+  background: linear-gradient(145deg,rgba(15,70,79,.98),rgba(8,40,54,.98));
 }
-.communities-page:not(.community-detail-page) .community-mine-grid > .community-card .community-card-copy {
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid > button.community-card .community-card-main {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 14px;
   min-width: 0;
-  display: grid;
-  gap: .5rem;
-  padding-top: .15rem;
+  width: 100%;
 }
-.communities-page:not(.community-detail-page) .community-mine-grid > .community-card .community-card-copy > strong {
-  color: #f2fcfb;
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid > button.community-card .community-discovery-cover {
+  display: grid;
+  place-items: center;
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+  border: 1px solid rgba(79,214,193,.29);
+  border-radius: 13px;
+  overflow: hidden;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid > button.community-card .community-card-copy {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  min-width: 0;
+  padding: 0;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid > button.community-card .community-card-copy > strong {
+  color: #effcfb;
   font-size: 1rem;
+  font-weight: 800;
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
-.communities-page:not(.community-detail-page) .community-mine-grid > .community-card .community-discovery-description {
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid > button.community-card .community-discovery-sports {
+  min-width: 0;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid > button.community-card .community-discovery-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  max-width: 100%;
   color: #c2d9df;
   font-size: .81rem;
-  line-height: 1.6;
-  overflow-wrap: anywhere;
+  line-height: 1.5;
+  white-space: normal;
 }
-.communities-page:not(.community-detail-page) .community-mine-grid > .community-card .community-discovery-card-footer {
-  width: 100%;
-  margin-top: 1.5rem;
-  padding-top: .8rem;
-  border-top: 1px solid rgba(190, 235, 235, .13);
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid > button.community-card .community-discovery-card-footer {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: .5rem;
+  flex-wrap: nowrap;
+  gap: 8px;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(91,190,187,.18);
 }
-.communities-page:not(.community-detail-page) .community-mine-grid > .community-card .community-discovery-card-link {
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid > button.community-card .community-discovery-card-link {
   margin-left: auto;
-  color: #6ee7d6;
+  font-size: .81rem;
   font-weight: 750;
+  color: #78e9d8;
   white-space: nowrap;
+  text-align: right;
 }
 .community-session-create-action { margin-left: auto; justify-content: flex-end; }
 .community-session-create-action > a { white-space: nowrap; }
-@media(max-width: 1100px) {
-  .communities-page:not(.community-detail-page) .community-mine-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media(max-width: 660px) {
+  :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+    .community-discovery-grid,
+  :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+    .communities-layout > aside.community-list.community-discovery-grid {
+    grid-template-columns: minmax(0,1fr);
   }
 }
-@media(max-width: 630px) {
-  .communities-page:not(.community-detail-page) .community-mine-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .communities-page:not(.community-detail-page) .community-mine-grid > .community-card {
-    min-height: 220px;
-  }
-}
-
-
-/* Outrank the older 104px compact-card rule on the list layout. */
-.communities-page:not(.community-detail-page) .communities-layout > .community-mine-grid > .community-card {
-  min-height: 280px;
-  align-items: stretch;
-  background: #0c2b38;
-}
-@media (max-width: 630px) {
-  .communities-page:not(.community-detail-page) .communities-layout > .community-mine-grid > .community-card {
-    min-height: 220px;
-  }
+@media(prefers-reduced-motion:reduce) {
+  :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+    .community-discovery-grid > button.community-card { transition: none; transform: none; }
 }
