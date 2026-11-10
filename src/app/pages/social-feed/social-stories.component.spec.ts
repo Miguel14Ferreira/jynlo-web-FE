@@ -62,9 +62,8 @@ describe('SocialStoriesComponent', () => {
     tick();
     const root = fixture.nativeElement as HTMLElement;
     const create = root.querySelector('.story-add-action') as HTMLButtonElement;
-    const retry = root.querySelector('.story-retry') as HTMLButtonElement;
     expect(create.classList.contains('jynlo-premium-btn--primary')).toBeTrue();
-    expect(retry.classList.contains('jynlo-premium-btn--quiet')).toBeTrue();
+    expect(root.querySelector('.story-retry')).toBeNull();
 
     create.click();
     fixture.detectChanges();
@@ -72,6 +71,23 @@ describe('SocialStoriesComponent', () => {
     expect(file.classList.contains('jynlo-premium-btn--quiet')).toBeTrue();
     expect(file.querySelector('input[type="file"]')).not.toBeNull();
     expect(root.querySelector('.story-primary.jynlo-premium-btn--primary')).not.toBeNull();
+  }));
+
+  it('only shows retry after a story request fails', fakeAsync(() => {
+    api.feed.and.returnValue(of([]));
+    api.mine.and.returnValue(of([]));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.story-retry')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.stories-empty')).not.toBeNull();
+
+    api.feed.and.returnValue(throwError(() => new Error('offline')));
+    component.reload();
+    fixture.detectChanges();
+    const retry = fixture.nativeElement.querySelector('.story-retry') as HTMLButtonElement;
+    expect(retry).not.toBeNull();
+    expect(retry.classList.contains('jynlo-premium-btn--quiet')).toBeTrue();
   }));
 
   it('hides the audience selector when personal profile is the only publication target', fakeAsync(() => {
