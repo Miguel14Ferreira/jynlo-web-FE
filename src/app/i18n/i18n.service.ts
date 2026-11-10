@@ -1809,6 +1809,8 @@ const PT: Dictionary = {
   'communities.championshipOwned.ownedCreateError': 'Não foi possível criar a prova neste campeonato.',
   'communities.championshipUi.section': 'Campeonatos da comunidade',
   'communities.championshipUi.eyebrow': 'Épocas e competições',
+  'communities.competitionGuide.championshipEngineReady': 'Há formatos de torneio disponíveis para esta modalidade. Escolhe o formato ao criar a prova.',
+  'communities.competitionGuide.championshipEnginePending': 'Esta modalidade pode ter campeonato/época, mas ainda não tem um formato de torneio com resultados validado. Não será possível criar todas as provas até existir suporte.',
   'communities.competitionGuide.chooseSport': 'Escolhe a modalidade',
   'communities.competitionGuide.supportNote': 'Mostramos apenas formatos com motor de resultados disponível. A modalidade pode ser diferente das modalidades habituais do grupo.',
   'communities.competitionGuide.notAvailable': 'Sem formato disponível',
