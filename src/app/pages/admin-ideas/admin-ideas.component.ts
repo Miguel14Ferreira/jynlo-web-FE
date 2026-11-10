@@ -43,6 +43,7 @@ export class AdminIdeasComponent implements OnInit {
   }
 
   load(): void {
+    if (this.replyingId !== null) return;
     this.loading = true;
     this.errorMessage = '';
 
@@ -69,6 +70,7 @@ export class AdminIdeasComponent implements OnInit {
   }
 
   select(idea: AdminIdea): void {
+    if (this.replyingId !== null) return;
     this.selected = idea;
     this.replyText = '';
     this.replyError = '';
@@ -117,7 +119,7 @@ export class AdminIdeasComponent implements OnInit {
   }
 
   updateStatus(idea: AdminIdea, status: IdeaStatus): void {
-    if (this.updatingId !== null || idea.status === status) {
+    if (this.updatingId !== null || this.replyingId !== null || idea.status === status) {
       return;
     }
 
