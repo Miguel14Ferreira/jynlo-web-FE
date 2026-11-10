@@ -6,9 +6,11 @@
       <p>{{ 'stories.subtitle' | t }}</p>
     </div>
     <div class="story-header-actions">
-      <button type="button" class="story-retry jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small" (click)="retry()" [disabled]="loading || mineLoading">
-        {{ 'stories.retry' | t }}
-      </button>
+      @if ((error || mineError) && !loading && !mineLoading) {
+        <button type="button" class="story-retry jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small" (click)="retry()">
+          {{ 'stories.retry' | t }}
+        </button>
+      }
     <button type="button" class="story-add-action jynlo-action jynlo-action--accent jynlo-premium-btn jynlo-premium-btn--primary" (click)="composerOpen = !composerOpen">
       <span aria-hidden="true">+</span> {{ 'stories.create' | t }}
     </button>
