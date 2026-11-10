@@ -74,7 +74,7 @@
       <div class="create-tournament-intro">
         <p class="tournament-eyebrow">{{ 'communities.championshipUi.eyebrow' | t }}</p>
         <h4>{{ 'communities.championshipUi.title' | t }}</h4>
-        <p class="championship-catalog-note">{{ 'communities.competitionGuide.championshipScope' | t }}</p>
+        <p class="championship-catalog-note">{{ 'communities.competitionGuide.championshipScope' | t:{count: championshipSports.length} }}</p>
         <button type="button" class="t-btn t-btn-secondary" [disabled]="championshipBusy" (click)="refreshChampionships()">{{ 'communities.championshipUi.refresh' | t }}</button>
         <button type="button" class="t-btn t-btn-secondary championship-learn-toggle"
           aria-controls="championship-explanation" [attr.aria-expanded]="championshipExplainerOpen"
