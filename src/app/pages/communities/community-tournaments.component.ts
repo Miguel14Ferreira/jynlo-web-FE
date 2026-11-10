@@ -1,3 +1,4 @@
+import { ChampionshipTeamPlayer } from '../../services/community-championships.service';
 import { CommunityChampionshipsService, ChampionshipOwnedEvent, ChampionshipOwnedEventTeam, ChampionshipOwnedLeagueFixture, ChampionshipCupOpeningRound, ChampionshipOwnedEventFormat, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
 import { championshipTeamProfile, ChampionshipTeamProfile } from './community-championship-team-profile';
 import { compareTeamSeasons, comparableTeamSeasons, TeamSeasonComparison } from './community-championship-team-comparison';
@@ -295,6 +296,80 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
 
+  championshipTeamPlayers: Record<number, ChampionshipTeamPlayer[]> = {};
+  championshipTeamPlayerDrafts: Record<number, number | null> = {};
+  championshipTeamPlayerBusy: Record<number, boolean> = {};
+
+  loadChampionshipTeamPlayers(championshipId: number, teamId: number): void {
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipsApi.teamPlayers(communityId, championshipId, teamId).subscribe({
+      next: players => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamPlayers[teamId] = players;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipError = 'Não foi possível carregar o plantel da equipa.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  availableChampionshipTeamMembers(championshipId: number): CommunityGroup['members'] {
+    const registered = new Set((this.championshipTeamRegistries[championshipId]?.teams || [])
+      .flatMap(team => (this.championshipTeamPlayers[team.id] || []).map(player => player.profileId)));
+    return (this.community.members || []).filter(member => !registered.has(member.profileId));
+  }
+
+  addChampionshipTeamPlayer(championshipId: number, teamId: number): void {
+    const profileId = this.championshipTeamPlayerDrafts[teamId];
+    if (!this.canManage || this.championshipTeamPlayerBusy[teamId]
+        || !Number.isInteger(profileId) || !profileId
+        || !this.availableChampionshipTeamMembers(championshipId).some(member => member.profileId === profileId)) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipTeamPlayerBusy[teamId] = true;
+    this.championshipsApi.addTeamPlayer(communityId, championshipId, teamId, profileId).subscribe({
+      next: players => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamPlayers[teamId] = players;
+        this.championshipTeamPlayerDrafts[teamId] = null;
+        this.championshipTeamPlayerBusy[teamId] = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamPlayerBusy[teamId] = false;
+        this.championshipError = 'Não foi possível adicionar o perfil. Confirma que pertence à comunidade e não está noutra equipa da época.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  removeChampionshipTeamPlayer(championshipId: number, teamId: number, profileId: number): void {
+    if (!this.canManage || this.championshipTeamPlayerBusy[teamId]) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipTeamPlayerBusy[teamId] = true;
+    this.championshipsApi.removeTeamPlayer(communityId, championshipId, teamId, profileId).subscribe({
+      next: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamPlayers[teamId] = (this.championshipTeamPlayers[teamId] || [])
+          .filter(player => player.profileId !== profileId);
+        this.championshipTeamPlayerBusy[teamId] = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamPlayerBusy[teamId] = false;
+        this.championshipError = 'Não foi possível remover o jogador da equipa.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
   championshipTeamDrafts: Record<number, string> = {};
   championshipCloseConfirmed: Record<number, boolean> = {};
 
@@ -305,6 +380,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: registry => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamRegistries = { ...this.championshipTeamRegistries, [championshipId]: registry };
+        registry.teams.forEach(team => this.loadChampionshipTeamPlayers(championshipId, team.id));
         this.changeDetector.markForCheck();
       },
       error: () => {
@@ -856,6 +932,9 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.deletingChampionshipEventId = null;
     this.championshipAggregateStandings = {};
     this.championshipTeamRegistries = {};
+    this.championshipTeamPlayers = {};
+    this.championshipTeamPlayerDrafts = {};
+    this.championshipTeamPlayerBusy = {};
     this.championshipHonours = null;
     this.championshipHonoursError = '';
     this.permanentTeamRegistry = null;
