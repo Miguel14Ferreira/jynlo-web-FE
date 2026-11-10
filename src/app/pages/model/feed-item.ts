@@ -16,6 +16,7 @@ export interface FeedItem {
   gameDate: string | null;
   likeCount: number;
   likedByMe: boolean;
+  hideLikers?: boolean;
   commentCount: number;
 }
 
