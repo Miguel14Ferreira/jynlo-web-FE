@@ -558,6 +558,59 @@ describe('Events2Component', () => {
     expect(component.venueSearch).not.toContain('Recinto antigo');
   });
 
+  it('preserves an edited locality while a saved venue is loading', () => {
+    component.sport = 'Futsal';
+    component.city = 'Lisboa';
+    component.presetName = 'Treino habitual';
+    presetService.create.and.callFake((name, settings) => of({
+      id: 93, name, settings: { ...settings, selectedVenueId: 99 },
+      createdAt: '', updatedAt: ''
+    }));
+    component.savePreset();
+    const pendingVenue = new Subject<Venue>();
+    venueService.get.and.returnValue(pendingVenue.asObservable());
+
+    component.applyPresetById(93);
+    component.onManualCityChanged('Oeiras');
+    pendingVenue.next({
+      id: 99, name: 'Recinto antigo', city: 'Lisboa',
+      address: 'Rua antiga', sports: 'Futsal',
+      latitude: null, longitude: null
+    } as Venue);
+    pendingVenue.complete();
+
+    expect(component.city).toBe('Oeiras');
+    expect(component.selectedVenueId).toBeNull();
+    expect(component.venueSearch).not.toContain('Recinto antigo');
+  });
+
+  it('respects a manual address edit even when the original text is restored', () => {
+    component.sport = 'Futsal';
+    component.address = 'Rua habitual';
+    component.presetName = 'Treino habitual';
+    presetService.create.and.callFake((name, settings) => of({
+      id: 94, name, settings: { ...settings, selectedVenueId: 99 },
+      createdAt: '', updatedAt: ''
+    }));
+    component.savePreset();
+    const pendingVenue = new Subject<Venue>();
+    venueService.get.and.returnValue(pendingVenue.asObservable());
+
+    component.applyPresetById(94);
+    component.onManualAddressChanged('Rua escolhida');
+    component.onManualAddressChanged('Rua habitual');
+    pendingVenue.next({
+      id: 99, name: 'Recinto antigo', city: 'Lisboa',
+      address: 'Rua antiga', sports: 'Futsal',
+      latitude: null, longitude: null
+    } as Venue);
+    pendingVenue.complete();
+
+    expect(component.address).toBe('Rua habitual');
+    expect(component.selectedVenueId).toBeNull();
+    expect(component.venueSearch).not.toContain('Recinto antigo');
+  });
+
   it('does not show a stale preset venue error after changing location method', () => {
     component.sport = 'Futsal';
     component.presetName = 'Recinto habitual';
