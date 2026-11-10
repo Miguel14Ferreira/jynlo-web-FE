@@ -5047,6 +5047,7 @@ export const EN: Record<string, string> = {
   'adminPlayers.ready': 'Enter a name to search for players.',
   'adminPlayers.empty': 'No players found.',
   'adminPlayers.loadError': 'We could not search for players. Try again.',
+  'adminPlayers.allPlayers': 'All players',
   'adminPlayers.results': 'Results for “{{name}}”',
   'adminPlayers.player': 'Player',
   'adminPlayers.role': 'Role',
