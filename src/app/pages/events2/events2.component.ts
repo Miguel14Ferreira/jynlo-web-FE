@@ -250,8 +250,11 @@ export class Events2Component implements OnInit, OnDestroy {
   }
 
   canCreateForCommunity(group: CommunityGroup): boolean {
-    return group.membersCanCreateSessions !== false
-      || group.myRole === 'ADMIN' || group.myRole === 'OWNER';
+    // Membership alone does not grant session-creation rights. Some communities
+    // restrict creation to owners/admins; non-members are never eligible.
+    if (!group.myRole) return false;
+    return group.myRole === 'ADMIN' || group.myRole === 'OWNER'
+      || group.membersCanCreateSessions !== false;
   }
 
   get communityCreationBlocked(): boolean {
