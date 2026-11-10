@@ -1449,6 +1449,7 @@ const PT: Dictionary = {
   'profileData.achievement.COMMUNITY_BUILDER': '🤝 Community Builder',
   'profileData.achievement.REGULAR': '📅 Regular',
   'social.follow': 'Seguir',
+  'social.emptyList': 'Ainda não existem pessoas nesta lista.',
   'social.followers': 'Seguidores',
   'social.following': 'A seguir',
   'social.followsYou': 'Segue-te',
