@@ -1787,9 +1787,10 @@ export class Events2Component implements OnInit, OnDestroy {
         return t('createSession.venueNoLongerAvailable');
       }
 
-      // Match the server's semicolon-separated sport check before submitting.
+      // Venue records can use either semicolons or commas between sports.
+      // Use the same exact-token matching as the venue picker.
       const venueSports = venue.sports?.trim() || '';
-      if (venueSports && !venueSports.split(';').some(
+      if (venueSports && !venueSports.split(/[;,]/).some(
         venueSport => venueSport.trim().toLocaleLowerCase('pt')
           === this.sport.trim().toLocaleLowerCase('pt')
       )) {
