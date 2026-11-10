@@ -22,7 +22,7 @@
 
         <details class="account-menu">
           <summary class="jynlo-action jynlo-action--neutral account-identity-trigger"
-            [attr.aria-label]="'nav.account.activeAs' | t:{ username: activeAccountUsername }">
+            [attr.aria-label]="accountDisplayName || activeAccountUsername || ('nav.account.profile' | t)">
             <span class="account-identity-avatar" aria-hidden="true">
               @if (accountImage(); as picture) {
                 <img [src]="picture" alt="" loading="lazy">
@@ -31,8 +31,7 @@
               }
             </span>
             <span class="account-identity-copy">
-              <small>{{ 'nav.account.active' | t }}</small>
-              <strong>@{{ activeAccountUsername || ('nav.account.profile' | t) }}</strong>
+              <strong>{{ accountDisplayName || activeAccountUsername || ('nav.account.profile' | t) }}</strong>
             </span>
             <span class="account-identity-chevron" aria-hidden="true">⌄</span>
           </summary>
@@ -46,7 +45,6 @@
                 }
               </span>
               <div class="account-menu__identity-copy">
-                <span class="account-menu__status"><span aria-hidden="true">●</span> {{ 'nav.account.active' | t }}</span>
                 <strong>{{ accountDisplayName || ('nav.account.profile' | t) }}</strong>
                 <small>@{{ activeAccountUsername || ('nav.account.profile' | t) }}</small>
               </div>
