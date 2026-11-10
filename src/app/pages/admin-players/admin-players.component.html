@@ -162,13 +162,20 @@
                   [class.status--suspended]="!!player.moderationSuspendedAt">{{ statusKey(player) | t }}</span></td>
                 @if (canManageRoles || canModerate) {
                   <td class="role-action">
-                    @if (canManagePlayer(player)) {
-                      <button type="button" class="secondary-action jynlo-action jynlo-action--neutral"
-                        [disabled]="working" [attr.aria-expanded]="expandedPlayerId === player.id"
-                        (click)="toggleActions(player)">{{ 'adminPlayers.manage' | t }}</button>
-                    } @else {
-                      <span class="player-name">{{ 'adminPlayers.protectedRole' | t }}</span>
-                    }
+                    <div class="player-row-actions">
+                      <a class="secondary-action jynlo-action jynlo-action--neutral player-profile-link"
+                        [routerLink]="['/menu/perfis', player.username]" target="_blank" rel="noopener noreferrer"
+                        [attr.aria-label]="('profile.view' | t) + ': ' + player.username">
+                        {{ 'profile.view' | t }}
+                      </a>
+                      @if (canManagePlayer(player)) {
+                        <button type="button" class="secondary-action jynlo-action jynlo-action--neutral"
+                          [disabled]="working" [attr.aria-expanded]="expandedPlayerId === player.id"
+                          (click)="toggleActions(player)">{{ 'adminPlayers.manage' | t }}</button>
+                      } @else {
+                        <span class="player-name">{{ 'adminPlayers.protectedRole' | t }}</span>
+                      }
+                    </div>
                   </td>
                 }
               </tr>
