@@ -494,7 +494,11 @@
               <div>
                 <h5>{{ championship.name }} · {{ championship.seasonLabel }}</h5>
                 <p>{{ championship.sport }} · Encerrado a {{ championship.closedAt | date:'dd/MM/yyyy' }}</p>
+                @if (championship.standingsMode !== 'INDEPENDENT') {
                 <p><strong>Campeão: {{ championship.championDisplayName }}</strong></p>
+              } @else {
+                <p>Época encerrada com vencedores independentes por prova.</p>
+              }
               </div>
               <button type="button" class="t-btn t-btn-secondary"
                 [attr.aria-expanded]="expandedArchivedChampionshipId === championship.id"
@@ -578,6 +582,23 @@
           <div>
             <h5>{{ championship.name }}</h5>
             <p>{{ championship.sport }} · {{ championship.seasonLabel }}</p>
+            <p class="championship-sport-mode" role="note">
+              <strong>Tipo de classificação:</strong>
+              {{ championship.standingsMode === 'INDEPENDENT' ? 'Vencedores de cada prova, sem campeão geral' : 'Classificação geral por pontos' }}
+            </p>
+            @if (canManage && canChangeChampionshipStandingsMode(championship)) {
+              <label [for]="'standings-mode-' + championship.id">Como queres determinar os vencedores?</label>
+              <select [id]="'standings-mode-' + championship.id"
+                [value]="championshipStandingsModeDrafts[championship.id] || championship.standingsMode || 'AGGREGATE'"
+                (change)="championshipStandingsModeDrafts[championship.id] = $any($event.target).value">
+                <option value="AGGREGATE">Campeão geral — somar pontos das provas</option>
+                <option value="INDEPENDENT">Vencedores independentes — sem campeão geral</option>
+              </select>
+              <button type="button" class="t-btn t-btn-secondary"
+                [disabled]="championshipBusy"
+                (click)="saveChampionshipStandingsMode(championship)">Guardar tipo de classificação</button>
+              <small>Escolhe antes de iniciar as provas. Os resultados e os títulos de cada torneio mantêm-se separados.</small>
+            }
             @if (championship.closedAt) {
               <p><strong>Época encerrada</strong> · {{ championship.closedAt | date:'dd/MM/yyyy' }}</p>
               <p><strong>Campeão: {{ championship.championDisplayName }}</strong></p>
@@ -745,6 +766,13 @@
         </div>
         }
         <div class="create-step">
+          @if (championship.standingsMode === 'INDEPENDENT') {
+            <h5>Vencedores independentes por prova</h5>
+            <p>Esta época não soma os pontos para eleger um campeão geral. Consulta as provas acima para ver os respetivos vencedores e resultados.</p>
+            @if (championshipAggregateStandings[championship.id]?.pendingCompetitions) {
+              <p>Existem provas por concluir ou com vencedor por confirmar.</p>
+            }
+          } @else {
           <h5>Classificação geral do campeonato</h5>
           @if (championshipAggregateStandings[championship.id]; as aggregate) {
             <p>
@@ -776,6 +804,7 @@
             </ol>
           }
         </div>
+          }
         @if (canManage && !championship.closedAt) {
           <section class="create-step" [attr.aria-label]="'Sugestões de provas para ' + championship.name">
             <h5>Ideias para este campeonato</h5>
