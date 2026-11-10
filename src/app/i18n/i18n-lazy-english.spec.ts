@@ -92,7 +92,7 @@ describe('Lazy English translations', () => {
     expect(appTranslate('session.join')).toBe('Juntar-me à sessão');
   });
 
-  it('makes non-competitive session classification clear in both languages', async () => {
+  it('distinguishes a season game from rankings in both languages', async () => {
     await preloadEnglishTranslations();
 
     for (const language of ['pt', 'en'] as const) {
@@ -100,13 +100,16 @@ describe('Lazy English translations', () => {
       service.setLanguage(language);
 
       expect(service.translate('sessionDetail.seasonLabel'))
-        .toBe(language === 'pt' ? 'Classificação' : 'Standings');
+        .toBe(language === 'pt' ? 'Jogo de época' : 'Season game');
       expect(service.translate('sessionDetail.seasonNo'))
-        .toBe(language === 'pt' ? 'Não ativada para esta sessão' : 'Not enabled for this session');
+        .toBe(language === 'pt' ? 'Não conta para a época' : 'Does not count towards the season');
       expect(appTranslate('sessionDetail.seasonNo')).toBe(service.translate('sessionDetail.seasonNo'));
-      // The alternative label for competitive season games must remain intact.
       expect(service.translate('sessionDetail.seasonYes'))
-        .toBe(language === 'pt' ? 'Jogo da época' : 'Season game');
+        .toBe(language === 'pt' ? 'Conta para a época' : 'Counts towards the season');
+      expect(service.translate('sessionDetail.rankingsLabel'))
+        .toBe(language === 'pt' ? 'Classificações e estatísticas' : 'Standings and statistics');
+      expect(service.translate('sessionDetail.seasonValidationInfo'))
+        .toContain(language === 'pt' ? 'após validação' : 'after validation');
     }
   });
 
