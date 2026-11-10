@@ -1445,6 +1445,19 @@ describe('Events2Component', () => {
     expect(sessionService.create).not.toHaveBeenCalled();
   });
 
+  it('does not offer session creation to someone without membership or before a community is verified', () => {
+    const visitor = {
+      id: 41, myRole: undefined, membersCanCreateSessions: true
+    } as any;
+    expect(component.canCreateForCommunity(visitor)).toBeFalse();
+    component.communityId = 41;
+    component.directCommunity = null;
+    expect(component.communityCreationBlocked).toBeTrue();
+    component.directCommunity = visitor;
+    expect(component.communityCreationBlocked).toBeTrue();
+    expect((component as any).validate()).toBeTruthy();
+  });
+
   it('shows why a direct community session is unavailable to a non-admin', () => {
     component.communityId = 12;
     component.directCommunity = {
