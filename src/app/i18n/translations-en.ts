@@ -4428,6 +4428,7 @@ export const EN: Record<string, string> = {
   'createSession.seasonGameTitle': 'Season game',
   'createSession.seasonGameHelp': 'Optional, only when one community is selected. Any member can create a season game. After the match, admins confirm teams and results before points are awarded.',
   'createSession.seasonGameToggle': 'Count this as a season game',
+  'createSession.seasonGameBalanceTeamsHint': 'When all session spots are filled, the “Balance teams” option will become available to organize the players.',
   'createSession.seasonGameCommunity': 'Season community',
   'createSession.seasonGameAutomaticCommunity': 'This game counts only towards {{name}} standings after the result is validated.',
   'createSession.seasonGameMultipleCommunities': 'You selected multiple communities. The session is shared with them, but does not affect standings or statistics in any community.',
