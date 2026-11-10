@@ -1728,14 +1728,16 @@ describe('SessionDetailsComponent', () => {
     const panel=fixture.nativeElement.querySelector('.session-community-context') as HTMLElement;
     expect(panel.textContent).toContain('Colégio Pio');
     expect(panel.textContent).toContain('ACM');
-    expect(panel.textContent).toContain('Jogo da época');
+    expect(panel.textContent).toContain('Jogo de época');
+    expect(panel.textContent).toContain('Conta para a época');
+    expect(panel.textContent).toContain('após validação');
     expect(panel.textContent).toContain('Época 2026/27');
     expect(panel.querySelectorAll('.session-community-links a').length).toBe(2);
     component.sessionContext={communities:[{id:12,name:'Colégio Pio'}],
       seasonGame:false,seasonName:null};
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.session-community-context').textContent)
-      .toContain('Não ativada para esta sessão');
+      .toContain('Não conta para a época');
   });
 
   it('explains optional rankings without claiming the session is a season game', () => {
@@ -1755,6 +1757,7 @@ describe('SessionDetailsComponent', () => {
     const benefits = root.querySelector('.session-ranking-benefits');
     expect(benefits?.textContent).toContain('equipas mais equilibradas');
     expect(benefits?.textContent).toContain('resultados');
+    expect(benefits?.textContent).not.toContain('Nesta sessão não está ativa');
     help!.click();
     fixture.detectChanges();
     expect(root.querySelector('.session-ranking-benefits')).toBeNull();
@@ -1763,7 +1766,8 @@ describe('SessionDetailsComponent', () => {
       seasonGame: true, seasonName: 'Época 2026/27'
     };
     fixture.detectChanges();
-    expect(root.querySelector('.session-ranking-learn-more')).toBeNull();
+    expect(root.querySelector('.session-ranking-learn-more')).not.toBeNull();
+    expect(root.textContent).toContain('Classificações e estatísticas');
   });
 
   it('does not expose guest invitations to non-creators or closed/private games', () => {
