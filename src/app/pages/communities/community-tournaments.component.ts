@@ -403,6 +403,9 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: registry => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamRegistries = { ...this.championshipTeamRegistries, [championshipId]: registry };
+        registry.teams.forEach(team => {
+          if (!this.championshipTeamPlayers[team.id]) this.loadChampionshipTeamPlayers(championshipId, team.id);
+        });
         this.championshipTeamDrafts[championshipId] = '';
         this.championshipBusy = false;
         this.changeDetector.markForCheck();
