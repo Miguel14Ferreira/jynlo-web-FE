@@ -6,6 +6,8 @@ import { environment } from 'src/environment/environment';
 import { MyProfile, ProfileActivity } from '../model/my-profile';
 import { ReliabilitySummary } from '../model/reliability-summary';
 import { MyProfileService } from '../../services/my-profile.service';
+import { SocialGraphService } from '../../services/social-graph.service';
+import { FollowProfile, FollowStatus } from '../model/follow';
 import { ReliabilityService } from '../../services/reliability.service';
 import { sportIcon } from '../../shared/sports-catalog';
 import { calculateProfileCompletion, ProfileCompletion, ProfileCompletionItem } from '../../shared/profile-completion';
@@ -21,6 +23,11 @@ export class PerfilDataComponent implements OnInit {
   profile?: MyProfile;
   reliability?: ReliabilitySummary;
   activity?: ProfileActivity;
+  followStatus?: FollowStatus;
+  followListMode: 'followers' | 'following' | null = null;
+  followListProfiles: FollowProfile[] = [];
+  followListLoading = false;
+  followListError = false;
   loading = false;
   errorMessage = '';
   favoritesExpanded = false;
@@ -31,7 +38,8 @@ export class PerfilDataComponent implements OnInit {
 
   constructor(
     private myProfileService: MyProfileService,
-    private reliabilityService: ReliabilityService
+    private reliabilityService: ReliabilityService,
+    private socialGraphService: SocialGraphService
   ) {}
 
   ngOnInit(): void {
@@ -59,9 +67,31 @@ export class PerfilDataComponent implements OnInit {
             .filter(Boolean);
           this.loadReliability(profile.username);
           this.loadActivity(profile.username);
+          this.socialGraphService.status(profile.username).pipe(timeout(10000))
+            .subscribe({ next: status => this.followStatus = status, error: () => this.followStatus = undefined });
         },
         error: () => this.errorMessage = t('feedback.profile.loadError')
       });
+  }
+
+  openFollowList(mode: 'followers' | 'following'): void {
+    if (!this.profile) return;
+    const username = this.profile.username;
+    this.followListMode = mode;
+    this.followListProfiles = [];
+    this.followListLoading = true;
+    this.followListError = false;
+    (mode === 'followers' ? this.socialGraphService.followers(username) : this.socialGraphService.following(username))
+      .pipe(timeout(10000), finalize(() => this.followListLoading = false))
+      .subscribe({
+        next: profiles => { if (this.profile?.username === username && this.followListMode === mode) this.followListProfiles = profiles; },
+        error: () => { if (this.followListMode === mode) this.followListError = true; }
+      });
+  }
+
+  closeFollowList(): void {
+    this.followListMode = null;
+    this.followListProfiles = [];
   }
 
   get visibleFavoriteSports(): string[] {
