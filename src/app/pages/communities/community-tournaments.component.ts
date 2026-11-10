@@ -562,7 +562,9 @@ export class CommunityTournamentsComponent implements OnChanges {
   saveChampionshipFixtureScore(championship: CommunityChampionship,
                                event: ChampionshipOwnedEvent, fixture: ChampionshipOwnedLeagueFixture): void {
     const score = this.championshipFixtureScoreDrafts[fixture.id];
-    if (!this.canManage || !!championship.closedAt || this.championshipFixtureSaving[fixture.id]
+    if (!this.canManage || !!championship.closedAt
+        || !['Futebol', 'Futsal'].includes(championship.sport)
+        || this.championshipFixtureSaving[fixture.id]
         || event.status !== 'SCHEDULED' || event.format !== 'LEAGUE'
         || !score || !Number.isInteger(score.home) || !Number.isInteger(score.away)
         || score.home! < 0 || score.away! < 0 || score.home! > 999 || score.away! > 999) return;
