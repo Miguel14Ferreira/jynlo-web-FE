@@ -1803,6 +1803,8 @@ export const EN: Record<string, string> = {
   'communities.championshipOwned.ownedCreateError': 'Unable to create the competition in this championship.',
   'communities.championshipUi.section': 'Community championships',
   'communities.championshipUi.eyebrow': 'Seasons and competitions',
+  'communities.competitionGuide.championshipEngineReady': 'Tournament formats are available for this sport. Choose the format when creating the event.',
+  'communities.competitionGuide.championshipEnginePending': 'You can create a championship season for this sport, but a verified tournament results format is not yet available. Not every competition can be created until supported.',
   'communities.competitionGuide.chooseSport': 'Choose the sport',
   'communities.competitionGuide.supportNote': 'We only show formats with an available results engine. The sport may differ from the community\'s usual sports.',
   'communities.competitionGuide.notAvailable': 'No format available',
