@@ -147,10 +147,17 @@ export class Events2Component implements OnInit, OnDestroy {
       return;
     }
     if (this.selectedVenueId === venueId) return;
+    // A manual search or sport change made while the community's habitual
+    // venue loads must take precedence over the pending suggestion.
+    const suggestedSport = this.sport;
+    const initialVenueSearch = this.venueSearch;
+    if (initialVenueSearch.trim()) return;
     this.venueService.get(venueId).pipe(timeout(10_000)).subscribe({
       next: venue => {
         if (revision !== this.communityPrefillRevision
             || this.locationMethod !== 'venue'
+            || this.sport !== suggestedSport
+            || this.venueSearch !== initialVenueSearch
             || this.selectedVenueId !== null
             || this.city.trim() || this.address.trim()) return;
         const allowedSports = (venue.sports || '').split(/[;,]/)
