@@ -252,6 +252,27 @@ export class CommunityTournamentsComponent implements OnChanges {
     });
   }
 
+  /** A season can exist for any catalog sport; team management is only
+   * offered when an implemented results engine supports teams, or historical
+   * teams are already attached to the season. Never erase existing records. */
+  championshipTeamAvailable(sport: string | null | undefined): boolean {
+    return tournamentSportCapabilities(sport).team !== 'UNAVAILABLE';
+  }
+
+  championshipIndividualAvailable(sport: string | null | undefined): boolean {
+    return tournamentSportCapabilities(sport).individual !== 'UNAVAILABLE';
+  }
+
+  championshipSportModeKey(sport: string | null | undefined): string {
+    const capabilities = tournamentSportCapabilities(sport);
+    if (capabilities.individual !== 'UNAVAILABLE' && capabilities.team !== 'UNAVAILABLE') {
+      return 'communities.competitionModes.both';
+    }
+    if (capabilities.team !== 'UNAVAILABLE') return 'communities.competitionModes.team';
+    if (capabilities.individual !== 'UNAVAILABLE') return 'communities.competitionModes.individual';
+    return 'communities.competitionModes.pending';
+  }
+
   championshipTeamDrafts: Record<number, string> = {};
   championshipCloseConfirmed: Record<number, boolean> = {};
 
