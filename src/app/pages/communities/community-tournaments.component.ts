@@ -1002,6 +1002,42 @@ export class CommunityTournamentsComponent implements OnChanges {
   racePointsDraft = '';
   private raceRevision = 0;
 
+  competitionView: 'championships' | 'tournaments' = 'championships';
+  creationPickerOpen = false;
+
+  get completedTournamentCount(): number {
+    return this.tournaments.filter(item => item.status === 'COMPLETED').length;
+  }
+
+  get activeTournamentCount(): number {
+    return this.tournaments.filter(item => item.status !== 'COMPLETED').length;
+  }
+
+  selectCompetitionView(view: 'championships' | 'tournaments'): void {
+    this.competitionView = view;
+    this.creationPickerOpen = false;
+    this.showGuide = false;
+    // Keep unfinished creation forms available until the user explicitly opens another.
+  }
+
+  openCompetitionPicker(): void {
+    if (!this.canManage) return;
+    this.creationPickerOpen = !this.creationPickerOpen;
+  }
+
+  chooseCompetitionKind(kind: 'championships' | 'tournaments'): void {
+    if (!this.canManage) return;
+    this.competitionView = kind;
+    this.creationPickerOpen = false;
+    if (kind === 'championships') {
+      this.championshipOpen = true;
+      this.showGuide = false;
+    } else {
+      this.championshipOpen = false;
+      this.showGuide = true;
+    }
+  }
+
   showGuide = false;
   showIndividualCreate = false;
   showTeamCreate = false;
@@ -2048,6 +2084,8 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.showActiveChampionships();
       this.championshipError = '';
       this.championshipOpen = false;
+      this.competitionView = 'championships';
+      this.creationPickerOpen = false;
       this.championshipExplainerOpen = false;
       this.championshipBusy = false;
       this.championshipSportDraft = this.community.sports?.[0] || this.community.sport || '';
