@@ -1334,6 +1334,56 @@ describe('Events2Component', () => {
       }), undefined);
   });
 
+  it('resets hidden repeat and call-up choices when the last community is removed', () => {
+    component.communities = [{
+      id: 12, name: 'Futebol de sábado', myRole: 'MEMBER',
+      description: null, sport: 'Futebol', photoUrl: null,
+      visibility: 'PRIVATE', rankingsEnabled: false,
+      ownerUsername: 'owner', memberCount: 2,
+      createdAt: '2026-01-01', members: []
+    } as any];
+    component.toggleCommunityShare(12, true);
+    component.recurrence = 'WEEKLY';
+    component.recurrenceOccurrences = 8;
+    component.setWeeklySessionsPerWeek(2);
+    component.registrationOpeningMode = 'SCHEDULED';
+    component.registrationOpensAt = '2099-10-14T18:00';
+
+    component.toggleCommunityShare(12, false);
+
+    expect(component.communitySessionSelected).toBeFalse();
+    expect(component.recurrence).toBe('NONE');
+    expect(component.recurrenceOccurrences).toBe(4);
+    expect(component.weeklySessionsPerWeek).toBe(1);
+    expect(component.registrationOpeningMode).toBe('IMMEDIATE');
+    expect(component.registrationOpensAt).toBe('');
+
+    component.toggleCommunityShare(12, true);
+    expect(component.communitySessionSelected).toBeTrue();
+    expect(component.recurrence).toBe('NONE');
+    expect(component.registrationOpeningMode).toBe('IMMEDIATE');
+  });
+
+  it('preserves repeat and call-up choices while another community remains selected', () => {
+    component.communities = [12, 13].map(id => ({
+      id, name: 'Grupo ' + id, myRole: 'MEMBER',
+      description: null, sport: 'Futebol', photoUrl: null,
+      visibility: 'PRIVATE', rankingsEnabled: false,
+      ownerUsername: 'owner', memberCount: 2,
+      createdAt: '2026-01-01', members: []
+    } as any));
+    component.toggleCommunityShare(12, true);
+    component.toggleCommunityShare(13, true);
+    component.recurrence = 'WEEKLY';
+    component.registrationOpeningMode = 'MANUAL';
+
+    component.toggleCommunityShare(12, false);
+
+    expect(component.shareCommunityIds).toEqual([13]);
+    expect(component.recurrence).toBe('WEEKLY');
+    expect(component.registrationOpeningMode).toBe('MANUAL');
+  });
+
   it('hides repeat options again and sends a public one-off session after deselecting communities', () => {
     component.communities = [12].map(id => ({
       id, name: 'Grupo ' + id, myRole: 'MEMBER', description: null, sport: 'Futebol',
