@@ -524,7 +524,7 @@
               <h2>{{ 'sessionDetail.editSession' | t }}</h2>
               <p>{{ 'sessionDetail.detailsHelp' | t }}</p>
               <div class="session-details-editor-fields">
-                <label>{{ 'sessionDetail.sportLabel' | t }}
+                <label>{{ 'communities.sportLabel' | t }}
                   <select [(ngModel)]="detailsDraft.sport" [disabled]="detailsSaving">
                     @for (sport of editableSports; track sport) {
                       <option [value]="sport">{{ sport }}</option>
@@ -555,7 +555,7 @@
                   <input type="text" maxlength="255" [(ngModel)]="detailsDraft.address"
                     [disabled]="detailsSaving || !!session.venue">
                 </label>
-                <label class="session-details-editor-wide">{{ 'sessionDetail.meetingPoint' | t }}
+                <label class="session-details-editor-wide">{{ 'createSession.meetingPointLabel' | t }}
                   <input type="text" maxlength="240"
                     [(ngModel)]="detailsDraft.meetingPointInstructions" [disabled]="detailsSaving">
                 </label>
