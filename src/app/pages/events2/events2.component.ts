@@ -1687,6 +1687,14 @@ export class Events2Component implements OnInit, OnDestroy {
     if (this.communityCreationBlocked) {
       return t('communities.sessionPolicy.blocked');
     }
+    // Saved drafts or outdated membership data must never attach a session
+    // to a community that no longer belongs to this organiser.
+    if (this.communityId === null && this.shareCommunityIds.length > 0
+        && (this.communitiesLoading || this.communitiesLoadError
+            || this.shareCommunityIds.some(id =>
+                !this.communities.some(group => group.id === id && !!group.myRole)))) {
+      return t('createSession.presets.communityWarning');
+    }
     if (this.shareCommunityIds.some(id =>
         this.communities.some(group => group.id === id && !this.canCreateForCommunity(group)))) {
       return t('communities.sessionPolicy.shareBlocked');
