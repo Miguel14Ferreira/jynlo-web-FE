@@ -1923,6 +1923,23 @@ describe('SessionDetailsComponent', () => {
     expect(action.getAttribute('href')).toBe('/menu/perfis?from=people&sport=Padel&city=Lisboa');
   });
 
+  it('uses localized player-search labels and the singular when one player is missing', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = {
+      ...session, gameDate: '2099-10-01T18:00:00Z',
+      participantCount: 3, maxParticipants: 4
+    };
+    fixture.detectChanges();
+
+    const panel = fixture.nativeElement.querySelector('#session-player-search') as HTMLElement;
+    expect(panel).not.toBeNull();
+    expect(panel.getAttribute('aria-label')).toBe('Procurar jogadores');
+    expect(panel.textContent).toContain('Falta 1 jogador');
+    expect(panel.textContent).not.toContain('Faltam 1 jogadores');
+    expect(panel.textContent).toContain('Convidar amigos');
+    expect(panel.textContent).toContain('Ver amigos');
+  });
+
   it('does not suggest finding players for private, full, past or other peoples sessions', () => {
     (component as any).currentUsername = 'creator-user';
     const future = '2099-10-01T18:00:00Z';
