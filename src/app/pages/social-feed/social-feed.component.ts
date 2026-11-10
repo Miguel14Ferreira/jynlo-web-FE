@@ -577,9 +577,33 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     return environment.apiUrl + (path.startsWith('/') ? path : '/' + path);
   }
 
+  private resolvingAttendanceSessionId: number | null = null;
+
+  /** Lazy materialization lets existing attendance activities gain interactions without
+   * generating duplicate posts when nobody has interacted with them. */
+  private withInteractionPost(item: FeedItem, action: () => void): void {
+    if (item.type !== 'SESSION_ATTENDED' || item.sessionId === null
+        || this.resolvingAttendanceSessionId !== null) return;
+    this.resolvingAttendanceSessionId = item.sessionId;
+    this.actionError = '';
+    this.feedService.ensureAttendancePost(item.sessionId, item.authorUsername)
+      .pipe(timeout(10_000), finalize(() => this.resolvingAttendanceSessionId = null))
+      .subscribe({
+        next: id => {
+          item.postId = id;
+          action();
+        },
+        error: () => this.actionError = t('feedback.feed.commentsLoadError')
+      });
+  }
+
   toggleLike(item: FeedItem): void {
+    if (item.type === 'SESSION_ATTENDED' && item.postId === null) {
+      this.withInteractionPost(item, () => this.toggleLike(item));
+      return;
+    }
     if (
-      item.type !== 'POST'
+      (item.type !== 'POST' && item.type !== 'SESSION_ATTENDED')
       || item.postId === null
       || this.interactionLoadingPostId !== null
     ) {
@@ -608,7 +632,11 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   toggleComments(item: FeedItem): void {
-    if (item.type !== 'POST' || item.postId === null) {
+    if (item.type === 'SESSION_ATTENDED' && item.postId === null) {
+      this.withInteractionPost(item, () => this.toggleComments(item));
+      return;
+    }
+    if ((item.type !== 'POST' && item.type !== 'SESSION_ATTENDED') || item.postId === null) {
       return;
     }
 
@@ -637,8 +665,12 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   submitComment(item: FeedItem): void {
+    if (item.type === 'SESSION_ATTENDED' && item.postId === null) {
+      this.withInteractionPost(item, () => this.submitComment(item));
+      return;
+    }
     if (
-      item.type !== 'POST'
+      (item.type !== 'POST' && item.type !== 'SESSION_ATTENDED')
       || item.postId === null
       || this.interactionLoadingPostId !== null
     ) {
