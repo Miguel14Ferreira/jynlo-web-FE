@@ -3860,7 +3860,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 999;
   }
 
-  startIndividualCreation(): void {
+  startIndividualCreation(selectedSport?: string): void {
     if (!this.canManage || this.community?.individualTournamentsEnabled === false || this.busy) return;
     this.showGuide = false;
     this.showTeamCreate = false;
@@ -3869,10 +3869,11 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.eventDisciplineDraft = null;
     this.editingSport = false;
     this.sportSearch = '';
+    if (selectedSport && SPORTS_CATALOG.includes(selectedSport)) this.sportDraft = selectedSport;
     this.error = '';
   }
 
-  startTeamCreation(): void {
+  startTeamCreation(selectedSport?: string): void {
     if (!this.canManage || this.community?.teamTournamentsEnabled === false || this.busy) return;
     this.showGuide = false;
     this.showIndividualCreate = false;
@@ -3881,6 +3882,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.eventDisciplineDraft = null;
     this.editingSport = false;
     this.sportSearch = '';
+    if (selectedSport && SPORTS_CATALOG.includes(selectedSport)) this.sportDraft = selectedSport;
     this.error = '';
   }
 
