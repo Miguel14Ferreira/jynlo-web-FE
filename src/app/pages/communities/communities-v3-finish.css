@@ -164,3 +164,64 @@
     grid-column:1 / -1;
   }
 }
+
+
+/* My Communities uses the same discovery-card layout as community search results. */
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .communities-layout > aside.community-list.community-mine-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,265px),1fr));
+  align-content:start;
+  gap:13px;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > .list-heading {
+  grid-column:1 / -1;
+  margin-bottom:4px;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card {
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:flex-start;
+  gap:16px;
+  min-height:245px;
+  height:auto;
+  padding:18px;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid .community-card-main {
+  display:flex;
+  align-items:flex-start;
+  gap:13px;
+  min-width:0;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid .community-discovery-cover {
+  flex:0 0 70px;
+  width:70px;
+  height:70px;
+  border-radius:14px;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid .community-card-copy {
+  display:flex;
+  flex:1 1 auto;
+  min-width:0;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:8px;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid .community-discovery-card-footer {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+  width:100%;
+  margin-top:auto;
+  padding-top:12px;
+  border-top:1px solid rgba(91,190,187,.18);
+}
