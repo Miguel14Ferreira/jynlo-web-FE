@@ -603,11 +603,18 @@
         } @else {
           <p>{{ 'communities.championshipUi.noCompetitions' | t }}</p>
         }
+        <p class="championship-sport-mode" role="note">
+          <strong>{{ 'communities.competitionModes.label' | t }}:</strong>
+          {{ championshipSportModeKey(championship.sport) | t }}
+        </p>
+        @if (championshipTeamAvailable(championship.sport)
+          || (championshipTeamRegistries[championship.id]?.teams?.length || 0) > 0
+          || (championshipTeamRegistries[championship.id]?.competitionTeams?.length || 0) > 0) {
         <div class="create-step">
-          <h5>Equipas do campeonato</h5>
+          <h5>{{ 'communities.competitionModes.seasonTeams' | t }}</h5>
           <p>Associa as equipas de diferentes provas à mesma equipa do campeonato para acumular os pontos. A associação é manual e não depende apenas do nome.</p>
           @if (championshipTeamRegistries[championship.id]; as registry) {
-            @if (canManage && !championship.closedAt) {
+            @if (canManage && !championship.closedAt && championshipTeamAvailable(championship.sport)) {
               <label [for]="'season-team-' + championship.id">Nome da equipa</label>
               <input [id]="'season-team-' + championship.id" type="text" maxlength="100"
                 [value]="championshipTeamDrafts[championship.id] || ''"
@@ -679,6 +686,7 @@
             <p>Equipas ainda não carregadas.</p>
           }
         </div>
+        }
         <div class="create-step">
           <h5>Classificação geral do campeonato</h5>
           @if (championshipAggregateStandings[championship.id]; as aggregate) {
