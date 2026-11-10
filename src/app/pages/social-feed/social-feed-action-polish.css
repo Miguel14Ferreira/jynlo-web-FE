@@ -273,3 +273,10 @@
 .feed-likers-privacy:hover{color:#ecfffb}
 .feed-likers-privacy:disabled{opacity:.5;cursor:wait}
 .feed-likers-action:focus-visible,.feed-likers-privacy:focus-visible{outline:2px solid #30dcc2;outline-offset:2px;border-radius:4px}
+
+.feed-likers-settings{position:relative;display:inline-block;align-self:center}
+.feed-likers-settings summary{list-style:none;cursor:pointer;color:#a8c7c9;border-radius:.5rem;padding:.15rem .4rem;font-size:1.1rem;line-height:1.2}
+.feed-likers-settings summary::-webkit-details-marker{display:none}
+.feed-likers-settings summary:hover{background:rgba(255,255,255,.07);color:#eafff9}
+.feed-likers-settings[open] .feed-likers-privacy{position:absolute;z-index:3;top:100%;right:0;min-width:190px;white-space:nowrap;text-align:left;border:1px solid rgba(139,212,207,.25);background:#0c2b37;border-radius:.65rem;padding:.7rem .85rem;box-shadow:0 10px 22px rgba(0,0,0,.3)}
+.feed-likers-settings summary:focus-visible{outline:2px solid #30dcc2;outline-offset:2px}
