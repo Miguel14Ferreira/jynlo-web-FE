@@ -121,7 +121,13 @@
               }
             </section>
           } @else if (sessionContextError && (session.communityId || session.audience === 'COMMUNITY_ONLY')) {
-            <p class="session-context-error" role="status">{{ sessionContextError }}</p>
+            <div class="session-context-error" role="status">
+              <p>{{ sessionContextError }}</p>
+              <button type="button" class="jynlo-action jynlo-action--neutral session-context-retry"
+                [disabled]="sessionContextLoading" (click)="retrySessionContext()">
+                {{ 'sessionDetail.retry' | t }}
+              </button>
+            </div>
           }
 
           @if (postGameCommunities.length > 0) {
