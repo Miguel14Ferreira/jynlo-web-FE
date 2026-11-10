@@ -206,6 +206,38 @@ h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); }
   margin: 1rem 0 1.25rem;
 }
 
+.status-actions textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: .85rem 1rem;
+  border: 1px solid rgba(125, 211, 252, .35);
+  border-radius: .8rem;
+  background: rgba(7, 17, 31, .65);
+  color: #f8fafc;
+  font: inherit;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.status-actions textarea:focus-visible {
+  outline: 2px solid #5eead4;
+  outline-offset: 2px;
+}
+
+.status-actions > p {
+  margin: .3rem 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.status-actions > button {
+  justify-self: start;
+}
+
+.status-actions > small {
+  color: #94a3b8;
+}
+
 .status-buttons {
   display: flex;
   flex-wrap: wrap;
