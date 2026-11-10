@@ -258,7 +258,10 @@ export class Events2Component implements OnInit, OnDestroy {
   }
 
   get communityCreationBlocked(): boolean {
-    return !!this.directCommunity && !this.canCreateForCommunity(this.directCommunity);
+    // A direct community link must not be treated as eligible before its
+    // membership and creation policy have been loaded and verified.
+    return this.communityId !== null
+      && (!this.directCommunity || !this.canCreateForCommunity(this.directCommunity));
   }
 
   toggleCommunityShare(id: number, checked: boolean): void {
