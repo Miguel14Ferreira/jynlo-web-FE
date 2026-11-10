@@ -536,11 +536,16 @@ export class Events2Component implements OnInit, OnDestroy {
       const requestedSport = this.sport;
       const requestedVenueId = this.selectedVenueId;
       const requestedVenueSearch = this.venueSearch;
+      const requestedCity = this.city;
+      const requestedAddress = this.address;
+      const requestedManualTextRevision = this.manualLocationTextRevision;
       const isCurrentVenueChoice = () =>
         revision === this.presetApplyRevision && this.selectedPresetId === id
         && this.sport === requestedSport && this.locationMethod === 'venue'
         && this.selectedVenueId === requestedVenueId
-        && this.venueSearch === requestedVenueSearch;
+        && this.venueSearch === requestedVenueSearch
+        && this.city === requestedCity && this.address === requestedAddress
+        && this.manualLocationTextRevision === requestedManualTextRevision;
       // Load the *current* venue record. Do not reuse stale details from a saved profile.
       this.venueService.get(s.selectedVenueId).pipe(timeout(10_000)).subscribe({
         next: venue => {
