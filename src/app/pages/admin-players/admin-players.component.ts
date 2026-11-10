@@ -110,9 +110,26 @@ export class AdminPlayersComponent implements OnInit, OnDestroy {
     this.expandedPlayerId = this.expandedPlayerId === player.id ? null : player.id;
   }
 
+  /** Only one player management editor may be visible at a time. */
+  private closeOtherEditors(): void {
+    this.messageRecipient = null;
+    this.adminMessage = '';
+    this.messageError = '';
+    this.selectedCommunityLimitPlayer = null;
+    this.communityLimitQuota = null;
+    this.communityLimitError = '';
+    this.communityLimitRequest?.unsubscribe();
+    this.pendingRole = null;
+    this.pendingModeration = null;
+    this.roleErrorKey = '';
+    this.moderationErrorKey = '';
+    this.expandedPlayerId = null;
+  }
+
   beginAdminMessage(player: AdminPlayer): void {
     if (this.working || this.loading || !this.canModerate) return;
     if (player.enabled !== true || player.notLocked !== true || player.moderationSuspendedAt) return;
+    this.closeOtherEditors();
     this.messageRecipient = player;
     this.adminMessage = '';
     this.messageError = '';
@@ -153,7 +170,7 @@ export class AdminPlayersComponent implements OnInit, OnDestroy {
 
   beginCommunityLimit(player: AdminPlayer): void {
     if (!this.canManageRoles || this.working) return;
-    this.communityLimitRequest?.unsubscribe();
+    this.closeOtherEditors();
     this.selectedCommunityLimitPlayer = player;
     this.communityLimitQuota = null;
     this.communityLimitError = '';
@@ -206,7 +223,7 @@ export class AdminPlayersComponent implements OnInit, OnDestroy {
 
   beginRoleChange(player: AdminPlayer): void {
     if (this.working || this.loading || !this.canChangeRole(player)) return;
-    this.pendingModeration = null;
+    this.closeOtherEditors();
     this.roleErrorKey = '';
     this.roleSuccessName = '';
     this.pendingRole = {
@@ -248,7 +265,7 @@ export class AdminPlayersComponent implements OnInit, OnDestroy {
     if ((action === 'SUSPEND' && !this.canSuspend(player))
         || (action === 'REINSTATE' && !this.canReinstate(player))
         || (action === 'DELETE' && !this.canDelete(player))) return;
-    this.pendingRole = null;
+    this.closeOtherEditors();
     this.pendingModeration = {
       id: player.id, username: player.username, action,
       expectedSuspended: !!player.moderationSuspendedAt
