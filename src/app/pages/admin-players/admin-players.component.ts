@@ -129,7 +129,7 @@ export class AdminPlayersComponent implements OnDestroy {
     if (!player || !this.canModerate || this.working
         || player.enabled !== true || player.notLocked !== true
         || !!player.moderationSuspendedAt || !text || text.length > 1000
-        || /[\\u0000-\\u001F\\u007F]/.test(text)) return;
+        || /[\u0000-\u001F\u007F]/.test(text)) return;
     this.messageSending = true;
     this.messageError = '';
     this.messageSuccess = '';
