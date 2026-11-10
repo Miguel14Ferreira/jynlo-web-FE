@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 import { environment } from 'src/environment/environment';
 import { FeedItem, PostLikeStatus, SocialComment } from '../pages/model/feed-item';
+import { FollowProfile } from '../pages/model/follow';
 
 @Injectable({
   providedIn: 'root'
@@ -49,6 +50,10 @@ export class SocialFeedService {
         + encodeURIComponent(attendeeUsername) + '/post',
       null
     );
+  }
+
+  likers(postId: number): Observable<FollowProfile[]> {
+    return this.http.get<FollowProfile[]>(this.baseUrl + '/posts/' + postId + '/likers');
   }
 
   likePost(postId: number): Observable<PostLikeStatus> {
