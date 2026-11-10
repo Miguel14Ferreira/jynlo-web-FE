@@ -1047,6 +1047,8 @@ export const EN: Record<string, string> = {
   'home.preview.loadError': 'We could not load the data right now.',
   'home.preview.retry': 'Try again',
   'home.preview.emptySessions': 'No upcoming public sessions to show yet. You could create the next one!',
+  'home.preview.emptySessionsHeading': 'The next session could start with you',
+  'home.preview.createFirstSession': 'Create the first session',
   'home.preview.emptyVenues': 'We are preparing venues for you to explore.',
   'home.preview.viewSession': 'View session',
   'home.preview.viewVenue': 'View venue',
