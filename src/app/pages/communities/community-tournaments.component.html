@@ -162,6 +162,14 @@
             }
           </small>
         </div>
+        <div class="create-field">
+          <label for="championship-ranking-policy">Classificação do campeonato</label>
+          <select id="championship-ranking-policy" [(ngModel)]="championshipRankingModeDraft">
+            <option value="AGGREGATE">Campeão geral — pontos acumulados das provas</option>
+            <option value="INDEPENDENT">Vencedores por prova — sem campeão geral</option>
+          </select>
+          <small>Esta decisão é independente do modo guiado ou personalizado. Podes alterá-la enquanto nenhuma prova tiver começado.</small>
+        </div>
         <button type="button" class="t-btn t-btn-primary"
           [disabled]="championshipBusy || !championshipNameDraft.trim() || !championshipSeasonDraft.trim() || !championshipSportDraft"
           (click)="createChampionship()">{{ 'communities.championshipUi.save' | t }}</button>
