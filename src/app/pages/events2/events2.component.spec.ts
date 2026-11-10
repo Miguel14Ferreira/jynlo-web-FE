@@ -432,8 +432,72 @@ describe('Events2Component', () => {
     expect(component.password).toBe('');
     expect(component.privateGame).toBeTrue();
     expect(component.maxParticipants).toBe(10);
-    expect(component.registrationOpeningMode).toBe('SCHEDULED');
+    // A preset without a selected community must not restore hidden call-ups.
+    expect(component.registrationOpeningMode).toBe('IMMEDIATE');
     expect(component.presetMessage).toBeTruthy();
+  });
+
+  it('drops recurring and scheduled call-ups from a preset when its community is no longer available', () => {
+    component.sport = 'Futsal';
+    component.presetName = 'Treino da comunidade antiga';
+    presetService.create.and.callFake((name, settings) => of({
+      id: 27, name,
+      settings: {
+        ...settings, communityId: 99, communityShareIds: [99],
+        recurrence: 'WEEKLY', recurrenceOccurrences: 8,
+        weeklySessionsPerWeek: 2, registrationOpeningMode: 'SCHEDULED'
+      },
+      createdAt: '', updatedAt: ''
+    }));
+    component.savePreset();
+    component.communities = [];
+    component.applyPresetById(27);
+
+    expect(component.shareCommunityIds).toEqual([]);
+    expect(component.recurrence).toBe('NONE');
+    expect(component.recurrenceOccurrences).toBe(4);
+    expect(component.weeklySessionsPerWeek).toBe(1);
+    expect(component.registrationOpeningMode).toBe('IMMEDIATE');
+    expect(component.registrationOpensAt).toBe('');
+
+    // Adding a new community must not revive the previous group's schedule.
+    component.communities = [{
+      id: 12, name: 'Grupo novo', myRole: 'MEMBER', sport: 'Futsal',
+      description: null, photoUrl: null, visibility: 'PRIVATE',
+      rankingsEnabled: false, ownerUsername: 'owner', memberCount: 2,
+      createdAt: '', members: []
+    } as any];
+    component.toggleCommunityShare(12, true);
+    expect(component.recurrence).toBe('NONE');
+    expect(component.registrationOpeningMode).toBe('IMMEDIATE');
+  });
+
+  it('restores recurring options when the saved preset community is still accessible', () => {
+    component.communities = [{
+      id: 12, name: 'Grupo habitual', myRole: 'MEMBER', sport: 'Futsal',
+      description: null, photoUrl: null, visibility: 'PRIVATE',
+      rankingsEnabled: false, ownerUsername: 'owner', memberCount: 2,
+      createdAt: '', members: []
+    } as any];
+    component.sport = 'Futsal';
+    component.presetName = 'Treino semanal';
+    presetService.create.and.callFake((name, settings) => of({
+      id: 28, name,
+      settings: {
+        ...settings, communityId: 12, communityShareIds: [12],
+        recurrence: 'WEEKLY', recurrenceOccurrences: 8,
+        weeklySessionsPerWeek: 2, registrationOpeningMode: 'MANUAL'
+      },
+      createdAt: '', updatedAt: ''
+    }));
+    component.savePreset();
+    component.applyPresetById(28);
+
+    expect(component.shareCommunityIds).toEqual([12]);
+    expect(component.recurrence).toBe('WEEKLY');
+    expect(component.recurrenceOccurrences).toBe(8);
+    expect(component.weeklySessionsPerWeek).toBe(2);
+    expect(component.registrationOpeningMode).toBe('MANUAL');
   });
 
   it('requires two explicit clicks to delete a preset', () => {
