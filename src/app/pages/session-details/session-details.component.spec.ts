@@ -1764,6 +1764,57 @@ describe('SessionDetailsComponent', () => {
       .toContain('Época 2026/27');
   });
 
+  it('invalidates stale season data when a context refresh fails and retries safely', () => {
+    component.session = { ...session, audience: 'COMMUNITY_ONLY', communityId: 12 };
+    component.sessionContext = {
+      communities: [{ id: 12, name: 'Colégio Pio' }],
+      seasonGame: true, seasonName: 'Época antiga'
+    };
+    sessionService.context.and.returnValue(throwError(() => new Error('offline')));
+    component.retrySessionContext();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(component.sessionContext).toBeNull();
+    expect(root.textContent).not.toContain('Época antiga');
+    expect(root.querySelector<HTMLButtonElement>('.session-context-retry')).not.toBeNull();
+
+    sessionService.context.and.returnValue(of({
+      communities: [{ id: 12, name: 'Colégio Pio' }],
+      seasonGame: false, seasonName: null
+    }));
+    root.querySelector<HTMLButtonElement>('.session-context-retry')!.click();
+    fixture.detectChanges();
+
+    expect(root.querySelector('.session-context-error')).toBeNull();
+    expect(root.querySelector('.session-community-context')?.textContent)
+      .toContain('Não conta para a época');
+    expect(root.textContent).not.toContain('Época antiga');
+  });
+
+  it('rechecks the current season on an explicit session details reload', () => {
+    component.session = { ...session, audience: 'COMMUNITY_ONLY', communityId: 12 };
+    component.sessionContext = {
+      communities: [{ id: 12, name: 'Colégio Pio' }],
+      seasonGame: true, seasonName: 'Época antiga'
+    };
+    sessionService.detail.and.returnValue(of({
+      ...session, audience: 'COMMUNITY_ONLY' as const, communityId: 12
+    }));
+    sessionService.context.and.returnValue(of({
+      communities: [{ id: 12, name: 'Colégio Pio' }],
+      seasonGame: true, seasonName: 'Época atual'
+    }));
+    sessionService.context.calls.reset();
+
+    component.retrySessionLoad();
+    fixture.detectChanges();
+
+    expect(sessionService.context).toHaveBeenCalledOnceWith(session.id);
+    expect(component.sessionContext?.seasonName).toBe('Época atual');
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Época antiga');
+  });
+
   it('explains optional rankings without claiming the session is a season game', () => {
     component.session = { ...session, audience: 'COMMUNITY_ONLY', communityId: null };
     component.sessionContext = {
