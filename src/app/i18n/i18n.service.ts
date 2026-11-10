@@ -5055,6 +5055,7 @@ const PT: Dictionary = {
   'adminPlayers.ready': 'Escreve um nome para pesquisar jogadores.',
   'adminPlayers.empty': 'Nenhum jogador encontrado.',
   'adminPlayers.loadError': 'Não foi possível pesquisar jogadores. Tenta novamente.',
+  'adminPlayers.allPlayers': 'Todos os jogadores',
   'adminPlayers.results': 'Resultados para “{{name}}”',
   'adminPlayers.player': 'Jogador',
   'adminPlayers.role': 'Role',
