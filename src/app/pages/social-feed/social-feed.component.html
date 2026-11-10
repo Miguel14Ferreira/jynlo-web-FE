@@ -342,7 +342,7 @@
                              [attr.title]="'feed.likesPrivacyOptions' | t">⋯</summary>
                     <button type="button" class="feed-likers-privacy"
                             [disabled]="likersPrivacySavingId !== null"
-                            (click)="toggleLikersPrivacy(item); $any($event.target).closest('details').open = false">
+                            (click)="toggleLikersPrivacy(item)">
                       {{ (item.hideLikers ? 'feed.showLikers' : 'feed.hideLikers') | t }}
                     </button>
                   </details>
@@ -506,7 +506,7 @@
                              [attr.title]="'feed.likesPrivacyOptions' | t">⋯</summary>
                     <button type="button" class="feed-likers-privacy"
                             [disabled]="likersPrivacySavingId !== null"
-                            (click)="toggleLikersPrivacy(item); $any($event.target).closest('details').open = false">
+                            (click)="toggleLikersPrivacy(item)">
                       {{ (item.hideLikers ? 'feed.showLikers' : 'feed.hideLikers') | t }}
                     </button>
                   </details>
