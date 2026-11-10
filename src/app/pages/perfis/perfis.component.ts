@@ -11,7 +11,7 @@ import { catchError, finalize, forkJoin, of, retry, Subscription, timeout } from
 import { environment } from 'src/environment/environment';
 import { CommunityProfile } from '../model/community-profile';
 import { ProfileActivity } from '../model/my-profile';
-import { FollowStatus } from '../model/follow';
+import { FollowStatus, FollowProfile } from '../model/follow';
 import { CommunityService, FriendshipStatus, ProfileSearchFilters } from '../../services/community.service';
 import { AuthenticationService } from '../../services/authethication.service';
 import { ReliabilityService } from '../../services/reliability.service';
@@ -120,6 +120,10 @@ export class PerfisComponent implements OnInit, OnDestroy {
   loading = false;
   actionLoading = false;
   followLoading = false;
+  followListMode: 'followers' | 'following' | null = null;
+  followListProfiles: FollowProfile[] = [];
+  followListLoading = false;
+  followListError = false;
   reportLoading = false;
   blockLoading = false;
   selectedBlocked = false;
@@ -439,6 +443,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
   }
 
   private showProfile(profile: CommunityProfile): void {
+    this.closeFollowList();
     this.closeInvitePanel();
     this.sentInvites.clear();
     this.selectedProfile = profile;
@@ -476,6 +481,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
   }
 
   closeProfile(): void {
+    this.closeFollowList();
     this.closeInvitePanel();
     this.sentInvites.clear();
     this.selectedProfile = undefined;
@@ -670,6 +676,29 @@ export class PerfisComponent implements OnInit, OnDestroy {
           }
         }
       });
+  }
+
+  openFollowList(mode: 'followers' | 'following'): void {
+    if (!this.selectedProfile || this.selectedBlocked) return;
+    const username = this.selectedProfile.username;
+    this.followListMode = mode;
+    this.followListProfiles = [];
+    this.followListLoading = true;
+    this.followListError = false;
+    (mode === 'followers' ? this.socialGraphService.followers(username) : this.socialGraphService.following(username))
+      .pipe(timeout(10000), finalize(() => this.followListLoading = false))
+      .subscribe({
+        next: profiles => {
+          if (this.selectedProfile?.username === username && this.followListMode === mode)
+            this.followListProfiles = profiles;
+        },
+        error: () => { if (this.followListMode === mode) this.followListError = true; }
+      });
+  }
+
+  closeFollowList(): void {
+    this.followListMode = null;
+    this.followListProfiles = [];
   }
 
   isOwnProfile(profile: CommunityProfile): boolean {
