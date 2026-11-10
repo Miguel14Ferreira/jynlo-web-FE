@@ -697,7 +697,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   /** Read-only automatic reconciliation; never changes or cancels a booking. */
   syncVisibleRoster(): void {
     if (document.hidden || this.loading || !this.session
-        || (!this.session.joined && !this.isCreator())) return;
+        || (!this.session.joined && !this.session.waitlisted && !this.isCreator())) return;
     this.loadSession(false);
     if (this.isCreator()) this.loadGuestRequests(true);
   }
