@@ -1740,6 +1740,30 @@ describe('SessionDetailsComponent', () => {
       .toContain('Não conta para a época');
   });
 
+  it('offers an inline retry if the community season context request fails', () => {
+    component.session = { ...session, audience: 'COMMUNITY_ONLY', communityId: null };
+    sessionService.context.and.returnValue(throwError(() => new Error('unavailable')));
+    component.retrySessionContext();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.textContent).toContain('Não foi possível carregar as comunidades');
+    const retry = root.querySelector<HTMLButtonElement>('.session-context-retry');
+    expect(retry).not.toBeNull();
+
+    sessionService.context.and.returnValue(of({
+      communities: [{ id: 12, name: 'Colégio Pio' }],
+      seasonGame: true, seasonName: 'Época 2026/27'
+    }));
+    retry!.click();
+    fixture.detectChanges();
+
+    expect(sessionService.context).toHaveBeenCalledWith(session.id);
+    expect(root.querySelector('.session-context-retry')).toBeNull();
+    expect(root.querySelector('.session-community-context')?.textContent)
+      .toContain('Época 2026/27');
+  });
+
   it('explains optional rankings without claiming the session is a season game', () => {
     component.session = { ...session, audience: 'COMMUNITY_ONLY', communityId: null };
     component.sessionContext = {
