@@ -9,7 +9,6 @@ import { I18nService } from '../../i18n/i18n.service';
 import { SessionService } from '../../services/session.service';
 import { VenueService } from '../../services/venue.service';
 import { SessionSummary } from '../model/session-summary';
-import { Venue } from '../model/venue';
 import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/venue-sports-badges.component';
 
 describe('HomeComponent public discovery', () => {
@@ -23,10 +22,6 @@ describe('HomeComponent public discovery', () => {
     priceAmount: 0, privateGame: false, audience: 'PUBLIC',
     status: 'OPEN', ...overrides
   });
-
-  const venue = (id: number, sports: string | null): Venue =>
-    ({ id, name: 'Campo ' + id, city: 'Cascais', address: 'Rua Central',
-       sports, informationSource: 'OFFICIAL' } as Venue);
 
   beforeEach(async () => {
     sessions = jasmine.createSpyObj<SessionService>('SessionService', ['discover']);
@@ -111,7 +106,6 @@ describe('HomeComponent public discovery', () => {
       session(5, { gameDate: new Date(Date.now() - 86_400_000).toISOString() }),
       session(6, { status: 'FULL' })
     ]));
-    venues.suggest.and.returnValue(of({ venues: [venue(10, 'Futebol'), venue(11, null)], page: 0, hasMore: false }));
 
     const fixture = render();
     const component = fixture.componentInstance;
@@ -120,84 +114,17 @@ describe('HomeComponent public discovery', () => {
       from: jasmine.any(String)
     }));
     expect(component.featuredSessions.map(value => value.id)).toEqual([1, 6]);
-    expect(component.featuredVenues.map(value => value.id)).toEqual([10]);
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('a.preview-item:not(.preview-venue)').length).toBe(2);
-    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.preview-venue').length).toBe(1);
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.preview-venue').length).toBe(0);
   });
 
-  it('makes every public venue card a keyboard-accessible link to its own detail page', () => {
-    venues.suggest.and.returnValue(of({
-      venues: [venue(17, 'Futsal;Natação'), venue(29, 'Padel;Yoga')],
-      page: 0, hasMore: false
-    }));
+  it('shows a helpful invitation without querying the venue directory when sessions are empty', () => {
     const fixture = render();
-    const cards = Array.from(
-      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLAnchorElement>('a.preview-venue'));
-    expect(cards.length).toBe(2);
-    expect(cards.map(card => card.getAttribute('href'))).toEqual(['/venues/17', '/venues/29']);
-    expect(cards[0].getAttribute('aria-label')).toContain('Campo 17');
-    expect(cards[0].querySelector('.venue-sports-chip')?.textContent).toContain('Futsal');
-    expect(cards.every(card => card.querySelector('.preview-venue-action')?.textContent?.trim())).toBeTrue();
-    expect((fixture.nativeElement as HTMLElement).querySelector('article.preview-venue')).toBeNull();
-    fixture.destroy();
-  });
-
-  it('renders the public venue sports as compact tags instead of semicolon strings', () => {
-    venues.suggest.and.returnValue(of({
-      venues: [venue(10, 'Futebol;Futsal;Ginástica;Judo;Natação')],
-      page: 0, hasMore: false
-    }));
-    const fixture = render();
-    const card: HTMLElement = fixture.nativeElement.querySelector('.preview-venue');
-    expect(card.querySelector('.preview-venue-city')?.textContent?.trim()).toBe('Cascais');
-    expect(Array.from(card.querySelectorAll('.venue-sports-chip')).map(node => node.textContent?.trim()))
-      .toEqual(['Futebol', 'Futsal', 'Ginástica']);
-    expect(card.querySelector('.venue-sports-counter')?.textContent?.trim()).toBe('+2');
-    expect(card.textContent).not.toContain(';');
-    fixture.destroy();
-  });
-
-  it('does not invent sessions or venues when the public catalogue is empty', () => {
-    const fixture = render();
-    expect(fixture.componentInstance.featuredSessions).toEqual([]);
-    expect(fixture.componentInstance.featuredVenues).toEqual([]);
-    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.preview-state').length).toBe(2);
-    expect((fixture.nativeElement as HTMLElement).querySelector('.preview-cta')).not.toBeNull();
-  });
-
-  it('finds complete venues after an incomplete first page without downloading the whole catalogue', () => {
-    venues.suggest.and.callFake((_name?: string, _city?: string, _sport?: string, page = 0) =>
-      of(page === 0
-        ? { venues: [venue(11, null)], page: 0, hasMore: true }
-        : { venues: [venue(12, 'Basquetebol'), venue(13, 'Futebol')], page, hasMore: false }));
-
-    const fixture = render();
-    expect(venues.suggest).toHaveBeenCalledTimes(2);
-    expect(fixture.componentInstance.featuredVenues.map(value => value.id)).toEqual([12, 13]);
-    expect(fixture.componentInstance.venuesLoading).toBeFalse();
-    expect(fixture.componentInstance.venuesLoadError).toBeFalse();
-  });
-
-  it('limits public venue discovery to three pages even when no venue has a sport', () => {
-    venues.suggest.and.callFake((_name?: string, _city?: string, _sport?: string, page = 0) =>
-      of({ venues: [venue(20 + page, '  ')], page, hasMore: true }));
-
-    const fixture = render();
-    expect(venues.suggest).toHaveBeenCalledTimes(3);
-    expect(fixture.componentInstance.featuredVenues).toEqual([]);
-    expect(fixture.componentInstance.venuesLoading).toBeFalse();
-  });
-
-  it('keeps usable venues if loading a subsequent page fails', () => {
-    venues.suggest.and.callFake((_name?: string, _city?: string, _sport?: string, page = 0) =>
-      page === 0
-        ? of({ venues: [venue(34, 'Andebol')], page, hasMore: true })
-        : throwError(() => new Error('temporary server error')));
-
-    const fixture = render();
-    expect(fixture.componentInstance.featuredVenues.map(value => value.id)).toEqual([34]);
-    expect(fixture.componentInstance.venuesLoadError).toBeFalse();
-    expect(fixture.componentInstance.venuesLoading).toBeFalse();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.preview-empty')).not.toBeNull();
+    expect(root.querySelector('.preview-empty-action')?.getAttribute('href')).toBe('/login/registerNewUser');
+    expect(root.querySelector('.preview-venue')).toBeNull();
+    expect(venues.suggest).not.toHaveBeenCalled();
   });
 
   it('searches sessions and bounded venues by the selected sport and locality', () => {
@@ -214,7 +141,7 @@ describe('HomeComponent public discovery', () => {
     expect(sessions.discover).toHaveBeenCalledWith(jasmine.objectContaining({
       sport: 'Padel', city: 'Lisboa', privateGame: false
     }));
-    expect(venues.suggest).toHaveBeenCalledWith(undefined, 'Lisboa', 'Padel', 0);
+    expect(venues.suggest).not.toHaveBeenCalled();
     expect(form.getAttribute('action')).toBeNull();
   });
 
@@ -233,7 +160,7 @@ describe('HomeComponent public discovery', () => {
     expect(sessions.discover).toHaveBeenCalledWith(jasmine.objectContaining({
       sport: '', city: '', privateGame: false
     }));
-    expect(venues.suggest).toHaveBeenCalledWith(undefined, undefined, undefined, 0);
+    expect(venues.suggest).not.toHaveBeenCalled();
   });
 
   it('ignores results from a superseded public search', () => {
@@ -348,9 +275,7 @@ describe('HomeComponent public discovery', () => {
     expect(sessions.discover.calls.mostRecent().args[0]).toEqual(
       jasmine.objectContaining({ sport: 'Padel', city: 'Lisboa', privateGame: false })
     );
-    expect(venues.suggest.calls.mostRecent().args).toEqual([
-      undefined, 'Lisboa', 'Padel', 0
-    ]);
+    expect(venues.suggest).not.toHaveBeenCalled();
   });
 
   it('degrades gracefully when a public request fails', () => {
@@ -359,9 +284,7 @@ describe('HomeComponent public discovery', () => {
 
     const fixture = render();
     expect(fixture.componentInstance.sessionsLoading).toBeFalse();
-    expect(fixture.componentInstance.venuesLoading).toBeFalse();
     expect(fixture.componentInstance.sessionsLoadError).toBeTrue();
-    expect(fixture.componentInstance.venuesLoadError).toBeTrue();
-    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.preview-state').length).toBe(2);
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.preview-empty').length).toBe(1);
   });
 });
