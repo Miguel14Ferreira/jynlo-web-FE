@@ -40,6 +40,31 @@ describe('AdminPlayersComponent role changes', () => {
     component.players = [player()];
   });
 
+  it('switches between message, quota and moderation without stacking editors', () => {
+    // Superadmins can open either management operation on the same player.
+    service.communityLimit = jasmine.createSpy('communityLimit').and.returnValue(
+      of({ owned: 1, limit: 5, canCreate: true })
+    );
+    component.beginAdminMessage(player());
+    expect(component.messageRecipient?.username).toBe('ana');
+
+    component.beginCommunityLimit(player());
+    expect(component.messageRecipient).toBeNull();
+    expect(component.selectedCommunityLimitPlayer?.username).toBe('ana');
+    expect(component.communityLimitQuota?.limit).toBe(5);
+
+    component.beginAdminMessage(player());
+    expect(component.selectedCommunityLimitPlayer).toBeNull();
+    expect(component.communityLimitQuota).toBeNull();
+    expect(component.messageRecipient?.username).toBe('ana');
+
+    component.beginModeration(player(), 'SUSPEND');
+    expect(component.messageRecipient).toBeNull();
+    expect(component.pendingModeration?.action).toBe('SUSPEND');
+    expect(component.selectedCommunityLimitPlayer).toBeNull();
+    component.ngOnDestroy();
+  });
+
   it('sends an administrative notification to an active player only once', () => {
     const pending = new Subject<{ notificationId: number }>();
     service.sendAdminMessage.and.returnValue(pending.asObservable());
