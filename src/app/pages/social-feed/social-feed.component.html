@@ -458,7 +458,99 @@
                                       <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
                                       {{ shareFeedbackSessionId === item.sessionId ? shareFeedbackMessage : ('publicSession.share' | t) }}
                                     </button>
+                <button
+                  type="button"
+                  class="feed-post-reaction"
+                  [class.active]="item.likedByMe"
+                  [disabled]="interactionLoadingPostId !== null"
+                  [attr.aria-label]="item.likedByMe ? ('feed.unlikeAction' | t) : ('feed.likeAction' | t)"
+                  [attr.aria-pressed]="item.likedByMe"
+                  (click)="toggleLike(item)">
+                  <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.3 5.3 0 0 0-7.5 0L12 5.9l-1.3-1.3a5.3 5.3 0 0 0-7.5 7.5L12 21l8.8-8.9a5.3 5.3 0 0 0 0-7.5Z"/></svg>
+                  {{ item.likeCount }}
+                </button>
+
+                <button
+                  type="button"
+                  class="feed-post-reaction"
+                  [attr.aria-label]="item.postId !== null && openCommentPosts.has(item.postId)
+                    ? ('feed.hideCommentsAction' | t) : ('feed.showCommentsAction' | t)"
+                  [attr.aria-expanded]="item.postId !== null && openCommentPosts.has(item.postId)"
+                  (click)="toggleComments(item)">
+                  <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8 8 0 0 1-8.5 8.5H4l2-3.8A8 8 0 1 1 21 11.5Z"/></svg>
+                  {{ item.commentCount }}
+                </button>
+
                 </div>
+              }
+              @if (item.postId !== null && openCommentPosts.has(item.postId)) {
+                <section class="comments-panel">
+                  @if ((commentsByPost[item.postId] || []).length === 0) {
+                    <p class="comments-empty">{{ 'feed.commentsEmpty' | t }}</p>
+                  }
+
+                  @for (comment of commentsByPost[item.postId] || []; track comment.id) {
+                    <div class="comment-row">
+                      <a
+                        class="comment-avatar"
+                        [routerLink]="['/menu/perfis', comment.authorUsername]"
+                        [queryParams]="{ from: 'feed' }"
+                        [attr.aria-label]="comment.authorDisplayName + ' (@' + comment.authorUsername + ')'">
+                        @if (commentProfileImage(comment); as image) {
+                          <img [src]="image" [alt]="comment.authorUsername">
+                        } @else {
+                          <span>{{ commentInitials(comment) }}</span>
+                        }
+                      </a>
+
+                      <div class="comment-copy">
+                        <div class="comment-heading">
+                          <a class="comment-author-link" [routerLink]="['/menu/perfis', comment.authorUsername]"
+                            [queryParams]="{ from: 'feed' }">
+                            <strong>{{ comment.authorDisplayName }}</strong>
+                          </a>
+                          <span>@{{ comment.authorUsername }} · {{ comment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                        </div>
+                        <p>{{ comment.content }}</p>
+                      </div>
+
+                      @if (comment.authorUsername === currentUsername) {
+                        <button
+                          type="button"
+                          class="delete-comment jynlo-premium-btn jynlo-premium-btn--danger jynlo-premium-btn--small"
+                          [disabled]="deletingCommentId !== null"
+                          (click)="deleteComment(item, comment)">
+                          {{ deletingCommentId === comment.id ? ('common.processing' | t) : '×' }}
+                        </button>
+                      } @else {
+                        <button
+                          type="button"
+                          class="delete-comment jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small"
+                          [disabled]="reportingCommentId !== null || reportedCommentIds.has(comment.id)"
+                          (click)="reportComment(item, comment)">
+                          {{ reportedCommentIds.has(comment.id)
+                            ? ('feed.reported' | t)
+                            : (reportingCommentId === comment.id ? ('common.processing' | t) : ('feed.report' | t)) }}
+                        </button>
+                      }
+                    </div>
+                  }
+
+                  <div class="comment-composer">
+                    <input
+                      type="text"
+                      maxlength="500"
+                      [ngModel]="commentDrafts[item.postId] || ''"
+                      (ngModelChange)="commentDrafts[item.postId] = $event"
+                      [placeholder]="'feed.commentPlaceholder' | t">
+                    <button class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet"
+                      type="button"
+                      [disabled]="interactionLoadingPostId !== null || !(commentDrafts[item.postId] || '').trim()"
+                      (click)="submitComment(item)">
+                      {{ 'feed.comment' | t }}
+                    </button>
+                  </div>
+                </section>
               }
             }
 
