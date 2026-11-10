@@ -17,6 +17,10 @@ export class AdminIdeasComponent implements OnInit {
   selected?: AdminIdea;
   loading = false;
   updatingId: number | null = null;
+  replyingId: number | null = null;
+  replyText = '';
+  replySuccess = false;
+  replyError = '';
   errorMessage = '';
   newCount = 0;
   private readonly dateTimeFormatter = new Intl.DateTimeFormat('pt-PT', {
@@ -66,10 +70,41 @@ export class AdminIdeasComponent implements OnInit {
 
   select(idea: AdminIdea): void {
     this.selected = idea;
+    this.replyText = '';
+    this.replyError = '';
+    this.replySuccess = false;
   }
 
   close(): void {
+    if (this.replyingId !== null) return;
     this.selected = undefined;
+    this.replyText = '';
+  }
+
+  get canReply(): boolean {
+    return !!this.selected && !this.selected.adminRepliedAt && !this.loading
+      && this.replyingId === null && this.updatingId === null
+      && this.replyText.trim().length >= 3 && this.replyText.trim().length <= 2000;
+  }
+
+  replyToIdea(): void {
+    const selected = this.selected;
+    if (!selected || !this.canReply) return;
+    const message = this.replyText.trim();
+    this.replyingId = selected.id;
+    this.replyError = '';
+    this.replySuccess = false;
+    this.adminIdeasService.reply(selected.id, message)
+      .pipe(timeout(15_000), finalize(() => this.replyingId = null))
+      .subscribe({
+        next: updated => {
+          this.ideas = this.ideas.map(idea => idea.id === updated.id ? updated : idea);
+          if (this.selected?.id === updated.id) this.selected = updated;
+          this.replyText = '';
+          this.replySuccess = true;
+        },
+        error: () => this.replyError = t('adminIdeas.replyError')
+      });
   }
 
   updateStatus(idea: AdminIdea, status: IdeaStatus): void {
