@@ -4436,6 +4436,7 @@ const PT: Dictionary = {
   'createSession.seasonGameTitle': 'Jogo de época',
   'createSession.seasonGameHelp': 'Opcional, apenas com uma comunidade selecionada. Todos os membros podem criar jogos de época. Depois do jogo, a administração confirma as equipas e o resultado; até lá não são atribuídos pontos.',
   'createSession.seasonGameToggle': 'Colocar como jogo de época',
+  'createSession.seasonGameBalanceTeamsHint': 'Quando todas as vagas da sessão estiverem preenchidas, ficará disponível a opção «Equilibrar equipas» para organizar os jogadores.',
   'createSession.seasonGameCommunity': 'Comunidade da época',
   'createSession.seasonGameAutomaticCommunity': 'Este jogo conta exclusivamente para a época de {{name}}, depois de o resultado ser validado.',
   'createSession.seasonGameMultipleCommunities': 'Selecionaste várias comunidades. A sessão aparece em todas, mas não conta para a classificação nem para as estatísticas de nenhuma delas.',
