@@ -543,9 +543,7 @@
         <section class="state-card feed-discovery-card">
           <div class="feed-v3-side-heading">
             <h2>{{ 'discover.who.title' | t }}</h2>
-            @if (suggestedPeople.length > 0) {
-              <a class="feed-inline-link" routerLink="/menu/perfis">{{ 'feed.v3.viewAll' | t }} <span aria-hidden="true">↗</span></a>
-            }
+            <a class="feed-inline-link" routerLink="/menu/perfis">{{ 'feed.v3.viewAll' | t }} <span aria-hidden="true">↗</span></a>
           </div>
           @if (suggestedPeople.length > 0) {
             <div class="feed-suggested-people">
@@ -572,9 +570,6 @@
               }
             </div>
           }
-          <a class="jynlo-action jynlo-action--neutral feed-sidebar-link jynlo-premium-btn jynlo-premium-btn--quiet" routerLink="/menu/perfis">
-            {{ 'feed.findPeople' | t }} →
-          </a>
         </section>
         @if (myWeekCommunities.length > 0) {
           <section class="state-card feed-discovery-card feed-v3-community-panel">
