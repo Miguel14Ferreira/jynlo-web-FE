@@ -145,6 +145,15 @@
             <option value="GUIDED">Guiado — sugestões da Jynlo</option>
             <option value="CUSTOM">Personalizado — escolhes as provas</option>
           </select>
+          @if (championshipCreationMode === 'GUIDED' && championshipSportDraft) {
+            <div class="create-step" role="group" aria-label="Estrutura sugerida pela Jynlo">
+              <strong>Estrutura sugerida — opcional</strong>
+              @for (suggestion of championshipSuggestions(championshipSportDraft); track suggestion.id) {
+                <p><strong>{{ suggestion.title }}</strong> — {{ suggestion.description }}</p>
+              }
+              <small>Nada será criado automaticamente. Depois de criar a época, escolhes as provas e os torneios que queres associar.</small>
+            </div>
+          }
           <small>
             @if (championshipCreationMode === 'GUIDED') {
               A Jynlo explica os formatos recomendados e disponíveis. Podes adicionar provas ou torneios depois de criar a época.
@@ -767,6 +776,29 @@
             </ol>
           }
         </div>
+        @if (canManage && !championship.closedAt) {
+          <section class="create-step" [attr.aria-label]="'Sugestões de provas para ' + championship.name">
+            <h5>Ideias para este campeonato</h5>
+            <p>Estas sugestões são opcionais: podes combinar torneios independentes e provas internas compatíveis com a modalidade.</p>
+            @for (suggestion of championshipSuggestions(championship.sport); track suggestion.id) {
+              <div class="create-step">
+                <strong>{{ suggestion.title }}</strong>
+                <p>{{ suggestion.description }}</p>
+                @if (suggestion.nextStep === 'OWNED_TEAM' && championshipOwnedTeamEventsAvailable(championship.sport)) {
+                  <button type="button" class="t-btn t-btn-secondary"
+                    [disabled]="championshipEventBusy"
+                    (click)="prepareSuggestedChampionshipEvent(championship, suggestion)">
+                    Preparar esta prova
+                  </button>
+                } @else if (suggestion.nextStep === 'STANDALONE') {
+                  <small>Cria a prova no separador Torneios e associa-a acima quando estiver disponível.</small>
+                } @else {
+                  <small>A organização da época está disponível; o motor de resultados desta prova ainda não.</small>
+                }
+              </div>
+            }
+          </section>
+        }
         <section class="create-step" [attr.aria-label]="'communities.championshipOwned.title' | t">
           <h5>{{ 'communities.championshipOwned.title' | t }}</h5>
           <p>{{ 'communities.championshipOwned.distinction' | t }}</p>
