@@ -2682,6 +2682,32 @@ describe('SessionDetailsComponent', () => {
     expect(component.session?.maxParticipants).toBe(6);
   });
 
+  it('replays a requested guest refresh and ignores the obsolete guest list', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.sessionId = session.id;
+    component.session = {
+      ...session, joined: true, status: 'OPEN',
+      gameDate: new Date(Date.now() + 3_600_000).toISOString()
+    };
+    const older = new Subject<any[]>();
+    const newer = new Subject<any[]>();
+    sessionService.guestRequests.and.returnValues(older.asObservable(), newer.asObservable());
+
+    component.loadGuestRequests(true);
+    component.loadGuestRequests(false);
+    expect(sessionService.guestRequests).toHaveBeenCalledTimes(1);
+
+    older.next([{ id: 1, name: 'Convidado antigo', status: 'APPROVED', note: '', teamCode: null }]);
+    older.complete();
+    expect(sessionService.guestRequests).toHaveBeenCalledTimes(2);
+    expect(component.guestRequests).toEqual([]);
+
+    newer.next([{ id: 2, name: 'Convidado atual', status: 'APPROVED', note: '', teamCode: null }]);
+    newer.complete();
+    expect(component.guestRequests.map(guest => guest.name)).toEqual(['Convidado atual']);
+    expect(component.guestRequestsLoading).toBeFalse();
+  });
+
   it('queues a requested roster refresh behind an in-flight roster request', () => {
     (component as any).currentUsername = 'creator-user';
     component.sessionId = session.id;
