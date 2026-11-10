@@ -344,6 +344,11 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipNameDraft = '';
   championshipSeasonDraft = '2026/27';
   championshipSportDraft = '';
+  get championshipSportHasTournamentEngine(): boolean {
+    const model = tournamentSportCapabilities(this.championshipSportDraft);
+    return model.individual !== 'UNAVAILABLE' || model.team !== 'UNAVAILABLE';
+  }
+
   championshipHistoryView: 'ACTIVE' | 'HISTORY' = 'ACTIVE';
   expandedArchivedChampionshipId: number | null = null;
 
