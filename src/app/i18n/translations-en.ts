@@ -357,6 +357,7 @@ export const EN: Record<string, string> = {
   'sessionDetail.saveDetails': 'Save changes',
   'sessionDetail.detailsInvalid': 'Check future date, capacity, minimum players, price and location.',
   'sessionDetail.detailsSaved': 'Session changes saved.',
+  'sessionDetail.waitlistPromoted': 'Good news! You have moved off the waitlist and your place is confirmed.',
   'sessionDetail.detailsSaveError': 'Unable to save session changes.',
   'sessionDetail.capacityEdit': 'Edit players',
   'sessionDetail.capacityLabel': 'Maximum number of players',
