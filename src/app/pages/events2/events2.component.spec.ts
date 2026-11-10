@@ -3054,6 +3054,40 @@ describe('Events2Component', () => {
     );
   });
 
+  it('accepts a venue with comma-separated supported sports at submission', () => {
+    component.venues = [{
+      id: 18, name: 'Pavilhão Polivalente', city: 'Lisboa',
+      address: 'Rua dos Desportos', sports: 'Futsal, Padel',
+      latitude: 38.73, longitude: -9.15
+    } as Venue];
+    component.sport = 'Padel';
+    component.selectVenue(18);
+    component.gameDate = '2099-10-15T18:00';
+
+    component.createSession();
+
+    expect(sessionService.create).toHaveBeenCalledWith(
+      jasmine.objectContaining({ venueId: 18, sport: 'Padel' }),
+      undefined
+    );
+  });
+
+  it('does not accept a partial sport match from comma-separated venue sports', () => {
+    component.venues = [{
+      id: 19, name: 'Campo de Futebol Americano', city: 'Lisboa',
+      address: 'Rua dos Desportos', sports: 'Padel, Futebol Americano',
+      latitude: 38.73, longitude: -9.15
+    } as Venue];
+    component.sport = 'Futebol';
+    component.selectVenue(19);
+    component.gameDate = '2099-10-15T18:00';
+
+    component.createSession();
+
+    expect(sessionService.create).not.toHaveBeenCalled();
+    expect(component.errorMessage).toContain('modalidade');
+  });
+
   it('blocks submission if the formerly selected venue is no longer loaded', () => {
     component.sport = 'Padel';
     component.gameDate = '2099-10-15T18:00';
