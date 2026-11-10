@@ -28,6 +28,8 @@ export interface ChampionshipOwnedLeagueFixture {
   homeTeamName: string;
   awayTeamId: number;
   awayTeamName: string;
+  homeScore?: number | null;
+  awayScore?: number | null;
 }
 
 export interface ChampionshipCupBye {
@@ -290,6 +292,13 @@ export class CommunityChampionshipsService {
     return this.http.delete<void>(
       this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId +
       '/teams/' + championshipTeamId);
+  }
+
+  recordOwnedFixtureScore(communityId: number, championshipId: number, eventId: number,
+                          fixtureId: number, homeScore: number, awayScore: number): Observable<ChampionshipOwnedLeagueFixture> {
+    return this.http.put<ChampionshipOwnedLeagueFixture>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId +
+      '/fixtures/' + fixtureId + '/score', { homeScore, awayScore });
   }
 
   ownedLeagueFixtures(communityId: number, championshipId: number,
