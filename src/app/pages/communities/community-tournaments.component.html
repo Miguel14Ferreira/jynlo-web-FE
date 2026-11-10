@@ -703,8 +703,8 @@
         @if (championshipTeamAvailable(championship.sport)
           || (championshipTeamRegistries[championship.id]?.teams?.length || 0) > 0
           || (championshipTeamRegistries[championship.id]?.competitionTeams?.length || 0) > 0) {
-        <div class="create-step">
-          <h5 class="jynlo-section-title">{{ 'communities.competitionModes.seasonTeams' | t }}</h5>
+        <details class="create-step jynlo-season-panel">
+          <summary class="jynlo-section-title">{{ 'communities.competitionModes.seasonTeams' | t }}</summary>
           <p>Associa as equipas de diferentes provas à mesma equipa do campeonato para acumular os pontos. A associação é manual e não depende apenas do nome.</p>
           @if (championshipTeamRegistries[championship.id]; as registry) {
             @if (canManage && !championship.closedAt && championshipTeamAvailable(championship.sport)) {
@@ -813,7 +813,7 @@
           } @else {
             <p>Equipas ainda não carregadas.</p>
           }
-        </div>
+        </details>
         }
         <div class="create-step">
           @if (championship.standingsMode === 'INDEPENDENT') {
@@ -878,8 +878,8 @@
             }
           </section>
         }
-        <section class="create-step" [attr.aria-label]="'communities.championshipOwned.title' | t">
-          <h5 class="jynlo-section-title">{{ 'communities.championshipOwned.title' | t }}</h5>
+        <details class="create-step jynlo-season-panel" open [attr.aria-label]="'communities.championshipOwned.title' | t">
+          <summary class="jynlo-section-title">{{ 'communities.championshipOwned.title' | t }}</summary>
           <p>{{ 'communities.championshipOwned.distinction' | t }}</p>
           @if (championshipOwnedEvents[championship.id]?.length) {
             <ul>
@@ -1149,8 +1149,8 @@
               </button>
             </div>
           }
-          <p class="team-honours-muted">Os resultados de jogos de liga de Futebol e Futsal já podem ser registados. A classificação automática destas provas, os marcadores e as estatísticas individuais ainda estão em desenvolvimento.</p>
-        </section>
+          <p class="team-honours-muted">Os resultados e marcadores de Futebol e Futsal podem ser registados. As assistências e a classificação geral destas provas ainda estão em desenvolvimento.</p>
+        </details>
       </div>
       }
     }
