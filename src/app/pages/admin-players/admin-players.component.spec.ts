@@ -13,11 +13,46 @@ describe('AdminPlayersComponent role changes', () => {
   });
 
   beforeEach(() => {
-    service = jasmine.createSpyObj('AdminPlayersService', ['search', 'changeRole', 'moderate']);
+    service = jasmine.createSpyObj('AdminPlayersService', ['search', 'changeRole', 'moderate', 'sendAdminMessage']);
     auth = jasmine.createSpyObj('AuthenticationService', ['hasAnyRole']);
     auth.hasAnyRole.and.returnValue(true);
     component = new AdminPlayersComponent(service, auth);
     component.players = [player()];
+  });
+
+  it('sends an administrative notification to an active player only once', () => {
+    const pending = new Subject<{ notificationId: number }>();
+    service.sendAdminMessage.and.returnValue(pending.asObservable());
+    component.beginAdminMessage(player());
+    component.adminMessage = ' Aviso da administração ';
+    component.sendAdminMessage();
+    component.sendAdminMessage();
+
+    expect(service.sendAdminMessage).toHaveBeenCalledOnceWith(2, 'Aviso da administração');
+    expect(component.messageSending).toBeTrue();
+    pending.next({ notificationId: 17 });
+    pending.complete();
+    expect(component.messageSending).toBeFalse();
+    expect(component.messageRecipient).toBeNull();
+    expect(component.messageSuccess).toBe('ana');
+  });
+
+  it('does not allow a message when the user lacks admin privileges', () => {
+    auth.hasAnyRole.and.returnValue(false);
+    component.beginAdminMessage(player());
+    component.adminMessage = 'Aviso';
+    component.sendAdminMessage();
+    expect(component.messageRecipient).toBeNull();
+    expect(service.sendAdminMessage).not.toHaveBeenCalled();
+  });
+
+  it('does not send an empty or invalid administrative notice', () => {
+    component.beginAdminMessage(player());
+    component.adminMessage = '   ';
+    component.sendAdminMessage();
+    component.adminMessage = 'Linha 1\\nLinha 2'.replace('\\n', '\n');
+    component.sendAdminMessage();
+    expect(service.sendAdminMessage).not.toHaveBeenCalled();
   });
 
   it('waits for confirmation and cancellation leaves the role unchanged', () => {
