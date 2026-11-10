@@ -139,6 +139,20 @@
             </div>
           }
         </div>
+        <div class="create-field">
+          <label for="championship-mode">Como queres construir o campeonato?</label>
+          <select id="championship-mode" [(ngModel)]="championshipCreationMode">
+            <option value="GUIDED">Guiado — sugestões da Jynlo</option>
+            <option value="CUSTOM">Personalizado — escolhes as provas</option>
+          </select>
+          <small>
+            @if (championshipCreationMode === 'GUIDED') {
+              A Jynlo explica os formatos recomendados e disponíveis. Podes adicionar provas ou torneios depois de criar a época.
+            } @else {
+              Escolhes livremente as provas e podes associar torneios existentes da mesma modalidade. As regras de resultados suportadas continuam a ser respeitadas.
+            }
+          </small>
+        </div>
         <button type="button" class="t-btn t-btn-primary"
           [disabled]="championshipBusy || !championshipNameDraft.trim() || !championshipSeasonDraft.trim() || !championshipSportDraft"
           (click)="createChampionship()">{{ 'communities.championshipUi.save' | t }}</button>
@@ -608,6 +622,30 @@
           </ul>
         } @else {
           <p>{{ 'communities.championshipUi.noCompetitions' | t }}</p>
+        }
+        @if (canManage && !championship.closedAt) {
+          <div class="create-step" role="group" [attr.aria-label]="'Associar torneio ao campeonato ' + championship.name">
+            <h6>Associar torneio existente</h6>
+            <p>Os torneios continuam independentes. Podes juntar a este campeonato um torneio da mesma modalidade, sem voltar a criar resultados.</p>
+            @if (availableChampionshipTournaments(championship).length) {
+              <label [for]="'championship-existing-tournament-' + championship.id">Torneio disponível</label>
+              <select [id]="'championship-existing-tournament-' + championship.id"
+                [value]="championshipTournamentDrafts[championship.id] ?? ''"
+                (change)="championshipTournamentDrafts[championship.id] = $any($event.target).value ? +$any($event.target).value : null">
+                <option value="">Escolher torneio</option>
+                @for (tournament of availableChampionshipTournaments(championship); track tournament.id) {
+                  <option [value]="tournament.id">{{ tournament.name }} · {{ tournament.format }}</option>
+                }
+              </select>
+              <button type="button" class="t-btn t-btn-secondary"
+                [disabled]="championshipBusy || !championshipTournamentDrafts[championship.id]"
+                (click)="linkChampionshipCompetition(championship, championshipTournamentDrafts[championship.id]!)">
+                Associar torneio
+              </button>
+            } @else {
+              <small>Não há torneios disponíveis para associar nesta modalidade. Podes criar um torneio independente no separador Torneios.</small>
+            }
+          </div>
         }
         <p class="championship-sport-mode" role="note">
           <strong>{{ 'communities.competitionModes.label' | t }}:</strong>
