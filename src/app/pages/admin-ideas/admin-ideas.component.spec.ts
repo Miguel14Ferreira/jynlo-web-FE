@@ -65,6 +65,15 @@ describe('AdminIdeasComponent PT/EN Concept One audit', () => {
     expect(service.updateStatus).not.toHaveBeenCalled();
   });
 
+  it('inserts an editable acknowledgement without sending anything', () => {
+    fixture.componentInstance.select({ ...idea, name: 'Emanuel' });
+    fixture.componentInstance.useThankYouTemplate();
+
+    expect(fixture.componentInstance.replyText).toContain('Emanuel');
+    expect(fixture.componentInstance.replyText).toContain('Jynlo');
+    expect(service.reply).not.toHaveBeenCalled();
+  });
+
   it('sends the official response and displays its audit details', () => {
     const updated: AdminIdea = {
       ...idea, adminReply: 'Obrigado pelo feedback!',
