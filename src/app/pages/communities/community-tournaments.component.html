@@ -607,6 +607,10 @@
           <strong>{{ 'communities.competitionModes.label' | t }}:</strong>
           {{ championshipSportModeKey(championship.sport) | t }}
         </p>
+        <div class="championship-sport-mode" role="note">
+          <strong>{{ championshipSportGuidance(championship.sport).title }}</strong>
+          <p>{{ championshipSportGuidance(championship.sport).detail }}</p>
+        </div>
         @if (championshipTeamAvailable(championship.sport)
           || (championshipTeamRegistries[championship.id]?.teams?.length || 0) > 0
           || (championshipTeamRegistries[championship.id]?.competitionTeams?.length || 0) > 0) {
