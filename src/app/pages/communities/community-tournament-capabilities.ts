@@ -57,7 +57,13 @@ export function tournamentCreationModelForEvent(
   eventType: string | null | undefined
 ): TournamentCreationModel {
   const capabilities = tournamentSportCapabilities(sport);
-  if (team) return capabilities.team;
-  if (sport === 'Atletismo' && eventType === 'TRACK') return 'TRACK_BEST_TIME';
-  return capabilities.individual;
+  if (sport === 'Atletismo') {
+    // Athletics uses distinct contracts for timed track races, measured field
+    // events and team relays. Never route an incompatible event to another engine.
+    if (team) return eventType === 'TRACK_RELAY' ? 'RELAY_BEST_TIME' : 'UNAVAILABLE';
+    if (eventType === 'TRACK') return 'TRACK_BEST_TIME';
+    if (eventType === 'TRACK_RELAY') return 'UNAVAILABLE';
+    return capabilities.individual;
+  }
+  return team ? capabilities.team : capabilities.individual;
 }
