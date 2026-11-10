@@ -49,6 +49,23 @@ describe('Community tournaments management', () => {
     expect(instance.championshipOwnedTeamEventsAvailable('Golfe')).toBeFalse();
   });
 
+  it('offers only same-sport, unlinked, non-historical tournaments for a championship', () => {
+    const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
+    instance.tournaments = [
+      { ...draft, id: 9, sport: 'Futebol' },
+      { ...draft, id: 10, sport: 'Futebol' },
+      { ...draft, id: 11, sport: 'Natação' }
+    ];
+    const championship = {
+      id: 12, communityId: 7, name: 'Época', sport: 'Futebol', seasonLabel: '2026/27',
+      createdAt: '2026-10-16T12:00:00Z', competitions: [{ id: 9 }],
+      winnerStandings: [], closedAt: null, championEntryType: null,
+      championParticipantId: null, championDisplayName: null
+    };
+    instance.championships = [championship as any];
+    expect(instance.availableChampionshipTournaments(championship as any).map(item => item.id)).toEqual([10]);
+  });
+
   it('distinguishes championship-owned competitions from standalone tournaments', () => {
     const previous = localStorage.getItem('d24-language');
     try {
