@@ -1800,6 +1800,24 @@ describe('SessionDetailsComponent', () => {
     expect(component.detailRefreshWarning).toBe('');
   });
 
+  it('releases the page loader when a silent refresh supersedes a manual reload', () => {
+    component.sessionId = session.id;
+    const manual = new Subject<any>();
+    const silent = new Subject<any>();
+    sessionService.detail.and.returnValues(manual.asObservable(), silent.asObservable());
+
+    (component as any).loadSession();
+    expect(component.loading).toBeTrue();
+    (component as any).loadSession(false);
+    manual.complete();
+    expect(component.loading).toBeTrue();
+
+    silent.next({ ...session, participantCount: 3 });
+    silent.complete();
+    expect(component.loading).toBeFalse();
+    expect(component.session?.participantCount).toBe(3);
+  });
+
   it('ignores an older season context response after a newer refresh starts', () => {
     component.session = { ...session, audience: 'COMMUNITY_ONLY', communityId: 12 };
     const oldRequest = new Subject<any>();
