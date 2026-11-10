@@ -1005,6 +1005,54 @@
                                       </button>
                                     </div>
                                   }
+                                  @if ((championship.sport === 'Futebol' || championship.sport === 'Futsal')
+                                      && fixture.homeScore != null && fixture.awayScore != null) {
+                                    <div class="jynlo-goal-timeline">
+                                      <strong>Marcadores do jogo</strong>
+                                      @for (goal of championshipFixtureGoals[fixture.id] || []; track goal.id) {
+                                        <div class="jynlo-goal-row">
+                                          <span>⚽ {{ goal.scorerName }} · {{ goal.teamName }}
+                                            @if (goal.minute != null) { · {{ goal.minute }}' }
+                                          </span>
+                                          @if (canManage && !championship.closedAt) {
+                                            <button type="button" class="t-btn t-btn-secondary"
+                                              [disabled]="championshipFixtureGoalBusy[fixture.id]"
+                                              (click)="removeFixtureGoal(championship, event, fixture.id, goal.id)">Remover</button>
+                                          }
+                                        </div>
+                                      } @empty {
+                                        <small>Ainda não há golos atribuídos a jogadores.</small>
+                                      }
+                                      @if (canManage && !championship.closedAt && event.status === 'SCHEDULED') {
+                                        <div class="jynlo-goal-form">
+                                          <label [for]="'goal-team-' + fixture.id">Equipa</label>
+                                          <select [id]="'goal-team-' + fixture.id"
+                                            [value]="championshipFixtureGoalTeamDrafts[fixture.id] ?? ''"
+                                            (change)="championshipFixtureGoalTeamDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null; championshipFixtureGoalPlayerDrafts[fixture.id] = null">
+                                            <option value="">Escolher equipa</option>
+                                            <option [value]="fixture.homeTeamId">{{ fixture.homeTeamName }}</option>
+                                            <option [value]="fixture.awayTeamId">{{ fixture.awayTeamName }}</option>
+                                          </select>
+                                          <label [for]="'goal-player-' + fixture.id">Marcador</label>
+                                          <select [id]="'goal-player-' + fixture.id"
+                                            [value]="championshipFixtureGoalPlayerDrafts[fixture.id] ?? ''"
+                                            (change)="championshipFixtureGoalPlayerDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null">
+                                            <option value="">Escolher jogador</option>
+                                            @for (player of fixtureTeamPlayerOptions(championship.id, championshipFixtureGoalTeamDrafts[fixture.id]); track player.profileId) {
+                                              <option [value]="player.profileId">{{ player.displayName }}</option>
+                                            }
+                                          </select>
+                                          <label [for]="'goal-minute-' + fixture.id">Minuto (opcional)</label>
+                                          <input [id]="'goal-minute-' + fixture.id" type="number" min="0" max="200"
+                                            [value]="championshipFixtureGoalMinuteDrafts[fixture.id] ?? ''"
+                                            (input)="championshipFixtureGoalMinuteDrafts[fixture.id] = $any($event.target).value === '' ? null : +$any($event.target).value">
+                                          <button type="button" class="t-btn t-btn-secondary"
+                                            [disabled]="championshipFixtureGoalBusy[fixture.id] || !championshipFixtureGoalPlayerDrafts[fixture.id]"
+                                            (click)="addFixtureGoal(championship, event, fixture)">Registar golo</button>
+                                        </div>
+                                      }
+                                    </div>
+                                  }
                                 </li>
                               }
                             </ul>
