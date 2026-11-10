@@ -121,21 +121,25 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     this.loadSessionContext(this.session.id);
   }
 
+  private sessionContextRequestId = 0;
+
   private loadSessionContext(sessionId: number): void {
-    // A refreshed season may have been renamed or deleted. Never display a
-    // previously cached association when the fresh request fails.
+    // An older request can finish after a newer refresh for the same session.
+    // Only the latest request may change the displayed season context or loading state.
+    const requestId = ++this.sessionContextRequestId;
+    const isCurrentRequest = () => this.session?.id === sessionId && this.sessionContextRequestId === requestId;
     this.sessionContext = null;
     this.sessionContextLoading = true;
     this.sessionContextError = '';
     this.sessionService.context(sessionId).pipe(
       timeout(10_000),
-      finalize(() => { if (this.session?.id === sessionId) this.sessionContextLoading = false; })
+      finalize(() => { if (isCurrentRequest()) this.sessionContextLoading = false; })
     ).subscribe({
       next: context => {
-        if (this.session?.id === sessionId) this.sessionContext = context;
+        if (isCurrentRequest()) this.sessionContext = context;
       },
       error: () => {
-        if (this.session?.id === sessionId) this.sessionContextError = t('sessionDetail.communityContextError');
+        if (isCurrentRequest()) this.sessionContextError = t('sessionDetail.communityContextError');
       }
     });
   }
