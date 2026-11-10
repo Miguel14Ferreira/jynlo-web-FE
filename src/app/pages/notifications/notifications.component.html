@@ -326,6 +326,20 @@
                   </button>
                 }
 
+                @if ((selected.type === 'SOCIAL_POST_LIKED'
+                      || selected.type === 'SOCIAL_POST_COMMENTED'
+                      || selected.type === 'SOCIAL_NEW_FOLLOWER') && selected.relatedUsername) {
+                  <button type="button" class="primary-action jynlo-action jynlo-action--primary"
+                          (click)="openSocialProfile(selected)">
+                    {{ 'notifications.social.openProfile' | t }}
+                  </button>
+                }
+                @if ((selected.type === 'SOCIAL_POST_LIKED'
+                      || selected.type === 'SOCIAL_POST_COMMENTED') && selected.sessionId === null) {
+                  <button type="button" class="secondary-button jynlo-action jynlo-action--neutral"
+                          (click)="openSocialFeed()">{{ 'notifications.social.openFeed' | t }}</button>
+                }
+
                 @if (selected.type === 'CHAT_MESSAGE' && selected.relatedUsername) {
                   <button type="button" class="primary-action jynlo-action jynlo-action--primary" (click)="openChat(selected)">
                     {{ 'notifications.openChat' | t }}
