@@ -500,6 +500,51 @@ describe('Events2Component', () => {
     expect(component.registrationOpeningMode).toBe('MANUAL');
   });
 
+  it('does not restore an old preset venue after the organiser changes sport', () => {
+    component.sport = 'Futsal';
+    component.presetName = 'Recinto habitual';
+    presetService.create.and.callFake((name, settings) => of({
+      id: 41, name, settings: { ...settings, selectedVenueId: 99 },
+      createdAt: '', updatedAt: ''
+    }));
+    component.savePreset();
+    const pendingVenue = new Subject<Venue>();
+    venueService.get.and.returnValue(pendingVenue.asObservable());
+
+    component.applyPresetById(41);
+    component.onSportChoice('Padel');
+    pendingVenue.next({
+      id: 99, name: 'Recinto antigo', city: 'Lisboa',
+      address: 'Rua antiga', sports: 'Futsal;Padel',
+      latitude: null, longitude: null
+    } as Venue);
+    pendingVenue.complete();
+
+    expect(component.sport).toBe('Padel');
+    expect(component.selectedVenueId).toBeNull();
+    expect(component.venueSearch).not.toContain('Recinto antigo');
+  });
+
+  it('does not show a stale preset venue error after changing location method', () => {
+    component.sport = 'Futsal';
+    component.presetName = 'Recinto habitual';
+    presetService.create.and.callFake((name, settings) => of({
+      id: 42, name, settings: { ...settings, selectedVenueId: 99 },
+      createdAt: '', updatedAt: ''
+    }));
+    component.savePreset();
+    const pendingVenue = new Subject<Venue>();
+    venueService.get.and.returnValue(pendingVenue.asObservable());
+
+    component.applyPresetById(42);
+    component.locationMethod = 'maps';
+    pendingVenue.error(new Error('Recinto indisponível'));
+
+    expect(component.locationMethod).toBe('maps');
+    expect(component.selectedVenueId).toBeNull();
+    expect(component.presetError).toBe('');
+  });
+
   it('requires two explicit clicks to delete a preset', () => {
     component.sport = 'Futsal';
     component.presetName = 'Futsal';
