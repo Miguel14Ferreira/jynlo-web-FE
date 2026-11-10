@@ -81,6 +81,15 @@ export class AdminIdeasComponent implements OnInit {
     this.replyText = '';
   }
 
+  useThankYouTemplate(): void {
+    const selected = this.selected;
+    if (!selected || selected.adminRepliedAt || this.replyingId !== null) return;
+    const name = (selected.name || '').trim().slice(0, 80);
+    this.replyText = t('adminIdeas.replyThanksTemplate').replace('{{name}}', name || '!');
+    this.replySuccess = false;
+    this.replyError = '';
+  }
+
   get canReply(): boolean {
     return !!this.selected && !this.selected.adminRepliedAt && !this.loading
       && this.replyingId === null && this.updatingId === null
