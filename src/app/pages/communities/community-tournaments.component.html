@@ -942,7 +942,34 @@
                             <strong>{{ 'communities.championshipOwned.round' | t }} {{ round }}</strong>
                             <ul>
                               @for (fixture of leagueRoundFixtures(event.id, round); track fixture.id) {
-                                <li>{{ fixture.homeTeamName }} · {{ 'communities.championshipOwned.versus' | t }} · {{ fixture.awayTeamName }}</li>
+                                <li class="jynlo-match-result">
+                                  <div class="jynlo-match-result-main">
+                                    <strong>{{ fixture.homeTeamName }}</strong>
+                                    <span class="jynlo-score">
+                                      @if (fixture.homeScore != null && fixture.awayScore != null) {
+                                        {{ fixture.homeScore }} : {{ fixture.awayScore }}
+                                      } @else { vs }
+                                    </span>
+                                    <strong>{{ fixture.awayTeamName }}</strong>
+                                  </div>
+                                  @if (canManage && !championship.closedAt && event.status === 'SCHEDULED') {
+                                    <div class="jynlo-match-score-edit">
+                                      <label [for]="'home-score-' + fixture.id">Casa</label>
+                                      <input [id]="'home-score-' + fixture.id" type="number" min="0" max="999"
+                                        [value]="championshipFixtureScoreDrafts[fixture.id]?.home ?? fixture.homeScore ?? ''"
+                                        (input)="championshipFixtureScoreDrafts[fixture.id] = {home: $any($event.target).value === '' ? null : +$any($event.target).value, away: championshipFixtureScoreDrafts[fixture.id]?.away ?? fixture.awayScore ?? null}">
+                                      <label [for]="'away-score-' + fixture.id">Fora</label>
+                                      <input [id]="'away-score-' + fixture.id" type="number" min="0" max="999"
+                                        [value]="championshipFixtureScoreDrafts[fixture.id]?.away ?? fixture.awayScore ?? ''"
+                                        (input)="championshipFixtureScoreDrafts[fixture.id] = {home: championshipFixtureScoreDrafts[fixture.id]?.home ?? fixture.homeScore ?? null, away: $any($event.target).value === '' ? null : +$any($event.target).value}">
+                                      <button type="button" class="t-btn t-btn-secondary"
+                                        [disabled]="championshipFixtureSaving[fixture.id]"
+                                        (click)="saveChampionshipFixtureScore(championship, event, fixture)">
+                                        {{ championshipFixtureSaving[fixture.id] ? 'A guardar…' : 'Guardar resultado' }}
+                                      </button>
+                                    </div>
+                                  }
+                                </li>
                               }
                             </ul>
                           </div>
