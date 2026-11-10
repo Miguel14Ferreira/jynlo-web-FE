@@ -430,6 +430,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     });
   }
 
+  championshipRankingModeDraft: 'AGGREGATE' | 'INDEPENDENT' = 'AGGREGATE';
   championshipNameDraft = '';
   championshipSeasonDraft = '2026/27';
   championshipSportDraft = '';
@@ -865,7 +866,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipError = '';
     const communityId = this.community.id;
     const revision = this.championshipRevision;
-    this.championshipsApi.create(communityId, name, sport, season).subscribe({
+    this.championshipsApi.create(communityId, name, sport, season, this.championshipRankingModeDraft).subscribe({
       next: championship => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championships = [championship, ...this.championships];
@@ -873,6 +874,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.loadChampionshipTeams(championship.id);
         this.championshipOwnedEvents[championship.id] = [];
         this.championshipNameDraft = '';
+        this.championshipRankingModeDraft = 'AGGREGATE';
         this.championshipOpen = false;
         this.championshipBusy = false;
         this.changeDetector.markForCheck();
