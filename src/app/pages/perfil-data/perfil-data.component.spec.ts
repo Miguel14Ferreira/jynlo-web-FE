@@ -4,6 +4,7 @@ import { defer, of, throwError } from 'rxjs';
 import { PerfilDataComponent } from './perfil-data.component';
 import { MyProfileService } from '../../services/my-profile.service';
 import { ReliabilityService } from '../../services/reliability.service';
+import { SocialGraphService } from '../../services/social-graph.service';
 import { TEST_IMPORTS, TEST_PROVIDERS } from '../../testing/test-providers';
 
 describe('PerfilDataComponent', () => {
@@ -11,9 +12,14 @@ describe('PerfilDataComponent', () => {
   let fixture: ComponentFixture<PerfilDataComponent>;
   let profileService: jasmine.SpyObj<MyProfileService>;
   let reliabilityService: jasmine.SpyObj<ReliabilityService>;
+  let socialGraphService: jasmine.SpyObj<SocialGraphService>;
 
   beforeEach(async () => {
     profileService = jasmine.createSpyObj<MyProfileService>('MyProfileService', ['get']);
+    socialGraphService = jasmine.createSpyObj<SocialGraphService>('SocialGraphService', ['status', 'followers', 'following']);
+    socialGraphService.status.and.returnValue(of({ followedByMe: false, followsMe: false, followers: 2, following: 3 }));
+    socialGraphService.followers.and.returnValue(of([{ username: 'ana', fullName: 'Ana', nickname: null, profilePicUrl: null }]));
+    socialGraphService.following.and.returnValue(of([]));
     reliabilityService = jasmine.createSpyObj<ReliabilityService>('ReliabilityService', ['summary', 'activity']);
 
     profileService.get.and.returnValue(of({
@@ -66,7 +72,8 @@ describe('PerfilDataComponent', () => {
       providers: [
         ...TEST_PROVIDERS,
         { provide: MyProfileService, useValue: profileService },
-        { provide: ReliabilityService, useValue: reliabilityService }
+        { provide: ReliabilityService, useValue: reliabilityService },
+        { provide: SocialGraphService, useValue: socialGraphService }
       ]
     }).compileComponents();
 
@@ -87,6 +94,17 @@ describe('PerfilDataComponent', () => {
     expect(component).toBeTruthy();
     expect(profileService.get).toHaveBeenCalled();
     expect(component.profile?.username).toBe('miguel');
+  });
+
+  it('opens the own followers list with real linked profiles', () => {
+    const button = (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLButtonElement>('.my-follow-summary button');
+    expect(button).not.toBeNull();
+    button?.click();
+    fixture.detectChanges();
+    expect(socialGraphService.followers).toHaveBeenCalledOnceWith('miguel');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.social-list-people')?.textContent).toContain('Ana');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.social-list-people a')?.getAttribute('href')).toBe('/menu/perfis/ana');
   });
 
   it('should collapse favorite sports after five', () => {
