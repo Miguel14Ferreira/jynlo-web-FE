@@ -1784,6 +1784,29 @@ describe('SessionDetailsComponent', () => {
     expect(component.sessionContextLoading).toBeFalse();
   });
 
+  it('does not show a stale error while the latest season context request succeeds', () => {
+    component.session = { ...session, audience: 'COMMUNITY_ONLY', communityId: 12 };
+    const previous = new Subject<any>();
+    const latest = new Subject<any>();
+    sessionService.context.and.returnValues(previous.asObservable(), latest.asObservable());
+
+    (component as any).loadSessionContext(session.id);
+    (component as any).loadSessionContext(session.id);
+
+    previous.error(new Error('Previous request failed'));
+    expect(component.sessionContextLoading).toBeTrue();
+    expect(component.sessionContextError).toBe('');
+
+    latest.next({ communities: [{ id: 12, name: 'Colégio Pio' }], seasonGame: true, seasonName: 'Época atual' });
+    latest.complete();
+    fixture.detectChanges();
+
+    expect(component.sessionContextLoading).toBeFalse();
+    expect(component.sessionContextError).toBe('');
+    expect(component.sessionContext?.seasonName).toBe('Época atual');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.session-context-error')).toBeNull();
+  });
+
   it('invalidates stale season data when a context refresh fails and retries safely', () => {
     component.session = { ...session, audience: 'COMMUNITY_ONLY', communityId: 12 };
     component.sessionContext = {
