@@ -585,8 +585,8 @@
       }
     @for (championship of championships; track championship.id) {
       @if (!championship.closedAt) {
-      <div class="create-step">
-        <div class="create-step-heading">
+      <div class="create-step jynlo-season-card">
+        <div class="create-step-heading jynlo-season-heading">
           <div>
             <h5>{{ championship.name }}</h5>
             <p>{{ championship.sport }} · {{ championship.seasonLabel }}</p>
@@ -701,7 +701,7 @@
           || (championshipTeamRegistries[championship.id]?.teams?.length || 0) > 0
           || (championshipTeamRegistries[championship.id]?.competitionTeams?.length || 0) > 0) {
         <div class="create-step">
-          <h5>{{ 'communities.competitionModes.seasonTeams' | t }}</h5>
+          <h5 class="jynlo-section-title">{{ 'communities.competitionModes.seasonTeams' | t }}</h5>
           <p>Associa as equipas de diferentes provas à mesma equipa do campeonato para acumular os pontos. A associação é manual e não depende apenas do nome.</p>
           @if (championshipTeamRegistries[championship.id]; as registry) {
             @if (canManage && !championship.closedAt && championshipTeamAvailable(championship.sport)) {
@@ -785,7 +785,7 @@
               <p>Existem provas por concluir ou com vencedor por confirmar.</p>
             }
           } @else {
-          <h5>Classificação geral do campeonato</h5>
+          <h5 class="jynlo-section-title">Classificação geral do campeonato</h5>
           @if (championshipAggregateStandings[championship.id]; as aggregate) {
             <p>
               {{ aggregate.fullyScoredCompetitions }} prova(s) com posições verificadas ·
@@ -841,7 +841,7 @@
           </section>
         }
         <section class="create-step" [attr.aria-label]="'communities.championshipOwned.title' | t">
-          <h5>{{ 'communities.championshipOwned.title' | t }}</h5>
+          <h5 class="jynlo-section-title">{{ 'communities.championshipOwned.title' | t }}</h5>
           <p>{{ 'communities.championshipOwned.distinction' | t }}</p>
           @if (championshipOwnedEvents[championship.id]?.length) {
             <ul>
