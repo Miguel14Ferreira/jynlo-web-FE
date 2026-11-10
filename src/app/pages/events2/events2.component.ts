@@ -733,12 +733,14 @@ export class Events2Component implements OnInit, OnDestroy {
 
   onSportChoice(value: string): void {
     if (this.sport === value) return;
+    ++this.communityPrefillRevision;
     this.clearAirsoftDefaultsOnSportChange(value);
     this.sport = value;
     this.confirmSportSelection();
   }
 
   onVenueSelected(value: string): void {
+    ++this.communityPrefillRevision;
     if (!value) {
       this.selectVenue(null);
       return;
@@ -1173,6 +1175,7 @@ export class Events2Component implements OnInit, OnDestroy {
     if (this.venueSearch === value) {
       return;
     }
+    ++this.communityPrefillRevision;
 
     this.venueSearch = value;
     if (this.selectedVenueId !== null) {
@@ -1322,6 +1325,7 @@ export class Events2Component implements OnInit, OnDestroy {
 
   chooseLocationMethod(method: 'venue' | 'maps' | 'gps'): void {
     if (this.loading || this.venueSaving || method === this.locationMethod) return;
+    ++this.communityPrefillRevision;
 
     if (method === 'venue') {
       this.invalidateVenueMapLinkRequest();
@@ -1340,6 +1344,7 @@ export class Events2Component implements OnInit, OnDestroy {
   }
 
   useMapLinkVenue(): void {
+    ++this.communityPrefillRevision;
     this.locationMethod = 'maps';
     this.invalidateVenueMapLinkRequest();
     this.venuePhotoRequestId++;
