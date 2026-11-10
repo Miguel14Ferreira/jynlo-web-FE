@@ -6408,6 +6408,29 @@ describe('Community tournaments management', () => {
     }
   });
 
+  it('opens creation through a format choice and keeps championship and tournament flows separate', () => {
+    expect(component.competitionView).toBe('championships');
+    expect(component.creationPickerOpen).toBeFalse();
+    component.openCompetitionPicker();
+    expect(component.creationPickerOpen).toBeTrue();
+    component.chooseCompetitionKind('tournaments');
+    expect(component.competitionView).toBe('tournaments');
+    expect(component.creationPickerOpen).toBeFalse();
+    expect(component.showGuide).toBeTrue();
+    expect(component.championshipOpen).toBeFalse();
+
+    component.chooseCompetitionKind('championships');
+    expect(component.competitionView).toBe('championships');
+    expect(component.championshipOpen).toBeTrue();
+    expect(component.showGuide).toBeFalse();
+  });
+
+  it('calculates summary from real competition states without counting drafts as finished', () => {
+    component.tournaments = [{ ...draft }, { ...draft, id: 10, status: 'COMPLETED' }];
+    expect(component.activeTournamentCount).toBe(1);
+    expect(component.completedTournamentCount).toBe(1);
+  });
+
   it('keeps the championship explanation optional and resets it on another community', () => {
     expect(component.championshipExplainerOpen).toBeFalse();
     component.championshipExplainerOpen = true;
