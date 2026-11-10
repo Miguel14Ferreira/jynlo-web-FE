@@ -172,3 +172,36 @@
 :host .jynlo-team-roster-add { display: flex; flex-wrap: wrap; align-items: end; gap: .7rem; margin: .9rem 0; }
 :host .jynlo-team-roster-add label { flex: 0 0 100%; }
 :host .jynlo-team-roster-add select { flex: 1 1 210px; }
+
+:host .jynlo-goal-timeline {
+  display: grid;
+  gap: .6rem;
+  margin-top: 1rem;
+  padding: .85rem;
+  border: 1px solid rgba(111, 190, 174, .24);
+  border-radius: .75rem;
+  background: rgba(9, 49, 56, .5);
+}
+:host .jynlo-goal-timeline > strong { color: #dcfff4; font-size: .92rem; }
+:host .jynlo-goal-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  padding: .45rem .65rem;
+  background: rgba(9, 38, 51, .6);
+  border-radius: .55rem;
+}
+:host .jynlo-goal-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  align-items: end;
+  margin-top: .5rem;
+  border-top: 1px solid rgba(116, 188, 177, .18);
+  padding-top: .7rem;
+}
+:host .jynlo-goal-form select { flex: 1 1 165px; }
+:host .jynlo-goal-form input[type="number"] { width: 5.6rem; }
+:host .jynlo-goal-form label { font-size: .79rem; }
