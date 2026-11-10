@@ -1,4 +1,4 @@
-import { ChampionshipTeamPlayer } from '../../services/community-championships.service';
+import { ChampionshipTeamPlayer, ChampionshipFixtureGoal } from '../../services/community-championships.service';
 import { CommunityChampionshipsService, ChampionshipOwnedEvent, ChampionshipOwnedEventTeam, ChampionshipOwnedLeagueFixture, ChampionshipCupOpeningRound, ChampionshipOwnedEventFormat, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
 import { championshipTeamProfile, ChampionshipTeamProfile } from './community-championship-team-profile';
 import { compareTeamSeasons, comparableTeamSeasons, TeamSeasonComparison } from './community-championship-team-comparison';
@@ -558,6 +558,92 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipLeagueBusy = false;
   championshipFixtureScoreDrafts: Record<number, {home: number | null; away: number | null}> = {};
   championshipFixtureSaving: Record<number, boolean> = {};
+  championshipFixtureGoals: Record<number, ChampionshipFixtureGoal[]> = {};
+  championshipFixtureGoalPlayerDrafts: Record<number, number | null> = {};
+  championshipFixtureGoalTeamDrafts: Record<number, number | null> = {};
+  championshipFixtureGoalMinuteDrafts: Record<number, number | null> = {};
+  championshipFixtureGoalBusy: Record<number, boolean> = {};
+
+  fixtureTeamPlayerOptions(championshipId: number, teamId: number | null | undefined): ChampionshipTeamPlayer[] {
+    if (teamId == null || !this.championshipTeamRegistries[championshipId]?.teams.some(team => team.id === teamId))
+      return [];
+    return this.championshipTeamPlayers[teamId] || [];
+  }
+
+  loadFixtureGoals(championshipId: number, eventId: number, fixtureId: number): void {
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipsApi.fixtureGoals(communityId, championshipId, eventId, fixtureId).subscribe({
+      next: goals => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipFixtureGoals[fixtureId] = goals;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipError = 'Não foi possível carregar os marcadores deste jogo.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  addFixtureGoal(championship: CommunityChampionship, event: ChampionshipOwnedEvent,
+                 fixture: ChampionshipOwnedLeagueFixture): void {
+    const teamId = this.championshipFixtureGoalTeamDrafts[fixture.id];
+    const profileId = this.championshipFixtureGoalPlayerDrafts[fixture.id];
+    const minute = this.championshipFixtureGoalMinuteDrafts[fixture.id] ?? null;
+    const validTeam = teamId === fixture.homeTeamId || teamId === fixture.awayTeamId;
+    if (!this.canManage || !!championship.closedAt || this.championshipFixtureGoalBusy[fixture.id]
+        || !['Futebol', 'Futsal'].includes(championship.sport)
+        || event.format !== 'LEAGUE' || event.status !== 'SCHEDULED'
+        || !validTeam || !profileId
+        || !this.fixtureTeamPlayerOptions(championship.id, teamId)
+          .some(player => player.profileId === profileId)
+        || minute !== null && (!Number.isInteger(minute) || minute < 0 || minute > 200)) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipFixtureGoalBusy[fixture.id] = true;
+    this.championshipsApi.addFixtureGoal(communityId, championship.id, event.id, fixture.id,
+      profileId, teamId!, minute).subscribe({
+      next: goals => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipFixtureGoals[fixture.id] = goals;
+        this.championshipFixtureGoalPlayerDrafts[fixture.id] = null;
+        this.championshipFixtureGoalBusy[fixture.id] = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipFixtureGoalBusy[fixture.id] = false;
+        this.championshipError = 'Não foi possível registar o marcador. Confirma a equipa, o resultado e o plantel.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  removeFixtureGoal(championship: CommunityChampionship, event: ChampionshipOwnedEvent,
+                    fixtureId: number, goalId: number): void {
+    if (!this.canManage || !!championship.closedAt || this.championshipFixtureGoalBusy[fixtureId]) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipFixtureGoalBusy[fixtureId] = true;
+    this.championshipsApi.removeFixtureGoal(communityId, championship.id, event.id, fixtureId, goalId).subscribe({
+      next: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipFixtureGoals[fixtureId] = (this.championshipFixtureGoals[fixtureId] || [])
+          .filter(goal => goal.id !== goalId);
+        this.championshipFixtureGoalBusy[fixtureId] = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipFixtureGoalBusy[fixtureId] = false;
+        this.championshipError = 'Não foi possível remover o marcador.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
 
   saveChampionshipFixtureScore(championship: CommunityChampionship,
                                event: ChampionshipOwnedEvent, fixture: ChampionshipOwnedLeagueFixture): void {
@@ -658,6 +744,10 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: matches => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipLeagueFixtures[eventId] = matches;
+        if (this.championships.some(item => item.id === championshipId
+            && (item.sport === 'Futebol' || item.sport === 'Futsal'))) {
+          matches.forEach(match => this.loadFixtureGoals(championshipId, eventId, match.id));
+        }
         this.changeDetector.markForCheck();
       },
       error: () => {
@@ -682,6 +772,8 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: fixtures => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipLeagueFixtures[event.id] = fixtures;
+        if (championship.sport === 'Futebol' || championship.sport === 'Futsal')
+          fixtures.forEach(fixture => this.loadFixtureGoals(championship.id, event.id, fixture.id));
         this.championshipOwnedEvents[championship.id] = (this.championshipOwnedEvents[championship.id] || [])
           .map(item => item.id === event.id ? { ...item, status: 'SCHEDULED' as const } : item);
         this.championshipLeagueBusy = false;
@@ -930,6 +1022,11 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipLeagueFixtures = {};
     this.championshipFixtureScoreDrafts = {};
     this.championshipFixtureSaving = {};
+    this.championshipFixtureGoals = {};
+    this.championshipFixtureGoalPlayerDrafts = {};
+    this.championshipFixtureGoalTeamDrafts = {};
+    this.championshipFixtureGoalMinuteDrafts = {};
+    this.championshipFixtureGoalBusy = {};
     this.championshipCupDraws = {};
     this.championshipLeagueLegs = {};
     this.editingChampionshipEventId = null;
