@@ -1764,6 +1764,42 @@ describe('SessionDetailsComponent', () => {
       .toContain('Época 2026/27');
   });
 
+  it('keeps the latest session detail when an older refresh returns afterwards', () => {
+    component.sessionId = session.id;
+    const older = new Subject<any>();
+    const newer = new Subject<any>();
+    sessionService.detail.and.returnValues(older.asObservable(), newer.asObservable());
+
+    (component as any).loadSession(false);
+    (component as any).loadSession(false);
+
+    newer.next({ ...session, participantCount: 4, status: 'FULL' });
+    newer.complete();
+    older.next({ ...session, participantCount: 2, status: 'OPEN' });
+    older.complete();
+
+    expect(component.session?.participantCount).toBe(4);
+    expect(component.session?.status).toBe('FULL');
+    expect(component.detailRefreshWarning).toBe('');
+  });
+
+  it('ignores obsolete detail refresh failures after a successful newer refresh', () => {
+    component.sessionId = session.id;
+    const older = new Subject<any>();
+    const newer = new Subject<any>();
+    sessionService.detail.and.returnValues(older.asObservable(), newer.asObservable());
+
+    (component as any).loadSession(false);
+    (component as any).loadSession(false);
+
+    newer.next({ ...session, participantCount: 3 });
+    newer.complete();
+    older.error(new Error('Offline response from older request'));
+
+    expect(component.session?.participantCount).toBe(3);
+    expect(component.detailRefreshWarning).toBe('');
+  });
+
   it('ignores an older season context response after a newer refresh starts', () => {
     component.session = { ...session, audience: 'COMMUNITY_ONLY', communityId: 12 };
     const oldRequest = new Subject<any>();
