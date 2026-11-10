@@ -1152,6 +1152,44 @@ describe('Events2Component', () => {
     expect(fixture.nativeElement.querySelector('input[name="confirmedPlayers"]')).toBeNull();
   });
 
+  it('shows the community-sharing panel only after an actual membership is loaded', () => {
+    const panel = () => fixture.nativeElement.querySelector('#create-share-title');
+
+    // Accounts without communities can still create a normal session.
+    component.communities = [];
+    component.communitiesLoading = false;
+    component.communitiesLoadError = false;
+    fixture.detectChanges();
+    expect(panel()).toBeNull();
+
+    // Do not reveal the section before the membership request has finished.
+    component.communitiesLoading = true;
+    fixture.detectChanges();
+    expect(panel()).toBeNull();
+
+    component.communitiesLoading = false;
+    component.communitiesLoadError = true;
+    fixture.detectChanges();
+    expect(panel()).toBeNull();
+
+    component.communitiesLoadError = false;
+    component.communities = [{
+      id: 12, name: 'Grupo de futebol', myRole: 'MEMBER',
+      sport: 'Futebol', description: null, photoUrl: null,
+      visibility: 'PRIVATE', rankingsEnabled: false,
+      ownerUsername: 'owner', memberCount: 2,
+      createdAt: '2026-01-01', members: []
+    } as any];
+    fixture.detectChanges();
+    expect(panel()).not.toBeNull();
+    expect(fixture.nativeElement.querySelectorAll('.create-share-community').length).toBe(1);
+
+    // Membership removed on refresh: the panel should disappear again.
+    component.communities = [];
+    fixture.detectChanges();
+    expect(panel()).toBeNull();
+  });
+
   it('blocks sharing sessions into admin-only communities for ordinary members', async () => {
     const group = (id: number, role: 'MEMBER' | 'ADMIN', membersCanCreateSessions: boolean) => ({
       id, name: 'Grupo ' + id, myRole: role, membersCanCreateSessions,
