@@ -51,3 +51,67 @@ tr:last-child td { border-bottom: 0; }
 .moderation-confirmation .confirmation-actions { margin-top: 1rem; }
 .danger-action { background: #b91c1c; color: #fff; border-color: #ef4444; }
 .danger-outline { color: #fecaca; border-color: rgba(248,113,113,.5); background: rgba(185,28,28,.08); }
+
+
+/* Admin editors: consistent field hierarchy, usable controls and restrained styling. */
+.admin-editor {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1.1rem, 2.5vw, 1.65rem);
+  border-color: rgba(51, 219, 196, .28);
+  background: linear-gradient(145deg, #0d2737, #0b1e2d);
+}
+.admin-editor > h2 { font-size: 1.15rem; line-height: 1.35; }
+.admin-editor > p { margin: -.4rem 0 .3rem; color: #bad5dd; }
+.admin-editor__field { display: flex; flex-direction: column; align-items: stretch; gap: .55rem; min-width: 0; }
+.admin-editor__field label { display: block; margin: 0; color: #e5f8f7; font-weight: 700; }
+.admin-editor__field input,
+.admin-editor__field textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: .85rem 1rem;
+  border: 1px solid rgba(52, 211, 190, .36);
+  border-radius: .75rem;
+  background: #0b3036;
+  color: #f4fffc;
+  font: inherit;
+  line-height: 1.5;
+}
+.admin-editor__field textarea { min-height: 7.5rem; resize: vertical; }
+.admin-editor__field input:focus-visible,
+.admin-editor__field textarea:focus-visible { outline: 2px solid #28d9c6; outline-offset: 2px; }
+.admin-editor__field input:disabled { opacity: .55; cursor: not-allowed; }
+.admin-editor__checkbox {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: .7rem;
+  margin: 0;
+  color: #d7eeef;
+  font-weight: 600;
+  cursor: pointer;
+}
+.admin-editor__checkbox input[type="checkbox"] {
+  box-sizing: border-box;
+  width: 1.15rem;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  padding: 0;
+  accent-color: #27dec8;
+}
+.admin-editor__counter {
+  display: block;
+  margin: -.1rem 0 0;
+  text-align: right;
+  color: #91b8c4;
+  font-size: .8rem;
+}
+.admin-editor .confirmation-actions { gap: .75rem; margin-top: .3rem; }
+.admin-editor .confirmation-actions button { min-height: 2.6rem; }
+@media (max-width: 600px) {
+  .admin-editor .confirmation-actions button { flex: 1 1 auto; }
+}
