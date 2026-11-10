@@ -467,6 +467,12 @@ export class Events2Component implements OnInit, OnDestroy {
       this.presetError = t('createSession.presets.sportUnavailable');
       return;
     }
+    // Airsoft game type is stored by session presets, but is not a property
+    // of other sports. Older presets may also lack the field.
+    this.airsoftGameType = this.sport === 'Airsoft'
+      && (s.airsoftGameType === 'SKIRMISH' || s.airsoftGameType === 'MILSIM'
+        || s.airsoftGameType === 'CAPTURE_THE_FLAG')
+      ? s.airsoftGameType : '';
     this.playFormat = s.playFormat === 'PAIRS' && this.canChoosePlayFormat ? 'PAIRS' : 'INDIVIDUAL';
     this.creationMode = s.creationMode === 'COMPLETE' ? 'COMPLETE' : 'START';
     this.maxParticipants = s.maxParticipants;
