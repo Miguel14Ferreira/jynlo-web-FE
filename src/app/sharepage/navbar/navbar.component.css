@@ -488,3 +488,29 @@
     right: max(1rem, env(safe-area-inset-right));
   }
 }
+
+/* Calm account menu: the identity is enough to show who is logged in. */
+.account-menu > summary.account-identity-trigger {
+  max-width: 230px;
+  border-color: rgba(155,203,207,.22);
+  background: transparent;
+  box-shadow: none;
+}
+.account-menu > summary.account-identity-trigger:hover,
+.account-menu[open] > summary.account-identity-trigger {
+  background: rgba(255,255,255,.055);
+  border-color: rgba(140,217,208,.40);
+  box-shadow: none;
+}
+.account-identity-copy strong { max-width: 150px; font-size: .82rem; font-weight: 750; }
+.account-identity-chevron { color: #b3d7da; }
+.account-menu__panel {
+  border-color: rgba(140,195,203,.22);
+  background: #0b2231;
+  box-shadow: 0 14px 32px rgba(0,0,0,.32);
+}
+.account-menu__panel a:hover, .account-menu__panel a:focus-visible {
+  background: rgba(255,255,255,.075);
+  color: #ffffff;
+}
+.account-menu__identity { padding: .55rem .45rem .65rem; }
