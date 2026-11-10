@@ -486,13 +486,18 @@ export class Events2Component implements OnInit, OnDestroy {
     }
     this.toggleSeasonGame(false);
     if (s.seasonGame && this.canMarkSeasonGame) this.toggleSeasonGame(true);
-    this.recurrence = s.recurrence || 'NONE';
-    this.recurrenceOccurrences = s.recurrenceOccurrences || 4;
-    this.setWeeklySessionsPerWeek(s.weeklySessionsPerWeek || 1);
+    // A preset may refer to groups the organiser has since left. Do not
+    // retain hidden group-only settings that could reappear on later selection.
+    this.recurrence = this.communitySessionSelected ? (s.recurrence || 'NONE') : 'NONE';
+    this.recurrenceOccurrences = this.communitySessionSelected
+      ? (s.recurrenceOccurrences || 4) : 4;
+    this.setWeeklySessionsPerWeek(this.communitySessionSelected
+      ? (s.weeklySessionsPerWeek || 1) : 1);
     // A weekly template retains its recurrence pattern, not any previous dates.
     this.gameDate = '';
     this.additionalWeeklyGameDates = Array.from({length: this.weeklySessionsPerWeek - 1}, () => '');
-    this.registrationOpeningMode = s.registrationOpeningMode || 'IMMEDIATE';
+    this.registrationOpeningMode = this.communitySessionSelected
+      ? (s.registrationOpeningMode || 'IMMEDIATE') : 'IMMEDIATE';
     this.registrationOpensAt = '';
     this.clearPhoto();
     this.city = s.city || '';
