@@ -22,6 +22,7 @@ import { AuthenticationService } from '../../services/authethication.service';
 import { tournamentScoreTerminology } from './community-tournament-scoring';
 import { tournamentSportCapabilities, tournamentCreationModelForEvent } from './community-tournament-capabilities';
 import { championshipModeAvailability } from './community-championship-mode';
+import { championshipSportGuidance } from './community-championship-sport-guidance';
 import { tournamentEventChoices, validatedTournamentEventType, tournamentEventReadiness, TournamentEventReadiness, SWIM_TOURNAMENT_DISCIPLINES, FIELD_TOURNAMENT_DISCIPLINES, TRACK_TOURNAMENT_DISTANCES, RELAY_TOURNAMENT_DISCIPLINES, CANOE_K1_DISCIPLINES, ROWING_SINGLE_DISCIPLINES } from './community-tournament-event-types';
 import { tournamentClassificationProfile } from './community-tournament-classification';
 import { summarizePublishedTeamJourney } from './community-team-journey';
@@ -272,6 +273,8 @@ export class CommunityTournamentsComponent implements OnChanges {
     if (capabilities.individual !== 'UNAVAILABLE') return 'communities.competitionModes.individual';
     return 'communities.competitionModes.pending';
   }
+
+  readonly championshipSportGuidance = championshipSportGuidance;
 
   championshipTeamDrafts: Record<number, string> = {};
   championshipCloseConfirmed: Record<number, boolean> = {};
