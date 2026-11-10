@@ -5322,6 +5322,7 @@ export const EN: Record<string, string> = {
   'sessionDetail.organizerTitle': 'Game preparation',
   'sessionDetail.organizerConfirmed': 'confirmed',
   'sessionDetail.organizerMissing': '{{count}} more players needed to fill the session.',
+  'sessionDetail.organizerMissingOne': '1 more player needed to fill the session.',
   'sessionDetail.organizerReady': 'All spots are filled.',
   'sessionDetail.organizerFull': 'The session is marked as full. The visible player count may still be updating.',
   'sessionDetail.organizerFindPlayers': 'Find players',
