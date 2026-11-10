@@ -47,19 +47,25 @@
       <p class="state error" role="alert">{{ communityLimitError | t }}</p>
     }
     @if (selectedCommunityLimitPlayer && communityLimitQuota) {
-      <section class="role-confirmation" role="group" aria-label="Limite de comunidades">
+      <section class="role-confirmation admin-editor" role="group" aria-label="Limite de comunidades">
         <h2>{{ 'adminPlayers.communityLimitTitle' | t:{ name: selectedCommunityLimitPlayer.username } }}</h2>
         <p>{{ 'adminPlayers.communityLimitUsage' | t:{ count: communityLimitQuota.owned, limit: communityLimitQuota.limit } }}</p>
-        <label for="community-limit-value">{{ 'adminPlayers.communityLimitNew' | t }}</label>
-        <input id="community-limit-value" type="number" min="1" max="100"
-          [(ngModel)]="communityLimitValue" [disabled]="working || resetCommunityLimit">
-        <label>
-          <input type="checkbox" [(ngModel)]="resetCommunityLimit" [disabled]="working">
-          {{ 'adminPlayers.communityLimitReset' | t }}
+        <div class="admin-editor__field">
+          <label for="community-limit-value">{{ 'adminPlayers.communityLimitNew' | t }}</label>
+          <input id="community-limit-value" name="communityLimitValue" type="number" min="1" max="100"
+            [(ngModel)]="communityLimitValue" [disabled]="working || resetCommunityLimit">
+        </div>
+        <label class="admin-editor__checkbox" for="community-limit-reset">
+          <input id="community-limit-reset" name="resetCommunityLimit" type="checkbox"
+            [(ngModel)]="resetCommunityLimit" [disabled]="working">
+          <span>{{ 'adminPlayers.communityLimitReset' | t }}</span>
         </label>
-        <label for="community-limit-reason">{{ 'adminPlayers.communityLimitReason' | t }}</label>
-        <textarea id="community-limit-reason" [(ngModel)]="communityLimitReason" rows="2"
-          maxlength="500" [disabled]="working"></textarea>
+        <div class="admin-editor__field">
+          <label for="community-limit-reason">{{ 'adminPlayers.communityLimitReason' | t }}</label>
+          <textarea id="community-limit-reason" name="communityLimitReason"
+            [(ngModel)]="communityLimitReason" rows="3" maxlength="500"
+            [disabled]="working"></textarea>
+        </div>
         <div class="confirmation-actions">
           <button type="button" class="jynlo-action jynlo-action--primary"
             [disabled]="working || !communityLimitReason.trim()"
@@ -74,14 +80,16 @@
     }
     @if (messageError) { <p class="state error" role="alert">{{ messageError | t }}</p> }
     @if (messageRecipient) {
-      <section class="role-confirmation" role="group" aria-labelledby="admin-message-title">
+      <section class="role-confirmation admin-editor" role="group" aria-labelledby="admin-message-title">
         <h2 id="admin-message-title">{{ 'adminPlayers.messageTitle' | t:{ name: messageRecipient.username } }}</h2>
         <p>{{ 'adminPlayers.messageHelp' | t }}</p>
-        <label for="admin-message-content">{{ 'adminPlayers.messageLabel' | t }}</label>
-        <textarea id="admin-message-content" rows="4" name="adminMessage"
-          [(ngModel)]="adminMessage" maxlength="1000" [disabled]="messageSending"
-          [placeholder]="'adminPlayers.messagePlaceholder' | t"></textarea>
-        <small>{{ 'adminPlayers.messageCount' | t:{ count: adminMessage.length } }}</small>
+        <div class="admin-editor__field">
+          <label for="admin-message-content">{{ 'adminPlayers.messageLabel' | t }}</label>
+          <textarea id="admin-message-content" rows="5" name="adminMessage"
+            [(ngModel)]="adminMessage" maxlength="1000" [disabled]="messageSending"
+            [placeholder]="'adminPlayers.messagePlaceholder' | t"></textarea>
+          <small class="admin-editor__counter">{{ 'adminPlayers.messageCount' | t:{ count: adminMessage.length } }}</small>
+        </div>
         <div class="confirmation-actions">
           <button type="button" class="jynlo-action jynlo-action--primary"
             (click)="sendAdminMessage()"
