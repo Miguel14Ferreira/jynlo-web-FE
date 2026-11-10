@@ -1,6 +1,9 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, OnChanges } from '@angular/core';
 import { TranslatePipe } from '../../i18n/translate.pipe';
-/** Guide only; parent retains organizer authorization and creation actions. */
+import { SPORTS_CATALOG } from '../../shared/sports-catalog';
+import { tournamentSportCapabilities, TournamentCreationModel } from './community-tournament-capabilities';
+
+/** Explains real format support for the selected sport; does not invent a score engine. */
 @Component({
   selector: 'app-competition-guide',
   standalone: true,
@@ -9,11 +12,31 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
   styleUrls: ['./competition-guide.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CompetitionGuideComponent {
+export class CompetitionGuideComponent implements OnChanges {
   @Input() canManage = false;
   @Input() individualEnabled = true;
   @Input() teamEnabled = true;
-  @Output() individualSelected = new EventEmitter<void>();
-  @Output() teamSelected = new EventEmitter<void>();
+  @Input() sport = '';
+  @Output() individualSelected = new EventEmitter<string>();
+  @Output() teamSelected = new EventEmitter<string>();
   @Output() closeRequested = new EventEmitter<void>();
+  readonly sports = SPORTS_CATALOG;
+  selectedSport = '';
+
+  ngOnChanges(): void {
+    if (!this.selectedSport || (this.sport && !this.sports.includes(this.selectedSport))) {
+      this.selectedSport = this.sports.includes(this.sport) ? this.sport : this.sports[0];
+    }
+  }
+
+  get capabilities() { return tournamentSportCapabilities(this.selectedSport); }
+  get individualSupported(): boolean {
+    return this.individualEnabled && this.capabilities.individual !== 'UNAVAILABLE';
+  }
+  get teamSupported(): boolean {
+    return this.teamEnabled && this.capabilities.team !== 'UNAVAILABLE';
+  }
+  formatKey(model: TournamentCreationModel): string {
+    return 'communities.competitionGuide.model.' + model;
+  }
 }
