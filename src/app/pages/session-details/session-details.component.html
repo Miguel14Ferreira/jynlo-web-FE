@@ -451,7 +451,9 @@
                     ? (session.status === 'FULL' && preparation.confirmed < preparation.capacity
                         ? 'sessionDetail.organizerFull'
                         : 'sessionDetail.organizerReady')
-                    : 'sessionDetail.organizerMissing') | t:{ count: preparation.missing } }}
+                    : (preparation.missing === 1
+                        ? 'sessionDetail.organizerMissingOne'
+                        : 'sessionDetail.organizerMissing')) | t:{ count: preparation.missing } }}
               </p>
               <div class="organizer-preparation-actions">
                 @if (session.joined || isCreator()) {
