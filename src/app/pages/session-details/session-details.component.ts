@@ -260,6 +260,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   /** Read-only confirmed guest identities for logged-in attendees. */
   memberConfirmedGuests: SessionConfirmedGuest[] = [];
   memberConfirmedGuestsLoading = false;
+  private memberConfirmedGuestsRefreshPending = false;
   memberConfirmedGuestsError = '';
   guestRequestsLoading = false;
   guestRequestBusyId: number | null = null;
@@ -2358,16 +2359,25 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   private loadMemberConfirmedGuests(silent = false): void {
-    if (!this.sessionId || !this.session?.joined || this.isCreator()
-        || this.memberConfirmedGuestsLoading) return;
+    if (!this.sessionId || !this.session?.joined || this.isCreator()) return;
+    if (this.memberConfirmedGuestsLoading) {
+      if (!silent) this.memberConfirmedGuestsRefreshPending = true;
+      return;
+    }
     const id=this.sessionId;
     this.memberConfirmedGuestsLoading=true;
     if (!silent) this.memberConfirmedGuestsError='';
     this.sessionService.confirmedGuests(id)
-      .pipe(timeout(10000),finalize(()=>this.memberConfirmedGuestsLoading=false))
+      .pipe(timeout(10000),finalize(()=>{
+        this.memberConfirmedGuestsLoading=false;
+        const refreshPending=this.memberConfirmedGuestsRefreshPending;
+        this.memberConfirmedGuestsRefreshPending=false;
+        if (refreshPending && this.sessionId===id) this.loadMemberConfirmedGuests();
+      }))
       .subscribe({
         next: rows => {
-          if (this.session?.id !== id || !this.session.joined) return;
+          if (this.session?.id !== id || !this.session.joined
+              || this.memberConfirmedGuestsRefreshPending) return;
           this.memberConfirmedGuestsError = '';
           this.memberConfirmedGuests=Array.isArray(rows)
             ? rows.filter(g=>Number.isSafeInteger(g?.id) && typeof g?.name==='string'
@@ -2375,7 +2385,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
             : [];
         },
         error: () => {
-          if (this.session?.id !== id || silent) return;
+          if (this.session?.id !== id || silent || this.memberConfirmedGuestsRefreshPending) return;
           this.memberConfirmedGuests=[];
           this.memberConfirmedGuestsError=t('sessionDetail.confirmedGuestsError');
         }
