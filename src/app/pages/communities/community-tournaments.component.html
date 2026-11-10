@@ -74,22 +74,8 @@
       <div class="create-tournament-intro">
         <p class="tournament-eyebrow">{{ 'communities.championshipUi.eyebrow' | t }}</p>
         <h4>{{ 'communities.championshipUi.title' | t }}</h4>
+        <p class="championship-catalog-note">{{ 'communities.competitionGuide.championshipScope' | t }}</p>
         <button type="button" class="t-btn t-btn-secondary" [disabled]="championshipBusy" (click)="refreshChampionships()">{{ 'communities.championshipUi.refresh' | t }}</button>
-        @if (championshipExplainerOpen) {
-        <p>{{ 'communities.championshipConceptLead' | t }}</p>
-        <div class="championship-concept-compare" role="group"
-          [attr.aria-label]="'communities.championshipHelpTitle' | t">
-          <div class="championship-concept-card">
-            <h5>{{ 'communities.tournamentConceptTitle' | t }}</h5>
-            <p>{{ 'communities.tournamentConceptText' | t }}</p>
-          </div>
-          <div class="championship-concept-card championship-concept-card--series">
-            <h5>{{ 'communities.championshipConceptTitle' | t }}</h5>
-            <p>{{ 'communities.championshipConceptText' | t }}</p>
-          </div>
-        </div>
-        <p class="championship-concept-example">{{ 'communities.championshipConceptExample' | t }}</p>
-        }
         <button type="button" class="t-btn t-btn-secondary championship-learn-toggle"
           aria-controls="championship-explanation" [attr.aria-expanded]="championshipExplainerOpen"
           (click)="championshipExplainerOpen = !championshipExplainerOpen">
@@ -928,10 +914,11 @@
   @if (competitionView === 'tournaments' && showGuide) {
     <app-competition-guide
       [canManage]="canManage"
+      [sport]="community.sport || ''"
       [individualEnabled]="community.individualTournamentsEnabled !== false"
       [teamEnabled]="community.teamTournamentsEnabled !== false"
-      (individualSelected)="startIndividualCreation()"
-      (teamSelected)="startTeamCreation()"
+      (individualSelected)="startIndividualCreation($event)"
+      (teamSelected)="startTeamCreation($event)"
       (closeRequested)="showGuide = false"
     ></app-competition-guide>
   }
