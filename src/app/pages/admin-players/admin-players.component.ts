@@ -142,7 +142,7 @@ export class AdminPlayersComponent implements OnDestroy {
           this.adminMessage = '';
         },
         error: () => {
-          this.messageError = 'Não foi possível enviar a mensagem administrativa.';
+          this.messageError = 'adminPlayers.messageError';
         }
       });
   }
@@ -367,6 +367,9 @@ export class AdminPlayersComponent implements OnDestroy {
   }
 
   private load(name: string, page: number): void {
+    this.messageRecipient = null;
+    this.adminMessage = '';
+    this.messageError = '';
     this.pendingRole = null;
     this.pendingModeration = null;
     this.expandedPlayerId = null;
