@@ -116,6 +116,11 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     });
   }
 
+  retrySessionContext(): void {
+    if (!this.session || this.sessionContextLoading) return;
+    this.loadSessionContext(this.session.id);
+  }
+
   private loadSessionContext(sessionId: number): void {
     this.sessionContextLoading = true;
     this.sessionContextError = '';
