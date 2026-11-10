@@ -925,7 +925,7 @@ describe('SocialFeedComponent attendance activity visibility', () => {
     Object.defineProperty(auth, 'loggedInPerfilname', { value: 'player', configurable: true });
 
     feed = jasmine.createSpyObj<SocialFeedService>(
-      'SocialFeedService', ['hideAttendanceActivity']
+      'SocialFeedService', ['hideAttendanceActivity', 'ensureAttendancePost', 'likePost', 'comments']
     );
     feed.hideAttendanceActivity.and.returnValue(of(void 0));
     component = new SocialFeedComponent(
@@ -941,6 +941,40 @@ describe('SocialFeedComponent attendance activity visibility', () => {
       sport: 'Padel', city: 'Lisboa', gameDate: '2026-10-12T18:00:00Z',
       likeCount: 0, likedByMe: false, commentCount: 0
     };
+  });
+
+  it('creates a stable interaction post on first like and updates its count', () => {
+    feed.ensureAttendancePost.and.returnValue(of(91));
+    feed.likePost.and.returnValue(of({ likedByMe: true, likeCount: 1 }));
+
+    component.toggleLike(activity);
+
+    expect(feed.ensureAttendancePost).toHaveBeenCalledOnceWith(42, 'player');
+    expect(feed.likePost).toHaveBeenCalledOnceWith(91);
+    expect(activity.postId).toBe(91);
+    expect(activity.likedByMe).toBeTrue();
+    expect(activity.likeCount).toBe(1);
+  });
+
+  it('loads existing comments after resolving the attendance interaction post', () => {
+    feed.ensureAttendancePost.and.returnValue(of(91));
+    feed.comments.and.returnValue(of([]));
+
+    component.toggleComments(activity);
+
+    expect(feed.ensureAttendancePost).toHaveBeenCalledOnceWith(42, 'player');
+    expect(feed.comments).toHaveBeenCalledOnceWith(91);
+    expect(component.openCommentPosts.has(91)).toBeTrue();
+  });
+
+  it('keeps the activity unchanged when creating its interaction post fails', () => {
+    feed.ensureAttendancePost.and.returnValue(throwError(() => new Error('offline')));
+
+    component.toggleLike(activity);
+
+    expect(activity.postId).toBeNull();
+    expect(activity.likeCount).toBe(0);
+    expect(feed.likePost).not.toHaveBeenCalled();
   });
 
   it('hides only the current player attendance activity after a successful request', () => {
