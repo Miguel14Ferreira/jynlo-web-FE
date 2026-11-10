@@ -148,3 +148,27 @@
   :host .jynlo-match-result-main { gap: .4rem; }
   :host .jynlo-match-score-edit { justify-content: start; }
 }
+
+:host .jynlo-season-team {
+  padding: 1rem;
+  margin: .85rem 0;
+  border: 1px solid rgba(103, 190, 185, .29);
+  border-radius: .9rem;
+  background: rgba(7, 32, 47, .64);
+}
+:host .jynlo-season-team-heading {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: .7rem;
+}
+:host .jynlo-season-team-heading strong { font-size: 1.08rem; color: #eafffa; }
+:host .jynlo-season-team-heading span { font-size: .8rem; color: #a6d4cf; }
+:host .jynlo-team-roster { display: grid; gap: .4rem; margin: .6rem 0; }
+:host .jynlo-roster-player { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .75rem; padding: .6rem .7rem; background: rgba(11, 65, 73, .4); border-radius: .6rem; }
+:host .jynlo-roster-player small { color: #a8d4d2; }
+:host .jynlo-team-roster-add { display: flex; flex-wrap: wrap; align-items: end; gap: .7rem; margin: .9rem 0; }
+:host .jynlo-team-roster-add label { flex: 0 0 100%; }
+:host .jynlo-team-roster-add select { flex: 1 1 210px; }
