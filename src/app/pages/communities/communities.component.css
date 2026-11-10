@@ -1796,3 +1796,16 @@ input,textarea,select {
     min-height: 220px;
   }
 }
+
+
+/* Outrank the older 104px compact-card rule on the list layout. */
+.communities-page:not(.community-detail-page) .communities-layout > .community-mine-grid > .community-card {
+  min-height: 280px;
+  align-items: stretch;
+  background: #0c2b38;
+}
+@media (max-width: 630px) {
+  .communities-page:not(.community-detail-page) .communities-layout > .community-mine-grid > .community-card {
+    min-height: 220px;
+  }
+}
