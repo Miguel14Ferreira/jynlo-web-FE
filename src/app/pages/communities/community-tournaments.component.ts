@@ -395,6 +395,41 @@ export class CommunityTournamentsComponent implements OnChanges {
       && !tournament.historicalArchiveId);
   }
 
+  championshipStandingsModeDrafts: Record<number, 'AGGREGATE' | 'INDEPENDENT'> = {};
+
+  canChangeChampionshipStandingsMode(championship: CommunityChampionship): boolean {
+    return !championship.closedAt
+      && championship.competitions.every(competition => competition.status === 'DRAFT')
+      && (this.championshipOwnedEvents[championship.id] || []).length === 0;
+  }
+
+  saveChampionshipStandingsMode(championship: CommunityChampionship): void {
+    const mode = this.championshipStandingsModeDrafts[championship.id] || championship.standingsMode || 'AGGREGATE';
+    if (!this.canManage || this.championshipBusy
+        || !this.canChangeChampionshipStandingsMode(championship)
+        || (mode !== 'AGGREGATE' && mode !== 'INDEPENDENT')) return;
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipBusy = true;
+    this.championshipError = '';
+    this.championshipsApi.setStandingsMode(communityId, championship.id, mode).subscribe({
+      next: updated => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championships = this.championships.map(item => item.id === updated.id ? updated : item);
+        this.championshipStandingsModeDrafts[updated.id] = updated.standingsMode || 'AGGREGATE';
+        this.championshipBusy = false;
+        this.loadChampionshipStandings(updated.id);
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipBusy = false;
+        this.championshipError = 'Não foi possível alterar o modo. Só é permitido antes do início das provas.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
   championshipNameDraft = '';
   championshipSeasonDraft = '2026/27';
   championshipSportDraft = '';
@@ -774,6 +809,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     // profile can momentarily combine results from different data revisions.
     this.championships = [];
     this.championshipOwnedEvents = {};
+    this.championshipStandingsModeDrafts = {};
     this.championshipEventNames = {};
     this.championshipEventFormats = {};
     this.championshipOwnedEventTeams = {};
