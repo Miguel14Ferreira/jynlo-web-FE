@@ -1190,6 +1190,36 @@ describe('Events2Component', () => {
     expect(panel()).toBeNull();
   });
 
+  it('rejects community ids from lost memberships or unfinished membership loading', () => {
+    const group = (id: number, role: 'MEMBER' | null) => ({
+      id, name: 'Grupo ' + id, myRole: role, membersCanCreateSessions: true,
+      description: null, sport: 'Futebol', photoUrl: null, visibility: 'PRIVATE',
+      rankingsEnabled: false, ownerUsername: 'owner', memberCount: 1,
+      createdAt: '2026-01-01', members: []
+    } as any);
+
+    component.communities = [group(13, 'MEMBER')];
+    component.shareCommunityIds = [13];
+    component.communitiesLoading = true;
+    expect((component as any).validate()).toContain('comunidade');
+
+    component.communitiesLoading = false;
+    component.communitiesLoadError = true;
+    expect((component as any).validate()).toContain('comunidade');
+
+    component.communitiesLoadError = false;
+    component.communities = [];
+    expect((component as any).validate()).toContain('comunidade');
+    component.createSession();
+    expect(sessionService.create).not.toHaveBeenCalled();
+
+    component.communities = [group(13, null)];
+    expect((component as any).validate()).toContain('comunidade');
+
+    component.communities = [group(13, 'MEMBER')];
+    expect((component as any).validate()).not.toContain('comunidade');
+  });
+
   it('blocks sharing sessions into admin-only communities for ordinary members', async () => {
     const group = (id: number, role: 'MEMBER' | 'ADMIN', membersCanCreateSessions: boolean) => ({
       id, name: 'Grupo ' + id, myRole: role, membersCanCreateSessions,
