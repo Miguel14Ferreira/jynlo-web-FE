@@ -1,33 +1,81 @@
 <section class="tournaments" [class.team-profile-mode]="isTeamCompetition && teamPageId !== null" [attr.aria-label]="'communities.tournaments.overview.sectionLabel' | t">
-  <div class="tournament-hero">
+  <header class="competition-dashboard-header">
     <div>
       <p class="tournament-eyebrow">{{ 'communities.tournaments.overview.eyebrow' | t }}</p>
       <h3>{{ 'communities.tournaments.overview.title' | t }}</h3>
       <p>{{ 'communities.tournaments.overview.description' | t }}</p>
-      @if (selected && !isTeamCompetition && !isInlineSpeedCompetition) {
-        <p class="t-sport-note" role="note">{{ scoring.note }}</p>
-      }
     </div>
-    <div class="competition-hero-actions">
-      @if (canManage && !showGuide && !showIndividualCreate && !showTeamCreate) {
-        <button type="button" class="t-btn t-btn-primary" (click)="showGuide = true">{{ 'communities.tournaments.overview.create' | t }}</button>
-      }
-      @if (!showGuide && (!canManage || showIndividualCreate || showTeamCreate)) {
-        <button type="button" class="t-btn t-btn-secondary" (click)="showGuide = true">{{ 'communities.tournaments.overview.how' | t }}</button>
-      }
-      @if (selected) {
-        <span class="tournament-type">{{ selected.sport || ('communities.tournaments.overview.sportUndefined' | t) }} · {{ (isTeamCompetition ? 'communities.tournaments.overview.teamFormat' : 'communities.tournaments.overview.individualFormat') | t }}</span>
-      }
+    @if (canManage) {
+      <button class="t-btn t-btn-primary competition-create-toggle" type="button"
+        [attr.aria-expanded]="creationPickerOpen" (click)="openCompetitionPicker()">
+        {{ 'communities.tournaments.overview.create' | t }}
+      </button>
+    }
+  </header>
+
+  <div class="competition-dashboard-stats" [attr.aria-label]="'communities.competitionDashboard.summary' | t">
+    <div class="competition-stat">
+      <strong>{{ activeChampionshipCount }}</strong>
+      <span>{{ 'communities.competitionDashboard.currentChampionships' | t }}</span>
+    </div>
+    <div class="competition-stat">
+      <strong>{{ activeTournamentCount }}</strong>
+      <span>{{ 'communities.competitionDashboard.currentTournaments' | t }}</span>
+    </div>
+    <div class="competition-stat">
+      <strong>{{ archivedChampionshipCount + completedTournamentCount }}</strong>
+      <span>{{ 'communities.competitionDashboard.finished' | t }}</span>
     </div>
   </div>
 
+  @if (creationPickerOpen && canManage) {
+    <section class="competition-choice" [attr.aria-label]="'communities.competitionDashboard.choose' | t">
+      <div class="competition-choice-head">
+        <h4>{{ 'communities.competitionDashboard.choose' | t }}</h4>
+        <button type="button" class="t-btn t-btn-secondary" (click)="creationPickerOpen = false">
+          {{ 'common.cancel' | t }}
+        </button>
+      </div>
+      <div class="competition-choice-grid">
+        <button type="button" class="competition-choice-card" (click)="chooseCompetitionKind('tournaments')">
+          <span class="competition-choice-symbol" aria-hidden="true">🏅</span>
+          <strong>{{ 'communities.tournamentConceptTitle' | t }}</strong>
+          <span>{{ 'communities.tournamentConceptText' | t }}</span>
+        </button>
+        <button type="button" class="competition-choice-card" (click)="chooseCompetitionKind('championships')">
+          <span class="competition-choice-symbol" aria-hidden="true">🏆</span>
+          <strong>{{ 'communities.championshipConceptTitle' | t }}</strong>
+          <span>{{ 'communities.championshipConceptText' | t }}</span>
+        </button>
+      </div>
+    </section>
+  }
 
+  <nav class="competition-dashboard-tabs" [attr.aria-label]="'communities.competitionDashboard.views' | t">
+    <button type="button" class="competition-dashboard-tab"
+      [class.is-active]="competitionView === 'championships'"
+      [attr.aria-pressed]="competitionView === 'championships'"
+      (click)="selectCompetitionView('championships')">
+      {{ 'communities.championshipUi.title' | t }}
+      <span>{{ championships.length }}</span>
+    </button>
+    <button type="button" class="competition-dashboard-tab"
+      [class.is-active]="competitionView === 'tournaments'"
+      [attr.aria-pressed]="competitionView === 'tournaments'"
+      (click)="selectCompetitionView('tournaments')">
+      {{ 'communities.competitionDashboard.tournaments' | t }}
+      <span>{{ tournaments.length }}</span>
+    </button>
+  </nav>
+
+  @if (competitionView === 'championships') {
   <section class="create-tournament" [attr.aria-label]="'communities.championshipUi.section' | t">
     <div class="create-tournament-heading">
       <div class="create-tournament-intro">
         <p class="tournament-eyebrow">{{ 'communities.championshipUi.eyebrow' | t }}</p>
         <h4>{{ 'communities.championshipUi.title' | t }}</h4>
         <button type="button" class="t-btn t-btn-secondary" [disabled]="championshipBusy" (click)="refreshChampionships()">{{ 'communities.championshipUi.refresh' | t }}</button>
+        @if (championshipExplainerOpen) {
         <p>{{ 'communities.championshipConceptLead' | t }}</p>
         <div class="championship-concept-compare" role="group"
           [attr.aria-label]="'communities.championshipHelpTitle' | t">
@@ -41,14 +89,15 @@
           </div>
         </div>
         <p class="championship-concept-example">{{ 'communities.championshipConceptExample' | t }}</p>
+        }
         <button type="button" class="t-btn t-btn-secondary championship-learn-toggle"
           aria-controls="championship-explanation" [attr.aria-expanded]="championshipExplainerOpen"
           (click)="championshipExplainerOpen = !championshipExplainerOpen">
           {{ (championshipExplainerOpen ? 'communities.championshipHelpLess' : 'communities.championshipHelpMore') | t }}
         </button>
       </div>
-      @if (canManage) {
-        <button type="button" class="t-btn t-btn-primary" (click)="championshipOpen = !championshipOpen">
+      @if (canManage && championshipOpen) {
+        <button type="button" class="t-btn t-btn-secondary" (click)="championshipOpen = false">
           {{ (championshipOpen ? 'communities.championshipUi.closeForm' : 'communities.championshipUi.openForm') | t }}
         </button>
       }
@@ -866,6 +915,7 @@
     }
     }
   </section>
+  }
 
   @if (error) {
     <div #errorNotice class="notice notice-error" role="alert" tabindex="-1">{{ error }}</div>
@@ -875,7 +925,7 @@
   }
 
 
-  @if (showGuide) {
+  @if (competitionView === 'tournaments' && showGuide) {
     <app-competition-guide
       [canManage]="canManage"
       [individualEnabled]="community.individualTournamentsEnabled !== false"
@@ -886,7 +936,7 @@
     ></app-competition-guide>
   }
 
-  @if (canManage && (showIndividualCreate || showTeamCreate)) {
+  @if (competitionView === 'tournaments' && canManage && (showIndividualCreate || showTeamCreate)) {
     <section class="create-tournament" [attr.aria-label]="'communities.tournaments.createUi.region' | t">
       <div class="create-tournament-heading">
         <div class="create-tournament-intro">
@@ -2092,7 +2142,7 @@
       }
     </main>
   } @else {
-  <div class="tournament-browser">
+  <div class="tournament-browser" [hidden]="competitionView !== 'tournaments'">
     <aside class="tournament-sidebar" [attr.aria-label]="'communities.tournaments.detailUi.listLabel' | t">
       <div class="sidebar-title">
         <h4>{{ 'communities.tournaments.detailUi.existingTitle' | t }}</h4>
