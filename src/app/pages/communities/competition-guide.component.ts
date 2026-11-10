@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, OnChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { SPORTS_CATALOG } from '../../shared/sports-catalog';
 import { tournamentSportCapabilities, TournamentCreationModel } from './community-tournament-capabilities';
@@ -23,8 +23,8 @@ export class CompetitionGuideComponent implements OnChanges {
   readonly sports = SPORTS_CATALOG;
   selectedSport = '';
 
-  ngOnChanges(): void {
-    if (!this.selectedSport || (this.sport && !this.sports.includes(this.selectedSport))) {
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['sport'] || !this.selectedSport) {
       this.selectedSport = this.sports.includes(this.sport) ? this.sport : this.sports[0];
     }
   }
