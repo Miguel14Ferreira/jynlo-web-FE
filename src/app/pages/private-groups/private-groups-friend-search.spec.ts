@@ -87,6 +87,46 @@ describe('Private group friend picker', () => {
     expect(component.filteredInviteFriends.length).toBe(3);
   });
 
+  it('returns to the originating direct chat when group creation is cancelled', () => {
+    const navigate = jasmine.createSpy('navigate').and.returnValue(Promise.resolve(true));
+    (component as any).router = { navigate };
+    (component as any).createOpenedFromMessages = true;
+    component.initialFriend = 'miguel';
+    component.openCreate('miguel');
+    component.closeInviteDialog();
+
+    expect(component.showCreate).toBeFalse();
+    expect(component.initialFriend).toBe('');
+    expect(navigate).toHaveBeenCalledOnceWith(['/menu/messages'], {
+      queryParams: { kind: 'direct', id: 'miguel' }
+    });
+  });
+
+  it('only closes the picker if creation starts from the groups page', () => {
+    const navigate = jasmine.createSpy('navigate');
+    (component as any).router = { navigate };
+    component.openCreate();
+    component.closeInviteDialog();
+
+    expect(component.showCreate).toBeFalse();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('only closes the add-member picker without navigating away', () => {
+    const navigate = jasmine.createSpy('navigate');
+    (component as any).router = { navigate };
+    component.selected = {
+      id: 5, creatorUsername: 'organizer',
+      members: [{ username: 'organizer' }]
+    } as any;
+    (component as any).me = 'organizer';
+    component.openAdd();
+    component.closeInviteDialog();
+
+    expect(component.showAdd).toBeFalse();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
   it('does not dismiss a busy invite dialog while a save is in progress', () => {
     component.openCreate();
     component.friendSearch = 'miguel';
