@@ -112,7 +112,7 @@ type CommunityTab = 'home' | 'feed' | 'chat' | 'sessions' | 'tournaments' | 'ran
 @Component({
   selector: 'app-communities',
   templateUrl: './communities.component.html',
-  styleUrls: ['./communities.component.css', './communities-concept-one-premium.css', './communities-neon-glass.css', './communities-v3-finish.css'],
+  styleUrls: ['./communities.component.css', './communities-concept-one-premium.css', './communities-neon-glass.css', './communities-v3-finish.css', './communities-owned-cards.css'],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
