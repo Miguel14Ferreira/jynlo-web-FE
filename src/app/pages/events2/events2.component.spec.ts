@@ -411,6 +411,39 @@ describe('Events2Component', () => {
     expect(component.presetMessage).toBeTruthy();
   });
 
+  it('restores the Airsoft game type saved in a session preset', () => {
+    component.sport = 'Airsoft';
+    component.airsoftGameType = 'MILSIM';
+    component.presetName = 'Airsoft semanal';
+    presetService.create.and.callFake((name, settings) => of({
+      id: 91, name, settings, createdAt: '', updatedAt: ''
+    }));
+    component.savePreset();
+    component.airsoftGameType = 'SKIRMISH';
+
+    component.applyPresetById(91);
+
+    expect(component.sport).toBe('Airsoft');
+    expect(component.airsoftGameType).toBe('MILSIM');
+  });
+
+  it('does not leak an Airsoft preset game type into another sport', () => {
+    component.sport = 'Futsal';
+    component.airsoftGameType = 'MILSIM';
+    component.presetName = 'Futsal habitual';
+    presetService.create.and.callFake((name, settings) => of({
+      id: 92, name,
+      settings: { ...settings, airsoftGameType: 'CAPTURE_THE_FLAG' },
+      createdAt: '', updatedAt: ''
+    }));
+    component.savePreset();
+
+    component.applyPresetById(92);
+
+    expect(component.sport).toBe('Futsal');
+    expect(component.airsoftGameType).toBe('');
+  });
+
   it('loads a preset but requires new date, registration opening and private password', () => {
     component.sport = 'Futsal';
     component.city = 'Lisboa';
