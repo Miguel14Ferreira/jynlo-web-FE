@@ -127,6 +127,11 @@
               <option [value]="sport">{{ sport }}</option>
             }
           </select>
+          <small class="championship-sport-support" role="status">
+            {{ (championshipSportHasTournamentEngine
+              ? 'communities.competitionGuide.championshipEngineReady'
+              : 'communities.competitionGuide.championshipEnginePending') | t }}
+          </small>
         </div>
         <button type="button" class="t-btn t-btn-primary"
           [disabled]="championshipBusy || !championshipNameDraft.trim() || !championshipSeasonDraft.trim() || !championshipSportDraft"
