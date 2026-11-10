@@ -2412,6 +2412,41 @@ describe('SessionDetailsComponent', () => {
     page.destroy();
   });
 
+  it('reconciles a waitlisted player and shows automatic promotion without rejoining', () => {
+    component.sessionId = session.id;
+    component.session = {
+      ...session, joined: false, waitlisted: true, waitlistPosition: 1,
+      status: 'FULL', gameDate: new Date(Date.now() + 3_600_000).toISOString()
+    };
+    sessionService.detail.and.returnValue(of({
+      ...component.session, joined: true, waitlisted: false, waitlistPosition: null,
+      participantCount: 4, status: 'FULL'
+    }));
+
+    const before = sessionService.detail.calls.count();
+    component.syncVisibleRoster();
+
+    expect(sessionService.detail.calls.count()).toBe(before + 1);
+    expect(component.session?.joined).toBeTrue();
+    expect(component.session?.waitlisted).toBeFalse();
+    expect(component.session?.waitlistPosition).toBeNull();
+    expect(sessionService.join).not.toHaveBeenCalled();
+    expect(sessionService.participants).toHaveBeenCalledWith(session.id);
+  });
+
+  it('does not poll roster details for a visitor who is neither confirmed nor waitlisted', () => {
+    component.sessionId = session.id;
+    component.session = {
+      ...session, joined: false, waitlisted: false,
+      gameDate: new Date(Date.now() + 3_600_000).toISOString()
+    };
+    const before = sessionService.detail.calls.count();
+
+    component.syncVisibleRoster();
+
+    expect(sessionService.detail.calls.count()).toBe(before);
+  });
+
   it('does not undo a confirmed waitlist entry when an older detail GET arrives', () => {
     component.sessionId = session.id;
     component.session = {
