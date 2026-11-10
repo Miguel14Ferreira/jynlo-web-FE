@@ -23,6 +23,7 @@ import { tournamentScoreTerminology } from './community-tournament-scoring';
 import { tournamentSportCapabilities, tournamentCreationModelForEvent } from './community-tournament-capabilities';
 import { championshipModeAvailability } from './community-championship-mode';
 import { championshipSportGuidance } from './community-championship-sport-guidance';
+import { championshipSuggestions, ChampionshipSuggestion } from './community-championship-suggestions';
 import { tournamentEventChoices, validatedTournamentEventType, tournamentEventReadiness, TournamentEventReadiness, SWIM_TOURNAMENT_DISCIPLINES, FIELD_TOURNAMENT_DISCIPLINES, TRACK_TOURNAMENT_DISTANCES, RELAY_TOURNAMENT_DISCIPLINES, CANOE_K1_DISCIPLINES, ROWING_SINGLE_DISCIPLINES } from './community-tournament-event-types';
 import { tournamentClassificationProfile } from './community-tournament-classification';
 import { summarizePublishedTeamJourney } from './community-team-journey';
@@ -281,6 +282,18 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   readonly championshipSportGuidance = championshipSportGuidance;
+  readonly championshipSuggestions = championshipSuggestions;
+
+  prepareSuggestedChampionshipEvent(championship: CommunityChampionship, suggestion: ChampionshipSuggestion): void {
+    if (!this.canManage || !!championship.closedAt || this.championshipEventBusy
+        || !this.championshipOwnedTeamEventsAvailable(championship.sport)
+        || suggestion.nextStep !== 'OWNED_TEAM' || !suggestion.format
+        || !championshipSuggestions(championship.sport).some(item => item.id === suggestion.id
+          && item.format === suggestion.format && item.nextStep === 'OWNED_TEAM')) return;
+    this.championshipEventNames[championship.id] = suggestion.title;
+    this.championshipEventFormats[championship.id] = suggestion.format;
+  }
+
 
   championshipTeamDrafts: Record<number, string> = {};
   championshipCloseConfirmed: Record<number, boolean> = {};
