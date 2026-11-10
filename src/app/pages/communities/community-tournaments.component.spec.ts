@@ -40,6 +40,15 @@ describe('Community tournaments management', () => {
     expect(instance.championshipSportModeKey('Golfe')).toBe('communities.competitionModes.pending');
   });
 
+  it('does not offer team-only championship fixtures for sports without a team result engine', () => {
+    const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
+    expect(instance.championshipOwnedTeamEventsAvailable('Futebol')).toBeTrue();
+    expect(instance.championshipOwnedTeamEventsAvailable('Natação')).toBeFalse();
+    expect(instance.championshipOwnedTeamEventsAvailable('Atletismo')).toBeTrue();
+    expect(instance.championshipOwnedTeamEventsAvailable('Karaté')).toBeFalse();
+    expect(instance.championshipOwnedTeamEventsAvailable('Golfe')).toBeFalse();
+  });
+
   it('distinguishes championship-owned competitions from standalone tournaments', () => {
     const previous = localStorage.getItem('d24-language');
     try {
