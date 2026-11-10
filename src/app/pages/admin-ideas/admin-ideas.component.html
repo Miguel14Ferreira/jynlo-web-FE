@@ -114,6 +114,10 @@
                 <section class="status-actions" aria-labelledby="idea-reply-title">
                   <h3 id="idea-reply-title">{{ 'adminIdeas.replyTitle' | t }}</h3>
                   <p>{{ 'adminIdeas.replyHelp' | t }}</p>
+                  <button type="button" class="jynlo-action jynlo-action--neutral"
+                    [disabled]="replyingId !== null" (click)="useThankYouTemplate()">
+                    {{ 'adminIdeas.replyThanksAction' | t }}
+                  </button>
                   <textarea rows="5" maxlength="2000" name="ideaReply"
                     [(ngModel)]="replyText" [disabled]="replyingId !== null"
                     [placeholder]="'adminIdeas.replyPlaceholder' | t"></textarea>
