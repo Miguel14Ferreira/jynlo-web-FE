@@ -2080,6 +2080,33 @@ describe('Events2Component', () => {
     expect(roadField.value).toBe('Rua de São João');
   }));
 
+  it('does not overwrite city or address after manual edits are reverted during a GPS lookup', () => {
+    const pending = new Subject<{
+      city: string | null; address: string | null;
+      distanceMeters: number | null; provider: string;
+    }>();
+    venueService.reverseLocation.and.returnValue(pending.asObservable());
+    component.onManualCityChanged('Lisboa');
+    component.onManualAddressChanged('Rua inicial');
+    component.applyCurrentPosition(38.72, -9.14, 15);
+
+    // The fields match their original text again, but the user explicitly edited them.
+    component.onManualCityChanged('Oeiras');
+    component.onManualCityChanged('Lisboa');
+    component.onManualAddressChanged('Rua escolhida');
+    component.onManualAddressChanged('Rua inicial');
+    pending.next({
+      city: 'Amadora', address: 'Rua sugerida',
+      distanceMeters: 20, provider: 'My Geocode'
+    });
+    pending.complete();
+
+    expect(component.city).toBe('Lisboa');
+    expect(component.address).toBe('Rua inicial');
+    expect(component.latitude).toBe(38.72);
+    expect(component.longitude).toBe(-9.14);
+  });
+
   it('cannot overwrite manual edits or a changed GPS point with a delayed reverse result', () => {
     const first = new Subject<{city:string|null;address:string|null;distanceMeters:number|null;provider:string}>();
     venueService.reverseLocation.and.returnValue(first.asObservable());
