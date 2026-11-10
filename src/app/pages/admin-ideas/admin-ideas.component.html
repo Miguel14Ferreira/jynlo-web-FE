@@ -10,7 +10,7 @@
       </div>
 
       <div class="header-actions">
-        <button type="button" class="secondary-action jynlo-action jynlo-action--neutral" (click)="load()" [disabled]="loading">
+        <button type="button" class="secondary-action jynlo-action jynlo-action--neutral" (click)="load()" [disabled]="loading || replyingId !== null">
           {{ 'adminIdeas.refresh' | t }}
         </button>
         <a class="secondary-action jynlo-action jynlo-action--neutral" routerLink="/menu/admin">{{ 'adminIdeas.back' | t }}</a>
@@ -39,6 +39,7 @@
             <button
               type="button"
               class="idea-card"
+              [disabled]="replyingId !== null"
               [class.active]="selected?.id === idea.id"
               (click)="select(idea)">
               <div class="idea-top">
@@ -96,7 +97,7 @@
                     <button class="jynlo-action jynlo-action--neutral"
                       type="button"
                       [class.selected]="selected.status === status"
-                      [disabled]="updatingId !== null"
+                      [disabled]="updatingId !== null || replyingId !== null"
                       (click)="updateStatus(selected, status)">
                       {{ statusLabel(status) }}
                     </button>
