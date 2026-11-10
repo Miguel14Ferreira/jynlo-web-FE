@@ -97,6 +97,23 @@ describe('MySessionsComponent', () => {
     expect(create.classList.contains('jynlo-action--primary')).toBeTrue();
   });
 
+  it('groups upcoming empty-state actions with a dedicated spacing container', () => {
+    component.data = {
+      ...component.data,
+      created: [{ ...createdSession, gameDate: '2020-01-01T18:00:00Z' }]
+    };
+    component.selectTab('upcoming');
+    fixture.detectChanges();
+
+    const actions = fixture.nativeElement.querySelector(
+      '#panel-upcoming .empty-session-actions'
+    ) as HTMLElement;
+    expect(actions).toBeTruthy();
+    expect(actions.querySelector('a[href="/menu/createEvent"]')).toBeTruthy();
+    expect(actions.querySelector('button')?.textContent).toContain('Histórico');
+    expect(actions.children.length).toBe(2);
+  });
+
   it('aligns created session details with the destructive cancellation action', () => {
     const actions: HTMLElement = fixture.nativeElement.querySelector('.session-card .card-actions');
     const details = actions.querySelector('a[href="/menu/events/11"]') as HTMLAnchorElement;
