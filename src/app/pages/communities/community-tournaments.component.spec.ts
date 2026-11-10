@@ -26,6 +26,20 @@ describe('Community tournaments management', () => {
     championTied: false
   };
 
+  it('adapts championship team controls to actual sport capabilities', () => {
+    const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
+    expect(instance.championshipTeamAvailable('Futebol')).toBeTrue();
+    expect(instance.championshipIndividualAvailable('Futebol')).toBeTrue();
+    expect(instance.championshipSportModeKey('Futebol')).toBe('communities.competitionModes.both');
+
+    expect(instance.championshipTeamAvailable('Natação')).toBeFalse();
+    expect(instance.championshipIndividualAvailable('Natação')).toBeTrue();
+    expect(instance.championshipSportModeKey('Natação')).toBe('communities.competitionModes.individual');
+
+    expect(instance.championshipTeamAvailable('Golfe')).toBeFalse();
+    expect(instance.championshipSportModeKey('Golfe')).toBe('communities.competitionModes.pending');
+  });
+
   it('distinguishes championship-owned competitions from standalone tournaments', () => {
     const previous = localStorage.getItem('d24-language');
     try {
