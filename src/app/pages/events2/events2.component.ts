@@ -262,6 +262,15 @@ export class Events2Component implements OnInit, OnDestroy {
       this.password = '';
     } else if (!checked) {
       this.shareCommunityIds = this.shareCommunityIds.filter(groupId => groupId !== id);
+      if (this.shareCommunityIds.length === 0) {
+        // Community-only recurrence and call-up settings should not silently
+        // return when the organiser selects a community again.
+        this.recurrence = 'NONE';
+        this.recurrenceOccurrences = 4;
+        this.setWeeklySessionsPerWeek(1);
+        this.registrationOpeningMode = 'IMMEDIATE';
+        this.registrationOpensAt = '';
+      }
     }
     this.reconcileCommunityDefaults();
     // Changing from one group to zero/two+ must clear the old season destination.
