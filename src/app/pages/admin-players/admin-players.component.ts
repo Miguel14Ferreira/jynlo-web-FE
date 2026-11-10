@@ -27,6 +27,12 @@ export class AdminPlayersComponent implements OnDestroy {
   searched = false;
   errorKey = '';
   expandedPlayerId: number | null = null;
+  messageRecipient: AdminPlayer | null = null;
+  adminMessage = '';
+  messageSending = false;
+  messageError = '';
+  messageSuccess = '';
+  private messageRequest?: Subscription;
 
   selectedCommunityLimitPlayer: AdminPlayer | null = null;
   communityLimitQuota: CommunityQuota | null = null;
@@ -65,7 +71,7 @@ export class AdminPlayersComponent implements OnDestroy {
   }
 
   get working(): boolean {
-    return this.changingRole || this.moderating || this.communityLimitLoading;
+    return this.changingRole || this.moderating || this.communityLimitLoading || this.messageSending;
   }
 
   canChangeRole(player: AdminPlayer): boolean {
@@ -98,6 +104,47 @@ export class AdminPlayersComponent implements OnDestroy {
   toggleActions(player: AdminPlayer): void {
     if (this.working || !this.canManagePlayer(player)) return;
     this.expandedPlayerId = this.expandedPlayerId === player.id ? null : player.id;
+  }
+
+  beginAdminMessage(player: AdminPlayer): void {
+    if (this.working || this.loading || !this.canModerate) return;
+    if (player.enabled !== true || player.notLocked !== true || player.moderationSuspendedAt) return;
+    this.messageRecipient = player;
+    this.adminMessage = '';
+    this.messageError = '';
+    this.messageSuccess = '';
+    this.expandedPlayerId = null;
+  }
+
+  cancelAdminMessage(): void {
+    if (this.messageSending) return;
+    this.messageRecipient = null;
+    this.adminMessage = '';
+    this.messageError = '';
+  }
+
+  sendAdminMessage(): void {
+    const player = this.messageRecipient;
+    const text = this.adminMessage.trim();
+    if (!player || !this.canModerate || this.working
+        || player.enabled !== true || player.notLocked !== true
+        || !!player.moderationSuspendedAt || !text || text.length > 1000
+        || /[\\u0000-\\u001F\\u007F]/.test(text)) return;
+    this.messageSending = true;
+    this.messageError = '';
+    this.messageSuccess = '';
+    this.messageRequest = this.service.sendAdminMessage(player.id, text)
+      .pipe(timeout(10_000), finalize(() => this.messageSending = false))
+      .subscribe({
+        next: () => {
+          this.messageSuccess = player.username;
+          this.messageRecipient = null;
+          this.adminMessage = '';
+        },
+        error: () => {
+          this.messageError = 'Não foi possível enviar a mensagem administrativa.';
+        }
+      });
   }
 
   beginCommunityLimit(player: AdminPlayer): void {
@@ -276,6 +323,11 @@ export class AdminPlayersComponent implements OnDestroy {
     this.pendingRole = null;
     this.pendingModeration = null;
     this.selectedCommunityLimitPlayer = null;
+    this.messageRecipient = null;
+    this.adminMessage = '';
+    this.messageError = '';
+    this.messageSuccess = '';
+    this.messageRequest?.unsubscribe();
     this.communityLimitRequest?.unsubscribe();
     this.roleErrorKey = '';
     this.roleSuccessName = '';
@@ -294,6 +346,7 @@ export class AdminPlayersComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.messageRequest?.unsubscribe();
     this.roleRequest?.unsubscribe();
     this.communityLimitRequest?.unsubscribe();
     this.moderationRequest?.unsubscribe();
