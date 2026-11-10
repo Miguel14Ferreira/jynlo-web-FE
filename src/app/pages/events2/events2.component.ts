@@ -1090,11 +1090,15 @@ export class Events2Component implements OnInit, OnDestroy {
 
   onManualCityChanged(value: string): void {
     ++this.manualLocationTextRevision;
+    // Even if the organiser types the original suggested value again,
+    // it is now manual text and must survive a later location reset.
+    this.gpsAutoCity = '';
     this.onCityChanged(value);
   }
 
   onManualAddressChanged(value: string): void {
     ++this.manualLocationTextRevision;
+    this.gpsAutoAddress = '';
     this.address = value;
   }
 
