@@ -10,4 +10,7 @@ export interface AdminIdea {
   problem: string;
   status: IdeaStatus;
   createdAt: string | null;
+  adminReply?: string | null;
+  adminRepliedAt?: string | null;
+  adminRepliedBy?: string | null;
 }
