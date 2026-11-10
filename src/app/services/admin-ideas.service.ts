@@ -15,6 +15,10 @@ export class AdminIdeasService {
     return this.http.get<AdminIdea[]>(this.url);
   }
 
+  reply(id: number, message: string): Observable<AdminIdea> {
+    return this.http.post<AdminIdea>(this.url + '/' + id + '/reply', { message });
+  }
+
   updateStatus(id: number, status: IdeaStatus): Observable<AdminIdea> {
     return this.http.put<AdminIdea>(
       this.url + '/' + id + '/status',
