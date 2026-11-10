@@ -467,34 +467,34 @@
           }
 
           @if (canFindPlayers()) {
-            <section id="session-player-search" class="session-player-search" role="region" aria-label="Procurar jogadores">
+            <section id="session-player-search" class="session-player-search" role="region" [attr.aria-label]="'sessionDetail.findPlayers.region' | t">
               <div class="session-player-search-header">
                 <div class="session-player-search-heading">
                   <span class="section-kicker">{{ 'sessionDetail.organizerKicker' | t }}</span>
-                  <h3>Encontrar jogadores para a sessão</h3>
-                  <p>Faltam {{ missingPlayers() }} jogadores para completar a equipa.</p>
+                  <h3>{{ 'sessionDetail.findPlayers.title' | t }}</h3>
+                  <p>{{ (missingPlayers() === 1 ? 'sessionDetail.findPlayers.oneMissing' : 'sessionDetail.findPlayers.manyMissing') | t:{count: missingPlayers()} }}</p>
                 </div>
                 <a class="jynlo-action jynlo-action--primary" routerLink="/menu/perfis"
                    [queryParams]="{ from: 'people', sport: session.sport, city: session.city }">
-                  Procurar jogadores
+                  {{ 'sessionDetail.findPlayers.search' | t }}
                 </a>
               </div>
               @if (canShareSession()) {
                 <div class="session-friend-invite-section">
                   <div class="session-friend-invite-heading">
                     <div>
-                      <h4>Convidar amigos</h4>
-                      <p>Escolhe os jogadores que queres convidar diretamente.</p>
+                      <h4>{{ 'sessionDetail.findPlayers.inviteTitle' | t }}</h4>
+                      <p>{{ 'sessionDetail.findPlayers.inviteHelp' | t }}</p>
                     </div>
                     <button type="button" class="jynlo-action jynlo-action--neutral"
                       [attr.aria-expanded]="inviteFriendsOpen"
-                      (click)="toggleFriendInvites()">{{ inviteFriendsOpen ? 'Ocultar amigos' : 'Ver amigos' }}</button>
+                      (click)="toggleFriendInvites()">{{ (inviteFriendsOpen ? 'sessionDetail.findPlayers.hideFriends' : 'sessionDetail.findPlayers.showFriends') | t }}</button>
                   </div>
                   @if (inviteFriendsOpen) {
                     <div class="session-friend-invites">
-                      @if (inviteFriendsLoading) { <p>A carregar amigos...</p> }
+                      @if (inviteFriendsLoading) { <p>{{ 'sessionDetail.findPlayers.loadingFriends' | t }}</p> }
                       @if (!inviteFriendsLoading && inviteFriends.length === 0 && !inviteError) {
-                        <p>Não tens amigos disponíveis para convidar.</p>
+                        <p>{{ 'sessionDetail.findPlayers.noFriends' | t }}</p>
                       }
                       @for (friend of inviteFriends; track friend.username) {
                         <div class="session-friend-invite-row">
@@ -502,10 +502,10 @@
                           <div class="session-friend-invite-actions">
                             <button type="button" class="jynlo-action jynlo-action--neutral"
                               [disabled]="inviteSendingTo !== null"
-                              (click)="sendSessionInvite(friend.username)">Enviar mensagem</button>
+                              (click)="sendSessionInvite(friend.username)">{{ 'sessionDetail.sendMessage' | t }}</button>
                             <button type="button" class="jynlo-action jynlo-action--neutral"
                               [disabled]="formalInviteSendingTo !== null || formalInvitedFriends.has(friend.username)"
-                              (click)="sendFormalSessionInvite(friend.username)">{{ formalInvitedFriends.has(friend.username) ? 'Convite enviado' : 'Enviar convite' }}</button>
+                              (click)="sendFormalSessionInvite(friend.username)">{{ (formalInvitedFriends.has(friend.username) ? 'sessionDetail.findPlayers.inviteSent' : 'sessionDetail.findPlayers.sendInvite') | t }}</button>
                           </div>
                         </div>
                       }
