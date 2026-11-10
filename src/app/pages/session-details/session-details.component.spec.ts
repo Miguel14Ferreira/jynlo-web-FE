@@ -2682,6 +2682,32 @@ describe('SessionDetailsComponent', () => {
     expect(component.session?.maxParticipants).toBe(6);
   });
 
+  it('queues a requested roster refresh behind an in-flight roster request', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.sessionId = session.id;
+    component.session = {
+      ...session, joined: true, status: 'OPEN',
+      gameDate: new Date(Date.now() + 3_600_000).toISOString()
+    };
+    const older = new Subject<any[]>();
+    const newer = new Subject<any[]>();
+    sessionService.participants.and.returnValues(older.asObservable(), newer.asObservable());
+
+    component.loadSessionParticipants(true);
+    component.loadSessionParticipants(false);
+    expect(sessionService.participants).toHaveBeenCalledTimes(1);
+
+    older.next([{ id: 1, username: 'old-player', teamCode: null }]);
+    older.complete();
+    expect(sessionService.participants).toHaveBeenCalledTimes(2);
+    expect(component.sessionParticipants.some(player => player.username === 'old-player')).toBeFalse();
+
+    newer.next([{ id: 2, username: 'new-player', teamCode: null }]);
+    newer.complete();
+    expect(component.sessionParticipants.map(player => player.username)).toEqual(['new-player']);
+    expect(component.sessionParticipantsLoading).toBeFalse();
+  });
+
   it('keeps saved capacity when an older session refresh completes afterwards', () => {
     (component as any).currentUsername = 'creator-user';
     component.sessionId = session.id;
