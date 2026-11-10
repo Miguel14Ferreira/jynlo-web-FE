@@ -1443,6 +1443,7 @@ export const EN: Record<string, string> = {
   'profileData.achievement.COMMUNITY_BUILDER': '🤝 Community Builder',
   'profileData.achievement.REGULAR': '📅 Regular',
   'social.follow': 'Follow',
+  'social.emptyList': 'There are no people in this list yet.',
   'social.followers': 'Followers',
   'social.following': 'Following',
   'social.followsYou': 'Follows you',
