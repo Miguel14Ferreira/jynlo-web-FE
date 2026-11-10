@@ -717,8 +717,43 @@
             @if (registry.teams.length) {
               <h6>Equipas inscritas nesta época</h6>
               @for (seasonTeam of registry.teams; track seasonTeam.id) {
-                <div>
-                  <strong>{{ seasonTeam.name }}</strong>
+                <div class="jynlo-season-team">
+                  <div class="jynlo-season-team-heading">
+                    <strong>{{ seasonTeam.name }}</strong>
+                    <span>{{ (championshipTeamPlayers[seasonTeam.id] || []).length }} jogadores</span>
+                  </div>
+                  <div class="jynlo-team-roster">
+                    @for (player of championshipTeamPlayers[seasonTeam.id] || []; track player.profileId) {
+                      <div class="jynlo-roster-player">
+                        <span>{{ player.displayName }} <small>@{{ player.username }}</small></span>
+                        @if (canManage && !championship.closedAt) {
+                          <button type="button" class="t-btn t-btn-secondary"
+                            [disabled]="championshipTeamPlayerBusy[seasonTeam.id]"
+                            (click)="removeChampionshipTeamPlayer(championship.id, seasonTeam.id, player.profileId)">Remover</button>
+                        }
+                      </div>
+                    } @empty {
+                      <p class="team-honours-muted">Ainda não há jogadores inscritos nesta equipa.</p>
+                    }
+                  </div>
+                  @if (canManage && !championship.closedAt) {
+                    <div class="jynlo-team-roster-add">
+                      <label [for]="'season-player-' + seasonTeam.id">Adicionar perfil da comunidade</label>
+                      <select [id]="'season-player-' + seasonTeam.id"
+                        [value]="championshipTeamPlayerDrafts[seasonTeam.id] ?? ''"
+                        (change)="championshipTeamPlayerDrafts[seasonTeam.id] = $any($event.target).value ? +$any($event.target).value : null">
+                        <option value="">Selecionar jogador</option>
+                        @for (member of availableChampionshipTeamMembers(championship.id); track member.profileId) {
+                          <option [value]="member.profileId">{{ member.fullName || member.username }} (@{{ member.username }})</option>
+                        }
+                      </select>
+                      <button type="button" class="t-btn t-btn-primary"
+                        [disabled]="championshipTeamPlayerBusy[seasonTeam.id] || !championshipTeamPlayerDrafts[seasonTeam.id]"
+                        (click)="addChampionshipTeamPlayer(championship.id, seasonTeam.id)">
+                        Adicionar ao plantel
+                      </button>
+                    </div>
+                  }
                   @if (seasonTeam.permanentTeamId) {
                     <button type="button" class="t-btn t-btn-secondary"
                       (click)="openPermanentTeamProfile(seasonTeam.permanentTeamId)">
