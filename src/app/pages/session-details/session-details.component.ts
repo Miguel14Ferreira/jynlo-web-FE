@@ -269,6 +269,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   guestRosterError = '';
   private guestRequestsRefreshing = false;
   private participantRosterRefreshing = false;
+  private participantRosterRefreshPending = false;
 
   inviteFriendsLoading = false;
   inviteSendingTo: string | null = null;
@@ -1353,11 +1354,17 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
 
   loadSessionParticipants(silent = false): void {
     if (!this.sessionId || !this.session
-        || (!this.session.joined && !this.isCreator()) || this.participantRosterRefreshing) {
+        || (!this.session.joined && !this.isCreator())) {
+      return;
+    }
+    if (this.participantRosterRefreshing) {
+      // A save or manual refresh must not be lost behind an in-flight polling GET.
+      if (!silent) this.participantRosterRefreshPending = true;
       return;
     }
 
     this.participantRosterRefreshing = true;
+    const rosterSessionId = this.sessionId;
     if (!silent) {
       this.sessionParticipantsLoading = true;
       this.sessionParticipantsError = '';
@@ -1370,10 +1377,16 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         finalize(() => {
           this.participantRosterRefreshing = false;
           if (!silent) this.sessionParticipantsLoading = false;
+          const refreshPending = this.participantRosterRefreshPending;
+          this.participantRosterRefreshPending = false;
+          if (refreshPending && this.sessionId === rosterSessionId) {
+            this.loadSessionParticipants();
+          }
         })
       )
       .subscribe({
         next: participants => {
+          if (this.sessionId !== rosterSessionId || this.participantRosterRefreshPending) return;
           this.sessionParticipants = participants;
           // The initial session load runs before the participant roster.
           // Load private rating only after the API confirms actual attendance.
@@ -1391,6 +1404,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
           this.confirmedTeams = this.teamAParticipants.length > 0 || this.teamBParticipants.length > 0;
         },
         error: error => {
+          if (this.sessionId !== rosterSessionId || this.participantRosterRefreshPending) return;
           // A temporary background network error must not erase the last valid roster.
           if (silent) return;
           this.sessionParticipants = [];
