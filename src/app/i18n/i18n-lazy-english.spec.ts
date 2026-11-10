@@ -113,6 +113,24 @@ describe('Lazy English translations', () => {
     }
   });
 
+  it('localizes session player search and invitation controls in both languages', async () => {
+    await preloadEnglishTranslations();
+    for (const language of ['pt', 'en'] as const) {
+      const service = new I18nService();
+      service.setLanguage(language);
+      expect(service.translate('sessionDetail.findPlayers.title'))
+        .toBe(language === 'pt' ? 'Encontrar jogadores para a sessão' : 'Find players for this session');
+      expect(service.translate('sessionDetail.findPlayers.oneMissing'))
+        .toContain(language === 'pt' ? '1 jogador' : '1 more player');
+      expect(service.translate('sessionDetail.findPlayers.sendInvite'))
+        .toBe(language === 'pt' ? 'Enviar convite' : 'Send invite');
+      expect(service.translate('sessionDetail.findPlayers.inviteSent'))
+        .toBe(language === 'pt' ? 'Convite enviado' : 'Invite sent');
+      expect(service.translate('sessionDetail.findPlayers.manyMissing', { count: 2 }))
+        .toContain(language === 'pt' ? '2 jogadores' : '2 more players');
+    }
+  });
+
   it('keeps pipe-backed and direct translations consistent when the locale preference changes', async () => {
     await preloadEnglishTranslations();
     const service = new I18nService();
