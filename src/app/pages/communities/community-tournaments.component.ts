@@ -477,6 +477,37 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipLeagueFixtures: Record<number, ChampionshipOwnedLeagueFixture[]> = {};
   championshipLeagueLegs: Record<number, 1 | 2> = {};
   championshipLeagueBusy = false;
+  championshipFixtureScoreDrafts: Record<number, {home: number | null; away: number | null}> = {};
+  championshipFixtureSaving: Record<number, boolean> = {};
+
+  saveChampionshipFixtureScore(championship: CommunityChampionship,
+                               event: ChampionshipOwnedEvent, fixture: ChampionshipOwnedLeagueFixture): void {
+    const score = this.championshipFixtureScoreDrafts[fixture.id];
+    if (!this.canManage || !!championship.closedAt || this.championshipFixtureSaving[fixture.id]
+        || event.status !== 'SCHEDULED' || event.format !== 'LEAGUE'
+        || !score || !Number.isInteger(score.home) || !Number.isInteger(score.away)
+        || score.home! < 0 || score.away! < 0 || score.home! > 999 || score.away! > 999) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipFixtureSaving[fixture.id] = true;
+    this.championshipError = '';
+    this.championshipsApi.recordOwnedFixtureScore(communityId, championship.id, event.id,
+      fixture.id, score.home!, score.away!).subscribe({
+      next: updated => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipLeagueFixtures[event.id] = (this.championshipLeagueFixtures[event.id] || [])
+          .map(item => item.id === updated.id ? updated : item);
+        this.championshipFixtureSaving[fixture.id] = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipFixtureSaving[fixture.id] = false;
+        this.championshipError = 'Não foi possível registar o resultado deste jogo.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
   championshipCupDraws: Record<number, ChampionshipCupOpeningRound> = {};
   championshipCupBusy = false;
 
@@ -816,6 +847,8 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipOwnedEventTeams = {};
     this.championshipOwnedTeamDrafts = {};
     this.championshipLeagueFixtures = {};
+    this.championshipFixtureScoreDrafts = {};
+    this.championshipFixtureSaving = {};
     this.championshipCupDraws = {};
     this.championshipLeagueLegs = {};
     this.editingChampionshipEventId = null;
