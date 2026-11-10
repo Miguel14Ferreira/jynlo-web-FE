@@ -44,7 +44,7 @@ describe('Community tournaments management', () => {
     const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
     expect(instance.championshipOwnedTeamEventsAvailable('Futebol')).toBeTrue();
     expect(instance.championshipOwnedTeamEventsAvailable('Natação')).toBeFalse();
-    expect(instance.championshipOwnedTeamEventsAvailable('Atletismo')).toBeTrue();
+    expect(instance.championshipOwnedTeamEventsAvailable('Atletismo')).toBeFalse();
     expect(instance.championshipOwnedTeamEventsAvailable('Karaté')).toBeFalse();
     expect(instance.championshipOwnedTeamEventsAvailable('Golfe')).toBeFalse();
   });
