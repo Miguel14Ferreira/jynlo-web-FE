@@ -335,3 +335,18 @@ a.preview-venue .preview-venue-action { font-size: .76rem; color: #83ebd5; font-
   color: #07111f; font-weight: 900; text-decoration: none;
 }
 @media (max-width: 850px) { .preview-columns { grid-template-columns: 1fr; } }
+
+/* Guest discovery: sessions, not a growing venue directory, are the primary goal. */
+.preview-sessions { margin-top: 1.4rem; }
+.preview-panel--sessions { width: 100%; }
+.preview-session-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; }
+.preview-session-card { margin-bottom: 0; min-height: 9.5rem; align-content: start; }
+.preview-session-card small { align-self: end; margin-top: auto; }
+.preview-empty { display: grid; gap: .7rem; justify-items: center; text-align: center; padding: 2.25rem 1rem; border: 1px solid rgba(44,211,185,.24); border-radius: 1rem; background: rgba(44,211,185,.035); }
+.preview-empty-icon { font-size: 2rem; }
+.preview-empty strong { font-size: 1.15rem; color: #f8fafc; }
+.preview-empty p { max-width: 35rem; margin: 0; color: #cbd5e1; line-height: 1.6; }
+.preview-empty-action { display: inline-flex; margin-top: .5rem; padding: .75rem 1.1rem; border-radius: .75rem; text-decoration: none; font-weight: 800; }
+.preview-empty .preview-retry { margin: .4rem 0 0; }
+@media (max-width: 900px) { .preview-session-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .preview-session-grid { grid-template-columns: 1fr; } }
