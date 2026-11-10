@@ -36,6 +36,12 @@
           <div class="identity-copy">
             <h2>{{ profile.nickname || profile.fullName || profile.username }}</h2>
             <p>@{{ profile.username }}</p>
+            @if (followStatus) {
+              <div class="my-follow-summary" style="display:flex;gap:.7rem;flex-wrap:wrap;margin:.6rem 0">
+                <button type="button" (click)="openFollowList('followers')"><strong>{{ followStatus.followers }}</strong><span>{{ 'social.followers' | t }}</span></button>
+                <button type="button" (click)="openFollowList('following')"><strong>{{ followStatus.following }}</strong><span>{{ 'social.following' | t }}</span></button>
+              </div>
+            }
 
             <div class="sports-identity-line">
               @if (profile.country) {
@@ -209,4 +215,34 @@
       </section>
     }
   </div>
+
+    @if (followListMode) {
+      <div class="social-list-overlay" (click)="closeFollowList()">
+        <section class="social-list-dialog" role="dialog" aria-modal="true"
+                 [attr.aria-label]="(followListMode === 'followers' ? 'social.followers' : 'social.following') | t"
+                 (click)="$event.stopPropagation()">
+          <header class="social-list-head">
+            <h3>{{ (followListMode === 'followers' ? 'social.followers' : 'social.following') | t }}</h3>
+            <button type="button" class="jynlo-action jynlo-action--neutral" (click)="closeFollowList()" aria-label="Fechar">×</button>
+          </header>
+          @if (followListLoading) {
+            <p role="status">{{ 'home.preview.loading' | t }}</p>
+          } @else if (followListError) {
+            <p role="alert">{{ 'home.preview.loadError' | t }}</p>
+            <button type="button" (click)="openFollowList(followListMode)">{{ 'common.retry' | t }}</button>
+          } @else if (followListProfiles.length === 0) {
+            <p>{{ 'social.emptyList' | t }}</p>
+          } @else {
+            <div class="social-list-people">
+              @for (person of followListProfiles; track person.username) {
+                <a [routerLink]="['/menu/perfis', person.username]" (click)="closeFollowList()">
+                  <strong>{{ person.nickname || person.fullName || person.username }}</strong>
+                  <span>@{{ person.username }}</span>
+                </a>
+              }
+            </div>
+          }
+        </section>
+      </div>
+    }
 </section>
