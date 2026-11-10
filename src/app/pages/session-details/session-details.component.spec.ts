@@ -1929,6 +1929,7 @@ describe('SessionDetailsComponent', () => {
       ...session, gameDate: '2099-10-01T18:00:00Z',
       participantCount: 3, maxParticipants: 4
     };
+    spyOn(component, 'canShareSession').and.returnValue(true);
     fixture.detectChanges();
 
     const panel = fixture.nativeElement.querySelector('#session-player-search') as HTMLElement;
