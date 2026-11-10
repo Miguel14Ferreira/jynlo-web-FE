@@ -5081,6 +5081,8 @@ const PT: Dictionary = {
   'adminReports.loadError': 'Não foi possível carregar as denúncias.',
   'adminReports.updateError': 'Não foi possível atualizar a denúncia.',
   'adminReports.dateUnavailable': 'Data indisponível',
+  'adminIdeas.replyThanksAction': 'Usar resposta de agradecimento',
+  'adminIdeas.replyThanksTemplate': 'Olá {{name}},\n\nMuito obrigado pela tua mensagem e pelo apoio! É muito bom saber que estás a gostar da Jynlo. Continuamos a trabalhar para melhorar a plataforma e juntar cada vez mais pessoas através do desporto.\n\nSe tiveres sugestões, estamos sempre disponíveis para ouvir.\n\nUm abraço,\nEquipa Jynlo',
   'adminIdeas.replyTitle': 'Responder oficialmente',
   'adminIdeas.replyHelp': 'A resposta é enviada por email ao endereço fornecido na sugestão e fica registada na administração. Revê o conteúdo antes de enviar.',
   'adminIdeas.replyPlaceholder': 'Escreve uma resposta simpática e útil…',
