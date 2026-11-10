@@ -183,6 +183,9 @@
             <span><strong>{{ 'createSession.seasonGameToggle' | t }}</strong></span>
           </label>
           @if (seasonGame) {
+            <p class="create-share-members-note" role="note">
+              {{ 'createSession.seasonGameBalanceTeamsHint' | t }}
+            </p>
             <p class="create-share-members-note" role="status">
               {{ 'createSession.seasonGameAutomaticCommunity' | t:{name: selectedSeasonCommunity?.name ?? ''} }}
             </p>
