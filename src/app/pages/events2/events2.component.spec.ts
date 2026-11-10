@@ -1521,6 +1521,35 @@ describe('Events2Component', () => {
     expect(component.shareCommunityIds).toEqual([]);
   });
 
+  it('preserves season-game association for a session created directly inside a community', () => {
+    component.communityId = 12;
+    component.directCommunity = {
+      id: 12, name: 'Colégio Pio', myRole: 'MEMBER', description: null, sport: 'Futebol',
+      photoUrl: null, visibility: 'PRIVATE', rankingsEnabled: true,
+      ownerUsername: 'owner', memberCount: 1, createdAt: '2026-01-01', members: []
+    };
+    component.sport = 'Futebol';
+    component.gameDate = '2099-10-15T18:00';
+    component.city = 'Lisboa';
+    component.address = 'Rua do Campo';
+
+    expect(component.canMarkSeasonGame).toBeTrue();
+    component.toggleSeasonGame(true);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Equilibrar equipas');
+    component.createSession();
+
+    expect(sessionService.create).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        communityId: 12,
+        communityShareIds: [],
+        seasonCompetitionCommunityId: 12,
+        confirmActivateRankings: false
+      }), undefined);
+    expect(router.navigate).toHaveBeenCalledWith(
+      ['/menu/events', 42], { queryParams: { created: 1 } });
+  });
+
   it('should reject an incomplete session', () => {
     component.createSession();
 
