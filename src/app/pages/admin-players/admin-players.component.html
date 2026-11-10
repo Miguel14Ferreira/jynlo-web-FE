@@ -13,7 +13,7 @@
       <div class="search-row">
         <input id="player-search" name="name" type="search" [(ngModel)]="name"
           maxlength="100" autocomplete="off" [disabled]="working" [placeholder]="'adminPlayers.placeholder' | t">
-        <button class="jynlo-action jynlo-action--primary" type="submit" [disabled]="loading || working || !name.trim()">
+        <button class="jynlo-action jynlo-action--primary" type="submit" [disabled]="loading || working">
           {{ (loading ? 'common.searching' : 'adminPlayers.search') | t }}
         </button>
         <button type="button" class="secondary-action jynlo-action jynlo-action--neutral" [disabled]="working" (click)="clear()">{{ 'events.clear' | t }}</button>
@@ -132,7 +132,7 @@
     }
 
     @if (!loading && players.length > 0) {
-      <p class="results-label">{{ 'adminPlayers.results' | t:{ name: searchedName } }}</p>
+      <p class="results-label">{{ searchedName ? ('adminPlayers.results' | t:{ name: searchedName }) : ('adminPlayers.allPlayers' | t) }}</p>
       <div class="table-scroll">
         <table>
           <thead><tr>
