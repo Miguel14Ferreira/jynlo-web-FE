@@ -1402,8 +1402,10 @@ describe('Events2Component', () => {
     component.toggleCommunityShare(12, true);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('input[name="seasonGame"]')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain('Equilibrar equipas');
     component.toggleSeasonGame(true);
     fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Equilibrar equipas');
     expect(component.seasonGameCommunityId).toBe(12);
     expect(fixture.nativeElement.querySelector('select[name="seasonGameCommunityId"]')).toBeNull();
     expect(fixture.nativeElement.textContent).toContain('época de ACM');
