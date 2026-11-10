@@ -20,6 +20,15 @@ export interface ChampionshipOwnedEventTeam {
   name: string;
 }
 
+export interface ChampionshipFixtureGoal {
+  id: number;
+  profileId: number;
+  scorerName: string;
+  teamId: number;
+  teamName: string;
+  minute: number | null;
+}
+
 export interface ChampionshipOwnedLeagueFixture {
   id: number;
   round: number;
@@ -316,6 +325,28 @@ export class CommunityChampionshipsService {
     return this.http.delete<void>(
       this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId +
       '/teams/' + championshipTeamId);
+  }
+
+  fixtureGoals(communityId: number, championshipId: number, eventId: number,
+               fixtureId: number): Observable<ChampionshipFixtureGoal[]> {
+    return this.http.get<ChampionshipFixtureGoal[]>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId
+      + '/fixtures/' + fixtureId + '/goals');
+  }
+
+  addFixtureGoal(communityId: number, championshipId: number, eventId: number,
+                 fixtureId: number, profileId: number, teamId: number,
+                 minute: number | null): Observable<ChampionshipFixtureGoal[]> {
+    return this.http.post<ChampionshipFixtureGoal[]>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId
+      + '/fixtures/' + fixtureId + '/goals', { profileId, teamId, minute });
+  }
+
+  removeFixtureGoal(communityId: number, championshipId: number, eventId: number,
+                    fixtureId: number, goalId: number): Observable<void> {
+    return this.http.delete<void>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId
+      + '/fixtures/' + fixtureId + '/goals/' + goalId);
   }
 
   recordOwnedFixtureScore(communityId: number, championshipId: number, eventId: number,
