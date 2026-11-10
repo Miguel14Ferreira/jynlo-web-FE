@@ -1764,6 +1764,26 @@ describe('SessionDetailsComponent', () => {
       .toContain('Época 2026/27');
   });
 
+  it('ignores an older season context response after a newer refresh starts', () => {
+    component.session = { ...session, audience: 'COMMUNITY_ONLY', communityId: 12 };
+    const oldRequest = new Subject<any>();
+    const newRequest = new Subject<any>();
+    sessionService.context.and.returnValues(oldRequest.asObservable(), newRequest.asObservable());
+
+    (component as any).loadSessionContext(session.id);
+    (component as any).loadSessionContext(session.id);
+
+    oldRequest.next({ communities: [{ id: 12, name: 'Colégio Pio' }], seasonGame: true, seasonName: 'Época antiga' });
+    oldRequest.complete();
+    expect(component.sessionContext).toBeNull();
+    expect(component.sessionContextLoading).toBeTrue();
+
+    newRequest.next({ communities: [{ id: 12, name: 'Colégio Pio' }], seasonGame: true, seasonName: 'Época atual' });
+    newRequest.complete();
+    expect(component.sessionContext?.seasonName).toBe('Época atual');
+    expect(component.sessionContextLoading).toBeFalse();
+  });
+
   it('invalidates stale season data when a context refresh fails and retries safely', () => {
     component.session = { ...session, audience: 'COMMUNITY_ONLY', communityId: 12 };
     component.sessionContext = {
