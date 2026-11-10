@@ -30,6 +30,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   likersList: FollowProfile[] = [];
   likersLoading = false;
   likersError = false;
+  likerPreview: Record<number, string> = {};
+  likersPrivacySavingId: number | null = null;
   postContent = '';
   postImageFile?: File;
   postImagePreview = '';
@@ -394,7 +396,10 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         finalize(() => this.loading = false)
       )
       .subscribe({
-        next: items => this.items = items,
+        next: items => {
+          this.items = items;
+          this.loadLikerPreviews();
+        },
         error: () => {
           this.items = [];
           this.errorMessage = t('feedback.feed.loadError');
@@ -602,7 +607,52 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       });
   }
 
+  likedByText(item: FeedItem): string {
+    const count = item.likeCount;
+    if (count <= 0) return '';
+    if (item.hideLikers && item.authorUsername !== this.currentUsername) {
+      return count === 1 ? '1 gosto' : count + ' gostos';
+    }
+    const display = item.postId !== null ? this.likerPreview[item.postId] : null;
+    if (display) {
+      return count === 1 ? 'Gostado por ' + display : 'Gostado por ' + display + ' e outras pessoas';
+    }
+    return count === 1 ? 'Gostado por 1 pessoa' : 'Gostado por ' + count + ' pessoas';
+  }
+
+  private loadLikerPreviews(): void {
+    // Only visible posts, maximum eight extra small lookups; never request hidden identities.
+    this.items.filter(item => item.postId !== null && item.likeCount > 0
+      && (!item.hideLikers || item.authorUsername === this.currentUsername))
+      .slice(0, 8).forEach(item => {
+        const postId = item.postId!;
+        this.feedService.likers(postId).pipe(timeout(6000), takeUntil(this.destroyed))
+          .subscribe({
+            next: people => {
+              if (people.length) this.likerPreview[postId] =
+                people[0].nickname || people[0].fullName || '@' + people[0].username;
+            },
+            error: () => { /* Keep the count if a preview is unavailable. */ }
+          });
+      });
+  }
+
+  toggleLikersPrivacy(item: FeedItem): void {
+    if (item.authorUsername !== this.currentUsername || item.postId === null
+        || this.likersPrivacySavingId !== null) return;
+    const id = item.postId;
+    this.likersPrivacySavingId = id;
+    this.feedService.setLikersHidden(id, !item.hideLikers)
+      .pipe(timeout(10000), finalize(() => this.likersPrivacySavingId = null),
+        takeUntil(this.destroyed))
+      .subscribe({
+        next: hidden => { item.hideLikers = hidden; },
+        error: () => { this.actionError = 'Não foi possível alterar a privacidade dos gostos.'; }
+      });
+  }
+
   showLikers(item: FeedItem): void {
+    if (item.hideLikers && item.authorUsername !== this.currentUsername) return;
     if (item.postId === null) {
       if (item.type === 'SESSION_ATTENDED') {
         this.withInteractionPost(item, () => this.showLikers(item));
