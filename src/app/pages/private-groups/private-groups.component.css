@@ -256,3 +256,59 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   border-radius:50%;overflow:hidden;background:#185760;font-size:1.45rem}
 .group-photo-input{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .group-header-button:disabled{opacity:.5;cursor:not-allowed}
+
+
+/* Friend picker: the generic .group-friend span flex rule must not stretch avatars. */
+.group-invite-modal .group-friend > .group-friend-avatar {
+  flex:0 0 42px;
+  width:42px;
+  height:42px;
+  min-width:42px;
+  min-height:42px;
+  max-width:42px;
+  max-height:42px;
+  border-radius:50%;
+  overflow:hidden;
+  aspect-ratio:1;
+  align-self:center;
+  background:linear-gradient(145deg,#286b78,#174553);
+  box-shadow:0 0 0 1px rgba(142,214,217,.22);
+}
+.group-invite-modal .group-friend > .group-friend-avatar img {
+  display:block;
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  aspect-ratio:1;
+  border-radius:50%;
+  object-fit:cover;
+  object-position:center;
+}
+.group-invite-modal .group-friend > .group-friend-details {
+  flex:1 1 0;
+  width:0;
+  min-width:0;
+}
+.group-invite-modal .group-friend-details strong,
+.group-invite-modal .group-friend-details small {
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.group-invite-modal .group-friend > input[type=checkbox] {
+  flex:0 0 19px;
+  margin-left:auto;
+}
+@media (max-width:360px) {
+  .group-invite-modal .group-friend > .group-friend-avatar {
+    flex-basis:36px;
+    width:36px;
+    height:36px;
+    min-width:36px;
+    min-height:36px;
+    max-width:36px;
+    max-height:36px;
+  }
+}
