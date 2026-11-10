@@ -122,6 +122,9 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   private loadSessionContext(sessionId: number): void {
+    // A refreshed season may have been renamed or deleted. Never display a
+    // previously cached association when the fresh request fails.
+    this.sessionContext = null;
     this.sessionContextLoading = true;
     this.sessionContextError = '';
     this.sessionService.context(sessionId).pipe(
@@ -2940,7 +2943,9 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       .subscribe({
         next: session => {
           this.session = session;
-          if (!this.sessionContext && !this.sessionContextLoading) this.loadSessionContext(session.id);
+          if (!this.sessionContextLoading && (showPageLoader || !this.sessionContext)) {
+            this.loadSessionContext(session.id);
+          }
           if (session.status === 'COMPLETED' && session.joined && !this.isCreator()) {
             this.loadPostGameCommunities(session.id);
           } else {
