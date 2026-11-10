@@ -42,6 +42,24 @@ describe('Community entry and email invite destinations', () => {
     expect(component.showMineView()).toBeTrue();
   });
 
+  it('opens a My Communities discovery-style card on the correct detail route', () => {
+    const navigate = jasmine.createSpy('navigate');
+    (component as any).router = { navigate };
+    const group = {
+      id: 42, name: 'CNG', description: 'Grupo de futebol',
+      sport: 'Futebol', sports: ['Futebol', 'Futsal'],
+      visibility: 'PRIVATE', memberCount: 3,
+      photoUrl: null
+    } as CommunityGroup;
+    component.communities = [group];
+    query = { view: 'mine' };
+
+    expect(component.showMineView()).toBeTrue();
+    expect(component.communitySports(group)).toEqual(['Futebol', 'Futsal']);
+    component.open(group);
+    expect(navigate).toHaveBeenCalledOnceWith(['/menu/communities', 42]);
+  });
+
   it('keeps the email invitation inbox visible with additional invite query parameters', () => {
     query = { view: 'mine', invite: '27' };
     expect(component.showMineView()).toBeTrue();
