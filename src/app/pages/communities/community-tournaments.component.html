@@ -987,7 +987,8 @@
                                     </span>
                                     <strong>{{ fixture.awayTeamName }}</strong>
                                   </div>
-                                  @if (canManage && !championship.closedAt && event.status === 'SCHEDULED') {
+                                  @if (canManage && !championship.closedAt && event.status === 'SCHEDULED'
+                                    && (championship.sport === 'Futebol' || championship.sport === 'Futsal')) {
                                     <div class="jynlo-match-score-edit">
                                       <label [for]="'home-score-' + fixture.id">Casa</label>
                                       <input [id]="'home-score-' + fixture.id" type="number" min="0" max="999"
