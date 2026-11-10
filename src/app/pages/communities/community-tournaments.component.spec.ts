@@ -66,6 +66,24 @@ describe('Community tournaments management', () => {
     expect(instance.availableChampionshipTournaments(championship as any).map(item => item.id)).toEqual([10]);
   });
 
+  it('does not allow changing ranking policy after a linked tournament starts', () => {
+    const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
+    expect(instance.canChangeChampionshipStandingsMode({
+      id: 15, closedAt: null, competitions: [{ id: 1, status: 'IN_PROGRESS' }]
+    } as any)).toBeFalse();
+  });
+
+  it('allows policy selection before starting a championship, but not after closing it', () => {
+    const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
+    instance.championshipOwnedEvents = {};
+    expect(instance.canChangeChampionshipStandingsMode({
+      id: 15, closedAt: null, competitions: [{ id: 1, status: 'DRAFT' }]
+    } as any)).toBeTrue();
+    expect(instance.canChangeChampionshipStandingsMode({
+      id: 15, closedAt: '2026-11-10T20:00:00Z', competitions: []
+    } as any)).toBeFalse();
+  });
+
   it('distinguishes championship-owned competitions from standalone tournaments', () => {
     const previous = localStorage.getItem('d24-language');
     try {
