@@ -2682,6 +2682,29 @@ describe('SessionDetailsComponent', () => {
     expect(component.session?.maxParticipants).toBe(6);
   });
 
+  it('replays a member guest refresh and discards obsolete confirmations', () => {
+    (component as any).currentUsername = 'player-one';
+    component.sessionId = session.id;
+    component.session = { ...session, joined: true };
+    const older = new Subject<any[]>();
+    const newer = new Subject<any[]>();
+    sessionService.confirmedGuests.and.returnValues(older.asObservable(), newer.asObservable());
+
+    (component as any).loadMemberConfirmedGuests(true);
+    (component as any).loadMemberConfirmedGuests(false);
+    expect(sessionService.confirmedGuests).toHaveBeenCalledTimes(1);
+
+    older.next([{ id: 1, name: 'Convidado antigo', teamCode: null }]);
+    older.complete();
+    expect(sessionService.confirmedGuests).toHaveBeenCalledTimes(2);
+    expect(component.memberConfirmedGuests).toEqual([]);
+
+    newer.next([{ id: 2, name: 'Convidado atual', teamCode: null }]);
+    newer.complete();
+    expect(component.memberConfirmedGuests.map(guest => guest.name)).toEqual(['Convidado atual']);
+    expect(component.memberConfirmedGuestsLoading).toBeFalse();
+  });
+
   it('replays a requested guest refresh and ignores the obsolete guest list', () => {
     (component as any).currentUsername = 'creator-user';
     component.sessionId = session.id;
