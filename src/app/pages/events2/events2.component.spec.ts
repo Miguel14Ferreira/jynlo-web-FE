@@ -1611,6 +1611,52 @@ describe('Events2Component', () => {
     expect(component.venueSearch).not.toContain('Pavilhão habitual');
   });
 
+  it('ignores a late habitual venue even after the search is cleared again', () => {
+    const pending = new Subject<Venue>();
+    venueService.get.and.returnValue(pending.asObservable());
+    component.communities = [{
+      id: 12, name: 'Treino', sport: 'Futebol', sports: ['Futebol'],
+      defaultVenueId: 55, myRole: 'MEMBER'
+    } as any];
+
+    component.toggleCommunityShare(12, true);
+    component.onVenueSearchChanged('Outro recinto');
+    component.onVenueSearchChanged('');
+    pending.next({
+      id: 55, name: 'Pavilhão habitual', city: 'Lisboa',
+      district: 'Lisboa', address: 'Rua habitual', sports: 'Futebol',
+      latitude: null, longitude: null
+    } as Venue);
+    pending.complete();
+
+    expect(component.venueSearch).toBe('');
+    expect(component.selectedVenueId).toBeNull();
+    expect(component.city).not.toBe('Lisboa');
+  });
+
+  it('ignores a late habitual venue after briefly switching location methods', () => {
+    const pending = new Subject<Venue>();
+    venueService.get.and.returnValue(pending.asObservable());
+    component.communities = [{
+      id: 12, name: 'Treino', sport: 'Futebol', sports: ['Futebol'],
+      defaultVenueId: 55, myRole: 'MEMBER'
+    } as any];
+
+    component.toggleCommunityShare(12, true);
+    component.chooseLocationMethod('maps');
+    component.chooseLocationMethod('venue');
+    pending.next({
+      id: 55, name: 'Pavilhão habitual', city: 'Lisboa',
+      district: 'Lisboa', address: 'Rua habitual', sports: 'Futebol',
+      latitude: null, longitude: null
+    } as Venue);
+    pending.complete();
+
+    expect(component.locationMethod).toBe('venue');
+    expect(component.selectedVenueId).toBeNull();
+    expect(component.venueSearch).toBe('');
+  });
+
   it('fills the sport and the habitual venue when one community is selected', () => {
     venueService.get.and.returnValue(of({
       id: 55, name: 'Pavilhão Municipal', city: 'Lisboa', district: 'Lisboa',
