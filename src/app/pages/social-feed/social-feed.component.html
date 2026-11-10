@@ -326,6 +326,10 @@
                   <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.3 5.3 0 0 0-7.5 0L12 5.9l-1.3-1.3a5.3 5.3 0 0 0-7.5 7.5L12 21l8.8-8.9a5.3 5.3 0 0 0 0-7.5Z"/></svg>
                   {{ item.likeCount }}
                 </button>
+                @if (item.likeCount > 0) {
+                  <button type="button" class="feed-likers-action"
+                          (click)="showLikers(item)" aria-label="Ver quem gostou">Ver gostos</button>
+                }
 
                 <button
                   type="button"
@@ -469,6 +473,10 @@
                   <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.3 5.3 0 0 0-7.5 0L12 5.9l-1.3-1.3a5.3 5.3 0 0 0-7.5 7.5L12 21l8.8-8.9a5.3 5.3 0 0 0 0-7.5Z"/></svg>
                   {{ item.likeCount }}
                 </button>
+                @if (item.likeCount > 0) {
+                  <button type="button" class="feed-likers-action"
+                          (click)="showLikers(item)" aria-label="Ver quem gostou">Ver gostos</button>
+                }
 
                 <button
                   type="button"
@@ -691,4 +699,30 @@
       </aside>
     </div>
   </div>
+
+  @if (likersPostId !== null) {
+    <div class="feed-likers-overlay" (click)="closeLikers()">
+      <section class="feed-likers-dialog" role="dialog" aria-modal="true" aria-label="Pessoas que gostaram"
+               (click)="$event.stopPropagation()">
+        <header><h3>Pessoas que gostaram</h3>
+          <button type="button" (click)="closeLikers()" aria-label="Fechar">×</button>
+        </header>
+        @if (likersLoading) {
+          <p role="status">{{ 'home.preview.loading' | t }}</p>
+        } @else if (likersError) {
+          <p role="alert">{{ 'home.preview.loadError' | t }}</p>
+        } @else if (!likersList.length) {
+          <p>Ainda não há gostos.</p>
+        } @else {
+          @for (person of likersList; track person.username) {
+            <a class="feed-liker-person" [routerLink]="['/menu/perfis', person.username]"
+               (click)="closeLikers()">
+              <strong>{{ person.nickname || person.fullName || person.username }}</strong>
+              <span>@{{ person.username }}</span>
+            </a>
+          }
+        }
+      </section>
+    </div>
+  }
 </section>
