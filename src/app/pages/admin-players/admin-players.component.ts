@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { finalize, Subscription, timeout } from 'rxjs';
 import { AuthenticationService } from '../../services/authethication.service';
 import { AdminPlayer, AdminPlayersService, CommunityQuota, ModerationAction } from '../../services/admin-players.service';
@@ -17,7 +17,7 @@ interface PendingModeration {
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
-export class AdminPlayersComponent implements OnDestroy {
+export class AdminPlayersComponent implements OnInit, OnDestroy {
   name = '';
   searchedName = '';
   players: AdminPlayer[] = [];
@@ -61,6 +61,10 @@ export class AdminPlayersComponent implements OnDestroy {
   private request?: Subscription;
 
   constructor(private service: AdminPlayersService, private auth: AuthenticationService) {}
+
+  ngOnInit(): void {
+    this.load('', 0);
+  }
 
   get canManageRoles(): boolean {
     return this.auth.hasAnyRole('ROLE_SUPER_ADMIN');
@@ -308,12 +312,11 @@ export class AdminPlayersComponent implements OnDestroy {
   search(): void {
     if (this.working) return;
     const name = this.name.trim();
-    if (!name) { this.clear(); return; }
     this.load(name, 0);
   }
 
   changePage(direction: number): void {
-    if (this.loading || this.working || !this.searchedName || (direction > 0 && !this.hasMore)) return;
+    if (this.loading || this.working || (direction > 0 && !this.hasMore)) return;
     const page = this.page + direction;
     if (page >= 0) this.load(this.searchedName, page);
   }
@@ -343,6 +346,7 @@ export class AdminPlayersComponent implements OnDestroy {
     this.loading = false;
     this.searched = false;
     this.errorKey = '';
+    this.load('', 0);
   }
 
   ngOnDestroy(): void {
