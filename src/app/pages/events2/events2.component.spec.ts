@@ -1566,6 +1566,51 @@ describe('Events2Component', () => {
     expect(component.city).toBe('');
   });
 
+  it('does not replace manual venue search with a late community habitual venue', () => {
+    const pending = new Subject<Venue>();
+    venueService.get.and.returnValue(pending.asObservable());
+    component.communities = [{
+      id: 12, name: 'Treino', sport: 'Futebol', sports: ['Futebol'],
+      defaultVenueId: 55, myRole: 'MEMBER'
+    } as any];
+
+    component.toggleCommunityShare(12, true);
+    expect(venueService.get).toHaveBeenCalledWith(55);
+    component.onVenueSearchChanged('Recinto escolhido manualmente');
+    pending.next({
+      id: 55, name: 'Pavilhão habitual', city: 'Lisboa',
+      district: 'Lisboa', address: 'Rua A', sports: 'Futebol',
+      latitude: null, longitude: null
+    } as Venue);
+    pending.complete();
+
+    expect(component.venueSearch).toBe('Recinto escolhido manualmente');
+    expect(component.selectedVenueId).toBeNull();
+    expect(component.city).not.toBe('Lisboa');
+  });
+
+  it('ignores a delayed habitual venue after changing the sport', () => {
+    const pending = new Subject<Venue>();
+    venueService.get.and.returnValue(pending.asObservable());
+    component.communities = [{
+      id: 12, name: 'Treino', sport: 'Futebol', sports: ['Futebol'],
+      defaultVenueId: 55, myRole: 'MEMBER'
+    } as any];
+
+    component.toggleCommunityShare(12, true);
+    component.onSportChoice('Padel');
+    pending.next({
+      id: 55, name: 'Pavilhão habitual', city: 'Lisboa',
+      district: 'Lisboa', address: 'Rua A', sports: 'Futebol;Padel',
+      latitude: null, longitude: null
+    } as Venue);
+    pending.complete();
+
+    expect(component.sport).toBe('Padel');
+    expect(component.selectedVenueId).toBeNull();
+    expect(component.venueSearch).not.toContain('Pavilhão habitual');
+  });
+
   it('fills the sport and the habitual venue when one community is selected', () => {
     venueService.get.and.returnValue(of({
       id: 55, name: 'Pavilhão Municipal', city: 'Lisboa', district: 'Lisboa',
