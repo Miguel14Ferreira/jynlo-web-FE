@@ -2107,6 +2107,43 @@ describe('Events2Component', () => {
     expect(component.longitude).toBe(-9.14);
   });
 
+  it('preserves user-edited GPS city and address after removing the map point', () => {
+    venueService.reverseLocation.and.returnValue(of({
+      city: 'Lisboa', address: 'Rua sugerida',
+      distanceMeters: 10, provider: 'My Geocode'
+    }));
+    component.applyCurrentPosition(38.72, -9.14, 15);
+    expect(component.city).toBe('Lisboa');
+    expect(component.address).toBe('Rua sugerida');
+
+    // The user edits and restores the same text: this is still a manual choice.
+    component.onManualCityChanged('Cascais');
+    component.onManualCityChanged('Lisboa');
+    component.onManualAddressChanged('Rua escolhida');
+    component.onManualAddressChanged('Rua sugerida');
+    component.clearLocation();
+
+    expect(component.city).toBe('Lisboa');
+    expect(component.address).toBe('Rua sugerida');
+    expect(component.hasCoordinates).toBeFalse();
+  });
+
+  it('still removes untouched automatic GPS address suggestions on clearing location', () => {
+    venueService.reverseLocation.and.returnValue(of({
+      city: 'Lisboa', address: 'Rua sugerida',
+      distanceMeters: 10, provider: 'My Geocode'
+    }));
+    component.applyCurrentPosition(38.72, -9.14, 15);
+    expect(component.city).toBe('Lisboa');
+    expect(component.address).toBe('Rua sugerida');
+
+    component.clearLocation();
+
+    expect(component.city).toBe('');
+    expect(component.address).toBe('');
+    expect(component.hasCoordinates).toBeFalse();
+  });
+
   it('cannot overwrite manual edits or a changed GPS point with a delayed reverse result', () => {
     const first = new Subject<{city:string|null;address:string|null;distanceMeters:number|null;provider:string}>();
     venueService.reverseLocation.and.returnValue(first.asObservable());
