@@ -2412,6 +2412,46 @@ describe('SessionDetailsComponent', () => {
     page.destroy();
   });
 
+  it('does not undo a confirmed waitlist entry when an older detail GET arrives', () => {
+    component.sessionId = session.id;
+    component.session = {
+      ...session, status: 'FULL', participantCount: 4,
+      gameDate: new Date(Date.now() + 3600_000).toISOString()
+    };
+    const staleDetail = new Subject<any>();
+    sessionService.detail.and.returnValues(staleDetail.asObservable(), throwError(() => new Error('offline')));
+    sessionService.join.and.returnValue(of({ state: 'WAITLISTED', waitlistPosition: 2 }));
+
+    (component as any).loadSession(false);
+    component.joinSession();
+    expect(component.session?.waitlisted).toBeTrue();
+    expect(component.session?.waitlistPosition).toBe(2);
+
+    staleDetail.next({ ...session, joined: false, waitlisted: false, waitlistPosition: null });
+    staleDetail.complete();
+    expect(component.session?.waitlisted).toBeTrue();
+    expect(component.session?.waitlistPosition).toBe(2);
+  });
+
+  it('does not restore cancelled membership from an older detail GET', () => {
+    component.sessionId = session.id;
+    component.session = {
+      ...session, joined: false, waitlisted: true, waitlistPosition: 2,
+      status: 'FULL', gameDate: new Date(Date.now() + 3600_000).toISOString()
+    };
+    const staleDetail = new Subject<any>();
+    sessionService.detail.and.returnValues(staleDetail.asObservable(), throwError(() => new Error('offline')));
+
+    (component as any).loadSession(false);
+    component.leaveSession();
+    expect(component.session?.waitlisted).toBeFalse();
+
+    staleDetail.next({ ...session, waitlisted: true, waitlistPosition: 2 });
+    staleDetail.complete();
+    expect(component.session?.waitlisted).toBeFalse();
+    expect(component.session?.waitlistPosition).toBeNull();
+  });
+
   it('should join the session and refresh its details', () => {
     component.session = { ...session, gameDate: new Date(Date.now() + 3600_000).toISOString() };
     component.joinSession();
