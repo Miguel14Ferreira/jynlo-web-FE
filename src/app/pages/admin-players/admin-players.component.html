@@ -69,6 +69,30 @@
         </div>
       </section>
     }
+    @if (messageSuccess) {
+      <p class="state success" role="status">Mensagem da Administração Jynlo enviada a @{{ messageSuccess }}.</p>
+    }
+    @if (messageError) { <p class="state error" role="alert">{{ messageError }}</p> }
+    @if (messageRecipient) {
+      <section class="role-confirmation" role="group" aria-labelledby="admin-message-title">
+        <h2 id="admin-message-title">Enviar mensagem administrativa a @{{ messageRecipient.username }}</h2>
+        <p>O jogador recebe uma notificação na Jynlo identificada como Administração Jynlo. Não é uma mensagem de chat.</p>
+        <label for="admin-message-content">Mensagem</label>
+        <textarea id="admin-message-content" rows="4" name="adminMessage"
+          [(ngModel)]="adminMessage" maxlength="1000" [disabled]="messageSending"
+          placeholder="Escreve a mensagem para este jogador"></textarea>
+        <small>{{ adminMessage.length }}/1000 caracteres</small>
+        <div class="confirmation-actions">
+          <button type="button" class="jynlo-action jynlo-action--primary"
+            (click)="sendAdminMessage()"
+            [disabled]="working || !adminMessage.trim() || adminMessage.trim().length > 1000">
+            {{ messageSending ? 'A enviar…' : 'Enviar notificação' }}
+          </button>
+          <button type="button" class="secondary-action jynlo-action jynlo-action--neutral"
+            (click)="cancelAdminMessage()" [disabled]="messageSending">Cancelar</button>
+        </div>
+      </section>
+    }
     @if (pendingRole) {
       <section class="role-confirmation" role="group" aria-labelledby="role-confirm-title">
         <h2 id="role-confirm-title">{{ (pendingRole.role === 'ROLE_ADMIN' ? 'adminPlayers.confirmPromote' : 'adminPlayers.confirmDemote') | t:{ name: pendingRole.username } }}</h2>
@@ -148,6 +172,12 @@
                         <button type="button" class="secondary-action jynlo-action jynlo-action--neutral"
                           [disabled]="working" (click)="beginCommunityLimit(player)">
                           {{ 'adminPlayers.communityLimitAction' | t }}
+                        </button>
+                      }
+                      @if (canModerate && player.enabled === true && player.notLocked === true && !player.moderationSuspendedAt) {
+                        <button type="button" class="secondary-action jynlo-action jynlo-action--neutral"
+                          [disabled]="working" (click)="beginAdminMessage(player)">
+                          Enviar mensagem
                         </button>
                       }
                       @if (canChangeRole(player)) {
