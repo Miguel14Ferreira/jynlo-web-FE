@@ -45,3 +45,106 @@
   .competition-choice-grid { grid-template-columns: 1fr; }
 }
 @media(prefers-reduced-motion:reduce){ .competition-choice-card{ transition:none; } }
+
+
+/* Season management: legible hierarchy and breathing room on desktop. */
+:host .jynlo-season-card {
+  display: grid;
+  gap: 1.25rem;
+  padding: clamp(1.15rem, 2vw, 2rem);
+  border: 1px solid rgba(86, 196, 194, .3);
+  border-radius: 1.25rem;
+  background: linear-gradient(150deg, #092c3b 0%, #081f31 100%);
+  min-width: 0;
+}
+:host .jynlo-season-card .jynlo-season-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1.1rem;
+  padding-bottom: 1.15rem;
+  border-bottom: 1px solid rgba(116, 193, 197, .23);
+}
+:host .jynlo-season-card .jynlo-season-heading > div { width: min(100%, 55rem); min-width: 0; }
+:host .jynlo-season-card .jynlo-season-heading h5 {
+  color: #f4fffb;
+  font-size: clamp(1.35rem, 2vw, 1.85rem);
+  line-height: 1.25;
+  margin: 0 0 .5rem;
+  overflow-wrap: anywhere;
+}
+:host .jynlo-season-card > .create-step,
+:host .jynlo-season-card > section.create-step {
+  min-width: 0;
+  padding: clamp(1.15rem, 1.8vw, 1.75rem);
+  background: rgba(9, 43, 58, .63);
+  border: 1px solid rgba(101, 178, 190, .26);
+  border-radius: 1rem;
+}
+:host .jynlo-season-card .jynlo-section-title {
+  margin: 0 0 .75rem;
+  color: #ebfff9;
+  font-size: clamp(1.06rem, 1.5vw, 1.25rem);
+  line-height: 1.3;
+}
+:host .jynlo-season-card p, :host .jynlo-season-card small {
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+:host .jynlo-season-card label { display: block; margin: .6rem 0 .35rem; line-height: 1.45; font-weight: 650; }
+:host .jynlo-season-card .create-controls { display: flex; flex-wrap: wrap; gap: .85rem; align-items: end; }
+:host .jynlo-season-card .create-field { min-width: min(100%, 220px); flex: 1 1 220px; }
+:host .jynlo-season-card input:not([type="checkbox"]),
+:host .jynlo-season-card select {
+  min-height: 2.75rem;
+  max-width: 100%;
+  font-size: .94rem;
+}
+:host .jynlo-season-card button { min-height: 2.55rem; }
+:host .jynlo-season-card ul, :host .jynlo-season-card ol { padding-left: 1.25rem; }
+:host .jynlo-season-card li { padding: .45rem 0; line-height: 1.55; }
+:host .jynlo-season-card .jynlo-match-result {
+  padding: .85rem;
+  margin: .6rem 0;
+  border: 1px solid rgba(89, 181, 184, .27);
+  border-radius: .85rem;
+  background: rgba(7, 28, 44, .65);
+  list-style: none;
+}
+:host .jynlo-match-result-main {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+:host .jynlo-match-result-main strong { overflow-wrap: anywhere; font-size: .97rem; }
+:host .jynlo-match-result-main strong:first-child { text-align: right; }
+:host .jynlo-match-result-main strong:last-child { text-align: left; }
+:host .jynlo-score {
+  min-width: 4rem;
+  padding: .5rem;
+  border-radius: .65rem;
+  background: rgba(38, 124, 116, .24);
+  color: #eafff9;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.2rem;
+  font-weight: 850;
+}
+:host .jynlo-match-score-edit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .65rem;
+  align-items: end;
+  justify-content: center;
+  margin-top: .85rem;
+  padding-top: .85rem;
+  border-top: 1px solid rgba(91, 176, 171, .19);
+}
+:host .jynlo-match-score-edit input[type="number"] { width: 5.5rem; }
+:host .jynlo-match-score-edit label { margin: 0; }
+@media (max-width: 720px) {
+  :host .jynlo-season-card .jynlo-season-heading { display: block; }
+  :host .jynlo-match-result-main { gap: .4rem; }
+  :host .jynlo-match-score-edit { justify-content: start; }
+}
