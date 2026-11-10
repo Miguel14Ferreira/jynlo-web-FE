@@ -97,15 +97,21 @@
                   </strong>
                 } @else {
                   <span>{{ 'sessionDetail.seasonNo' | t }}</span>
-                  <button type="button" class="session-ranking-learn-more"
-                    [attr.aria-expanded]="showRankingBenefits"
-                    aria-controls="session-ranking-benefits"
-                    (click)="showRankingBenefits = !showRankingBenefits">
-                    {{ (showRankingBenefits ? 'sessionDetail.rankingsLearnLess' : 'sessionDetail.rankingsLearnMore') | t }}
-                  </button>
                 }
               </div>
-              @if (!sessionContext.seasonGame && showRankingBenefits) {
+              @if (sessionContext.seasonGame) {
+                <p class="session-season-game-context-note">{{ 'sessionDetail.seasonValidationInfo' | t }}</p>
+              }
+              <div class="session-community-context-row">
+                <span class="session-context-label">{{ 'sessionDetail.rankingsLabel' | t }}</span>
+                <button type="button" class="session-ranking-learn-more"
+                  [attr.aria-expanded]="showRankingBenefits"
+                  aria-controls="session-ranking-benefits"
+                  (click)="showRankingBenefits = !showRankingBenefits">
+                  {{ (showRankingBenefits ? 'sessionDetail.rankingsLearnLess' : 'sessionDetail.rankingsLearnMore') | t }}
+                </button>
+              </div>
+              @if (showRankingBenefits) {
                 <div id="session-ranking-benefits" class="session-ranking-benefits" role="note">
                   <strong>{{ 'sessionDetail.rankingsBenefitsTitle' | t }}</strong>
                   <p>{{ 'sessionDetail.rankingsBenefitsResults' | t }}</p>
