@@ -363,7 +363,7 @@ const PT: Dictionary = {
   'sessionDetail.saveDetails': 'Guardar alterações',
   'sessionDetail.detailsInvalid': 'Verifica data futura, lotação, mínimo de jogadores, preço e local.',
   'sessionDetail.detailsSaved': 'Alterações à sessão guardadas.',
-  'sessionDetail.waitlistPromoted': 'Boa notícia! Foste promovido da lista de espera e a tua presença está confirmada.'
+  'sessionDetail.waitlistPromoted': 'Boa notícia! Foste promovido da lista de espera e a tua presença está confirmada.',
   'sessionDetail.detailsSaveError': 'Não foi possível guardar as alterações.',
   'sessionDetail.capacityEdit': 'Editar jogadores',
   'sessionDetail.capacityLabel': 'Número máximo de jogadores',
