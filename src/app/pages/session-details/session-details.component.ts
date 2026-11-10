@@ -808,6 +808,10 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       .pipe(timeout(10_000), finalize(() => this.actionLoading = false))
       .subscribe({
         next: response => {
+          // The confirmed POST takes precedence over any detail GET already in flight.
+          ++this.sessionDetailRequestId;
+          this.loading = false;
+          this.detailRefreshWarning = '';
           this.joinPassword = '';
           this.joinOutcomeUnknown = false;
           this.actionSuccess = this.joinSuccessMessage(response);
@@ -898,6 +902,10 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       )
       .subscribe({
         next: () => {
+          // Do not let an older membership snapshot undo a successful cancellation.
+          ++this.sessionDetailRequestId;
+          this.loading = false;
+          this.detailRefreshWarning = '';
           this.actionSuccess = wasWaitlisted
             ? t('feedback.session.leftWaitlist')
             : t('feedback.session.left');
