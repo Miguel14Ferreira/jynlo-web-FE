@@ -621,11 +621,15 @@
             @for (competition of championship.competitions; track competition.id) {
               <li>
                 <strong>{{ competition.name }}</strong> · {{ competition.format }} · {{ competition.status }}
-                <span> · {{ competition.winnerPoints }} pontos por vitória na prova</span>
+                @if (championship.standingsMode !== 'INDEPENDENT') {
+                  <span> · {{ competition.winnerPoints }} pontos por vitória na prova</span>
+                } @else {
+                  <span> · Vencedor independente, sem pontos para a época</span>
+                }
                 @if (competition.pointsByPlace) {
                   <p>Pontos por posição configurados: {{ competition.pointsByPlace }}</p>
                 }
-                @if (canManage && !championship.closedAt && competition.status === 'DRAFT') {
+                @if (canManage && !championship.closedAt && championship.standingsMode !== 'INDEPENDENT' && competition.status === 'DRAFT') {
                   <label [for]="'placement-points-' + competition.id">Pontuação por posição (1.º, 2.º, 3.º...)</label>
                   <input [id]="'placement-points-' + competition.id"
                     type="text" maxlength="120" #placementPointsInput
@@ -638,7 +642,7 @@
                   </button>
                   <small>Os pontos das restantes posições serão aplicados apenas quando os resultados finais forem verificáveis.</small>
                 }
-                @if (canManage && competition.status === 'DRAFT') {
+                @if (canManage && !championship.closedAt && championship.standingsMode !== 'INDEPENDENT' && competition.status === 'DRAFT') {
                   <label [for]="'winner-points-' + competition.id">Pontos:</label>
                   <input type="number" min="0" max="10000" step="1"
                     [id]="'winner-points-' + competition.id" [value]="competition.winnerPoints"
