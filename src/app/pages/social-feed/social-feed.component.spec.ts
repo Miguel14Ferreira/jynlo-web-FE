@@ -149,9 +149,9 @@ describe('SocialFeedComponent discovery sidebar', () => {
     const submit = composer.querySelector('button.jynlo-premium-btn--primary') as HTMLButtonElement;
     expect(submit.disabled).toBeTrue();
     expect(root.querySelector('.feed-v3-join-action[href="/menu/communities"]')).not.toBeNull();
-    expect(root.querySelectorAll('.feed-v3-side-heading > a.feed-inline-link').length).toBe(0);
+    expect(root.querySelectorAll('.feed-v3-side-heading > a.feed-inline-link[href="/menu/perfis"]').length).toBe(1);
     expect(root.querySelectorAll('.feed-sidebar-link[href="/menu/events"]').length).toBe(1);
-    expect(root.querySelectorAll('.feed-sidebar-link[href="/menu/perfis"]').length).toBe(1);
+    expect(root.querySelectorAll('.feed-sidebar-link[href="/menu/perfis"]').length).toBe(0);
     component.ngOnDestroy();
   }));
 
@@ -488,7 +488,8 @@ describe('SocialFeedComponent discovery sidebar', () => {
     const aside = fixture.nativeElement.querySelector('.feed-sidebar') as HTMLElement;
     expect(component.suggestedPeople).toEqual([]);
     expect(aside.querySelector('.feed-suggested-person')).toBeNull();
-    expect(aside.querySelector('a[href="/menu/perfis"]')).not.toBeNull();
+    expect(aside.querySelector('.feed-v3-side-heading a[href="/menu/perfis"]')).not.toBeNull();
+    expect(aside.querySelectorAll('a[href="/menu/perfis"]').length).toBe(1);
   }));
 
   it('keeps discovery links visible when no sessions are suggested', fakeAsync(() => {
