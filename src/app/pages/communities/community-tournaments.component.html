@@ -725,7 +725,7 @@
                   <div class="jynlo-team-roster">
                     @for (player of championshipTeamPlayers[seasonTeam.id] || []; track player.profileId) {
                       <div class="jynlo-roster-player">
-                        <span>{{ player.displayName }} <small>@{{ player.username }}</small></span>
+                        <span>{{ player.displayName }} <small>&#64;{{ player.username }}</small></span>
                         @if (canManage && !championship.closedAt) {
                           <button type="button" class="t-btn t-btn-secondary"
                             [disabled]="championshipTeamPlayerBusy[seasonTeam.id]"
@@ -744,7 +744,7 @@
                         (change)="championshipTeamPlayerDrafts[seasonTeam.id] = $any($event.target).value ? +$any($event.target).value : null">
                         <option value="">Selecionar jogador</option>
                         @for (member of availableChampionshipTeamMembers(championship.id); track member.profileId) {
-                          <option [value]="member.profileId">{{ member.fullName || member.username }} (@{{ member.username }})</option>
+                          <option [value]="member.profileId">{{ member.fullName || member.username }} (&#64;{{ member.username }})</option>
                         }
                       </select>
                       <button type="button" class="t-btn t-btn-primary"
