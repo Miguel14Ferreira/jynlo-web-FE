@@ -115,3 +115,22 @@ tr:last-child td { border-bottom: 0; }
 @media (max-width: 600px) {
   .admin-editor .confirmation-actions button { flex: 1 1 auto; }
 }
+
+
+/* Profile inspection is separate from administrative mutations. */
+.player-row-actions { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; }
+.role-action .player-row-actions button,
+.role-action .player-row-actions .player-profile-link {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: auto; min-height: 2.4rem; padding: .55rem .8rem;
+  font-size: .84rem; white-space: nowrap;
+}
+.role-action .player-profile-link {
+  color: #b5ede5; border-color: rgba(54, 213, 194, .32);
+}
+.role-action .player-profile-link:hover { background: rgba(38, 214, 193, .09); }
+@media (max-width: 650px) {
+  .role-action .player-row-actions { flex-direction: column; align-items: stretch; }
+  .role-action .player-row-actions button,
+  .role-action .player-row-actions .player-profile-link { width: 100%; }
+}
