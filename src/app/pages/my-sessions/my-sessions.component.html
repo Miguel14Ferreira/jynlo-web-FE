@@ -63,10 +63,12 @@
           @if (upcomingCreated.length === 0) {
             <div class="empty-card">
               <p>{{ 'mySessions.noUpcoming' | t }}</p>
-              <a class="jynlo-action jynlo-action--primary" routerLink="/menu/createEvent">{{ 'mySessions.create' | t }}</a>
-              @if (historicalCreated.length) {
-                <button type="button" class="jynlo-action jynlo-action--neutral" (click)="selectTab('history')">{{ 'mySessions.tabHistory' | t }}</button>
-              }
+              <div class="empty-session-actions">
+                <a class="jynlo-action jynlo-action--primary" routerLink="/menu/createEvent">{{ 'mySessions.create' | t }}</a>
+                @if (historicalCreated.length) {
+                  <button type="button" class="jynlo-action jynlo-action--neutral" (click)="selectTab('history')">{{ 'mySessions.tabHistory' | t }}</button>
+                }
+              </div>
             </div>
           } @else {
             <div class="session-grid upcoming-grid">
