@@ -23,7 +23,8 @@ export class AdminVenueSuggestionsComponent implements OnInit, OnDestroy {
   private requestVersion = 0;
   private readonly destroyed = new Subject<void>();
 
-  constructor(private readonly api: AdminVenueSuggestionsService) {}
+  constructor(private readonly api: AdminVenueSuggestionsService,
+    private readonly cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void { this.load(); }
 
@@ -33,6 +34,8 @@ export class AdminVenueSuggestionsComponent implements OnInit, OnDestroy {
     this.page = page;
     this.loadError = false;
     this.loading = true;
+    this.hasMore = false;
+    this.cdr.markForCheck();
     this.api.list(page).pipe(timeout(12000), takeUntil(this.destroyed)).subscribe({
       next: value => {
         if (version !== this.requestVersion) return;
@@ -41,6 +44,7 @@ export class AdminVenueSuggestionsComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.selected = null;
         this.action = null;
+        this.cdr.markForCheck();
       },
       error: () => {
         if (version !== this.requestVersion) return;
@@ -48,6 +52,7 @@ export class AdminVenueSuggestionsComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.loadError = true;
         this.hasMore = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -56,6 +61,7 @@ export class AdminVenueSuggestionsComponent implements OnInit, OnDestroy {
     this.selected = suggestion;
     this.action = null;
     this.actionError = false;
+    this.cdr.markForCheck();
   }
 
   close(): void {
@@ -63,16 +69,21 @@ export class AdminVenueSuggestionsComponent implements OnInit, OnDestroy {
     this.selected = null;
     this.action = null;
     this.actionError = false;
+    this.cdr.markForCheck();
   }
 
   propose(action: 'approve' | 'reject'): void {
     if (this.updatingId !== null || !this.selected) return;
     this.action = action;
     this.actionError = false;
+    this.cdr.markForCheck();
   }
 
   cancel(): void {
-    if (this.updatingId === null) this.action = null;
+    if (this.updatingId === null) {
+      this.action = null;
+      this.cdr.markForCheck();
+    }
   }
 
   confirm(): void {
@@ -81,19 +92,25 @@ export class AdminVenueSuggestionsComponent implements OnInit, OnDestroy {
     const action = this.action;
     this.updatingId = id;
     this.actionError = false;
+    this.cdr.markForCheck();
     this.api.decide(id, action)
-      .pipe(timeout(12000), finalize(() => this.updatingId = null), takeUntil(this.destroyed))
+      .pipe(timeout(12000), finalize(() => {
+        this.updatingId = null;
+        this.cdr.markForCheck();
+      }), takeUntil(this.destroyed))
       .subscribe({
         next: () => {
           this.suggestions = this.suggestions.filter(x => x.id !== id);
           this.selected = null;
           this.action = null;
           if (this.suggestions.length === 0 && this.hasMore) this.load(this.page);
+          this.cdr.markForCheck();
         },
         error: () => {
           // Never assume the decision took effect on a transport failure.
           // User must explicitly retry; no automatic retries of write requests.
           this.actionError = true;
+          this.cdr.markForCheck();
         }
       });
   }
