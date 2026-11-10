@@ -2946,7 +2946,9 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         timeout(10_000),
         retry({ count: 1 }),
         finalize(() => {
-          if (showPageLoader && isCurrentRequest()) {
+          // A silent refresh may supersede a manual reload; it must also
+          // release the older reload's spinner when the latest request ends.
+          if (isCurrentRequest()) {
             this.loading = false;
           }
         })
