@@ -260,6 +260,12 @@ export class CommunityTournamentsComponent implements OnChanges {
     return tournamentSportCapabilities(sport).team !== 'UNAVAILABLE';
   }
 
+  /** Owned league/cup fixtures currently register teams only. Individual and
+   * judged/timed sports must not silently inherit this team-fixture contract. */
+  championshipOwnedTeamEventsAvailable(sport: string | null | undefined): boolean {
+    return this.championshipTeamAvailable(sport);
+  }
+
   championshipIndividualAvailable(sport: string | null | undefined): boolean {
     return tournamentSportCapabilities(sport).individual !== 'UNAVAILABLE';
   }
@@ -619,6 +625,7 @@ export class CommunityTournamentsComponent implements OnChanges {
   saveChampionshipEvent(championship: CommunityChampionship, event: ChampionshipOwnedEvent): void {
     const name = this.editingChampionshipEventName.trim();
     if (!this.canManage || this.championshipEventBusy || championship.closedAt
+        || !this.championshipOwnedTeamEventsAvailable(championship.sport)
         || this.editingChampionshipEventId !== event.id || event.status !== 'DRAFT'
         || !name || name.length > 120) return;
     const revision = this.championshipRevision;
@@ -705,6 +712,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     const name = (this.championshipEventNames[championship.id] || '').trim();
     const format = this.championshipEventFormats[championship.id] || 'LEAGUE';
     if (!this.canManage || this.championshipEventBusy || championship.closedAt
+        || !this.championshipOwnedTeamEventsAvailable(championship.sport)
         || !name || name.length > 120) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
