@@ -37,6 +37,7 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
   selectedNames=new Set<string>();
   friendSearch='';
   initialFriend='';
+  private createOpenedFromMessages=false;
   loading=true;
   loadingMessages=false;
   busy=false;
@@ -75,7 +76,10 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
     this.subscriptions.add(this.route.queryParamMap.subscribe(params=>{
       const from=params.get('from')||'';
       this.initialFriend=from;
-      if(from){this.openCreate(from);}
+      if(from){
+        this.createOpenedFromMessages=true;
+        this.openCreate(from);
+      }
       const id=Number(params.get('id'));
       if(Number.isSafeInteger(id)&&id>0){
         const found=this.groups.find(x=>x.id===id);
@@ -289,10 +293,19 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
 
   closeInviteDialog():void{
     if(this.busy)return;
+    const returnToConversation=this.showCreate && this.createOpenedFromMessages;
+    const previousFriend=this.initialFriend;
     this.showCreate=false;
     this.showAdd=false;
     this.friendSearch='';
     this.groupError='';
+    this.createOpenedFromMessages=false;
+    this.initialFriend='';
+    if(returnToConversation){
+      void this.router.navigate(['/menu/messages'],{
+        queryParams:{kind:'direct',id:previousFriend}
+      });
+    }
   }
 
   toggle(name:string):void{
