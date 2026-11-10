@@ -11,6 +11,7 @@ describe('CompetitionGuideComponent', () => {
     fixture.componentRef.setInput('canManage', canManage);
     fixture.componentRef.setInput('individualEnabled', individualEnabled);
     fixture.componentRef.setInput('teamEnabled', teamEnabled);
+    fixture.componentRef.setInput('sport', 'Futebol');
     fixture.detectChanges();
     return fixture;
   }
@@ -29,8 +30,8 @@ describe('CompetitionGuideComponent', () => {
     buttons[0].click();
     buttons[1].click();
     buttons[2].click();
-    expect(individual).toHaveBeenCalledTimes(1);
-    expect(team).toHaveBeenCalledTimes(1);
+    expect(individual).toHaveBeenCalledOnceWith('Futebol');
+    expect(team).toHaveBeenCalledOnceWith('Futebol');
     expect(close).toHaveBeenCalledTimes(1);
     expect(root.querySelectorAll('.guide-option').length).toBe(2);
   });
@@ -44,4 +45,16 @@ describe('CompetitionGuideComponent', () => {
     expect(root.querySelectorAll('.guide-coming').length).toBe(2);
     expect(root.querySelector('.guide-community-note[role="note"]')).not.toBeNull();
   });
+  it('shows the verified individual engine for swimming without offering an unsupported team format', () => {
+    const fixture = render();
+    const select = (fixture.nativeElement as HTMLElement).querySelector('select') as HTMLSelectElement;
+    select.value = 'Natação';
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(fixture.componentInstance.capabilities.individual).toBe('SWIM_BEST_TIME');
+    expect(fixture.componentInstance.capabilities.team).toBe('UNAVAILABLE');
+    expect(root.querySelectorAll('.guide-option button').length).toBe(1);
+  });
+
 });
