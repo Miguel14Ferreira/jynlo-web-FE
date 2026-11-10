@@ -73,6 +73,7 @@ export interface CommunityChampionship {
   championEntryType: 'TEAM' | 'INDIVIDUAL' | null;
   championParticipantId: number | null;
   championDisplayName: string | null;
+  standingsMode?: 'AGGREGATE' | 'INDEPENDENT';
 }
 
 export interface CommunityChampionshipTeam {
@@ -225,6 +226,12 @@ export class CommunityChampionshipsService {
   create(communityId: number, name: string, sport: string,
          seasonLabel: string): Observable<CommunityChampionship> {
     return this.http.post<CommunityChampionship>(this.base(communityId), { name, sport, seasonLabel });
+  }
+
+  setStandingsMode(communityId: number, championshipId: number,
+                   mode: 'AGGREGATE' | 'INDEPENDENT'): Observable<CommunityChampionship> {
+    return this.http.put<CommunityChampionship>(
+      this.base(communityId) + '/' + championshipId + '/standings-mode', { mode });
   }
 
   setPlacementPoints(communityId: number, championshipId: number,
