@@ -224,8 +224,8 @@ export class CommunityChampionshipsService {
   }
 
   create(communityId: number, name: string, sport: string,
-         seasonLabel: string): Observable<CommunityChampionship> {
-    return this.http.post<CommunityChampionship>(this.base(communityId), { name, sport, seasonLabel });
+         seasonLabel: string, standingsMode: 'AGGREGATE' | 'INDEPENDENT' = 'AGGREGATE'): Observable<CommunityChampionship> {
+    return this.http.post<CommunityChampionship>(this.base(communityId), { name, sport, seasonLabel, standingsMode });
   }
 
   setStandingsMode(communityId: number, championshipId: number,
