@@ -1817,7 +1817,7 @@ const PT: Dictionary = {
   'communities.competitionGuide.recommended': 'Formato disponível',
   'communities.competitionGuide.rulesNoteTitle': 'Os resultados dependem da modalidade',
   'communities.competitionGuide.rulesNote': 'Nem todas as modalidades utilizam ligas ou eliminatórias. Algumas são classificadas por tempo, marca ou pontos. A Jynlo apresenta apenas os formatos atualmente implementados; regras federativas completas podem não estar incluídas.',
-  'communities.competitionGuide.championshipScope': 'Podes criar uma época para qualquer uma das 121 modalidades da Jynlo. As provas, os resultados e as classificações disponíveis variam consoante a modalidade.',
+  'communities.competitionGuide.championshipScope': 'Podes criar uma época para qualquer uma das {count} modalidades da Jynlo. As provas, os resultados e as classificações disponíveis variam consoante a modalidade.',
   'communities.competitionGuide.model.UNAVAILABLE': 'Não há um formato de resultados validado para esta modalidade.',
   'communities.competitionGuide.model.NUMERIC_INDIVIDUAL': 'Liga individual por confrontos e resultados.',
   'communities.competitionGuide.model.NUMERIC_TEAM': 'Liga por equipas ou eliminatórias.',
