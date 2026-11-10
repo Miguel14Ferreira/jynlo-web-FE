@@ -36,7 +36,8 @@ export class NotificationsComponent implements OnInit {
     'SESSION_REMOVED', 'SESSION_CANCELLED', 'SESSION_MEETING_POINT_UPDATED',
     'SESSION_POST_GAME_REVIEW',
     'ATTENDANCE_DISPUTE_ACCEPTED', 'ATTENDANCE_DISPUTE_REJECTED',
-    'CHAT_MESSAGE', 'VENUE_EDIT_DECISION', 'FRIEND_REQUEST', 'OTHER'
+    'CHAT_MESSAGE', 'VENUE_EDIT_DECISION', 'SOCIAL_POST_LIKED',
+    'SOCIAL_POST_COMMENTED', 'SOCIAL_NEW_FOLLOWER', 'FRIEND_REQUEST', 'OTHER'
   ] as const;
   preferencesOpen = false;
   preferencesLoading = false;
@@ -311,6 +312,17 @@ export class NotificationsComponent implements OnInit {
         }
       }
     });
+  }
+
+  openSocialProfile(notification: AppNotification): void {
+    const username = notification.relatedUsername?.trim();
+    if (!username || !['SOCIAL_POST_LIKED', 'SOCIAL_POST_COMMENTED', 'SOCIAL_NEW_FOLLOWER']
+          .includes(notification.type || '')) return;
+    void this.router.navigate(['/menu/perfis', username], { queryParams: { from: 'feed' } });
+  }
+
+  openSocialFeed(): void {
+    void this.router.navigate(['/menu/feed']);
   }
 
   openSession(notification: AppNotification): void {
@@ -648,6 +660,12 @@ export class NotificationsComponent implements OnInit {
         return t('notification.communityJoinRejected');
       case 'CHAT_MESSAGE':
         return t('notification.chatMessage');
+      case 'SOCIAL_POST_LIKED':
+        return t('notifications.preferences.type.SOCIAL_POST_LIKED');
+      case 'SOCIAL_POST_COMMENTED':
+        return t('notifications.preferences.type.SOCIAL_POST_COMMENTED');
+      case 'SOCIAL_NEW_FOLLOWER':
+        return t('notifications.preferences.type.SOCIAL_NEW_FOLLOWER');
       case 'VENUE_EDIT_DECISION':
         return t('notification.venueEditType');
       default:
