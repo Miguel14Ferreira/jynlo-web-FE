@@ -517,11 +517,21 @@ export class Events2Component implements OnInit, OnDestroy {
         'https://www.google.com/maps?q=' + s.latitude + ',' + s.longitude + '&z=16&output=embed'
       );
     }
-    if (s.selectedVenueId) {
+    if (s.selectedVenueId && this.locationMethod === 'venue') {
+      // The venue GET can finish after the organiser changes sport, location
+      // method or selects another venue. Only the original choice may apply.
+      const requestedSport = this.sport;
+      const requestedVenueId = this.selectedVenueId;
+      const requestedVenueSearch = this.venueSearch;
+      const isCurrentVenueChoice = () =>
+        revision === this.presetApplyRevision && this.selectedPresetId === id
+        && this.sport === requestedSport && this.locationMethod === 'venue'
+        && this.selectedVenueId === requestedVenueId
+        && this.venueSearch === requestedVenueSearch;
       // Load the *current* venue record. Do not reuse stale details from a saved profile.
       this.venueService.get(s.selectedVenueId).pipe(timeout(10_000)).subscribe({
         next: venue => {
-          if (revision !== this.presetApplyRevision || this.selectedPresetId !== id) return;
+          if (!isCurrentVenueChoice()) return;
           const sports = (venue.sports || '').split(/[;,]/).map(item => item.trim().toLocaleLowerCase('pt'));
           if (sports.some(Boolean) && !sports.includes(this.sport.trim().toLocaleLowerCase('pt'))) {
             this.presetError = t('createSession.venueSportMismatch');
@@ -534,7 +544,7 @@ export class Events2Component implements OnInit, OnDestroy {
           this.selectVenue(venue.id);
         },
         error: () => {
-          if (revision === this.presetApplyRevision) {
+          if (isCurrentVenueChoice()) {
             this.presetError = t('createSession.presets.venueUnavailable');
           }
         }
