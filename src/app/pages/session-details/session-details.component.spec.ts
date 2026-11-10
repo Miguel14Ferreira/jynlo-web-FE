@@ -3846,4 +3846,28 @@ describe('SessionDetailsComponent', () => {
     expect(sessionService.confirmTeams).toHaveBeenCalledWith(7, 'RANDOM', preview);
   });
 
+  it('offers session contact only between confirmed roster members within four hours of kickoff', () => {
+    const now = Date.now();
+    (component as any).currentUsername = 'creator-user';
+    component.session = {...session, joined: true, gameDate: new Date(now + 60_000).toISOString()};
+    component.sessionParticipants = [
+      {id: 1, username: 'creator-user', attendanceStatus: 'PENDING', joinedAt: ''},
+      {id: 2, username: 'player-two', attendanceStatus: 'PENDING', joinedAt: ''}
+    ];
+    expect(component.canContactSessionMember('player-two')).toBeTrue();
+    expect(component.canContactSessionMember('outsider')).toBeFalse();
+    expect(component.canContactSessionMember('creator-user')).toBeFalse();
+
+    component.sessionParticipants = component.sessionParticipants.filter(p => p.username !== 'creator-user');
+    expect(component.canContactSessionMember('player-two')).toBeFalse();
+    component.sessionParticipants.push({id: 1, username: 'creator-user', attendanceStatus: 'PENDING', joinedAt: ''});
+    component.session = {...component.session, gameDate: new Date(now - 60 * 60_000).toISOString()};
+    expect(component.canContactSessionMember('player-two')).toBeTrue();
+    component.session = {...component.session, gameDate: new Date(now - 5 * 60 * 60_000).toISOString()};
+    expect(component.canContactSessionMember('player-two')).toBeFalse();
+    component.session = {...component.session, status: 'CANCELLED' as any};
+    expect(component.canContactSessionMember('player-two')).toBeFalse();
+  });
+
+
 });
