@@ -416,6 +416,11 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       .subscribe({
         next: detail => {
           if (this.sessionId !== id) return;
+          // Invalidate detail GETs started before this capacity change was saved.
+          ++this.sessionDetailRequestId;
+          this.loading = false;
+          this.detailRefreshWarning = '';
+          this.errorMessage = '';
           this.session = detail;
           this.capacityEditing = false;
           this.capacitySuccess = t('sessionDetail.capacitySaved');
@@ -478,6 +483,11 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       .subscribe({
         next: detail => {
           if (this.sessionId !== sessionId) return;
+          // The saved meeting point takes precedence over older background GETs.
+          ++this.sessionDetailRequestId;
+          this.loading = false;
+          this.detailRefreshWarning = '';
+          this.errorMessage = '';
           this.session = detail;
           this.meetingPointEditing = false;
           this.meetingPointDraft = '';
