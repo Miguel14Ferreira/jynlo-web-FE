@@ -371,6 +371,17 @@ export class CommunityTournamentsComponent implements OnChanges {
     });
   }
 
+  /** Guided mode explains suggested structures; custom mode keeps the same verified backend contracts. */
+  championshipCreationMode: 'GUIDED' | 'CUSTOM' = 'GUIDED';
+  championshipTournamentDrafts: Record<number, number | null> = {};
+
+  availableChampionshipTournaments(championship: CommunityChampionship): CommunityTournament[] {
+    const linked = new Set(this.championships.flatMap(item => item.competitions.map(comp => comp.id)));
+    return this.tournaments.filter(tournament =>
+      tournament.sport === championship.sport && !linked.has(tournament.id)
+      && !tournament.historicalArchiveId);
+  }
+
   championshipNameDraft = '';
   championshipSeasonDraft = '2026/27';
   championshipSportDraft = '';
@@ -827,7 +838,9 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   linkChampionshipCompetition(championship: CommunityChampionship, tournamentId: number): void {
-    if (!this.canManage || this.championshipBusy || !Number.isFinite(tournamentId)) return;
+    if (!this.canManage || this.championshipBusy || !!championship.closedAt
+        || !Number.isInteger(tournamentId) || tournamentId <= 0
+        || !this.availableChampionshipTournaments(championship).some(item => item.id === tournamentId)) return;
     this.championshipBusy = true;
     this.championshipError = '';
     const communityId = this.community.id;
@@ -836,6 +849,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: updated => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championships = this.championships.map(c => c.id === updated.id ? updated : c);
+        this.championshipTournamentDrafts[updated.id] = null;
         this.loadChampionshipStandings(updated.id);
         this.loadChampionshipTeams(updated.id);
         this.championshipBusy = false;
