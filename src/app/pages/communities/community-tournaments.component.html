@@ -132,6 +132,12 @@
               ? 'communities.competitionGuide.championshipEngineReady'
               : 'communities.competitionGuide.championshipEnginePending') | t }}
           </small>
+          @if (championshipSportDraft) {
+            <div class="championship-sport-mode" role="note">
+              <strong>{{ championshipSportGuidance(championshipSportDraft).title }}</strong>
+              <p>{{ championshipSportGuidance(championshipSportDraft).detail }}</p>
+            </div>
+          }
         </div>
         <button type="button" class="t-btn t-btn-primary"
           [disabled]="championshipBusy || !championshipNameDraft.trim() || !championshipSeasonDraft.trim() || !championshipSportDraft"
@@ -885,7 +891,14 @@
           } @else {
             <p>{{ 'communities.championshipOwned.empty' | t }}</p>
           }
-          @if (canManage && !championship.closedAt) {
+          @if (canManage && !championship.closedAt && !championshipOwnedTeamEventsAvailable(championship.sport)) {
+            <p class="championship-sport-mode" role="note">
+              As ligas e taças internas disponíveis aqui funcionam com equipas e confrontos.
+              Esta modalidade ainda não tem um motor de equipas compatível.
+              Podes manter o campeonato e consultar provas existentes, mas não criar provas novas neste formato.
+            </p>
+          }
+          @if (canManage && !championship.closedAt && championshipOwnedTeamEventsAvailable(championship.sport)) {
             <div class="create-controls">
               <div class="create-field">
                 <label [for]="'owned-name-' + championship.id">{{ 'communities.championshipOwned.name' | t }}</label>
