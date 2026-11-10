@@ -268,6 +268,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   guestRosterSuccess = '';
   guestRosterError = '';
   private guestRequestsRefreshing = false;
+  private guestRequestsRefreshPending = false;
   private participantRosterRefreshing = false;
   private participantRosterRefreshPending = false;
 
@@ -2462,8 +2463,11 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   loadGuestRequests(silent = false): void {
-    if (!this.sessionId || !this.isCreator() || this.guestRequestsRefreshing
-        || this.guestRequestBusyId !== null) return;
+    if (!this.sessionId || !this.isCreator() || this.guestRequestBusyId !== null) return;
+    if (this.guestRequestsRefreshing) {
+      if (!silent) this.guestRequestsRefreshPending = true;
+      return;
+    }
     this.guestRequestsRefreshing = true;
     if (!silent) {
       this.guestRequestsLoading = true;
@@ -2475,10 +2479,13 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       finalize(() => {
         this.guestRequestsRefreshing = false;
         if (!silent) this.guestRequestsLoading = false;
+        const refreshPending = this.guestRequestsRefreshPending;
+        this.guestRequestsRefreshPending = false;
+        if (refreshPending && id === this.sessionId) this.loadGuestRequests();
       })
     ).subscribe({
       next: rows => {
-        if (id === this.sessionId) {
+        if (id === this.sessionId && !this.guestRequestsRefreshPending) {
           this.guestRequests = rows;
           if (this.guestCancellationPendingId !== null &&
               !rows.some(g => g.id === this.guestCancellationPendingId && g.status === 'APPROVED')) {
@@ -2487,7 +2494,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         }
       },
       error: () => {
-        if (silent || id !== this.sessionId) return; // Keep the last good list on transient errors.
+        if (silent || id !== this.sessionId || this.guestRequestsRefreshPending) return; // Keep the last good list on transient errors.
         this.guestRequestsLoadedForSession = null;
         this.guestPanelError = t('guestAdmin.loadError');
       }
