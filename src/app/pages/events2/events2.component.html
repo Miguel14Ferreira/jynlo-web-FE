@@ -128,7 +128,7 @@
       @if (communityCreationBlocked) {
         <p role="alert" class="create-share-status">{{ 'communities.sessionPolicy.blocked' | t }}</p>
       }
-      @if (!communityId) {
+      @if (!communityId && !communitiesLoading && !communitiesLoadError && communities.length > 0) {
         <section class="create-share-panel" aria-labelledby="create-share-title">
           <div>
             <span class="section-kicker">{{ 'createSession.communityShareKicker' | t }}</span>
