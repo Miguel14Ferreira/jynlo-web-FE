@@ -14,6 +14,7 @@ import { nextWeekGames, nextWeekWaitlist, weekOffers } from './my-sports-week';
 import { SessionService } from '../../services/session.service';
 import { SessionSummary } from '../model/session-summary';
 import { FeedItem, SocialComment } from '../model/feed-item';
+import { FollowProfile } from '../model/follow';
 import { CommunityProfile } from '../model/community-profile';
 
 @Component({
@@ -25,6 +26,10 @@ import { CommunityProfile } from '../model/community-profile';
 })
 export class SocialFeedComponent implements OnInit, OnDestroy {
   items: FeedItem[] = [];
+  likersPostId: number | null = null;
+  likersList: FollowProfile[] = [];
+  likersLoading = false;
+  likersError = false;
   postContent = '';
   postImageFile?: File;
   postImagePreview = '';
@@ -595,6 +600,30 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         },
         error: () => this.actionError = t('feedback.feed.commentsLoadError')
       });
+  }
+
+  showLikers(item: FeedItem): void {
+    if (item.postId === null) {
+      if (item.type === 'SESSION_ATTENDED') {
+        this.withInteractionPost(item, () => this.showLikers(item));
+      }
+      return;
+    }
+    const id = item.postId;
+    this.likersPostId = id;
+    this.likersList = [];
+    this.likersLoading = true;
+    this.likersError = false;
+    this.feedService.likers(id).pipe(timeout(10000), finalize(() => this.likersLoading = false))
+      .subscribe({
+        next: users => { if (this.likersPostId === id) this.likersList = users; },
+        error: () => { if (this.likersPostId === id) this.likersError = true; }
+      });
+  }
+
+  closeLikers(): void {
+    this.likersPostId = null;
+    this.likersList = [];
   }
 
   toggleLike(item: FeedItem): void {
