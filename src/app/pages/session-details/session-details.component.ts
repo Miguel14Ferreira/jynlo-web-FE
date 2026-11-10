@@ -347,6 +347,12 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     }).pipe(timeout(12000), finalize(() => this.detailsSaving = false)).subscribe({
       next: detail => {
         if (this.sessionId !== id) return;
+        // A background detail fetch started before this save must not
+        // overwrite the authoritative response from the edit endpoint.
+        ++this.sessionDetailRequestId;
+        this.loading = false;
+        this.detailRefreshWarning = '';
+        this.errorMessage = '';
         this.session = detail;
         this.detailsEditing = false;
         this.detailsSuccess = t('sessionDetail.detailsSaved');
