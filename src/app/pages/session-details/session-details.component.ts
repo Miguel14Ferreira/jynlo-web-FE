@@ -3011,7 +3011,14 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       .subscribe({
         next: session => {
           if (!isCurrentRequest()) return;
+          const promotedFromWaitlist = this.session?.id === session.id
+            && this.session.waitlisted && !this.session.joined
+            && session.joined && !session.waitlisted;
           this.session = session;
+          if (promotedFromWaitlist) {
+            this.actionError = '';
+            this.actionSuccess = t('sessionDetail.waitlistPromoted');
+          }
           if (!this.sessionContextLoading && (showPageLoader || !this.sessionContext)) {
             this.loadSessionContext(session.id);
           }
