@@ -327,8 +327,21 @@
                   {{ item.likeCount }}
                 </button>
                 @if (item.likeCount > 0) {
-                  <button type="button" class="feed-likers-action"
-                          (click)="showLikers(item)" aria-label="Ver quem gostou">Ver gostos</button>
+                  @if (!item.hideLikers || item.authorUsername === currentUsername) {
+                    <button type="button" class="feed-likers-action" (click)="showLikers(item)"
+                            [attr.aria-label]="likedByText(item)">
+                      {{ likedByText(item) }}
+                    </button>
+                  } @else {
+                    <span class="feed-likers-private">{{ likedByText(item) }}</span>
+                  }
+                }
+                @if (item.authorUsername === currentUsername && item.postId !== null) {
+                  <button type="button" class="feed-likers-privacy"
+                          [disabled]="likersPrivacySavingId !== null"
+                          (click)="toggleLikersPrivacy(item)">
+                    {{ item.hideLikers ? 'Mostrar quem gostou' : 'Ocultar quem gostou' }}
+                  </button>
                 }
 
                 <button
@@ -474,8 +487,21 @@
                   {{ item.likeCount }}
                 </button>
                 @if (item.likeCount > 0) {
-                  <button type="button" class="feed-likers-action"
-                          (click)="showLikers(item)" aria-label="Ver quem gostou">Ver gostos</button>
+                  @if (!item.hideLikers || item.authorUsername === currentUsername) {
+                    <button type="button" class="feed-likers-action" (click)="showLikers(item)"
+                            [attr.aria-label]="likedByText(item)">
+                      {{ likedByText(item) }}
+                    </button>
+                  } @else {
+                    <span class="feed-likers-private">{{ likedByText(item) }}</span>
+                  }
+                }
+                @if (item.authorUsername === currentUsername && item.postId !== null) {
+                  <button type="button" class="feed-likers-privacy"
+                          [disabled]="likersPrivacySavingId !== null"
+                          (click)="toggleLikersPrivacy(item)">
+                    {{ item.hideLikers ? 'Mostrar quem gostou' : 'Ocultar quem gostou' }}
+                  </button>
                 }
 
                 <button
