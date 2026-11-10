@@ -1017,7 +1017,9 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.competitionView = view;
     this.creationPickerOpen = false;
     this.showGuide = false;
-    // Keep unfinished creation forms available until the user explicitly opens another.
+    this.championshipOpen = false;
+    this.showIndividualCreate = false;
+    this.showTeamCreate = false;
   }
 
   openCompetitionPicker(): void {
@@ -1032,8 +1034,12 @@ export class CommunityTournamentsComponent implements OnChanges {
     if (kind === 'championships') {
       this.championshipOpen = true;
       this.showGuide = false;
+      this.showIndividualCreate = false;
+      this.showTeamCreate = false;
     } else {
       this.championshipOpen = false;
+      this.showIndividualCreate = false;
+      this.showTeamCreate = false;
       this.showGuide = true;
     }
   }
