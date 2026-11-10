@@ -104,6 +104,28 @@
                 </div>
               </div>
 
+              @if (selected.adminRepliedAt) {
+                <section class="status-actions" aria-label="Resposta da administração">
+                  <strong>{{ 'adminIdeas.replySent' | t }}</strong>
+                  <p>{{ selected.adminReply }}</p>
+                  <small>{{ selected.adminRepliedBy }} · {{ formatDate(selected.adminRepliedAt) }}</small>
+                </section>
+              } @else {
+                <section class="status-actions" aria-labelledby="idea-reply-title">
+                  <h3 id="idea-reply-title">{{ 'adminIdeas.replyTitle' | t }}</h3>
+                  <p>{{ 'adminIdeas.replyHelp' | t }}</p>
+                  <textarea rows="5" maxlength="2000" name="ideaReply"
+                    [(ngModel)]="replyText" [disabled]="replyingId !== null"
+                    [placeholder]="'adminIdeas.replyPlaceholder' | t"></textarea>
+                  <small>{{ replyText.length }}/2000</small>
+                  <button type="button" class="jynlo-action jynlo-action--primary"
+                    [disabled]="!canReply" (click)="replyToIdea()">
+                    {{ (replyingId !== null ? 'adminIdeas.replySending' : 'adminIdeas.replySend') | t }}
+                  </button>
+                </section>
+              }
+              @if (replyError) { <p class="feedback error-feedback" role="alert">{{ replyError }}</p> }
+              @if (replySuccess) { <p class="feedback" role="status">{{ 'adminIdeas.replySuccess' | t }}</p> }
               <a class="email-action jynlo-action jynlo-action--neutral" [href]="'mailto:' + selected.email + '?subject=Jynlo - ' + selected.subject">
                 {{ 'adminIdeas.replyEmail' | t }}
               </a>
