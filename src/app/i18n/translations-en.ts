@@ -5073,6 +5073,8 @@ export const EN: Record<string, string> = {
   'adminReports.loadError': 'Could not load reports.',
   'adminReports.updateError': 'Could not update the report.',
   'adminReports.dateUnavailable': 'Date unavailable',
+  'adminIdeas.replyThanksAction': 'Use thank-you reply',
+  'adminIdeas.replyThanksTemplate': 'Hello {{name}},\n\nThank you so much for your message and support! We are glad you are enjoying Jynlo. We are continuing to improve the platform and bring more people together through sport.\n\nIf you have suggestions, we would love to hear them.\n\nBest wishes,\nThe Jynlo Team',
   'adminIdeas.replyTitle': 'Official reply',
   'adminIdeas.replyHelp': 'Your reply is emailed to the address provided with the suggestion and recorded in the admin panel. Review it before sending.',
   'adminIdeas.replyPlaceholder': 'Write a friendly and helpful reply…',
