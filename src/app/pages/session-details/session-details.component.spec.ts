@@ -1936,6 +1936,9 @@ describe('SessionDetailsComponent', () => {
     expect(panel.getAttribute('aria-label')).toBe('Procurar jogadores');
     expect(panel.textContent).toContain('Falta 1 jogador');
     expect(panel.textContent).not.toContain('Faltam 1 jogadores');
+    const organizer = fixture.nativeElement.querySelector('.organizer-preparation') as HTMLElement;
+    expect(organizer.textContent).toContain('Falta 1 jogador');
+    expect(organizer.textContent).not.toContain('Faltam 1 jogadores');
     expect(panel.textContent).toContain('Convidar amigos');
     expect(panel.textContent).toContain('Ver amigos');
   });
