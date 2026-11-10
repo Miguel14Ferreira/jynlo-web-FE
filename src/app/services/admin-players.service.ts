@@ -59,6 +59,12 @@ export class AdminPlayersService {
       { action, expectedUsername, expectedSuspended, reason });
   }
 
+  sendAdminMessage(id: number, message: string): Observable<{ notificationId: number }> {
+    return this.http.post<{ notificationId: number }>(
+      environment.apiUrl + '/api/admin/players/' + id + '/message',
+      { message });
+  }
+
   search(name: string, page: number): Observable<AdminPlayerSearch> {
     const params = new HttpParams().set('name', name.trim()).set('page', String(page));
     return this.http.get<AdminPlayerSearch>(environment.apiUrl + '/api/admin/players', { params });
