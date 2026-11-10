@@ -78,6 +78,13 @@ export interface CommunityChampionship {
   standingsMode?: 'AGGREGATE' | 'INDEPENDENT';
 }
 
+export interface ChampionshipTeamPlayer {
+  profileId: number;
+  username: string;
+  displayName: string;
+  profilePicUrl: string | null;
+}
+
 export interface CommunityChampionshipTeam {
   id: number;
   name: string;
@@ -197,6 +204,23 @@ export class CommunityChampionshipsService {
   teams(communityId: number, championshipId: number): Observable<CommunityChampionshipTeams> {
     return this.http.get<CommunityChampionshipTeams>(
       this.base(communityId) + '/' + championshipId + '/teams');
+  }
+
+  teamPlayers(communityId: number, championshipId: number, teamId: number): Observable<ChampionshipTeamPlayer[]> {
+    return this.http.get<ChampionshipTeamPlayer[]>(
+      this.base(communityId) + '/' + championshipId + '/teams/' + teamId + '/players');
+  }
+
+  addTeamPlayer(communityId: number, championshipId: number,
+                teamId: number, profileId: number): Observable<ChampionshipTeamPlayer[]> {
+    return this.http.post<ChampionshipTeamPlayer[]>(
+      this.base(communityId) + '/' + championshipId + '/teams/' + teamId + '/players', { profileId });
+  }
+
+  removeTeamPlayer(communityId: number, championshipId: number,
+                   teamId: number, profileId: number): Observable<void> {
+    return this.http.delete<void>(
+      this.base(communityId) + '/' + championshipId + '/teams/' + teamId + '/players/' + profileId);
   }
 
   createTeam(communityId: number, championshipId: number, name: string): Observable<CommunityChampionshipTeams> {
