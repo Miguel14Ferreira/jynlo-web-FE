@@ -925,7 +925,7 @@ describe('SocialFeedComponent attendance activity visibility', () => {
     Object.defineProperty(auth, 'loggedInPerfilname', { value: 'player', configurable: true });
 
     feed = jasmine.createSpyObj<SocialFeedService>(
-      'SocialFeedService', ['hideAttendanceActivity', 'ensureAttendancePost', 'likePost', 'comments']
+      'SocialFeedService', ['hideAttendanceActivity', 'ensureAttendancePost', 'likePost', 'comments', 'setLikersHidden', 'likers']
     );
     feed.hideAttendanceActivity.and.returnValue(of(void 0));
     component = new SocialFeedComponent(
@@ -975,6 +975,27 @@ describe('SocialFeedComponent attendance activity visibility', () => {
     expect(activity.postId).toBeNull();
     expect(activity.likeCount).toBe(0);
     expect(feed.likePost).not.toHaveBeenCalled();
+  });
+
+  it('shows a natural liked-by sentence and honours hidden identities', () => {
+    const post = { ...activity, postId: 91, likeCount: 3, authorUsername: 'friend' };
+    component.likerPreview[91] = 'Ana';
+    expect(component.likedByText(post)).toBe('Gostado por Ana e outras pessoas');
+    post.hideLikers = true;
+    expect(component.likedByText(post)).toBe('3 gostos');
+    component.showLikers(post);
+    expect(feed.likers).not.toHaveBeenCalled();
+  });
+
+  it('allows the author to hide and restore the liker list', () => {
+    const post = { ...activity, postId: 91, likeCount: 2, hideLikers: false };
+    feed.setLikersHidden.and.returnValues(of(true), of(false));
+    component.toggleLikersPrivacy(post);
+    expect(feed.setLikersHidden).toHaveBeenCalledWith(91, true);
+    expect(post.hideLikers).toBeTrue();
+    component.toggleLikersPrivacy(post);
+    expect(feed.setLikersHidden).toHaveBeenCalledWith(91, false);
+    expect(post.hideLikers).toBeFalse();
   });
 
   it('hides only the current player attendance activity after a successful request', () => {
