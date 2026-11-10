@@ -1811,7 +1811,7 @@ export const EN: Record<string, string> = {
   'communities.competitionGuide.recommended': 'Available format',
   'communities.competitionGuide.rulesNoteTitle': 'Results depend on the sport',
   'communities.competitionGuide.rulesNote': 'Not every sport uses leagues or knockouts. Some are ranked by time, mark or points. Jynlo only offers formats currently implemented; full federation rules may not be included.',
-  'communities.competitionGuide.championshipScope': 'You can create a season for any of Jynlo\'s 121 sports. Available competitions, results and standings vary by sport.',
+  'communities.competitionGuide.championshipScope': 'You can create a season for any of Jynlo\'s {count} sports. Available competitions, results and standings vary by sport.',
   'communities.competitionGuide.model.UNAVAILABLE': 'No verified results format for this sport.',
   'communities.competitionGuide.model.NUMERIC_INDIVIDUAL': 'Individual round-robin league with match results.',
   'communities.competitionGuide.model.NUMERIC_TEAM': 'Team league or knockout competition.',
