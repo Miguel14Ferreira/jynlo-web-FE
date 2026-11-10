@@ -205,3 +205,21 @@
 :host .jynlo-goal-form select { flex: 1 1 165px; }
 :host .jynlo-goal-form input[type="number"] { width: 5.6rem; }
 :host .jynlo-goal-form label { font-size: .79rem; }
+
+:host .jynlo-season-panel { min-width: 0; }
+:host .jynlo-season-panel > summary {
+  cursor: pointer;
+  padding: .25rem .1rem;
+  margin-bottom: 0;
+  color: #eafff9;
+  font-weight: 800;
+}
+:host .jynlo-season-panel[open] > summary {
+  margin-bottom: 1rem;
+  padding-bottom: .8rem;
+  border-bottom: 1px solid rgba(108, 192, 180, .22);
+}
+:host .jynlo-season-panel > summary:focus-visible {
+  outline: 2px solid #93efd3;
+  outline-offset: 3px;
+}
