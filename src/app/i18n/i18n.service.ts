@@ -1053,6 +1053,8 @@ const PT: Dictionary = {
   'home.preview.loadError': 'Não foi possível carregar os dados agora.',
   'home.preview.retry': 'Tentar novamente',
   'home.preview.emptySessions': 'Ainda não há sessões públicas futuras para mostrar. Podes ser tu a criar a próxima!',
+  'home.preview.emptySessionsHeading': 'A próxima sessão pode começar contigo',
+  'home.preview.createFirstSession': 'Criar a primeira sessão',
   'home.preview.emptyVenues': 'Estamos a preparar os recintos disponíveis para explorar.',
   'home.preview.viewSession': 'Ver sessão',
   'home.preview.viewVenue': 'Ver recinto',
