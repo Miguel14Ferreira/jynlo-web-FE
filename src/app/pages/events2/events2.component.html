@@ -917,7 +917,7 @@
               type="text"
               name="city"
               [ngModel]="city"
-              (ngModelChange)="onCityChanged($event)"
+              (ngModelChange)="onManualCityChanged($event)"
               [disabled]="loading"
               [placeholder]="'events.cityPlaceholder' | t">
             @if (locationMethod !== 'venue') {
@@ -930,7 +930,8 @@
             <input
               type="text"
               name="address"
-              [(ngModel)]="address"
+              [ngModel]="address"
+              (ngModelChange)="onManualAddressChanged($event)"
               [disabled]="loading"
               [placeholder]="'createSession.addressPlaceholder' | t">
             @if (hasCoordinates) {
