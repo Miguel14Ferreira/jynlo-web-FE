@@ -635,9 +635,9 @@ describe('NavbarComponent', () => {
     fixture.detectChanges();
     const trigger: HTMLElement = fixture.nativeElement.querySelector('.account-identity-trigger');
     expect(trigger).not.toBeNull();
-    expect(trigger.textContent).toContain('Conta ativa');
-    expect(trigger.textContent).toContain('@bea');
-    expect(trigger.getAttribute('aria-label')).toContain('@bea');
+    expect(trigger.textContent).not.toContain('Conta ativa');
+    expect(trigger.textContent).toContain('Bea');
+    expect(trigger.getAttribute('aria-label')).toContain('Bea');
     expect(fixture.nativeElement.querySelector('.account-identity-avatar')?.textContent?.trim()).toBe('B');
     expect(fixture.nativeElement.querySelector('.account-menu__identity')?.textContent).toContain('Bea');
     expect(myProfileService.get).toHaveBeenCalledTimes(1);
@@ -678,15 +678,15 @@ describe('NavbarComponent', () => {
     authService.hasSessionCandidate.and.returnValue(true);
     (component as any).syncAuthenticatedState();
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.account-identity-trigger')?.textContent).toContain('@bea');
+    expect(fixture.nativeElement.querySelector('.account-identity-trigger')?.textContent).toContain('Bea');
 
     (authService as any).loggedInPerfilname = 'miguel_alt';
     (component as any).syncAuthenticatedState();
     old.next({username:'bea',nickname:'Conta antiga',profilePicUrl:'/media/profiles/old.png'});
     fixture.detectChanges();
     const trigger: HTMLElement = fixture.nativeElement.querySelector('.account-identity-trigger');
-    expect(trigger.textContent).toContain('@miguel_alt');
-    expect(trigger.textContent).not.toContain('@bea');
+    expect(trigger.textContent).toContain('Outro perfil');
+    expect(trigger.textContent).not.toContain('Bea');
     expect(fixture.nativeElement.querySelector('.account-menu__identity-copy')?.textContent).toContain('Outro perfil');
     expect(fixture.nativeElement.querySelector('.account-menu__identity-copy')?.textContent).not.toContain('Conta antiga');
     expect(myProfileService.get).toHaveBeenCalledTimes(2);
@@ -704,7 +704,7 @@ describe('NavbarComponent', () => {
     authService.hasSessionCandidate.and.returnValue(true);
     (component as any).syncAuthenticatedState();
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.account-identity-trigger')?.textContent).toContain('@alternate');
+    expect(fixture.nativeElement.querySelector('.account-identity-trigger')?.textContent).toContain('alternate');
     expect(fixture.nativeElement.querySelector('.account-identity-avatar')?.textContent?.trim()).toBe('A');
     expect(component.accountProfile).toBeNull();
   });
