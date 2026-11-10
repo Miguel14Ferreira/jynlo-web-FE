@@ -2682,6 +2682,55 @@ describe('SessionDetailsComponent', () => {
     expect(component.session?.maxParticipants).toBe(6);
   });
 
+  it('keeps saved capacity when an older session refresh completes afterwards', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.sessionId = session.id;
+    component.session = {
+      ...session, joined: true, address: 'Rua do Campo',
+      status: 'OPEN', gameDate: new Date(Date.now() + 3_600_000).toISOString()
+    };
+    const pendingRefresh = new Subject<any>();
+    sessionService.detail.and.returnValue(pendingRefresh.asObservable());
+
+    (component as any).loadSession(false);
+    component.beginCapacityEdit();
+    component.capacityDraft = 6;
+    sessionService.updateCapacity.and.returnValue(of({ ...component.session, maxParticipants: 6 }));
+    component.saveCapacity();
+
+    expect(component.session?.maxParticipants).toBe(6);
+    pendingRefresh.next({ ...session, maxParticipants: 4 });
+    pendingRefresh.complete();
+    expect(component.session?.maxParticipants).toBe(6);
+    expect(component.detailRefreshWarning).toBe('');
+  });
+
+  it('keeps saved arrival directions when an older detail refresh completes afterwards', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.sessionId = session.id;
+    component.session = {
+      ...session, joined: true, address: 'Rua do Campo',
+      status: 'OPEN', gameDate: new Date(Date.now() + 3_600_000).toISOString(),
+      meetingPointInstructions: 'Entrada antiga'
+    };
+    const pendingRefresh = new Subject<any>();
+    sessionService.detail.and.returnValue(pendingRefresh.asObservable());
+
+    (component as any).loadSession(false);
+    component.beginMeetingPointEdit();
+    component.meetingPointDraft = 'Porta principal';
+    sessionService.updateMeetingPoint.and.returnValue(of({
+      ...component.session, meetingPointInstructions: 'Porta principal'
+    }));
+    component.saveMeetingPoint();
+
+    expect(component.session?.meetingPointInstructions).toBe('Porta principal');
+    pendingRefresh.next({ ...session, meetingPointInstructions: 'Entrada antiga' });
+    pendingRefresh.complete();
+    expect(component.session?.meetingPointInstructions).toBe('Porta principal');
+    expect(component.detailRefreshWarning).toBe('');
+  });
+
   it('keeps saved organizer changes when an older detail refresh finishes later', () => {
     (component as any).currentUsername = 'creator-user';
     component.sessionId = session.id;
