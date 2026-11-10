@@ -105,60 +105,46 @@
           </button>
         </div>
       </form>
-      <div class="preview-columns" aria-live="polite">
-        <div class="preview-panel">
+      <div class="preview-sessions" aria-live="polite">
+        <div class="preview-panel preview-panel--sessions">
           <h3>{{ 'home.preview.sessionsTitle' | t }}</h3>
           @if (sessionsLoading) {
             <p class="preview-state" role="status">{{ 'home.preview.loading' | t }}</p>
           } @else if (sessionsLoadError) {
-            <p class="preview-state">{{ 'home.preview.loadError' | t }}</p>
+            <div class="preview-empty" role="alert">
+              <p>{{ 'home.preview.loadError' | t }}</p>
+              <button class="preview-retry jynlo-action jynlo-action--neutral"
+                      type="button" (click)="retryPublicDiscovery()">
+                {{ 'home.preview.retry' | t }}
+              </button>
+            </div>
           } @else if (featuredSessions.length === 0) {
-            <p class="preview-state">{{ 'home.preview.emptySessions' | t }}</p>
+            <div class="preview-empty">
+              <span class="preview-empty-icon" aria-hidden="true">🏃</span>
+              <strong>{{ 'home.preview.emptySessionsHeading' | t }}</strong>
+              <p>{{ 'home.preview.emptySessions' | t }}</p>
+              <a class="jynlo-action jynlo-action--primary preview-empty-action"
+                 routerLink="/login/registerNewUser">{{ 'home.preview.createFirstSession' | t }}</a>
+            </div>
           } @else {
-            @for (session of featuredSessions; track session.id) {
-              <a class="preview-item" [routerLink]="['/sessions', session.id]">
-                <strong>{{ session.sport }} · {{ session.city }}</strong>
-                <span>{{ session.gameDate | date:'dd/MM/yyyy, HH:mm' }}</span>
-                @let spots = remainingSpots(session);
-                @if (spots !== null) {
-                  <span class="preview-availability" [class.preview-availability--full]="spots === 0">
-                    {{ (spots === 0 ? 'home.preview.full' : spots === 1 ? 'home.preview.oneSpot' : 'home.preview.manySpots') | t:{count: spots} }}
-                  </span>
-                }
-                <small>{{ 'home.preview.viewSession' | t }} ↗</small>
-              </a>
-            }
-          }
-        </div>
-        <div class="preview-panel">
-          <h3>{{ 'home.preview.venuesTitle' | t }}</h3>
-          @if (venuesLoading) {
-            <p class="preview-state" role="status">{{ 'home.preview.loading' | t }}</p>
-          } @else if (venuesLoadError) {
-            <p class="preview-state">{{ 'home.preview.loadError' | t }}</p>
-          } @else if (featuredVenues.length === 0) {
-            <p class="preview-state">{{ 'home.preview.emptyVenues' | t }}</p>
-          } @else {
-            @for (venue of featuredVenues; track venue.id) {
-              <a class="preview-item preview-venue"
-                 [routerLink]="['/venues', venue.id]"
-                 [attr.aria-label]="('home.preview.viewVenue' | t) + ': ' + venue.name">
-                <strong>{{ venue.name }}</strong>
-                <span class="preview-venue-city">{{ venue.city }}</span>
-                <app-venue-sports-badges [sports]="venue.sports" [limit]="3"
-                  [compact]="true"></app-venue-sports-badges>
-                <small class="preview-venue-action">{{ 'home.preview.viewVenue' | t }} ↗</small>
-              </a>
-            }
+            <div class="preview-session-grid">
+              @for (session of featuredSessions; track session.id) {
+                <a class="preview-item preview-session-card" [routerLink]="['/sessions', session.id]">
+                  <strong>{{ session.sport }} · {{ session.city }}</strong>
+                  <span>📅 {{ session.gameDate | date:'dd/MM/yyyy, HH:mm' }}</span>
+                  @let spots = remainingSpots(session);
+                  @if (spots !== null) {
+                    <span class="preview-availability" [class.preview-availability--full]="spots === 0">
+                      {{ (spots === 0 ? 'home.preview.full' : spots === 1 ? 'home.preview.oneSpot' : 'home.preview.manySpots') | t:{count: spots} }}
+                    </span>
+                  }
+                  <small>{{ 'home.preview.viewSession' | t }} ↗</small>
+                </a>
+              }
+            </div>
           }
         </div>
       </div>
-      @if ((sessionsLoadError || venuesLoadError) && !sessionsLoading && !venuesLoading) {
-        <button class="preview-retry jynlo-action jynlo-action--neutral"
-                type="button" (click)="retryPublicDiscovery()">
-          {{ 'home.preview.retry' | t }}
-        </button>
-      }
       <a class="preview-cta jynlo-action jynlo-action--primary"
          routerLink="/login/registerNewUser">{{ 'home.preview.join' | t }}</a>
     </section>
