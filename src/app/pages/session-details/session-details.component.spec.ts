@@ -2474,6 +2474,11 @@ describe('SessionDetailsComponent', () => {
     edit!.click();
     fixture.detectChanges();
     expect(component.detailsEditing).toBeTrue();
+    const editor = root.querySelector('.session-details-editor') as HTMLElement;
+    expect(editor.textContent).toContain('Desporto');
+    expect(editor.textContent).toContain('Instruções de chegada');
+    expect(editor.textContent).not.toContain('sessionDetail.sportLabel');
+    expect(editor.textContent).not.toContain('sessionDetail.meetingPoint');
     component.detailsDraft.maxParticipants = 6;
     component.detailsDraft.priceAmount = 6.5;
     component.saveDetailsEdit();
