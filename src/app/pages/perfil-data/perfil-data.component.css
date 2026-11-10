@@ -370,3 +370,28 @@ h1 { font-size: clamp(2.1rem, 5vw, 3.5rem); }
 .social-list-people span{color:#96c7d5}
 .social-summary button,.my-follow-summary button{appearance:none;background:transparent;color:inherit;border:0;cursor:pointer;display:grid;gap:.2rem;text-align:center;padding:.35rem .7rem;border-radius:.7rem}
 .social-summary button:hover,.social-summary button:focus-visible,.my-follow-summary button:hover,.my-follow-summary button:focus-visible{outline:1px solid #22d9c5}
+
+/* Follow counts behave like unobtrusive text links, not neon cards. */
+.my-follow-summary button,
+.social-summary button {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: .6rem;
+  outline: none;
+  padding: .35rem .6rem;
+  transition: background-color .16s ease, border-color .16s ease;
+}
+.my-follow-summary button:hover,
+.social-summary button:hover {
+  background: rgba(255,255,255,.055);
+  border-color: rgba(180,230,228,.16);
+  outline: none;
+}
+.my-follow-summary button:focus-visible,
+.social-summary button:focus-visible {
+  outline: 2px solid rgba(36,217,193,.75);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .my-follow-summary button,.social-summary button { transition: none; }
+}
