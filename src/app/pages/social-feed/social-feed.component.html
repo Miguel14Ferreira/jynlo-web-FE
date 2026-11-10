@@ -337,11 +337,15 @@
                   }
                 }
                 @if (item.authorUsername === currentUsername && item.postId !== null) {
-                  <button type="button" class="feed-likers-privacy"
-                          [disabled]="likersPrivacySavingId !== null"
-                          (click)="toggleLikersPrivacy(item)">
-                    {{ item.hideLikers ? 'Mostrar quem gostou' : 'Ocultar quem gostou' }}
-                  </button>
+                  <details class="feed-likers-settings">
+                    <summary [attr.aria-label]="'feed.likesPrivacyOptions' | t"
+                             [attr.title]="'feed.likesPrivacyOptions' | t">⋯</summary>
+                    <button type="button" class="feed-likers-privacy"
+                            [disabled]="likersPrivacySavingId !== null"
+                            (click)="toggleLikersPrivacy(item); $any($event.target).closest('details').open = false">
+                      {{ (item.hideLikers ? 'feed.showLikers' : 'feed.hideLikers') | t }}
+                    </button>
+                  </details>
                 }
 
                 <button
@@ -497,11 +501,15 @@
                   }
                 }
                 @if (item.authorUsername === currentUsername && item.postId !== null) {
-                  <button type="button" class="feed-likers-privacy"
-                          [disabled]="likersPrivacySavingId !== null"
-                          (click)="toggleLikersPrivacy(item)">
-                    {{ item.hideLikers ? 'Mostrar quem gostou' : 'Ocultar quem gostou' }}
-                  </button>
+                  <details class="feed-likers-settings">
+                    <summary [attr.aria-label]="'feed.likesPrivacyOptions' | t"
+                             [attr.title]="'feed.likesPrivacyOptions' | t">⋯</summary>
+                    <button type="button" class="feed-likers-privacy"
+                            [disabled]="likersPrivacySavingId !== null"
+                            (click)="toggleLikersPrivacy(item); $any($event.target).closest('details').open = false">
+                      {{ (item.hideLikers ? 'feed.showLikers' : 'feed.hideLikers') | t }}
+                    </button>
+                  </details>
                 }
 
                 <button
