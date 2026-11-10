@@ -2923,10 +2923,17 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     this.loadSession();
   }
 
+  private sessionDetailRequestId = 0;
+
   private loadSession(showPageLoader = true): void {
     if (!this.sessionId) {
       return;
     }
+
+    // Silent refreshes and manual reloads can overlap; only the newest response
+    // may replace the detail, show an error or clear the page loader.
+    const requestId = ++this.sessionDetailRequestId;
+    const isCurrentRequest = () => requestId === this.sessionDetailRequestId;
 
     if (showPageLoader) {
       this.loading = true;
@@ -2939,13 +2946,14 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         timeout(10_000),
         retry({ count: 1 }),
         finalize(() => {
-          if (showPageLoader) {
+          if (showPageLoader && isCurrentRequest()) {
             this.loading = false;
           }
         })
       )
       .subscribe({
         next: session => {
+          if (!isCurrentRequest()) return;
           this.session = session;
           if (!this.sessionContextLoading && (showPageLoader || !this.sessionContext)) {
             this.loadSessionContext(session.id);
@@ -3002,6 +3010,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
           }
         },
         error: () => {
+          if (!isCurrentRequest()) return;
           if (showPageLoader) {
             this.errorMessage = t('feedback.session.detailsError');
           } else {
