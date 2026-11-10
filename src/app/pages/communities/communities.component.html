@@ -234,7 +234,7 @@
     } @else if ((showMineView() && communities.length > 0) || detailMode()) {
       <div class="communities-layout">
         @if (showMineView()) {
-        <aside class="community-list">
+        <aside class="community-list community-discovery-grid community-mine-grid">
           <div class="list-heading jynlo-ui-section-heading">
             <div>
               <h2>{{ 'communities.mine' | t }}</h2>
@@ -250,31 +250,53 @@
               [class.active]="selected?.id === community.id"
               (click)="open(community)">
               <div class="community-card-main">
-                <div class="community-avatar" [class.community-avatar--animated]="isAnimatedCommunityAvatar(community.photoUrl)">
+                <div class="community-avatar community-discovery-cover"
+                  [class.community-avatar--animated]="isAnimatedCommunityAvatar(community.photoUrl)">
                   @if (community.photoUrl) {
                     @if (communityCoverIsShowAll(community)) {
-                        <img class="community-cover-backdrop" [src]="community.photoUrl"
-                          alt="" aria-hidden="true" loading="lazy">
-                      }
-                      <img class="community-cover-foreground" [src]="community.photoUrl" [alt]="community.name"
-                        [style.object-fit]="communityCoverFit(community)"
-                        [style.object-position]="communityCoverPosition(community)"
-                        [style.transform-origin]="communityCoverOrigin(community)"
-                        [style.transform]="communityCoverZoom(community)">
+                      <img class="community-cover-backdrop" [src]="community.photoUrl"
+                        alt="" aria-hidden="true" loading="lazy">
+                    }
+                    <img class="community-cover-foreground" [src]="community.photoUrl"
+                      [alt]="community.name" loading="lazy" decoding="async"
+                      [style.object-fit]="communityCoverFit(community)"
+                      [style.object-position]="communityCoverPosition(community)"
+                      [style.transform-origin]="communityCoverOrigin(community)"
+                      [style.transform]="communityCoverZoom(community)">
                   } @else {
-                    <span>{{ communityInitials(community) }}</span>
+                    <span aria-hidden="true">{{ community.name.charAt(0).toUpperCase() }}</span>
                   }
                 </div>
                 <div class="community-card-copy">
                   <strong>{{ community.name }}</strong>
-                  <span>{{ community.sport || ('communities.multiSport' | t) }}</span>
+                  <div class="sport-tags community-discovery-sports" role="list"
+                    [attr.aria-label]="('communities.sportLabel' | t) + ': ' + communitySports(community).join(', ')">
+                    @for (item of communitySports(community).slice(0, 3); track item) {
+                      <span class="sport-tag" role="listitem">{{ item }}</span>
+                    } @empty {
+                      <span class="sport-blank">{{ 'communities.noSportsSelected' | t }}</span>
+                    }
+                    @if (communitySports(community).length > 3) {
+                      <span class="sport-tag sport-tag--overflow" role="listitem"
+                        [title]="communitySports(community).slice(3).join(', ')"
+                        [attr.aria-label]="communitySports(community).slice(3).join(', ')">
+                        +{{ communitySports(community).length - 3 }}
+                      </span>
+                    }
+                  </div>
+                  <small class="community-discovery-description">{{ community.description || ('communities.noDescription' | t) }}</small>
                 </div>
               </div>
-              <small>
-                {{ community.memberCount === 1
-                  ? ('communities.memberOne' | t:{ count: community.memberCount })
-                  : ('communities.memberMany' | t:{ count: community.memberCount }) }}
-              </small>
+              <div class="community-discovery-card-footer">
+                <span class="visibility">
+                  {{ community.visibility === 'PRIVATE'
+                    ? ('communities.private' | t)
+                    : ('communities.public' | t) }}
+                </span>
+                <span class="community-discovery-card-link">
+                  {{ 'communities.viewCommunity' | t }} <span aria-hidden="true">→</span>
+                </span>
+              </div>
             </button>
           }
         </aside>
