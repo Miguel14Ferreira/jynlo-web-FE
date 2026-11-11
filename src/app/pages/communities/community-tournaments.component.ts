@@ -1161,6 +1161,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     const assistProfileId = this.championshipFixtureGoalAssistDrafts[fixture.id] ?? null;
     const validTeam = teamId === fixture.homeTeamId || teamId === fixture.awayTeamId;
     if (!this.canManage || !!championship.closedAt || this.championshipFixtureGoalBusy[fixture.id]
+        || this.championshipFixtureSaving[fixture.id]
         || !['Futebol', 'Futsal'].includes(championship.sport)
         || event.format !== 'LEAGUE' || event.status !== 'SCHEDULED'
         || !validTeam || !profileId
@@ -1196,7 +1197,8 @@ export class CommunityTournamentsComponent implements OnChanges {
 
   removeFixtureGoal(championship: CommunityChampionship, event: ChampionshipOwnedEvent,
                     fixtureId: number, goalId: number): void {
-    if (!this.canManage || !!championship.closedAt || this.championshipFixtureGoalBusy[fixtureId]) return;
+    if (!this.canManage || !!championship.closedAt || this.championshipFixtureGoalBusy[fixtureId]
+        || this.championshipFixtureSaving[fixtureId]) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipFixtureGoalBusy[fixtureId] = true;
@@ -1295,7 +1297,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     const score = this.championshipFixtureScoreDrafts[fixture.id];
     if (!this.canManage || !!championship.closedAt
         || !['Futebol', 'Futsal'].includes(championship.sport)
-        || this.championshipFixtureSaving[fixture.id]
+        || this.championshipFixtureSaving[fixture.id] || this.championshipFixtureGoalBusy[fixture.id]
         || event.status !== 'SCHEDULED' || event.format !== 'LEAGUE'
         || !this.championshipScoreChanged(score, fixture)
         || !this.championshipScoreRespectsAssignedGoals(fixture, score)) return;
