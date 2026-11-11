@@ -42,6 +42,6 @@
 /* Keep cover editing clearly secondary to community navigation. */
 :host {width:100%;min-width:0;max-width:290px;flex:0 1 290px;align-self:start;}
 .community-avatar {aspect-ratio:4/3;}
-.community-photo-actions {gap:6px;margin-top:2px;}
+.community-photo-actions {gap:8px;margin-top:18px;}
 .community-photo-action {min-height:34px;padding:7px 9px;font-size:.72rem;line-height:1.3;}
 @media(max-width:760px) {:host {width:min(100%,290px);max-width:100%;}}
