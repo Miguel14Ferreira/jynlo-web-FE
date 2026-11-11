@@ -226,9 +226,23 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
 
+  championshipCanClose(championship: CommunityChampionship): boolean {
+    const standings = this.championshipAggregateStandings[championship.id];
+    if (championship.closedAt || !standings || standings.pendingCompetitions !== 0) return false;
+    const internalEvents = this.championshipOwnedEvents[championship.id] || [];
+    if (internalEvents.some(event => event.status !== 'COMPLETED' || !event.winnerTeamId)) return false;
+    if (championship.standingsMode === 'INDEPENDENT')
+      return championship.competitions.length > 0 || internalEvents.length > 0;
+    if (standings.standings.length === 0) return false;
+    const sorted = [...standings.standings].sort((a, b) => b.points - a.points || b.victories - a.victories);
+    return sorted.length === 1 || sorted[0].points !== sorted[1].points
+      || sorted[0].victories !== sorted[1].victories;
+  }
+
   closeChampionship(championship: CommunityChampionship): void {
     if (!this.canManage || this.championshipBusy || championship.closedAt
-        || !this.championshipCloseConfirmed[championship.id]) return;
+        || !this.championshipCloseConfirmed[championship.id]
+        || !this.championshipCanClose(championship)) return;
     const communityId = this.community.id;
     const revision = this.championshipRevision;
     this.championshipBusy = true;
@@ -579,6 +593,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.championshipLeagueFinalizeBusy[event.id] = false;
         this.championshipLeagueFinalizeConfirm[event.id] = false;
         this.loadChampionshipOwnedLeagueTable(championship.id, event.id);
+        this.loadChampionshipStandings(championship.id);
         this.changeDetector.markForCheck();
       },
       error: () => {
@@ -1086,6 +1101,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.championshipCupAdvanceConfirm[event.id] = false;
         this.championshipCupBusy = false;
         this.loadChampionshipOwnedEvents(championship.id);
+        this.loadChampionshipStandings(championship.id);
         this.changeDetector.markForCheck();
       },
       error: () => {
