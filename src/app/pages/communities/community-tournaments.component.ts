@@ -1,4 +1,4 @@
-import { ChampionshipTeamPlayer, ChampionshipFixtureGoal, ChampionshipOwnedLeagueTable, ChampionshipFixtureCard, ChampionshipLeaguePlayerStats, ChampionshipFixtureSubstitution } from '../../services/community-championships.service';
+import { ChampionshipTeamPlayer, ChampionshipFixtureGoal, ChampionshipOwnedLeagueTable, ChampionshipFixtureCard, ChampionshipLeaguePlayerStats, ChampionshipFixtureSubstitution, ChampionshipFixtureLineupPlayer } from '../../services/community-championships.service';
 import { CommunityChampionshipsService, ChampionshipOwnedEvent, ChampionshipOwnedEventTeam, ChampionshipOwnedLeagueFixture, ChampionshipCupOpeningRound, ChampionshipOwnedEventFormat, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
 import { championshipTeamProfile, ChampionshipTeamProfile } from './community-championship-team-profile';
 import { compareTeamSeasons, comparableTeamSeasons, TeamSeasonComparison } from './community-championship-team-comparison';
@@ -603,6 +603,85 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipFixtureGoals: Record<number, ChampionshipFixtureGoal[]> = {};
   championshipFixtureCards: Record<number, ChampionshipFixtureCard[]> = {};
   championshipFixtureSubstitutions: Record<number, ChampionshipFixtureSubstitution[]> = {};
+  championshipFixtureLineups: Record<number, ChampionshipFixtureLineupPlayer[]> = {};
+  championshipLineupTeamDrafts: Record<number, number | null> = {};
+  championshipLineupPlayerDrafts: Record<number, number | null> = {};
+  championshipLineupSelectionDrafts: Record<number, 'STARTER' | 'BENCH'> = {};
+  championshipLineupBusy: Record<number, boolean> = {};
+
+  loadFixtureLineup(championshipId: number, eventId: number, fixtureId: number): void {
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipsApi.fixtureLineup(communityId, championshipId, eventId, fixtureId).subscribe({
+      next: players => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipFixtureLineups[fixtureId] = players;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipError = 'Não foi possível carregar a escalação do jogo.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  saveFixtureLineupPlayer(championship: CommunityChampionship, event: ChampionshipOwnedEvent,
+                          fixture: ChampionshipOwnedLeagueFixture): void {
+    const teamId = this.championshipLineupTeamDrafts[fixture.id];
+    const profileId = this.championshipLineupPlayerDrafts[fixture.id];
+    const selection = this.championshipLineupSelectionDrafts[fixture.id] || 'STARTER';
+    if (!this.canManage || !!championship.closedAt || this.championshipLineupBusy[fixture.id]
+        || !['Futebol', 'Futsal'].includes(championship.sport)
+        || event.format !== 'LEAGUE' || event.status !== 'SCHEDULED'
+        || (teamId !== fixture.homeTeamId && teamId !== fixture.awayTeamId)
+        || !profileId || !this.fixtureTeamPlayerOptions(championship.id, teamId)
+          .some(player => player.profileId === profileId)) return;
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipLineupBusy[fixture.id] = true;
+    this.championshipsApi.setFixtureLineupPlayer(communityId, championship.id, event.id,
+      fixture.id, teamId!, profileId, selection).subscribe({
+      next: players => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipFixtureLineups[fixture.id] = players;
+        this.championshipLineupBusy[fixture.id] = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipLineupBusy[fixture.id] = false;
+        this.championshipError = 'Não foi possível guardar a escalação.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  removeFixtureLineupPlayer(championship: CommunityChampionship, event: ChampionshipOwnedEvent,
+                             fixtureId: number, profileId: number): void {
+    if (!this.canManage || !!championship.closedAt || this.championshipLineupBusy[fixtureId]) return;
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipLineupBusy[fixtureId] = true;
+    this.championshipsApi.removeFixtureLineupPlayer(communityId, championship.id, event.id,
+      fixtureId, profileId).subscribe({
+      next: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipFixtureLineups[fixtureId] =
+          (this.championshipFixtureLineups[fixtureId] || []).filter(player => player.profileId !== profileId);
+        this.championshipLineupBusy[fixtureId] = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipLineupBusy[fixtureId] = false;
+        this.championshipError = 'Não foi possível retirar o jogador da escalação.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+
   championshipSubTeamDrafts: Record<number, number | null> = {};
   championshipSubOutDrafts: Record<number, number | null> = {};
   championshipSubInDrafts: Record<number, number | null> = {};
@@ -979,6 +1058,7 @@ export class CommunityTournamentsComponent implements OnChanges {
             this.loadFixtureGoals(championshipId, eventId, match.id);
             this.loadFixtureCards(championshipId, eventId, match.id);
             this.loadFixtureSubstitutions(championshipId, eventId, match.id);
+            this.loadFixtureLineup(championshipId, eventId, match.id);
           });
         }
         this.changeDetector.markForCheck();
@@ -1010,6 +1090,7 @@ export class CommunityTournamentsComponent implements OnChanges {
             this.loadFixtureGoals(championship.id, event.id, fixture.id);
             this.loadFixtureCards(championship.id, event.id, fixture.id);
             this.loadFixtureSubstitutions(championship.id, event.id, fixture.id);
+            this.loadFixtureLineup(championship.id, event.id, fixture.id);
           });
         this.championshipOwnedEvents[championship.id] = (this.championshipOwnedEvents[championship.id] || [])
           .map(item => item.id === event.id ? { ...item, status: 'SCHEDULED' as const } : item);
@@ -1264,6 +1345,11 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipFixtureGoals = {};
     this.championshipFixtureCards = {};
     this.championshipFixtureSubstitutions = {};
+    this.championshipFixtureLineups = {};
+    this.championshipLineupTeamDrafts = {};
+    this.championshipLineupPlayerDrafts = {};
+    this.championshipLineupSelectionDrafts = {};
+    this.championshipLineupBusy = {};
     this.championshipSubTeamDrafts = {};
     this.championshipSubOutDrafts = {};
     this.championshipSubInDrafts = {};
