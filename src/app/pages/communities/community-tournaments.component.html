@@ -633,6 +633,28 @@
             }
           </div>
         </div>
+        @if (canManage && !championship.closedAt) {
+          <div class="jynlo-championship-delete-control">
+            @if (deletingChampionshipId === championship.id) {
+              <p role="alert"><strong>Eliminar definitivamente «{{ championship.name }}»?</strong>
+                Serão removidas as provas internas sem resultados, os calendários e as equipas desta época.
+                Campeonatos com resultados ou torneios independentes associados não podem ser eliminados.</p>
+              <div class="jynlo-championship-delete-actions">
+                <button type="button" class="t-btn t-btn-secondary"
+                  [disabled]="championshipBusy" (click)="deleteUnplayedChampionship(championship)">
+                  Sim, eliminar campeonato
+                </button>
+                <button type="button" class="t-btn t-btn-secondary"
+                  [disabled]="championshipBusy" (click)="cancelDeleteChampionship()">Cancelar</button>
+              </div>
+            } @else {
+              <button type="button" class="t-btn t-btn-secondary jynlo-championship-delete-trigger"
+                [disabled]="championshipBusy" (click)="requestDeleteChampionship(championship)">
+                Eliminar campeonato
+              </button>
+            }
+          </div>
+        }
         <details class="jynlo-championship-management" [open]="requestedChampionshipId === championship.id">
           <summary class="jynlo-championship-management-toggle">
             <span>Gerir campeonato</span>
