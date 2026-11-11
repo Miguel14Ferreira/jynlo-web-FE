@@ -250,6 +250,27 @@ export class CommunityTournamentsService {
     return this.http.get<CommunityTournament>(this.url(communityId, tournamentId));
   }
 
+  teamAdministration(communityId: number, tournamentId: number, teamId: number):
+    Observable<{ teamId: number; adminProfileId: number | null; pendingProfileId: number | null; canManage: boolean; canAccept: boolean }> {
+    return this.http.get<{ teamId: number; adminProfileId: number | null; pendingProfileId: number | null; canManage: boolean; canAccept: boolean }>(
+      this.url(communityId, tournamentId) + '/teams/' + teamId + '/administrator');
+  }
+
+  transferTeamAdministration(communityId: number, tournamentId: number, teamId: number, profileId: number) {
+    return this.http.post<{ teamId: number; adminProfileId: number | null; pendingProfileId: number | null; canManage: boolean; canAccept: boolean }>(
+      this.url(communityId, tournamentId) + '/teams/' + teamId + '/administrator/transfer', { profileId });
+  }
+
+  respondTeamAdministration(communityId: number, tournamentId: number, teamId: number, accept: boolean) {
+    return this.http.post<{ teamId: number; adminProfileId: number | null; pendingProfileId: number | null; canManage: boolean; canAccept: boolean }>(
+      this.url(communityId, tournamentId) + '/teams/' + teamId + '/administrator/' + (accept ? 'accept' : 'decline'), {});
+  }
+
+  cancelTeamAdministrationTransfer(communityId: number, tournamentId: number, teamId: number) {
+    return this.http.post<{ teamId: number; adminProfileId: number | null; pendingProfileId: number | null; canManage: boolean; canAccept: boolean }>(
+      this.url(communityId, tournamentId) + '/teams/' + teamId + '/administrator/cancel', {});
+  }
+
   acceptTeamInvite(communityId: number, tournamentId: number, teamId: number): Observable<TournamentTeam> {
     return this.http.put<TournamentTeam>(
       this.url(communityId, tournamentId) + '/teams/' + teamId + '/players/me', null);
