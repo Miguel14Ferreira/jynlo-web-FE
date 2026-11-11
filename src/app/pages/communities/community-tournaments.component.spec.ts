@@ -524,6 +524,36 @@ describe('Community tournaments management', () => {
     expect(component.championshipFixtureScoreDrafts[504]).toEqual({ home: 2, away: 1 });
   });
 
+  it('does not dispatch a score correction that drops below credited goals', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const save = jasmine.createSpy('recordOwnedFixtureScore');
+    (championships as any).recordOwnedFixtureScore = save;
+    const fixture = { id: 820, homeTeamId: 11, awayTeamId: 12, homeScore: 3, awayScore: 1 };
+    component.championshipFixtureGoals[820] = [
+      { id: 1, teamId: 11 }, { id: 2, teamId: 11 }
+    ] as any;
+    component.championshipFixtureScoreDrafts[820] = { home: 1, away: 1 };
+    component.saveChampionshipFixtureScore(
+      { id: 15, sport: 'Futebol', closedAt: null } as any,
+      { id: 104, format: 'LEAGUE', status: 'SCHEDULED' } as any, fixture as any);
+    expect(save).not.toHaveBeenCalled();
+    expect(component.championshipFixtureScoreDrafts[820]).toEqual({ home: 1, away: 1 });
+  });
+
+  it('does not dispatch a player-goal attribution after that team has reached its score', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const add = jasmine.createSpy('addFixtureGoal');
+    (championships as any).addFixtureGoal = add;
+    const fixture = { id: 821, homeTeamId: 11, awayTeamId: 12, homeScore: 1, awayScore: 0 };
+    component.championshipFixtureGoals[821] = [{ id: 1, teamId: 11 }] as any;
+    component.championshipFixtureGoalTeamDrafts[821] = 11;
+    component.championshipFixtureGoalPlayerDrafts[821] = 55;
+    component.addFixtureGoal(
+      { id: 15, sport: 'Futebol', closedAt: null } as any,
+      { id: 105, format: 'LEAGUE', status: 'SCHEDULED' } as any, fixture as any);
+    expect(add).not.toHaveBeenCalled();
+  });
+
   it('refreshes the league fixture and clears its draft after a successful score save', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const fixture = { id: 501, homeScore: 1, awayScore: 0 };
