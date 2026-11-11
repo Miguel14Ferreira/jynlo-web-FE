@@ -3298,6 +3298,9 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.championshipTeamRegistries = {};
       this.championshipTeamDrafts = {};
       this.championshipCloseConfirmed = {};
+      // Confirmation belongs to the previous community and must not carry over,
+      // even if the next community happens to have a championship with the same ID.
+      this.deletingChampionshipId = null;
       this.showActiveChampionships();
       this.championshipError = '';
       this.championshipOpen = false;
