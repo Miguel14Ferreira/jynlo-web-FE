@@ -33,6 +33,35 @@ describe('Community tournaments management', () => {
     championTied: false
   };
 
+  it('shows match outcomes only for recorded scores, including draws', () => {
+    const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
+    expect(instance.championshipFixtureWinner({ homeScore: null, awayScore: null } as any)).toBeNull();
+    expect(instance.championshipFixtureWinner({ homeScore: 2, awayScore: 0 } as any)).toBe('HOME');
+    expect(instance.championshipFixtureWinner({ homeScore: 1, awayScore: 3 } as any)).toBe('AWAY');
+    expect(instance.championshipFixtureWinner({ homeScore: 0, awayScore: 0 } as any)).toBe('DRAW');
+  });
+
+  it('compares attributed scorers with the persisted result without inventing missing data', () => {
+    const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
+    instance.championshipFixtureGoals = {};
+    const fixture = {
+      id: 800, homeTeamId: 1, awayTeamId: 2, homeScore: 2, awayScore: 1
+    } as any;
+    expect(instance.championshipFixtureGoalAttribution(fixture)).toBeNull();
+    instance.championshipFixtureGoals[800] = [
+      { id: 1, teamId: 1 }, { id: 2, teamId: 1 }, { id: 3, teamId: 2 }
+    ] as any;
+    expect(instance.championshipFixtureGoalAttribution(fixture)).toEqual({
+      homeAssigned: 2, awayAssigned: 1, homeRemaining: 0, awayRemaining: 0
+    });
+    fixture.homeScore = 1;
+    expect(instance.championshipFixtureGoalAttribution(fixture)?.homeRemaining).toBe(-1);
+    instance.championshipFixtureGoals[800] = [];
+    expect(instance.championshipFixtureGoalAttribution(fixture)?.awayRemaining).toBe(1);
+    fixture.homeScore = null;
+    expect(instance.championshipFixtureGoalAttribution(fixture)).toBeNull();
+  });
+
   it('only saves edited scores and respects knockout winner rules', () => {
     const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
     const recorded = { homeScore: 2, awayScore: 1 };
@@ -455,6 +484,7 @@ describe('Community tournaments management', () => {
     (championships as any).recordOwnedFixtureScore = scoreApi;
     spyOn(component, 'loadChampionshipOwnedLeagueTable');
     spyOn(component, 'loadChampionshipLeaguePlayerStats');
+    spyOn(component, 'loadFixtureGoals');
     spyOn(component, 'loadChampionshipStandings');
     component.championshipLeagueFixtures[101] = [fixture as any];
     component.championshipFixtureScoreDrafts[501] = { home: 2, away: 1 };
@@ -469,6 +499,7 @@ describe('Community tournaments management', () => {
     expect(component.championshipFixtureScoreDrafts[501]).toBeUndefined();
     expect(component.loadChampionshipOwnedLeagueTable).toHaveBeenCalledOnceWith(15, 101);
     expect(component.loadChampionshipLeaguePlayerStats).toHaveBeenCalledOnceWith(15, 101);
+    expect(component.loadFixtureGoals).toHaveBeenCalledOnceWith(15, 101, 501);
     expect(component.loadChampionshipStandings).toHaveBeenCalledOnceWith(15);
     expect(component.championshipFixtureSaving[501]).toBeFalse();
   });
