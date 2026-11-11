@@ -557,6 +557,40 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipOwnedTeamDrafts: Record<number, number | null> = {};
   championshipLeagueFixtures: Record<number, ChampionshipOwnedLeagueFixture[]> = {};
   championshipOwnedLeagueTables: Record<number, ChampionshipOwnedLeagueTable> = {};
+  championshipLeagueFinalizeConfirm: Record<number, boolean> = {};
+  championshipLeagueFinalizeBusy: Record<number, boolean> = {};
+
+  finalizeChampionshipLeague(championship: CommunityChampionship, event: ChampionshipOwnedEvent): void {
+    const table = this.championshipOwnedLeagueTables[event.id];
+    if (!this.canManage || !!championship.closedAt || event.format !== 'LEAGUE'
+        || event.status !== 'SCHEDULED' || !this.championshipLeagueFinalizeConfirm[event.id]
+        || !table?.completed || table.firstPlaceTied || table.standings.length < 2
+        || this.championshipLeagueFinalizeBusy[event.id]) return;
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipLeagueFinalizeBusy[event.id] = true;
+    this.championshipError = '';
+    this.championshipsApi.finalizeOwnedLeague(communityId, championship.id, event.id).subscribe({
+      next: updated => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipOwnedEvents[championship.id] =
+          (this.championshipOwnedEvents[championship.id] || [])
+            .map(item => item.id === updated.id ? updated : item);
+        this.championshipLeagueFinalizeBusy[event.id] = false;
+        this.championshipLeagueFinalizeConfirm[event.id] = false;
+        this.loadChampionshipOwnedLeagueTable(championship.id, event.id);
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipLeagueFinalizeBusy[event.id] = false;
+        this.championshipError = 'Não foi possível concluir a liga. Verifica os resultados, o desempate e as equipas.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+
   championshipLeaguePlayerStats: Record<number, ChampionshipLeaguePlayerStats[]> = {};
 
   loadChampionshipLeaguePlayerStats(championshipId: number, eventId: number): void {
@@ -1339,6 +1373,8 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipOwnedTeamDrafts = {};
     this.championshipLeagueFixtures = {};
     this.championshipOwnedLeagueTables = {};
+    this.championshipLeagueFinalizeConfirm = {};
+    this.championshipLeagueFinalizeBusy = {};
     this.championshipLeaguePlayerStats = {};
     this.championshipFixtureScoreDrafts = {};
     this.championshipFixtureSaving = {};
