@@ -152,6 +152,14 @@ export interface ChampionshipTeamPlayer {
   profilePicUrl: string | null;
 }
 
+export interface ChampionshipTeamAdministrator {
+  teamId: number;
+  adminProfileId: number | null;
+  pendingProfileId: number | null;
+  canManage: boolean;
+  canAccept: boolean;
+}
+
 export interface CommunityChampionshipTeam {
   id: number;
   name: string;
@@ -272,6 +280,24 @@ export class CommunityChampionshipsService {
   teams(communityId: number, championshipId: number): Observable<CommunityChampionshipTeams> {
     return this.http.get<CommunityChampionshipTeams>(
       this.base(communityId) + '/' + championshipId + '/teams');
+  }
+
+  teamAdministrator(communityId: number, championshipId: number, teamId: number): Observable<ChampionshipTeamAdministrator> {
+    return this.http.get<ChampionshipTeamAdministrator>(
+      this.base(communityId) + '/' + championshipId + '/teams/' + teamId + '/administrator');
+  }
+
+  inviteTeamAdministrator(communityId: number, championshipId: number, teamId: number,
+                          profileId: number): Observable<ChampionshipTeamAdministrator> {
+    return this.http.post<ChampionshipTeamAdministrator>(
+      this.base(communityId) + '/' + championshipId + '/teams/' + teamId + '/administrator/invite', { profileId });
+  }
+
+  respondTeamAdministrator(communityId: number, championshipId: number, teamId: number,
+                           accept: boolean): Observable<ChampionshipTeamAdministrator> {
+    return this.http.post<ChampionshipTeamAdministrator>(
+      this.base(communityId) + '/' + championshipId + '/teams/' + teamId
+        + '/administrator/' + (accept ? 'accept' : 'decline'), {});
   }
 
   teamPlayers(communityId: number, championshipId: number, teamId: number): Observable<ChampionshipTeamPlayer[]> {
