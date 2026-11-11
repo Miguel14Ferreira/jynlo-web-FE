@@ -2679,13 +2679,13 @@
                 <div class="jynlo-team-admin-pending" role="status">
                   <strong>Transferência pendente</strong>
                   <p>O novo responsável ainda não aceitou. A equipa mantém o administrador atual.</p>
-                  @if (administrator.canManage && selected?.status === 'DRAFT') {
+                  @if (administrator.canManage) {
                     <button type="button" class="t-btn t-btn-secondary t-btn-small" [disabled]="busy"
                       (click)="cancelTournamentTeamAdministratorTransfer(team)">Cancelar transferência</button>
                   }
                 </div>
               }
-              @if (administrator.canManage && selected?.status === 'DRAFT') {
+              @if (administrator.canManage) {
                 <div class="jynlo-team-admin-transfer">
                   <label [for]="'tournament-team-admin-' + team.id">Transferir administração</label>
                   <div class="jynlo-team-admin-transfer-controls">
