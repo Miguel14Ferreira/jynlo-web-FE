@@ -150,6 +150,28 @@ describe('NotificationsComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/menu/events', 12]);
   });
 
+  it('shows team administration alerts in Portuguese and English without modifying stored records', () => {
+    const original = {
+      ...notificationFixture(), type: 'TEAM_ADMIN_TRANSFER',
+      subject: 'Transferência da equipa: Águias',
+      message: 'Mensagem persistida do backend',
+      communityId: 7, sessionId: null
+    };
+    const language = localStorage.getItem('d24-language');
+    try {
+      localStorage.setItem('d24-language', 'pt');
+      expect(component.notificationSubject(original)).toContain('Águias');
+      expect(component.notificationMessage(original)).toContain('administrador atual');
+      localStorage.setItem('d24-language', 'en');
+      expect(component.notificationSubject(original)).toContain('Administrator transfer');
+      expect(component.notificationMessage(original)).toContain('current administrator');
+      expect(original.message).toBe('Mensagem persistida do backend');
+    } finally {
+      if (language == null) localStorage.removeItem('d24-language');
+      else localStorage.setItem('d24-language', language);
+    }
+  });
+
   it('opens team invitations in their own community competitions and rejects invalid references', () => {
     const invitation = {
       ...notificationFixture(),
