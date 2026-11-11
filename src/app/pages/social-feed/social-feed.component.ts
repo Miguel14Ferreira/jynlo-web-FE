@@ -49,6 +49,13 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     }));
   }
 
+  showAllAttendance = false;
+
+  get displayedAttendanceGroups(): ReturnType<SocialFeedComponent['attendanceGroups']> {
+    const groups = this.attendanceGroups;
+    return this.showAllAttendance ? groups : groups.slice(0, 5);
+  }
+
   get fullFeedItems(): FeedItem[] {
     return this.items.filter(item =>
       item.type !== 'SESSION_ATTENDED' ||
