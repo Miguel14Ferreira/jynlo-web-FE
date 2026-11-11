@@ -36,6 +36,7 @@ export class NotificationsComponent implements OnInit {
     'SESSION_REMOVED', 'SESSION_CANCELLED', 'SESSION_MEETING_POINT_UPDATED',
     'SESSION_POST_GAME_REVIEW',
     'ATTENDANCE_DISPUTE_ACCEPTED', 'ATTENDANCE_DISPUTE_REJECTED',
+    'TEAM_MEMBER_INVITE', 'TEAM_ADMIN_TRANSFER', 'TEAM_ADMIN_ASSIGNED',
     'CHAT_MESSAGE', 'VENUE_EDIT_DECISION', 'SOCIAL_POST_LIKED',
     'SOCIAL_POST_COMMENTED', 'SOCIAL_NEW_FOLLOWER', 'FRIEND_REQUEST', 'OTHER'
   ] as const;
@@ -455,6 +456,17 @@ export class NotificationsComponent implements OnInit {
     return notification.type === 'COMMUNITY_INVITE' && notification.subject.startsWith(prefix)
       ? notification.subject.slice(prefix.length).trim() || null
       : null;
+  }
+
+  openTeamCompetition(notification: AppNotification): void {
+    if (!['TEAM_MEMBER_INVITE', 'TEAM_ADMIN_TRANSFER', 'TEAM_ADMIN_ASSIGNED']
+            .includes(notification.type || '')
+        || typeof notification.communityId !== 'number'
+        || !Number.isSafeInteger(notification.communityId)
+        || notification.communityId <= 0) return;
+    void this.router.navigate(['/menu/communities', notification.communityId], {
+      queryParams: { tab: 'tournaments' }
+    });
   }
 
   openJoinCommunity(notification: AppNotification): void {
