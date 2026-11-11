@@ -62,6 +62,24 @@ describe('Community tournaments management', () => {
     expect(instance.championshipFixtureGoalAttribution(fixture)).toBeNull();
   });
 
+  it('rejects a score edit that would contradict already credited player goals', () => {
+    const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
+    const fixture = { id: 812, homeTeamId: 11, awayTeamId: 12, homeScore: 4, awayScore: 2 } as any;
+    instance.championshipFixtureGoals = {
+      812: [
+        { id: 1, teamId: 11 }, { id: 2, teamId: 11 },
+        { id: 3, teamId: 12 }
+      ] as any
+    };
+    expect(instance.championshipScoreRespectsAssignedGoals(fixture, { home: 1, away: 2 })).toBeFalse();
+    expect(instance.championshipScoreRespectsAssignedGoals(fixture, { home: 2, away: 0 })).toBeFalse();
+    expect(instance.championshipScoreRespectsAssignedGoals(fixture, { home: 2, away: 1 })).toBeTrue();
+    expect(instance.championshipScoreRespectsAssignedGoals(fixture, { home: 3, away: 1 })).toBeTrue();
+    expect(instance.championshipScoreRespectsAssignedGoals(fixture, { home: null, away: 1 })).toBeFalse();
+    delete instance.championshipFixtureGoals[812];
+    expect(instance.championshipScoreRespectsAssignedGoals(fixture, { home: 0, away: 0 })).toBeTrue();
+  });
+
   it('never attributes a player goal beyond the persisted team score', () => {
     const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
     const fixture = { id: 810, homeTeamId: 11, awayTeamId: 12, homeScore: 2, awayScore: 0 } as any;
