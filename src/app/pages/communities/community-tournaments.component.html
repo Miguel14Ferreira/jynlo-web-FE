@@ -875,14 +875,20 @@
                   @if (canManageChampionshipTeam(seasonTeam.id) && !championship.closedAt) {
                     <div class="jynlo-team-roster-add">
                       <label [for]="'season-player-' + seasonTeam.id">{{ 'teams.autonomy.inviteLabel' | t }}</label>
+                      <input type="search"
+                        [attr.aria-label]="'Pesquisar jogadores para ' + seasonTeam.name"
+                        placeholder="Pesquisar por nome ou utilizador"
+                        [value]="championshipTeamMemberSearch[seasonTeam.id] || ''"
+                        (input)="championshipTeamMemberSearch[seasonTeam.id] = $any($event.target).value; championshipTeamPlayerDrafts[seasonTeam.id] = null">
                       <select [id]="'season-player-' + seasonTeam.id"
                         [value]="championshipTeamPlayerDrafts[seasonTeam.id] ?? ''"
                         (change)="championshipTeamPlayerDrafts[seasonTeam.id] = $any($event.target).value ? +$any($event.target).value : null">
                         <option value="">Selecionar jogador</option>
-                        @for (member of availableChampionshipTeamMembers(championship.id); track member.profileId) {
+                        @for (member of searchableChampionshipTeamMembers(championship.id, seasonTeam.id); track member.profileId) {
                           <option [value]="member.profileId">{{ member.fullName || member.username }} (&#64;{{ member.username }})</option>
                         }
                       </select>
+                      <small>Mostramos até 40 perfis. Pesquisa pelo nome para encontrares outros membros da comunidade.</small>
                       <button type="button" class="t-btn t-btn-primary"
                         [disabled]="championshipTeamPlayerBusy[seasonTeam.id] || !championshipTeamPlayerDrafts[seasonTeam.id]"
                         (click)="addChampionshipTeamPlayer(championship.id, seasonTeam.id)">
