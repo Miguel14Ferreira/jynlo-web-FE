@@ -1121,6 +1121,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         || !['Futebol', 'Futsal'].includes(championship.sport)
         || event.format !== 'LEAGUE' || event.status !== 'SCHEDULED'
         || !validTeam || !profileId
+        || !this.championshipFixtureCanAssignGoal(fixture, teamId)
         || !this.fixtureTeamPlayerOptions(championship.id, teamId)
           .some(player => player.profileId === profileId)
         || (assistProfileId !== null && (assistProfileId === profileId
@@ -1196,6 +1197,21 @@ export class CommunityTournamentsComponent implements OnChanges {
       homeRemaining: fixture.homeScore - homeAssigned,
       awayRemaining: fixture.awayScore - awayAssigned
     };
+  }
+
+  /** A player goal can only fill a goal that exists in the saved score. */
+  championshipFixtureCanAssignGoal(fixture: ChampionshipOwnedLeagueFixture, teamId: number | null | undefined): boolean {
+    const totals = this.championshipFixtureGoalAttribution(fixture);
+    if (!totals) return false; // Wait for verified persisted match and goal data.
+    if (teamId === fixture.homeTeamId) return totals.homeRemaining > 0;
+    if (teamId === fixture.awayTeamId) return totals.awayRemaining > 0;
+    return false;
+  }
+
+  /** Display match events in chronological order; missing minutes are shown last. */
+  championshipFixtureGoalsInOrder(fixtureId: number): ChampionshipFixtureGoal[] {
+    return [...(this.championshipFixtureGoals[fixtureId] || [])]
+      .sort((a, b) => (a.minute ?? Number.MAX_SAFE_INTEGER) - (b.minute ?? Number.MAX_SAFE_INTEGER) || a.id - b.id);
   }
 
   /** Validity of a score draft is shared by the view and save handlers. */
