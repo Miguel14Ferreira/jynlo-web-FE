@@ -164,3 +164,38 @@
     grid-column:1 / -1;
   }
 }
+
+/* Import history: each jornada stays compact until its participant panels are requested. */
+:host .round-history .round-card {
+  min-width:0;
+  padding:clamp(.7rem,1.5vw,1rem);
+  margin:.55rem 0;
+}
+:host .round-history .round-card-header {
+  gap:.6rem 1rem;
+  padding-bottom:.35rem;
+  flex-wrap:wrap;
+}
+:host .round-card-details { min-width:0;margin-top:.3rem; }
+:host .round-card-details-toggle {
+  display:flex;align-items:center;gap:.35rem .8rem;flex-wrap:wrap;
+  cursor:pointer;list-style:none;
+  border-radius:9px;padding:.65rem .8rem;
+  background:rgba(14,70,82,.3);
+  color:#b3f9e9;
+  font-size:.82rem;font-weight:750;
+}
+:host .round-card-details-toggle::-webkit-details-marker {display:none}
+:host .round-card-details-toggle::before {
+  content:'▸';color:#61ead2;font-size:1rem;
+}
+:host details[open] > .round-card-details-toggle::before { content:'▾'; }
+:host .round-card-details-toggle small {color:#b8d8de;font-size:.75rem;font-weight:500}
+:host .round-card-details-hint {margin-left:auto;font-size:.74rem;white-space:nowrap}
+:host .round-card-details-toggle:hover {background:rgba(19,102,111,.42)}
+:host .round-card-details-toggle:focus-visible {outline:2px solid #68eddc;outline-offset:2px}
+:host .round-card-details > :not(summary) {margin-top:.7rem}
+@media(max-width:600px) {
+  :host .round-card-details-hint {display:none}
+  :host .round-history .round-card-header > div:first-child {min-width:0}
+}
