@@ -412,3 +412,21 @@
   :host .jynlo-fixture-round-summary { gap:.35rem .65rem; padding:.75rem; }
   :host .jynlo-fixture-round-hint { display:none; }
 }
+
+/* Make a whole-season deletion distinct from deleting a draft competition. */
+:host .jynlo-championship-delete-control{
+  display:grid;gap:.6rem;margin:.8rem 0 1rem;
+  padding:.8rem 1rem;border-radius:12px;
+  border:1px solid rgba(230,146,112,.33);
+  background:rgba(102,52,39,.12);
+}
+:host .jynlo-championship-delete-control p{
+  margin:0;max-width:70ch;line-height:1.6;
+  color:#f4d3c6;font-size:.85rem;
+}
+:host .jynlo-championship-delete-actions{display:flex;flex-wrap:wrap;gap:.6rem;}
+:host .jynlo-championship-delete-control .t-btn{min-height:40px;}
+:host .jynlo-championship-delete-trigger{justify-self:start;color:#ffb59b;}
+@media(max-width:570px){
+  :host .jynlo-championship-delete-actions > button{flex:1 1 150px;}
+}
