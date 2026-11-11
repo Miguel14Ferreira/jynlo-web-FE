@@ -1208,7 +1208,7 @@
                                         [value]="championshipFixtureScoreDrafts[fixture.id]?.away ?? fixture.awayScore ?? ''"
                                         (input)="championshipFixtureScoreDrafts[fixture.id] = {home: championshipFixtureScoreDrafts[fixture.id]?.home ?? fixture.homeScore ?? null, away: $any($event.target).value === '' ? null : +$any($event.target).value}">
                                       <button type="button" class="t-btn t-btn-secondary"
-                                        [disabled]="championshipFixtureSaving[fixture.id]"
+                                        [disabled]="championshipFixtureSaving[fixture.id] || !championshipScoreDraftValid(championshipFixtureScoreDrafts[fixture.id])"
                                         (click)="saveChampionshipFixtureScore(championship, event, fixture)">
                                         {{ championshipFixtureSaving[fixture.id] ? 'A guardar…' : 'Guardar resultado' }}
                                       </button>
@@ -1520,10 +1520,13 @@
                                             [value]="championshipCupResultDrafts[match.id]?.away ?? match.awayScore ?? ''"
                                             (input)="championshipCupResultDrafts[match.id] = {home: championshipCupResultDrafts[match.id]?.home ?? match.homeScore ?? null, away: $any($event.target).value === '' ? null : +$any($event.target).value}">
                                           <button type="button" class="t-btn t-btn-secondary"
-                                            [disabled]="championshipCupScoreBusy[match.id]"
+                                            [disabled]="championshipCupScoreBusy[match.id] || !championshipScoreDraftValid(championshipCupResultDrafts[match.id], true)"
                                             (click)="saveChampionshipCupScore(championship, event, match)">
                                             {{ championshipCupScoreBusy[match.id] ? 'A guardar…' : 'Guardar resultado' }}
                                           </button>
+                                          @if (championshipCupResultDrafts[match.id] && !championshipScoreDraftValid(championshipCupResultDrafts[match.id], true)) {
+                                            <small class="jynlo-score-guidance" role="status">Preenche os dois resultados (0 a 999). A eliminatória precisa de um vencedor; não são permitidos empates.</small>
+                                          }
                                         </div>
                                       }
                                     </div>
