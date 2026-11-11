@@ -319,3 +319,17 @@
   }
   :host .jynlo-match-score-edit > input[type="number"] { flex-basis: 4.4rem; }
 }
+
+/* Inline result validation remains readable when the controls wrap. */
+:host .jynlo-match-score-edit .jynlo-score-guidance {
+  display: block;
+  flex: 1 0 100%;
+  margin: .25rem 0 0;
+  color: #f2d3a1;
+  font-size: .8rem;
+  line-height: 1.45;
+}
+:host .jynlo-match-score-edit button:disabled {
+  cursor: not-allowed;
+  opacity: .6;
+}
