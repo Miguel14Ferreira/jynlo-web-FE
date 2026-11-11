@@ -1,4 +1,4 @@
-import { ChampionshipTeamPlayer, ChampionshipFixtureGoal, ChampionshipOwnedLeagueTable, ChampionshipFixtureCard, ChampionshipLeaguePlayerStats, ChampionshipFixtureSubstitution, ChampionshipFixtureLineupPlayer } from '../../services/community-championships.service';
+import { ChampionshipTeamAdministrator, ChampionshipTeamPlayer, ChampionshipFixtureGoal, ChampionshipOwnedLeagueTable, ChampionshipFixtureCard, ChampionshipLeaguePlayerStats, ChampionshipFixtureSubstitution, ChampionshipFixtureLineupPlayer } from '../../services/community-championships.service';
 import { CommunityChampionshipsService, ChampionshipOwnedEvent, ChampionshipOwnedEventTeam, ChampionshipOwnedLeagueFixture, ChampionshipCupOpeningRound, ChampionshipOwnedEventFormat, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
 import { championshipTeamProfile, ChampionshipTeamProfile } from './community-championship-team-profile';
 import { compareTeamSeasons, comparableTeamSeasons, TeamSeasonComparison } from './community-championship-team-comparison';
@@ -317,6 +317,77 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipTeamPlayers: Record<number, ChampionshipTeamPlayer[]> = {};
   championshipTeamPlayerDrafts: Record<number, number | null> = {};
   championshipTeamPlayerBusy: Record<number, boolean> = {};
+  championshipTeamAdministrators: Record<number, ChampionshipTeamAdministrator> = {};
+  championshipTeamAdminDrafts: Record<number, number | null> = {};
+  championshipTeamAdminBusy: Record<number, boolean> = {};
+
+  canManageChampionshipTeam(teamId: number): boolean {
+    return this.canManage || !!this.championshipTeamAdministrators[teamId]?.canManage;
+  }
+
+  loadChampionshipTeamAdministrator(championshipId: number, teamId: number): void {
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipsApi.teamAdministrator(communityId, championshipId, teamId).subscribe({
+      next: state => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamAdministrators[teamId] = state;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipError = 'Não foi possível verificar o responsável da equipa.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  inviteChampionshipTeamAdministrator(championshipId: number, teamId: number): void {
+    const profileId = this.championshipTeamAdminDrafts[teamId];
+    if (!this.canManage || this.championshipTeamAdminBusy[teamId]
+        || !profileId || !Number.isInteger(profileId)
+        || !(this.community.members || []).some(member => member.profileId === profileId)) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipTeamAdminBusy[teamId] = true;
+    this.championshipsApi.inviteTeamAdministrator(communityId, championshipId, teamId, profileId).subscribe({
+      next: state => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamAdministrators[teamId] = state;
+        this.championshipTeamAdminDrafts[teamId] = null;
+        this.championshipTeamAdminBusy[teamId] = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamAdminBusy[teamId] = false;
+        this.championshipError = 'Não foi possível convidar este responsável. Confirma se pertence à comunidade e não representa outra equipa.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  respondChampionshipTeamAdministrator(championshipId: number, teamId: number, accept: boolean): void {
+    if (!this.championshipTeamAdministrators[teamId]?.canAccept || this.championshipTeamAdminBusy[teamId]) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipTeamAdminBusy[teamId] = true;
+    this.championshipsApi.respondTeamAdministrator(communityId, championshipId, teamId, accept).subscribe({
+      next: state => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamAdministrators[teamId] = state;
+        this.championshipTeamAdminBusy[teamId] = false;
+        if (accept) this.loadChampionshipTeamPlayers(championshipId, teamId);
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamAdminBusy[teamId] = false;
+        this.championshipError = 'Não foi possível responder ao convite. Confirma que continuas na comunidade e na mesma época.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
 
   loadChampionshipTeamPlayers(championshipId: number, teamId: number): void {
     const revision = this.championshipRevision;
@@ -343,7 +414,7 @@ export class CommunityTournamentsComponent implements OnChanges {
 
   addChampionshipTeamPlayer(championshipId: number, teamId: number): void {
     const profileId = this.championshipTeamPlayerDrafts[teamId];
-    if (!this.canManage || this.championshipTeamPlayerBusy[teamId]
+    if (!this.canManageChampionshipTeam(teamId) || this.championshipTeamPlayerBusy[teamId]
         || !Number.isInteger(profileId) || !profileId
         || !this.availableChampionshipTeamMembers(championshipId).some(member => member.profileId === profileId)) return;
     const revision = this.championshipRevision;
@@ -367,7 +438,7 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   removeChampionshipTeamPlayer(championshipId: number, teamId: number, profileId: number): void {
-    if (!this.canManage || this.championshipTeamPlayerBusy[teamId]) return;
+    if (!this.canManageChampionshipTeam(teamId) || this.championshipTeamPlayerBusy[teamId]) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipTeamPlayerBusy[teamId] = true;
@@ -400,7 +471,10 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: registry => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamRegistries = { ...this.championshipTeamRegistries, [championshipId]: registry };
-        registry.teams.forEach(team => this.loadChampionshipTeamPlayers(championshipId, team.id));
+        registry.teams.forEach(team => {
+          this.loadChampionshipTeamPlayers(championshipId, team.id);
+          this.loadChampionshipTeamAdministrator(championshipId, team.id);
+        });
         this.changeDetector.markForCheck();
       },
       error: () => {
@@ -425,6 +499,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.championshipTeamRegistries = { ...this.championshipTeamRegistries, [championshipId]: registry };
         registry.teams.forEach(team => {
           if (!this.championshipTeamPlayers[team.id]) this.loadChampionshipTeamPlayers(championshipId, team.id);
+          this.loadChampionshipTeamAdministrator(championshipId, team.id);
         });
         this.championshipTeamDrafts[championshipId] = '';
         this.championshipBusy = false;
@@ -1519,6 +1594,9 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipTeamPlayers = {};
     this.championshipTeamPlayerDrafts = {};
     this.championshipTeamPlayerBusy = {};
+    this.championshipTeamAdministrators = {};
+    this.championshipTeamAdminDrafts = {};
+    this.championshipTeamAdminBusy = {};
     this.championshipHonours = null;
     this.championshipHonoursError = '';
     this.permanentTeamRegistry = null;
