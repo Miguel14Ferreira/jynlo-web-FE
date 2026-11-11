@@ -1429,7 +1429,7 @@
                                           }
                                         </div>
                                       }
-                                      @for (goal of championshipFixtureGoals[fixture.id] || []; track goal.id) {
+                                      @for (goal of championshipFixtureGoalsInOrder(fixture.id); track goal.id) {
                                         <div class="jynlo-goal-row">
                                           <span>⚽ {{ goal.scorerName }} · {{ goal.teamName }}
                                             @if (goal.minute != null) { · {{ goal.minute }}' }
@@ -1479,8 +1479,12 @@
                                             [value]="championshipFixtureGoalMinuteDrafts[fixture.id] ?? ''"
                                             (input)="championshipFixtureGoalMinuteDrafts[fixture.id] = $any($event.target).value === '' ? null : +$any($event.target).value">
                                           <button type="button" class="t-btn t-btn-secondary"
-                                            [disabled]="championshipFixtureGoalBusy[fixture.id] || !championshipFixtureGoalPlayerDrafts[fixture.id]"
+                                            [disabled]="championshipFixtureGoalBusy[fixture.id] || !championshipFixtureGoalPlayerDrafts[fixture.id] || !championshipFixtureCanAssignGoal(fixture, championshipFixtureGoalTeamDrafts[fixture.id])"
                                             (click)="addFixtureGoal(championship, event, fixture)">Registar golo</button>
+                                          @if (championshipFixtureGoalTeamDrafts[fixture.id]
+                                            && !championshipFixtureCanAssignGoal(fixture, championshipFixtureGoalTeamDrafts[fixture.id])) {
+                                            <small class="jynlo-score-guidance" role="status">Não é possível atribuir mais golos a esta equipa. Confirma o resultado e os golos já registados.</small>
+                                          }
                                         </div>
                                       }
                                     </div>
