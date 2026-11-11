@@ -291,7 +291,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   detailsSuccess = '';
   detailsDraft = {
     sport: '', gameDate: '', maxParticipants: 2, minParticipants: 2,
-    priceAmount: 0, city: '', address: '', meetingPointInstructions: ''
+    priceAmount: 0, city: '', address: '', description: '', meetingPointInstructions: ''
   };
 
   beginDetailsEdit(): void {
@@ -305,6 +305,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       priceAmount: this.session.priceAmount ?? 0,
       city: this.session.city || '',
       address: this.session.address || '',
+      description: this.session.description || '',
       meetingPointInstructions: this.session.meetingPointInstructions || ''
     };
     this.detailsError = '';
@@ -332,7 +333,8 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         || d.maxParticipants < this.session.participantCount
         || !Number.isFinite(d.priceAmount) || d.priceAmount < 0
         || Math.abs(Math.round(d.priceAmount * 100) - d.priceAmount * 100) > 0.000001
-        || !this.editableSports.includes(d.sport) || !d.city.trim() || !d.address.trim()) {
+        || !this.editableSports.includes(d.sport) || !d.city.trim() || !d.address.trim()
+        || d.description.length > 1000) {
       this.detailsError = t('sessionDetail.detailsInvalid');
       return;
     }
@@ -346,6 +348,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       minParticipants: d.minParticipants,
       priceAmount: d.priceAmount,
       city: d.city.trim(), address: d.address.trim(),
+      description: d.description.trim() || null,
       meetingPointInstructions: d.meetingPointInstructions.trim() || null
     }).pipe(timeout(12000), finalize(() => this.detailsSaving = false)).subscribe({
       next: detail => {
