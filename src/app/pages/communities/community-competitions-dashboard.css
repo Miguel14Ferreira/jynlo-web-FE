@@ -223,3 +223,51 @@
   outline: 2px solid #93efd3;
   outline-offset: 3px;
 }
+
+/* League table: high-density numeric data stays scannable rather than squashed. */
+:host .jynlo-owned-league-table {
+  display: grid;
+  gap: .75rem;
+  min-width: 0;
+  margin: 1rem 0;
+  padding: clamp(.8rem, 1.5vw, 1.2rem);
+  border: 1px solid rgba(95, 205, 184, .33);
+  border-radius: .9rem;
+  background: rgba(8, 47, 57, .73);
+}
+:host .jynlo-owned-league-title {
+  display: flex;
+  gap: .5rem 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+:host .jynlo-owned-league-title strong { color: #eafffa; font-size: 1.03rem; }
+:host .jynlo-owned-league-title small,
+:host .jynlo-owned-league-table > small { color: #aedbd2; line-height: 1.5; }
+:host .jynlo-owned-league-scroll { overflow-x: auto; min-width: 0; }
+:host .jynlo-owned-league-scroll table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 610px;
+  font-variant-numeric: tabular-nums;
+}
+:host .jynlo-owned-league-scroll th,
+:host .jynlo-owned-league-scroll td {
+  text-align: center;
+  padding: .6rem .45rem;
+  border-bottom: 1px solid rgba(123, 189, 185, .18);
+  white-space: nowrap;
+}
+:host .jynlo-owned-league-scroll th:nth-child(2) {
+  text-align: left;
+  min-width: 145px;
+}
+:host .jynlo-owned-league-scroll thead th {
+  color: #a7d6d0;
+  font-size: .74rem;
+  font-weight: 750;
+}
+:host .jynlo-owned-league-scroll tbody th { color: #e9fff8; font-weight: 700; }
+:host .jynlo-owned-league-scroll tbody tr:hover { background: rgba(66, 177, 153, .1); }
+:host .jynlo-owned-league-scroll tbody td:last-child { color: #b4ffdf; }
