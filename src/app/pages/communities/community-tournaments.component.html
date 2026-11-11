@@ -1083,6 +1083,65 @@
                                   @if ((championship.sport === 'Futebol' || championship.sport === 'Futsal')
                                       && fixture.homeScore != null && fixture.awayScore != null) {
                                     <details class="jynlo-goal-timeline jynlo-discipline-panel">
+                                      <summary><strong>Substituições</strong>
+                                        <small>({{ (championshipFixtureSubstitutions[fixture.id] || []).length }})</small>
+                                      </summary>
+                                      @for (change of championshipFixtureSubstitutions[fixture.id] || []; track change.id) {
+                                        <div class="jynlo-goal-row">
+                                          <span>{{ change.minute }}' · {{ change.teamName }}:
+                                            <strong>↑ {{ change.playerInName }}</strong> · ↓ {{ change.playerOutName }}
+                                          </span>
+                                          @if (canManage && !championship.closedAt) {
+                                            <button type="button" class="t-btn t-btn-secondary"
+                                              [disabled]="championshipSubBusy[fixture.id]"
+                                              (click)="removeFixtureSubstitution(championship, event, fixture.id, change.id)">Remover</button>
+                                          }
+                                        </div>
+                                      } @empty {
+                                        <small>Sem substituições registadas.</small>
+                                      }
+                                      @if (canManage && !championship.closedAt && event.status === 'SCHEDULED') {
+                                        <div class="jynlo-goal-form">
+                                          <label [for]="'sub-team-' + fixture.id">Equipa</label>
+                                          <select [id]="'sub-team-' + fixture.id"
+                                            [value]="championshipSubTeamDrafts[fixture.id] ?? ''"
+                                            (change)="championshipSubTeamDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null; championshipSubOutDrafts[fixture.id] = null; championshipSubInDrafts[fixture.id] = null">
+                                            <option value="">Selecionar equipa</option>
+                                            <option [value]="fixture.homeTeamId">{{ fixture.homeTeamName }}</option>
+                                            <option [value]="fixture.awayTeamId">{{ fixture.awayTeamName }}</option>
+                                          </select>
+                                          <label [for]="'sub-out-' + fixture.id">Sai</label>
+                                          <select [id]="'sub-out-' + fixture.id"
+                                            [value]="championshipSubOutDrafts[fixture.id] ?? ''"
+                                            (change)="championshipSubOutDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null">
+                                            <option value="">Selecionar jogador</option>
+                                            @for (player of fixtureTeamPlayerOptions(championship.id, championshipSubTeamDrafts[fixture.id]); track player.profileId) {
+                                              <option [value]="player.profileId">{{ player.displayName }}</option>
+                                            }
+                                          </select>
+                                          <label [for]="'sub-in-' + fixture.id">Entra</label>
+                                          <select [id]="'sub-in-' + fixture.id"
+                                            [value]="championshipSubInDrafts[fixture.id] ?? ''"
+                                            (change)="championshipSubInDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null">
+                                            <option value="">Selecionar jogador</option>
+                                            @for (player of fixtureTeamPlayerOptions(championship.id, championshipSubTeamDrafts[fixture.id]); track player.profileId) {
+                                              @if (player.profileId !== championshipSubOutDrafts[fixture.id]) {
+                                                <option [value]="player.profileId">{{ player.displayName }}</option>
+                                              }
+                                            }
+                                          </select>
+                                          <label [for]="'sub-minute-' + fixture.id">Minuto</label>
+                                          <input [id]="'sub-minute-' + fixture.id" type="number" min="0" max="200"
+                                            [value]="championshipSubMinuteDrafts[fixture.id] ?? ''"
+                                            (input)="championshipSubMinuteDrafts[fixture.id] = $any($event.target).value === '' ? null : +$any($event.target).value">
+                                          <button type="button" class="t-btn t-btn-secondary"
+                                            [disabled]="championshipSubBusy[fixture.id] || !championshipSubOutDrafts[fixture.id] || !championshipSubInDrafts[fixture.id] || championshipSubMinuteDrafts[fixture.id] == null"
+                                            (click)="addFixtureSubstitution(championship, event, fixture)">Registar substituição</button>
+                                        </div>
+                                        <small>Este registo não calcula minutos jogados nem valida uma escalação inicial.</small>
+                                      }
+                                    </details>
+                                    <details class="jynlo-goal-timeline jynlo-discipline-panel">
                                       <summary><strong>Cartões amarelos e vermelhos</strong>
                                         <small>({{ (championshipFixtureCards[fixture.id] || []).length }})</small>
                                       </summary>
