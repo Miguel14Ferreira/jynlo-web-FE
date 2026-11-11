@@ -333,3 +333,33 @@
   cursor: not-allowed;
   opacity: .6;
 }
+
+/* Match overview: quick, accessible outcomes without expanding edit forms. */
+:host .jynlo-fixture-outcome {
+  display:flex;align-items:center;justify-content:center;gap:.55rem;
+  margin:.55rem 0 .2rem;color:#b7f1df;font-size:.82rem;line-height:1.45;
+}
+:host .jynlo-fixture-outcome strong { color:#f0fff9;font-weight:800; }
+:host .jynlo-fixture-pending {
+  margin:.5rem 0 .2rem;text-align:center;
+  color:#b1cbd5;font-size:.82rem;
+}
+:host .jynlo-goal-attribution {
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem .9rem;
+  padding:.85rem .95rem;
+  border:1px solid rgba(101,217,184,.25);
+  border-radius:.7rem;
+  background:rgba(21,101,87,.15);
+}
+:host .jynlo-goal-attribution span { min-width:0;color:#ddf6f0;line-height:1.45;overflow-wrap:break-word; }
+:host .jynlo-goal-attribution small {
+  grid-column:1/-1;color:#bcdad5;font-size:.8rem;line-height:1.5;
+}
+:host .jynlo-goal-attribution.needs-review {
+  border-color:rgba(245,171,103,.55);
+  background:rgba(113,68,28,.2);
+}
+:host .jynlo-goal-attribution.needs-review small { color:#ffdfaf; }
+@media(max-width:620px) {
+  :host .jynlo-goal-attribution { grid-template-columns:minmax(0,1fr); }
+}
