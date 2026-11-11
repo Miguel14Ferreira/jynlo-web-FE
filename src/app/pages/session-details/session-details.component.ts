@@ -348,7 +348,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       minParticipants: d.minParticipants,
       priceAmount: d.priceAmount,
       city: d.city.trim(), address: d.address.trim(),
-      description: d.description.trim() || null,
+      description: d.description.trim(), // Explicit empty value clears an existing description.
       meetingPointInstructions: d.meetingPointInstructions.trim() || null
     }).pipe(timeout(12000), finalize(() => this.detailsSaving = false)).subscribe({
       next: detail => {
