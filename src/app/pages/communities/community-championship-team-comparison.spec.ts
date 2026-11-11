@@ -87,6 +87,28 @@ describe('permanent team historical season comparison', () => {
     expect(comparison?.newer.leagues).toBe(0);
   });
 
+  it('counts separate owned cups and leagues even when tournament IDs are null', () => {
+    const ownedLeague = {
+      ...profile.competitionTitles[0], tournamentId: null, ownedEventId: 10
+    };
+    const ownedCup = {
+      ...profile.competitionTitles[1], tournamentId: null, ownedEventId: 11
+    };
+    const secondCup = {
+      ...ownedCup, ownedEventId: 12, tournamentName: 'Outra Taça'
+    };
+    const mixed: ChampionshipTeamProfile = {
+      ...profile,
+      competitionTitles: [
+        ownedLeague, { ...ownedLeague }, ownedCup, { ...ownedCup },
+        secondCup, profile.competitionTitles[1]
+      ]
+    };
+    const result = compareTeamSeasons(mixed, 1, 2);
+    expect(result?.older.leagues).toBe(1);
+    expect(result?.newer.cups).toBe(3);
+  });
+
   it('does not mutate historical results when comparing', () => {
     const before = JSON.stringify(profile);
     compareTeamSeasons(profile, 1, 2);
