@@ -1185,6 +1185,16 @@ export class CommunityTournamentsComponent implements OnChanges {
       && (!requiresWinner || score.home !== score.away);
   }
 
+  /** Only enable saving when both scores are valid and differ from persisted data. */
+  championshipScoreChanged(
+    score: { home: number | null; away: number | null } | undefined,
+    fixture: { homeScore: number | null; awayScore: number | null },
+    requiresWinner = false
+  ): boolean {
+    return this.championshipScoreDraftValid(score, requiresWinner)
+      && (score!.home !== fixture.homeScore || score!.away !== fixture.awayScore);
+  }
+
   saveChampionshipFixtureScore(championship: CommunityChampionship,
                                event: ChampionshipOwnedEvent, fixture: ChampionshipOwnedLeagueFixture): void {
     const score = this.championshipFixtureScoreDrafts[fixture.id];
@@ -1192,7 +1202,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         || !['Futebol', 'Futsal'].includes(championship.sport)
         || this.championshipFixtureSaving[fixture.id]
         || event.status !== 'SCHEDULED' || event.format !== 'LEAGUE'
-        || !this.championshipScoreDraftValid(score)) return;
+        || !this.championshipScoreChanged(score, fixture)) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipFixtureSaving[fixture.id] = true;
@@ -1250,7 +1260,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     if (!this.canManage || !!championship.closedAt || event.format !== 'CUP'
         || event.status !== 'SCHEDULED' || match.round !== this.cupCurrentRound(event.id)
         || this.championshipCupScoreBusy[match.id]
-        || !this.championshipScoreDraftValid(score, true)) return;
+        || !this.championshipScoreChanged(score, match, true)) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipCupScoreBusy[match.id] = true;
