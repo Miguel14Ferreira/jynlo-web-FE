@@ -1600,12 +1600,12 @@
                                           <input [id]="'cup-home-' + match.id" type="number" min="0" max="999"
                                             [disabled]="championshipCupBusy || championshipCupScoreBusy[match.id]"
                                             [value]="championshipCupResultDrafts[match.id]?.home ?? match.homeScore ?? ''"
-                                            (input)="championshipCupResultDrafts[match.id] = {home: $any($event.target).value === '' ? null : +$any($event.target).value, away: championshipCupResultDrafts[match.id]?.away ?? match.awayScore ?? null}">
+                                            (input)="updateChampionshipCupScoreDraft(event.id, match, 'home', $any($event.target).value)">
                                           <label [for]="'cup-away-' + match.id">Fora</label>
                                           <input [id]="'cup-away-' + match.id" type="number" min="0" max="999"
                                             [disabled]="championshipCupBusy || championshipCupScoreBusy[match.id]"
                                             [value]="championshipCupResultDrafts[match.id]?.away ?? match.awayScore ?? ''"
-                                            (input)="championshipCupResultDrafts[match.id] = {home: championshipCupResultDrafts[match.id]?.home ?? match.homeScore ?? null, away: $any($event.target).value === '' ? null : +$any($event.target).value}">
+                                            (input)="updateChampionshipCupScoreDraft(event.id, match, 'away', $any($event.target).value)">
                                           <button type="button" class="t-btn t-btn-secondary"
                                             [disabled]="championshipCupBusy || championshipCupScoreBusy[match.id] || !championshipScoreChanged(championshipCupResultDrafts[match.id], match, true)"
                                             (click)="saveChampionshipCupScore(championship, event, match)">
@@ -1635,7 +1635,7 @@
                             <div class="jynlo-league-finalize">
                               <label>
                                 <input type="checkbox"
-                                  [disabled]="championshipCupBusy || cupRoundHasPendingScores(event.id)"
+                                  [disabled]="!cupRoundCanAdvance(event.id)"
                                   [checked]="championshipCupAdvanceConfirm[event.id] || false"
                                   (change)="championshipCupAdvanceConfirm[event.id] = $any($event.target).checked">
                                 Confirmo os resultados desta ronda
