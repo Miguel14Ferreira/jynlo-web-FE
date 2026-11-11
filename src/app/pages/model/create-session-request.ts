@@ -7,6 +7,8 @@ export interface CreateSessionRequest {
   gameDate: string;
   city: string;
   address: string;
+  /** Optional public overview; no confidential arrival instructions. */
+  description?: string | null;
   /** Private arrival instructions for confirmed players and organiser. */
   meetingPointInstructions?: string | null;
   maxParticipants: number;
