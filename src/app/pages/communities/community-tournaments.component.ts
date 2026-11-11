@@ -233,7 +233,9 @@ export class CommunityTournamentsComponent implements OnChanges {
     if (internalEvents.some(event => event.status !== 'COMPLETED' || !event.winnerTeamId)) return false;
     if (championship.standingsMode === 'INDEPENDENT')
       return championship.competitions.length > 0 || internalEvents.length > 0;
-    if (standings.standings.length === 0) return false;
+    if (standings.standings.length === 0
+        || standings.standings.some(row => row.entryType === 'TEAM_UNLINKED')
+        || new Set(standings.standings.map(row => row.entryType)).size > 1) return false;
     const sorted = [...standings.standings].sort((a, b) => b.points - a.points || b.victories - a.victories);
     return sorted.length === 1 || sorted[0].points !== sorted[1].points
       || sorted[0].victories !== sorted[1].victories;
@@ -1061,8 +1063,9 @@ export class CommunityTournamentsComponent implements OnChanges {
     if (!this.canManage || !!championship.closedAt || event.format !== 'CUP'
         || event.status !== 'SCHEDULED' || match.round !== this.cupCurrentRound(event.id)
         || this.championshipCupScoreBusy[match.id] || !score
+        || score.home == null || score.away == null
         || !Number.isInteger(score.home) || !Number.isInteger(score.away)
-        || score.home! < 0 || score.away! < 0 || score.home! > 999 || score.away! > 999
+        || score.home < 0 || score.away < 0 || score.home > 999 || score.away > 999
         || score.home === score.away) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
