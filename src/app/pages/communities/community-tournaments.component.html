@@ -769,7 +769,7 @@
                     @for (player of championshipTeamPlayers[seasonTeam.id] || []; track player.profileId) {
                       <div class="jynlo-roster-player">
                         <span>{{ player.displayName }} <small>&#64;{{ player.username }}</small></span>
-                        @if (canManage && !championship.closedAt) {
+                        @if (canRemoveChampionshipTeamPlayer(seasonTeam.id, player.profileId) && !championship.closedAt) {
                           <button type="button" class="t-btn t-btn-secondary"
                             [disabled]="championshipTeamPlayerBusy[seasonTeam.id]"
                             (click)="removeChampionshipTeamPlayer(championship.id, seasonTeam.id, player.profileId)">Remover</button>
