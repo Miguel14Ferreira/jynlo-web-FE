@@ -26,8 +26,11 @@ jobs:
           node-version: '22.23.3'
           cache: npm
       - run: npm ci
-      - name: Run isolated competition and notification UI tests
-        run: |
-          npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/pages/notifications/notifications.component.spec.ts --include=src/app/pages/communities/community-tournaments.component.spec.ts
-      - name: Validate production compilation
+      - name: Test notification inbox actions in isolation
+        run: npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/pages/notifications/notifications.component.spec.ts
+      - name: Test tournament administration views in isolation
+        if: always()
+        run: npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/pages/communities/community-tournaments.component.spec.ts
+      - name: Validate production compilation independently of test regressions
+        if: always()
         run: npm run build
