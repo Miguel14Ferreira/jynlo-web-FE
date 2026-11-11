@@ -1203,6 +1203,8 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipLeagueFixtures[event.id] = (this.championshipLeagueFixtures[event.id] || [])
           .map(item => item.id === updated.id ? updated : item);
+        // Only replace the draft after the API confirms the saved result.
+        delete this.championshipFixtureScoreDrafts[fixture.id];
         this.loadChampionshipOwnedLeagueTable(championship.id, event.id);
         this.loadChampionshipLeaguePlayerStats(championship.id, event.id);
         this.championshipFixtureSaving[fixture.id] = false;
@@ -1261,6 +1263,8 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (draw) this.championshipCupDraws[event.id] = {
           ...draw, matches: draw.matches.map(row => row.id === updated.id ? updated : row)
         };
+        // Subsequent edits must start from the latest persisted fixture.
+        delete this.championshipCupResultDrafts[match.id];
         this.championshipCupScoreBusy[match.id] = false;
         this.changeDetector.markForCheck();
       },
