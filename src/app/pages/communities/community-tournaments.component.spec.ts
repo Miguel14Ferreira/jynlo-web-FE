@@ -605,6 +605,38 @@ describe('Community tournaments management', () => {
     expect(component.searchableChampionshipTeamMembers(15, 44).map(m => m.profileId)).toEqual([65]);
   });
 
+  it('keeps a pending invitation visible when its refresh fails', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    (championships as any).teamInviteStatus = jasmine.createSpy('teamInviteStatus')
+      .and.returnValues(throwError(() => new Error('Network unavailable')), of({ invited: false }));
+    component.championshipTeamInvitePending[44] = true;
+
+    component.loadChampionshipTeamInvitation(15, 44);
+    expect(component.championshipTeamInvitePending[44]).toBeTrue();
+    expect(component.championshipTeamInviteLoadError[44]).toBeTrue();
+    expect(component.championshipTeamInviteLoading[44]).toBeFalse();
+
+    component.loadChampionshipTeamInvitation(15, 44);
+    expect(component.championshipTeamInvitePending[44]).toBeFalse();
+    expect(component.championshipTeamInviteLoadError[44]).toBeFalse();
+    expect(component.championshipTeamInviteLoading[44]).toBeFalse();
+  });
+
+  it('ignores errors from an obsolete team invitation lookup after a newer success', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const oldRequest = new Subject<any>();
+    (championships as any).teamInviteStatus = jasmine.createSpy('teamInviteStatus')
+      .and.returnValues(oldRequest, of({ invited: true }));
+
+    component.loadChampionshipTeamInvitation(15, 44);
+    component.loadChampionshipTeamInvitation(15, 44);
+    oldRequest.error(new Error('Previous request timed out'));
+
+    expect(component.championshipTeamInvitePending[44]).toBeTrue();
+    expect(component.championshipTeamInviteLoadError[44]).toBeFalse();
+    expect(component.championshipTeamInviteLoading[44]).toBeFalse();
+  });
+
   it('ignores an outdated roster response after a player accepts the invitation', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const oldRoster = new Subject<any>();
