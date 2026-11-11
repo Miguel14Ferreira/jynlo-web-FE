@@ -1188,7 +1188,7 @@ export class CommunityTournamentsComponent implements OnChanges {
   /** Only enable saving when both scores are valid and differ from persisted data. */
   championshipScoreChanged(
     score: { home: number | null; away: number | null } | undefined,
-    fixture: { homeScore: number | null; awayScore: number | null },
+    fixture: { homeScore?: number | null; awayScore?: number | null },
     requiresWinner = false
   ): boolean {
     return this.championshipScoreDraftValid(score, requiresWinner)
