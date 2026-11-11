@@ -1182,8 +1182,12 @@
 
                       @if (leagueRounds(event.id).length) {
                         @for (round of leagueRounds(event.id); track round) {
-                          <div class="create-step">
-                            <strong>{{ 'communities.championshipOwned.round' | t }} {{ round }}</strong>
+                          <details class="create-step jynlo-fixture-round" [open]="requestedChampionshipId === championship.id && round === 1">
+                            <summary class="jynlo-fixture-round-summary">
+                              <strong>{{ 'communities.championshipOwned.round' | t }} {{ round }}</strong>
+                              <span>{{ leagueRoundFixtures(event.id, round).length }} jogo(s)</span>
+                              <span class="jynlo-fixture-round-hint">Expandir / recolher</span>
+                            </summary>
                             <ul>
                               @for (fixture of leagueRoundFixtures(event.id, round); track fixture.id) {
                                 <li class="jynlo-match-result">
@@ -1496,7 +1500,7 @@
                                 </li>
                               }
                             </ul>
-                          </div>
+                          </details>
                         }
                       } @else if (canManage && !championship.closedAt && event.status === 'DRAFT') {
                         <p>{{ 'communities.championshipOwned.scheduleHint' | t }}</p>
@@ -1530,8 +1534,12 @@
                           }
                           @for (round of [1, 2, 3, 4, 5, 6]; track round) {
                             @if (cupRoundMatches(event.id, round).length) {
-                              <div class="create-step">
-                                <strong>Ronda {{ round }}</strong>
+                              <details class="create-step jynlo-fixture-round" [open]="requestedChampionshipId === championship.id && round === cupCurrentRound(event.id)">
+                                <summary class="jynlo-fixture-round-summary">
+                                  <strong>Ronda {{ round }}</strong>
+                                  <span>{{ cupRoundMatches(event.id, round).length }} jogo(s)</span>
+                                  <span class="jynlo-fixture-round-hint">Expandir / recolher</span>
+                                </summary>
                                 @for (match of draw.matches; track match.id) {
                                   @if (match.round === round) {
                                     <div class="jynlo-match-result">
