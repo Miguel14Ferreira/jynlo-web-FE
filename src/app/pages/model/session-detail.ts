@@ -6,6 +6,8 @@ export interface SessionDetail extends SessionSummary {
   /** API-controlled minimum to be ready; capacity may be greater. */
   minParticipants?: number;
   address: string | null;
+  /** Public optional description of the session. */
+  description?: string | null;
   canSeeExactAddress: boolean;
   /** Visible only when canSeeExactAddress is true. */
   meetingPointInstructions?: string | null;
