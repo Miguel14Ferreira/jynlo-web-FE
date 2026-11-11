@@ -325,6 +325,17 @@ export class CommunityTournamentsComponent implements OnChanges {
     return this.canManage || !!this.championshipTeamAdministrators[teamId]?.canManage;
   }
 
+  championshipTeamAdminName(profileId: number | null): string {
+    if (profileId === null) return 'Por atribuir';
+    const member = (this.community.members || []).find(item => item.profileId === profileId);
+    return member?.fullName || member?.username || 'Administrador da equipa';
+  }
+
+  canRemoveChampionshipTeamPlayer(teamId: number, profileId: number): boolean {
+    return this.canManageChampionshipTeam(teamId)
+      && this.championshipTeamAdministrators[teamId]?.adminProfileId !== profileId;
+  }
+
   loadChampionshipTeamAdministrator(championshipId: number, teamId: number): void {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
@@ -438,7 +449,7 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   removeChampionshipTeamPlayer(championshipId: number, teamId: number, profileId: number): void {
-    if (!this.canManageChampionshipTeam(teamId) || this.championshipTeamPlayerBusy[teamId]) return;
+    if (!this.canRemoveChampionshipTeamPlayer(teamId, profileId) || this.championshipTeamPlayerBusy[teamId]) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipTeamPlayerBusy[teamId] = true;
