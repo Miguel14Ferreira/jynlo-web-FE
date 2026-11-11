@@ -6,6 +6,12 @@ export type AppLanguage = 'pt' | 'en';
 type Dictionary = Record<string, string>;
 
 const PT: Dictionary = {
+  'notification.team.inviteSubject': "Convite para a equipa {{team}}",
+  'notification.team.transferSubject': "Transferência da administração de {{team}}",
+  'notification.team.assignedSubject': "Agora administras a equipa {{team}}",
+  'notification.team.inviteMessage': "Recebeste um convite para integrar a equipa {{team}}. Abre as competições da comunidade para aceitar ou recusar. O primeiro membro que aceitar torna-se administrador.",
+  'notification.team.transferMessage': "Foste convidado para administrar {{team}}. Abre as competições para aceitar ou recusar. O administrador atual mantém o cargo até aceitares.",
+  'notification.team.assignedMessage': "Foste confirmado como administrador de {{team}}. Podes gerir os membros na área de competições da comunidade.",
   'notifications.team.openCompetition': "Abrir competições da comunidade",
   'notifications.preferences.type.TEAM_MEMBER_INVITE': "Convites para equipas",
   'notifications.preferences.type.TEAM_ADMIN_TRANSFER': "Transferências de administração das equipas",
