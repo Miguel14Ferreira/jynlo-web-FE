@@ -2038,6 +2038,8 @@ export class CommunityTournamentsComponent implements OnChanges {
   inviteCopyFeedback: Record<number, string> = {};
   teams: TournamentTeam[] = [];
   tournamentTeamAdministrators: Record<number, TournamentTeamAdministrationState> = {};
+  tournamentTeamInvitations: Record<number, boolean> = {};
+  tournamentTeamInviteFeedback = '';
   tournamentAdminTransferDraft: Record<number, number | null> = {};
   tournamentTeamCreatedNotice = false;
 
@@ -2055,6 +2057,33 @@ export class CommunityTournamentsComponent implements OnChanges {
     const administrator = this.tournamentTeamAdministrators[team.id]?.adminProfileId;
     if (administrator == null) return t('teams.autonomy.noAdminLabel');
     return team.players.find(player => player.profileId === administrator)?.displayName || t('teams.autonomy.adminFallback');
+  }
+
+  loadTournamentTeamInvitation(teamId: number, tournamentId: number, revision: number): void {
+    const communityId = this.community.id;
+    this.api.teamInvitationStatus(communityId, tournamentId, teamId).subscribe({
+      next: status => {
+        if (revision !== this.detailRevision || this.community.id !== communityId
+            || this.selected?.id !== tournamentId) return;
+        this.tournamentTeamInvitations[teamId] = status.invited;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.detailRevision || this.community.id !== communityId
+            || this.selected?.id !== tournamentId) return;
+        this.tournamentTeamInvitations[teamId] = false;
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  async declineTournamentTeamInvitation(team: TournamentTeam): Promise<void> {
+    if (!this.selected || !this.tournamentTeamInvitations[team.id] || this.busy) return;
+    await this.mutate(
+      this.api.declineTeamInvitation(this.community.id, this.selected.id, team.id),
+      t('teams.autonomy.declinedFeedback'), () => {
+        this.tournamentTeamInvitations[team.id] = false;
+      });
   }
 
   loadTournamentTeamAdministrator(teamId: number, tournamentId: number, revision: number): void {
@@ -3160,6 +3189,8 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.inviteCopyFeedback = {};
       this.teams = [];
       this.tournamentTeamAdministrators = {};
+      this.tournamentTeamInvitations = {};
+      this.tournamentTeamInviteFeedback = '';
       this.tournamentAdminTransferDraft = {};
       this.tournamentTeamCreatedNotice = false;
       this.teamDirectoryQuery = '';
@@ -4950,7 +4981,11 @@ export class CommunityTournamentsComponent implements OnChanges {
             || this.selected?.id !== tournament.id) return;
         this.teams = teams;
         this.tournamentTeamAdministrators = {};
-        teams.forEach(team => this.loadTournamentTeamAdministrator(team.id, tournament.id, revision));
+        this.tournamentTeamInvitations = {};
+        teams.forEach(team => {
+          this.loadTournamentTeamAdministrator(team.id, tournament.id, revision);
+          this.loadTournamentTeamInvitation(team.id, tournament.id, revision);
+        });
         this.resetTeamProfileMatches();
         if (this.focusedTeam && tournament.status !== 'DRAFT' && !this.isRelayCompetition)
           this.loadTeamProfileMatches();
@@ -5809,7 +5844,9 @@ export class CommunityTournamentsComponent implements OnChanges {
         || this.isTeamRosterFull(current)
         || !this.filteredTeamMembers(team.id).some(member => member.profileId === id)) return;
     await this.mutate(this.api.addTeamPlayer(this.community.id, this.selected.id, team.id, id),
-      t('communities.tournaments.organizerUi.teamPlayerAdded'), () => this.loadTeams());
+      t('teams.autonomy.inviteSent'), () => {
+        this.teamPlayerDraft[team.id] = null;
+      });
   }
 
   requestTeamPlayerRemoval(team: TournamentTeam, profileId: number): void {
