@@ -138,3 +138,41 @@
   :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
     .community-discovery-grid > button.community-card { transition: none; transform: none; }
 }
+
+/* Keep visibility labels readable in both discovery and "My communities".
+   A flex child must not shrink below the full localized word. */
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  :is(.community-discovery-grid, .community-mine-grid) > button.community-card
+  .community-discovery-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 10px;
+  min-width: 0;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  :is(.community-discovery-grid, .community-mine-grid) > button.community-card
+  .community-discovery-card-footer > .visibility {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  min-width: max-content;
+  max-width: 100%;
+  padding: 7px 12px;
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+  line-height: 1.2;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  :is(.community-discovery-grid, .community-mine-grid) > button.community-card
+  .community-discovery-card-footer > .community-discovery-card-link {
+  flex: 0 0 auto;
+  min-width: max-content;
+  margin-left: auto;
+  white-space: nowrap;
+}
