@@ -431,6 +431,22 @@ describe('Community tournaments management', () => {
   });
 
 
+  it('does not resubmit an unchanged saved league score', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const scoreApi = jasmine.createSpy('recordOwnedFixtureScore');
+    (championships as any).recordOwnedFixtureScore = scoreApi;
+    const fixture = { id: 504, homeScore: 2, awayScore: 1 };
+    component.championshipFixtureScoreDrafts[504] = { home: 2, away: 1 };
+
+    component.saveChampionshipFixtureScore(
+      { id: 15, sport: 'Futebol', closedAt: null } as any,
+      { id: 104, format: 'LEAGUE', status: 'SCHEDULED' } as any, fixture as any
+    );
+
+    expect(scoreApi).not.toHaveBeenCalled();
+    expect(component.championshipFixtureScoreDrafts[504]).toEqual({ home: 2, away: 1 });
+  });
+
   it('refreshes the league fixture and clears its draft after a successful score save', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const fixture = { id: 501, homeScore: 1, awayScore: 0 };
