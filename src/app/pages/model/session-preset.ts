@@ -5,6 +5,8 @@ export interface SessionPresetSettings {
   playFormat: 'INDIVIDUAL' | 'PAIRS';
   city: string;
   address: string;
+  /** Optional reusable public overview; passwords and private arrival instructions stay excluded. */
+  description?: string | null;
   maxParticipants: number;
   creationMode: 'START' | 'COMPLETE';
   confirmedPlayers: number;
