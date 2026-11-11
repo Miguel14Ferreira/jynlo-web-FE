@@ -361,10 +361,12 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.championshipTeamPlayerBusy[teamId] = false;
         this.changeDetector.markForCheck();
       },
-      error: () => {
+      error: (error: { status?: number }) => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamPlayerBusy[teamId] = false;
-        this.championshipError = 'Não foi possível remover o jogador da equipa.';
+        this.championshipError = error.status === 409
+          ? 'O jogador tem golos, assistências, cartões ou substituições registados. Corrige primeiro esses acontecimentos.'
+          : 'Não foi possível remover o jogador da equipa.';
         this.changeDetector.markForCheck();
       }
     });
