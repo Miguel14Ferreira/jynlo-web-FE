@@ -44,7 +44,7 @@ interface TournamentTeamAdministrationState {
 @Component({
   selector: 'app-community-tournaments',
   templateUrl: './community-tournaments.component.html',
-  styleUrls: ['./community-tournaments.component.css', './community-tournaments-v3-finish.css', './community-tournaments-team-journey.css', './community-team-honours-timeline.css', './community-competitions-dashboard.css'],
+  styleUrls: ['./community-tournaments.component.css', './community-tournaments-v3-finish.css', './community-tournaments-team-journey.css', './community-team-honours-timeline.css', './community-competitions-dashboard.css', './community-team-autonomy.css'],
   standalone: false
 })
 export class CommunityTournamentsComponent implements OnChanges {
