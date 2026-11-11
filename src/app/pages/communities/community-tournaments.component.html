@@ -633,6 +633,12 @@
             }
           </div>
         </div>
+        <details class="jynlo-championship-management" [open]="requestedChampionshipId === championship.id">
+          <summary class="jynlo-championship-management-toggle">
+            <span>Gerir campeonato</span>
+            <small>{{ (championshipOwnedEvents[championship.id] || []).length }} prova(s) · {{ (championshipTeamRegistries[championship.id]?.teams || []).length }} equipa(s)</small>
+            <span class="jynlo-fixture-round-hint">Expandir / recolher</span>
+          </summary>
         @if (championship.competitions.length) {
           <ul>
             @for (competition of championship.competitions; track competition.id) {
@@ -1671,6 +1677,7 @@
             </div>
           }
           <p class="team-honours-muted">As Ligas e Taças internas de Futebol e Futsal permitem registar resultados e vencedores. Cada prova interna concluída atribui 10 pontos ao vencedor na classificação geral da época; no modo independente, guarda apenas o respetivo título. Os restantes formatos terão regras próprias antes de serem ativados.</p>
+        </details>
         </details>
       </div>
       }
