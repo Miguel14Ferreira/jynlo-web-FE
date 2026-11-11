@@ -44,12 +44,16 @@ describe('SocialFeedComponent discovery sidebar', () => {
     community.friends.and.returnValue(of([]));
     groups = jasmine.createSpyObj<CommunityGroupsService>('CommunityGroupsService', ['mine']);
     groups.mine.and.returnValue(of([]));
+    const auth = jasmine.createSpyObj<AuthenticationService>('AuthenticationService', ['isLoggedIn']);
+    auth.isLoggedIn.and.returnValue(true);
+    Object.defineProperty(auth, 'loggedInPerfilname', { value: 'miguel', configurable: true });
 
     await TestBed.configureTestingModule({
       declarations: [SocialFeedComponent],
       imports: [...TEST_IMPORTS, StubStoriesComponent, VenueSportsBadgesComponent],
       providers: [
         ...TEST_PROVIDERS,
+        { provide: AuthenticationService, useValue: auth },
         { provide: SocialFeedService, useValue: feed },
         { provide: SessionService, useValue: sessions },
         { provide: CommunityService, useValue: community },
@@ -72,7 +76,6 @@ describe('SocialFeedComponent discovery sidebar', () => {
     });
     fixture.detectChanges();
     tick(351);
-    component.currentUsername = 'miguel';
     component.items = [
       makeItem('SESSION_ATTENDED', 'miguel', 17),
       makeItem('SESSION_ATTENDED', 'ana', 17),
