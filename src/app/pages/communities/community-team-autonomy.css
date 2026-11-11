@@ -204,3 +204,83 @@
   box-shadow: 0 0 0 2px rgba(104, 239, 190, .15), 0 12px 30px rgba(2, 25, 24, .16);
   scroll-margin-top: 6.5rem;
 }
+
+/* Championship team panels: separate identity, management and roster clearly.
+   Prevent the compressed/overlapping controls seen at desktop and tablet sizes. */
+:host .jynlo-season-team {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: clamp(1rem, 2.2vw, 1.5rem);
+  border-radius: 1.15rem;
+}
+:host .jynlo-season-team-heading {
+  align-items: flex-start;
+  gap: .75rem 1.15rem;
+  margin-bottom: 1rem;
+  padding-bottom: .75rem;
+  border-bottom: 1px solid rgba(129, 220, 205, .16);
+}
+:host .jynlo-season-team-heading strong {
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: normal;
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+}
+:host .jynlo-season-team-heading span {
+  flex: none;
+  border-radius: 999px;
+  padding: .35rem .7rem;
+  background: rgba(85, 184, 167, .12);
+  white-space: nowrap;
+}
+:host .jynlo-season-team .jynlo-team-roster {
+  display: grid;
+  gap: .55rem;
+  margin: 1rem 0;
+}
+:host .jynlo-season-team .jynlo-roster-player {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .7rem;
+  min-width: 0;
+  padding: .75rem .85rem;
+}
+:host .jynlo-season-team .jynlo-roster-player > span {
+  flex: 1 1 180px;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+:host .jynlo-season-team .jynlo-roster-player > span small {
+  display: block;
+  margin-top: .2rem;
+}
+:host .jynlo-season-team .jynlo-roster-player > button { flex: 0 0 auto; }
+:host .jynlo-season-team .jynlo-team-roster-add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .6rem .8rem;
+  align-items: end;
+  padding: 1rem;
+  border: 1px solid rgba(114, 216, 193, .22);
+  border-radius: .85rem;
+  background: rgba(3, 23, 35, .42);
+}
+:host .jynlo-season-team .jynlo-team-roster-add label { grid-column: 1 / -1; }
+:host .jynlo-season-team .jynlo-team-roster-add select {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  min-height: 2.65rem;
+}
+:host .jynlo-season-team .jynlo-team-roster-add button {
+  min-height: 2.65rem;
+  white-space: normal;
+}
+@media (max-width: 650px) {
+  :host .jynlo-season-team .jynlo-team-roster-add { grid-template-columns: minmax(0,1fr); padding: .85rem; }
+  :host .jynlo-season-team .jynlo-team-roster-add label { grid-column: 1; }
+  :host .jynlo-season-team .jynlo-team-roster-add button { width: 100%; }
+  :host .jynlo-season-team .jynlo-roster-player > button { margin-left: auto; }
+}
