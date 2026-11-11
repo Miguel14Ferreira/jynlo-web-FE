@@ -282,6 +282,30 @@ export class CommunityChampionshipsService {
       this.base(communityId) + '/' + championshipId + '/teams');
   }
 
+  teamInviteStatus(communityId: number, championshipId: number, teamId: number): Observable<{ invited: boolean }> {
+    return this.http.get<{ invited: boolean }>(
+      this.base(communityId) + '/' + championshipId + '/teams/' + teamId + '/invitations/mine');
+  }
+
+  inviteTeamPlayer(communityId: number, championshipId: number,
+                   teamId: number, profileId: number): Observable<void> {
+    return this.http.post<void>(
+      this.base(communityId) + '/' + championshipId + '/teams/' + teamId + '/invitations', { profileId });
+  }
+
+  respondTeamInvite(communityId: number, championshipId: number, teamId: number,
+                    accept: boolean): Observable<ChampionshipTeamPlayer[]> {
+    return this.http.post<ChampionshipTeamPlayer[]>(
+      this.base(communityId) + '/' + championshipId + '/teams/' + teamId
+      + '/invitations/' + (accept ? 'accept' : 'decline'), {});
+  }
+
+  cancelTeamAdministratorTransfer(communityId: number, championshipId: number,
+                                  teamId: number): Observable<ChampionshipTeamAdministrator> {
+    return this.http.post<ChampionshipTeamAdministrator>(
+      this.base(communityId) + '/' + championshipId + '/teams/' + teamId + '/administrator/cancel', {});
+  }
+
   teamAdministrator(communityId: number, championshipId: number, teamId: number): Observable<ChampionshipTeamAdministrator> {
     return this.http.get<ChampionshipTeamAdministrator>(
       this.base(communityId) + '/' + championshipId + '/teams/' + teamId + '/administrator');
