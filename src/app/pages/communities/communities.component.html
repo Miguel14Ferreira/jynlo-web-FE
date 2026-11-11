@@ -3290,7 +3290,16 @@
                           <span class="section-kicker">{{ 'communities.history' | t }}</span>
                           <h3>{{ 'communities.rounds' | t }}</h3>
                         </div>
-                        <span class="count-pill">{{ competition?.rounds?.length || 0 }}</span>
+                        <div class="round-history-controls">
+                          <span class="count-pill">{{ competition?.rounds?.length || 0 }}</span>
+                          @if (competition?.rounds?.length) {
+                            <button type="button" class="secondary-action small jynlo-action jynlo-action--neutral jynlo-action--compact"
+                              [attr.aria-expanded]="roundsExpanded"
+                              (click)="roundsExpanded = !roundsExpanded">
+                              {{ roundsExpanded ? 'Recolher todas' : 'Expandir todas' }}
+                            </button>
+                          }
+                        </div>
                       </div>
 
                       @if (!competition?.rounds?.length) {
@@ -3345,7 +3354,7 @@
                               }
                             }
                           </div>
-                          <details class="round-card-details">
+                          <details class="round-card-details" [open]="roundsExpanded">
                             <summary class="round-card-details-toggle">
                               <span>Participantes e resultados</span>
                               <small>{{ round.entries.length }} participante(s)</small>
