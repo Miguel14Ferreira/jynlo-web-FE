@@ -391,7 +391,7 @@
             <h5>Ligas e Taças conquistadas</h5>
             @if (profile.competitionTitles.length) {
               <ul>
-                @for (trophy of profile.competitionTitles; track trophy.championshipId + '-' + trophy.tournamentId) {
+                @for (trophy of profile.competitionTitles; track trophy.championshipId + '-' + (trophy.ownedEventId != null ? 'event-' + trophy.ownedEventId : 'tournament-' + trophy.tournamentId)) {
                   <li>{{ trophy.format === 'LEAGUE' ? 'Liga' : 'Taça / Eliminatórias' }}
                     · {{ trophy.tournamentName }} · {{ trophy.seasonLabel }} · {{ trophy.sport }}</li>
                 }
@@ -447,7 +447,7 @@
           <h6>Vencedores das provas</h6>
           @if (honours.competitionTitles?.length) {
             <ul>
-              @for (trophy of honours.competitionTitles; track trophy.championshipId + '-' + trophy.tournamentId) {
+              @for (trophy of honours.competitionTitles; track trophy.championshipId + '-' + (trophy.ownedEventId != null ? 'event-' + trophy.ownedEventId : 'tournament-' + trophy.tournamentId)) {
                 @if (!championshipHonoursSportFilter || trophy.sport === championshipHonoursSportFilter) {
                   <li>
                     <strong>{{ trophy.winnerName }}</strong> · {{ trophy.tournamentName }}
