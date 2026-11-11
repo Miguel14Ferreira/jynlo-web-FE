@@ -271,3 +271,24 @@
 :host .jynlo-owned-league-scroll tbody th { color: #e9fff8; font-weight: 700; }
 :host .jynlo-owned-league-scroll tbody tr:hover { background: rgba(66, 177, 153, .1); }
 :host .jynlo-owned-league-scroll tbody td:last-child { color: #b4ffdf; }
+
+:host .jynlo-discipline-panel > summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  color: #e7fff6;
+}
+:host .jynlo-discipline-panel > summary small {
+  color: #acdad5;
+  font-variant-numeric: tabular-nums;
+}
+:host .jynlo-discipline-panel[open] > summary {
+  padding-bottom: .75rem;
+  border-bottom: 1px solid rgba(102, 187, 174, .2);
+}
+:host .jynlo-discipline-panel > summary:focus-visible {
+  outline: 2px solid #9aedd4;
+  outline-offset: 3px;
+}
