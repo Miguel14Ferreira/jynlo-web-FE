@@ -417,6 +417,48 @@ describe('Community tournaments management', () => {
   });
 
 
+  it('refreshes the league fixture and clears its draft after a successful score save', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const fixture = { id: 501, homeScore: 1, awayScore: 0 };
+    const updated = { ...fixture, homeScore: 2, awayScore: 1 };
+    const scoreApi = jasmine.createSpy('recordOwnedFixtureScore').and.returnValue(of(updated));
+    (championships as any).recordOwnedFixtureScore = scoreApi;
+    spyOn(component, 'loadChampionshipOwnedLeagueTable');
+    spyOn(component, 'loadChampionshipLeaguePlayerStats');
+    component.championshipLeagueFixtures[101] = [fixture as any];
+    component.championshipFixtureScoreDrafts[501] = { home: 2, away: 1 };
+
+    component.saveChampionshipFixtureScore(
+      { id: 15, sport: 'Futebol', closedAt: null } as any,
+      { id: 101, format: 'LEAGUE', status: 'SCHEDULED' } as any, fixture as any
+    );
+
+    expect(scoreApi).toHaveBeenCalledOnceWith(7, 15, 101, 501, 2, 1);
+    expect(component.championshipLeagueFixtures[101][0].homeScore).toBe(2);
+    expect(component.championshipFixtureScoreDrafts[501]).toBeUndefined();
+    expect(component.championshipFixtureSaving[501]).toBeFalse();
+  });
+
+  it('keeps an unsaved cup score draft when the API fails', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const scoreApi = jasmine.createSpy('recordOwnedFixtureScore')
+      .and.returnValue(throwError(() => new Error('Server unavailable')));
+    (championships as any).recordOwnedFixtureScore = scoreApi;
+    const match = { id: 502, round: 1, homeScore: null, awayScore: null };
+    component.championshipCupDraws[102] = { matches: [match], byes: [] } as any;
+    component.championshipCupResultDrafts[502] = { home: 3, away: 1 };
+
+    component.saveChampionshipCupScore(
+      { id: 15, sport: 'Futebol', closedAt: null } as any,
+      { id: 102, format: 'CUP', status: 'SCHEDULED' } as any, match as any
+    );
+
+    expect(scoreApi).toHaveBeenCalledOnceWith(7, 15, 102, 502, 3, 1);
+    expect(component.championshipCupResultDrafts[502]).toEqual({ home: 3, away: 1 });
+    expect(component.championshipCupScoreBusy[502]).toBeFalse();
+    expect(component.championshipError).toContain('Não foi possível guardar');
+  });
+
   it('uses the shared 121-sport contract for creation instead of a football fallback', () => {
     component.sportDraft = 'Karting';
     component.showTeamCreate = false;
