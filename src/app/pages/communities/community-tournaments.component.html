@@ -2647,6 +2647,67 @@
             <h3>{{ 'communities.tournaments.teamPage.rosterTitle' | t }}</h3>
             <span>{{ team.players.length }} {{ 'communities.tournaments.teamUi.players' | t }}</span>
           </div>
+          @if (tournamentTeamAdministrators[team.id]; as administrator) {
+            <section class="jynlo-team-admin-card team-page-admin" [class.is-waiting]="!administrator.adminProfileId"
+              [attr.aria-label]="'Administração de ' + team.name">
+              <div class="jynlo-team-admin-card-header">
+                <div class="jynlo-team-admin-identity">
+                  <span class="jynlo-team-admin-avatar" aria-hidden="true">✦</span>
+                  <div>
+                    <span class="jynlo-team-admin-eyebrow">Administração autónoma</span>
+                    <strong>{{ tournamentTeamAdminLabel(team) }}</strong>
+                  </div>
+                </div>
+                <span class="jynlo-team-admin-state">{{ administrator.adminProfileId ? 'Administrador definido' : 'À espera do primeiro membro' }}</span>
+              </div>
+              @if (!administrator.adminProfileId) {
+                <p class="jynlo-team-admin-hint">O primeiro jogador que aceitar o convite de entrada torna-se administrador. Depois, a equipa gere os seus membros sem depender do organizador.</p>
+              }
+              @if (administrator.canAccept) {
+                <div class="jynlo-team-admin-decision" role="status">
+                  <strong>Queres assumir a administração desta equipa?</strong>
+                  <p>O responsável atual mantém-se até aceitares. Se recusares, continuas na equipa como jogador.</p>
+                  <div class="jynlo-team-admin-actions">
+                    <button type="button" class="t-btn t-btn-primary" [disabled]="busy"
+                      (click)="respondTournamentTeamAdministrator(team, true)">Aceitar administração</button>
+                    <button type="button" class="t-btn t-btn-secondary" [disabled]="busy"
+                      (click)="respondTournamentTeamAdministrator(team, false)">Recusar</button>
+                  </div>
+                </div>
+              }
+              @if (administrator.pendingProfileId && !administrator.canAccept) {
+                <div class="jynlo-team-admin-pending" role="status">
+                  <strong>Transferência pendente</strong>
+                  <p>O novo responsável ainda não aceitou. A equipa mantém o administrador atual.</p>
+                  @if (administrator.canManage && selected?.status === 'DRAFT') {
+                    <button type="button" class="t-btn t-btn-secondary t-btn-small" [disabled]="busy"
+                      (click)="cancelTournamentTeamAdministratorTransfer(team)">Cancelar transferência</button>
+                  }
+                </div>
+              }
+              @if (administrator.canManage && selected?.status === 'DRAFT') {
+                <div class="jynlo-team-admin-transfer">
+                  <label [for]="'tournament-team-admin-' + team.id">Transferir administração</label>
+                  <div class="jynlo-team-admin-transfer-controls">
+                    <select [id]="'tournament-team-admin-' + team.id"
+                      [value]="tournamentAdminTransferDraft[team.id] ?? ''"
+                      (change)="tournamentAdminTransferDraft[team.id] = $any($event.target).value ? +$any($event.target).value : null">
+                      <option value="">Selecionar outro jogador</option>
+                      @for (player of team.players; track player.profileId) {
+                        @if (player.profileId !== administrator.adminProfileId) {
+                          <option [value]="player.profileId">{{ player.displayName }}</option>
+                        }
+                      }
+                    </select>
+                    <button type="button" class="t-btn t-btn-secondary"
+                      [disabled]="busy || !tournamentAdminTransferDraft[team.id]"
+                      (click)="transferTournamentTeamAdministrator(team)">Propor transferência</button>
+                  </div>
+                  <small>Não perdes a administração até o sucessor aceitar. A equipa nunca fica sem responsável.</small>
+                </div>
+              }
+            </section>
+          }
           <div class="team-page-layout">
           <article class="team-roster-card team-page-roster">
 
@@ -2725,7 +2786,7 @@
                               {{ 'friends.chatAction' | t }}
                             </a>
                           }
-                          @if (canManageTeamRoster) {
+                          @if (canRemoveTournamentTeamPlayer(team, player.profileId)) {
                             @if (confirmingTeamPlayerRemoval?.teamId === team.id
                                 && confirmingTeamPlayerRemoval?.profileId === player.profileId) {
                               <div class="team-roster-confirm" role="group"
@@ -2749,7 +2810,7 @@
                       }
                     </div>
           </article>
-                    @if (canManageTeamRoster && !isTeamRosterFull(team)) {
+                    @if (canManageTournamentTeam(team) && !isTeamRosterFull(team)) {
                       <aside class="team-page-management" [attr.aria-label]="'communities.tournaments.teamPage.manageTitle' | t">
                         <h3>{{ 'communities.tournaments.teamPage.manageTitle' | t }}</h3>
                         @if (teamInviteUrl(team); as inviteLink) {
@@ -3241,6 +3302,16 @@
                 <p class="field-validation" role="alert">{{ 'communities.tournaments.teamUi.loadError' | t }}</p>
               }
               @if (canManage && selected.status === 'DRAFT') {
+                <div class="jynlo-admin-explainer" role="note">
+                  <span class="jynlo-admin-explainer-symbol" aria-hidden="true">✦</span>
+                  <div>
+                    <strong>Cria a equipa. Os jogadores gerem o resto.</strong>
+                    <p>O primeiro membro que aceitar o convite fica automaticamente como administrador. Para abdicar, terá de transferir o cargo a outro jogador, que deve aceitar primeiro.</p>
+                  </div>
+                </div>
+                @if (tournamentTeamCreatedNotice) {
+                  <p class="jynlo-admin-success" role="status">Equipa criada. Partilha o convite: quem entrar primeiro será o administrador.</p>
+                }
                 <div class="team-create-row">
                   <label for="new-team-name">{{ 'communities.tournaments.teamUi.teamName' | t }}</label>
                   <div class="team-create-actions">
