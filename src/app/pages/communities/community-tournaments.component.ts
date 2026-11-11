@@ -337,9 +337,9 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   championshipTeamAdminName(profileId: number | null): string {
-    if (profileId === null) return 'Por atribuir';
+    if (profileId === null) return t('teams.autonomy.awaiting');
     const member = (this.community.members || []).find(item => item.profileId === profileId);
-    return member?.fullName || member?.username || 'Administrador da equipa';
+    return member?.fullName || member?.username || t('teams.autonomy.adminFallback');
   }
 
   canRemoveChampionshipTeamPlayer(teamId: number, profileId: number): boolean {
@@ -392,9 +392,8 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.championshipTeamPlayers[teamId] = players;
         this.championshipTeamInvitePending[teamId] = false;
         this.championshipTeamPlayerBusy[teamId] = false;
-        this.championshipTeamInviteFeedback[teamId] = accept
-          ? 'Entrada confirmada. Se foste o primeiro membro a aceitar, és agora administrador da equipa.'
-          : 'Convite recusado.';
+        this.championshipTeamInviteFeedback[teamId] = t(accept
+          ? 'teams.autonomy.joinedFeedback' : 'teams.autonomy.declinedFeedback');
         this.loadChampionshipTeamAdministrator(championshipId, teamId);
         this.changeDetector.markForCheck();
       },
@@ -511,7 +510,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipsApi.inviteTeamPlayer(communityId, championshipId, teamId, profileId).subscribe({
       next: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
-        this.championshipTeamInviteFeedback[teamId] = 'Convite enviado. O jogador só entra no plantel depois de aceitar.';
+        this.championshipTeamInviteFeedback[teamId] = t('teams.autonomy.inviteSent');
         this.championshipTeamPlayerDrafts[teamId] = null;
         this.championshipTeamPlayerBusy[teamId] = false;
         this.changeDetector.markForCheck();
@@ -2054,8 +2053,8 @@ export class CommunityTournamentsComponent implements OnChanges {
 
   tournamentTeamAdminLabel(team: TournamentTeam): string {
     const administrator = this.tournamentTeamAdministrators[team.id]?.adminProfileId;
-    if (administrator == null) return 'A aguardar primeiro membro';
-    return team.players.find(player => player.profileId === administrator)?.displayName || 'Administrador da equipa';
+    if (administrator == null) return t('teams.autonomy.noAdminLabel');
+    return team.players.find(player => player.profileId === administrator)?.displayName || t('teams.autonomy.adminFallback');
   }
 
   loadTournamentTeamAdministrator(teamId: number, tournamentId: number, revision: number): void {
@@ -2082,7 +2081,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         || proposed === this.tournamentTeamAdministrators[team.id].adminProfileId) return;
     await this.mutate(
       this.api.transferTeamAdministration(this.community.id, this.selected.id, team.id, proposed),
-      'Convite para transferir a administração enviado.', state => {
+      t('teams.autonomy.transferSent'), state => {
         this.tournamentTeamAdministrators[team.id] = state;
         this.tournamentAdminTransferDraft[team.id] = null;
       });
@@ -2092,7 +2091,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     if (!this.selected || !this.tournamentTeamAdministrators[team.id]?.canAccept || this.busy) return;
     await this.mutate(
       this.api.respondTeamAdministration(this.community.id, this.selected.id, team.id, accept),
-      accept ? 'Passaste a administrar esta equipa.' : 'Transferência recusada.', state => {
+      t(accept ? 'teams.autonomy.transferAccepted' : 'teams.autonomy.transferDeclined'), state => {
         this.tournamentTeamAdministrators[team.id] = state;
       });
   }
@@ -2101,7 +2100,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     if (!this.selected || !this.tournamentTeamAdministrators[team.id]?.canManage || this.busy) return;
     await this.mutate(
       this.api.cancelTeamAdministrationTransfer(this.community.id, this.selected.id, team.id),
-      'Transferência cancelada.', state => {
+      t('teams.autonomy.transferCancelled'), state => {
         this.tournamentTeamAdministrators[team.id] = state;
       });
   }
