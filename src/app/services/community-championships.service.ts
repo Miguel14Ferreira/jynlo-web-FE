@@ -29,6 +29,19 @@ export interface ChampionshipFixtureGoal {
   minute: number | null;
 }
 
+export interface ChampionshipOwnedLeagueTable {
+  eventId: number;
+  totalMatches: number;
+  playedMatches: number;
+  completed: boolean;
+  firstPlaceTied: boolean;
+  standings: {
+    position: number; teamId: number; teamName: string; played: number;
+    wins: number; draws: number; losses: number; goalsFor: number;
+    goalsAgainst: number; goalDifference: number; points: number;
+  }[];
+}
+
 export interface ChampionshipOwnedLeagueFixture {
   id: number;
   round: number;
@@ -354,6 +367,12 @@ export class CommunityChampionshipsService {
     return this.http.put<ChampionshipOwnedLeagueFixture>(
       this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId +
       '/fixtures/' + fixtureId + '/score', { homeScore, awayScore });
+  }
+
+  ownedLeagueStandings(communityId: number, championshipId: number,
+                      eventId: number): Observable<ChampionshipOwnedLeagueTable> {
+    return this.http.get<ChampionshipOwnedLeagueTable>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId + '/standings');
   }
 
   ownedLeagueFixtures(communityId: number, championshipId: number,
