@@ -860,10 +860,10 @@
                   }
                   <div class="jynlo-team-roster">
                     @if ((championshipTeamPlayers[seasonTeam.id]?.length || 0) > 8 || championshipTeamRosterSearch[seasonTeam.id]?.trim()) {
-                      <label [for]="'championship-team-roster-search-' + seasonTeam.id">Pesquisar no plantel</label>
+                      <label [for]="'championship-team-roster-search-' + seasonTeam.id">{{ 'communities.tournaments.teamUi.searchMember' | t }}</label>
                       <input [id]="'championship-team-roster-search-' + seasonTeam.id"
                         type="search" maxlength="80" autocomplete="off"
-                        placeholder="Nome ou utilizador"
+                        [placeholder]="'communities.tournaments.teamUi.searchPlaceholder' | t"
                         [value]="championshipTeamRosterSearch[seasonTeam.id] || ''"
                         (input)="championshipTeamRosterSearch[seasonTeam.id] = $any($event.target).value">
                     }
@@ -878,7 +878,7 @@
                       </div>
                     } @empty {
                       @if (championshipTeamRosterSearch[seasonTeam.id]?.trim()) {
-                        <p class="team-honours-muted">Não foram encontrados jogadores com esta pesquisa.</p>
+                        <p class="team-honours-muted">{{ 'communities.tournaments.teamPage.noResults' | t }}</p>
                       } @else {
                         <p class="team-honours-muted">Ainda não há jogadores inscritos nesta equipa.</p>
                       }
@@ -889,7 +889,7 @@
                       <label [for]="'season-player-' + seasonTeam.id">{{ 'teams.autonomy.inviteLabel' | t }}</label>
                       <input type="search"
                         [attr.aria-label]="'Pesquisar jogadores para ' + seasonTeam.name"
-                        placeholder="Pesquisar por nome ou utilizador"
+                        [placeholder]="'communities.tournaments.teamUi.searchPlaceholder' | t"
                         [value]="championshipTeamMemberSearch[seasonTeam.id] || ''"
                         (input)="championshipTeamMemberSearch[seasonTeam.id] = $any($event.target).value; championshipTeamPlayerDrafts[seasonTeam.id] = null">
                       <select [id]="'season-player-' + seasonTeam.id"
