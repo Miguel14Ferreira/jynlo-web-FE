@@ -1049,6 +1049,61 @@
                                   }
                                   @if ((championship.sport === 'Futebol' || championship.sport === 'Futsal')
                                       && fixture.homeScore != null && fixture.awayScore != null) {
+                                    <details class="jynlo-goal-timeline jynlo-discipline-panel">
+                                      <summary><strong>Cartões amarelos e vermelhos</strong>
+                                        <small>({{ (championshipFixtureCards[fixture.id] || []).length }})</small>
+                                      </summary>
+                                      @for (card of championshipFixtureCards[fixture.id] || []; track card.id) {
+                                        <div class="jynlo-goal-row">
+                                          <span>{{ card.cardType === 'YELLOW' ? '🟨' : '🟥' }}
+                                            {{ card.playerName }} · {{ card.teamName }}
+                                            @if (card.minute != null) { · {{ card.minute }}' }
+                                          </span>
+                                          @if (canManage && !championship.closedAt) {
+                                            <button type="button" class="t-btn t-btn-secondary"
+                                              [disabled]="championshipCardBusy[fixture.id]"
+                                              (click)="removeFixtureCard(championship, event, fixture.id, card.id)">Remover</button>
+                                          }
+                                        </div>
+                                      } @empty {
+                                        <small>Sem cartões registados.</small>
+                                      }
+                                      @if (canManage && !championship.closedAt && event.status === 'SCHEDULED') {
+                                        <div class="jynlo-goal-form">
+                                          <label [for]="'card-team-' + fixture.id">Equipa</label>
+                                          <select [id]="'card-team-' + fixture.id"
+                                            [value]="championshipCardTeamDrafts[fixture.id] ?? ''"
+                                            (change)="championshipCardTeamDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null; championshipCardPlayerDrafts[fixture.id] = null">
+                                            <option value="">Escolher equipa</option>
+                                            <option [value]="fixture.homeTeamId">{{ fixture.homeTeamName }}</option>
+                                            <option [value]="fixture.awayTeamId">{{ fixture.awayTeamName }}</option>
+                                          </select>
+                                          <label [for]="'card-player-' + fixture.id">Jogador</label>
+                                          <select [id]="'card-player-' + fixture.id"
+                                            [value]="championshipCardPlayerDrafts[fixture.id] ?? ''"
+                                            (change)="championshipCardPlayerDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null">
+                                            <option value="">Escolher jogador</option>
+                                            @for (player of fixtureTeamPlayerOptions(championship.id, championshipCardTeamDrafts[fixture.id]); track player.profileId) {
+                                              <option [value]="player.profileId">{{ player.displayName }}</option>
+                                            }
+                                          </select>
+                                          <label [for]="'card-type-' + fixture.id">Cartão</label>
+                                          <select [id]="'card-type-' + fixture.id"
+                                            [value]="championshipCardTypeDrafts[fixture.id] || 'YELLOW'"
+                                            (change)="championshipCardTypeDrafts[fixture.id] = $any($event.target).value">
+                                            <option value="YELLOW">Amarelo</option>
+                                            <option value="RED">Vermelho</option>
+                                          </select>
+                                          <label [for]="'card-minute-' + fixture.id">Minuto</label>
+                                          <input [id]="'card-minute-' + fixture.id" type="number" min="0" max="200"
+                                            [value]="championshipCardMinuteDrafts[fixture.id] ?? ''"
+                                            (input)="championshipCardMinuteDrafts[fixture.id] = $any($event.target).value === '' ? null : +$any($event.target).value">
+                                          <button type="button" class="t-btn t-btn-secondary"
+                                            [disabled]="championshipCardBusy[fixture.id] || !championshipCardPlayerDrafts[fixture.id]"
+                                            (click)="addFixtureCard(championship, event, fixture)">Registar cartão</button>
+                                        </div>
+                                      }
+                                    </details>
                                     <div class="jynlo-goal-timeline">
                                       <strong>Marcadores do jogo</strong>
                                       @for (goal of championshipFixtureGoals[fixture.id] || []; track goal.id) {
