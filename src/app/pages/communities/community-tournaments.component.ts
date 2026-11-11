@@ -1175,6 +1175,29 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
 
+  /** Fixture summary uses only persisted scores and attributed goals already fetched for this game. */
+  championshipFixtureWinner(fixture: ChampionshipOwnedLeagueFixture): 'HOME' | 'AWAY' | 'DRAW' | null {
+    if (fixture.homeScore == null || fixture.awayScore == null) return null;
+    if (fixture.homeScore > fixture.awayScore) return 'HOME';
+    if (fixture.awayScore > fixture.homeScore) return 'AWAY';
+    return 'DRAW';
+  }
+
+  championshipFixtureGoalAttribution(fixture: ChampionshipOwnedLeagueFixture): {
+    homeAssigned: number; awayAssigned: number; homeRemaining: number; awayRemaining: number;
+  } | null {
+    const goals = this.championshipFixtureGoals[fixture.id];
+    if (!goals || fixture.homeScore == null || fixture.awayScore == null) return null;
+    const homeAssigned = goals.filter(goal => goal.teamId === fixture.homeTeamId).length;
+    const awayAssigned = goals.filter(goal => goal.teamId === fixture.awayTeamId).length;
+    return {
+      homeAssigned,
+      awayAssigned,
+      homeRemaining: fixture.homeScore - homeAssigned,
+      awayRemaining: fixture.awayScore - awayAssigned
+    };
+  }
+
   /** Validity of a score draft is shared by the view and save handlers. */
   championshipScoreDraftValid(score: { home: number | null; away: number | null } | undefined,
                               requiresWinner = false): boolean {
@@ -1217,6 +1240,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         delete this.championshipFixtureScoreDrafts[fixture.id];
         this.loadChampionshipOwnedLeagueTable(championship.id, event.id);
         this.loadChampionshipLeaguePlayerStats(championship.id, event.id);
+        this.loadFixtureGoals(championship.id, event.id, fixture.id);
         this.loadChampionshipStandings(championship.id);
         this.championshipFixtureSaving[fixture.id] = false;
         this.changeDetector.markForCheck();
