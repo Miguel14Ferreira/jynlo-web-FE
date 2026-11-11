@@ -377,6 +377,12 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipTeamInviteFeedback: Record<number, string> = {};
   championshipTeamCreatedNotice = false;
 
+  /** Archived seasons remain readable, never editable, including via stale UI actions. */
+  championshipSeasonEditable(championshipId: number): boolean {
+    const season = this.championships.find(item => item.id === championshipId);
+    return !!season && !season.closedAt;
+  }
+
   canManageChampionshipTeam(teamId: number): boolean {
     return this.canManage || !!this.championshipTeamAdministrators[teamId]?.canManage;
   }
@@ -427,7 +433,8 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   respondChampionshipTeamInvitation(championshipId: number, teamId: number, accept: boolean): void {
-    if (!this.championshipTeamInvitePending[teamId] || this.championshipTeamPlayerBusy[teamId]) return;
+    if (!this.championshipSeasonEditable(championshipId)
+        || !this.championshipTeamInvitePending[teamId] || this.championshipTeamPlayerBusy[teamId]) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipTeamPlayerBusy[teamId] = true;
@@ -452,7 +459,8 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   cancelChampionshipTeamAdminTransfer(championshipId: number, teamId: number): void {
-    if (!this.championshipTeamAdministrators[teamId]?.canTransfer
+    if (!this.championshipSeasonEditable(championshipId)
+        || !this.championshipTeamAdministrators[teamId]?.canTransfer
         || this.championshipTeamAdminBusy[teamId]) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
@@ -475,7 +483,8 @@ export class CommunityTournamentsComponent implements OnChanges {
 
   inviteChampionshipTeamAdministrator(championshipId: number, teamId: number): void {
     const profileId = this.championshipTeamAdminDrafts[teamId];
-    if (!this.championshipTeamAdministrators[teamId]?.canTransfer || this.championshipTeamAdminBusy[teamId]
+    if (!this.championshipSeasonEditable(championshipId)
+        || !this.championshipTeamAdministrators[teamId]?.canTransfer || this.championshipTeamAdminBusy[teamId]
         || !profileId || !Number.isInteger(profileId)
         || !(this.championshipTeamPlayers[teamId] || []).some(player => player.profileId === profileId)
         || this.championshipTeamAdministrators[teamId]?.adminProfileId === profileId) return;
@@ -500,7 +509,8 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   respondChampionshipTeamAdministrator(championshipId: number, teamId: number, accept: boolean): void {
-    if (!this.championshipTeamAdministrators[teamId]?.canAccept || this.championshipTeamAdminBusy[teamId]) return;
+    if (!this.championshipSeasonEditable(championshipId)
+        || !this.championshipTeamAdministrators[teamId]?.canAccept || this.championshipTeamAdminBusy[teamId]) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipTeamAdminBusy[teamId] = true;
@@ -546,7 +556,8 @@ export class CommunityTournamentsComponent implements OnChanges {
 
   addChampionshipTeamPlayer(championshipId: number, teamId: number): void {
     const profileId = this.championshipTeamPlayerDrafts[teamId];
-    if (!this.canManageChampionshipTeam(teamId) || this.championshipTeamPlayerBusy[teamId]
+    if (!this.championshipSeasonEditable(championshipId)
+        || !this.canManageChampionshipTeam(teamId) || this.championshipTeamPlayerBusy[teamId]
         || !Number.isInteger(profileId) || !profileId
         || !this.availableChampionshipTeamMembers(championshipId).some(member => member.profileId === profileId)) return;
     const revision = this.championshipRevision;
@@ -570,7 +581,8 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   removeChampionshipTeamPlayer(championshipId: number, teamId: number, profileId: number): void {
-    if (!this.canRemoveChampionshipTeamPlayer(teamId, profileId) || this.championshipTeamPlayerBusy[teamId]) return;
+    if (!this.championshipSeasonEditable(championshipId)
+        || !this.canRemoveChampionshipTeamPlayer(teamId, profileId) || this.championshipTeamPlayerBusy[teamId]) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipTeamPlayerBusy[teamId] = true;
