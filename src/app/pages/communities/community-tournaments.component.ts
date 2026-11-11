@@ -377,6 +377,8 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipTeamAdminDrafts: Record<number, number | null> = {};
   championshipTeamAdminBusy: Record<number, boolean> = {};
   championshipTeamInvitePending: Record<number, boolean> = {};
+  championshipTeamInviteLoadError: Record<number, boolean> = {};
+  championshipTeamInviteLoading: Record<number, boolean> = {};
   championshipTeamInviteFeedback: Record<number, string> = {};
   private championshipTeamPlayersLoadVersion: Record<number, number> = {};
   private championshipTeamAdminLoadVersion: Record<number, number> = {};
@@ -435,17 +437,22 @@ export class CommunityTournamentsComponent implements OnChanges {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     const loadVersion = this.championshipTeamInviteLoadVersion[teamId] = (this.championshipTeamInviteLoadVersion[teamId] || 0) + 1;
+    this.championshipTeamInviteLoading[teamId] = true;
+    this.championshipTeamInviteLoadError[teamId] = false;
     this.championshipsApi.teamInviteStatus(communityId, championshipId, teamId).subscribe({
       next: status => {
         if (revision !== this.championshipRevision || communityId !== this.community.id
             || loadVersion !== this.championshipTeamInviteLoadVersion[teamId]) return;
+        this.championshipTeamInviteLoading[teamId] = false;
+        this.championshipTeamInviteLoadError[teamId] = false;
         this.championshipTeamInvitePending[teamId] = status.invited;
         this.changeDetector.markForCheck();
       },
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id
             || loadVersion !== this.championshipTeamInviteLoadVersion[teamId]) return;
-        this.championshipTeamInvitePending[teamId] = false;
+        this.championshipTeamInviteLoading[teamId] = false;
+        this.championshipTeamInviteLoadError[teamId] = true;
         this.changeDetector.markForCheck();
       }
     });
@@ -458,6 +465,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     const communityId = this.community.id;
     this.championshipTeamPlayerBusy[teamId] = true;
     this.invalidateChampionshipTeamLoads(teamId);
+    this.championshipTeamInviteLoadError[teamId] = false;
     this.championshipsApi.respondTeamInvite(communityId, championshipId, teamId, accept).subscribe({
       next: players => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
@@ -1930,6 +1938,8 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipTeamAdminDrafts = {};
     this.championshipTeamAdminBusy = {};
     this.championshipTeamInvitePending = {};
+    this.championshipTeamInviteLoadError = {};
+    this.championshipTeamInviteLoading = {};
     this.championshipTeamInviteFeedback = {};
     this.championshipTeamPlayersLoadVersion = {};
     this.championshipTeamAdminLoadVersion = {};
