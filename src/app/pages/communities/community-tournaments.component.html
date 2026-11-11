@@ -859,7 +859,15 @@
                     <p class="jynlo-admin-success" role="status">{{ championshipTeamInviteFeedback[seasonTeam.id] }}</p>
                   }
                   <div class="jynlo-team-roster">
-                    @for (player of championshipTeamPlayers[seasonTeam.id] || []; track player.profileId) {
+                    @if ((championshipTeamPlayers[seasonTeam.id]?.length || 0) > 8 || championshipTeamRosterSearch[seasonTeam.id]?.trim()) {
+                      <label [for]="'championship-team-roster-search-' + seasonTeam.id">Pesquisar no plantel</label>
+                      <input [id]="'championship-team-roster-search-' + seasonTeam.id"
+                        type="search" maxlength="80" autocomplete="off"
+                        placeholder="Nome ou utilizador"
+                        [value]="championshipTeamRosterSearch[seasonTeam.id] || ''"
+                        (input)="championshipTeamRosterSearch[seasonTeam.id] = $any($event.target).value">
+                    }
+                    @for (player of filteredChampionshipTeamRoster(seasonTeam.id); track player.profileId) {
                       <div class="jynlo-roster-player">
                         <span>{{ player.displayName }} <small>&#64;{{ player.username }}</small></span>
                         @if (canRemoveChampionshipTeamPlayer(seasonTeam.id, player.profileId) && !championship.closedAt) {
