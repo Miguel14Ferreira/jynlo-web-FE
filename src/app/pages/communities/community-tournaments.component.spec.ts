@@ -326,7 +326,8 @@ describe('Community tournaments management', () => {
       'generateSchedule', 'matches', 'recordResult', 'standings', 'complete', 'delete',
       'createTeamTournament', 'createRelayChampionship', 'relayOverview', 'recordRelayHeat',
       'publishRelayFinal', 'decideRelayHeat', 'details', 'teams', 'createTeam', 'addTeamPlayer', 'acceptTeamInvite', 'removeTeamPlayer', 'deleteTeam',
-      'teamAdministration', 'transferTeamAdministration', 'respondTeamAdministration', 'cancelTeamAdministrationTransfer',
+      'teamAdministration', 'teamInvitationStatus', 'declineTeamInvitation',
+      'transferTeamAdministration', 'respondTeamAdministration', 'cancelTeamAdministrationTransfer',
       'generateTeamSchedule', 'teamMatches', 'teamProfileMatches', 'recordTeamResult', 'teamStandings', 'teamGroups', 'completeTeam',
       'createRaceChampionship', 'raceOverview', 'linkRace', 'unlinkRace', 'setRacePoints',
       'createTimedChampionship', 'createCanoeChampionship', 'createRowingChampionship', 'createTrackChampionship', 'timedOverview', 'linkTimedRound', 'unlinkTimedRound',
@@ -340,6 +341,8 @@ describe('Community tournaments management', () => {
     api.teamAdministration.and.returnValue(of({
       teamId: 10, adminProfileId: null, pendingProfileId: null, canManage: false, canAccept: false
     }));
+    api.teamInvitationStatus.and.returnValue(of({ invited: false }));
+    api.declineTeamInvitation.and.returnValue(of(void 0));
     api.relayOverview.and.returnValue(of({
       tournamentId:103,eventDiscipline:'RELAY_4X100',teams:[],heats:[],standings:[]
     }));
