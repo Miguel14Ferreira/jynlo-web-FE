@@ -1,3 +1,4 @@
+import { preloadEnglishTranslations } from '../../i18n/i18n.service';
 import { CommunityChampionshipsService } from '../../services/community-championships.service';
 import { of, Subject, throwError } from 'rxjs';
 import { ChangeDetectorRef, SimpleChange } from '@angular/core';
@@ -11,6 +12,12 @@ import { appTranslate as t } from '../../i18n/i18n.service';
 import { HistoricalMatchArchive } from '../../services/community-groups.service';
 
 describe('Community tournaments management', () => {
+  // Production preloads the English chunk before appTranslate runs. Reproduce
+  // that bootstrap contract in isolated Karma runs to avoid PT fallbacks.
+  beforeAll(async () => {
+    await preloadEnglishTranslations();
+  });
+
   let api: jasmine.SpyObj<CommunityTournamentsService>;
   let component: CommunityTournamentsComponent;
   const community: CommunityGroup = {
