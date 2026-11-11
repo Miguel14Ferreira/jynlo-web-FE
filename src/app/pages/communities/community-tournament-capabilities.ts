@@ -60,7 +60,11 @@ export function tournamentCreationModelForEvent(
   if (sport === 'Atletismo') {
     // Athletics uses distinct contracts for timed track races, measured field
     // events and team relays. Never route an incompatible event to another engine.
-    if (team) return eventType === 'TRACK_RELAY' ? 'RELAY_BEST_TIME' : 'UNAVAILABLE';
+    // Before choosing an event, show the relay-only team contract and ask
+    // for the exact discipline. An explicitly incompatible track event
+    // must never be silently coerced into a relay.
+    if (team) return !eventType || eventType === 'TRACK_RELAY'
+      ? 'RELAY_BEST_TIME' : 'UNAVAILABLE';
     if (eventType === 'TRACK') return 'TRACK_BEST_TIME';
     if (eventType === 'TRACK_RELAY') return 'UNAVAILABLE';
     return capabilities.individual;
