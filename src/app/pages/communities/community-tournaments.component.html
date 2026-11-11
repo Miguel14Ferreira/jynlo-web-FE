@@ -2204,6 +2204,7 @@
                 <p role="status">{{ 'communities.tournaments.teamUi.teamFull' | t }}</p>
               } @else {
                 <p>{{ 'communities.tournaments.teamUi.confirmInviteHint' | t }}</p>
+                <p class="jynlo-team-admin-hint" role="note">{{ 'teams.autonomy.joinHint' | t }}</p>
                 <button type="button" class="t-btn t-btn-primary"
                   [disabled]="busy || detailsLoading" (click)="acceptInvitedTeam()">
                   {{ (busy ? 'communities.tournaments.teamUi.accepting' : 'communities.tournaments.teamUi.acceptInvite') | t }}
