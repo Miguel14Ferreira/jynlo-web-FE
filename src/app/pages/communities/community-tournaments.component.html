@@ -1201,10 +1201,12 @@
                                     <div class="jynlo-match-score-edit">
                                       <label [for]="'home-score-' + fixture.id">Casa</label>
                                       <input [id]="'home-score-' + fixture.id" type="number" min="0" max="999"
+                                            [disabled]="championshipFixtureSaving[fixture.id]"
                                         [value]="championshipFixtureScoreDrafts[fixture.id]?.home ?? fixture.homeScore ?? ''"
                                         (input)="championshipFixtureScoreDrafts[fixture.id] = {home: $any($event.target).value === '' ? null : +$any($event.target).value, away: championshipFixtureScoreDrafts[fixture.id]?.away ?? fixture.awayScore ?? null}">
                                       <label [for]="'away-score-' + fixture.id">Fora</label>
                                       <input [id]="'away-score-' + fixture.id" type="number" min="0" max="999"
+                                            [disabled]="championshipFixtureSaving[fixture.id]"
                                         [value]="championshipFixtureScoreDrafts[fixture.id]?.away ?? fixture.awayScore ?? ''"
                                         (input)="championshipFixtureScoreDrafts[fixture.id] = {home: championshipFixtureScoreDrafts[fixture.id]?.home ?? fixture.homeScore ?? null, away: $any($event.target).value === '' ? null : +$any($event.target).value}">
                                       <button type="button" class="t-btn t-btn-secondary"
@@ -1516,10 +1518,12 @@
                                         <div class="jynlo-match-score-edit">
                                           <label [for]="'cup-home-' + match.id">Casa</label>
                                           <input [id]="'cup-home-' + match.id" type="number" min="0" max="999"
+                                            [disabled]="championshipCupScoreBusy[match.id]"
                                             [value]="championshipCupResultDrafts[match.id]?.home ?? match.homeScore ?? ''"
                                             (input)="championshipCupResultDrafts[match.id] = {home: $any($event.target).value === '' ? null : +$any($event.target).value, away: championshipCupResultDrafts[match.id]?.away ?? match.awayScore ?? null}">
                                           <label [for]="'cup-away-' + match.id">Fora</label>
                                           <input [id]="'cup-away-' + match.id" type="number" min="0" max="999"
+                                            [disabled]="championshipCupScoreBusy[match.id]"
                                             [value]="championshipCupResultDrafts[match.id]?.away ?? match.awayScore ?? ''"
                                             (input)="championshipCupResultDrafts[match.id] = {home: championshipCupResultDrafts[match.id]?.home ?? match.homeScore ?? null, away: $any($event.target).value === '' ? null : +$any($event.target).value}">
                                           <button type="button" class="t-btn t-btn-secondary"
