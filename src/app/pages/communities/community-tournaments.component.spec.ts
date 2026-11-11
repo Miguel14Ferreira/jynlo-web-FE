@@ -530,6 +530,18 @@ describe('Community tournaments management', () => {
     expect(component.deletingChampionshipId).toBeNull();
   });
 
+  it('shows a protected-history explanation when deletion is rejected by the API', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const championship = { id: 15, closedAt: null } as any;
+    championships.deleteUnplayed.and.returnValue(throwError(() => ({ status: 409 })));
+    component.requestDeleteChampionship(championship);
+    component.deleteUnplayedChampionship(championship);
+
+    expect(component.championshipError).toContain('resultados');
+    expect(component.deletingChampionshipId).toBe(15);
+    expect(component.championshipBusy).toBeFalse();
+  });
+
   it('does not offer destructive deletion of archived championship history', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const archived = { id: 15, closedAt: '2026-11-11T18:00:00Z' } as any;
