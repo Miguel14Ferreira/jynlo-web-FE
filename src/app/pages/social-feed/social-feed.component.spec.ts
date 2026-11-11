@@ -90,6 +90,28 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(root.querySelectorAll('.feed-list .feed-card').length).toBe(1);
   }));
 
+  it('limits automatic activity to five sessions until explicitly expanded', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    component.items = Array.from({ length: 8 }, (_, index) => ({
+      type: 'SESSION_ATTENDED', sessionId: index + 1,
+      authorUsername: 'player' + index, authorDisplayName: 'Player ' + index,
+      authorProfilePicUrl: null, postId: null, content: null, imageUrl: null,
+      createdAt: '2026-11-11T18:00:00Z', sport: 'Futebol', city: 'Lisboa',
+      gameDate: '2026-11-11T17:00:00Z', likeCount: 0,
+      likedByMe: false, commentCount: 0
+    } as FeedItem));
+    fixture.detectChanges();
+    expect(component.displayedAttendanceGroups.length).toBe(5);
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.feed-attendance-row').length).toBe(5);
+    const expand = (fixture.nativeElement as HTMLElement).querySelector('.feed-attendance-expand') as HTMLButtonElement;
+    expect(expand).not.toBeNull();
+    expand.click();
+    fixture.detectChanges();
+    expect(component.displayedAttendanceGroups.length).toBe(8);
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.feed-attendance-row').length).toBe(8);
+  }));
+
   it('shows onboarding for two visits and then preserves the regular feed', fakeAsync(() => {
     const first = fixture;
     first.detectChanges();
