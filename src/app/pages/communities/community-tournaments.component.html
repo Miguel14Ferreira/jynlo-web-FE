@@ -1083,6 +1083,74 @@
                                   @if ((championship.sport === 'Futebol' || championship.sport === 'Futsal')
                                       && fixture.homeScore != null && fixture.awayScore != null) {
                                     <details class="jynlo-goal-timeline jynlo-discipline-panel">
+                                      <summary><strong>Escalação do jogo</strong>
+                                        <small>({{ (championshipFixtureLineups[fixture.id] || []).length }} selecionados)</small>
+                                      </summary>
+                                      @for (teamId of [fixture.homeTeamId, fixture.awayTeamId]; track teamId) {
+                                        <div class="jynlo-lineup-team">
+                                          <strong>{{ teamId === fixture.homeTeamId ? fixture.homeTeamName : fixture.awayTeamName }}</strong>
+                                          <p>Titulares</p>
+                                          @for (entry of championshipFixtureLineups[fixture.id] || []; track entry.id) {
+                                            @if (entry.teamId === teamId && entry.selection === 'STARTER') {
+                                              <div class="jynlo-goal-row">
+                                                <span>{{ entry.playerName }}</span>
+                                                @if (canManage && !championship.closedAt) {
+                                                  <button type="button" class="t-btn t-btn-secondary"
+                                                    [disabled]="championshipLineupBusy[fixture.id]"
+                                                    (click)="removeFixtureLineupPlayer(championship, event, fixture.id, entry.profileId)">Remover</button>
+                                                }
+                                              </div>
+                                            }
+                                          }
+                                          <p>Suplentes</p>
+                                          @for (entry of championshipFixtureLineups[fixture.id] || []; track entry.id) {
+                                            @if (entry.teamId === teamId && entry.selection === 'BENCH') {
+                                              <div class="jynlo-goal-row">
+                                                <span>{{ entry.playerName }}</span>
+                                                @if (canManage && !championship.closedAt) {
+                                                  <button type="button" class="t-btn t-btn-secondary"
+                                                    [disabled]="championshipLineupBusy[fixture.id]"
+                                                    (click)="removeFixtureLineupPlayer(championship, event, fixture.id, entry.profileId)">Remover</button>
+                                                }
+                                              </div>
+                                            }
+                                          }
+                                        </div>
+                                      }
+                                      @if (canManage && !championship.closedAt && event.status === 'SCHEDULED') {
+                                        <div class="jynlo-goal-form">
+                                          <label [for]="'lineup-team-' + fixture.id">Equipa</label>
+                                          <select [id]="'lineup-team-' + fixture.id"
+                                            [value]="championshipLineupTeamDrafts[fixture.id] ?? ''"
+                                            (change)="championshipLineupTeamDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null; championshipLineupPlayerDrafts[fixture.id] = null">
+                                            <option value="">Selecionar equipa</option>
+                                            <option [value]="fixture.homeTeamId">{{ fixture.homeTeamName }}</option>
+                                            <option [value]="fixture.awayTeamId">{{ fixture.awayTeamName }}</option>
+                                          </select>
+                                          <label [for]="'lineup-player-' + fixture.id">Jogador</label>
+                                          <select [id]="'lineup-player-' + fixture.id"
+                                            [value]="championshipLineupPlayerDrafts[fixture.id] ?? ''"
+                                            (change)="championshipLineupPlayerDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null">
+                                            <option value="">Selecionar jogador</option>
+                                            @for (player of fixtureTeamPlayerOptions(championship.id, championshipLineupTeamDrafts[fixture.id]); track player.profileId) {
+                                              <option [value]="player.profileId">{{ player.displayName }}</option>
+                                            }
+                                          </select>
+                                          <label [for]="'lineup-type-' + fixture.id">Participação inicial</label>
+                                          <select [id]="'lineup-type-' + fixture.id"
+                                            [value]="championshipLineupSelectionDrafts[fixture.id] || 'STARTER'"
+                                            (change)="championshipLineupSelectionDrafts[fixture.id] = $any($event.target).value">
+                                            <option value="STARTER">Titular</option>
+                                            <option value="BENCH">Suplente</option>
+                                          </select>
+                                          <button type="button" class="t-btn t-btn-secondary"
+                                            [disabled]="championshipLineupBusy[fixture.id] || !championshipLineupPlayerDrafts[fixture.id]"
+                                            (click)="saveFixtureLineupPlayer(championship, event, fixture)">Guardar escalação</button>
+                                        </div>
+                                        <small>Guardar a escalação não confirma presenças nem calcula minutos jogados.</small>
+                                      }
+                                    </details>
+                                    <details class="jynlo-goal-timeline jynlo-discipline-panel">
                                       <summary><strong>Substituições</strong>
                                         <small>({{ (championshipFixtureSubstitutions[fixture.id] || []).length }})</small>
                                       </summary>
