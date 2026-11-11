@@ -1,3 +1,4 @@
+import { preloadEnglishTranslations } from '../../i18n/i18n.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
@@ -9,6 +10,12 @@ import { AuthenticationService } from '../../services/authethication.service';
 import { TEST_IMPORTS, TEST_PROVIDERS } from '../../testing/test-providers';
 
 describe('NotificationsComponent', () => {
+  // Production preloads the English chunk before appTranslate runs. Reproduce
+  // that bootstrap contract in isolated Karma runs to avoid PT fallbacks.
+  beforeAll(async () => {
+    await preloadEnglishTranslations();
+  });
+
   let component: NotificationsComponent;
   let fixture: ComponentFixture<NotificationsComponent>;
   let service: jasmine.SpyObj<NotificationApiService>;
