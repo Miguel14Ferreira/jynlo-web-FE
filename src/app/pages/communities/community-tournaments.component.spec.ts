@@ -566,6 +566,22 @@ describe('Community tournaments management', () => {
     expect(component.championshipBusy).toBeFalse();
   });
 
+  it('clears championship deletion confirmation when switching communities', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const championship = { id: 15, closedAt: null } as any;
+    championships.deleteUnplayed.and.returnValue(of(void 0));
+    component.requestDeleteChampionship(championship);
+    expect(component.deletingChampionshipId).toBe(15);
+
+    const otherCommunity = { ...community, id: 8 };
+    component.community = otherCommunity;
+    component.ngOnChanges({ community: new SimpleChange(community, otherCommunity, false) });
+
+    expect(component.deletingChampionshipId).toBeNull();
+    component.deleteUnplayedChampionship(championship);
+    expect(championships.deleteUnplayed).not.toHaveBeenCalled();
+  });
+
   it('does not offer destructive deletion of archived championship history', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const archived = { id: 15, closedAt: '2026-11-11T18:00:00Z' } as any;
