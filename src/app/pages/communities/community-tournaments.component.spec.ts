@@ -489,7 +489,7 @@ describe('Community tournaments management', () => {
       markForCheck: jasmine.createSpy('markForCheck'),
       detectChanges: jasmine.createSpy('detectChanges')
     } as unknown as ChangeDetectorRef;
-    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam', 'ownedEvents', 'createOwnedEvent', 'updateOwnedEvent', 'deleteOwnedEvent', 'ownedEventTeams', 'addOwnedEventTeam', 'removeOwnedEventTeam', 'ownedLeagueFixtures', 'scheduleOwnedLeague', 'ownedCupDraw', 'drawOwnedCup']);
+    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam', 'ownedEvents', 'createOwnedEvent', 'updateOwnedEvent', 'deleteOwnedEvent', 'deleteUnplayed', 'ownedEventTeams', 'addOwnedEventTeam', 'removeOwnedEventTeam', 'ownedLeagueFixtures', 'scheduleOwnedLeague', 'ownedCupDraw', 'drawOwnedCup']);
     championships.list.and.returnValue(of([]));
     championships.ownedEvents.and.returnValue(of([]));
     championships.ownedEventTeams.and.returnValue(of([]));
@@ -507,6 +507,36 @@ describe('Community tournaments management', () => {
     component.ngOnChanges({ community: new SimpleChange(undefined, community, true) });
   });
 
+
+  it('requires a second explicit action before deleting an unplayed championship', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const championship = {
+      id: 15, communityId: 7, name: 'Campeonato criado por engano',
+      sport: 'Futebol', seasonLabel: '2026/27', closedAt: null
+    } as any;
+    championships.deleteUnplayed.and.returnValue(of(void 0));
+    component.championships = [championship];
+    component.requestDeleteChampionship(championship);
+    expect(component.deletingChampionshipId).toBe(15);
+    expect(championships.deleteUnplayed).not.toHaveBeenCalled();
+
+    component.cancelDeleteChampionship();
+    component.deleteUnplayedChampionship(championship);
+    expect(championships.deleteUnplayed).not.toHaveBeenCalled();
+
+    component.requestDeleteChampionship(championship);
+    component.deleteUnplayedChampionship(championship);
+    expect(championships.deleteUnplayed).toHaveBeenCalledOnceWith(7, 15);
+    expect(component.deletingChampionshipId).toBeNull();
+  });
+
+  it('does not offer destructive deletion of archived championship history', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const archived = { id: 15, closedAt: '2026-11-11T18:00:00Z' } as any;
+    component.requestDeleteChampionship(archived);
+    component.deleteUnplayedChampionship(archived);
+    expect(championships.deleteUnplayed).not.toHaveBeenCalled();
+  });
 
   it('does not resubmit an unchanged saved league score', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
