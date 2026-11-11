@@ -490,12 +490,23 @@ export class NotificationsComponent implements OnInit {
   openTeamCompetition(notification: AppNotification): void {
     if (!['TEAM_MEMBER_INVITE', 'TEAM_ADMIN_TRANSFER', 'TEAM_ADMIN_ASSIGNED']
             .includes(notification.type || '')
-        || typeof notification.communityId !== 'number'
-        || !Number.isSafeInteger(notification.communityId)
-        || notification.communityId <= 0) return;
-    void this.router.navigate(['/menu/communities', notification.communityId], {
-      queryParams: { tab: 'tournaments' }
-    });
+        || !this.validCompetitionLinkId(notification.communityId)) return;
+    const params: Record<string, number | string> = { tab: 'tournaments' };
+    const teamId = notification.competitionTeamId;
+    if (this.validCompetitionLinkId(notification.competitionTournamentId)) {
+      params['tournament'] = notification.competitionTournamentId!;
+      if (this.validCompetitionLinkId(teamId)) {
+        params[notification.type === 'TEAM_MEMBER_INVITE' ? 'team' : 'teamPage'] = teamId!;
+      }
+    } else if (this.validCompetitionLinkId(notification.competitionChampionshipId)) {
+      params['championship'] = notification.competitionChampionshipId!;
+      if (this.validCompetitionLinkId(teamId)) params['championshipTeam'] = teamId!;
+    }
+    void this.router.navigate(['/menu/communities', notification.communityId], { queryParams: params });
+  }
+
+  private validCompetitionLinkId(value: number | null | undefined): value is number {
+    return typeof value === 'number' && Number.isSafeInteger(value) && value > 0;
   }
 
   openJoinCommunity(notification: AppNotification): void {
