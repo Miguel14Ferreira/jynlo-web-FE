@@ -2189,6 +2189,19 @@
             </button>
           }
         </nav>
+        @if (tournamentTeamInvitations[team.id] && selected?.status === 'DRAFT' && !myTeam) {
+          <section class="jynlo-team-admin-decision" role="region"
+            [attr.aria-label]="'teams.autonomy.invited' | t:{team:team.name}">
+            <strong>{{ 'teams.autonomy.invited' | t:{team:team.name} }}</strong>
+            <p>{{ 'teams.autonomy.joinHint' | t }}</p>
+            <div class="jynlo-team-admin-actions">
+              <button type="button" class="t-btn t-btn-primary" [disabled]="busy || detailsLoading || isTeamRosterFull(team)"
+                (click)="acceptTournamentTeamInvitation(team)">{{ 'teams.autonomy.joinAccept' | t }}</button>
+              <button type="button" class="t-btn t-btn-secondary" [disabled]="busy || detailsLoading"
+                (click)="declineTournamentTeamInvitation(team)">{{ 'teams.autonomy.joinDecline' | t }}</button>
+            </div>
+          </section>
+        }
         @if (invitedTeam?.id === team.id && selected?.id === invitedTournamentId) {
           <section class="team-invite-accept" [attr.aria-label]="'communities.tournaments.teamUi.inviteRegion' | t">
             <div>
@@ -2844,7 +2857,7 @@
                       </div>
                         }
                       <details class="team-manual-assign">
-                        <summary>{{ 'communities.tournaments.teamUi.manualAssign' | t }}</summary>
+                        <summary>{{ 'teams.autonomy.inviteLabel' | t }}</summary>
                         <div class="team-player-assign">
                           @if (showTeamMemberSearch(team.id)) {
                             <label [for]="'team-member-search-' + team.id">{{ 'communities.tournaments.teamUi.searchMember' | t }}</label>
@@ -2885,7 +2898,7 @@
                             }
                             <button type="button" class="t-btn t-btn-secondary"
                               [disabled]="busy || detailsLoading || !teamPlayerDraft[team.id]"
-                              (click)="assignTeamPlayer(team)">{{ 'communities.tournaments.teamUi.addPlayer' | t }}</button>
+                              (click)="assignTeamPlayer(team)">{{ 'teams.autonomy.inviteButton' | t }}</button>
                           }
                         </div>
                       </details>
