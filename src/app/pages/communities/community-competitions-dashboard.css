@@ -292,3 +292,39 @@
   outline: 2px solid #9aedd4;
   outline-offset: 3px;
 }
+
+/* Athlete events are a separate, expandable league summary—not another long card. */
+:host .jynlo-athlete-stats {
+  min-width: 0;
+  margin: 1rem 0;
+  padding: clamp(.85rem, 1.4vw, 1.2rem);
+  border: 1px solid rgba(84, 183, 174, .3);
+  border-radius: .9rem;
+  background: rgba(8, 44, 57, .7);
+}
+:host .jynlo-athlete-stats > summary {
+  cursor: pointer;
+  color: #e8fff9;
+  font-weight: 800;
+  line-height: 1.4;
+}
+:host .jynlo-athlete-stats > summary:focus-visible {
+  outline: 2px solid #a3f7dc;
+  outline-offset: 3px;
+}
+:host .jynlo-athlete-stats[open] > summary {
+  padding-bottom: .75rem;
+  border-bottom: 1px solid rgba(91, 183, 174, .2);
+}
+:host .jynlo-athlete-stats p {
+  margin: .8rem 0;
+  color: #b6dadb;
+  line-height: 1.55;
+}
+:host .jynlo-athlete-stats .jynlo-owned-league-scroll table {
+  min-width: 620px;
+}
+:host .jynlo-athlete-stats .jynlo-owned-league-scroll th:first-child,
+:host .jynlo-athlete-stats .jynlo-owned-league-scroll th:nth-child(2) {
+  text-align: left;
+}
