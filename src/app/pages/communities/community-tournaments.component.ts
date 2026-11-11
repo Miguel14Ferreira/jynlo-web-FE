@@ -580,6 +580,7 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipFixtureSaving: Record<number, boolean> = {};
   championshipFixtureGoals: Record<number, ChampionshipFixtureGoal[]> = {};
   championshipFixtureGoalPlayerDrafts: Record<number, number | null> = {};
+  championshipFixtureGoalAssistDrafts: Record<number, number | null> = {};
   championshipFixtureGoalTeamDrafts: Record<number, number | null> = {};
   championshipFixtureGoalMinuteDrafts: Record<number, number | null> = {};
   championshipFixtureGoalBusy: Record<number, boolean> = {};
@@ -612,6 +613,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     const teamId = this.championshipFixtureGoalTeamDrafts[fixture.id];
     const profileId = this.championshipFixtureGoalPlayerDrafts[fixture.id];
     const minute = this.championshipFixtureGoalMinuteDrafts[fixture.id] ?? null;
+    const assistProfileId = this.championshipFixtureGoalAssistDrafts[fixture.id] ?? null;
     const validTeam = teamId === fixture.homeTeamId || teamId === fixture.awayTeamId;
     if (!this.canManage || !!championship.closedAt || this.championshipFixtureGoalBusy[fixture.id]
         || !['Futebol', 'Futsal'].includes(championship.sport)
@@ -619,16 +621,20 @@ export class CommunityTournamentsComponent implements OnChanges {
         || !validTeam || !profileId
         || !this.fixtureTeamPlayerOptions(championship.id, teamId)
           .some(player => player.profileId === profileId)
+        || (assistProfileId !== null && (assistProfileId === profileId
+          || !this.fixtureTeamPlayerOptions(championship.id, teamId)
+            .some(player => player.profileId === assistProfileId)))
         || minute !== null && (!Number.isInteger(minute) || minute < 0 || minute > 200)) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipFixtureGoalBusy[fixture.id] = true;
     this.championshipsApi.addFixtureGoal(communityId, championship.id, event.id, fixture.id,
-      profileId, teamId!, minute).subscribe({
+      profileId, teamId!, minute, assistProfileId).subscribe({
       next: goals => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipFixtureGoals[fixture.id] = goals;
         this.championshipFixtureGoalPlayerDrafts[fixture.id] = null;
+        this.championshipFixtureGoalAssistDrafts[fixture.id] = null;
         this.championshipFixtureGoalBusy[fixture.id] = false;
         this.changeDetector.markForCheck();
       },
@@ -1050,6 +1056,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipFixtureSaving = {};
     this.championshipFixtureGoals = {};
     this.championshipFixtureGoalPlayerDrafts = {};
+    this.championshipFixtureGoalAssistDrafts = {};
     this.championshipFixtureGoalTeamDrafts = {};
     this.championshipFixtureGoalMinuteDrafts = {};
     this.championshipFixtureGoalBusy = {};
