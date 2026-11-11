@@ -1012,7 +1012,8 @@
             }
           </section>
         }
-        <details class="create-step jynlo-season-panel" open [attr.aria-label]="'communities.championshipOwned.title' | t">
+        <details class="create-step jynlo-season-panel" [open]="requestedChampionshipId === championship.id"
+          [attr.aria-label]="'communities.championshipOwned.title' | t">
           <summary class="jynlo-section-title">{{ 'communities.championshipOwned.title' | t }}</summary>
           <p>{{ 'communities.championshipOwned.distinction' | t }}</p>
           @if (championshipOwnedEvents[championship.id]?.length) {
