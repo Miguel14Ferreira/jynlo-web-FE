@@ -70,6 +70,8 @@ describe('SocialFeedComponent discovery sidebar', () => {
       sessionId, sport: 'Futebol', city: 'Lisboa', gameDate: '2026-11-11T17:00:00Z',
       likeCount: 0, likedByMe: false, commentCount: 0
     });
+    fixture.detectChanges();
+    tick(351);
     component.currentUsername = 'miguel';
     component.items = [
       makeItem('SESSION_ATTENDED', 'miguel', 17),
@@ -82,8 +84,6 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(component.attendanceGroups.find(group => group.sessionId === 17)?.count).toBe(2);
     expect(component.attendanceGroups.find(group => group.sessionId === 17)?.ownActivity?.authorUsername).toBe('miguel');
     expect(component.fullFeedItems.map(item => item.type)).toEqual(['POST']);
-    fixture.detectChanges();
-    tick(351);
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelectorAll('.feed-attendance-row').length).toBe(2);
