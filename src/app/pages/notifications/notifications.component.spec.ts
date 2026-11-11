@@ -150,6 +150,31 @@ describe('NotificationsComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/menu/events', 12]);
   });
 
+  it('opens team invitations in their own community competitions and rejects invalid references', () => {
+    const invitation = {
+      ...notificationFixture(),
+      type: 'TEAM_MEMBER_INVITE',
+      communityId: 7,
+      sessionId: null,
+      relatedUsername: 'owner'
+    };
+    component.selected = invitation;
+    fixture.detectChanges();
+
+    const open = Array.from(fixture.nativeElement.querySelectorAll('button'))
+      .find((button: any) => button.textContent.includes('Abrir competições da comunidade')) as HTMLButtonElement;
+    expect(open).toBeTruthy();
+    open.click();
+    expect(router.navigate).toHaveBeenCalledWith(['/menu/communities', 7], {
+      queryParams: { tab: 'tournaments' }
+    });
+
+    (router.navigate as jasmine.Spy).calls.reset();
+    component.openTeamCompetition({ ...invitation, communityId: -1 });
+    component.openTeamCompetition({ ...invitation, type: 'CHAT_MESSAGE' });
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
   it('should show the community invitation action and open pending invitations', () => {
     const invitation = {
       ...notificationFixture(),
