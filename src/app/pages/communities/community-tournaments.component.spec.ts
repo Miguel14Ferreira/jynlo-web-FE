@@ -33,6 +33,22 @@ describe('Community tournaments management', () => {
     championTied: false
   };
 
+  it('validates league and cup scores before enabling result submission', () => {
+    const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
+    const valid = (home: number | null, away: number | null) => ({ home, away });
+    expect(instance.championshipScoreDraftValid(undefined)).toBeFalse();
+    expect(instance.championshipScoreDraftValid(valid(null, 1))).toBeFalse();
+    expect(instance.championshipScoreDraftValid(valid(1, null))).toBeFalse();
+    expect(instance.championshipScoreDraftValid(valid(-1, 0))).toBeFalse();
+    expect(instance.championshipScoreDraftValid(valid(1000, 0))).toBeFalse();
+    expect(instance.championshipScoreDraftValid(valid(1.5, 2))).toBeFalse();
+    expect(instance.championshipScoreDraftValid(valid(Number.NaN, 1))).toBeFalse();
+    expect(instance.championshipScoreDraftValid(valid(0, 0))).toBeTrue();
+    expect(instance.championshipScoreDraftValid(valid(0, 0), true)).toBeFalse();
+    expect(instance.championshipScoreDraftValid(valid(2, 1), true)).toBeTrue();
+    expect(instance.championshipScoreDraftValid(valid(1, 2), true)).toBeTrue();
+  });
+
   it('adapts championship team controls to actual sport capabilities', () => {
     const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
     expect(instance.championshipTeamAvailable('Futebol')).toBeTrue();
