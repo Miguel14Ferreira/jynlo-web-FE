@@ -2751,16 +2751,30 @@ describe('SessionDetailsComponent', () => {
     const editor = root.querySelector('.session-details-editor') as HTMLElement;
     expect(editor.textContent).toContain('Desporto');
     expect(editor.textContent).toContain('Instruções de chegada');
+    expect(editor.textContent).toContain('Descrição da sessão');
     expect(editor.textContent).not.toContain('sessionDetail.sportLabel');
     expect(editor.textContent).not.toContain('sessionDetail.meetingPoint');
     component.detailsDraft.maxParticipants = 6;
     component.detailsDraft.priceAmount = 6.5;
+    component.detailsDraft.description = '  Jogo para todos os níveis  ';
     component.saveDetailsEdit();
     fixture.detectChanges();
     expect(sessionService.updateDetails).toHaveBeenCalledWith(7,
-      jasmine.objectContaining({ maxParticipants: 6, priceAmount: 6.5 }));
+      jasmine.objectContaining({ maxParticipants: 6, priceAmount: 6.5,
+        description: 'Jogo para todos os níveis' }));
     expect(component.detailsEditing).toBeFalse();
     expect(component.session?.maxParticipants).toBe(6);
+  });
+
+  it('shows an existing optional description as its own read-only detail section', () => {
+    component.session = {
+      ...session,
+      description: 'Jogo amigável com equipamento próprio.'
+    };
+    fixture.detectChanges();
+    const section = (fixture.nativeElement as HTMLElement).querySelector('.session-description-panel');
+    expect(section).not.toBeNull();
+    expect(section?.textContent).toContain('Jogo amigável com equipamento próprio.');
   });
 
   it('replays a member guest refresh and discards obsolete confirmations', () => {
