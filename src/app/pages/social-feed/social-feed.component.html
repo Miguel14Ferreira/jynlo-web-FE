@@ -233,7 +233,7 @@
               <span class="feed-attendance-icon" aria-hidden="true">✓</span>
               <div class="feed-attendance-summary">
                 <strong>{{ group.item.sport || ('week.title' | t) }}</strong>
-                <span>{{ group.count }} · {{ 'feed.activity.sessionAttended' | t }} · {{ group.item.city }}</span>
+                <span>{{ group.item.authorDisplayName }}@if (group.count > 1) { · +{{ group.count - 1 }} } · {{ group.item.city }} · {{ group.item.gameDate | date:'dd/MM/yyyy' }}</span>
               </div>
               <a class="feed-attendance-link" [routerLink]="['/menu/events', group.sessionId]">{{ 'feed.viewSession' | t }} →</a>
               @if (group.ownActivity) {
