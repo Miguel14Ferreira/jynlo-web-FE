@@ -366,7 +366,27 @@ export class NotificationsComponent implements OnInit {
     return (text ?? '').replace(/DESPORTO24/gi, 'Jynlo');
   }
 
+  private teamNotificationName(notification: AppNotification): string | null {
+    const prefixes: Record<string, string> = {
+      TEAM_MEMBER_INVITE: 'Convite para equipa: ',
+      TEAM_ADMIN_TRANSFER: 'Transferência da equipa: ',
+      TEAM_ADMIN_ASSIGNED: 'Agora administras a equipa '
+    };
+    const prefix = prefixes[notification.type || ''];
+    return prefix && notification.subject.startsWith(prefix)
+      ? notification.subject.slice(prefix.length).trim() || null : null;
+  }
+
   notificationSubject(notification: AppNotification): string {
+    const teamName = this.teamNotificationName(notification);
+    if (teamName) {
+      const subjects: Record<string, string> = {
+        TEAM_MEMBER_INVITE: 'notification.team.inviteSubject',
+        TEAM_ADMIN_TRANSFER: 'notification.team.transferSubject',
+        TEAM_ADMIN_ASSIGNED: 'notification.team.assignedSubject'
+      };
+      return t(subjects[notification.type!] || '', { team: teamName });
+    }
     if (notification.type === 'CHAT_MESSAGE' && notification.relatedUsername?.trim()) {
       return t('notification.chatSubject', { username: notification.relatedUsername.trim() });
     }
@@ -393,6 +413,15 @@ export class NotificationsComponent implements OnInit {
   }
 
   notificationMessage(notification: AppNotification): string {
+    const teamName = this.teamNotificationName(notification);
+    if (teamName) {
+      const messages: Record<string, string> = {
+        TEAM_MEMBER_INVITE: 'notification.team.inviteMessage',
+        TEAM_ADMIN_TRANSFER: 'notification.team.transferMessage',
+        TEAM_ADMIN_ASSIGNED: 'notification.team.assignedMessage'
+      };
+      return t(messages[notification.type!] || '', { team: teamName });
+    }
     // Direct chat stores GIPHY as a typed message; notification cards should
     // show a human-readable summary, including for existing saved alerts.
     // Never render the payload JSON or a third-party URL in the notification.
@@ -662,6 +691,10 @@ export class NotificationsComponent implements OnInit {
         return t('notification.postGameReview');
       case 'SESSION_INVITE':
         return 'Convite para sessão';
+      case 'TEAM_MEMBER_INVITE':
+      case 'TEAM_ADMIN_TRANSFER':
+      case 'TEAM_ADMIN_ASSIGNED':
+        return t('notifications.preferences.type.' + notification.type);
       case 'COMMUNITY_INVITE':
         return t('notification.communityInvite');
       case 'COMMUNITY_JOIN_REQUEST':
