@@ -1534,6 +1534,7 @@ describe('Community tournaments management', () => {
       component.ngOnChanges({ community: new SimpleChange(undefined, community, true) });
 
       expect(api.details).toHaveBeenCalledWith(7, 19);
+      expect(component.competitionView).toBe('tournaments');
       expect(component.selected?.id).toBe(19);
       expect(component.invitedTeam?.id).toBe(40);
       expect(component.teamInviteUrl(team))
