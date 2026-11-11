@@ -587,7 +587,9 @@
       }
     @for (championship of championships; track championship.id) {
       @if (!championship.closedAt) {
-      <div class="create-step jynlo-season-card">
+      <div class="create-step jynlo-season-card"
+        [attr.id]="'championship-' + championship.id"
+        [class.jynlo-targeted-competition]="requestedChampionshipId === championship.id">
         <div class="create-step-heading jynlo-season-heading">
           <div>
             <h5>{{ championship.name }}</h5>
@@ -707,7 +709,8 @@
         @if (championshipTeamAvailable(championship.sport)
           || (championshipTeamRegistries[championship.id]?.teams?.length || 0) > 0
           || (championshipTeamRegistries[championship.id]?.competitionTeams?.length || 0) > 0) {
-        <details class="create-step jynlo-season-panel">
+        <details class="create-step jynlo-season-panel"
+          [open]="requestedChampionshipId === championship.id">
           <summary class="jynlo-section-title">{{ 'communities.competitionModes.seasonTeams' | t }}</summary>
           <p>Associa as equipas de diferentes provas à mesma equipa do campeonato para acumular os pontos. A associação é manual e não depende apenas do nome.</p>
           @if (championshipTeamRegistries[championship.id]; as registry) {
@@ -736,7 +739,10 @@
             @if (registry.teams.length) {
               <h6>Equipas inscritas nesta época</h6>
               @for (seasonTeam of registry.teams; track seasonTeam.id) {
-                <div class="jynlo-season-team">
+                <div class="jynlo-season-team"
+                  [attr.id]="'championship-team-' + seasonTeam.id"
+                  [class.jynlo-targeted-competition]="requestedChampionshipId === championship.id
+                    && requestedChampionshipTeamId === seasonTeam.id">
                   <div class="jynlo-season-team-heading">
                     <strong>{{ seasonTeam.name }}</strong>
                     <span>{{ (championshipTeamPlayers[seasonTeam.id] || []).length }} jogadores</span>
