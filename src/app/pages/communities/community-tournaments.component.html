@@ -877,7 +877,11 @@
                         }
                       </div>
                     } @empty {
-                      <p class="team-honours-muted">Ainda não há jogadores inscritos nesta equipa.</p>
+                      @if (championshipTeamRosterSearch[seasonTeam.id]?.trim()) {
+                        <p class="team-honours-muted">Não foram encontrados jogadores com esta pesquisa.</p>
+                      } @else {
+                        <p class="team-honours-muted">Ainda não há jogadores inscritos nesta equipa.</p>
+                      }
                     }
                   </div>
                   @if (canManageChampionshipTeam(seasonTeam.id) && !championship.closedAt) {
