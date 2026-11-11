@@ -370,6 +370,7 @@ export class CommunityTournamentsComponent implements OnChanges {
 
   championshipTeamPlayers: Record<number, ChampionshipTeamPlayer[]> = {};
   championshipTeamPlayerDrafts: Record<number, number | null> = {};
+  championshipTeamMemberSearch: Record<number, string> = {};
   championshipTeamPlayerBusy: Record<number, boolean> = {};
   championshipTeamAdministrators: Record<number, ChampionshipTeamAdministrator> = {};
   championshipTeamAdminDrafts: Record<number, number | null> = {};
@@ -555,6 +556,17 @@ export class CommunityTournamentsComponent implements OnChanges {
     return (this.community.members || []).filter(member => !registered.has(member.profileId));
   }
 
+  /** Search the community roster without requiring members to scroll a long dropdown. */
+  searchableChampionshipTeamMembers(championshipId: number, teamId: number): CommunityGroup['members'] {
+    const query = (this.championshipTeamMemberSearch[teamId] || '')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+    const candidates = this.availableChampionshipTeamMembers(championshipId);
+    if (!query) return candidates.slice(0, 40);
+    return candidates.filter(member => (
+      (member.fullName || '') + ' ' + (member.username || '')
+    ).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(query)).slice(0, 40);
+  }
+
   addChampionshipTeamPlayer(championshipId: number, teamId: number): void {
     const profileId = this.championshipTeamPlayerDrafts[teamId];
     if (!this.championshipSeasonEditable(championshipId)
@@ -569,6 +581,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamInviteFeedback[teamId] = t('teams.autonomy.inviteSent');
         this.championshipTeamPlayerDrafts[teamId] = null;
+        this.championshipTeamMemberSearch[teamId] = '';
         this.championshipTeamPlayerBusy[teamId] = false;
         this.changeDetector.markForCheck();
       },
@@ -1874,6 +1887,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipTeamRegistries = {};
     this.championshipTeamPlayers = {};
     this.championshipTeamPlayerDrafts = {};
+    this.championshipTeamMemberSearch = {};
     this.championshipTeamPlayerBusy = {};
     this.championshipTeamAdministrators = {};
     this.championshipTeamAdminDrafts = {};
