@@ -10,7 +10,10 @@ export interface ChampionshipOwnedEvent {
   championshipId: number;
   name: string;
   format: ChampionshipOwnedEventFormat;
-  status: 'DRAFT' | 'SCHEDULED';
+  status: 'DRAFT' | 'SCHEDULED' | 'COMPLETED';
+  finalizedAt?: string | null;
+  winnerTeamId?: number | null;
+  winnerTeamName?: string | null;
   createdAt: string;
 }
 
@@ -483,6 +486,12 @@ export class CommunityChampionshipsService {
                          eventId: number): Observable<ChampionshipLeaguePlayerStats[]> {
     return this.http.get<ChampionshipLeaguePlayerStats[]>(
       this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId + '/player-stats');
+  }
+
+  finalizeOwnedLeague(communityId: number, championshipId: number,
+                     eventId: number): Observable<ChampionshipOwnedEvent> {
+    return this.http.post<ChampionshipOwnedEvent>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId + '/finalize-league', {});
   }
 
   ownedLeagueStandings(communityId: number, championshipId: number,
