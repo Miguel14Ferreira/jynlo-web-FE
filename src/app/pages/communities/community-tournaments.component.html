@@ -733,11 +733,7 @@
                     <section class="jynlo-team-roster-add" [attr.aria-label]="'Administração de ' + seasonTeam.name">
                       <p>
                         <strong>Administrador da equipa:</strong>
-                        @if (administrator.adminProfileId) {
-                          Perfil #{{ administrator.adminProfileId }}
-                        } @else {
-                          Por atribuir
-                        }
+                        {{ championshipTeamAdminName(administrator.adminProfileId) }}
                       </p>
                       @if (administrator.canAccept) {
                         <p role="status">Foste convidado para administrar esta equipa. Aceitas gerir o plantel?</p>
