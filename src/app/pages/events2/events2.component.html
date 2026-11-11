@@ -965,6 +965,21 @@
         </section>
       }
 
+      <section class="create-meeting-point-panel" aria-labelledby="create-description-title">
+        <div>
+          <h2 id="create-description-title">Descrição da sessão <small>(opcional)</small></h2>
+          <p id="create-description-help">Explica o nível do jogo, regras combinadas, material necessário ou outras informações úteis para quem quer participar.</p>
+        </div>
+        <label for="create-session-description">
+          <span>Descrição</span>
+          <textarea id="create-session-description" name="description"
+                    [(ngModel)]="description" maxlength="1000" rows="4"
+                    [disabled]="loading" aria-describedby="create-description-help"
+                    placeholder="Ex.: Jogo amigável, todos os níveis são bem-vindos. Trazer camisola clara e escura."></textarea>
+        </label>
+        <small>{{ description.length }}/1000 caracteres. Visível a quem consultar a sessão; não incluas códigos de acesso ou dados privados.</small>
+      </section>
+
       <section class="create-meeting-point-panel" aria-labelledby="create-meeting-point-title">
         <div>
           <h2 id="create-meeting-point-title">{{ 'createSession.meetingPointTitle' | t }}</h2>
