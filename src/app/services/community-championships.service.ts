@@ -158,6 +158,7 @@ export interface ChampionshipTeamAdministrator {
   pendingProfileId: number | null;
   canManage: boolean;
   canAccept: boolean;
+  canTransfer?: boolean;
 }
 
 export interface CommunityChampionshipTeam {
