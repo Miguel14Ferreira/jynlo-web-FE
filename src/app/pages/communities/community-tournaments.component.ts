@@ -1014,6 +1014,86 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
   championshipCupDraws: Record<number, ChampionshipCupOpeningRound> = {};
   championshipCupBusy = false;
+  championshipCupResultDrafts: Record<number, { home: number | null; away: number | null }> = {};
+  championshipCupScoreBusy: Record<number, boolean> = {};
+  championshipCupAdvanceConfirm: Record<number, boolean> = {};
+
+  cupCurrentRound(eventId: number): number {
+    const matches = this.championshipCupDraws[eventId]?.matches || [];
+    return Math.max(0, ...matches.map(match => match.round));
+  }
+
+  cupCurrentMatches(eventId: number): ChampionshipOwnedLeagueFixture[] {
+    const round = this.cupCurrentRound(eventId);
+    return (this.championshipCupDraws[eventId]?.matches || []).filter(match => match.round === round);
+  }
+
+  cupRoundCanAdvance(eventId: number): boolean {
+    const matches = this.cupCurrentMatches(eventId);
+    return matches.length > 0 && matches.every(match =>
+      match.homeScore != null && match.awayScore != null && match.homeScore !== match.awayScore);
+  }
+
+  saveChampionshipCupScore(championship: CommunityChampionship, event: ChampionshipOwnedEvent,
+                           match: ChampionshipOwnedLeagueFixture): void {
+    const score = this.championshipCupResultDrafts[match.id];
+    if (!this.canManage || !!championship.closedAt || event.format !== 'CUP'
+        || event.status !== 'SCHEDULED' || match.round !== this.cupCurrentRound(event.id)
+        || this.championshipCupScoreBusy[match.id] || !score
+        || !Number.isInteger(score.home) || !Number.isInteger(score.away)
+        || score.home! < 0 || score.away! < 0 || score.home! > 999 || score.away! > 999
+        || score.home === score.away) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipCupScoreBusy[match.id] = true;
+    this.championshipError = '';
+    this.championshipsApi.recordOwnedFixtureScore(communityId, championship.id, event.id,
+      match.id, score.home!, score.away!).subscribe({
+      next: updated => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        const draw = this.championshipCupDraws[event.id];
+        if (draw) this.championshipCupDraws[event.id] = {
+          ...draw, matches: draw.matches.map(row => row.id === updated.id ? updated : row)
+        };
+        this.championshipCupScoreBusy[match.id] = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipCupScoreBusy[match.id] = false;
+        this.championshipError = 'Não foi possível guardar o resultado. A eliminatória precisa de vencedor.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  advanceChampionshipCup(championship: CommunityChampionship, event: ChampionshipOwnedEvent): void {
+    if (!this.canManage || !!championship.closedAt || event.format !== 'CUP'
+        || event.status !== 'SCHEDULED' || !this.championshipCupAdvanceConfirm[event.id]
+        || !this.cupRoundCanAdvance(event.id) || this.championshipCupBusy) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipCupBusy = true;
+    this.championshipError = '';
+    this.championshipsApi.advanceOwnedCup(communityId, championship.id, event.id).subscribe({
+      next: draw => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipCupDraws[event.id] = draw;
+        this.championshipCupAdvanceConfirm[event.id] = false;
+        this.championshipCupBusy = false;
+        this.loadChampionshipOwnedEvents(championship.id);
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipCupBusy = false;
+        this.championshipError = 'Não foi possível avançar. Confirma que todas as eliminatórias têm vencedor.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+
 
   loadChampionshipCupDraw(championshipId: number, eventId: number): void {
     const revision = this.championshipRevision;
@@ -1402,6 +1482,9 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipFixtureGoalMinuteDrafts = {};
     this.championshipFixtureGoalBusy = {};
     this.championshipCupDraws = {};
+    this.championshipCupResultDrafts = {};
+    this.championshipCupScoreBusy = {};
+    this.championshipCupAdvanceConfirm = {};
     this.championshipLeagueLegs = {};
     this.editingChampionshipEventId = null;
     this.editingChampionshipEventName = '';
