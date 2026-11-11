@@ -553,6 +553,26 @@ describe('Community tournaments management', () => {
     expect(link).not.toHaveBeenCalled();
   });
 
+  it('still allows an active championship team manager to send a valid invitation', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const invite = jasmine.createSpy('inviteTeamPlayer').and.returnValue(of(void 0));
+    (championships as any).inviteTeamPlayer = invite;
+    component.championships = [{ id: 15, closedAt: null } as any];
+    component.canManage = true;
+    component.championshipTeamRegistries[15] = { teams: [] } as any;
+    component.championshipTeamPlayerDrafts[44] = 22;
+    component.community = {
+      ...component.community,
+      members: [{ profileId: 22, username: 'player' }] as any
+    };
+
+    component.addChampionshipTeamPlayer(15, 44);
+
+    expect(invite).toHaveBeenCalledOnceWith(7, 15, 44, 22);
+    expect(component.championshipTeamPlayerBusy[44]).toBeFalse();
+    expect(component.championshipTeamPlayerDrafts[44]).toBeNull();
+  });
+
   it('only enables championship roster editing for an existing active season', () => {
     expect(component.championshipSeasonEditable(15)).toBeFalse();
     component.championships = [{ id: 15, closedAt: null } as any];
