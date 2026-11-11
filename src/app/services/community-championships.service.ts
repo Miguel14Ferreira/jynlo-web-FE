@@ -354,6 +354,11 @@ export class CommunityChampionshipsService {
       { championshipTeamId });
   }
 
+  /** Permanently remove a never-played championship; server enforces historical safeguards. */
+  deleteUnplayed(communityId: number, championshipId: number): Observable<void> {
+    return this.http.delete<void>(this.base(communityId) + '/' + championshipId);
+  }
+
   close(communityId: number, championshipId: number): Observable<CommunityChampionship> {
     return this.http.post<CommunityChampionship>(
       this.base(communityId) + '/' + championshipId + '/close', {});
