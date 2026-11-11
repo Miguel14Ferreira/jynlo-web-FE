@@ -284,3 +284,38 @@
   :host .jynlo-season-team .jynlo-team-roster-add button { width: 100%; }
   :host .jynlo-season-team .jynlo-roster-player > button { margin-left: auto; }
 }
+
+/* Championship fixtures: keep home/away names and scores readable on phones. */
+:host .jynlo-match-result-main { min-width: 0; gap: clamp(.35rem, 1.5vw, 1rem); }
+:host .jynlo-match-result-main > strong {
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: normal;
+  line-height: 1.4;
+}
+:host .jynlo-match-result-main .jynlo-score {
+  box-sizing: border-box;
+  min-width: 3.25rem;
+  white-space: nowrap;
+  text-align: center;
+}
+:host .jynlo-match-score-edit > label { font-size: .85rem; }
+:host .jynlo-match-score-edit > input[type="number"] {
+  box-sizing: border-box;
+  flex: 0 1 5.25rem;
+  max-width: 100%;
+  text-align: center;
+}
+@media(max-width: 500px) {
+  :host .jynlo-match-result-main > strong { font-size: .85rem; }
+  :host .jynlo-match-result-main .jynlo-score {
+    min-width: 2.65rem;
+    padding: .4rem .25rem;
+    font-size: 1rem;
+  }
+  :host .jynlo-match-score-edit {
+    justify-content: flex-start;
+    gap: .4rem .55rem;
+  }
+  :host .jynlo-match-score-edit > input[type="number"] { flex-basis: 4.4rem; }
+}
