@@ -443,6 +443,30 @@ describe('Events2Component', () => {
     expect(component.presetMessage).toBeTruthy();
   });
 
+  it('stores the public description in a saved configuration and restores it', () => {
+    component.sport = 'Futsal';
+    component.city = 'Lisboa';
+    component.address = 'Rua do Campo';
+    component.maxParticipants = 10;
+    component.description = '  Jogo descontraído, trazer colete.  ';
+    component.presetName = 'Sexta-feira';
+    presetService.create.and.callFake((name, settings) => of({
+      id: 95, name, settings, createdAt: '', updatedAt: ''
+    }));
+
+    component.savePreset();
+    expect(presetService.create).toHaveBeenCalledWith(
+      'Sexta-feira', jasmine.objectContaining({
+        description: 'Jogo descontraído, trazer colete.'
+      })
+    );
+    component.description = '';
+    component.applyPresetById(95);
+
+    expect(component.description).toBe('Jogo descontraído, trazer colete.');
+    expect(component.meetingPointInstructions).toBe('');
+  });
+
   it('restores the Airsoft game type saved in a session preset', () => {
     component.sport = 'Airsoft';
     component.airsoftGameType = 'MILSIM';
