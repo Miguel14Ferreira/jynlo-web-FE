@@ -503,7 +503,9 @@ describe('Community tournaments management', () => {
       .and.returnValue(throwError(() => new Error('Server unavailable')));
     (championships as any).recordOwnedFixtureScore = scoreApi;
     const match = { id: 502, round: 1, homeScore: null, awayScore: null };
+    spyOn(component, 'loadChampionshipStandings');
     component.championshipCupDraws[102] = { matches: [match], byes: [] } as any;
+    component.championshipCupAdvanceConfirm[102] = true;
     component.championshipCupResultDrafts[502] = { home: 3, away: 1 };
 
     component.saveChampionshipCupScore(
@@ -513,6 +515,8 @@ describe('Community tournaments management', () => {
 
     expect(scoreApi).toHaveBeenCalledOnceWith(7, 15, 102, 502, 3, 1);
     expect(component.championshipCupResultDrafts[502]).toEqual({ home: 3, away: 1 });
+    expect(component.championshipCupAdvanceConfirm[102]).toBeTrue();
+    expect(component.loadChampionshipStandings).not.toHaveBeenCalled();
     expect(component.championshipCupScoreBusy[502]).toBeFalse();
     expect(component.championshipError).toContain('Não foi possível guardar');
   });
