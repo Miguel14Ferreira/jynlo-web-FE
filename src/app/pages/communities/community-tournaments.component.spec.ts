@@ -62,6 +62,36 @@ describe('Community tournaments management', () => {
     expect(instance.championshipFixtureGoalAttribution(fixture)).toBeNull();
   });
 
+  it('never attributes a player goal beyond the persisted team score', () => {
+    const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
+    const fixture = { id: 810, homeTeamId: 11, awayTeamId: 12, homeScore: 2, awayScore: 0 } as any;
+    instance.championshipFixtureGoals = {};
+    expect(instance.championshipFixtureCanAssignGoal(fixture, 11)).toBeFalse();
+    instance.championshipFixtureGoals[810] = [];
+    expect(instance.championshipFixtureCanAssignGoal(fixture, 11)).toBeTrue();
+    expect(instance.championshipFixtureCanAssignGoal(fixture, 12)).toBeFalse();
+    expect(instance.championshipFixtureCanAssignGoal(fixture, 99)).toBeFalse();
+    instance.championshipFixtureGoals[810] = [{ id: 1, teamId: 11 }, { id: 2, teamId: 11 }] as any;
+    expect(instance.championshipFixtureCanAssignGoal(fixture, 11)).toBeFalse();
+    fixture.homeScore = 3;
+    expect(instance.championshipFixtureCanAssignGoal(fixture, 11)).toBeTrue();
+  });
+
+  it('shows scorer events chronologically and leaves undated events last', () => {
+    const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
+    instance.championshipFixtureGoals = {
+      811: [
+        { id: 7, minute: null },
+        { id: 3, minute: 70 },
+        { id: 2, minute: 10 },
+        { id: 1, minute: 10 }
+      ] as any
+    };
+    expect(instance.championshipFixtureGoalsInOrder(811).map(goal => goal.id)).toEqual([1, 2, 3, 7]);
+    expect(instance.championshipFixtureGoals[811].map(goal => goal.id)).toEqual([7, 3, 2, 1]);
+    expect(instance.championshipFixtureGoalsInOrder(999)).toEqual([]);
+  });
+
   it('only saves edited scores and respects knockout winner rules', () => {
     const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
     const recorded = { homeScore: 2, awayScore: 1 };
