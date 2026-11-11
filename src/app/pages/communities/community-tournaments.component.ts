@@ -1217,6 +1217,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         delete this.championshipFixtureScoreDrafts[fixture.id];
         this.loadChampionshipOwnedLeagueTable(championship.id, event.id);
         this.loadChampionshipLeaguePlayerStats(championship.id, event.id);
+        this.loadChampionshipStandings(championship.id);
         this.championshipFixtureSaving[fixture.id] = false;
         this.changeDetector.markForCheck();
       },
@@ -1275,6 +1276,9 @@ export class CommunityTournamentsComponent implements OnChanges {
         };
         // Subsequent edits must start from the latest persisted fixture.
         delete this.championshipCupResultDrafts[match.id];
+        // Previously confirmed progression must be reviewed after any changed score.
+        this.championshipCupAdvanceConfirm[event.id] = false;
+        this.loadChampionshipStandings(championship.id);
         this.championshipCupScoreBusy[match.id] = false;
         this.changeDetector.markForCheck();
       },
