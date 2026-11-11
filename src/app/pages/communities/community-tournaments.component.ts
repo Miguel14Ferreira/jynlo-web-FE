@@ -279,7 +279,9 @@ export class CommunityTournamentsComponent implements OnChanges {
   /** Owned league/cup fixtures currently register teams only. Individual and
    * judged/timed sports must not silently inherit this team-fixture contract. */
   championshipOwnedTeamEventsAvailable(sport: string | null | undefined): boolean {
-    return tournamentSportCapabilities(sport).team === 'NUMERIC_TEAM';
+    // The owned-event result engine currently understands football goals only.
+    // A sport-specific engine must exist before exposing fixture generation.
+    return sport === 'Futebol' || sport === 'Futsal';
   }
 
   championshipIndividualAvailable(sport: string | null | undefined): boolean {
