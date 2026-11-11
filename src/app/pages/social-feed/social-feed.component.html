@@ -228,7 +228,7 @@
     @if (!loading && !errorMessage && items.length > 0) {
       @if (attendanceGroups.length > 0) {
         <section class="feed-attendance-digest" aria-label="Atividade de sessões">
-          @for (group of attendanceGroups; track group.sessionId) {
+          @for (group of displayedAttendanceGroups; track group.sessionId) {
             <div class="feed-attendance-row">
               <span class="feed-attendance-icon" aria-hidden="true">✓</span>
               <div class="feed-attendance-summary">
@@ -242,6 +242,13 @@
                   [attr.aria-label]="'feed.hideAttendance' | t">{{ 'feed.hideAttendance' | t }}</button>
               }
             </div>
+          }
+          @if (attendanceGroups.length > 5) {
+            <button type="button" class="feed-attendance-expand"
+              [attr.aria-expanded]="showAllAttendance"
+              (click)="showAllAttendance = !showAllAttendance">
+              {{ (showAllAttendance ? 'common.close' : 'feed.v3.viewAll') | t }}
+            </button>
           }
         </section>
       }
