@@ -1,0 +1,199 @@
+/* Team self-management: shared presentation across championships and tournaments. */
+:host .jynlo-admin-explainer {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: clamp(1rem, 2.3vw, 1.35rem);
+  margin: .85rem 0 1rem;
+  min-width: 0;
+  border: 1px solid rgba(79, 224, 184, .32);
+  border-radius: 1rem;
+  background: linear-gradient(125deg, rgba(16, 100, 93, .37), rgba(10, 39, 56, .88));
+  box-shadow: 0 12px 28px rgba(0, 11, 23, .12);
+}
+:host .jynlo-admin-explainer-symbol {
+  display: grid;
+  flex: 0 0 2.7rem;
+  place-items: center;
+  width: 2.7rem;
+  height: 2.7rem;
+  color: #092f34;
+  background: #87f6d4;
+  border-radius: .8rem;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+:host .jynlo-admin-explainer > div { min-width: 0; }
+:host .jynlo-admin-explainer strong {
+  display: block;
+  margin: 0 0 .3rem;
+  color: #f3fffd;
+  font-size: 1.04rem;
+  line-height: 1.35;
+}
+:host .jynlo-admin-explainer p {
+  max-width: 64ch;
+  margin: 0;
+  font-size: .9rem;
+  line-height: 1.6;
+  color: #c3e3e5;
+}
+:host .jynlo-admin-success {
+  margin: .55rem 0;
+  padding: .8rem 1rem;
+  color: #d9fff2;
+  border: 1px solid rgba(115, 248, 190, .25);
+  border-radius: .75rem;
+  background: rgba(20, 119, 83, .17);
+  line-height: 1.5;
+}
+:host .jynlo-team-admin-card {
+  min-width: 0;
+  margin: .85rem 0 1.15rem;
+  padding: clamp(1rem, 2vw, 1.35rem);
+  border: 1px solid rgba(67, 209, 187, .33);
+  border-radius: 1.1rem;
+  background: linear-gradient(140deg, #113d48 0%, #0c273b 72%);
+  box-shadow: 0 14px 32px rgba(0, 11, 24, .14);
+}
+:host .jynlo-team-admin-card.is-waiting {
+  border-color: rgba(154, 192, 204, .28);
+  background: linear-gradient(140deg, #123540 0%, #102638 100%);
+}
+:host .jynlo-team-admin-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .9rem;
+}
+:host .jynlo-team-admin-identity { display: flex; align-items: center; gap: .85rem; min-width: 0; }
+:host .jynlo-team-admin-identity > div { display: grid; gap: .15rem; min-width: 0; }
+:host .jynlo-team-admin-avatar {
+  display: grid;
+  flex: 0 0 2.8rem;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border: 1px solid rgba(120, 255, 207, .25);
+  border-radius: .88rem;
+  color: #a0ffdd;
+  background: rgba(54, 169, 136, .2);
+  font-size: 1.45rem;
+}
+:host .jynlo-team-admin-eyebrow {
+  color: #a9d9dc;
+  font-size: .73rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+:host .jynlo-team-admin-identity strong {
+  color: #f6fffe;
+  font-size: clamp(.98rem, 1.4vw, 1.12rem);
+  overflow-wrap: anywhere;
+}
+:host .jynlo-team-admin-state {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  max-width: 100%;
+  padding: .42rem .7rem;
+  border: 1px solid rgba(118, 232, 186, .28);
+  border-radius: 999px;
+  color: #bdfce7;
+  background: rgba(34, 150, 100, .15);
+  font-size: .76rem;
+  font-weight: 750;
+  line-height: 1.25;
+}
+:host .jynlo-team-admin-card.is-waiting .jynlo-team-admin-state {
+  color: #e0eff7;
+  background: rgba(155, 174, 196, .1);
+  border-color: rgba(175, 191, 209, .23);
+}
+:host .jynlo-team-admin-hint {
+  color: #c5dce4;
+  line-height: 1.55;
+  max-width: 70ch;
+  margin: .95rem 0 .1rem;
+  font-size: .89rem;
+}
+:host .jynlo-team-admin-decision,
+:host .jynlo-team-admin-pending,
+:host .jynlo-team-admin-transfer {
+  min-width: 0;
+  padding: 1rem;
+  margin: 1rem 0 0;
+  background: rgba(4, 23, 39, .38);
+  border: 1px solid rgba(147, 208, 213, .18);
+  border-radius: .85rem;
+}
+:host .jynlo-team-admin-decision { border-color: rgba(107, 233, 194, .38); }
+:host .jynlo-team-admin-pending { border-color: rgba(235, 192, 118, .25); }
+:host .jynlo-team-admin-decision strong,
+:host .jynlo-team-admin-pending strong {
+  display: block;
+  color: #f3fffd;
+  font-size: .95rem;
+  line-height: 1.35;
+}
+:host .jynlo-team-admin-decision p,
+:host .jynlo-team-admin-pending p,
+:host .jynlo-team-admin-transfer small {
+  display: block;
+  margin: .45rem 0 .8rem;
+  color: #c1dbe3;
+  font-size: .84rem;
+  line-height: 1.55;
+}
+:host .jynlo-team-admin-actions,
+:host .jynlo-team-admin-transfer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .6rem;
+}
+:host .jynlo-team-admin-transfer label {
+  display: block;
+  margin: 0 0 .6rem;
+  font-size: .86rem;
+  font-weight: 750;
+  color: #e6fcfa;
+}
+:host .jynlo-team-admin-transfer-controls select {
+  min-width: 0;
+  flex: 1 1 180px;
+  max-width: 100%;
+  min-height: 2.7rem;
+  padding: .65rem .8rem;
+  border: 1px solid rgba(133, 213, 211, .35);
+  border-radius: .65rem;
+  color: #f1fbff;
+  background: #15394b;
+  font: inherit;
+  font-size: .9rem;
+}
+:host .jynlo-team-admin-transfer-controls select:focus-visible,
+:host .jynlo-team-admin-card button:focus-visible {
+  outline: 2px solid #8efad8;
+  outline-offset: 2px;
+}
+:host .jynlo-team-admin-transfer small { margin: .6rem 0 0; }
+:host .jynlo-team-admin-card button { min-height: 2.45rem; }
+:host .team-page-admin { margin: .5rem 0 1rem; }
+@media (max-width: 620px) {
+  :host .jynlo-admin-explainer { gap: .75rem; }
+  :host .jynlo-admin-explainer-symbol { width: 2.15rem; height: 2.15rem; flex-basis: 2.15rem; font-size: 1.2rem; }
+  :host .jynlo-team-admin-card-header { align-items: flex-start; }
+  :host .jynlo-team-admin-state { margin-left: 3.65rem; }
+  :host .jynlo-team-admin-actions > button,
+  :host .jynlo-team-admin-transfer-controls > button { flex: 1 1 100%; }
+  :host .jynlo-team-admin-transfer-controls select { flex-basis: 100%; }
+  :host .jynlo-team-admin-decision,
+  :host .jynlo-team-admin-transfer,
+  :host .jynlo-team-admin-pending { padding: .85rem; }
+}
+@media(prefers-reduced-motion:reduce) {
+  :host .jynlo-team-admin-card, :host .jynlo-admin-explainer { scroll-behavior: auto; }
+}
