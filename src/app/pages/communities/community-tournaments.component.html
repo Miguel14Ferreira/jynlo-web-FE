@@ -1598,16 +1598,16 @@
                                         <div class="jynlo-match-score-edit">
                                           <label [for]="'cup-home-' + match.id">Casa</label>
                                           <input [id]="'cup-home-' + match.id" type="number" min="0" max="999"
-                                            [disabled]="championshipCupScoreBusy[match.id]"
+                                            [disabled]="championshipCupBusy || championshipCupScoreBusy[match.id]"
                                             [value]="championshipCupResultDrafts[match.id]?.home ?? match.homeScore ?? ''"
                                             (input)="championshipCupResultDrafts[match.id] = {home: $any($event.target).value === '' ? null : +$any($event.target).value, away: championshipCupResultDrafts[match.id]?.away ?? match.awayScore ?? null}">
                                           <label [for]="'cup-away-' + match.id">Fora</label>
                                           <input [id]="'cup-away-' + match.id" type="number" min="0" max="999"
-                                            [disabled]="championshipCupScoreBusy[match.id]"
+                                            [disabled]="championshipCupBusy || championshipCupScoreBusy[match.id]"
                                             [value]="championshipCupResultDrafts[match.id]?.away ?? match.awayScore ?? ''"
                                             (input)="championshipCupResultDrafts[match.id] = {home: championshipCupResultDrafts[match.id]?.home ?? match.homeScore ?? null, away: $any($event.target).value === '' ? null : +$any($event.target).value}">
                                           <button type="button" class="t-btn t-btn-secondary"
-                                            [disabled]="championshipCupScoreBusy[match.id] || !championshipScoreChanged(championshipCupResultDrafts[match.id], match, true)"
+                                            [disabled]="championshipCupBusy || championshipCupScoreBusy[match.id] || !championshipScoreChanged(championshipCupResultDrafts[match.id], match, true)"
                                             (click)="saveChampionshipCupScore(championship, event, match)">
                                             {{ championshipCupScoreBusy[match.id] ? 'A guardar…' : 'Guardar resultado' }}
                                           </button>
@@ -1635,16 +1635,17 @@
                             <div class="jynlo-league-finalize">
                               <label>
                                 <input type="checkbox"
+                                  [disabled]="championshipCupBusy || cupRoundHasPendingScores(event.id)"
                                   [checked]="championshipCupAdvanceConfirm[event.id] || false"
                                   (change)="championshipCupAdvanceConfirm[event.id] = $any($event.target).checked">
                                 Confirmo os resultados desta ronda
                               </label>
                               <button type="button" class="t-btn t-btn-primary"
-                                [disabled]="championshipCupBusy || !cupRoundCanAdvance(event.id) || !championshipCupAdvanceConfirm[event.id]"
+                                [disabled]="!cupRoundCanAdvance(event.id) || !championshipCupAdvanceConfirm[event.id]"
                                 (click)="advanceChampionshipCup(championship, event)">
                                 {{ championshipCupBusy ? 'A avançar…' : 'Confirmar vencedores e avançar' }}
                               </button>
-                              <small>Todos os jogos precisam de vencedor. Se houver empate, regista primeiro o resultado após desempate.</small>
+                              <small>Todos os jogos precisam de vencedor. Se houver empate, regista primeiro o resultado após desempate. Guarda todas as alterações antes de avançar.</small>
                             </div>
                           }
                         } @else if (canManage && !championship.closedAt && event.status === 'DRAFT') {
