@@ -1254,7 +1254,7 @@
                                         [value]="championshipFixtureScoreDrafts[fixture.id]?.away ?? fixture.awayScore ?? ''"
                                         (input)="championshipFixtureScoreDrafts[fixture.id] = {home: championshipFixtureScoreDrafts[fixture.id]?.home ?? fixture.homeScore ?? null, away: $any($event.target).value === '' ? null : +$any($event.target).value}">
                                       <button type="button" class="t-btn t-btn-secondary"
-                                        [disabled]="championshipFixtureSaving[fixture.id] || !championshipScoreChanged(championshipFixtureScoreDrafts[fixture.id], fixture) || !championshipScoreRespectsAssignedGoals(fixture, championshipFixtureScoreDrafts[fixture.id])"
+                                        [disabled]="championshipFixtureSaving[fixture.id] || championshipFixtureGoalBusy[fixture.id] || !championshipScoreChanged(championshipFixtureScoreDrafts[fixture.id], fixture) || !championshipScoreRespectsAssignedGoals(fixture, championshipFixtureScoreDrafts[fixture.id])"
                                         (click)="saveChampionshipFixtureScore(championship, event, fixture)">
                                         {{ championshipFixtureSaving[fixture.id] ? 'A guardar…' : 'Guardar resultado' }}
                                       </button>
@@ -1472,7 +1472,7 @@
                                           </span>
                                           @if (canManage && !championship.closedAt) {
                                             <button type="button" class="t-btn t-btn-secondary"
-                                              [disabled]="championshipFixtureGoalBusy[fixture.id]"
+                                              [disabled]="championshipFixtureSaving[fixture.id] || championshipFixtureGoalBusy[fixture.id]"
                                               (click)="removeFixtureGoal(championship, event, fixture.id, goal.id)">Remover</button>
                                           }
                                         </div>
@@ -1514,7 +1514,7 @@
                                             [value]="championshipFixtureGoalMinuteDrafts[fixture.id] ?? ''"
                                             (input)="championshipFixtureGoalMinuteDrafts[fixture.id] = $any($event.target).value === '' ? null : +$any($event.target).value">
                                           <button type="button" class="t-btn t-btn-secondary"
-                                            [disabled]="championshipFixtureGoalBusy[fixture.id] || !championshipFixtureGoalPlayerDrafts[fixture.id] || !championshipFixtureCanAssignGoal(fixture, championshipFixtureGoalTeamDrafts[fixture.id])"
+                                            [disabled]="championshipFixtureSaving[fixture.id] || championshipFixtureGoalBusy[fixture.id] || !championshipFixtureGoalPlayerDrafts[fixture.id] || !championshipFixtureCanAssignGoal(fixture, championshipFixtureGoalTeamDrafts[fixture.id])"
                                             (click)="addFixtureGoal(championship, event, fixture)">Registar golo</button>
                                           @if (!championshipFixtureGoals[fixture.id]) {
                                             <small class="jynlo-score-guidance" role="status">A consultar os golos registados antes de permitir novas atribuições.</small>
