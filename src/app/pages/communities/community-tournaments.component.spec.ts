@@ -439,6 +439,26 @@ describe('Community tournaments management', () => {
     expect(component.championshipFixtureSaving[501]).toBeFalse();
   });
 
+  it('updates cup matches and clears the draft after a confirmed save', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const match = { id: 503, round: 1, homeScore: null, awayScore: null };
+    const updated = { ...match, homeScore: 2, awayScore: 0 };
+    const scoreApi = jasmine.createSpy('recordOwnedFixtureScore').and.returnValue(of(updated));
+    (championships as any).recordOwnedFixtureScore = scoreApi;
+    component.championshipCupDraws[103] = { matches: [match], byes: [] } as any;
+    component.championshipCupResultDrafts[503] = { home: 2, away: 0 };
+
+    component.saveChampionshipCupScore(
+      { id: 15, sport: 'Futebol', closedAt: null } as any,
+      { id: 103, format: 'CUP', status: 'SCHEDULED' } as any, match as any
+    );
+
+    expect(scoreApi).toHaveBeenCalledOnceWith(7, 15, 103, 503, 2, 0);
+    expect(component.championshipCupDraws[103].matches[0].homeScore).toBe(2);
+    expect(component.championshipCupResultDrafts[503]).toBeUndefined();
+    expect(component.championshipCupScoreBusy[503]).toBeFalse();
+  });
+
   it('keeps an unsaved cup score draft when the API fails', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const scoreApi = jasmine.createSpy('recordOwnedFixtureScore')
