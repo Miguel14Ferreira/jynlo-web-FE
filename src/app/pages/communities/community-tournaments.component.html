@@ -824,7 +824,7 @@
                   @if (championshipTeamInviteFeedback[seasonTeam.id]) {
                     <p class="jynlo-admin-success" role="status">{{ championshipTeamInviteFeedback[seasonTeam.id] }}</p>
                   }
-                  <div class="jynlo-team-roster">                  <div class="jynlo-team-roster">
+                  <div class="jynlo-team-roster">
                     @for (player of championshipTeamPlayers[seasonTeam.id] || []; track player.profileId) {
                       <div class="jynlo-roster-player">
                         <span>{{ player.displayName }} <small>&#64;{{ player.username }}</small></span>
