@@ -20,6 +20,14 @@ export interface ChampionshipOwnedEventTeam {
   name: string;
 }
 
+export interface ChampionshipFixtureLineupPlayer {
+  id: number;
+  teamId: number;
+  profileId: number;
+  playerName: string;
+  selection: 'STARTER' | 'BENCH';
+}
+
 export interface ChampionshipFixtureSubstitution {
   id: number;
   teamId: number;
@@ -372,6 +380,28 @@ export class CommunityChampionshipsService {
     return this.http.delete<void>(
       this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId +
       '/teams/' + championshipTeamId);
+  }
+
+  fixtureLineup(communityId: number, championshipId: number,
+                eventId: number, fixtureId: number): Observable<ChampionshipFixtureLineupPlayer[]> {
+    return this.http.get<ChampionshipFixtureLineupPlayer[]>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId
+      + '/fixtures/' + fixtureId + '/lineup');
+  }
+
+  setFixtureLineupPlayer(communityId: number, championshipId: number,
+                         eventId: number, fixtureId: number, teamId: number,
+                         profileId: number, selection: 'STARTER' | 'BENCH'): Observable<ChampionshipFixtureLineupPlayer[]> {
+    return this.http.put<ChampionshipFixtureLineupPlayer[]>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId
+      + '/fixtures/' + fixtureId + '/lineup', { teamId, profileId, selection });
+  }
+
+  removeFixtureLineupPlayer(communityId: number, championshipId: number,
+                            eventId: number, fixtureId: number, profileId: number): Observable<void> {
+    return this.http.delete<void>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId
+      + '/fixtures/' + fixtureId + '/lineup/' + profileId);
   }
 
   fixtureSubstitutions(communityId: number, championshipId: number,
