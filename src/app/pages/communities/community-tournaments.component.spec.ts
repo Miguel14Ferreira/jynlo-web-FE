@@ -767,6 +767,35 @@ describe('Community tournaments management', () => {
     expect(component.championshipFixtureSaving[501]).toBeFalse();
   });
 
+  it('preserves a cleared league score when editing the other team', () => {
+    const match = { id: 501, homeScore: 2, awayScore: 1 } as any;
+    component.updateChampionshipLeagueScoreDraft(match, 'home', '');
+    component.updateChampionshipLeagueScoreDraft(match, 'away', '3');
+
+    expect(component.championshipFixtureScoreDrafts[501]).toEqual({ home: null, away: 3 });
+    expect(component.championshipScoreDraftValid(component.championshipFixtureScoreDrafts[501])).toBeFalse();
+    component.updateChampionshipLeagueScoreDraft(match, 'home', '0');
+    expect(component.championshipFixtureScoreDrafts[501]).toEqual({ home: 0, away: 3 });
+  });
+
+  it('preserves a cleared cup score and invalidates confirmation', () => {
+    const match = { id: 503, round: 1, homeScore: 2, awayScore: 1 } as any;
+    component.championshipCupAdvanceConfirm[103] = true;
+    component.updateChampionshipCupScoreDraft(103, match, 'away', '');
+    component.updateChampionshipCupScoreDraft(103, match, 'home', '4');
+
+    expect(component.championshipCupResultDrafts[503]).toEqual({ home: 4, away: null });
+    expect(component.championshipScoreDraftValid(component.championshipCupResultDrafts[503], true)).toBeFalse();
+    expect(component.championshipCupAdvanceConfirm[103]).toBeFalse();
+  });
+
+  it('ignores league score input while the same fixture is being saved', () => {
+    const match = { id: 501, homeScore: 1, awayScore: 0 } as any;
+    component.championshipFixtureSaving[501] = true;
+    component.updateChampionshipLeagueScoreDraft(match, 'home', '5');
+    expect(component.championshipFixtureScoreDrafts[501]).toBeUndefined();
+  });
+
   it('blocks cup progression while the current round has uncommitted score edits', () => {
     const match = { id: 503, round: 1, homeScore: 2, awayScore: 0 };
     component.championshipCupDraws[103] = { matches: [match], byes: [] } as any;
