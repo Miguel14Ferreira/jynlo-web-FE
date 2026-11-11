@@ -41,6 +41,17 @@ export interface ChampionshipFixtureGoal {
   assisterName?: string | null;
 }
 
+export interface ChampionshipLeaguePlayerStats {
+  profileId: number;
+  playerName: string;
+  teamId: number;
+  teamName: string;
+  goals: number;
+  assists: number;
+  yellowCards: number;
+  redCards: number;
+}
+
 export interface ChampionshipOwnedLeagueTable {
   eventId: number;
   totalMatches: number;
@@ -401,6 +412,12 @@ export class CommunityChampionshipsService {
     return this.http.put<ChampionshipOwnedLeagueFixture>(
       this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId +
       '/fixtures/' + fixtureId + '/score', { homeScore, awayScore });
+  }
+
+  ownedLeaguePlayerStats(communityId: number, championshipId: number,
+                         eventId: number): Observable<ChampionshipLeaguePlayerStats[]> {
+    return this.http.get<ChampionshipLeaguePlayerStats[]>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId + '/player-stats');
   }
 
   ownedLeagueStandings(communityId: number, championshipId: number,
