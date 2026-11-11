@@ -508,6 +508,59 @@ describe('Community tournaments management', () => {
   });
 
 
+  it('keeps archived championship rosters read-only even with stale manager privileges', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const invite = jasmine.createSpy('inviteTeamPlayer');
+    const remove = jasmine.createSpy('removeTeamPlayer');
+    const transfer = jasmine.createSpy('inviteTeamAdministrator');
+    const respond = jasmine.createSpy('respondTeamAdministrator');
+    const acceptInvite = jasmine.createSpy('respondTeamInvite');
+    const link = championships.linkPermanentTeam;
+    (championships as any).inviteTeamPlayer = invite;
+    (championships as any).removeTeamPlayer = remove;
+    (championships as any).inviteTeamAdministrator = transfer;
+    (championships as any).respondTeamAdministrator = respond;
+    (championships as any).respondTeamInvite = acceptInvite;
+    component.championships = [{ id: 15, closedAt: '2026-11-11T18:00:00Z' } as any];
+    component.canManage = true;
+    component.championshipTeamPlayerDrafts[44] = 22;
+    component.championshipTeamAdminDrafts[44] = 23;
+    component.championshipTeamPlayers[44] = [
+      { profileId: 22 }, { profileId: 23 }
+    ] as any;
+    component.championshipTeamAdministrators[44] = {
+      adminProfileId: 22, canManage: true, canTransfer: true, canAccept: true
+    } as any;
+    component.championshipTeamInvitePending[44] = true;
+    component.community = {
+      ...component.community,
+      members: [{ profileId: 22 }, { profileId: 23 }] as any
+    };
+
+    expect(component.championshipSeasonEditable(15)).toBeFalse();
+    component.addChampionshipTeamPlayer(15, 44);
+    component.removeChampionshipTeamPlayer(15, 44, 23);
+    component.inviteChampionshipTeamAdministrator(15, 44);
+    component.respondChampionshipTeamAdministrator(15, 44, true);
+    component.respondChampionshipTeamInvitation(15, 44, true);
+    component.linkPermanentTeam(15, 44, 1);
+
+    expect(invite).not.toHaveBeenCalled();
+    expect(remove).not.toHaveBeenCalled();
+    expect(transfer).not.toHaveBeenCalled();
+    expect(respond).not.toHaveBeenCalled();
+    expect(acceptInvite).not.toHaveBeenCalled();
+    expect(link).not.toHaveBeenCalled();
+  });
+
+  it('only enables championship roster editing for an existing active season', () => {
+    expect(component.championshipSeasonEditable(15)).toBeFalse();
+    component.championships = [{ id: 15, closedAt: null } as any];
+    expect(component.championshipSeasonEditable(15)).toBeTrue();
+    component.championships = [{ id: 15, closedAt: '2026-11-11T18:00:00Z' } as any];
+    expect(component.championshipSeasonEditable(15)).toBeFalse();
+  });
+
   it('requires a second explicit action before deleting an unplayed championship', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const championship = {
