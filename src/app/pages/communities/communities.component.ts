@@ -1727,6 +1727,14 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     return this.positiveQueryId('tournament');
   }
 
+  get requestedChampionshipId(): number | null {
+    return this.positiveQueryId('championship');
+  }
+
+  get requestedChampionshipTeamId(): number | null {
+    return this.requestedChampionshipId ? this.positiveQueryId('championshipTeam') : null;
+  }
+
   get invitedTeamId(): number | null {
     return this.invitedTournamentId ? this.positiveQueryId('team') : null;
   }
