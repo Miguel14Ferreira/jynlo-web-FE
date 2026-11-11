@@ -503,7 +503,11 @@
                 <h5>{{ championship.name }} · {{ championship.seasonLabel }}</h5>
                 <p>{{ championship.sport }} · Encerrado a {{ championship.closedAt | date:'dd/MM/yyyy' }}</p>
                 @if (championship.standingsMode !== 'INDEPENDENT') {
-                <p><strong>Campeão: {{ championship.championDisplayName }}</strong></p>
+                @if (championship.standingsMode !== 'INDEPENDENT' && championship.championDisplayName) {
+                <p><strong>Campeão geral: {{ championship.championDisplayName }}</strong></p>
+              } @else {
+                <p>Época encerrada com títulos independentes por prova.</p>
+              }
               } @else {
                 <p>Época encerrada com vencedores independentes por prova.</p>
               }
@@ -618,11 +622,13 @@
                 Confirmo que pretendo encerrar esta época definitivamente.
               </label>
               <button type="button" class="t-btn t-btn-secondary"
-                [disabled]="championshipBusy || !championshipAggregateStandings[championship.id] || !championshipCloseConfirmed[championship.id] || (championshipOwnedEvents[championship.id] || []).length > 0"
-                (click)="closeChampionship(championship)">Encerrar época e guardar campeão</button>
+                [disabled]="championshipBusy || !championshipCloseConfirmed[championship.id] || !championshipCanClose(championship)"
+                (click)="closeChampionship(championship)">{{ championship.standingsMode === 'INDEPENDENT' ? 'Encerrar época e guardar troféus' : 'Encerrar época e guardar campeão geral' }}</button>
               <small>O fecho é definitivo. Todas as provas devem estar concluídas e o primeiro lugar desempatado.</small>
-              @if ((championshipOwnedEvents[championship.id] || []).length > 0) {
-                <p class="team-honours-muted" role="note">Esta época ainda tem provas internas cujo apuramento final não está implementado. Podes registar jogos de liga de Futebol e Futsal, mas o fecho só ficará disponível quando essas provas tiverem classificação final verificada.</p>
+              @if ((championshipAggregateStandings[championship.id]?.pendingCompetitions || 0) > 0) {
+                <p class="team-honours-muted" role="note">Há provas por concluir ou vencedores por confirmar. Encerra primeiro todas as Ligas e Taças.</p>
+              } @else if (!championshipCanClose(championship)) {
+                <p class="team-honours-muted" role="note">O fecho exige pelo menos uma prova validada e, quando existe campeão geral, um primeiro lugar sem empate.</p>
               }
             }
           </div>
