@@ -1175,6 +1175,16 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
 
+  /** Validity of a score draft is shared by the view and save handlers. */
+  championshipScoreDraftValid(score: { home: number | null; away: number | null } | undefined,
+                              requiresWinner = false): boolean {
+    return !!score
+      && Number.isInteger(score.home) && Number.isInteger(score.away)
+      && score.home! >= 0 && score.away! >= 0
+      && score.home! <= 999 && score.away! <= 999
+      && (!requiresWinner || score.home !== score.away);
+  }
+
   saveChampionshipFixtureScore(championship: CommunityChampionship,
                                event: ChampionshipOwnedEvent, fixture: ChampionshipOwnedLeagueFixture): void {
     const score = this.championshipFixtureScoreDrafts[fixture.id];
@@ -1182,8 +1192,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         || !['Futebol', 'Futsal'].includes(championship.sport)
         || this.championshipFixtureSaving[fixture.id]
         || event.status !== 'SCHEDULED' || event.format !== 'LEAGUE'
-        || !score || !Number.isInteger(score.home) || !Number.isInteger(score.away)
-        || score.home! < 0 || score.away! < 0 || score.home! > 999 || score.away! > 999) return;
+        || !this.championshipScoreDraftValid(score)) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipFixtureSaving[fixture.id] = true;
@@ -1238,11 +1247,8 @@ export class CommunityTournamentsComponent implements OnChanges {
     const score = this.championshipCupResultDrafts[match.id];
     if (!this.canManage || !!championship.closedAt || event.format !== 'CUP'
         || event.status !== 'SCHEDULED' || match.round !== this.cupCurrentRound(event.id)
-        || this.championshipCupScoreBusy[match.id] || !score
-        || score.home == null || score.away == null
-        || !Number.isInteger(score.home) || !Number.isInteger(score.away)
-        || score.home < 0 || score.away < 0 || score.home > 999 || score.away > 999
-        || score.home === score.away) return;
+        || this.championshipCupScoreBusy[match.id]
+        || !this.championshipScoreDraftValid(score, true)) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipCupScoreBusy[match.id] = true;
