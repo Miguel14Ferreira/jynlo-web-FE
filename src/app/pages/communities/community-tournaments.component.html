@@ -1212,6 +1212,9 @@
                                         (click)="saveChampionshipFixtureScore(championship, event, fixture)">
                                         {{ championshipFixtureSaving[fixture.id] ? 'A guardar…' : 'Guardar resultado' }}
                                       </button>
+                                      @if (championshipFixtureScoreDrafts[fixture.id] && !championshipScoreDraftValid(championshipFixtureScoreDrafts[fixture.id])) {
+                                        <small class="jynlo-score-guidance" role="status">Indica um resultado inteiro entre 0 e 999 para cada equipa.</small>
+                                      }
                                     </div>
                                   }
                                   @if ((championship.sport === 'Futebol' || championship.sport === 'Futsal')
