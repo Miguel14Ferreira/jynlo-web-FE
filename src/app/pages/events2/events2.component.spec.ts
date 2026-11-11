@@ -198,6 +198,38 @@ describe('Events2Component', () => {
     );
   });
 
+  it('sends an optional session description separately from private arrival instructions', () => {
+    component.sport = 'Futebol';
+    component.gameDate = '2099-10-15T18:00';
+    component.city = 'Lisboa';
+    component.address = 'Campo de jogo';
+    component.maxParticipants = 10;
+    component.description = '  Jogo amigável. Trazer duas camisolas.  ';
+    component.meetingPointInstructions = 'Portão lateral';
+
+    component.createSession();
+    expect(sessionService.create).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        description: 'Jogo amigável. Trazer duas camisolas.',
+        meetingPointInstructions: 'Portão lateral'
+      }), undefined
+    );
+  });
+
+  it('omits optional description content when the organizer leaves it blank', () => {
+    component.sport = 'Futebol';
+    component.gameDate = '2099-10-15T18:00';
+    component.city = 'Lisboa';
+    component.address = 'Campo de jogo';
+    component.maxParticipants = 10;
+    component.description = '   ';
+
+    component.createSession();
+    expect(sessionService.create).toHaveBeenCalledWith(
+      jasmine.objectContaining({ description: null }), undefined
+    );
+  });
+
   it('does not send an Airsoft game type for another sport', () => {
     component.sport = 'Futebol';
     component.airsoftGameType = 'MILSIM';
