@@ -774,8 +774,35 @@ describe('PerfisComponent', () => {
     component.selectedProfile = { ...profile, username: 'ana' };
     spyOn(component, 'isOwnProfile').and.returnValue(true);
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.profile-relation-note')).toBeTruthy();
+    const edit: HTMLAnchorElement | null = fixture.nativeElement.querySelector('a.profile-edit-action');
+    expect(edit?.getAttribute('href')).toBe('/menu/alterardados');
+    expect(edit?.textContent).toContain(t('profile.edit.title'));
+    expect(fixture.nativeElement.querySelector('.profile-relation-note')).toBeNull();
     expect(fixture.nativeElement.querySelector('.profile-primary-actions')?.children.length).toBe(0);
+  });
+
+  it('keeps edit profile private to the owner and achievements collapsed by default', () => {
+    component.profilePage = true;
+    component.selectedProfile = { ...profile, username: 'ana' };
+    component.selectedActivity = {
+      activitiesCompleted: 2, peoplePlayedWith: 0, sportsPractised: 1,
+      eventsCreated: 8, participantsMobilized: 0, communitiesJoined: 0,
+      achievements: ['FIRST_ACTIVITY', 'ORGANIZER']
+    } as any;
+    spyOn(component, 'isOwnProfile').and.returnValue(false);
+    fixture.detectChanges();
+    let root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector('a.profile-edit-action')).toBeNull();
+    const disclosure = root.querySelector('details.public-achievements-disclosure') as HTMLDetailsElement;
+    expect(disclosure).toBeTruthy();
+    expect(disclosure.open).toBeFalse();
+    expect(disclosure.querySelectorAll('.public-achievements > span').length).toBe(2);
+
+    (component.isOwnProfile as jasmine.Spy).and.returnValue(true);
+    fixture.detectChanges();
+    root = fixture.nativeElement;
+    expect(root.querySelector('a.profile-edit-action')?.getAttribute('href')).toBe('/menu/alterardados');
+    expect(root.querySelector('.profile-invite-trigger')).toBeNull();
   });
 
   it('shows the chat instead of another request when the server confirms friendship', () => {
