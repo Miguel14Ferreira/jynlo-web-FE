@@ -455,6 +455,7 @@ describe('Community tournaments management', () => {
     (championships as any).recordOwnedFixtureScore = scoreApi;
     spyOn(component, 'loadChampionshipOwnedLeagueTable');
     spyOn(component, 'loadChampionshipLeaguePlayerStats');
+    spyOn(component, 'loadChampionshipStandings');
     component.championshipLeagueFixtures[101] = [fixture as any];
     component.championshipFixtureScoreDrafts[501] = { home: 2, away: 1 };
 
@@ -466,6 +467,9 @@ describe('Community tournaments management', () => {
     expect(scoreApi).toHaveBeenCalledOnceWith(7, 15, 101, 501, 2, 1);
     expect(component.championshipLeagueFixtures[101][0].homeScore).toBe(2);
     expect(component.championshipFixtureScoreDrafts[501]).toBeUndefined();
+    expect(component.loadChampionshipOwnedLeagueTable).toHaveBeenCalledOnceWith(15, 101);
+    expect(component.loadChampionshipLeaguePlayerStats).toHaveBeenCalledOnceWith(15, 101);
+    expect(component.loadChampionshipStandings).toHaveBeenCalledOnceWith(15);
     expect(component.championshipFixtureSaving[501]).toBeFalse();
   });
 
@@ -475,7 +479,9 @@ describe('Community tournaments management', () => {
     const updated = { ...match, homeScore: 2, awayScore: 0 };
     const scoreApi = jasmine.createSpy('recordOwnedFixtureScore').and.returnValue(of(updated));
     (championships as any).recordOwnedFixtureScore = scoreApi;
+    spyOn(component, 'loadChampionshipStandings');
     component.championshipCupDraws[103] = { matches: [match], byes: [] } as any;
+    component.championshipCupAdvanceConfirm[103] = true;
     component.championshipCupResultDrafts[503] = { home: 2, away: 0 };
 
     component.saveChampionshipCupScore(
@@ -486,6 +492,8 @@ describe('Community tournaments management', () => {
     expect(scoreApi).toHaveBeenCalledOnceWith(7, 15, 103, 503, 2, 0);
     expect(component.championshipCupDraws[103].matches[0].homeScore).toBe(2);
     expect(component.championshipCupResultDrafts[503]).toBeUndefined();
+    expect(component.championshipCupAdvanceConfirm[103]).toBeFalse();
+    expect(component.loadChampionshipStandings).toHaveBeenCalledOnceWith(15);
     expect(component.championshipCupScoreBusy[503]).toBeFalse();
   });
 
