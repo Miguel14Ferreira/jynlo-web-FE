@@ -513,6 +513,12 @@ export class CommunityChampionshipsService {
       { legs });
   }
 
+  advanceOwnedCup(communityId: number, championshipId: number,
+                  eventId: number): Observable<ChampionshipCupOpeningRound> {
+    return this.http.post<ChampionshipCupOpeningRound>(
+      this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId + '/cup-advance', {});
+  }
+
   ownedCupDraw(communityId: number, championshipId: number,
                eventId: number): Observable<ChampionshipCupOpeningRound> {
     return this.http.get<ChampionshipCupOpeningRound>(
