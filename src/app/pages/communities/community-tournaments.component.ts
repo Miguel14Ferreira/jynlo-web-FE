@@ -2077,6 +2077,20 @@ export class CommunityTournamentsComponent implements OnChanges {
     });
   }
 
+  async acceptTournamentTeamInvitation(team: TournamentTeam): Promise<void> {
+    const current = this.currentRosterTeam(team);
+    if (!this.selected || !current || !this.tournamentTeamInvitations[team.id]
+        || this.busy || this.detailsLoading || this.selected.status !== 'DRAFT'
+        || this.myTeam || this.isTeamRosterFull(current)) return;
+    await this.mutate(
+      this.api.acceptTeamInvite(this.community.id, this.selected.id, team.id),
+      t('communities.tournaments.teamUi.acceptSuccess', {team:team.name}),
+      () => {
+        this.tournamentTeamInvitations[team.id] = false;
+        this.loadTeams();
+      });
+  }
+
   async declineTournamentTeamInvitation(team: TournamentTeam): Promise<void> {
     if (!this.selected || !this.tournamentTeamInvitations[team.id] || this.busy) return;
     await this.mutate(
