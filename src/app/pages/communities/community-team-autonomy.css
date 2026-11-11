@@ -197,3 +197,10 @@
 @media(prefers-reduced-motion:reduce) {
   :host .jynlo-team-admin-card, :host .jynlo-admin-explainer { scroll-behavior: auto; }
 }
+
+/* Notification deep links identify the exact competition without giving extra permissions. */
+:host .jynlo-targeted-competition {
+  border-color: rgba(125, 246, 205, .78);
+  box-shadow: 0 0 0 2px rgba(104, 239, 190, .15), 0 12px 30px rgba(2, 25, 24, .16);
+  scroll-margin-top: 6.5rem;
+}
