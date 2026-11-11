@@ -729,6 +729,46 @@
                     <strong>{{ seasonTeam.name }}</strong>
                     <span>{{ (championshipTeamPlayers[seasonTeam.id] || []).length }} jogadores</span>
                   </div>
+                  @if (championshipTeamAdministrators[seasonTeam.id]; as administrator) {
+                    <section class="jynlo-team-roster-add" [attr.aria-label]="'Administração de ' + seasonTeam.name">
+                      <p>
+                        <strong>Administrador da equipa:</strong>
+                        @if (administrator.adminProfileId) {
+                          Perfil #{{ administrator.adminProfileId }}
+                        } @else {
+                          Por atribuir
+                        }
+                      </p>
+                      @if (administrator.canAccept) {
+                        <p role="status">Foste convidado para administrar esta equipa. Aceitas gerir o plantel?</p>
+                        <button type="button" class="t-btn t-btn-primary"
+                          [disabled]="championshipTeamAdminBusy[seasonTeam.id]"
+                          (click)="respondChampionshipTeamAdministrator(championship.id, seasonTeam.id, true)">Aceitar responsabilidade</button>
+                        <button type="button" class="t-btn t-btn-secondary"
+                          [disabled]="championshipTeamAdminBusy[seasonTeam.id]"
+                          (click)="respondChampionshipTeamAdministrator(championship.id, seasonTeam.id, false)">Recusar</button>
+                      }
+                      @if (canManage && !championship.closedAt) {
+                        <label [for]="'season-team-admin-' + seasonTeam.id">Convidar ou substituir administrador</label>
+                        <select [id]="'season-team-admin-' + seasonTeam.id"
+                          [value]="championshipTeamAdminDrafts[seasonTeam.id] ?? ''"
+                          (change)="championshipTeamAdminDrafts[seasonTeam.id] = $any($event.target).value ? +$any($event.target).value : null">
+                          <option value="">Selecionar responsável</option>
+                          @for (member of community.members || []; track member.profileId) {
+                            <option [value]="member.profileId">{{ member.fullName || member.username }}</option>
+                          }
+                        </select>
+                        <button type="button" class="t-btn t-btn-secondary"
+                          [disabled]="championshipTeamAdminBusy[seasonTeam.id] || !championshipTeamAdminDrafts[seasonTeam.id]"
+                          (click)="inviteChampionshipTeamAdministrator(championship.id, seasonTeam.id)">
+                          Enviar convite
+                        </button>
+                        @if (administrator.pendingProfileId) {
+                          <small role="status">Convite pendente de aceitação. O responsável atual mantém as permissões até o novo aceitar.</small>
+                        }
+                      }
+                    </section>
+                  }
                   <div class="jynlo-team-roster">
                     @for (player of championshipTeamPlayers[seasonTeam.id] || []; track player.profileId) {
                       <div class="jynlo-roster-player">
@@ -743,7 +783,7 @@
                       <p class="team-honours-muted">Ainda não há jogadores inscritos nesta equipa.</p>
                     }
                   </div>
-                  @if (canManage && !championship.closedAt) {
+                  @if (canManageChampionshipTeam(seasonTeam.id) && !championship.closedAt) {
                     <div class="jynlo-team-roster-add">
                       <label [for]="'season-player-' + seasonTeam.id">Adicionar perfil da comunidade</label>
                       <select [id]="'season-player-' + seasonTeam.id"
