@@ -566,6 +566,16 @@ export class CommunityTournamentsComponent implements OnChanges {
           this.loadChampionshipTeamInvitation(championshipId, team.id);
         });
         this.changeDetector.markForCheck();
+        if (this.requestedChampionshipId === championshipId && typeof requestAnimationFrame !== 'undefined') {
+          // Only scroll to an actual team returned for this championship. A URL
+          // query parameter must not grant access or invent a missing roster.
+          const targetTeam = registry.teams.find(team => team.id === this.requestedChampionshipTeamId);
+          requestAnimationFrame(() => {
+            if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+            const id = targetTeam ? 'championship-team-' + targetTeam.id : 'championship-' + championshipId;
+            document.getElementById(id)?.scrollIntoView({ block: 'start', behavior: 'auto' });
+          });
+        }
       },
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
