@@ -6,6 +6,10 @@ export type AppLanguage = 'pt' | 'en';
 type Dictionary = Record<string, string>;
 
 const PT: Dictionary = {
+  'notifications.team.openCompetition': "Abrir competições da comunidade",
+  'notifications.preferences.type.TEAM_MEMBER_INVITE': "Convites para equipas",
+  'notifications.preferences.type.TEAM_ADMIN_TRANSFER': "Transferências de administração das equipas",
+  'notifications.preferences.type.TEAM_ADMIN_ASSIGNED': "Confirmações de administração das equipas",
   'teams.autonomy.explainerTitle': "Equipas com gestão autónoma",
   'teams.autonomy.explainerChamp': "Cria a equipa e convida jogadores. O primeiro que aceitar entra como administrador e passa a gerir o plantel. Se quiser abdicar, escolhe um membro que terá de aceitar a responsabilidade primeiro.",
   'teams.autonomy.explainerTournamentTitle': "Cria a equipa. Os jogadores gerem o resto.",
