@@ -1597,6 +1597,8 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     return routineGroupNames(this.roundEntries.filter(e => e.included));
   }
   roundDeleteConfirmId?: number;
+  /** Imported matchdays start compact; organizers can expand the whole season at once. */
+  roundsExpanded = false;
 
   selectedSeasonId: number | null = null;
   // Import destination is independent from the ranking season filter.
@@ -4021,6 +4023,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     if (!this.selected) {
       return;
     }
+    this.roundsExpanded = false;
 
     const seasonId = value === '' ? null : Number(value);
     this.selectedSeasonId = seasonId !== null && Number.isFinite(seasonId)
