@@ -747,6 +747,42 @@ describe('Community tournaments management', () => {
     expect(scoreApi).not.toHaveBeenCalled();
   });
 
+  it('requires new consent after editing cup scores, even if changed back', () => {
+    const match = { id: 503, round: 1, homeScore: 2, awayScore: 0 } as any;
+    component.championshipCupDraws[103] = { matches: [match], byes: [] } as any;
+    component.championshipCupAdvanceConfirm[103] = true;
+
+    component.updateChampionshipCupScoreDraft(103, match, 'home', '3');
+    expect(component.championshipCupAdvanceConfirm[103]).toBeFalse();
+    expect(component.cupRoundCanAdvance(103)).toBeFalse();
+
+    component.championshipCupAdvanceConfirm[103] = true;
+    component.updateChampionshipCupScoreDraft(103, match, 'home', '2');
+    expect(component.cupRoundCanAdvance(103)).toBeTrue();
+    expect(component.championshipCupAdvanceConfirm[103]).toBeFalse();
+  });
+
+  it('ignores edits while a cup result is being saved', () => {
+    const match = { id: 503, round: 1, homeScore: 2, awayScore: 0 } as any;
+    component.championshipCupScoreBusy[503] = true;
+    component.updateChampionshipCupScoreDraft(103, match, 'away', '4');
+    expect(component.championshipCupResultDrafts[503]).toBeUndefined();
+  });
+
+  it('clears local cup drafts and prior progression consent on a verified bracket reload', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const match = { id: 503, round: 1, homeScore: 2, awayScore: 0 };
+    championships.ownedCupDraw.and.returnValue(of({ matches: [match], byes: [] } as any));
+    component.championshipCupAdvanceConfirm[103] = true;
+    component.championshipCupResultDrafts[503] = { home: 1, away: 0 };
+
+    component.loadChampionshipCupDraw(15, 103);
+
+    expect(component.championshipCupAdvanceConfirm[103]).toBeFalse();
+    expect(component.championshipCupResultDrafts[503]).toBeUndefined();
+    expect(component.championshipCupDraws[103].matches[0].homeScore).toBe(2);
+  });
+
   it('updates cup matches and clears the draft after a confirmed save', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const match = { id: 503, round: 1, homeScore: null, awayScore: null };
