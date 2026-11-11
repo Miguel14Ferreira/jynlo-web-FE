@@ -33,6 +33,20 @@ describe('Community tournaments management', () => {
     championTied: false
   };
 
+  it('only saves edited scores and respects knockout winner rules', () => {
+    const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
+    const recorded = { homeScore: 2, awayScore: 1 };
+    expect(instance.championshipScoreChanged(undefined, recorded)).toBeFalse();
+    expect(instance.championshipScoreChanged({ home: 2, away: 1 }, recorded)).toBeFalse();
+    expect(instance.championshipScoreChanged({ home: 3, away: 1 }, recorded)).toBeTrue();
+    expect(instance.championshipScoreChanged({ home: 2, away: null }, recorded)).toBeFalse();
+    expect(instance.championshipScoreChanged({ home: 1, away: 1 }, recorded, true)).toBeFalse();
+    expect(instance.championshipScoreChanged({ home: 1, away: 2 }, recorded, true)).toBeTrue();
+    const unplayed = { homeScore: null, awayScore: null };
+    expect(instance.championshipScoreChanged({ home: 0, away: 0 }, unplayed)).toBeTrue();
+    expect(instance.championshipScoreChanged({ home: 0, away: 0 }, unplayed, true)).toBeFalse();
+  });
+
   it('validates league and cup scores before enabling result submission', () => {
     const instance = Object.create(CommunityTournamentsComponent.prototype) as CommunityTournamentsComponent;
     const valid = (home: number | null, away: number | null) => ({ home, away });
