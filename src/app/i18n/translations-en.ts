@@ -1,5 +1,9 @@
 // Loaded only for users who choose English. Keep the original key/value table intact.
 export const EN: Record<string, string> = {
+  'notifications.team.openCompetition': "Open community competitions",
+  'notifications.preferences.type.TEAM_MEMBER_INVITE': "Team invitations",
+  'notifications.preferences.type.TEAM_ADMIN_TRANSFER': "Team administrator transfers",
+  'notifications.preferences.type.TEAM_ADMIN_ASSIGNED': "Team administrator confirmations",
   'teams.autonomy.explainerTitle': "Self-managed teams",
   'teams.autonomy.explainerChamp': "Create a team and invite players. The first to accept becomes its administrator and manages the roster. To step down, they must choose a teammate who accepts the role first.",
   'teams.autonomy.explainerTournamentTitle': "Create the team. Players manage the rest.",
