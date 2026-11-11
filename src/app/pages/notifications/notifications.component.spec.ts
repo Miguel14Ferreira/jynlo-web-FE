@@ -547,6 +547,14 @@ describe('NotificationsComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/menu/events', 12]);
   });
 
+  it('rejects malformed session IDs from persisted notifications', () => {
+    const notice = { ...notificationFixture(), type: 'SESSION_CANCELLED' };
+    for (const sessionId of [undefined, 0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1, NaN, Infinity]) {
+      component.openSession({ ...notice, sessionId } as any);
+    }
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
   it('does not navigate from a promotion notification with no session ID', () => {
     (router.navigate as jasmine.Spy).calls.reset();
     component.openSession({ ...notificationFixture(), sessionId: null });
