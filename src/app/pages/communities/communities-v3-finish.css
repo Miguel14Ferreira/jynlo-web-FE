@@ -199,3 +199,14 @@
   :host .round-card-details-hint {display:none}
   :host .round-history .round-card-header > div:first-child {min-width:0}
 }
+
+:host .round-history-controls {
+  display:flex;align-items:center;justify-content:flex-end;gap:.65rem;flex-wrap:wrap;
+}
+:host .round-history-controls .jynlo-action {
+  min-height:36px;min-width:116px;
+}
+@media(max-width:540px) {
+  :host .round-history > .section-heading { align-items:flex-start;flex-wrap:wrap; }
+  :host .round-history-controls { width:100%;justify-content:space-between; }
+}
