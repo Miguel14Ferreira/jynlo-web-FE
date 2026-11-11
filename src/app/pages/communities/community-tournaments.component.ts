@@ -378,6 +378,16 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipTeamAdminBusy: Record<number, boolean> = {};
   championshipTeamInvitePending: Record<number, boolean> = {};
   championshipTeamInviteFeedback: Record<number, string> = {};
+  private championshipTeamPlayersLoadVersion: Record<number, number> = {};
+  private championshipTeamAdminLoadVersion: Record<number, number> = {};
+  private championshipTeamInviteLoadVersion: Record<number, number> = {};
+
+  /** Invalidate requests issued before a confirmed roster or administration mutation. */
+  private invalidateChampionshipTeamLoads(teamId: number): void {
+    this.championshipTeamPlayersLoadVersion[teamId] = (this.championshipTeamPlayersLoadVersion[teamId] || 0) + 1;
+    this.championshipTeamAdminLoadVersion[teamId] = (this.championshipTeamAdminLoadVersion[teamId] || 0) + 1;
+    this.championshipTeamInviteLoadVersion[teamId] = (this.championshipTeamInviteLoadVersion[teamId] || 0) + 1;
+  }
   championshipTeamCreatedNotice = false;
 
   /** Archived seasons remain readable, never editable, including via stale UI actions. */
@@ -404,14 +414,17 @@ export class CommunityTournamentsComponent implements OnChanges {
   loadChampionshipTeamAdministrator(championshipId: number, teamId: number): void {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
+    const loadVersion = this.championshipTeamAdminLoadVersion[teamId] = (this.championshipTeamAdminLoadVersion[teamId] || 0) + 1;
     this.championshipsApi.teamAdministrator(communityId, championshipId, teamId).subscribe({
       next: state => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipTeamAdminLoadVersion[teamId]) return;
         this.championshipTeamAdministrators[teamId] = state;
         this.changeDetector.markForCheck();
       },
       error: () => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipTeamAdminLoadVersion[teamId]) return;
         this.championshipError = 'Não foi possível verificar o responsável da equipa.';
         this.changeDetector.markForCheck();
       }
@@ -421,14 +434,17 @@ export class CommunityTournamentsComponent implements OnChanges {
   loadChampionshipTeamInvitation(championshipId: number, teamId: number): void {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
+    const loadVersion = this.championshipTeamInviteLoadVersion[teamId] = (this.championshipTeamInviteLoadVersion[teamId] || 0) + 1;
     this.championshipsApi.teamInviteStatus(communityId, championshipId, teamId).subscribe({
       next: status => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipTeamInviteLoadVersion[teamId]) return;
         this.championshipTeamInvitePending[teamId] = status.invited;
         this.changeDetector.markForCheck();
       },
       error: () => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipTeamInviteLoadVersion[teamId]) return;
         this.championshipTeamInvitePending[teamId] = false;
         this.changeDetector.markForCheck();
       }
@@ -441,6 +457,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipTeamPlayerBusy[teamId] = true;
+    this.invalidateChampionshipTeamLoads(teamId);
     this.championshipsApi.respondTeamInvite(communityId, championshipId, teamId, accept).subscribe({
       next: players => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
@@ -468,6 +485,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipTeamAdminBusy[teamId] = true;
+    this.invalidateChampionshipTeamLoads(teamId);
     this.championshipsApi.cancelTeamAdministratorTransfer(communityId, championshipId, teamId).subscribe({
       next: state => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
@@ -494,6 +512,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipTeamAdminBusy[teamId] = true;
+    this.invalidateChampionshipTeamLoads(teamId);
     this.championshipsApi.inviteTeamAdministrator(communityId, championshipId, teamId, profileId).subscribe({
       next: state => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
@@ -517,6 +536,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipTeamAdminBusy[teamId] = true;
+    this.invalidateChampionshipTeamLoads(teamId);
     this.championshipsApi.respondTeamAdministrator(communityId, championshipId, teamId, accept).subscribe({
       next: state => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
@@ -537,14 +557,17 @@ export class CommunityTournamentsComponent implements OnChanges {
   loadChampionshipTeamPlayers(championshipId: number, teamId: number): void {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
+    const loadVersion = this.championshipTeamPlayersLoadVersion[teamId] = (this.championshipTeamPlayersLoadVersion[teamId] || 0) + 1;
     this.championshipsApi.teamPlayers(communityId, championshipId, teamId).subscribe({
       next: players => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipTeamPlayersLoadVersion[teamId]) return;
         this.championshipTeamPlayers[teamId] = players;
         this.changeDetector.markForCheck();
       },
       error: () => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipTeamPlayersLoadVersion[teamId]) return;
         this.championshipError = 'Não foi possível carregar o plantel da equipa.';
         this.changeDetector.markForCheck();
       }
@@ -587,6 +610,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipTeamPlayerBusy[teamId] = true;
+    this.invalidateChampionshipTeamLoads(teamId);
     this.championshipsApi.inviteTeamPlayer(communityId, championshipId, teamId, profileId).subscribe({
       next: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
@@ -611,6 +635,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipTeamPlayerBusy[teamId] = true;
+    this.invalidateChampionshipTeamLoads(teamId);
     this.championshipsApi.removeTeamPlayer(communityId, championshipId, teamId, profileId).subscribe({
       next: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
@@ -1906,6 +1931,9 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipTeamAdminBusy = {};
     this.championshipTeamInvitePending = {};
     this.championshipTeamInviteFeedback = {};
+    this.championshipTeamPlayersLoadVersion = {};
+    this.championshipTeamAdminLoadVersion = {};
+    this.championshipTeamInviteLoadVersion = {};
     this.championshipTeamCreatedNotice = false;
     this.championshipHonours = null;
     this.championshipHonoursError = '';
