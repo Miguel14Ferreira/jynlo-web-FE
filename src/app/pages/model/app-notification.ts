@@ -22,6 +22,10 @@ export interface AppNotification {
   sessionId: number | null;
   /** Added by the community join workflow; absent on older notifications. */
   communityId?: number | null;
+  /** Optional direct target for an invitation or role change. */
+  competitionTournamentId?: number | null;
+  competitionChampionshipId?: number | null;
+  competitionTeamId?: number | null;
   /** Linked to the reviewed venue when a community edit is decided. */
   venueId?: number | null;
   venueEditSuggestionId?: number | null;
