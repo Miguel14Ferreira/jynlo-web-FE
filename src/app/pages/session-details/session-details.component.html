@@ -563,6 +563,12 @@
                   <input type="text" maxlength="255" [(ngModel)]="detailsDraft.address"
                     [disabled]="detailsSaving || !!session.venue">
                 </label>
+                <label class="session-details-editor-wide">Descrição da sessão (opcional)
+                  <textarea maxlength="1000" rows="4"
+                    [(ngModel)]="detailsDraft.description" [disabled]="detailsSaving"
+                    placeholder="Ex.: Jogo amigável, todos os níveis são bem-vindos."></textarea>
+                  <small>{{ detailsDraft.description.length }}/1000 caracteres</small>
+                </label>
                 <label class="session-details-editor-wide">{{ 'createSession.meetingPointLabel' | t }}
                   <input type="text" maxlength="240"
                     [(ngModel)]="detailsDraft.meetingPointInstructions" [disabled]="detailsSaving">
@@ -585,6 +591,12 @@
                   {{ 'common.cancel' | t }}
                 </button>
               </div>
+            </section>
+          }
+          @if (session.description) {
+            <section class="session-description-panel" aria-labelledby="session-description-heading">
+              <h2 id="session-description-heading">Sobre esta sessão</h2>
+              <p>{{ session.description }}</p>
             </section>
           }
           <div class="detail-grid">
