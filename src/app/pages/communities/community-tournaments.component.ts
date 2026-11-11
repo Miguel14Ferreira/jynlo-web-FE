@@ -371,6 +371,7 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipTeamPlayers: Record<number, ChampionshipTeamPlayer[]> = {};
   championshipTeamPlayerDrafts: Record<number, number | null> = {};
   championshipTeamMemberSearch: Record<number, string> = {};
+  championshipTeamRosterSearch: Record<number, string> = {};
   championshipTeamPlayerBusy: Record<number, boolean> = {};
   championshipTeamAdministrators: Record<number, ChampionshipTeamAdministrator> = {};
   championshipTeamAdminDrafts: Record<number, number | null> = {};
@@ -554,6 +555,16 @@ export class CommunityTournamentsComponent implements OnChanges {
     const registered = new Set((this.championshipTeamRegistries[championshipId]?.teams || [])
       .flatMap(team => (this.championshipTeamPlayers[team.id] || []).map(player => player.profileId)));
     return (this.community.members || []).filter(member => !registered.has(member.profileId));
+  }
+
+  /** A team keeps its full roster, while long lists are searchable. */
+  filteredChampionshipTeamRoster(teamId: number): ChampionshipTeamPlayer[] {
+    const query = (this.championshipTeamRosterSearch[teamId] || '')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+    const matches = (value: string | null | undefined) => (value || '')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(query);
+    return (this.championshipTeamPlayers[teamId] || []).filter(player =>
+      !query || matches(player.displayName) || matches(player.username));
   }
 
   /** Search the community roster without requiring members to scroll a long dropdown. */
@@ -1888,6 +1899,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipTeamPlayers = {};
     this.championshipTeamPlayerDrafts = {};
     this.championshipTeamMemberSearch = {};
+    this.championshipTeamRosterSearch = {};
     this.championshipTeamPlayerBusy = {};
     this.championshipTeamAdministrators = {};
     this.championshipTeamAdminDrafts = {};
