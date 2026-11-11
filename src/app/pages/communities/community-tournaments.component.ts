@@ -1348,6 +1348,21 @@ export class CommunityTournamentsComponent implements OnChanges {
     return (this.championshipCupDraws[eventId]?.matches || []).filter(match => match.round === round);
   }
 
+  /** Any score edit invalidates the previously confirmed list of cup winners. */
+  updateChampionshipCupScoreDraft(
+    eventId: number, match: ChampionshipOwnedLeagueFixture,
+    side: 'home' | 'away', rawValue: string
+  ): void {
+    if (this.championshipCupBusy || this.championshipCupScoreBusy[match.id]) return;
+    const draft = this.championshipCupResultDrafts[match.id];
+    const value = rawValue.trim() === '' ? null : Number(rawValue);
+    this.championshipCupResultDrafts[match.id] = {
+      home: side === 'home' ? value : (draft?.home ?? match.homeScore ?? null),
+      away: side === 'away' ? value : (draft?.away ?? match.awayScore ?? null)
+    };
+    this.championshipCupAdvanceConfirm[eventId] = false;
+  }
+
   /** Do not advance a bracket while a result is being saved or an edit remains unconfirmed. */
   cupRoundHasPendingScores(eventId: number): boolean {
     return this.cupCurrentMatches(eventId).some(match => {
@@ -1436,6 +1451,12 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: draw => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipCupDraws[eventId] = draw;
+        // A refreshed bracket is authoritative; stale local scores and prior consent
+        // must never be applied to another round or a different winner.
+        this.championshipCupAdvanceConfirm[eventId] = false;
+        for (const fixture of draw.matches) {
+          delete this.championshipCupResultDrafts[fixture.id];
+        }
         this.changeDetector.markForCheck();
       },
       error: () => {
