@@ -61,6 +61,35 @@ describe('SocialFeedComponent discovery sidebar', () => {
     component = fixture.componentInstance;
   });
 
+  it('groups repeated attendance per session without hiding regular posts', fakeAsync(() => {
+    const makeItem = (type: FeedItem['type'], username: string, sessionId: number | null): FeedItem => ({
+      type, postId: type === 'POST' ? 42 : null,
+      authorUsername: username, authorDisplayName: username,
+      authorProfilePicUrl: null, content: type === 'POST' ? 'Grande jogo!' : null,
+      imageUrl: null, createdAt: '2026-11-11T18:00:00Z',
+      sessionId, sport: 'Futebol', city: 'Lisboa', gameDate: '2026-11-11T17:00:00Z',
+      likeCount: 0, likedByMe: false, commentCount: 0
+    });
+    component.currentUsername = 'miguel';
+    component.items = [
+      makeItem('SESSION_ATTENDED', 'miguel', 17),
+      makeItem('SESSION_ATTENDED', 'ana', 17),
+      makeItem('SESSION_ATTENDED', 'ana', 17),
+      makeItem('SESSION_ATTENDED', 'joao', 18),
+      makeItem('POST', 'ana', null)
+    ];
+    expect(component.attendanceGroups.length).toBe(2);
+    expect(component.attendanceGroups.find(group => group.sessionId === 17)?.count).toBe(2);
+    expect(component.attendanceGroups.find(group => group.sessionId === 17)?.ownActivity?.authorUsername).toBe('miguel');
+    expect(component.fullFeedItems.map(item => item.type)).toEqual(['POST']);
+    fixture.detectChanges();
+    tick(351);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelectorAll('.feed-attendance-row').length).toBe(2);
+    expect(root.querySelectorAll('.feed-list .feed-card').length).toBe(1);
+  }));
+
   it('shows onboarding for two visits and then preserves the regular feed', fakeAsync(() => {
     const first = fixture;
     first.detectChanges();
