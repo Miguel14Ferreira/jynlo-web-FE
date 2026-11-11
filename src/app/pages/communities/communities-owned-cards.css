@@ -193,3 +193,39 @@
     column-gap: 6px;
   }
 }
+
+/* Owned communities: comfortable cards without split badges or dead space. */
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card {
+  min-height: 172px;
+  height: auto;
+  justify-content: flex-start;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card .community-card-copy > strong {
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card .community-discovery-card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 0;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card .community-visibility-pill {
+  flex: 0 0 auto;
+  min-width: max-content;
+  width: auto;
+  max-width: none;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card .community-discovery-card-link {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
