@@ -793,7 +793,7 @@
                       @if (!administrator.adminProfileId) {
                         <p class="jynlo-team-admin-hint">{{ 'teams.autonomy.waitingChampHint' | t }}</p>
                       }
-                      @if (administrator.canAccept) {
+                      @if (administrator.canAccept && !championship.closedAt) {
                         <div class="jynlo-team-admin-decision" role="status">
                           <strong>{{ 'teams.autonomy.transferQuestion' | t }}</strong>
                           <p>{{ 'teams.autonomy.transferHint' | t }}</p>
@@ -901,7 +901,7 @@
                 </div>
               }
             }
-            @if (canManage && registry.teams.length && permanentTeamRegistry?.teams?.length) {
+            @if (canManage && !championship.closedAt && registry.teams.length && permanentTeamRegistry?.teams?.length) {
               <h6>Identidade permanente entre épocas</h6>
               @for (seasonTeam of registry.teams; track seasonTeam.id) {
                 <div>
