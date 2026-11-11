@@ -213,7 +213,8 @@ export interface ChampionshipTeamHonour {
 }
 export interface ChampionshipCompetitionTitle {
   championshipId: number;
-  tournamentId: number;
+  tournamentId: number | null;
+  ownedEventId?: number | null;
   tournamentName: string;
   seasonLabel: string;
   sport: string;
