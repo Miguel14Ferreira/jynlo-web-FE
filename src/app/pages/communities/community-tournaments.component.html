@@ -910,7 +910,9 @@
                     </div>
                   } @else {
                     <strong>{{ event.name }}</strong> · {{ ('communities.championshipOwned.format.' + event.format) | t }}
-                    · {{ (event.status === 'SCHEDULED' ? 'communities.championshipOwned.scheduled' : 'communities.championshipOwned.draft') | t }}
+                    · {{ event.status === 'COMPLETED'
+                      ? 'Concluída'
+                      : ((event.status === 'SCHEDULED' ? 'communities.championshipOwned.scheduled' : 'communities.championshipOwned.draft') | t) }}
                     @if (canManage && !championship.closedAt && event.status === 'DRAFT') {
                       <button type="button" class="t-btn t-btn-secondary"
                         [disabled]="championshipEventBusy" (click)="beginEditChampionshipEvent(event)">
