@@ -502,15 +502,11 @@
               <div>
                 <h5>{{ championship.name }} · {{ championship.seasonLabel }}</h5>
                 <p>{{ championship.sport }} · Encerrado a {{ championship.closedAt | date:'dd/MM/yyyy' }}</p>
-                @if (championship.standingsMode !== 'INDEPENDENT') {
                 @if (championship.standingsMode !== 'INDEPENDENT' && championship.championDisplayName) {
-                <p><strong>Campeão geral: {{ championship.championDisplayName }}</strong></p>
-              } @else {
-                <p>Época encerrada com títulos independentes por prova.</p>
-              }
-              } @else {
-                <p>Época encerrada com vencedores independentes por prova.</p>
-              }
+                  <p><strong>Campeão geral: {{ championship.championDisplayName }}</strong></p>
+                } @else {
+                  <p>Época encerrada com vencedores independentes por prova.</p>
+                }
               </div>
               <button type="button" class="t-btn t-btn-secondary"
                 [attr.aria-expanded]="expandedArchivedChampionshipId === championship.id"
