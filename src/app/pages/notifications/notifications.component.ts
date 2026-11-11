@@ -327,7 +327,8 @@ export class NotificationsComponent implements OnInit {
   }
 
   openSession(notification: AppNotification): void {
-    if (notification.sessionId === null) {
+    // Old or malformed alerts must not send users to invalid session routes.
+    if (!Number.isSafeInteger(notification.sessionId) || (notification.sessionId ?? 0) <= 0) {
       return;
     }
 
