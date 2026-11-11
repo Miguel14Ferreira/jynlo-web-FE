@@ -102,3 +102,26 @@
 @media(prefers-reduced-motion:reduce){
   :host .detail-page.jynlo-session-detail-premium .session-player-card{transition:none;}
 }
+
+/* A dedicated public overview, separate from confidential arrival instructions. */
+:host .session-description-panel {
+  margin:1.1rem 0;padding:clamp(1rem,2vw,1.35rem);
+  border:1px solid rgba(63,200,190,.27);border-radius:14px;
+  background:rgba(7,43,56,.65);
+}
+:host .session-description-panel h2{
+  margin:0 0 .65rem;color:#f0fffc;font-size:1.06rem;
+}
+:host .session-description-panel p{
+  margin:0;white-space:pre-wrap;overflow-wrap:anywhere;
+  color:#c9e8e9;font-size:.93rem;line-height:1.7;
+}
+:host .session-details-editor textarea{
+  box-sizing:border-box;width:100%;min-height:105px;padding:.75rem;
+  resize:vertical;border:1px solid rgba(65,211,197,.4);
+  border-radius:10px;background:#0c3444;color:#f0fffc;
+  font:inherit;line-height:1.5;
+}
+:host .session-details-editor textarea:focus-visible{
+  outline:2px solid #3de9d3;outline-offset:2px;
+}
