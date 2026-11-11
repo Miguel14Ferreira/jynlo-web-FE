@@ -51,7 +51,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
 
   showAllAttendance = false;
 
-  get displayedAttendanceGroups(): ReturnType<SocialFeedComponent['attendanceGroups']> {
+  get displayedAttendanceGroups() {
     const groups = this.attendanceGroups;
     return this.showAllAttendance ? groups : groups.slice(0, 5);
   }
