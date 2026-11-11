@@ -280,3 +280,39 @@
 .feed-likers-settings summary:hover{background:rgba(255,255,255,.07);color:#eafff9}
 .feed-likers-settings[open] .feed-likers-privacy{position:absolute;z-index:3;top:100%;right:0;min-width:190px;white-space:nowrap;text-align:left;border:1px solid rgba(139,212,207,.25);background:#0c2b37;border-radius:.65rem;padding:.7rem .85rem;box-shadow:0 10px 22px rgba(0,0,0,.3)}
 .feed-likers-settings summary:focus-visible{outline:2px solid #30dcc2;outline-offset:2px}
+
+/* Automatic participation belongs in a quiet digest, not a repeated large post. */
+.feed-attendance-digest{
+  display:grid;gap:0;overflow:hidden;margin:12px 0 18px;
+  border:1px solid rgba(35,190,194,.29);border-radius:15px;
+  background:rgba(6,39,54,.75);
+}
+.feed-attendance-row{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:12px 16px;min-width:0;
+}
+.feed-attendance-row + .feed-attendance-row{
+  border-top:1px solid rgba(102,200,201,.15);
+}
+.feed-attendance-icon{
+  display:grid;place-items:center;flex:0 0 30px;
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(43,219,201,.13);color:#64eed9;
+}
+.feed-attendance-summary{display:grid;gap:3px;flex:1 1 200px;min-width:0}
+.feed-attendance-summary strong{color:#ecfffb;font-size:.9rem}
+.feed-attendance-summary span{color:#b8d5da;font-size:.78rem;line-height:1.5}
+.feed-attendance-link,.feed-attendance-hide{
+  background:transparent;border:0;color:#7be9d6;font-size:.8rem;
+  font-weight:700;text-decoration:none;cursor:pointer;
+}
+.feed-attendance-hide{color:#a9c6cc;font-weight:500}
+.feed-attendance-link:hover,.feed-attendance-hide:hover{text-decoration:underline}
+.feed-attendance-link:focus-visible,.feed-attendance-hide:focus-visible{
+  outline:2px solid #7be9d6;outline-offset:3px;border-radius:4px;
+}
+.feed-attendance-hide:disabled{opacity:.5;cursor:wait}
+@media(max-width:560px){
+  .feed-attendance-row{padding:12px;gap:9px}
+  .feed-attendance-link{margin-left:39px}
+}
