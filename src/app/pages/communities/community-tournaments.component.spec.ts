@@ -553,6 +553,42 @@ describe('Community tournaments management', () => {
     expect(link).not.toHaveBeenCalled();
   });
 
+  it('filters eligible team invitations by accent-insensitive name and username', () => {
+    component.championshipTeamRegistries[15] = {
+      teams: [{ id: 44 }, { id: 45 }]
+    } as any;
+    component.championshipTeamPlayers[45] = [{ profileId: 2 }] as any;
+    component.community = {
+      ...component.community,
+      members: [
+        { profileId: 1, fullName: 'João Silva', username: 'joaos' },
+        { profileId: 2, fullName: 'Ana Costa', username: 'ana' },
+        { profileId: 3, fullName: 'Maria Santos', username: 'marias' }
+      ] as any
+    };
+    component.championshipTeamMemberSearch[44] = 'joao';
+    expect(component.searchableChampionshipTeamMembers(15, 44).map(m => m.profileId)).toEqual([1]);
+
+    component.championshipTeamMemberSearch[44] = 'marias';
+    expect(component.searchableChampionshipTeamMembers(15, 44).map(m => m.profileId)).toEqual([3]);
+
+    component.championshipTeamMemberSearch[44] = '';
+    expect(component.searchableChampionshipTeamMembers(15, 44).map(m => m.profileId)).toEqual([1, 3]);
+  });
+
+  it('bounds the team invitation selector but searches all eligible members', () => {
+    component.championshipTeamRegistries[15] = { teams: [] } as any;
+    component.community = {
+      ...component.community,
+      members: Array.from({ length: 65 }, (_, i) => ({
+        profileId: i + 1, fullName: 'Jogador ' + i, username: 'player' + i
+      })) as any
+    };
+    expect(component.searchableChampionshipTeamMembers(15, 44).length).toBe(40);
+    component.championshipTeamMemberSearch[44] = 'player64';
+    expect(component.searchableChampionshipTeamMembers(15, 44).map(m => m.profileId)).toEqual([65]);
+  });
+
   it('still allows an active championship team manager to send a valid invitation', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const invite = jasmine.createSpy('inviteTeamPlayer').and.returnValue(of(void 0));
