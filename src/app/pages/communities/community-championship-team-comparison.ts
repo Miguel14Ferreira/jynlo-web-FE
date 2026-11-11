@@ -37,10 +37,16 @@ export function compareTeamSeasons(
     const championshipId = season.championshipId;
     // A tournament has exactly one title per season. Duplicate honours rows
     // must not inflate league/cup counts in the historical comparison.
-    const distinct = new Map<number, typeof profile.competitionTitles[number]>();
+    const distinct = new Map<string, typeof profile.competitionTitles[number]>();
     for (const title of profile.competitionTitles) {
-      if (title.championshipId === championshipId && !distinct.has(title.tournamentId)) {
-        distinct.set(title.tournamentId, title);
+      if (title.championshipId !== championshipId) continue;
+      // Legacy tournaments and new owned competitions have independent IDs.
+      // Never collapse multiple owned titles with a null tournament ID.
+      const key = title.ownedEventId != null
+        ? `owned:${title.ownedEventId}`
+        : title.tournamentId != null ? `tournament:${title.tournamentId}` : null;
+      if (key !== null && !distinct.has(key)) {
+        distinct.set(key, title);
       }
     }
     const trophies = [...distinct.values()];
