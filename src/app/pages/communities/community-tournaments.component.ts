@@ -389,6 +389,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipTeamPlayersLoadVersion[teamId] = (this.championshipTeamPlayersLoadVersion[teamId] || 0) + 1;
     this.championshipTeamAdminLoadVersion[teamId] = (this.championshipTeamAdminLoadVersion[teamId] || 0) + 1;
     this.championshipTeamInviteLoadVersion[teamId] = (this.championshipTeamInviteLoadVersion[teamId] || 0) + 1;
+    this.championshipTeamInviteLoading[teamId] = false;
   }
   championshipTeamCreatedNotice = false;
 
