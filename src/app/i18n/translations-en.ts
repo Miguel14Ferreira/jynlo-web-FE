@@ -1,5 +1,11 @@
 // Loaded only for users who choose English. Keep the original key/value table intact.
 export const EN: Record<string, string> = {
+  'notification.team.inviteSubject': "Invitation to join {{team}}",
+  'notification.team.transferSubject': "Administrator transfer for {{team}}",
+  'notification.team.assignedSubject': "You are now administrator of {{team}}",
+  'notification.team.inviteMessage': "You've been invited to join {{team}}. Open community competitions to accept or decline. The first member to accept becomes administrator.",
+  'notification.team.transferMessage': "You've been invited to administer {{team}}. Open competitions to accept or decline. The current administrator keeps the role until you accept.",
+  'notification.team.assignedMessage': "You're now confirmed as administrator of {{team}}. You can manage the roster in community competitions.",
   'notifications.team.openCompetition': "Open community competitions",
   'notifications.preferences.type.TEAM_MEMBER_INVITE': "Team invitations",
   'notifications.preferences.type.TEAM_ADMIN_TRANSFER': "Team administrator transfers",
