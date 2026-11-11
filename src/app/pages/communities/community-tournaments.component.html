@@ -1055,6 +1055,7 @@
                                         <div class="jynlo-goal-row">
                                           <span>⚽ {{ goal.scorerName }} · {{ goal.teamName }}
                                             @if (goal.minute != null) { · {{ goal.minute }}' }
+                                            @if (goal.assisterName) { · Assistência: {{ goal.assisterName }} }
                                           </span>
                                           @if (canManage && !championship.closedAt) {
                                             <button type="button" class="t-btn t-btn-secondary"
@@ -1070,7 +1071,7 @@
                                           <label [for]="'goal-team-' + fixture.id">Equipa</label>
                                           <select [id]="'goal-team-' + fixture.id"
                                             [value]="championshipFixtureGoalTeamDrafts[fixture.id] ?? ''"
-                                            (change)="championshipFixtureGoalTeamDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null; championshipFixtureGoalPlayerDrafts[fixture.id] = null">
+                                            (change)="championshipFixtureGoalTeamDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null; championshipFixtureGoalPlayerDrafts[fixture.id] = null; championshipFixtureGoalAssistDrafts[fixture.id] = null">
                                             <option value="">Escolher equipa</option>
                                             <option [value]="fixture.homeTeamId">{{ fixture.homeTeamName }}</option>
                                             <option [value]="fixture.awayTeamId">{{ fixture.awayTeamName }}</option>
@@ -1082,6 +1083,17 @@
                                             <option value="">Escolher jogador</option>
                                             @for (player of fixtureTeamPlayerOptions(championship.id, championshipFixtureGoalTeamDrafts[fixture.id]); track player.profileId) {
                                               <option [value]="player.profileId">{{ player.displayName }}</option>
+                                            }
+                                          </select>
+                                          <label [for]="'goal-assist-' + fixture.id">Assistência (opcional)</label>
+                                          <select [id]="'goal-assist-' + fixture.id"
+                                            [value]="championshipFixtureGoalAssistDrafts[fixture.id] ?? ''"
+                                            (change)="championshipFixtureGoalAssistDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null">
+                                            <option value="">Sem assistência</option>
+                                            @for (player of fixtureTeamPlayerOptions(championship.id, championshipFixtureGoalTeamDrafts[fixture.id]); track player.profileId) {
+                                              @if (player.profileId !== championshipFixtureGoalPlayerDrafts[fixture.id]) {
+                                                <option [value]="player.profileId">{{ player.displayName }}</option>
+                                              }
                                             }
                                           </select>
                                           <label [for]="'goal-minute-' + fixture.id">Minuto (opcional)</label>
