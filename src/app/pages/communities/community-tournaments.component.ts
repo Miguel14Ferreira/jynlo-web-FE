@@ -284,7 +284,11 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.championshipBusy = false;
         this.championshipError = err?.status === 409
           ? 'Não é possível eliminar este campeonato: já existem resultados, acontecimentos ou torneios independentes associados. Os dados históricos estão protegidos.'
-          : 'Não foi possível eliminar o campeonato. Tenta novamente.';
+          : err?.status === 403
+            ? 'Não tens permissões para eliminar este campeonato. Contacta um organizador da comunidade.'
+            : err?.status === 404
+              ? 'Este campeonato já não existe. Atualiza a lista de campeonatos antes de tentares novamente.'
+              : 'Não foi possível eliminar o campeonato. Tenta novamente.';
         this.changeDetector.markForCheck();
       }
     });
