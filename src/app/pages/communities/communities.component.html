@@ -3345,6 +3345,12 @@
                               }
                             }
                           </div>
+                          <details class="round-card-details">
+                            <summary class="round-card-details-toggle">
+                              <span>Participantes e resultados</span>
+                              <small>{{ round.entries.length }} participante(s)</small>
+                              <span class="round-card-details-hint">Expandir / recolher</span>
+                            </summary>
 
                           @if (roundView(round) === 'race') {
                             <section class="race-round-record" [attr.aria-label]="'communities.race.recordTitle' | t">
@@ -4029,6 +4035,7 @@
                           </div>
                           }
                           }
+                          </details>
                         </article>
                       }
                     </section>
