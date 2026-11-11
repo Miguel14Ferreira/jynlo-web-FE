@@ -1208,6 +1208,19 @@ export class CommunityTournamentsComponent implements OnChanges {
     return false;
   }
 
+  /** A correction cannot make an already attributed player goal impossible. */
+  championshipScoreRespectsAssignedGoals(
+    fixture: ChampionshipOwnedLeagueFixture,
+    score: { home: number | null; away: number | null } | undefined
+  ): boolean {
+    if (!score || score.home == null || score.away == null) return false;
+    const goals = this.championshipFixtureGoals[fixture.id];
+    if (!goals) return true; // The score endpoint remains authoritative until event data is loaded.
+    const homeAssigned = goals.filter(goal => goal.teamId === fixture.homeTeamId).length;
+    const awayAssigned = goals.filter(goal => goal.teamId === fixture.awayTeamId).length;
+    return score.home >= homeAssigned && score.away >= awayAssigned;
+  }
+
   /** Display match events in chronological order; missing minutes are shown last. */
   championshipFixtureGoalsInOrder(fixtureId: number): ChampionshipFixtureGoal[] {
     return [...(this.championshipFixtureGoals[fixtureId] || [])]
@@ -1241,7 +1254,8 @@ export class CommunityTournamentsComponent implements OnChanges {
         || !['Futebol', 'Futsal'].includes(championship.sport)
         || this.championshipFixtureSaving[fixture.id]
         || event.status !== 'SCHEDULED' || event.format !== 'LEAGUE'
-        || !this.championshipScoreChanged(score, fixture)) return;
+        || !this.championshipScoreChanged(score, fixture)
+        || !this.championshipScoreRespectsAssignedGoals(fixture, score)) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipFixtureSaving[fixture.id] = true;
