@@ -841,6 +841,16 @@
                       }
                     </section>
                   }
+                  @if (championshipTeamInviteLoadError[seasonTeam.id] && !championship.closedAt) {
+                    <div class="jynlo-team-admin-decision" role="status">
+                      <p>Não foi possível verificar os teus convites para esta equipa.</p>
+                      <button type="button" class="t-btn t-btn-secondary t-btn-small"
+                        [disabled]="championshipTeamInviteLoading[seasonTeam.id] || championshipTeamPlayerBusy[seasonTeam.id]"
+                        (click)="loadChampionshipTeamInvitation(championship.id, seasonTeam.id)">
+                        {{ championshipTeamInviteLoading[seasonTeam.id] ? 'A verificar…' : 'Tentar novamente' }}
+                      </button>
+                    </div>
+                  }
                   @if (championshipTeamInvitePending[seasonTeam.id] && !championship.closedAt) {
                     <div class="jynlo-team-admin-decision" role="status">
                       <strong>{{ 'teams.autonomy.invited' | t:{team:seasonTeam.name} }}</strong>
