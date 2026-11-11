@@ -576,6 +576,22 @@ describe('Community tournaments management', () => {
     expect(component.searchableChampionshipTeamMembers(15, 44).map(m => m.profileId)).toEqual([1, 3]);
   });
 
+  it('searches championship team rosters without hiding members from the source list', () => {
+    component.championshipTeamPlayers[44] = [
+      { profileId: 11, displayName: 'João Silva', username: 'joao' },
+      { profileId: 12, displayName: 'Ana Costa', username: 'ana' },
+      { profileId: 13, displayName: 'Mário Sousa', username: 'mario' }
+    ] as any;
+    component.championshipTeamRosterSearch[44] = 'mario';
+    expect(component.filteredChampionshipTeamRoster(44).map(p => p.profileId)).toEqual([13]);
+    expect(component.championshipTeamPlayers[44].length).toBe(3);
+
+    component.championshipTeamRosterSearch[44] = 'ana';
+    expect(component.filteredChampionshipTeamRoster(44).map(p => p.profileId)).toEqual([12]);
+    component.championshipTeamRosterSearch[44] = '';
+    expect(component.filteredChampionshipTeamRoster(44).length).toBe(3);
+  });
+
   it('bounds the team invitation selector but searches all eligible members', () => {
     component.championshipTeamRegistries[15] = { teams: [] } as any;
     component.community = {
