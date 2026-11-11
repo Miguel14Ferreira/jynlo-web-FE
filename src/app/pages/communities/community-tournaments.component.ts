@@ -121,7 +121,8 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   linkPermanentTeam(championshipId: number, seasonTeamId: number, permanentTeamId: number): void {
-    if (!this.canManage || this.championshipBusy || !Number.isInteger(permanentTeamId)
+    if (!this.canManage || !this.championshipSeasonEditable(championshipId)
+        || this.championshipBusy || !Number.isInteger(permanentTeamId)
         || permanentTeamId <= 0) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
