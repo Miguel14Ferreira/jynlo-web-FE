@@ -10,6 +10,8 @@ on:
       - 'src/app/pages/communities/community-tournaments.component.ts'
       - 'src/app/pages/communities/community-tournaments.component.html'
       - 'src/app/pages/communities/community-tournaments.component.spec.ts'
+      - 'src/app/pages/communities/community-tournament-capabilities.ts'
+      - 'src/app/pages/communities/community-tournament-capabilities.spec.ts'
       - 'src/app/services/community-tournaments.service.ts'
       - 'src/app/services/community-championships.service.ts'
   workflow_dispatch:
@@ -30,7 +32,7 @@ jobs:
         run: npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/pages/notifications/notifications.component.spec.ts
       - name: Test tournament administration views in isolation
         if: always()
-        run: npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/pages/communities/community-tournaments.component.spec.ts
+        run: npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/pages/communities/community-tournaments.component.spec.ts --include=src/app/pages/communities/community-tournament-capabilities.spec.ts
       - name: Validate production compilation independently of test regressions
         if: always()
         run: npm run build
