@@ -44,6 +44,16 @@ describe('CommunitiesComponent public session eligibility', () => {
     expect(component.errorMessage).toBe(t('feedback.communities.inlineFinalBDiscontinued'));
   });
 
+  it('starts imported matchdays collapsed and resets bulk expansion when changing seasons', () => {
+    component.selected = { id: 7 } as any;
+    component.roundsExpanded = true;
+    spyOn(component, 'loadCompetition');
+    component.selectSeason('19');
+    expect(component.roundsExpanded).toBeFalse();
+    expect(component.selectedSeasonId).toBe(19);
+    expect(component.loadCompetition).toHaveBeenCalledOnceWith(component.selected!, 19);
+  });
+
   it('retains community detail routing and hides the mine selector in detail mode', () => {
     (component as any).isDetailMode = true;
     expect(component.detailMode()).toBeTrue();
