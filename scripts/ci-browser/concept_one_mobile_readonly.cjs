@@ -464,6 +464,15 @@ async function main() {
 
         for (const [route, selector] of scenarios) {
           await page.goto(SITE + route, { waitUntil: 'domcontentloaded', timeout: 20_000 });
+          // Competition screen now opens with the Championships view by default.
+          // Switch to Tournaments before asserting its visible panels; this is
+          // read-only navigation, not a change to any competition or roster.
+          if (route.includes('/menu/communities/77?tab=tournaments')) {
+            const tournamentTab = page.locator('.competition-dashboard-tab')
+              .filter({ hasText: /Torneios|Tournaments/i });
+            await tournamentTab.waitFor({ state: 'visible', timeout: 15_000 });
+            await tournamentTab.click();
+          }
           await page.locator(selector).first().waitFor({ state: 'visible', timeout: 15_000 });
           await page.evaluate(() => document.fonts && document.fonts.ready);
           // Angular and mobile viewport metadata can settle after the route host.
