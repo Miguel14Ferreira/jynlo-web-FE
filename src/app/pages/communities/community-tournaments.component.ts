@@ -1285,6 +1285,19 @@ export class CommunityTournamentsComponent implements OnChanges {
       .sort((a, b) => (a.minute ?? Number.MAX_SAFE_INTEGER) - (b.minute ?? Number.MAX_SAFE_INTEGER) || a.id - b.id);
   }
 
+  /** Keep an explicitly cleared score blank when editing its opposite side. */
+  updateChampionshipLeagueScoreDraft(
+    fixture: ChampionshipOwnedLeagueFixture, side: 'home' | 'away', rawValue: string
+  ): void {
+    if (this.championshipFixtureSaving[fixture.id] || this.championshipFixtureGoalBusy[fixture.id]) return;
+    const draft = this.championshipFixtureScoreDrafts[fixture.id];
+    const value = rawValue.trim() === '' ? null : Number(rawValue);
+    this.championshipFixtureScoreDrafts[fixture.id] = {
+      home: side === 'home' ? value : (draft ? draft.home : (fixture.homeScore ?? null)),
+      away: side === 'away' ? value : (draft ? draft.away : (fixture.awayScore ?? null))
+    };
+  }
+
   /** Validity of a score draft is shared by the view and save handlers. */
   championshipScoreDraftValid(score: { home: number | null; away: number | null } | undefined,
                               requiresWinner = false): boolean {
@@ -1370,8 +1383,8 @@ export class CommunityTournamentsComponent implements OnChanges {
     const draft = this.championshipCupResultDrafts[match.id];
     const value = rawValue.trim() === '' ? null : Number(rawValue);
     this.championshipCupResultDrafts[match.id] = {
-      home: side === 'home' ? value : (draft?.home ?? match.homeScore ?? null),
-      away: side === 'away' ? value : (draft?.away ?? match.awayScore ?? null)
+      home: side === 'home' ? value : (draft ? draft.home : (match.homeScore ?? null)),
+      away: side === 'away' ? value : (draft ? draft.away : (match.awayScore ?? null))
     };
     this.championshipCupAdvanceConfirm[eventId] = false;
   }
