@@ -26,6 +26,34 @@ import { CommunityProfile } from '../model/community-profile';
 })
 export class SocialFeedComponent implements OnInit, OnDestroy {
   items: FeedItem[] = [];
+
+  // Automatic attendance is a compact, session-level update rather than
+  // one full-sized publication per participant. Only use entries already
+  // returned by the permission-filtered feed endpoint.
+  get attendanceGroups(): Array<{ sessionId: number; item: FeedItem; count: number; ownActivity?: FeedItem }> {
+    const groups = new Map<number, { sessionId: number; item: FeedItem; usernames: Set<string>; ownActivity?: FeedItem }>();
+    for (const item of this.items) {
+      if (item.type !== 'SESSION_ATTENDED' || !Number.isSafeInteger(item.sessionId) || (item.sessionId ?? 0) <= 0) continue;
+      const sessionId = item.sessionId as number;
+      let group = groups.get(sessionId);
+      if (!group) {
+        group = { sessionId, item, usernames: new Set<string>() };
+        groups.set(sessionId, group);
+      }
+      group.usernames.add(item.authorUsername);
+      if (item.authorUsername === this.currentUsername) group.ownActivity = item;
+    }
+    return Array.from(groups.values()).map(group => ({
+      sessionId: group.sessionId, item: group.item,
+      count: group.usernames.size, ownActivity: group.ownActivity
+    }));
+  }
+
+  get fullFeedItems(): FeedItem[] {
+    return this.items.filter(item =>
+      item.type !== 'SESSION_ATTENDED' ||
+      !Number.isSafeInteger(item.sessionId) || (item.sessionId ?? 0) <= 0);
+  }
   likersPostId: number | null = null;
   likersList: FollowProfile[] = [];
   likersLoading = false;
