@@ -1011,7 +1011,7 @@
                           && championshipOwnedLeagueTables[event.id]; as table) {
                         <section class="jynlo-owned-league-table" aria-label="Classificação provisória da liga">
                           <div class="jynlo-owned-league-title">
-                            <strong>Classificação provisória</strong>
+                            <strong>{{ event.status === 'COMPLETED' ? 'Classificação final da liga' : 'Classificação provisória' }}</strong>
                             <small>{{ table.playedMatches }} / {{ table.totalMatches }} jogos com resultado</small>
                           </div>
                           <div class="jynlo-owned-league-scroll">
@@ -1042,7 +1042,33 @@
                           @if (table.firstPlaceTied) {
                             <small>Há equipas empatadas no primeiro lugar. O desempate ainda não está resolvido.</small>
                           }
-                          <small>3 pontos por vitória, 1 por empate. Esta tabela é provisória e não atribui automaticamente o título da época.</small>
+                          @if (event.status === 'COMPLETED') {
+                            <p class="jynlo-league-winner" role="status">
+                              <strong>Vencedor da liga: {{ event.winnerTeamName }}</strong>
+                              <span>Resultado confirmado. Esta prova está concluída e deixa de aceitar alterações aos jogos.</span>
+                            </p>
+                          } @else {
+                            <small>3 pontos por vitória, 1 por empate. A classificação da liga ainda não está concluída.</small>
+                            @if (canManage && !championship.closedAt) {
+                              <div class="jynlo-league-finalize">
+                                <label>
+                                  <input type="checkbox"
+                                    [checked]="championshipLeagueFinalizeConfirm[event.id] || false"
+                                    (change)="championshipLeagueFinalizeConfirm[event.id] = $any($event.target).checked">
+                                  Confirmo que os resultados e a classificação estão corretos
+                                </label>
+                                <button type="button" class="t-btn t-btn-primary"
+                                  [disabled]="!table.completed || table.firstPlaceTied || table.standings.length < 2 || !championshipLeagueFinalizeConfirm[event.id] || championshipLeagueFinalizeBusy[event.id]"
+                                  (click)="finalizeChampionshipLeague(championship, event)">
+                                  {{ championshipLeagueFinalizeBusy[event.id] ? 'A concluir…' : 'Concluir liga e guardar vencedor' }}
+                                </button>
+                                @if (!table.completed) {
+                                  <small>É necessário registar o resultado de todos os jogos.</small>
+                                }
+                              </div>
+                            }
+                          }
+                          <small>O vencedor desta prova não é automaticamente o campeão geral da época.</small>
                         </section>
                       }
 
