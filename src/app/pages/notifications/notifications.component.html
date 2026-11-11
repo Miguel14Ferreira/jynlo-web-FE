@@ -364,6 +364,16 @@
                   </button>
                 }
 
+                @if ((selected.type === 'TEAM_MEMBER_INVITE'
+                      || selected.type === 'TEAM_ADMIN_TRANSFER'
+                      || selected.type === 'TEAM_ADMIN_ASSIGNED')
+                    && selected.communityId !== null && selected.communityId !== undefined) {
+                  <button type="button" class="primary-action jynlo-action jynlo-action--primary"
+                    (click)="openTeamCompetition(selected)">
+                    {{ 'notifications.team.openCompetition' | t }}
+                  </button>
+                }
+
                 @if (selected.friendRequest) {
                   <button
                     type="button"
