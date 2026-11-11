@@ -1381,16 +1381,76 @@
                       <h6>{{ 'communities.championshipOwned.cupTitle' | t }}</h6>
                       @if (championshipCupDraws[event.id]; as draw) {
                         @if (draw.matches.length || draw.byes.length) {
-                          <strong>{{ 'communities.championshipOwned.cupOpeningRound' | t }}</strong>
-                          <ul>
-                            @for (match of draw.matches; track match.id) {
-                              <li>{{ match.homeTeamName }} · {{ 'communities.championshipOwned.versus' | t }} · {{ match.awayTeamName }}</li>
+                          <strong>{{ event.status === 'COMPLETED' ? 'Taça concluída' : 'Eliminatórias da taça' }}</strong>
+                          @if (event.status === 'COMPLETED') {
+                            <p class="jynlo-league-winner" role="status">Vencedor da taça: <strong>{{ event.winnerTeamName }}</strong></p>
+                          }
+                          @for (round of [1, 2, 3, 4, 5, 6]; track round) {
+                            @if (draw.matches.some(match => match.round === round)) {
+                              <div class="create-step">
+                                <strong>Ronda {{ round }}</strong>
+                                @for (match of draw.matches; track match.id) {
+                                  @if (match.round === round) {
+                                    <div class="jynlo-match-result">
+                                      <div class="jynlo-match-result-main">
+                                        <strong>{{ match.homeTeamName }}</strong>
+                                        <span class="jynlo-score">
+                                          @if (match.homeScore != null && match.awayScore != null) {
+                                            {{ match.homeScore }} : {{ match.awayScore }}
+                                          } @else { vs }
+                                        </span>
+                                        <strong>{{ match.awayTeamName }}</strong>
+                                      </div>
+                                      @if (canManage && !championship.closedAt && event.status === 'SCHEDULED'
+                                          && (championship.sport === 'Futebol' || championship.sport === 'Futsal')
+                                          && round === cupCurrentRound(event.id)) {
+                                        <div class="jynlo-match-score-edit">
+                                          <label [for]="'cup-home-' + match.id">Casa</label>
+                                          <input [id]="'cup-home-' + match.id" type="number" min="0" max="999"
+                                            [value]="championshipCupResultDrafts[match.id]?.home ?? match.homeScore ?? ''"
+                                            (input)="championshipCupResultDrafts[match.id] = {home: $any($event.target).value === '' ? null : +$any($event.target).value, away: championshipCupResultDrafts[match.id]?.away ?? match.awayScore ?? null}">
+                                          <label [for]="'cup-away-' + match.id">Fora</label>
+                                          <input [id]="'cup-away-' + match.id" type="number" min="0" max="999"
+                                            [value]="championshipCupResultDrafts[match.id]?.away ?? match.awayScore ?? ''"
+                                            (input)="championshipCupResultDrafts[match.id] = {home: championshipCupResultDrafts[match.id]?.home ?? match.homeScore ?? null, away: $any($event.target).value === '' ? null : +$any($event.target).value}">
+                                          <button type="button" class="t-btn t-btn-secondary"
+                                            [disabled]="championshipCupScoreBusy[match.id]"
+                                            (click)="saveChampionshipCupScore(championship, event, match)">
+                                            {{ championshipCupScoreBusy[match.id] ? 'A guardar…' : 'Guardar resultado' }}
+                                          </button>
+                                        </div>
+                                      }
+                                    </div>
+                                  }
+                                }
+                              </div>
                             }
-                            @for (bye of draw.byes; track bye.id) {
-                              <li>{{ bye.teamName }} — {{ 'communities.championshipOwned.cupBye' | t }}</li>
-                            }
-                          </ul>
-                          <p class="team-honours-muted">{{ 'communities.championshipOwned.cupNextRoundNotice' | t }}</p>
+                          }
+                          @if (draw.byes.length) {
+                            <p>Apuramento direto na primeira ronda:</p>
+                            <ul>
+                              @for (bye of draw.byes; track bye.id) {
+                                <li>{{ bye.teamName }}</li>
+                              }
+                            </ul>
+                          }
+                          @if (canManage && !championship.closedAt && event.status === 'SCHEDULED'
+                              && (championship.sport === 'Futebol' || championship.sport === 'Futsal')) {
+                            <div class="jynlo-league-finalize">
+                              <label>
+                                <input type="checkbox"
+                                  [checked]="championshipCupAdvanceConfirm[event.id] || false"
+                                  (change)="championshipCupAdvanceConfirm[event.id] = $any($event.target).checked">
+                                Confirmo os resultados desta ronda
+                              </label>
+                              <button type="button" class="t-btn t-btn-primary"
+                                [disabled]="championshipCupBusy || !cupRoundCanAdvance(event.id) || !championshipCupAdvanceConfirm[event.id]"
+                                (click)="advanceChampionshipCup(championship, event)">
+                                {{ championshipCupBusy ? 'A avançar…' : 'Confirmar vencedores e avançar' }}
+                              </button>
+                              <small>Todos os jogos precisam de vencedor. Se houver empate, regista primeiro o resultado após desempate.</small>
+                            </div>
+                          }
                         } @else if (canManage && !championship.closedAt && event.status === 'DRAFT') {
                           <p>{{ 'communities.championshipOwned.cupDrawHint' | t }}</p>
                           <button type="button" class="t-btn t-btn-primary"
