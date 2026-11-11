@@ -605,6 +605,71 @@ describe('Community tournaments management', () => {
     expect(component.searchableChampionshipTeamMembers(15, 44).map(m => m.profileId)).toEqual([65]);
   });
 
+  it('ignores an outdated roster response after a player accepts the invitation', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const oldRoster = new Subject<any>();
+    (championships as any).teamPlayers = jasmine.createSpy('teamPlayers').and.returnValue(oldRoster);
+    (championships as any).respondTeamInvite = jasmine.createSpy('respondTeamInvite')
+      .and.returnValue(of([{ profileId: 25, displayName: 'Novo jogador' }]));
+    (championships as any).teamAdministrator = jasmine.createSpy('teamAdministrator')
+      .and.returnValue(of({ teamId: 44, adminProfileId: 25, pendingProfileId: null, canManage: true, canAccept: false, canTransfer: true }));
+    component.championships = [{ id: 15, closedAt: null } as any];
+    component.championshipTeamInvitePending[44] = true;
+
+    component.loadChampionshipTeamPlayers(15, 44);
+    component.respondChampionshipTeamInvitation(15, 44, true);
+    oldRoster.next([]);
+
+    expect(component.championshipTeamPlayers[44].map(p => p.profileId)).toEqual([25]);
+    expect(component.championshipTeamInvitePending[44]).toBeFalse();
+    expect(component.championshipTeamAdministrators[44].adminProfileId).toBe(25);
+  });
+
+  it('ignores stale administrator and invitation responses after an accepted team invitation', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const oldAdmin = new Subject<any>();
+    const oldInvitation = new Subject<any>();
+    (championships as any).teamAdministrator = jasmine.createSpy('teamAdministrator')
+      .and.returnValues(oldAdmin, of({
+        teamId: 44, adminProfileId: 25, pendingProfileId: null,
+        canManage: true, canAccept: false, canTransfer: true
+      }));
+    (championships as any).teamInviteStatus = jasmine.createSpy('teamInviteStatus')
+      .and.returnValue(oldInvitation);
+    (championships as any).respondTeamInvite = jasmine.createSpy('respondTeamInvite')
+      .and.returnValue(of([{ profileId: 25, displayName: 'Novo jogador' }]));
+    component.championships = [{ id: 15, closedAt: null } as any];
+    component.championshipTeamInvitePending[44] = true;
+
+    component.loadChampionshipTeamAdministrator(15, 44);
+    component.loadChampionshipTeamInvitation(15, 44);
+    component.respondChampionshipTeamInvitation(15, 44, true);
+    oldAdmin.next({ teamId: 44, adminProfileId: null, canManage: false });
+    oldInvitation.next({ invited: true });
+
+    expect(component.championshipTeamAdministrators[44].adminProfileId).toBe(25);
+    expect(component.championshipTeamInvitePending[44]).toBeFalse();
+  });
+
+  it('lets the latest same-team roster fetch win without disturbing another team', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const first = new Subject<any>();
+    const second = new Subject<any>();
+    const other = new Subject<any>();
+    (championships as any).teamPlayers = jasmine.createSpy('teamPlayers')
+      .and.returnValues(first, second, other);
+
+    component.loadChampionshipTeamPlayers(15, 44);
+    component.loadChampionshipTeamPlayers(15, 44);
+    component.loadChampionshipTeamPlayers(15, 45);
+    second.next([{ profileId: 2 }]);
+    first.next([{ profileId: 1 }]);
+    other.next([{ profileId: 3 }]);
+
+    expect(component.championshipTeamPlayers[44].map(p => p.profileId)).toEqual([2]);
+    expect(component.championshipTeamPlayers[45].map(p => p.profileId)).toEqual([3]);
+  });
+
   it('still allows an active championship team manager to send a valid invitation', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const invite = jasmine.createSpy('inviteTeamPlayer').and.returnValue(of(void 0));
