@@ -636,6 +636,36 @@ describe('Community tournaments management', () => {
     expect(add).not.toHaveBeenCalled();
   });
 
+  it('does not update a league score while player-goal attribution is pending', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const scoreApi = jasmine.createSpy('recordOwnedFixtureScore');
+    (championships as any).recordOwnedFixtureScore = scoreApi;
+    const fixture = { id: 501, homeScore: 1, awayScore: 0 };
+    component.championshipFixtureScoreDrafts[501] = { home: 2, away: 1 };
+    component.championshipFixtureGoalBusy[501] = true;
+
+    component.saveChampionshipFixtureScore(
+      { id: 15, sport: 'Futebol', closedAt: null } as any,
+      { id: 101, format: 'LEAGUE', status: 'SCHEDULED' } as any, fixture as any
+    );
+
+    expect(scoreApi).not.toHaveBeenCalled();
+  });
+
+  it('does not remove an attributed goal while its fixture score is being saved', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const remove = jasmine.createSpy('removeFixtureGoal');
+    (championships as any).removeFixtureGoal = remove;
+    component.championshipFixtureSaving[501] = true;
+
+    component.removeFixtureGoal(
+      { id: 15, sport: 'Futebol', closedAt: null } as any,
+      { id: 101, format: 'LEAGUE', status: 'SCHEDULED' } as any, 501, 17
+    );
+
+    expect(remove).not.toHaveBeenCalled();
+  });
+
   it('refreshes the league fixture and clears its draft after a successful score save', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const fixture = { id: 501, homeScore: 1, awayScore: 0 };
