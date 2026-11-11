@@ -556,7 +556,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
 
   readonly emojis = ['😀', '😂', '😊', '😍', '🥳', '😎', '😉', '👍', '👏', '🙌', '🔥', '⚽', '🏀', '🎾', '🏓', '💪', '❤️', '✅'];
 
-  private sessionId?: number;
+  sessionId?: number;
   private currentUsername: string | null = null;
   private pendingJoinScroll = false;
   private pendingChatScroll = false;
