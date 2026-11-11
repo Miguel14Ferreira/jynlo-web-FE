@@ -27,6 +27,8 @@ export interface ChampionshipFixtureGoal {
   teamId: number;
   teamName: string;
   minute: number | null;
+  assistProfileId?: number | null;
+  assisterName?: string | null;
 }
 
 export interface ChampionshipOwnedLeagueTable {
@@ -349,10 +351,10 @@ export class CommunityChampionshipsService {
 
   addFixtureGoal(communityId: number, championshipId: number, eventId: number,
                  fixtureId: number, profileId: number, teamId: number,
-                 minute: number | null): Observable<ChampionshipFixtureGoal[]> {
+                 minute: number | null, assistProfileId: number | null = null): Observable<ChampionshipFixtureGoal[]> {
     return this.http.post<ChampionshipFixtureGoal[]>(
       this.base(communityId) + '/' + championshipId + '/owned-events/' + eventId
-      + '/fixtures/' + fixtureId + '/goals', { profileId, teamId, minute });
+      + '/fixtures/' + fixtureId + '/goals', { profileId, teamId, minute, assistProfileId });
   }
 
   removeFixtureGoal(communityId: number, championshipId: number, eventId: number,
