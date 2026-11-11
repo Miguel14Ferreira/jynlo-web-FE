@@ -328,6 +328,9 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipTeamAdministrators: Record<number, ChampionshipTeamAdministrator> = {};
   championshipTeamAdminDrafts: Record<number, number | null> = {};
   championshipTeamAdminBusy: Record<number, boolean> = {};
+  championshipTeamInvitePending: Record<number, boolean> = {};
+  championshipTeamInviteFeedback: Record<number, string> = {};
+  championshipTeamCreatedNotice = false;
 
   canManageChampionshipTeam(teamId: number): boolean {
     return this.canManage || !!this.championshipTeamAdministrators[teamId]?.canManage;
@@ -361,11 +364,77 @@ export class CommunityTournamentsComponent implements OnChanges {
     });
   }
 
+  loadChampionshipTeamInvitation(championshipId: number, teamId: number): void {
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipsApi.teamInviteStatus(communityId, championshipId, teamId).subscribe({
+      next: status => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamInvitePending[teamId] = status.invited;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamInvitePending[teamId] = false;
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  respondChampionshipTeamInvitation(championshipId: number, teamId: number, accept: boolean): void {
+    if (!this.championshipTeamInvitePending[teamId] || this.championshipTeamPlayerBusy[teamId]) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipTeamPlayerBusy[teamId] = true;
+    this.championshipsApi.respondTeamInvite(communityId, championshipId, teamId, accept).subscribe({
+      next: players => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamPlayers[teamId] = players;
+        this.championshipTeamInvitePending[teamId] = false;
+        this.championshipTeamPlayerBusy[teamId] = false;
+        this.championshipTeamInviteFeedback[teamId] = accept
+          ? 'Entrada confirmada. Se foste o primeiro membro a aceitar, és agora administrador da equipa.'
+          : 'Convite recusado.';
+        this.loadChampionshipTeamAdministrator(championshipId, teamId);
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamPlayerBusy[teamId] = false;
+        this.championshipError = 'Não foi possível responder ao convite. Confirma a elegibilidade nesta época.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  cancelChampionshipTeamAdminTransfer(championshipId: number, teamId: number): void {
+    if (!this.championshipTeamAdministrators[teamId]?.canTransfer
+        || this.championshipTeamAdminBusy[teamId]) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipTeamAdminBusy[teamId] = true;
+    this.championshipsApi.cancelTeamAdministratorTransfer(communityId, championshipId, teamId).subscribe({
+      next: state => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamAdministrators[teamId] = state;
+        this.championshipTeamAdminBusy[teamId] = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamAdminBusy[teamId] = false;
+        this.championshipError = 'Não foi possível cancelar a transferência.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
   inviteChampionshipTeamAdministrator(championshipId: number, teamId: number): void {
     const profileId = this.championshipTeamAdminDrafts[teamId];
-    if (!this.canManage || this.championshipTeamAdminBusy[teamId]
+    if (!this.championshipTeamAdministrators[teamId]?.canTransfer || this.championshipTeamAdminBusy[teamId]
         || !profileId || !Number.isInteger(profileId)
-        || !(this.community.members || []).some(member => member.profileId === profileId)) return;
+        || !(this.championshipTeamPlayers[teamId] || []).some(player => player.profileId === profileId)
+        || this.championshipTeamAdministrators[teamId]?.adminProfileId === profileId) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipTeamAdminBusy[teamId] = true;
@@ -380,7 +449,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamAdminBusy[teamId] = false;
-        this.championshipError = 'Não foi possível convidar este responsável. Confirma se pertence à comunidade e não representa outra equipa.';
+        this.championshipError = 'Só podes transferir a administração para outro jogador já inscrito nesta equipa.';
         this.changeDetector.markForCheck();
       }
     });
@@ -439,10 +508,10 @@ export class CommunityTournamentsComponent implements OnChanges {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipTeamPlayerBusy[teamId] = true;
-    this.championshipsApi.addTeamPlayer(communityId, championshipId, teamId, profileId).subscribe({
-      next: players => {
+    this.championshipsApi.inviteTeamPlayer(communityId, championshipId, teamId, profileId).subscribe({
+      next: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
-        this.championshipTeamPlayers[teamId] = players;
+        this.championshipTeamInviteFeedback[teamId] = 'Convite enviado. O jogador só entra no plantel depois de aceitar.';
         this.championshipTeamPlayerDrafts[teamId] = null;
         this.championshipTeamPlayerBusy[teamId] = false;
         this.changeDetector.markForCheck();
@@ -493,6 +562,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         registry.teams.forEach(team => {
           this.loadChampionshipTeamPlayers(championshipId, team.id);
           this.loadChampionshipTeamAdministrator(championshipId, team.id);
+          this.loadChampionshipTeamInvitation(championshipId, team.id);
         });
         this.changeDetector.markForCheck();
       },
@@ -521,6 +591,7 @@ export class CommunityTournamentsComponent implements OnChanges {
           this.loadChampionshipTeamAdministrator(championshipId, team.id);
         });
         this.championshipTeamDrafts[championshipId] = '';
+        this.championshipTeamCreatedNotice = true;
         this.championshipBusy = false;
         this.changeDetector.markForCheck();
       },
@@ -1616,6 +1687,9 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipTeamAdministrators = {};
     this.championshipTeamAdminDrafts = {};
     this.championshipTeamAdminBusy = {};
+    this.championshipTeamInvitePending = {};
+    this.championshipTeamInviteFeedback = {};
+    this.championshipTeamCreatedNotice = false;
     this.championshipHonours = null;
     this.championshipHonoursError = '';
     this.permanentTeamRegistry = null;
