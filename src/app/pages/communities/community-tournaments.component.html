@@ -1210,7 +1210,7 @@
                                         [value]="championshipFixtureScoreDrafts[fixture.id]?.away ?? fixture.awayScore ?? ''"
                                         (input)="championshipFixtureScoreDrafts[fixture.id] = {home: championshipFixtureScoreDrafts[fixture.id]?.home ?? fixture.homeScore ?? null, away: $any($event.target).value === '' ? null : +$any($event.target).value}">
                                       <button type="button" class="t-btn t-btn-secondary"
-                                        [disabled]="championshipFixtureSaving[fixture.id] || !championshipScoreDraftValid(championshipFixtureScoreDrafts[fixture.id])"
+                                        [disabled]="championshipFixtureSaving[fixture.id] || !championshipScoreChanged(championshipFixtureScoreDrafts[fixture.id], fixture)"
                                         (click)="saveChampionshipFixtureScore(championship, event, fixture)">
                                         {{ championshipFixtureSaving[fixture.id] ? 'A guardar…' : 'Guardar resultado' }}
                                       </button>
@@ -1527,7 +1527,7 @@
                                             [value]="championshipCupResultDrafts[match.id]?.away ?? match.awayScore ?? ''"
                                             (input)="championshipCupResultDrafts[match.id] = {home: championshipCupResultDrafts[match.id]?.home ?? match.homeScore ?? null, away: $any($event.target).value === '' ? null : +$any($event.target).value}">
                                           <button type="button" class="t-btn t-btn-secondary"
-                                            [disabled]="championshipCupScoreBusy[match.id] || !championshipScoreDraftValid(championshipCupResultDrafts[match.id], true)"
+                                            [disabled]="championshipCupScoreBusy[match.id] || !championshipScoreChanged(championshipCupResultDrafts[match.id], match, true)"
                                             (click)="saveChampionshipCupScore(championship, event, match)">
                                             {{ championshipCupScoreBusy[match.id] ? 'A guardar…' : 'Guardar resultado' }}
                                           </button>
