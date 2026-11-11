@@ -1499,8 +1499,8 @@
                   (change)="championshipEventFormats[championship.id] = $any($event.target).value">
                   <option value="LEAGUE">{{ 'communities.championshipOwned.format.LEAGUE' | t }}</option>
                   <option value="CUP">{{ 'communities.championshipOwned.format.CUP' | t }}</option>
-                  <option value="SUPERCUP">{{ 'communities.championshipOwned.format.SUPERCUP' | t }}</option>
-                  <option value="OTHER">{{ 'communities.championshipOwned.format.OTHER' | t }}</option>
+                  <option value="SUPERCUP" disabled>Supertaça — em preparação</option>
+                  <option value="OTHER" disabled>Outro formato — em preparação</option>
                 </select>
               </div>
               <button type="button" class="t-btn t-btn-primary"
@@ -1510,7 +1510,7 @@
               </button>
             </div>
           }
-          <p class="team-honours-muted">Os resultados e marcadores de Futebol e Futsal podem ser registados. As assistências e a classificação geral destas provas ainda estão em desenvolvimento.</p>
+          <p class="team-honours-muted">As Ligas e Taças internas de Futebol e Futsal permitem registar resultados e vencedores. Cada prova interna concluída atribui 10 pontos ao vencedor na classificação geral da época; no modo independente, guarda apenas o respetivo título. Os restantes formatos terão regras próprias antes de serem ativados.</p>
         </details>
       </div>
       }
