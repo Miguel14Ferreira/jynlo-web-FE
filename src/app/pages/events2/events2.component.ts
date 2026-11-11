@@ -31,6 +31,7 @@ export class Events2Component implements OnInit, OnDestroy {
   gameDate = '';
   city = '';
   address = '';
+  description = '';
   meetingPointInstructions = '';
   airsoftGameType: '' | 'SKIRMISH' | 'MILSIM' | 'CAPTURE_THE_FLAG' = '';
 
@@ -959,6 +960,7 @@ export class Events2Component implements OnInit, OnDestroy {
             longitude: this.longitude!.toFixed(6)
           })
         : ''),
+      description: this.description.trim() || null,
       meetingPointInstructions: this.sessionMeetingInstructions,
       maxParticipants: Number(this.maxParticipants),
       minParticipants: this.minimumPlayers,
