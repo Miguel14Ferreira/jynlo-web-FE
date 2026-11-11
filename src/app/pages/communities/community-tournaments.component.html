@@ -974,6 +974,45 @@
                   @if (event.format === 'LEAGUE') {
                     <section class="create-step" [attr.aria-label]="'communities.championshipOwned.fixturesTitle' | t">
                       <h6>{{ 'communities.championshipOwned.fixturesTitle' | t }}</h6>
+                      @if ((championship.sport === 'Futebol' || championship.sport === 'Futsal')
+                          && championshipOwnedLeagueTables[event.id]; as table) {
+                        <section class="jynlo-owned-league-table" aria-label="Classificação provisória da liga">
+                          <div class="jynlo-owned-league-title">
+                            <strong>Classificação provisória</strong>
+                            <small>{{ table.playedMatches }} / {{ table.totalMatches }} jogos com resultado</small>
+                          </div>
+                          <div class="jynlo-owned-league-scroll">
+                            <table>
+                              <thead>
+                                <tr>
+                                  <th scope="col">Pos.</th><th scope="col">Equipa</th>
+                                  <th scope="col">J</th><th scope="col">V</th>
+                                  <th scope="col">E</th><th scope="col">D</th>
+                                  <th scope="col">GM</th><th scope="col">GS</th>
+                                  <th scope="col">DG</th><th scope="col">Pts</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                @for (row of table.standings; track row.teamId) {
+                                  <tr>
+                                    <td>{{ row.position }}</td>
+                                    <th scope="row">{{ row.teamName }}</th>
+                                    <td>{{ row.played }}</td><td>{{ row.wins }}</td>
+                                    <td>{{ row.draws }}</td><td>{{ row.losses }}</td>
+                                    <td>{{ row.goalsFor }}</td><td>{{ row.goalsAgainst }}</td>
+                                    <td>{{ row.goalDifference }}</td><td><strong>{{ row.points }}</strong></td>
+                                  </tr>
+                                }
+                              </tbody>
+                            </table>
+                          </div>
+                          @if (table.firstPlaceTied) {
+                            <small>Há equipas empatadas no primeiro lugar. O desempate ainda não está resolvido.</small>
+                          }
+                          <small>3 pontos por vitória, 1 por empate. Esta tabela é provisória e não atribui automaticamente o título da época.</small>
+                        </section>
+                      }
+
                       @if (leagueRounds(event.id).length) {
                         @for (round of leagueRounds(event.id); track round) {
                           <div class="create-step">
