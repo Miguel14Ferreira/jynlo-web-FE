@@ -975,6 +975,39 @@
                     <section class="create-step" [attr.aria-label]="'communities.championshipOwned.fixturesTitle' | t">
                       <h6>{{ 'communities.championshipOwned.fixturesTitle' | t }}</h6>
                       @if ((championship.sport === 'Futebol' || championship.sport === 'Futsal')
+                          && championshipLeaguePlayerStats[event.id]; as athleteStats) {
+                        <details class="jynlo-athlete-stats">
+                          <summary>Estatísticas registadas dos atletas ({{ athleteStats.length }})</summary>
+                          <p>Dados desta liga: apenas golos, assistências e cartões efetivamente registados. Não representam jogos disputados.</p>
+                          @if (athleteStats.length) {
+                            <div class="jynlo-owned-league-scroll">
+                              <table>
+                                <thead>
+                                  <tr><th scope="col">Atleta</th><th scope="col">Equipa</th>
+                                    <th scope="col">Golos</th><th scope="col">Assistências</th>
+                                    <th scope="col">Amarelos</th><th scope="col">Vermelhos</th></tr>
+                                </thead>
+                                <tbody>
+                                  @for (athlete of athleteStats; track athlete.profileId + '-' + athlete.teamId) {
+                                    <tr>
+                                      <th scope="row">{{ athlete.playerName }}</th>
+                                      <td>{{ athlete.teamName }}</td>
+                                      <td>{{ athlete.goals }}</td>
+                                      <td>{{ athlete.assists }}</td>
+                                      <td>{{ athlete.yellowCards }}</td>
+                                      <td>{{ athlete.redCards }}</td>
+                                    </tr>
+                                  }
+                                </tbody>
+                              </table>
+                            </div>
+                          } @else {
+                            <p>Sem acontecimentos individuais registados nesta liga.</p>
+                          }
+                        </details>
+                      }
+
+                      @if ((championship.sport === 'Futebol' || championship.sport === 'Futsal')
                           && championshipOwnedLeagueTables[event.id]; as table) {
                         <section class="jynlo-owned-league-table" aria-label="Classificação provisória da liga">
                           <div class="jynlo-owned-league-title">
