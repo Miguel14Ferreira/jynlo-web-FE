@@ -236,9 +236,9 @@
                 <span>{{ group.item.authorDisplayName }}@if (group.count > 1) { · +{{ group.count - 1 }} } · {{ group.item.city }} · {{ group.item.gameDate | date:'dd/MM/yyyy' }}</span>
               </div>
               <a class="feed-attendance-link" [routerLink]="['/menu/events', group.sessionId]">{{ 'feed.viewSession' | t }} →</a>
-              @if (group.ownActivity) {
+              @if (group.ownActivity; as ownActivity) {
                 <button type="button" class="feed-attendance-hide" [disabled]="hidingAttendanceSessionId !== null"
-                  (click)="hideAttendanceActivity(group.ownActivity)"
+                  (click)="hideAttendanceActivity(ownActivity)"
                   [attr.aria-label]="'feed.hideAttendance' | t">{{ 'feed.hideAttendance' | t }}</button>
               }
             </div>
