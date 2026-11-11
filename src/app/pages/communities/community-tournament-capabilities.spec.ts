@@ -83,7 +83,8 @@ describe('Tournament capabilities for all 122 modalities', () => {
     expect(tournamentCreationModelForEvent('Atletismo', false, 'JUMP')).toBe('FIELD_BEST_MARK');
     expect(tournamentCreationModelForEvent('Atletismo', false, 'THROW')).toBe('FIELD_BEST_MARK');
     expect(tournamentCreationModelForEvent('Atletismo', true, 'TRACK_RELAY')).toBe('RELAY_BEST_TIME');
-    expect(tournamentCreationModelForEvent('Atletismo', true, 'TRACK')).toBe('RELAY_BEST_TIME');
+    expect(tournamentCreationModelForEvent('Atletismo', true, null)).toBe('RELAY_BEST_TIME');
+    expect(tournamentCreationModelForEvent('Atletismo', true, 'TRACK')).toBe('UNAVAILABLE');
     expect(tournamentCreationModelForEvent('Karting', true, 'TRACK')).toBe('UNAVAILABLE');
     expect(tournamentCreationModelForEvent('Natação', false, 'SWIM_LCM')).toBe('SWIM_BEST_TIME');
     expect(tournamentCreationModelForEvent(null, false, 'TRACK')).toBe('UNAVAILABLE');
