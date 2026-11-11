@@ -4468,7 +4468,7 @@ describe('Community tournaments management', () => {
       expect(component.canPublishSchedule).toBeFalse();
     });
 
-    it('creates teams and assigns only free community members', async () => {
+    it('creates teams and invites free community members without enrolling them before consent', async () => {
       component.community = { ...community, members, memberCount: 3 };
       component.selectTournament(teamDraft);
       api.createTeam.and.returnValue(of(team));
@@ -4478,17 +4478,20 @@ describe('Community tournaments management', () => {
       expect(api.createTeam).toHaveBeenCalledWith(7, 19, 'Verdes');
       expect(component.teams[0].name).toBe('Verdes');
 
-      const updated = { ...team, players: [{ profileId: 2, username: 'ana', displayName: 'Ana' }] };
-      api.addTeamPlayer.and.returnValue(of(updated));
-      api.teams.and.returnValue(of([updated]));
+      // The API now returns an unchanged roster when an invitation is sent.
+      api.addTeamPlayer.and.returnValue(of(team));
       component.teamPlayerDraft[40] = 2;
       await component.assignTeamPlayer(team);
-      expect(api.addTeamPlayer).toHaveBeenCalledWith(7, 19, 40, 2);
-      expect(component.availableTeamMembers.map(x => x.profileId)).toEqual([1, 3]);
+      expect(api.addTeamPlayer).toHaveBeenCalledOnceWith(7, 19, 40, 2);
+      expect(component.teamPlayerDraft[40]).toBeNull();
+      expect(component.availableTeamMembers.map(x => x.profileId)).toEqual([1, 2, 3]);
+      expect(component.teams[0].players).toEqual([]);
 
+      // A second invitation may be retried; the backend deduplicates pending invites.
       component.teamPlayerDraft[40] = 2;
-      await component.assignTeamPlayer(updated);
-      expect(api.addTeamPlayer).toHaveBeenCalledTimes(1);
+      await component.assignTeamPlayer(team);
+      expect(api.addTeamPlayer).toHaveBeenCalledTimes(2);
+      expect(component.teams[0].players).toEqual([]);
     });
 
     it('keeps member search working when a community record has a missing username', () => {
