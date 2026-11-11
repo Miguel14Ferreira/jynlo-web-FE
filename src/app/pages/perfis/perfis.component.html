@@ -261,7 +261,16 @@
                 </button>
               }
               @if (isOwnProfile(selectedProfile)) {
-                <span class="profile-relation-note">{{ 'community.ownProfile' | t }}</span>
+                <a class="profile-edit-action jynlo-action jynlo-action--primary"
+                   routerLink="/menu/alterardados">
+                  <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
+                       stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                       stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4Z"></path>
+                  </svg>
+                  {{ 'profile.edit.title' | t }}
+                </a>
               } @else if (selectedBlocked) {
                 <span class="profile-relation-note">{{ 'community.blockedStatus' | t }}</span>
               } @else if (!friendshipLoading && !friendshipError && isFriend(selectedProfile)) {
@@ -465,11 +474,22 @@
               </div>
 
               @if (selectedActivity.achievements.length > 0) {
-                <div class="public-achievements">
-                  @for (achievement of selectedActivity.achievements; track achievement) {
-                    <span>{{ ('profileData.achievement.' + achievement) | t }}</span>
-                  }
-                </div>
+                <details class="public-achievements-disclosure">
+                  <summary>
+                    <span>{{ 'profileData.achievements' | t }}</span>
+                    <span class="public-achievements-count">{{ selectedActivity.achievements.length }}</span>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true">
+                      <path d="m6 9 6 6 6-6"></path>
+                    </svg>
+                  </summary>
+                  <div class="public-achievements">
+                    @for (achievement of selectedActivity.achievements; track achievement) {
+                      <span>{{ ('profileData.achievement.' + achievement) | t }}</span>
+                    }
+                  </div>
+                </details>
               }
             </section>
           }
