@@ -226,8 +226,27 @@
     }
 
     @if (!loading && !errorMessage && items.length > 0) {
+      @if (attendanceGroups.length > 0) {
+        <section class="feed-attendance-digest" aria-label="Atividade de sessões">
+          @for (group of attendanceGroups; track group.sessionId) {
+            <div class="feed-attendance-row">
+              <span class="feed-attendance-icon" aria-hidden="true">✓</span>
+              <div class="feed-attendance-summary">
+                <strong>{{ group.item.sport || ('week.title' | t) }}</strong>
+                <span>{{ group.count }} · {{ 'feed.activity.sessionAttended' | t }} · {{ group.item.city }}</span>
+              </div>
+              <a class="feed-attendance-link" [routerLink]="['/menu/events', group.sessionId]">{{ 'feed.viewSession' | t }} →</a>
+              @if (group.ownActivity) {
+                <button type="button" class="feed-attendance-hide" [disabled]="hidingAttendanceSessionId !== null"
+                  (click)="hideAttendanceActivity(group.ownActivity)"
+                  [attr.aria-label]="'feed.hideAttendance' | t">{{ 'feed.hideAttendance' | t }}</button>
+              }
+            </div>
+          }
+        </section>
+      }
       <div class="feed-list">
-        @for (item of items; track item.type + '-' + (item.postId || item.sessionId) + '-' + item.createdAt) {
+        @for (item of fullFeedItems; track item.type + '-' + (item.postId || item.sessionId) + '-' + item.createdAt) {
           <article class="feed-card">
             <div class="feed-author">
               <a
