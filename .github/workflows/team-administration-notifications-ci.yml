@@ -1,0 +1,33 @@
+name: Jynlo team administration notifications UI CI
+on:
+  push:
+    branches: [develop]
+    paths:
+      - '.github/workflows/team-administration-notifications-ci.yml'
+      - 'src/app/pages/notifications/notifications.component.ts'
+      - 'src/app/pages/notifications/notifications.component.html'
+      - 'src/app/pages/notifications/notifications.component.spec.ts'
+      - 'src/app/pages/communities/community-tournaments.component.ts'
+      - 'src/app/pages/communities/community-tournaments.component.html'
+      - 'src/app/pages/communities/community-tournaments.component.spec.ts'
+      - 'src/app/services/community-tournaments.service.ts'
+      - 'src/app/services/community-championships.service.ts'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  targeted-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.3'
+          cache: npm
+      - run: npm ci
+      - name: Run isolated competition and notification UI tests
+        run: |
+          npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/pages/notifications/notifications.component.spec.ts --include=src/app/pages/communities/community-tournaments.component.spec.ts
+      - name: Validate production compilation
+        run: npm run build
