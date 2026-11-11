@@ -1,4 +1,4 @@
-import { ChampionshipTeamPlayer, ChampionshipFixtureGoal, ChampionshipOwnedLeagueTable, ChampionshipFixtureCard, ChampionshipLeaguePlayerStats } from '../../services/community-championships.service';
+import { ChampionshipTeamPlayer, ChampionshipFixtureGoal, ChampionshipOwnedLeagueTable, ChampionshipFixtureCard, ChampionshipLeaguePlayerStats, ChampionshipFixtureSubstitution } from '../../services/community-championships.service';
 import { CommunityChampionshipsService, ChampionshipOwnedEvent, ChampionshipOwnedEventTeam, ChampionshipOwnedLeagueFixture, ChampionshipCupOpeningRound, ChampionshipOwnedEventFormat, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
 import { championshipTeamProfile, ChampionshipTeamProfile } from './community-championship-team-profile';
 import { compareTeamSeasons, comparableTeamSeasons, TeamSeasonComparison } from './community-championship-team-comparison';
@@ -600,6 +600,93 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipFixtureSaving: Record<number, boolean> = {};
   championshipFixtureGoals: Record<number, ChampionshipFixtureGoal[]> = {};
   championshipFixtureCards: Record<number, ChampionshipFixtureCard[]> = {};
+  championshipFixtureSubstitutions: Record<number, ChampionshipFixtureSubstitution[]> = {};
+  championshipSubTeamDrafts: Record<number, number | null> = {};
+  championshipSubOutDrafts: Record<number, number | null> = {};
+  championshipSubInDrafts: Record<number, number | null> = {};
+  championshipSubMinuteDrafts: Record<number, number | null> = {};
+  championshipSubBusy: Record<number, boolean> = {};
+
+  loadFixtureSubstitutions(championshipId: number, eventId: number, fixtureId: number): void {
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipsApi.fixtureSubstitutions(communityId, championshipId, eventId, fixtureId).subscribe({
+      next: changes => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipFixtureSubstitutions[fixtureId] = changes;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipError = 'Não foi possível carregar as substituições.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  addFixtureSubstitution(championship: CommunityChampionship, event: ChampionshipOwnedEvent,
+                         fixture: ChampionshipOwnedLeagueFixture): void {
+    const teamId = this.championshipSubTeamDrafts[fixture.id];
+    const outId = this.championshipSubOutDrafts[fixture.id];
+    const inId = this.championshipSubInDrafts[fixture.id];
+    const minute = this.championshipSubMinuteDrafts[fixture.id];
+    const players = this.fixtureTeamPlayerOptions(championship.id, teamId);
+    if (!this.canManage || !!championship.closedAt || this.championshipSubBusy[fixture.id]
+        || !['Futebol', 'Futsal'].includes(championship.sport)
+        || event.format !== 'LEAGUE' || event.status !== 'SCHEDULED'
+        || fixture.homeScore == null || fixture.awayScore == null
+        || (teamId !== fixture.homeTeamId && teamId !== fixture.awayTeamId)
+        || !outId || !inId || outId === inId || minute == null
+        || !Number.isInteger(minute) || minute < 0 || minute > 200
+        || !players.some(p => p.profileId === outId)
+        || !players.some(p => p.profileId === inId)) return;
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipSubBusy[fixture.id] = true;
+    this.championshipsApi.addFixtureSubstitution(communityId, championship.id, event.id,
+      fixture.id, teamId!, outId, inId, minute).subscribe({
+      next: changes => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipFixtureSubstitutions[fixture.id] = changes;
+        this.championshipSubOutDrafts[fixture.id] = null;
+        this.championshipSubInDrafts[fixture.id] = null;
+        this.championshipSubBusy[fixture.id] = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipSubBusy[fixture.id] = false;
+        this.championshipError = 'Não foi possível registar a substituição. Confirma os jogadores e a equipa.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  removeFixtureSubstitution(championship: CommunityChampionship, event: ChampionshipOwnedEvent,
+                            fixtureId: number, substitutionId: number): void {
+    if (!this.canManage || !!championship.closedAt || this.championshipSubBusy[fixtureId]) return;
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipSubBusy[fixtureId] = true;
+    this.championshipsApi.removeFixtureSubstitution(communityId, championship.id,
+      event.id, fixtureId, substitutionId).subscribe({
+      next: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipFixtureSubstitutions[fixtureId] =
+          (this.championshipFixtureSubstitutions[fixtureId] || []).filter(s => s.id !== substitutionId);
+        this.championshipSubBusy[fixtureId] = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipSubBusy[fixtureId] = false;
+        this.championshipError = 'Não foi possível remover a substituição.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+
   championshipCardPlayerDrafts: Record<number, number | null> = {};
   championshipCardTeamDrafts: Record<number, number | null> = {};
   championshipCardTypeDrafts: Record<number, 'YELLOW' | 'RED'> = {};
@@ -889,6 +976,7 @@ export class CommunityTournamentsComponent implements OnChanges {
           matches.forEach(match => {
             this.loadFixtureGoals(championshipId, eventId, match.id);
             this.loadFixtureCards(championshipId, eventId, match.id);
+            this.loadFixtureSubstitutions(championshipId, eventId, match.id);
           });
         }
         this.changeDetector.markForCheck();
@@ -919,6 +1007,7 @@ export class CommunityTournamentsComponent implements OnChanges {
           fixtures.forEach(fixture => {
             this.loadFixtureGoals(championship.id, event.id, fixture.id);
             this.loadFixtureCards(championship.id, event.id, fixture.id);
+            this.loadFixtureSubstitutions(championship.id, event.id, fixture.id);
           });
         this.championshipOwnedEvents[championship.id] = (this.championshipOwnedEvents[championship.id] || [])
           .map(item => item.id === event.id ? { ...item, status: 'SCHEDULED' as const } : item);
@@ -1172,6 +1261,12 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipFixtureSaving = {};
     this.championshipFixtureGoals = {};
     this.championshipFixtureCards = {};
+    this.championshipFixtureSubstitutions = {};
+    this.championshipSubTeamDrafts = {};
+    this.championshipSubOutDrafts = {};
+    this.championshipSubInDrafts = {};
+    this.championshipSubMinuteDrafts = {};
+    this.championshipSubBusy = {};
     this.championshipCardPlayerDrafts = {};
     this.championshipCardTeamDrafts = {};
     this.championshipCardTypeDrafts = {};
