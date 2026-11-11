@@ -251,6 +251,45 @@ export class CommunityTournamentsComponent implements OnChanges {
       || sorted[0].victories !== sorted[1].victories;
   }
 
+  deletingChampionshipId: number | null = null;
+
+  requestDeleteChampionship(championship: CommunityChampionship): void {
+    if (!this.canManage || this.championshipBusy || !!championship.closedAt) return;
+    this.championshipError = '';
+    this.deletingChampionshipId = championship.id;
+  }
+
+  cancelDeleteChampionship(): void {
+    if (!this.championshipBusy) this.deletingChampionshipId = null;
+  }
+
+  deleteUnplayedChampionship(championship: CommunityChampionship): void {
+    if (!this.canManage || this.championshipBusy || !!championship.closedAt
+        || this.deletingChampionshipId !== championship.id) return;
+    const communityId = this.community.id;
+    const revision = this.championshipRevision;
+    this.championshipBusy = true;
+    this.championshipError = '';
+    this.championshipsApi.deleteUnplayed(communityId, championship.id).subscribe({
+      next: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipBusy = false;
+        this.deletingChampionshipId = null;
+        this.loadChampionships();
+        this.loadChampionshipHonours();
+        this.changeDetector.markForCheck();
+      },
+      error: err => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipBusy = false;
+        this.championshipError = err?.status === 409
+          ? 'Não é possível eliminar este campeonato: já existem resultados, acontecimentos ou torneios independentes associados. Os dados históricos estão protegidos.'
+          : 'Não foi possível eliminar o campeonato. Tenta novamente.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
   closeChampionship(championship: CommunityChampionship): void {
     if (!this.canManage || this.championshipBusy || championship.closedAt
         || !this.championshipCloseConfirmed[championship.id]
