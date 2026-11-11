@@ -386,6 +386,7 @@ export class Events2Component implements OnInit, OnDestroy {
       playFormat: this.playFormat,
       city: this.city.trim(),
       address: this.address.trim(),
+      description: this.description.trim() || null,
       maxParticipants: Number(this.maxParticipants),
       creationMode: this.creationMode,
       confirmedPlayers: Number(this.confirmedPlayers ?? 1),
@@ -522,6 +523,7 @@ export class Events2Component implements OnInit, OnDestroy {
     this.clearPhoto();
     this.city = s.city || '';
     this.address = s.address || '';
+    this.description = s.description || '';
     this.locationMethod = s.locationMethod || 'venue';
     this.venueMapLink = '';
     this.clearLocation();
