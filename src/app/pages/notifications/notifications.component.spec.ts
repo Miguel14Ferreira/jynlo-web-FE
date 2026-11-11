@@ -204,6 +204,42 @@ describe('NotificationsComponent', () => {
     expect(router.navigate).not.toHaveBeenCalled();
   });
 
+  it('opens the correct tournament team from a targeted invitation', () => {
+    const invitation = {
+      ...notificationFixture(), type: 'TEAM_MEMBER_INVITE', communityId: 7,
+      competitionTournamentId: 19, competitionChampionshipId: null, competitionTeamId: 40
+    };
+    component.openTeamCompetition(invitation);
+    expect(router.navigate).toHaveBeenCalledWith(['/menu/communities', 7], {
+      queryParams: { tab: 'tournaments', tournament: 19, team: 40 }
+    });
+
+    component.openTeamCompetition({ ...invitation, type: 'TEAM_ADMIN_TRANSFER' });
+    expect(router.navigate).toHaveBeenCalledWith(['/menu/communities', 7], {
+      queryParams: { tab: 'tournaments', tournament: 19, teamPage: 40 }
+    });
+  });
+
+  it('opens a championship team without treating championship IDs as tournament IDs', () => {
+    component.openTeamCompetition({
+      ...notificationFixture(), type: 'TEAM_ADMIN_TRANSFER', communityId: 7,
+      competitionTournamentId: null, competitionChampionshipId: 15, competitionTeamId: 99
+    });
+    expect(router.navigate).toHaveBeenCalledWith(['/menu/communities', 7], {
+      queryParams: { tab: 'tournaments', championship: 15, championshipTeam: 99 }
+    });
+
+    (router.navigate as jasmine.Spy).calls.reset();
+    component.openTeamCompetition({
+      ...notificationFixture(), type: 'TEAM_MEMBER_INVITE', communityId: 7,
+      competitionTournamentId: Number.MAX_SAFE_INTEGER + 1,
+      competitionTeamId: -3
+    });
+    expect(router.navigate).toHaveBeenCalledWith(['/menu/communities', 7], {
+      queryParams: { tab: 'tournaments' }
+    });
+  });
+
   it('should show the community invitation action and open pending invitations', () => {
     const invitation = {
       ...notificationFixture(),
