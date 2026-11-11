@@ -1346,10 +1346,20 @@ export class CommunityTournamentsComponent implements OnChanges {
     return (this.championshipCupDraws[eventId]?.matches || []).filter(match => match.round === round);
   }
 
+  /** Do not advance a bracket while a result is being saved or an edit remains unconfirmed. */
+  cupRoundHasPendingScores(eventId: number): boolean {
+    return this.cupCurrentMatches(eventId).some(match => {
+      const draft = this.championshipCupResultDrafts[match.id];
+      return !!this.championshipCupScoreBusy[match.id]
+        || !!draft && (draft.home !== match.homeScore || draft.away !== match.awayScore);
+    });
+  }
+
   cupRoundCanAdvance(eventId: number): boolean {
     const matches = this.cupCurrentMatches(eventId);
-    return matches.length > 0 && matches.every(match =>
-      match.homeScore != null && match.awayScore != null && match.homeScore !== match.awayScore);
+    return !this.championshipCupBusy && !this.cupRoundHasPendingScores(eventId)
+      && matches.length > 0 && matches.every(match =>
+        match.homeScore != null && match.awayScore != null && match.homeScore !== match.awayScore);
   }
 
   saveChampionshipCupScore(championship: CommunityChampionship, event: ChampionshipOwnedEvent,
@@ -1357,7 +1367,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     const score = this.championshipCupResultDrafts[match.id];
     if (!this.canManage || !!championship.closedAt || event.format !== 'CUP'
         || event.status !== 'SCHEDULED' || match.round !== this.cupCurrentRound(event.id)
-        || this.championshipCupScoreBusy[match.id]
+        || this.championshipCupBusy || this.championshipCupScoreBusy[match.id]
         || !this.championshipScoreChanged(score, match, true)) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
