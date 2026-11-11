@@ -664,6 +664,59 @@ describe('Community tournaments management', () => {
     expect(component.championshipFixtureSaving[501]).toBeFalse();
   });
 
+  it('blocks cup progression while the current round has uncommitted score edits', () => {
+    const match = { id: 503, round: 1, homeScore: 2, awayScore: 0 };
+    component.championshipCupDraws[103] = { matches: [match], byes: [] } as any;
+    expect(component.cupRoundCanAdvance(103)).toBeTrue();
+
+    component.championshipCupResultDrafts[503] = { home: 3, away: 0 };
+    expect(component.cupRoundHasPendingScores(103)).toBeTrue();
+    expect(component.cupRoundCanAdvance(103)).toBeFalse();
+
+    component.championshipCupResultDrafts[503] = { home: 2, away: 0 };
+    expect(component.cupRoundHasPendingScores(103)).toBeFalse();
+    expect(component.cupRoundCanAdvance(103)).toBeTrue();
+  });
+
+  it('blocks cup progression while the server is saving a match result', () => {
+    const match = { id: 503, round: 1, homeScore: 2, awayScore: 0 };
+    component.championshipCupDraws[103] = { matches: [match], byes: [] } as any;
+    component.championshipCupScoreBusy[503] = true;
+    expect(component.cupRoundCanAdvance(103)).toBeFalse();
+    component.championshipCupScoreBusy[503] = false;
+    expect(component.cupRoundCanAdvance(103)).toBeTrue();
+  });
+
+  it('does not advance the cup despite confirmation when a score was edited', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const advance = jasmine.createSpy('advanceOwnedCup');
+    (championships as any).advanceOwnedCup = advance;
+    const match = { id: 503, round: 1, homeScore: 2, awayScore: 0 };
+    const championship = { id: 15, closedAt: null } as any;
+    const event = { id: 103, format: 'CUP', status: 'SCHEDULED' } as any;
+    component.championshipCupDraws[103] = { matches: [match], byes: [] } as any;
+    component.championshipCupAdvanceConfirm[103] = true;
+    component.championshipCupResultDrafts[503] = { home: 1, away: 2 };
+
+    component.advanceChampionshipCup(championship, event);
+    expect(advance).not.toHaveBeenCalled();
+    expect(component.championshipCupAdvanceConfirm[103]).toBeTrue();
+  });
+
+  it('does not save additional cup scores while advancing the bracket', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const scoreApi = jasmine.createSpy('recordOwnedFixtureScore');
+    (championships as any).recordOwnedFixtureScore = scoreApi;
+    const match = { id: 503, round: 1, homeScore: 2, awayScore: 0 };
+    component.championshipCupDraws[103] = { matches: [match], byes: [] } as any;
+    component.championshipCupResultDrafts[503] = { home: 3, away: 0 };
+    component.championshipCupBusy = true;
+    component.saveChampionshipCupScore(
+      { id: 15, sport: 'Futebol', closedAt: null } as any,
+      { id: 103, format: 'CUP', status: 'SCHEDULED' } as any, match as any);
+    expect(scoreApi).not.toHaveBeenCalled();
+  });
+
   it('updates cup matches and clears the draft after a confirmed save', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const match = { id: 503, round: 1, homeScore: null, awayScore: null };
