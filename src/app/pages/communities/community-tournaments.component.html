@@ -1196,6 +1196,17 @@
                                     </span>
                                     <strong>{{ fixture.awayTeamName }}</strong>
                                   </div>
+                                  @if (championshipFixtureWinner(fixture); as outcome) {
+                                    <div class="jynlo-fixture-outcome" aria-label="Desfecho do jogo">
+                                      @if (outcome === 'DRAW') {
+                                        <span>Empate</span>
+                                      } @else {
+                                        <span>Vencedor: <strong>{{ outcome === 'HOME' ? fixture.homeTeamName : fixture.awayTeamName }}</strong></span>
+                                      }
+                                    </div>
+                                  } @else {
+                                    <p class="jynlo-fixture-pending">Resultado por registar</p>
+                                  }
                                   @if (canManage && !championship.closedAt && event.status === 'SCHEDULED'
                                     && (championship.sport === 'Futebol' || championship.sport === 'Futsal')) {
                                     <div class="jynlo-match-score-edit">
@@ -1405,6 +1416,19 @@
                                     </details>
                                     <div class="jynlo-goal-timeline">
                                       <strong>Marcadores do jogo</strong>
+                                      @if (championshipFixtureGoalAttribution(fixture); as attribution) {
+                                        <div class="jynlo-goal-attribution" [class.needs-review]="attribution.homeRemaining < 0 || attribution.awayRemaining < 0">
+                                          <span>{{ fixture.homeTeamName }}: {{ attribution.homeAssigned }} de {{ fixture.homeScore }} golos atribuídos</span>
+                                          <span>{{ fixture.awayTeamName }}: {{ attribution.awayAssigned }} de {{ fixture.awayScore }} golos atribuídos</span>
+                                          @if (attribution.homeRemaining < 0 || attribution.awayRemaining < 0) {
+                                            <small role="alert">Há mais golos atribuídos do que o resultado permite. Revê o marcador ou os registos dos jogadores.</small>
+                                          } @else if (attribution.homeRemaining > 0 || attribution.awayRemaining > 0) {
+                                            <small>Faltam atribuir golos a jogadores. O resultado da partida não é alterado automaticamente.</small>
+                                          } @else {
+                                            <small>Todos os golos do resultado estão atribuídos a jogadores.</small>
+                                          }
+                                        </div>
+                                      }
                                       @for (goal of championshipFixtureGoals[fixture.id] || []; track goal.id) {
                                         <div class="jynlo-goal-row">
                                           <span>⚽ {{ goal.scorerName }} · {{ goal.teamName }}
@@ -1512,6 +1536,17 @@
                                         </span>
                                         <strong>{{ match.awayTeamName }}</strong>
                                       </div>
+                                      @if (championshipFixtureWinner(match); as outcome) {
+                                        <div class="jynlo-fixture-outcome" aria-label="Vencedor do jogo">
+                                          @if (outcome === 'DRAW') {
+                                            <span>Empate — falta definir o vencedor</span>
+                                          } @else {
+                                            <span>Vencedor: <strong>{{ outcome === 'HOME' ? match.homeTeamName : match.awayTeamName }}</strong></span>
+                                          }
+                                        </div>
+                                      } @else {
+                                        <p class="jynlo-fixture-pending">Resultado por registar</p>
+                                      }
                                       @if (canManage && !championship.closedAt && event.status === 'SCHEDULED'
                                           && (championship.sport === 'Futebol' || championship.sport === 'Futsal')
                                           && round === cupCurrentRound(event.id)) {
