@@ -139,40 +139,57 @@
     .community-discovery-grid > button.community-card { transition: none; transform: none; }
 }
 
-/* Keep visibility labels readable in both discovery and "My communities".
-   A flex child must not shrink below the full localized word. */
+/* Explicit shared footer contract for discovery and owned-community cards.
+   A two-column grid reserves intrinsic width for the status and keeps the CTA
+   aligned at the far edge instead of squeezing the Portuguese badge text. */
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  :is(.community-discovery-grid, .community-mine-grid) > button.community-card
-  .community-discovery-card-footer {
-  display: flex;
+  .community-discovery-grid > button.community-card .community-discovery-card-footer {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: nowrap;
-  gap: 10px;
+  justify-content: stretch;
+  column-gap: 8px;
   min-width: 0;
+  min-height: 43px;
+  margin-top: auto;
+  padding-top: 12px;
 }
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  :is(.community-discovery-grid, .community-mine-grid) > button.community-card
-  .community-discovery-card-footer > .visibility {
+  .community-discovery-grid > button.community-card .community-visibility-pill {
   box-sizing: border-box;
   display: inline-flex;
-  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: max-content;
+  justify-self: start;
+  flex: none;
+  width: auto;
   min-width: max-content;
-  max-width: 100%;
-  padding: 7px 12px;
+  max-width: none;
+  padding: 6px 11px;
   white-space: nowrap;
-  word-break: normal;
   overflow-wrap: normal;
-  line-height: 1.2;
+  word-break: keep-all;
+  line-height: 1.25;
+  text-align: center;
 }
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  :is(.community-discovery-grid, .community-mine-grid) > button.community-card
-  .community-discovery-card-footer > .community-discovery-card-link {
-  flex: 0 0 auto;
-  min-width: max-content;
-  margin-left: auto;
+  .community-discovery-grid > button.community-card .community-discovery-card-link {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  justify-self: end;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  font-size: .8rem;
   white-space: nowrap;
+  overflow-wrap: normal;
+  text-align: right;
+}
+@media(max-width: 440px) {
+  :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+    .community-discovery-grid > button.community-card .community-discovery-card-footer {
+    column-gap: 6px;
+  }
 }
