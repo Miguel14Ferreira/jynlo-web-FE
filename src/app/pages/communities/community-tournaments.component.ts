@@ -1023,6 +1023,10 @@ export class CommunityTournamentsComponent implements OnChanges {
     return Math.max(0, ...matches.map(match => match.round));
   }
 
+  cupRoundMatches(eventId: number, round: number): ChampionshipOwnedLeagueFixture[] {
+    return (this.championshipCupDraws[eventId]?.matches || []).filter(match => match.round === round);
+  }
+
   cupCurrentMatches(eventId: number): ChampionshipOwnedLeagueFixture[] {
     const round = this.cupCurrentRound(eventId);
     return (this.championshipCupDraws[eventId]?.matches || []).filter(match => match.round === round);
