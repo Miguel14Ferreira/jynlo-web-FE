@@ -50,6 +50,8 @@ interface TournamentTeamAdministrationState {
 export class CommunityTournamentsComponent implements OnChanges {
   @Input({ required: true }) community!: CommunityGroup;
   @Input() invitedTournamentId: number | null = null;
+  @Input() requestedChampionshipId: number | null = null;
+  @Input() requestedChampionshipTeamId: number | null = null;
   @Input() invitedTeamId: number | null = null;
   @Input() teamPageId: number | null = null;
   /** Validated from the route's tournament-scoped fixture query parameter. */
@@ -3168,7 +3170,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.showActiveChampionships();
       this.championshipError = '';
       this.championshipOpen = false;
-      this.competitionView = 'championships';
+      this.competitionView = this.invitedTournamentId ? 'tournaments' : 'championships';
       this.creationPickerOpen = false;
       this.championshipExplainerOpen = false;
       this.championshipBusy = false;
