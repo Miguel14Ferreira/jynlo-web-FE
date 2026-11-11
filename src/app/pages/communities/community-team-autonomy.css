@@ -363,3 +363,52 @@
 @media(max-width:620px) {
   :host .jynlo-goal-attribution { grid-template-columns:minmax(0,1fr); }
 }
+
+/* Calm progressive-disclosure layout for long championship calendars. */
+:host .jynlo-championship-management {
+  min-width: 0;
+  margin-top: .85rem;
+  padding: 0;
+  border: 1px solid rgba(86,213,200,.25);
+  border-radius: 14px;
+  overflow: clip;
+}
+:host .jynlo-championship-management-toggle,
+:host .jynlo-fixture-round-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .4rem 1rem;
+  cursor: pointer;
+  list-style: none;
+  min-width: 0;
+  padding: .9rem 1rem;
+  background: rgba(11,74,83,.36);
+  color: #eafff9;
+}
+:host .jynlo-championship-management-toggle::-webkit-details-marker,
+:host .jynlo-fixture-round-summary::-webkit-details-marker { display: none; }
+:host .jynlo-championship-management-toggle > span:first-child,
+:host .jynlo-fixture-round-summary > strong { font-weight: 800; flex: 1 1 140px; }
+:host .jynlo-championship-management-toggle small,
+:host .jynlo-fixture-round-summary > span:not(.jynlo-fixture-round-hint) { font-size: .8rem; color: #b9dada; }
+:host .jynlo-fixture-round-hint { font-size: .74rem; color: #83e6d4; white-space: nowrap; }
+:host .jynlo-championship-management-toggle::before,
+:host .jynlo-fixture-round-summary::before {
+  content: '▸'; color: #76e5ce; font-size: 1.05rem;
+}
+:host details[open] > .jynlo-championship-management-toggle::before,
+:host details[open] > .jynlo-fixture-round-summary::before { content: '▾'; }
+:host .jynlo-championship-management-toggle:hover,
+:host .jynlo-fixture-round-summary:hover { background: rgba(16,100,107,.46); }
+:host .jynlo-championship-management-toggle:focus-visible,
+:host .jynlo-fixture-round-summary:focus-visible { outline: 2px solid #8cfbe7; outline-offset: -3px; }
+:host .jynlo-championship-management > :not(summary) { margin-left: clamp(.35rem, 1.5vw, 1rem); margin-right: clamp(.35rem, 1.5vw, 1rem); }
+:host .jynlo-fixture-round { min-width:0; padding:0; margin:.6rem 0; }
+:host .jynlo-fixture-round > :not(summary) { margin: .6rem .65rem; }
+:host .jynlo-fixture-round > ul { padding-left:1.1rem; }
+@media(max-width:620px) {
+  :host .jynlo-championship-management-toggle,
+  :host .jynlo-fixture-round-summary { gap:.35rem .65rem; padding:.75rem; }
+  :host .jynlo-fixture-round-hint { display:none; }
+}
