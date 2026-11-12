@@ -2710,6 +2710,11 @@ export class CommunityTournamentsComponent implements OnChanges {
   tournamentTeamAdministrators: Record<number, TournamentTeamAdministrationState> = {};
   tournamentTeamInvitations: Record<number, boolean> = {};
   tournamentTeamInviteFeedback = '';
+  tournamentPendingInvites: Record<number, {profileId:number; username:string; displayName:string; invitedAt:string}[]> = {};
+  tournamentPendingInvitesLoading: Record<number, boolean> = {};
+  tournamentPendingInvitesError: Record<number, boolean> = {};
+  private tournamentPendingInviteVersion: Record<number, number> = {};
+  tournamentPendingInviteRevoking: Record<number, boolean> = {};
   tournamentAdminTransferDraft: Record<number, number | null> = {};
   tournamentTeamCreatedNotice = false;
 
@@ -2727,6 +2732,64 @@ export class CommunityTournamentsComponent implements OnChanges {
     const administrator = this.tournamentTeamAdministrators[team.id]?.adminProfileId;
     if (administrator == null) return t('teams.autonomy.noAdminLabel');
     return team.players.find(player => player.profileId === administrator)?.displayName || t('teams.autonomy.adminFallback');
+  }
+
+  loadTournamentPendingInvites(teamId: number, tournamentId: number, revision: number): void {
+    const team = this.teams.find(item => item.id === teamId);
+    if (!team || !(this.canManageTeamRoster || this.tournamentTeamAdministrators[teamId]?.canManage)) return;
+    const communityId = this.community.id;
+    const version = this.tournamentPendingInviteVersion[teamId] =
+      (this.tournamentPendingInviteVersion[teamId] || 0) + 1;
+    this.tournamentPendingInvitesLoading[teamId] = true;
+    this.tournamentPendingInvitesError[teamId] = false;
+    this.api.pendingTeamInvitations(communityId, tournamentId, teamId).subscribe({
+      next: invitations => {
+        if (revision !== this.detailRevision || communityId !== this.community.id
+            || this.selected?.id !== tournamentId
+            || version !== this.tournamentPendingInviteVersion[teamId]) return;
+        this.tournamentPendingInvites[teamId] = invitations;
+        this.tournamentPendingInvitesLoading[teamId] = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.detailRevision || communityId !== this.community.id
+            || this.selected?.id !== tournamentId
+            || version !== this.tournamentPendingInviteVersion[teamId]) return;
+        this.tournamentPendingInvitesLoading[teamId] = false;
+        this.tournamentPendingInvitesError[teamId] = true;
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  async revokeTournamentPendingInvite(team: TournamentTeam, profileId: number): Promise<void> {
+    if (!this.selected || !this.canManageTournamentTeam(team) || this.busy
+        || this.tournamentPendingInviteRevoking[team.id]
+        || !this.tournamentPendingInvites[team.id]?.some(invite => invite.profileId === profileId)) return;
+    const tournamentId = this.selected.id;
+    const revision = this.detailRevision;
+    this.tournamentPendingInviteRevoking[team.id] = true;
+    const communityId = this.community.id;
+    try {
+      await firstValueFrom(this.api.revokeTeamInvitation(communityId, tournamentId, team.id, profileId)
+        .pipe(timeout(12_000)));
+      if (revision !== this.detailRevision || communityId !== this.community.id
+          || this.selected?.id !== tournamentId) return;
+      this.tournamentPendingInvites[team.id] = (this.tournamentPendingInvites[team.id] || [])
+        .filter(invite => invite.profileId !== profileId);
+      this.tournamentTeamInviteFeedback = t('teams.autonomy.inviteRevoked');
+    } catch {
+      if (revision !== this.detailRevision || communityId !== this.community.id
+          || this.selected?.id !== tournamentId) return;
+      this.showError(t('teams.autonomy.inviteRevokeError'));
+    } finally {
+      this.tournamentPendingInviteRevoking[team.id] = false;
+      if (revision === this.detailRevision && communityId === this.community.id
+          && this.selected?.id === tournamentId) {
+        this.loadTournamentPendingInvites(team.id, tournamentId, revision);
+        this.changeDetector.markForCheck();
+      }
+    }
   }
 
   loadTournamentTeamInvitation(teamId: number, tournamentId: number, revision: number): void {
@@ -2777,6 +2840,11 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (this.detailRevision !== revision || this.community.id !== communityId
             || this.selected?.id !== tournamentId) return;
         this.tournamentTeamAdministrators[teamId] = state;
+        if (this.canManageTeamRoster || state.canManage) {
+          this.loadTournamentPendingInvites(teamId, tournamentId, revision);
+        } else {
+          this.tournamentPendingInvites[teamId] = [];
+        }
         this.changeDetector.markForCheck();
       },
       error: () => {
@@ -3880,6 +3948,11 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.teams = [];
       this.tournamentTeamAdministrators = {};
       this.tournamentTeamInvitations = {};
+      this.tournamentPendingInvites = {};
+      this.tournamentPendingInvitesLoading = {};
+      this.tournamentPendingInvitesError = {};
+      this.tournamentPendingInviteVersion = {};
+      this.tournamentPendingInviteRevoking = {};
       this.tournamentTeamInviteFeedback = '';
       this.tournamentAdminTransferDraft = {};
       this.tournamentTeamCreatedNotice = false;
@@ -5672,6 +5745,11 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.teams = teams;
         this.tournamentTeamAdministrators = {};
         this.tournamentTeamInvitations = {};
+        this.tournamentPendingInvites = {};
+        this.tournamentPendingInvitesLoading = {};
+        this.tournamentPendingInvitesError = {};
+        this.tournamentPendingInviteVersion = {};
+        this.tournamentPendingInviteRevoking = {};
         teams.forEach(team => {
           this.loadTournamentTeamAdministrator(team.id, tournament.id, revision);
           this.loadTournamentTeamInvitation(team.id, tournament.id, revision);
@@ -6536,6 +6614,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     await this.mutate(this.api.addTeamPlayer(this.community.id, this.selected.id, team.id, id),
       t('teams.autonomy.inviteSent'), () => {
         this.teamPlayerDraft[team.id] = null;
+        this.loadTournamentPendingInvites(team.id, this.selected!.id, this.detailRevision);
       });
   }
 
