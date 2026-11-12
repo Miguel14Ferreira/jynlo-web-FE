@@ -325,3 +325,59 @@
 }
 .feed-attendance-expand:hover { background:rgba(28,109,105,.25); }
 .feed-attendance-expand:focus-visible { outline:2px solid #8bf0dd;outline-offset:-3px; }
+
+
+/* Per-viewer hide controls never imply deleting an author's publication. */
+.feed-hide-post {
+  margin-inline-start: auto;
+  flex: 0 0 auto;
+  border: 1px solid rgba(125,190,188,.25);
+  border-radius: 9px;
+  padding: 7px 10px;
+  background: rgba(18,64,77,.28);
+  color: #bad6d5;
+  font: inherit;
+  font-size: .77rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+.feed-hide-post:hover {
+  color: #f0fffa;
+  background: rgba(41,114,116,.3);
+  border-color: rgba(117,226,206,.5);
+}
+.feed-hide-post:focus-visible {
+  outline: 2px solid #9af8e1;
+  outline-offset: 3px;
+}
+.feed-hide-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  margin-block: 10px;
+  border: 1px solid rgba(79,215,187,.28);
+  border-radius: 11px;
+  background: rgba(13,67,70,.32);
+  color: #dcfff7;
+  font-size: .82rem;
+}
+.feed-hide-feedback > button {
+  border: 0;
+  border-radius: 8px;
+  padding: 7px 11px;
+  background: rgba(66,188,168,.18);
+  color: #a5ffdf;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+.feed-hide-feedback > button:focus-visible {
+  outline: 2px solid #9af8e1;
+  outline-offset: 2px;
+}
+@media (max-width: 540px) {
+  .feed-hide-post { padding: 6px 8px; font-size: .73rem; }
+}
