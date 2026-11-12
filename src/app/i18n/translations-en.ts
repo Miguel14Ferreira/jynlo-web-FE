@@ -11,6 +11,7 @@ export const EN: Record<string, string> = {
   'profilePosts.comments': 'Comments',
   'profilePosts.showLess': 'Show less',
   'profilePosts.showMore': 'Show all posts',
+  'profilePosts.loadMore': 'Load more posts',
   'notification.team.inviteSubject': "Invitation to join {{team}}",
   'notification.team.transferSubject': "Administrator transfer for {{team}}",
   'notification.team.assignedSubject': "You are now administrator of {{team}}",
