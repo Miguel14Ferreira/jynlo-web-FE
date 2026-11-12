@@ -581,7 +581,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   }
 
   get canPublishCommunityPost(): boolean {
-    return !!(this.feedDraft.trim() || this.feedImageFile || this.feedVideoFile || this.feedGallery.length)
+    return !!(this.feedDraft.trim() || this.feedImageFile || this.feedVideoFile || (this.feedGallery?.length ?? 0))
       && !this.timelineSending;
   }
 
@@ -659,7 +659,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   }
 
   clearCommunityFeedGallery(): void {
-    for (const item of this.feedGallery) URL.revokeObjectURL(item.url);
+    for (const item of this.feedGallery ?? []) URL.revokeObjectURL(item.url);
     this.feedGallery = [];
   }
 
