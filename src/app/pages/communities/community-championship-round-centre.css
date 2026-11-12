@@ -1,0 +1,122 @@
+/* League and cup matchday centre: one consistent information hierarchy. */
+:host .tournaments .jynlo-round-overview {
+  display: grid;
+  gap: 13px;
+  min-width: 0;
+  margin: 16px 0;
+  padding: clamp(13px, 2vw, 20px);
+  background: linear-gradient(125deg, rgba(8, 55, 65, .82), rgba(5, 32, 48, .91));
+  border: 1px solid rgba(72, 197, 179, .35);
+  border-radius: 15px;
+}
+:host .tournaments .jynlo-round-progress-heading {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+}
+:host .tournaments .jynlo-round-progress-heading > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+:host .tournaments .jynlo-round-progress-heading strong {
+  font-size: .95rem;
+  color: #f1fff9;
+}
+:host .tournaments .jynlo-round-progress-heading small {
+  font-size: .8rem;
+  color: #b7d9d9;
+  line-height: 1.4;
+}
+:host .tournaments .jynlo-round-progress-heading > span {
+  color: #93f6dd;
+  font-size: 1.16rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+:host .tournaments .jynlo-round-progress-track {
+  height: 9px;
+  overflow: hidden;
+  border: 1px solid rgba(73, 176, 164, .15);
+  border-radius: 999px;
+  background: rgba(3, 18, 29, .74);
+}
+:host .tournaments .jynlo-round-progress-track > span {
+  display: block;
+  height: 100%;
+  max-width: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1da997, #66f4ca);
+  transition: width .2s ease;
+}
+:host .tournaments .jynlo-round-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+:host .tournaments .jynlo-round-filters > button {
+  box-sizing: border-box;
+  min-height: 40px;
+  max-width: 100%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(97, 181, 177, .35);
+  background: rgba(8, 49, 63, .6);
+  color: #deeeec;
+  font: inherit;
+  font-size: .81rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+:host .tournaments .jynlo-round-filters > button:hover,
+:host .tournaments .jynlo-round-filters > button:focus-visible {
+  border-color: #89eed8;
+  outline-offset: 2px;
+}
+:host .tournaments .jynlo-round-filters > button.is-selected {
+  border-color: #79efd2;
+  background: rgba(51, 184, 155, .27);
+  color: #f5fff9;
+}
+:host .tournaments .jynlo-round-filters > button.jynlo-next-round {
+  margin-left: auto;
+  border-color: rgba(60, 211, 156, .58);
+  background: rgba(30, 144, 116, .24);
+  color: #acffdc;
+}
+:host .tournaments .jynlo-round-empty {
+  padding: 14px 17px;
+  margin: 0;
+  background: rgba(10, 39, 55, .5);
+  border: 1px dashed rgba(78, 157, 161, .35);
+  border-radius: 12px;
+  color: #c3dfe1;
+}
+:host .tournaments .jynlo-fixture-round-summary {
+  gap: 12px;
+}
+:host .tournaments .jynlo-fixture-round-summary > strong {
+  font-size: .95rem;
+}
+@media (max-width: 620px) {
+  :host .tournaments .jynlo-round-filters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  :host .tournaments .jynlo-round-filters > button {
+    padding: 8px 6px;
+    line-height: 1.25;
+    white-space: normal;
+    text-align: center;
+  }
+  :host .tournaments .jynlo-round-filters > button.jynlo-next-round {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-left: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :host .tournaments .jynlo-round-progress-track > span { transition: none; }
+}
