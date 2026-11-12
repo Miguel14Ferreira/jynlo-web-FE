@@ -529,7 +529,7 @@ describe('Community tournaments management', () => {
       markForCheck: jasmine.createSpy('markForCheck'),
       detectChanges: jasmine.createSpy('detectChanges')
     } as unknown as ChangeDetectorRef;
-    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam', 'ownedEvents', 'createOwnedEvent', 'updateOwnedEvent', 'deleteOwnedEvent', 'deleteUnplayed', 'ownedEventTeams', 'addOwnedEventTeam', 'removeOwnedEventTeam', 'ownedLeagueFixtures', 'scheduleOwnedLeague', 'ownedCupDraw', 'drawOwnedCup']);
+    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam', 'ownedEvents', 'createOwnedEvent', 'updateOwnedEvent', 'deleteOwnedEvent', 'deleteUnplayed', 'ownedEventTeams', 'addOwnedEventTeam', 'removeOwnedEventTeam', 'ownedLeagueFixtures', 'scheduleOwnedLeague', 'ownedCupDraw', 'drawOwnedCup', 'ownedLeagueStandings', 'ownedLeaguePlayerStats', 'advanceOwnedCup']);
     championships.list.and.returnValue(of([]));
     championships.ownedEvents.and.returnValue(of([]));
     championships.ownedEventTeams.and.returnValue(of([]));
