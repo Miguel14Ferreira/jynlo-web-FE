@@ -1699,6 +1699,13 @@
                                       @if (canManage && !championship.closedAt && event.status === 'SCHEDULED'
                                           && (championship.sport === 'Futebol' || championship.sport === 'Futsal')
                                           && round === cupCurrentRound(event.id)) {
+                                        <details class="jynlo-fixture-editor">
+                                          <summary class="jynlo-fixture-editor-toggle">
+                                            <span>{{ 'championshipRounds.editCupResult' | t }}</span>
+                                            @if (championshipCupResultDrafts[match.id]) {
+                                              <small>{{ 'championshipRounds.unsavedScore' | t }}</small>
+                                            }
+                                          </summary>
                                         <div class="jynlo-match-score-edit">
                                           <label [for]="'cup-home-' + match.id">Casa</label>
                                           <input [id]="'cup-home-' + match.id" type="number" min="0" max="999"
@@ -1719,6 +1726,7 @@
                                             <small class="jynlo-score-guidance" role="status">Preenche os dois resultados (0 a 999). A eliminatória precisa de um vencedor; não são permitidos empates.</small>
                                           }
                                         </div>
+                                        </details>
                                       }
                                     </div>
                                   }
