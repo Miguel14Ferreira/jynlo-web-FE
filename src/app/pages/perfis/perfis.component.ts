@@ -512,7 +512,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
       .pipe(timeout(10_000))
       .subscribe({
         next: posts => {
-          if (revision !== this.postsRevision
+          if (revision !== this.postsRevision || this.selectedBlocked
               || this.selectedProfile?.username.toLowerCase() !== username.toLowerCase()) return;
           const published = posts.filter(post => post.type === 'POST' && post.postId != null);
           const previous = append ? this.profilePosts : [];
@@ -523,7 +523,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
           this.postsLoading = false;
         },
         error: () => {
-          if (revision !== this.postsRevision
+          if (revision !== this.postsRevision || this.selectedBlocked
               || this.selectedProfile?.username.toLowerCase() !== username.toLowerCase()) return;
           this.postsLoading = false;
           this.postsLoadError = true;
@@ -585,6 +585,14 @@ export class PerfisComponent implements OnInit, OnDestroy {
           this.selectedBlocked = status.blocked;
 
           if (status.blocked) {
+            this.postsSubscription?.unsubscribe();
+            ++this.postsRevision;
+            this.profilePosts = [];
+            this.postsPage = 0;
+            this.postsHasMore = false;
+            this.postsExpanded = false;
+            this.postsLoading = false;
+            this.postsLoadError = false;
             this.selectedFollowStatus = undefined;
             this.friendUsernames.delete(profile.username.toLowerCase());
             this.selectedFriendshipStatus = { friends: false, pendingRequest: false };
@@ -594,7 +602,10 @@ export class PerfisComponent implements OnInit, OnDestroy {
             this.closeInvitePanel();
           }
 
-          if (!status.blocked) this.loadFriendshipStatus(profile.username);
+          if (!status.blocked) {
+            this.loadFriendshipStatus(profile.username);
+            this.loadProfilePosts(profile.username);
+          }
           this.actionSuccess = status.blocked
             ? t('feedback.community.blocked', { username: profile.username })
             : t('feedback.community.unblocked', { username: profile.username });
