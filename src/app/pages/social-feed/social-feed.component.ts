@@ -137,6 +137,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   postImagePreview = '';
   postVideoFile?: File;
   postVideoPreview = '';
+  postGallery: { file: File; url: string }[] = [];
   // Populated only by verified deep links from session details.
   availableSessions: SessionSummary[] = [];
   private readonly destroyed = new Subject<void>();
@@ -517,9 +518,13 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.posting = true;
     this.actionError = '';
 
-    this.feedService.createPost(content, this.postImageFile, this.selectedSessionId ?? undefined, this.postVideoFile)
-      .pipe(
-        timeout(this.postVideoFile ? 90_000 : 30_000),
+    const send = this.postGallery.length
+      ? this.feedService.createPostAlbum(content, this.postGallery.map(item => item.file),
+          this.selectedSessionId ?? undefined)
+      : this.feedService.createPost(content, this.postImageFile,
+          this.selectedSessionId ?? undefined, this.postVideoFile);
+    send.pipe(
+        timeout(this.postGallery.length || this.postVideoFile ? 90_000 : 30_000),
         finalize(() => this.posting = false)
       )
       .subscribe({
@@ -529,6 +534,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
           this.postImageFile = undefined;
           this.postImagePreview = '';
           this.removePostVideo();
+          this.clearPostGallery();
           this.selectedSessionId = null;
           this.postGameSessionId = null;
           this.newSessionShareId = null;
@@ -619,6 +625,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     }
 
     this.removePostVideo();
+    this.clearPostGallery();
     this.postImageFile = file;
     this.actionError = '';
 
@@ -652,6 +659,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     }
     this.removePostVideo();
     this.removePostImage();
+    this.clearPostGallery();
     this.postVideoFile = file;
     this.postVideoPreview = URL.createObjectURL(file);
     this.actionError = '';
@@ -662,6 +670,36 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     if (this.postVideoPreview) URL.revokeObjectURL(this.postVideoPreview);
     this.postVideoPreview = '';
     this.postVideoFile = undefined;
+  }
+
+  onPostGalleryChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    input.value = '';
+    if (!files.length) return;
+    const valid = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm'];
+    const combined = [...this.postGallery.map(item => item.file), ...files];
+    if (combined.length > 6 || combined.some(file => !valid.includes(file.type)
+        || file.size === 0 || file.size > (file.type.startsWith('video/') ? 20 : 5) * 1024 * 1024)
+        || combined.reduce((sum, file) => sum + file.size, 0) > 60 * 1024 * 1024) {
+      this.actionError = 'Até 6 fotografias ou vídeos, máximo de 60 MB no total (5 MB por foto e 20 MB por vídeo).';
+      return;
+    }
+    this.removePostImage();
+    this.removePostVideo();
+    this.postGallery.push(...files.map(file => ({file, url: URL.createObjectURL(file)})));
+    this.actionError = '';
+  }
+
+  removePostGalleryItem(index: number): void {
+    if (this.posting || index < 0 || index >= this.postGallery.length) return;
+    const [item] = this.postGallery.splice(index, 1);
+    URL.revokeObjectURL(item.url);
+  }
+
+  clearPostGallery(): void {
+    for (const item of this.postGallery) URL.revokeObjectURL(item.url);
+    this.postGallery = [];
   }
 
   postVideo(item: FeedItem): string | null {
