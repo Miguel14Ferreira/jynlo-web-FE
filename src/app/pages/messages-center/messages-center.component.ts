@@ -1626,7 +1626,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       this.selectedAttachmentPreviewUrl = null;
     }
     this.selectedAttachment = file;
-    if (file && (file.type.startsWith('image/') || file.type.startsWith('video/') || file.type.startsWith('audio/'))) {
+    if (file && (file.type.startsWith('image/') || file.type.startsWith('video/') || (file.type.startsWith('audio/') && !['audio/webm', 'audio/ogg'].includes(file.type)))) {
       try { this.selectedAttachmentPreviewUrl = URL.createObjectURL(file); }
       catch { /* The filename remains available when previews are unsupported. */ }
     }
