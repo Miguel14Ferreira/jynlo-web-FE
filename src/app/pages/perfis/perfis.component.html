@@ -494,7 +494,15 @@
             </section>
           }
 
-          @if (!selectedBlocked) {
+          @if (blockStatusPending) {
+            <p class="profile-publications-state" role="status">{{ 'common.loading' | t }}</p>
+          } @else if (blockStatusError) {
+            <div class="profile-publications-state" role="alert">
+              <p>{{ 'community.profileDetailsError' | t }}</p>
+              <button type="button" class="jynlo-action jynlo-action--neutral"
+                (click)="checkProfileBlockStatus(selectedProfile.username)">{{ 'common.retry' | t }}</button>
+            </div>
+          } @else if (!selectedBlocked) {
             <section class="profile-publications" [attr.aria-label]="'profilePosts.title' | t">
               <header class="profile-publications-header">
                 <div>
