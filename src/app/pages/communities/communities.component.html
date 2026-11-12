@@ -702,6 +702,21 @@
                       </button>
                     </div>
                   }
+                  @if (feedGallery.length) {
+                    <div class="community-feed-gallery-draft" aria-label="Media selecionados">
+                      @for (item of feedGallery; track item.url; let i = $index) {
+                        <div class="community-feed-media-preview">
+                          @if (item.file.type.startsWith('video/')) {
+                            <video [src]="item.url" controls preload="metadata"></video>
+                          } @else {
+                            <img [src]="item.url" [alt]="item.file.name">
+                          }
+                          <button type="button" [disabled]="timelineSending"
+                            (click)="removeCommunityFeedGalleryItem(i)">Remover</button>
+                        </div>
+                      }
+                    </div>
+                  }
                   <div class="community-feed-media-actions">
                     <label class="community-feed-file-picker jynlo-action jynlo-action--neutral"
                       [class.disabled]="timelineSending">
@@ -716,6 +731,12 @@
                         [disabled]="timelineSending" (change)="onCommunityFeedVideoChange($event)">
                       <span aria-hidden="true">▶</span>
                       {{ feedVideoFile ? ('feed.changeVideo' | t) : ('feed.addVideo' | t) }}
+                    </label>
+                    <label class="community-feed-file-picker jynlo-action jynlo-action--neutral"
+                      [class.disabled]="timelineSending">
+                      <input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+                        [disabled]="timelineSending" (change)="onCommunityFeedGalleryChange($event)">
+                      <span aria-hidden="true">▦</span> Álbum (até 6)
                     </label>
                   </div>
                   <div class="community-feed-composer-actions">
@@ -785,6 +806,19 @@
                           <video class="community-feed-post-media community-feed-post-video"
                             [src]="video" controls playsinline preload="none"
                             [attr.aria-label]="'feed.postVideoAlt' | t:{ user: communityFeedAuthorName(entry.username) }"></video>
+                        }
+                        @if (entry.extraMedia?.length) {
+                          <div class="community-feed-gallery">
+                            @for (media of entry.extraMedia; track media.url) {
+                              @if (media.mimeType.startsWith('video/')) {
+                                <video class="community-feed-post-media community-feed-post-video"
+                                  [src]="communityFeedMediaUrl(media.url)" controls playsinline preload="none"></video>
+                              } @else {
+                                <img class="community-feed-post-media" [src]="communityFeedMediaUrl(media.url)"
+                                  alt="Fotografia adicional" loading="lazy">
+                              }
+                            }
+                          </div>
                         }
                       </article>
                     }
