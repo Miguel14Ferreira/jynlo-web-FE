@@ -1,5 +1,16 @@
 // Loaded only for users who choose English. Keep the original key/value table intact.
 export const EN: Record<string, string> = {
+  'profilePosts.kicker': 'SOCIAL',
+  'profilePosts.title': 'Posts',
+  'profilePosts.description': 'Posts kept on this profile, separate from stories and automatic activities.',
+  'profilePosts.openFeed': 'Open feed',
+  'profilePosts.loadError': 'Unable to load this profile\'s posts.',
+  'profilePosts.empty': 'This profile has no posts yet.',
+  'profilePosts.imageAlt': 'Post photo',
+  'profilePosts.likes': 'Likes',
+  'profilePosts.comments': 'Comments',
+  'profilePosts.showLess': 'Show less',
+  'profilePosts.showMore': 'Show all posts',
   'notification.team.inviteSubject': "Invitation to join {{team}}",
   'notification.team.transferSubject': "Administrator transfer for {{team}}",
   'notification.team.assignedSubject': "You are now administrator of {{team}}",
