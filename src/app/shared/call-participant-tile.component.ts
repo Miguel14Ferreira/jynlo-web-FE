@@ -48,7 +48,9 @@ import { LocalParticipant, RemoteParticipant, Track } from 'livekit-client';
       min-height:170px;height:100%;overflow:hidden;border:1px solid #315562;border-radius:17px;
       background:radial-gradient(circle at 50% 40%,#26313b,#111923 74%);color:#eafff9}
     .connect-tile.speaking{border-color:#44ecc1;box-shadow:inset 0 0 0 2px #44ecc122}
-    .connect-tile video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0a2029}
+    /* Preserve the entire portrait image from mobile callers in landscape
+       desktop tiles. Cropping with cover can hide faces near the edges. */
+    .connect-tile video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#0a2029}
     .connect-tile video[hidden]{display:none}
     /* Desktop/window/tab shares must fit in full, never be cropped like webcam video. */
     .connect-tile.presenting video{object-fit:contain}
