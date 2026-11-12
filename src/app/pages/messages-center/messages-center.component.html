@@ -92,7 +92,12 @@
                   
                   (click)="openContact('' + conversation.id)">
                 <span class="inbox-avatar inbox-detail-avatar" aria-hidden="true">
-                  {{ conversation.title.slice(0, 1).toUpperCase() }}
+                  @if (conversation.avatarUrl && !failedAvatarKeys.has(conversation.key)) {
+                    <img class="inbox-avatar-image" [src]="conversation.avatarUrl" alt=""
+                      referrerpolicy="no-referrer" (error)="failedAvatarKeys.add(conversation.key)">
+                  } @else {
+                    {{ conversation.title.slice(0, 1).toUpperCase() }}
+                  }
                 </span>
                 <span class="inbox-detail-info">
                   <strong class="inbox-contact-name">{{ conversation.title }}</strong>
@@ -104,7 +109,12 @@
               <span class="inbox-avatar inbox-detail-avatar"
                 [class.inbox-avatar--community]="conversation.kind === 'community'"
                 [class.inbox-avatar--session]="conversation.kind === 'session'" aria-hidden="true">
-                {{ conversation.kind === 'community' ? '👥' : '⚽' }}
+                @if (conversation.avatarUrl && !failedAvatarKeys.has(conversation.key)) {
+                  <img class="inbox-avatar-image" [src]="conversation.avatarUrl" alt=""
+                    referrerpolicy="no-referrer" (error)="failedAvatarKeys.add(conversation.key)">
+                } @else {
+                  {{ conversation.kind === 'community' ? '👥' : '⚽' }}
+                }
               </span>
               <div class="inbox-detail-info">
                 <h2>{{ conversation.title }}</h2>
