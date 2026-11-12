@@ -312,9 +312,12 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   stageAttachment(file: File): void {
-    const accepted = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (!accepted.includes(file.type.toLowerCase()) || file.size === 0 || file.size > 10 * 1024 * 1024) {
-      this.actionError = 'Escolhe uma imagem JPG, PNG, WebP ou GIF até 10 MB.';
+    const accepted = ['image/jpeg', 'image/png', 'image/webp', 'image/gif',
+      'application/pdf', 'video/mp4', 'video/webm', 'audio/mpeg', 'audio/mp4',
+      'audio/ogg', 'audio/webm'];
+    const limit = file.type.startsWith('video/') ? 20 : file.type.startsWith('audio/') ? 12 : 5;
+    if (!accepted.includes(file.type.toLowerCase()) || file.size === 0 || file.size > limit * 1024 * 1024) {
+      this.actionError = 'Formato não suportado ou ficheiro demasiado grande (imagens/PDF 5 MB, áudio 12 MB, vídeo 20 MB).';
       return;
     }
     this.selectedAttachment = file;
@@ -341,8 +344,19 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
       .subscribe({
         next: blob => {
           if (version !== this.attachmentRequestVersion) return;
-          if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(blob.type.toLowerCase())) {
-            this.actionError = 'O anexo não é uma imagem suportada.';
+          if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif',
+            'video/mp4', 'video/webm', 'audio/mpeg', 'audio/mp4', 'audio/ogg',
+            'audio/webm', 'application/pdf'].includes(blob.type.toLowerCase())) {
+            this.actionError = 'O formato deste anexo não é suportado.';
+            return;
+          }
+          if (blob.type === 'application/pdf') {
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = message.attachmentName || 'documento.pdf';
+            anchor.click();
+            setTimeout(() => URL.revokeObjectURL(url), 60_000);
             return;
           }
           this.attachmentPreviews.set(id, URL.createObjectURL(blob));
