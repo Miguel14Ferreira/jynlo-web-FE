@@ -404,6 +404,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   ngOnDestroy(): void {
     this.clearCommunityFeedImage();
     this.clearCommunityFeedVideo();
+    this.clearCommunityFeedGallery();
     this.resetCommunityAvatarCrop();
     this.typing.destroy();
     this.chatSubscriptions.unsubscribe();
@@ -2345,6 +2346,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     this.feedDraft = '';
     this.clearCommunityFeedImage();
     this.clearCommunityFeedVideo();
+    this.clearCommunityFeedGallery();
     this.chatDraft = '';
     this.replyingToCommunityMessage = null;
     this.chatDeliveryUncertain = false;
