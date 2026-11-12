@@ -747,6 +747,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
           id: friend.username,
           title: friend.nickname || friend.fullName || friend.username,
           subtitle: '@' + friend.username,
+          avatarUrl: friend.profilePicUrl,
           newThisVisit: 0
         });
       }
@@ -758,6 +759,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
           id: community.id,
           title: community.name,
           subtitle: community.sport || '',
+          avatarUrl: community.photoUrl,
           newThisVisit: 0
         });
       }
@@ -779,6 +781,9 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
           id: session.id,
           title: session.sport + ' · ' + session.city,
           subtitle: this.formatDate(session.gameDate),
+          // Session summaries do not expose a dedicated image. Reuse the
+          // associated community photo only when its membership was returned.
+          avatarUrl: communities.find(group => group.id === session.communityId)?.photoUrl ?? null,
           newThisVisit: 0
         });
       }
@@ -818,6 +823,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       this.scheduleSelectedSessionCutoff();
       this.conversations = orderInbox(entries.map(item => ({
         ...item,
+        // Keep an already loaded avatar if a later response has no image.
+        avatarUrl: item.avatarUrl ?? existing.get(item.key)?.avatarUrl ?? null,
         latestText: existing.get(item.key)?.latestText,
         latestAt: existing.get(item.key)?.latestAt,
         newThisVisit: existing.get(item.key)?.newThisVisit || 0,
