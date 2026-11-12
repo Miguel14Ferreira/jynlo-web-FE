@@ -17,6 +17,7 @@ const PT: Dictionary = {
   'profilePosts.comments': 'Comentários',
   'profilePosts.showLess': 'Mostrar menos',
   'profilePosts.showMore': 'Ver todas as publicações',
+  'profilePosts.loadMore': 'Carregar mais publicações',
   'notification.team.inviteSubject': "Convite para a equipa {{team}}",
   'notification.team.transferSubject': "Transferência da administração de {{team}}",
   'notification.team.assignedSubject': "Agora administras a equipa {{team}}",
