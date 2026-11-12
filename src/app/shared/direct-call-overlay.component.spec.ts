@@ -107,6 +107,15 @@ describe('Global incoming call popup', () => {
     expect(fixture.nativeElement.querySelector('.connect-camera-health')).not.toBeNull();
   });
 
+  it('explains mobile browser screen-sharing limits without hiding an active call', () => {
+    calls.canShareScreen=false;
+    state.next({...invitation('video'),phase:'active',startedAt:Date.now()});
+    fixture.detectChanges();
+    const tip=fixture.nativeElement.querySelector('.connect-screen-share-tip') as HTMLElement;
+    expect(tip).not.toBeNull();
+    expect(tip.textContent).toContain('partilha de ecrã');
+  });
+
   it('focuses a camera, switches participant and restores the layout with Escape', () => {
     const self = {identity:'local-user', videoTrackPublications:new Map()} as any;
     const friend = {identity:'remote-user', videoTrackPublications:new Map()} as any;
