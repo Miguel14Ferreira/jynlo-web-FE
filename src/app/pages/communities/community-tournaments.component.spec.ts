@@ -1230,6 +1230,26 @@ describe('Community tournaments management', () => {
     expect(component.championshipFixtureLineups[501].map(item => item.id)).toEqual([30]);
   });
 
+  it('ignores category replies from before a newer aggregate match refresh', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const earlierCards = new Subject<any[]>();
+    (championships as any).fixtureCards = jasmine.createSpy('fixtureCards')
+      .and.returnValues(earlierCards, of([{ id: 90 }]));
+    (championships as any).fixtureGoals = jasmine.createSpy('fixtureGoals')
+      .and.returnValue(of([]));
+    (championships as any).fixtureSubstitutions = jasmine.createSpy('fixtureSubstitutions')
+      .and.returnValue(of([]));
+    (championships as any).fixtureLineup = jasmine.createSpy('fixtureLineup')
+      .and.returnValue(of([]));
+
+    component.loadFixtureCards(15, 101, 501);
+    component.loadChampionshipFixtureDetails(15, 101, 501);
+    earlierCards.next([{ id: 12 }]); earlierCards.complete();
+
+    expect(component.championshipFixtureDetailsState[501]).toBe('ready');
+    expect(component.championshipFixtureCards[501].map(card => card.id)).toEqual([90]);
+  });
+
   it('keeps latest player statistics after out-of-order responses', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const oldStats = new Subject<any>();
