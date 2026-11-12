@@ -451,6 +451,11 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.championshipTeamAdministrators[teamId] = state;
         this.championshipTeamAdminLoading[teamId] = false;
         this.championshipTeamAdminLoadError[teamId] = false;
+        if (this.canManageChampionshipTeam(teamId)) {
+          this.loadChampionshipPendingInvites(championshipId, teamId);
+        } else {
+          this.championshipPendingInvites[teamId] = [];
+        }
         this.changeDetector.markForCheck();
       },
       error: () => {
