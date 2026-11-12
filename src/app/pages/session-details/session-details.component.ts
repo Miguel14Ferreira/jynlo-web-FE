@@ -294,6 +294,20 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     priceAmount: 0, city: '', address: '', description: '', meetingPointInstructions: ''
   };
 
+  /**
+   * The API only permits changing the sport for an independent session with
+   * no other confirmed players or waitlist entries. The UI deliberately
+   * exposes a conservative subset; the server remains authoritative.
+   */
+  canChangeSessionSport(): boolean {
+    const session = this.session;
+    return this.canEditCapacity() && !!session
+      && session.participantCount === 1
+      && !session.communityId && !session.seasonCommunityId
+      && !session.venue && !session.recurrenceSeriesId
+      && !session.waitlisted;
+  }
+
   beginDetailsEdit(): void {
     if (!this.canEditCapacity() || this.detailsSaving || !this.session) return;
     const value = new Date(this.session.gameDate);
@@ -325,6 +339,17 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     if (!this.detailsEditing || !this.canEditCapacity() || !this.sessionId
         || !this.session || this.detailsSaving) return;
     const d = this.detailsDraft;
+    // Disabled inputs are not permission boundaries: reject forged drafts
+    // before sending requests that the API must refuse.
+    if ((d.sport !== this.session.sport && !this.canChangeSessionSport())
+        || (this.session.recurrenceSeriesId
+            && new Date(d.gameDate).getTime() !== new Date(this.session.gameDate).getTime())
+        || (this.session.venue
+            && (d.city.trim() !== this.session.city
+                || d.address.trim() !== (this.session.address || '')))) {
+      this.detailsError = t('sessionDetail.restrictedEdit');
+      return;
+    }
     const kickoff = new Date(d.gameDate);
     if (!d.gameDate || !Number.isFinite(kickoff.getTime()) || kickoff.getTime() <= Date.now()
         || !Number.isSafeInteger(d.maxParticipants) || d.maxParticipants < 2
