@@ -203,6 +203,12 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     return this.attachmentReady && this.isAttachmentIdentityCurrent() && this.isSelectedSessionOpen();
   }
   selectedAttachment: File | null = null;
+  extraSelectedAttachments: {file: File; url: string | null}[] = [];
+  readonly maxChatFiles = 4;
+  readonly maxChatBytes = 40 * 1024 * 1024;
+  get selectedChatFiles(): File[] {
+    return [...(this.selectedAttachment ? [this.selectedAttachment] : []), ...this.extraSelectedAttachments.map(x => x.file)];
+  }
   selectedAttachmentPreviewUrl: string | null = null;
   // GIPHY media is NOT copied to R2: only validated CDN URLs travel as chat text.
   selectedGif: GifChoice | null = null;
@@ -304,6 +310,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   private voiceGeneration = 0;
   readonly attachmentPreviews = new Map<number, string>();
   readonly attachmentLoading = new Set<number>();
+  readonly extraAttachmentPreviews = new Map<string, string>();
+  readonly extraAttachmentLoading = new Set<string>();
   readonly inlineImageFailures = new Set<number>();
   expandedImageId: number | null = null;
   // Only transient playback state is retained. URLs remain private and are
@@ -1271,6 +1279,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       replyToMessageId: message.replyToMessageId,
       replyToSender: message.replyToSender,
       replyToText: message.replyToText,
+      attachments: message.attachments,
       attachmentName: message.attachmentName,
       attachmentMimeType: message.attachmentMimeType,
       attachmentSize: message.attachmentSize
@@ -1283,6 +1292,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       editedAt: entry.editedAt, deletedAt: entry.deletedAt,
       replyToMessageId: entry.replyToMessageId, replyToSender: entry.replyToSender,
       replyToText: entry.replyToText,
+      attachments: entry.attachments,
+      attachments: entry.attachments,
       attachmentName: entry.attachmentName,
       attachmentMimeType: entry.attachmentMimeType,
       attachmentSize: entry.attachmentSize };
@@ -1621,6 +1632,10 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   private setSelectedAttachment(file: File | null): void {
+    for (const extra of this.extraSelectedAttachments) {
+      if (extra.url) URL.revokeObjectURL(extra.url);
+    }
+    this.extraSelectedAttachments = [];
     if (this.selectedAttachmentPreviewUrl) {
       URL.revokeObjectURL(this.selectedAttachmentPreviewUrl);
       this.selectedAttachmentPreviewUrl = null;
@@ -1633,16 +1648,32 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   private stageAttachment(file: File): void {
+    this.stageAttachments([file]);
+  }
+
+  private stageAttachments(incoming: File[]): void {
+    if (!incoming.length) return;
+    const files = [...this.selectedChatFiles, ...incoming];
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif',
       'application/pdf', 'video/mp4', 'video/webm', 'audio/mpeg', 'audio/mp4',
-      'audio/ogg', 'audio/webm'].includes(file.type);
-    const limit = file.type.startsWith('video/') ? 20 : file.type.startsWith('audio/') ? 12 : 5;
-    if (!allowed || file.size === 0 || file.size > limit * 1024 * 1024) {
-      this.composerError = t('chat.attachmentInvalid');
+      'audio/ogg', 'audio/webm'];
+    if (files.length > this.maxChatFiles
+        || files.reduce((total, file) => total + file.size, 0) > this.maxChatBytes
+        || files.some(file => !allowed.includes(file.type)
+          || file.size === 0 || file.size > (file.type.startsWith('video/') ? 20
+            : file.type.startsWith('audio/') ? 12 : 5) * 1024 * 1024)) {
+      this.composerError = 'Até 4 ficheiros (40 MB no total): imagens/PDF 5 MB, áudio 12 MB, vídeo 20 MB.';
       return;
     }
     this.clearVoicePreview();
-    this.setSelectedAttachment(file);
+    if (!this.selectedAttachment) this.setSelectedAttachment(incoming.shift()!);
+    for (const file of incoming) {
+      let url: string | null = null;
+      if (file.type.startsWith('image/') || file.type.startsWith('video/') || file.type.startsWith('audio/')) {
+        try { url = URL.createObjectURL(file); } catch { /* filename remains visible */ }
+      }
+      this.extraSelectedAttachments.push({file, url});
+    }
     this.selectedGif = null;
     this.selectedShare = null;
     this.closeAttachmentMenu();
@@ -1650,12 +1681,18 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.closeEmojiPicker();
   }
 
+  removeExtraSelectedAttachment(index: number): void {
+    if (this.sending || this.deliveryUncertain || index < 0 || index >= this.extraSelectedAttachments.length) return;
+    const [removed] = this.extraSelectedAttachments.splice(index, 1);
+    if (removed.url) URL.revokeObjectURL(removed.url);
+  }
+
   onAttachmentPicked(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0] ?? null;
+    const files = Array.from(input.files ?? []);
     input.value = '';
-    if (!file || !this.attachmentControlsReady || !this.canEditDraft()) return;
-    this.stageAttachment(file);
+    if (!files.length || !this.attachmentControlsReady || !this.canEditDraft()) return;
+    this.stageAttachments(files);
   }
 
   removeAttachment(): void {
@@ -1840,6 +1877,9 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.voiceAutoplayRequested.clear();
     for (const url of this.attachmentPreviews.values()) URL.revokeObjectURL(url);
     this.attachmentPreviews.clear();
+    for (const url of this.extraAttachmentPreviews.values()) URL.revokeObjectURL(url);
+    this.extraAttachmentPreviews.clear();
+    this.extraAttachmentLoading.clear();
     this.attachmentLoading.clear();
     this.inlineImageFailures.clear();
     this.expandedImageId = null;
@@ -2073,6 +2113,54 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
           }
         }
       });
+  }
+
+  extraAttachmentKey(message: InboxMessage, index: number): string {
+    return message.key + '/' + message.id + '/' + index;
+  }
+
+  openExtraAttachment(message: InboxMessage,
+      attachment: {index: number; filename: string; mimeType: string}): void {
+    const conversation = this.selected;
+    if (!conversation || this.selectedKey !== message.key
+        || !this.isAttachmentIdentityCurrent() || !this.isSelectedSessionOpen()
+        || message.deletedAt || attachment.index <= 0 || attachment.index >= this.maxChatFiles) return;
+    const key = this.extraAttachmentKey(message, attachment.index);
+    const old = this.extraAttachmentPreviews.get(key);
+    if (old) {
+      URL.revokeObjectURL(old);
+      this.extraAttachmentPreviews.delete(key);
+      return;
+    }
+    if (this.extraAttachmentLoading.has(key)) return;
+    const version = this.attachmentViewVersion;
+    this.extraAttachmentLoading.add(key);
+    const request = conversation.kind === 'direct'
+      ? this.direct.downloadAttachmentAt(String(conversation.id), message.id, attachment.index)
+      : conversation.kind === 'community'
+        ? this.timeline.downloadChatAttachmentAt(Number(conversation.id), message.id, attachment.index)
+        : this.sessions.downloadAttachmentAt(Number(conversation.id), message.id, attachment.index);
+    request.pipe(timeout(30000), finalize(() => this.extraAttachmentLoading.delete(key))).subscribe({
+      next: blob => {
+        if (version !== this.attachmentViewVersion || this.selectedKey !== message.key
+            || !this.isAttachmentIdentityCurrent() || !this.isSelectedSessionOpen()) return;
+        if (blob.type.toLowerCase() !== attachment.mimeType.toLowerCase()) {
+          this.composerError = 'O ficheiro recebido não corresponde ao formato esperado.';
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        if (blob.type.startsWith('image/') || blob.type.startsWith('video/') || blob.type.startsWith('audio/')) {
+          this.extraAttachmentPreviews.set(key, url);
+        } else {
+          const anchor = document.createElement('a');
+          anchor.href = url;
+          anchor.download = attachment.filename;
+          anchor.click();
+          setTimeout(() => URL.revokeObjectURL(url), 60000);
+        }
+      },
+      error: () => { if (version === this.attachmentViewVersion) this.composerError = t('chat.attachmentDownloadFailed'); }
+    });
   }
 
   toggleAttachmentMenu(): void {
@@ -2381,6 +2469,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     // A file chosen under a prior login must never be submitted by this tab.
     if (this.selectedAttachment && !this.attachmentControlsReady) return;
     const file = this.selectedAttachment;
+    const attachmentFiles = this.selectedChatFiles;
     const draftAtSend = this.draft;
     const caption = this.draft.trim();
     // Server sends the same synthesized text for an attachment without a caption.
@@ -2396,21 +2485,27 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
 
     let send: Observable<InboxMessage>;
     if (conversation.kind === 'direct') {
-      const request = file
+      const request = attachmentFiles.length > 1
+        ? this.direct.sendAttachments(String(conversation.id), attachmentFiles, caption, replyId || undefined)
+        : file
         ? this.direct.sendAttachment(String(conversation.id), file, caption, replyId || undefined)
         : replyId
         ? this.direct.send(String(conversation.id), text, replyId)
         : this.direct.send(String(conversation.id), text);
       send = request.pipe(map(message => this.fromDirect(message, String(conversation.id))));
     } else if (conversation.kind === 'community') {
-      const request = file
+      const request = attachmentFiles.length > 1
+        ? this.timeline.sendChatAttachments(Number(conversation.id), attachmentFiles, caption, replyId || undefined)
+        : file
         ? this.timeline.sendChatAttachment(Number(conversation.id), file, caption, replyId || undefined)
         : replyId
         ? this.timeline.send(Number(conversation.id), 'CHAT', text, replyId)
         : this.timeline.send(Number(conversation.id), 'CHAT', text);
       send = request.pipe(map(message => this.fromCommunity(message)));
     } else {
-      const request = file
+      const request = attachmentFiles.length > 1
+        ? this.sessions.sendAttachments(Number(conversation.id), attachmentFiles, caption, replyId || undefined)
+        : file
         ? this.sessions.sendAttachment(Number(conversation.id), file, caption, replyId || undefined)
         : replyId
         ? this.sessions.postMessage(Number(conversation.id), text, replyId)
