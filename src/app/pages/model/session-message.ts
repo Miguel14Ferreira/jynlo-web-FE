@@ -10,6 +10,7 @@ export interface SessionMessage {
   replyToMessageId?: number | null;
   replyToSender?: string | null;
   replyToText?: string | null;
+  attachments?: {index: number; filename: string; mimeType: string; size: number}[];
   attachmentName?: string | null;
   attachmentMimeType?: string | null;
   attachmentSize?: number | null;
