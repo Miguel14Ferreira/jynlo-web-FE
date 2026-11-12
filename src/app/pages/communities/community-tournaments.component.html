@@ -1301,7 +1301,7 @@
                         }
                         @for (round of visibleChampionshipRounds(event.id, 'LEAGUE'); track round) {
                           <details class="create-step jynlo-fixture-round"
-                            [open]="isChampionshipRoundExpanded(event.id, round, championshipNextPendingRound(event.id, 'LEAGUE') ?? leagueRounds(event.id)[0])"
+                            [open]="isChampionshipRoundExpanded(event.id, round, championshipNextPendingRound(event.id, 'LEAGUE') ?? 1)"
                             (toggle)="onChampionshipLeagueRoundToggle(championship.id, event.id, round, $any($event.target).open)">
                             <summary class="jynlo-fixture-round-summary">
                               <strong>{{ 'communities.championshipOwned.round' | t }} {{ round }}</strong>
