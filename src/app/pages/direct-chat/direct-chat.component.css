@@ -469,3 +469,18 @@ h1 {
 }
 .message-list app-chat-reactions.direct-reaction-under-message.is-picker-open {z-index:30;}
 .message-list {padding-bottom:42px;}
+
+/* Authenticated direct-chat image attachments (no public media URLs). */
+.direct-image-draft { display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:9px 12px; margin-bottom:10px; border-radius:10px; background:#1c493f; color:#d9fff2;
+  overflow-wrap:anywhere; }
+.direct-image-draft button { color:#fff; background:#285a52; border:1px solid #77d4b6; }
+.direct-attachment-picker { display:inline-flex !important; align-items:center; gap:7px; color:#cffbe8;
+  cursor:pointer; font-size:.8rem; }
+.direct-attachment-picker input { max-width:190px; font-size:.73rem; color:#d6e6ef; }
+.direct-attachment-button { display:block; width:100%; margin:7px 0; padding:9px 12px;
+  background:#245b53; color:#e2fff7; border:1px solid #62bca4; border-radius:9px;
+  overflow-wrap:anywhere; text-align:left; cursor:pointer; }
+.direct-attachment-image { display:block; max-width:min(100%,420px); max-height:350px; object-fit:contain;
+  border-radius:9px; margin:8px 0; }
+@media (max-width:700px) { .composer-tools {flex-wrap:wrap;} .direct-attachment-picker {flex-wrap:wrap;} }
