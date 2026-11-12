@@ -16,6 +16,7 @@ export interface CommunityTimelineEntry {
   deletedAt?: string | null;
   imageUrl?: string | null;
   videoUrl?: string | null;
+  extraMedia?: {url: string; mimeType: string}[];
   attachmentName?: string | null;
   attachmentMimeType?: string | null;
   attachmentSize?: number | null;
@@ -82,6 +83,13 @@ export class CommunityTimelineService {
     form.append('content', body.trim());
     if (image) form.append('image', image);
     if (video) form.append('video', video);
+    return this.http.post<CommunityTimelineEntry>(this.url(id, 'POST'), form);
+  }
+
+  sendPostAlbum(id: number, body: string, files: File[]): Observable<CommunityTimelineEntry> {
+    const form = new FormData();
+    form.append('content', body.trim());
+    for (const file of files) form.append('files', file, file.name);
     return this.http.post<CommunityTimelineEntry>(this.url(id, 'POST'), form);
   }
 
