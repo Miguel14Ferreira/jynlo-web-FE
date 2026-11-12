@@ -1250,6 +1250,44 @@ describe('Community tournaments management', () => {
     expect(component.championshipFixtureCards[501].map(card => card.id)).toEqual([90]);
   });
 
+  it('does not lose a newly created championship team to a delayed older team listing', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const pending = new Subject<any>();
+    const earlier = { championshipId: 15, teams: [], competitionTeams: [] } as any;
+    const created = { championshipId: 15, teams: [{ id: 51, name: 'Águias' }], competitionTeams: [] } as any;
+    championships.teams.and.returnValue(pending);
+    championships.createTeam.and.returnValue(of(created));
+    component.championships = [{ id: 15, closedAt: null }] as any;
+    component.championshipTeamDrafts[15] = 'Águias';
+    spyOn(component, 'loadChampionshipTeamPlayers');
+    spyOn(component, 'loadChampionshipTeamAdministrator');
+
+    component.loadChampionshipTeams(15);
+    component.createChampionshipTeam(15);
+    pending.next(earlier); pending.complete();
+
+    expect(component.championshipTeamRegistries[15].teams.map(team => team.id)).toEqual([51]);
+    expect(component.championshipTeamDrafts[15]).toBe('');
+    expect(component.championshipBusy).toBeFalse();
+  });
+
+  it('keeps the most recent team listing when two championship registry requests overlap', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const older = new Subject<any>();
+    const newer = new Subject<any>();
+    championships.teams.and.returnValues(older, newer);
+    spyOn(component, 'loadChampionshipTeamPlayers');
+    spyOn(component, 'loadChampionshipTeamAdministrator');
+    spyOn(component, 'loadChampionshipTeamInvitation');
+
+    component.loadChampionshipTeams(15);
+    component.loadChampionshipTeams(15);
+    newer.next({ championshipId: 15, teams: [{ id: 73 }], competitionTeams: [] }); newer.complete();
+    older.next({ championshipId: 15, teams: [{ id: 51 }], competitionTeams: [] }); older.complete();
+
+    expect(component.championshipTeamRegistries[15].teams.map(team => team.id)).toEqual([73]);
+  });
+
   it('keeps latest player statistics after out-of-order responses', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const oldStats = new Subject<any>();
