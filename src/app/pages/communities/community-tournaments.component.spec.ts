@@ -1011,6 +1011,42 @@ describe('Community tournaments management', () => {
     expect(component.championshipCupDraws[103].matches.length).toBe(2);
   });
 
+  it('uses the latest response for league standings and season totals', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const oldTable = new Subject<any>();
+    const newTable = new Subject<any>();
+    const oldSeason = new Subject<any>();
+    const newSeason = new Subject<any>();
+    championships.ownedLeagueStandings.and.returnValues(oldTable, newTable);
+    championships.standings.and.returnValues(oldSeason, newSeason);
+    component.loadChampionshipOwnedLeagueTable(15, 101);
+    component.loadChampionshipOwnedLeagueTable(15, 101);
+    component.loadChampionshipStandings(15);
+    component.loadChampionshipStandings(15);
+    const latestTable = { completed: true, standings: [{ teamId: 31, points: 9 }] };
+    const latestSeason = { championshipId: 15, standings: [{ teamId: 31, points: 9 }] };
+    newTable.next(latestTable);
+    newSeason.next(latestSeason);
+    oldTable.next({ completed: false, standings: [] });
+    oldSeason.next({ championshipId: 15, standings: [] });
+
+    expect(component.championshipOwnedLeagueTables[101]).toEqual(latestTable as any);
+    expect(component.championshipAggregateStandings[15]).toEqual(latestSeason as any);
+  });
+
+  it('keeps latest player statistics after out-of-order responses', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const oldStats = new Subject<any>();
+    const newStats = new Subject<any>();
+    championships.ownedLeaguePlayerStats.and.returnValues(oldStats, newStats);
+    component.loadChampionshipLeaguePlayerStats(15, 101);
+    component.loadChampionshipLeaguePlayerStats(15, 101);
+    newStats.next([{ profileId: 25, goals: 4 }]);
+    oldStats.next([{ profileId: 25, goals: 1 }]);
+
+    expect((component.championshipLeaguePlayerStats[101][0] as any).goals).toBe(4);
+  });
+
   it('refreshes the league fixture and clears its draft after a successful score save', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const fixture = { id: 501, homeScore: 1, awayScore: 0 };
