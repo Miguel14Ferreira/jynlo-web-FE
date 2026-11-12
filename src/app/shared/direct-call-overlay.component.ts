@@ -872,12 +872,10 @@ export class DirectCallOverlayComponent implements OnDestroy {
   participantUsername(person: LocalParticipant | RemoteParticipant): string | null {
     const known = this.calls.members$.value.participants
       .find(member => member.identity === person.identity)?.username;
-    if (known) return known;
-    if (person === this.calls.room?.localParticipant) return null;
-    // Before roster synchronization, a single remote participant is the
-    // original peer. Never paint the peer's photo onto an unknown group guest.
-    return this.calls.room?.remoteParticipants.size === 1
-      ? this.calls.state$.value?.peer ?? null : null;
+    // A remaining sole remote might be a group guest after the original
+    // peer disconnects. Identity is authoritative; guessing would expose the
+    // wrong person's photo and name.
+    return known ?? null;
   }
   private requestPhoto(username: string | null | undefined): void {
     const name = username?.trim();
