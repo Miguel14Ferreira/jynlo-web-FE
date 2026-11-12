@@ -101,6 +101,42 @@ describe('Global incoming call popup', () => {
     expect(overlay.cameraZoomed).toBeFalse();
   });
 
+  it('automatically exits focused full screen when the selected participant leaves', () => {
+    const overlay = fixture.componentInstance;
+    const self = {identity:'local-user',videoTrackPublications:new Map()} as any;
+    const guest = {identity:'guest',videoTrackPublications:new Map()} as any;
+    const room = {
+      localParticipant:self,
+      remoteParticipants:new Map([['guest',guest]])
+    };
+    calls.room = room;
+    overlay.zoomCamera('guest');
+    expect(overlay.focusedCamera).toBe(guest);
+    expect(overlay.cameraZoomed).toBeTrue();
+
+    room.remoteParticipants.clear();
+    calls.mediaChanged$.next(calls.mediaChanged$.value+1);
+    expect(overlay.focusedCamera).toBeNull();
+    expect(overlay.focusedCameraIdentity).toBeNull();
+    expect(overlay.cameraZoomed).toBeFalse();
+  });
+
+  it('keeps camera maximization independent from the regular focus toggle', () => {
+    const overlay = fixture.componentInstance;
+    const self = {identity:'self',videoTrackPublications:new Map()} as any;
+    calls.room = {localParticipant:self,remoteParticipants:new Map()};
+    overlay.toggleCameraFocus('self');
+    expect(overlay.focusedCameraIdentity).toBe('self');
+    expect(overlay.cameraZoomed).toBeFalse();
+    overlay.zoomCamera('self');
+    expect(overlay.cameraZoomed).toBeTrue();
+    overlay.zoomCamera('self');
+    expect(overlay.cameraZoomed).toBeFalse();
+    expect(overlay.focusedCameraIdentity).toBe('self');
+    overlay.toggleCameraFocus('self');
+    expect(overlay.focusedCameraIdentity).toBeNull();
+  });
+
   it('clears any enlarged camera when a call ends', () => {
     const overlay = fixture.componentInstance;
     state.next({...invitation('video'),phase:'active',startedAt:Date.now()});
