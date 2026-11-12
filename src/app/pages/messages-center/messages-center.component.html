@@ -399,6 +399,32 @@
                       </button>
                     }
                   </div>
+                  @if (message.attachments?.length) {
+                    <div class="inbox-attachment-gallery" aria-label="Ficheiros adicionais">
+                      @for (asset of message.attachments; track asset.index) {
+                        @if (asset.index > 0) {
+                          <div class="inbox-extra-attachment">
+                            @if (extraAttachmentPreviews.get(extraAttachmentKey(message, asset.index)); as mediaUrl) {
+                              @if (asset.mimeType.startsWith('image/')) {
+                                <img [src]="mediaUrl" [alt]="asset.filename" loading="lazy">
+                              } @else if (asset.mimeType.startsWith('video/')) {
+                                <video [src]="mediaUrl" controls preload="metadata"></video>
+                              } @else if (asset.mimeType.startsWith('audio/')) {
+                                <audio [src]="mediaUrl" controls preload="metadata"></audio>
+                              }
+                            }
+                            <button type="button" class="inbox-attachment-button"
+                              [disabled]="extraAttachmentLoading.has(extraAttachmentKey(message, asset.index))"
+                              (click)="openExtraAttachment(message, asset)">
+                              {{ extraAttachmentPreviews.has(extraAttachmentKey(message, asset.index)) ? 'Fechar' :
+                                extraAttachmentLoading.has(extraAttachmentKey(message, asset.index)) ? 'A carregar…' : 'Abrir' }}
+                              {{ asset.filename }}
+                            </button>
+                          </div>
+                        }
+                      }
+                    </div>
+                  }
                 }
                 @if (!message.deletedAt) {
                   <div class="inbox-message-actions">
@@ -548,6 +574,25 @@
                 </div>
               }
             }
+            @if (extraSelectedAttachments.length) {
+              <div class="inbox-multi-draft" aria-label="Ficheiros adicionais prontos a enviar">
+                @for (item of extraSelectedAttachments; track item.file; let i = $index) {
+                  <div class="inbox-attachment-draft">
+                    @if (item.url && item.file.type.startsWith('image/')) {
+                      <img class="inbox-pasted-image-preview" [src]="item.url" [alt]="item.file.name">
+                    } @else if (item.url && item.file.type.startsWith('video/')) {
+                      <video class="inbox-pasted-image-preview" [src]="item.url" controls preload="metadata"></video>
+                    } @else if (item.url && item.file.type.startsWith('audio/')) {
+                      <audio [src]="item.url" controls preload="metadata"></audio>
+                    } @else { <span aria-hidden="true">📎</span> }
+                    <span>{{ item.file.name }}</span>
+                    <button type="button" [disabled]="sending || deliveryUncertain"
+                      (click)="removeExtraSelectedAttachment(i)">Remover</button>
+                  </div>
+                }
+                <small>{{ selectedChatFiles.length }}/{{ maxChatFiles }} ficheiros · 40 MB no total</small>
+              </div>
+            }
             <div class="inbox-compose-toolbar">
               <label for="inbox-reply">{{ 'inbox.writeMessage' | t }}</label>
             <textarea #composerTextarea id="inbox-reply" name="inboxDraft" [(ngModel)]="draft"
@@ -577,7 +622,7 @@
                     <span class="inbox-voice-indicator" role="status">{{ 'chat.voiceProcessing' | t }}</span>
                   }
                 }
-                <input #attachmentFile type="file" class="inbox-attachment-input"
+                <input #attachmentFile type="file" multiple class="inbox-attachment-input"
                     accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,.mp4,.webm,.mp3,.m4a,.ogg,image/jpeg,image/png,image/webp,image/gif,application/pdf,video/mp4,video/webm,audio/mpeg,audio/mp4,audio/ogg,audio/webm"
                     (change)="onAttachmentPicked($event)">
                   <div class="inbox-share-controls" (keydown.escape)="closeSharePicker(); closeAttachmentMenu()">
