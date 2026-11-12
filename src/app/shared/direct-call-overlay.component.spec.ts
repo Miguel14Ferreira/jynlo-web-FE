@@ -71,6 +71,17 @@ describe('Global incoming call popup', () => {
     localStorage.removeItem('d24-language');
   });
 
+  it('subscribes to live video revisions in expanded calls so the self preview refreshes', () => {
+    state.next({...invitation('video'), phase:'active', cameraEnabled:true, startedAt:Date.now()});
+    fixture.detectChanges();
+    const expanded=fixture.nativeElement.querySelector('.call-backdrop') as HTMLElement;
+    expect(expanded).not.toBeNull();
+    expect(expanded.querySelector('.call-refresh')).not.toBeNull();
+    calls.mediaChanged$.next(7);
+    fixture.detectChanges();
+    expect(expanded.querySelector('.call-refresh')?.textContent).toContain('7');
+  });
+
   it('shows the caller public profile photo instead of the initial when available', () => {
     state.next(invitation('voice'));
     fixture.detectChanges();
