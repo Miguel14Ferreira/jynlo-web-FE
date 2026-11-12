@@ -1,9 +1,15 @@
 import { CommunitiesComponent } from './communities.component';
 import { of, Subject } from 'rxjs';
 import { SessionSummary } from '../model/session-summary';
-import { appTranslate as t } from '../../i18n/i18n.service';
+import { appTranslate as t, preloadEnglishTranslations } from '../../i18n/i18n.service';
 
 describe('CommunitiesComponent public session eligibility', () => {
+  // The application loads English translations before bootstrap. Isolated CI
+  // runs this spec without main.ts, so reproduce that initialization here.
+  beforeAll(async () => {
+    await preloadEnglishTranslations();
+  });
+
   let component: CommunitiesComponent;
   let session: SessionSummary;
 
