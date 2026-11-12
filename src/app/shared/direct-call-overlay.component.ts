@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, inject } from '@angular/core';
+import { Component, HostListener, OnDestroy, QueryList, ViewChildren, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommunityService } from '../services/community.service';
 import { FriendSummary } from '../pages/model/friend-summary';
@@ -373,7 +373,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                   <span class="connect-screen-share-tip" role="status">{{ 'calls.screenShareUnsupported' | t }}</span>
                 }
                 @if (calls.audioPlaybackBlocked$ | async) {
-                  <button type="button" class="call-enable-sound" (click)="calls.allowAudio()">
+                  <button type="button" class="call-enable-sound" (click)="allowCallAudio()">
                     {{ 'calls.sound' | t }}
                   </button>
                 }
@@ -934,6 +934,14 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
   `]
 })
 export class DirectCallOverlayComponent implements OnDestroy {
+  @ViewChildren(CallParticipantTileComponent) private callTiles?: QueryList<CallParticipantTileComponent>;
+
+  /** Playback must start in the same user gesture, before the first await. */
+  allowCallAudio(): void {
+    this.callTiles?.forEach(tile => tile.resumeAudioFromGesture());
+    void this.calls.allowAudio();
+  }
+
   private readonly mediaSubscription: Subscription;
   private readonly memberPhotoSubscription: Subscription;
   private readonly cameraLifecycleSubscription: Subscription;
