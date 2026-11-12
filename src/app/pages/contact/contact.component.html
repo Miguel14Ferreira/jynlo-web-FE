@@ -100,16 +100,16 @@
         </label>
       </div>
 
-      <section class="contact-attachment" aria-label="Imagem ou captura de ecrã">
+      <section class="contact-attachment" aria-label="Anexos da mensagem">
         <div class="contact-attachment-heading">
           <div>
-            <strong>Adicionar prints ou imagens</strong>
-            <p>Ajuda-nos a perceber o problema. Até 8 imagens (3 MB cada, 16 MB no total). Podes selecionar várias de uma vez ou colar capturas na mensagem.</p>
+            <strong>Adicionar imagens, vídeos ou ficheiros</strong>
+            <p>Ajuda-nos a perceber o problema. Até 8 ficheiros e 16 MB no total. Imagens até 3 MB; vídeos, áudio e PDF até 12 MB cada. Também podes colar capturas na mensagem.</p>
           </div>
-          <label class="contact-attachment-picker" for="contact-screenshot">📎 Escolher imagens</label>
+          <label class="contact-attachment-picker" for="contact-screenshot">📎 Escolher ficheiros</label>
           <input id="contact-screenshot" type="file"
             multiple
-            accept="image/png,image/jpeg,image/webp,image/gif"
+            accept="image/png,image/jpeg,image/webp,image/gif,video/mp4,video/webm,audio/mpeg,audio/mp4,audio/ogg,application/pdf"
             [disabled]="loading"
             (change)="onScreenshotChosen($event)">
         </div>
@@ -117,11 +117,19 @@
           <p class="contact-attachment-error" role="alert">{{ screenshotError }}</p>
         }
         @if (screenshots.length) {
-          <p class="contact-attachment-count">{{ screenshots.length }}/{{ maxScreenshots }} imagens</p>
+          <p class="contact-attachment-count">{{ screenshots.length }}/{{ maxScreenshots }} ficheiros</p>
           <div class="contact-attachment-grid">
             @for (item of screenshots; track item.url; let index = $index) {
               <div class="contact-attachment-preview">
-                <img [src]="item.url" [alt]="'Pré-visualização de ' + item.file.name">
+                @if (isImage(item.file)) {
+                  <img [src]="item.url" [alt]="'Pré-visualização de ' + item.file.name">
+                } @else if (isVideo(item.file)) {
+                  <video [src]="item.url" controls preload="metadata" [attr.aria-label]="item.file.name"></video>
+                } @else if (isAudio(item.file)) {
+                  <audio [src]="item.url" controls preload="metadata" [attr.aria-label]="item.file.name"></audio>
+                } @else {
+                  <span class="contact-attachment-file-icon" aria-hidden="true">📄 PDF</span>
+                }
                 <div class="contact-attachment-meta">
                   <span [title]="item.file.name">{{ item.file.name }} · {{ (item.file.size / 1024) | number:'1.0-0' }} KB</span>
                   <button type="button" [disabled]="loading" (click)="removeScreenshot(index)"
@@ -131,7 +139,7 @@
             }
           </div>
           <button type="button" class="contact-attachment-clear" [disabled]="loading" (click)="clearScreenshot()">
-            Remover todas as imagens
+            Remover todos os ficheiros
           </button>
         }
       </section>
