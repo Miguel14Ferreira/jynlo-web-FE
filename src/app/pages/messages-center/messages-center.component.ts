@@ -2527,7 +2527,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     // Never steal focus later when the HTTP response arrives.
     this.composerTextarea?.nativeElement.focus({ preventScroll: true });
     // Unlike HTTP GETs, ambiguous POSTs are NEVER automatically retried.
-    send.pipe(timeout(10000), finalize(() => {
+    send.pipe(timeout(attachmentFiles.length ? 120000 : 10000), finalize(() => {
       this.sendingKeys.delete(key);
       this.inFlightByConversation.delete(key);
       this.confirmedWhileSending.delete(key);
