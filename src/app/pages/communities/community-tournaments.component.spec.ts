@@ -1069,6 +1069,47 @@ describe('Community tournaments management', () => {
     expect(goals).toHaveBeenCalledWith(7, 15, 101, 503);
   });
 
+  it('clears cached match events when an external score correction is fetched', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    component.championshipLeagueFixtures[101] = [
+      { id: 501, round: 1, homeScore: 2, awayScore: 1 }
+    ] as any;
+    component.championshipFixtureDetailsState[501] = 'ready';
+    component.championshipFixtureGoals[501] = [{ id: 7 }] as any;
+    component.championshipFixtureCards[501] = [{ id: 8 }] as any;
+    component.championshipFixtureSubstitutions[501] = [{ id: 9 }] as any;
+    component.championshipFixtureLineups[501] = [{ id: 10 }] as any;
+    championships.ownedLeagueFixtures.and.returnValue(of([
+      { id: 501, round: 1, homeScore: 3, awayScore: 1 }
+    ] as any));
+
+    component.loadChampionshipLeagueFixtures(15, 101);
+
+    expect(component.championshipLeagueFixtures[101][0].homeScore).toBe(3);
+    expect(component.championshipFixtureDetailsState[501]).toBeUndefined();
+    expect(component.championshipFixtureGoals[501]).toBeUndefined();
+    expect(component.championshipFixtureCards[501]).toBeUndefined();
+    expect(component.championshipFixtureSubstitutions[501]).toBeUndefined();
+    expect(component.championshipFixtureLineups[501]).toBeUndefined();
+  });
+
+  it('keeps cached match events when a fixture reload has unchanged scores', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    component.championshipLeagueFixtures[101] = [
+      { id: 501, round: 1, homeScore: 2, awayScore: 1 }
+    ] as any;
+    component.championshipFixtureDetailsState[501] = 'ready';
+    component.championshipFixtureGoals[501] = [{ id: 7 }] as any;
+    championships.ownedLeagueFixtures.and.returnValue(of([
+      { id: 501, round: 1, homeScore: 2, awayScore: 1 }
+    ] as any));
+
+    component.loadChampionshipLeagueFixtures(15, 101);
+
+    expect(component.championshipFixtureDetailsState[501]).toBe('ready');
+    expect(component.championshipFixtureGoals[501][0].id).toBe(7);
+  });
+
   it('can retry a failed game detail request without losing the schedule', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const goals = jasmine.createSpy('fixtureGoals').and.returnValues(
