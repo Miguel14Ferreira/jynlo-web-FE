@@ -9,6 +9,8 @@ import { CommunityService } from '../../services/community.service';
 import { CommunityGroupsService } from '../../services/community-groups.service';
 import { SessionService } from '../../services/session.service';
 import { SocialGraphService } from '../../services/social-graph.service';
+import { SocialFeedService } from '../../services/social-feed.service';
+import { FeedItem } from '../model/feed-item';
 import { TEST_IMPORTS, TEST_PROVIDERS } from '../../testing/test-providers';
 import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/venue-sports-badges.component';
 
@@ -17,6 +19,7 @@ describe('PerfisComponent', () => {
   let fixture: ComponentFixture<PerfisComponent>;
   let service: jasmine.SpyObj<CommunityService>;
   let socialGraphService: jasmine.SpyObj<SocialGraphService>;
+  let socialFeed: jasmine.SpyObj<SocialFeedService>;
   let groups: jasmine.SpyObj<CommunityGroupsService>;
   let sessions: jasmine.SpyObj<SessionService>;
 
@@ -78,6 +81,9 @@ describe('PerfisComponent', () => {
       following: 5
     }));
 
+    socialFeed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['profilePosts']);
+    socialFeed.profilePosts.and.returnValue(of([]));
+
     groups = jasmine.createSpyObj<CommunityGroupsService>('CommunityGroupsService', ['mine','invite']);
     sessions = jasmine.createSpyObj<SessionService>('SessionService', ['mine','invitePlayer']);
     groups.mine.and.returnValue(of([]));
@@ -92,6 +98,7 @@ describe('PerfisComponent', () => {
         ...TEST_PROVIDERS,
         { provide: CommunityService, useValue: service },
         { provide: SocialGraphService, useValue: socialGraphService },
+        { provide: SocialFeedService, useValue: socialFeed },
         { provide: CommunityGroupsService, useValue: groups },
         { provide: SessionService, useValue: sessions },
         { provide: ActivatedRoute, useValue: { paramMap: routeParams, snapshot: { params: {}, queryParams: {}, paramMap: convertToParamMap({}), queryParamMap: convertToParamMap({}) } } }
@@ -1043,6 +1050,64 @@ describe('PerfisComponent', () => {
     expect(service.discoverProfiles).not.toHaveBeenCalled();
     expect(component.profiles).toEqual([]);
     expect(component.searched).toBeFalse();
+  });
+
+  it('loads only authored persistent posts for the selected profile', () => {
+    const post: FeedItem = {
+      type: 'POST', postId: 9, authorUsername: 'ana', authorDisplayName: 'Ana',
+      authorProfilePicUrl: null, content: 'Jogo de hoje', imageUrl: null,
+      createdAt: '2026-11-11T17:00:00Z', sessionId: null, sport: null,
+      city: null, gameDate: null, likeCount: 2, likedByMe: false, commentCount: 1
+    };
+    socialFeed.profilePosts.and.returnValue(of([
+      post, { ...post, postId: 10, type: 'SESSION_ATTENDED' }
+    ]));
+    routeParams.next(convertToParamMap({ username: 'ana' }));
+    fixture.detectChanges();
+
+    expect(socialFeed.profilePosts).toHaveBeenCalledOnceWith('ana');
+    expect(component.profilePosts.map(p => p.postId)).toEqual([9]);
+    expect((fixture.nativeElement as HTMLElement).querySelector('.profile-publication-card')?.textContent)
+      .toContain('Jogo de hoje');
+  });
+
+  it('never displays another profile posts after switching usernames', () => {
+    const former = new Subject<FeedItem[]>();
+    socialFeed.profilePosts.and.returnValues(former, of([]));
+    routeParams.next(convertToParamMap({ username: 'ana' }));
+    expect(component.postsLoading).toBeTrue();
+
+    const nextProfile = { ...profile, username: 'bruno' };
+    service.publicProfile.and.returnValue(of(nextProfile));
+    routeParams.next(convertToParamMap({ username: 'bruno' }));
+    former.next([{
+      type: 'POST', postId: 9, authorUsername: 'ana',
+      authorDisplayName: 'Ana', authorProfilePicUrl: null,
+      content: 'Old post', imageUrl: null, createdAt: '2026-11-11T17:00:00Z',
+      sessionId: null, sport: null, city: null, gameDate: null,
+      likeCount: 0, likedByMe: false, commentCount: 0
+    }]);
+
+    expect(component.selectedProfile?.username).toBe('bruno');
+    expect(component.profilePosts).toEqual([]);
+    expect(component.postsLoading).toBeFalse();
+  });
+
+  it('can retry failed profile post loading without hiding the profile', () => {
+    socialFeed.profilePosts.and.returnValues(
+      throwError(() => new Error('Network unavailable')), of([])
+    );
+    routeParams.next(convertToParamMap({ username: 'ana' }));
+    fixture.detectChanges();
+    expect(component.postsLoadError).toBeTrue();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.profile-publications [role="alert"]'))
+      .toBeTruthy();
+
+    component.loadProfilePosts('ana');
+    fixture.detectChanges();
+    expect(component.postsLoadError).toBeFalse();
+    expect(component.profilePosts).toEqual([]);
+    expect(component.selectedProfile?.username).toBe('ana');
   });
 
   it('keeps premium profile hero actions, iconic details and activity accessible', () => {
