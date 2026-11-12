@@ -525,7 +525,9 @@ export class DirectCallClientService implements OnDestroy {
   private assertCameraPublished(room: Room): void {
     const publications=room.localParticipant.videoTrackPublications;
     // Some deterministic test doubles don't implement publication collections.
-    if (publications && ![...publications.values()].some(pub=>!!pub.track))
+    if (publications && ![...publications.values()].some(pub =>
+      pub.source===Track.Source.Camera && !!pub.track && !pub.isMuted
+      && pub.track.mediaStreamTrack?.readyState !== 'ended'))
       throw {name:'CAMERA_PUBLICATION_FAILED'};
   }
 
