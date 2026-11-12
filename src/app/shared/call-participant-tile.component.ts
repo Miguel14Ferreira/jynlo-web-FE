@@ -13,7 +13,9 @@ import { LocalParticipant, RemoteParticipant, Track } from 'livekit-client';
     <article class="connect-tile" [class.speaking]="participant.isSpeaking"
       [class.presenting]="presentation" [class.local-camera]="local && !presentation"
       [class.with-video]="hasVideo">
-      <video #video autoplay playsinline [muted]="local" [hidden]="!hasVideo"
+      <!-- Microphones and screen audio use separate elements. Keeping every
+           camera video silent permits mobile autoplay without muting speech. -->
+      <video #video autoplay playsinline [muted]="true" [hidden]="!hasVideo"
         [attr.aria-label]="label"></video>
       @if (!hasVideo) {
         @if (avatarUrl && !avatarFailed) {
@@ -141,9 +143,11 @@ export class CallParticipantTileComponent implements AfterViewChecked, OnDestroy
       this.attachedVideoElement=video ?? null;
       if (video) nextVideo?.attach(video);
     }
-    // Set this *after* LiveKit attachment, which may configure the element.
-    // Local self-view must never output audio to its own speakers.
-    if (video) video.muted = this.local;
+    // Camera/screen streams are visual only. All remote sound is attached to
+    // separate audio elements below; a silent video can autoplay on mobile
+    // without duplicating the microphone or being blocked by autoplay policy.
+    // Apply after LiveKit.attach(), which can replace the media stream.
+    if (video) video.muted = true;
     const audio=this.audioElement?.nativeElement;
     if (audio) audio.volume=Math.max(0,Math.min(1,this.microphoneVolume ?? this.volume));
     this.syncAudioOutput(audio);
