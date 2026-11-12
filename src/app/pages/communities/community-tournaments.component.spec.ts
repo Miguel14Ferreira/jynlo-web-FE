@@ -1200,6 +1200,36 @@ describe('Community tournaments management', () => {
     expect(component.championshipFixtureCards[501].map(card => card.id)).toEqual([90]);
   });
 
+  it('does not let an older four-part detail request overwrite a newer card refresh', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const oldGoals = new Subject<any[]>();
+    const oldCards = new Subject<any[]>();
+    const oldSubstitutions = new Subject<any[]>();
+    const oldLineup = new Subject<any[]>();
+    (championships as any).fixtureGoals = jasmine.createSpy('fixtureGoals').and.returnValue(oldGoals);
+    (championships as any).fixtureCards = jasmine.createSpy('fixtureCards')
+      .and.returnValues(oldCards, of([{ id: 80 }]));
+    (championships as any).fixtureSubstitutions = jasmine.createSpy('fixtureSubstitutions')
+      .and.returnValue(oldSubstitutions);
+    (championships as any).fixtureLineup = jasmine.createSpy('fixtureLineup')
+      .and.returnValue(oldLineup);
+
+    component.loadChampionshipFixtureDetails(15, 101, 501);
+    component.loadFixtureCards(15, 101, 501);
+    expect(component.championshipFixtureCards[501].map(card => card.id)).toEqual([80]);
+
+    oldGoals.next([{ id: 10 }]); oldGoals.complete();
+    oldCards.next([{ id: 1 }]); oldCards.complete();
+    oldSubstitutions.next([{ id: 20 }]); oldSubstitutions.complete();
+    oldLineup.next([{ id: 30 }]); oldLineup.complete();
+
+    expect(component.championshipFixtureDetailsState[501]).toBe('ready');
+    expect(component.championshipFixtureGoals[501].map(goal => goal.id)).toEqual([10]);
+    expect(component.championshipFixtureCards[501].map(card => card.id)).toEqual([80]);
+    expect(component.championshipFixtureSubstitutions[501].map(item => item.id)).toEqual([20]);
+    expect(component.championshipFixtureLineups[501].map(item => item.id)).toEqual([30]);
+  });
+
   it('keeps latest player statistics after out-of-order responses', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const oldStats = new Subject<any>();
