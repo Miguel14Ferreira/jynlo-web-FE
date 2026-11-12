@@ -342,6 +342,30 @@
                           <time class="inbox-voice-clock">{{ attachmentLoading.has(message.id) ? '…' : '0:00' }}</time>
                         }
                       </div>
+                    } @else if (isVideoAttachment(message)) {
+                      @if (attachmentPreviews.get(message.id); as videoUrl) {
+                        <video class="inbox-attachment-video" [src]="videoUrl" controls preload="metadata"
+                          [attr.aria-label]="message.attachmentName"></video>
+                        <button type="button" class="inbox-attachment-button"
+                          (click)="openAttachment(message)">Fechar vídeo</button>
+                      } @else {
+                        <button type="button" class="inbox-attachment-button"
+                          [disabled]="attachmentLoading.has(message.id)"
+                          (click)="openAttachment(message)">
+                          🎬 {{ message.attachmentName }} · {{ attachmentLoading.has(message.id) ? 'A carregar…' : 'Ver vídeo' }}
+                        </button>
+                      }
+                    } @else if (isAudioAttachment(message)) {
+                      @if (attachmentPreviews.get(message.id); as audioUrl) {
+                        <audio [src]="audioUrl" controls preload="metadata"
+                          [attr.aria-label]="message.attachmentName"></audio>
+                        <button type="button" class="inbox-attachment-button"
+                          (click)="openAttachment(message)">Fechar áudio</button>
+                      } @else {
+                        <button type="button" class="inbox-attachment-button"
+                          [disabled]="attachmentLoading.has(message.id)"
+                          (click)="openAttachment(message)">🎵 {{ message.attachmentName }}</button>
+                      }
                     } @else if (isInlineImage(message)) {
                       @if (attachmentPreviews.get(message.id); as imageUrl) {
                         <button type="button" class="inbox-inline-image-open"
@@ -508,7 +532,13 @@
               } @else {
                 <div class="inbox-attachment-draft" [class.inbox-pasted-image-draft]="!!selectedAttachmentPreviewUrl">
                   @if (selectedAttachmentPreviewUrl; as imagePreview) {
-                    <img class="inbox-pasted-image-preview" [src]="imagePreview" [alt]="'chat.pastedImage' | t">
+                    @if (file.type.startsWith('video/')) {
+                      <video class="inbox-pasted-image-preview" [src]="imagePreview" controls preload="metadata"></video>
+                    } @else if (file.type.startsWith('audio/')) {
+                      <audio [src]="imagePreview" controls preload="metadata"></audio>
+                    } @else {
+                      <img class="inbox-pasted-image-preview" [src]="imagePreview" [alt]="'chat.pastedImage' | t">
+                    }
                   } @else {
                     <span aria-hidden="true">📎</span>
                   }
@@ -548,7 +578,7 @@
                   }
                 }
                 <input #attachmentFile type="file" class="inbox-attachment-input"
-                    accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,image/jpeg,image/png,image/webp,image/gif,application/pdf"
+                    accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,.mp4,.webm,.mp3,.m4a,.ogg,image/jpeg,image/png,image/webp,image/gif,application/pdf,video/mp4,video/webm,audio/mpeg,audio/mp4,audio/ogg,audio/webm"
                     (change)="onAttachmentPicked($event)">
                   <div class="inbox-share-controls" (keydown.escape)="closeSharePicker(); closeAttachmentMenu()">
                     <button type="button" class="inbox-attachment-trigger"
