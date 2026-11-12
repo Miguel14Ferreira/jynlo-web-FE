@@ -1293,7 +1293,6 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       replyToMessageId: entry.replyToMessageId, replyToSender: entry.replyToSender,
       replyToText: entry.replyToText,
       attachments: entry.attachments,
-      attachments: entry.attachments,
       attachmentName: entry.attachmentName,
       attachmentMimeType: entry.attachmentMimeType,
       attachmentSize: entry.attachmentSize };
@@ -1305,6 +1304,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       editedAt: entry.editedAt, deletedAt: entry.deletedAt,
       replyToMessageId: entry.replyToMessageId, replyToSender: entry.replyToSender,
       replyToText: entry.replyToText,
+      attachments: entry.attachments,
       attachmentName: entry.attachmentName,
       attachmentMimeType: entry.attachmentMimeType,
       attachmentSize: entry.attachmentSize };
