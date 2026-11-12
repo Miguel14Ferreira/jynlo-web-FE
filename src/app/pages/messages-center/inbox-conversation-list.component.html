@@ -6,7 +6,13 @@
                 (click)="conversationSelected.emit(conversation)">
                 <span class="inbox-avatar" [class.inbox-avatar--community]="conversation.kind === 'community'"
                   [class.inbox-avatar--session]="conversation.kind === 'session'" aria-hidden="true">
-                  {{ conversation.kind === 'direct' ? conversation.title.slice(0, 1).toUpperCase() : conversation.kind === 'community' ? '👥' : '⚽' }}
+                  @if (conversation.avatarUrl && !failedAvatars.has(conversation.key)) {
+                    <img class="inbox-avatar-image" [src]="conversation.avatarUrl" alt=""
+                      loading="lazy" referrerpolicy="no-referrer"
+                      (error)="failedAvatars.add(conversation.key)">
+                  } @else {
+                    {{ conversation.kind === 'direct' ? conversation.title.slice(0, 1).toUpperCase() : conversation.kind === 'community' ? '👥' : '⚽' }}
+                  }
                 </span>
                 <span class="inbox-entry-content">
                   <span class="inbox-entry-top">
