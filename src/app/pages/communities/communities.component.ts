@@ -653,7 +653,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   }
 
   removeCommunityFeedGalleryItem(index: number): void {
-    if (this.timelineSending || index < 0 || index >= this.feedGallery.length) return;
+    if (this.timelineSending || index < 0 || index >= (this.feedGallery?.length ?? 0)) return;
     const [item] = this.feedGallery.splice(index, 1);
     URL.revokeObjectURL(item.url);
   }
@@ -730,7 +730,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     const communityId = this.selected.id;
     const text = kind === 'CHAT' ? this.chatDraft.trim() : this.feedDraft.trim();
     const max = kind === 'CHAT' ? 2000 : 1000;
-    if ((!text && (kind === 'CHAT' || !this.feedImageFile && !this.feedVideoFile && !this.feedGallery.length))
+    if ((!text && (kind === 'CHAT' || !this.feedImageFile && !this.feedVideoFile && !(this.feedGallery?.length ?? 0)))
         || text.length > max) return;
     this.timelineSending = true;
     this.timelineError = '';
@@ -740,7 +740,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       ? { communityId, text, replyToMessageId: replyId,
           ids: new Set(this.timelineEntries.map(entry => entry.id)), at: Date.now() }
       : undefined;
-    const send = kind === 'POST' && this.feedGallery.length
+    const send = kind === 'POST' && (this.feedGallery?.length ?? 0)
       ? this.timelineService.sendPostAlbum(communityId, text, this.feedGallery.map(item => item.file))
       : kind === 'POST' && (this.feedImageFile || this.feedVideoFile)
       ? this.timelineService.sendPostWithMedia(
@@ -749,7 +749,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
         ? this.timelineService.send(communityId, kind, text, replyId)
         : this.timelineService.send(communityId, kind, text);
     send
-      .pipe(timeout(kind === 'POST' && (this.feedImageFile || this.feedVideoFile || this.feedGallery.length) ? 90_000 : 10_000),
+      .pipe(timeout(kind === 'POST' && (this.feedImageFile || this.feedVideoFile || (this.feedGallery?.length ?? 0)) ? 90_000 : 10_000),
         finalize(() => this.timelineSending = false))
       .subscribe({
         next: entry => {
