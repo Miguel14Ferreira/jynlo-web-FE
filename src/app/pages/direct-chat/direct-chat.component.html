@@ -105,10 +105,16 @@
               @if (message.attachmentName && message.id) {
                 <button type="button" class="direct-attachment-button" (click)="openAttachment(message)"
                   [disabled]="attachmentLoading.has(message.id)">
-                  {{ attachmentPreviews.has(message.id) ? 'Fechar imagem' : (attachmentLoading.has(message.id) ? 'A abrir imagem…' : 'Ver imagem: ' + message.attachmentName) }}
+                  {{ attachmentPreviews.has(message.id) ? 'Fechar anexo' : (attachmentLoading.has(message.id) ? 'A abrir anexo…' : 'Abrir: ' + message.attachmentName) }}
                 </button>
                 @if (attachmentPreviews.get(message.id); as imageUrl) {
-                  <img class="direct-attachment-image" [src]="imageUrl" [alt]="message.attachmentName" loading="lazy" />
+                  @if (message.attachmentMimeType?.startsWith('video/')) {
+                    <video class="direct-attachment-image" [src]="imageUrl" controls preload="metadata"></video>
+                  } @else if (message.attachmentMimeType?.startsWith('audio/')) {
+                    <audio [src]="imageUrl" controls preload="metadata"></audio>
+                  } @else {
+                    <img class="direct-attachment-image" [src]="imageUrl" [alt]="message.attachmentName" loading="lazy" />
+                  }
                 }
               }
               <button type="button" class="message-reply-action"
@@ -149,7 +155,7 @@
           }
           @if (selectedAttachment; as image) {
             <div class="direct-image-draft" role="status">
-              <span>Imagem pronta a enviar: {{ image.name }}</span>
+              <span>Ficheiro pronto a enviar: {{ image.name }}</span>
               <button type="button" (click)="removeAttachment()" [disabled]="sending">Remover</button>
             </div>
           }
@@ -172,8 +178,8 @@
           <div class="composer-tools">
             @if (attachmentReady && chatInfo?.chatBlocked !== true) {
               <label class="direct-attachment-picker">
-                <span>Adicionar imagem</span>
-                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif"
+                <span>Adicionar ficheiro</span>
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,video/mp4,video/webm,audio/mpeg,audio/mp4,audio/ogg,audio/webm"
                   [disabled]="sending || deliveryUncertain" (change)="onAttachmentSelected($event)" />
               </label>
             }
