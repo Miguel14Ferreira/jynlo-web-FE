@@ -63,6 +63,7 @@ export class CommunityTournamentsComponent implements OnChanges {
   readonly championshipSports = SPORTS_CATALOG;
   championships: CommunityChampionship[] = [];
   championshipAggregateStandings: Record<number, CommunityChampionshipStandings> = {};
+  private championshipStandingsLoadVersion: Record<number, number> = {};
   championshipTeamRegistries: Record<number, CommunityChampionshipTeams> = {};
   championshipHonoursSportFilter = '';
   get championshipHonoursSports(): string[] {
@@ -757,16 +758,20 @@ export class CommunityTournamentsComponent implements OnChanges {
   loadChampionshipStandings(championshipId: number): void {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
+    const loadVersion = this.championshipStandingsLoadVersion[championshipId] =
+      (this.championshipStandingsLoadVersion[championshipId] || 0) + 1;
     this.championshipsApi.standings(communityId, championshipId).subscribe({
       next: standings => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipStandingsLoadVersion[championshipId]) return;
         this.championshipAggregateStandings = {
           ...this.championshipAggregateStandings, [championshipId]: standings
         };
         this.changeDetector.markForCheck();
       },
       error: () => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipStandingsLoadVersion[championshipId]) return;
         this.championshipError = 'A classificação completa ainda não está disponível.';
         this.changeDetector.markForCheck();
       }
@@ -866,6 +871,7 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipLeagueFixtures: Record<number, ChampionshipOwnedLeagueFixture[]> = {};
   private championshipLeagueFixtureLoadVersion: Record<number, number> = {};
   championshipOwnedLeagueTables: Record<number, ChampionshipOwnedLeagueTable> = {};
+  private championshipLeagueTableLoadVersion: Record<number, number> = {};
   championshipLeagueFinalizeConfirm: Record<number, boolean> = {};
   championshipLeagueFinalizeBusy: Record<number, boolean> = {};
 
@@ -902,18 +908,23 @@ export class CommunityTournamentsComponent implements OnChanges {
 
 
   championshipLeaguePlayerStats: Record<number, ChampionshipLeaguePlayerStats[]> = {};
+  private championshipLeaguePlayerStatsLoadVersion: Record<number, number> = {};
 
   loadChampionshipLeaguePlayerStats(championshipId: number, eventId: number): void {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
+    const loadVersion = this.championshipLeaguePlayerStatsLoadVersion[eventId] =
+      (this.championshipLeaguePlayerStatsLoadVersion[eventId] || 0) + 1;
     this.championshipsApi.ownedLeaguePlayerStats(communityId, championshipId, eventId).subscribe({
       next: rows => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipLeaguePlayerStatsLoadVersion[eventId]) return;
         this.championshipLeaguePlayerStats[eventId] = rows;
         this.changeDetector.markForCheck();
       },
       error: () => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipLeaguePlayerStatsLoadVersion[eventId]) return;
         this.championshipError = 'Não foi possível carregar as estatísticas dos jogadores.';
         this.changeDetector.markForCheck();
       }
@@ -925,14 +936,18 @@ export class CommunityTournamentsComponent implements OnChanges {
   loadChampionshipOwnedLeagueTable(championshipId: number, eventId: number): void {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
+    const loadVersion = this.championshipLeagueTableLoadVersion[eventId] =
+      (this.championshipLeagueTableLoadVersion[eventId] || 0) + 1;
     this.championshipsApi.ownedLeagueStandings(communityId, championshipId, eventId).subscribe({
       next: table => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipLeagueTableLoadVersion[eventId]) return;
         this.championshipOwnedLeagueTables[eventId] = table;
         this.changeDetector.markForCheck();
       },
       error: () => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipLeagueTableLoadVersion[eventId]) return;
         this.championshipError = 'Não foi possível carregar a classificação da liga.';
         this.changeDetector.markForCheck();
       }
@@ -1946,9 +1961,11 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipLeagueFixtures = {};
     this.championshipLeagueFixtureLoadVersion = {};
     this.championshipOwnedLeagueTables = {};
+    this.championshipLeagueTableLoadVersion = {};
     this.championshipLeagueFinalizeConfirm = {};
     this.championshipLeagueFinalizeBusy = {};
     this.championshipLeaguePlayerStats = {};
+    this.championshipLeaguePlayerStatsLoadVersion = {};
     this.championshipFixtureScoreDrafts = {};
     this.championshipFixtureSaving = {};
     this.championshipFixtureGoals = {};
@@ -1984,6 +2001,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.editingChampionshipEventName = '';
     this.deletingChampionshipEventId = null;
     this.championshipAggregateStandings = {};
+    this.championshipStandingsLoadVersion = {};
     this.championshipTeamRegistries = {};
     this.championshipTeamPlayers = {};
     this.championshipTeamPlayerDrafts = {};
@@ -3467,6 +3485,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       ++this.championshipRevision;
       this.championships = [];
       this.championshipAggregateStandings = {};
+    this.championshipStandingsLoadVersion = {};
       this.championshipHonours = null;
       this.permanentTeamRegistry = null;
       this.selectedPermanentTeamId = null;
