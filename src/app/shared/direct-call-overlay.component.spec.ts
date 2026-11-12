@@ -82,6 +82,20 @@ describe('Global incoming call popup', () => {
     expect(expanded.querySelector('.call-refresh')?.textContent).toContain('7');
   });
 
+  it('does not label screen sharing alone as an active webcam', () => {
+    const self={identity:'self',videoTrackPublications:new Map([
+      ['share',{source:Track.Source.ScreenShare,track:{},isMuted:false}]
+    ]),audioTrackPublications:new Map()} as any;
+    calls.room={localParticipant:self,remoteParticipants:new Map()};
+    expect(fixture.componentInstance.videoActive).toBeFalse();
+    expect(fixture.componentInstance.hasPresentation).toBeTrue();
+    self.videoTrackPublications.set('camera',{
+      source:Track.Source.Camera,track:{},isMuted:false
+    });
+    expect(fixture.componentInstance.videoActive).toBeTrue();
+    expect(fixture.componentInstance.hasPresentation).toBeTrue();
+  });
+
   it('diagnoses an apparently enabled camera whose local publication is missing', () => {
     const self = {identity:'self',videoTrackPublications:new Map(),
       audioTrackPublications:new Map(),isMicrophoneEnabled:true} as any;
