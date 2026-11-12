@@ -18,6 +18,13 @@ export class SocialFeedService {
     return this.http.get<FeedItem[]>(this.baseUrl);
   }
 
+  /** Persistent authored publications, excluding expiring stories and generated activities. */
+  profilePosts(username: string): Observable<FeedItem[]> {
+    return this.http.get<FeedItem[]>(
+      this.baseUrl + '/users/' + encodeURIComponent(username) + '/posts'
+    );
+  }
+
   createPost(content: string, image?: File, sessionId?: number, video?: File): Observable<FeedItem> {
     if (image && video) {
       throw new Error('A post can contain either a photo or a video, not both');
