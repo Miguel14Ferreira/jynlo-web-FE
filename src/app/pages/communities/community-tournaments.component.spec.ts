@@ -363,14 +363,72 @@ describe('Community tournaments management', () => {
     expect(component.isChampionshipRoundExpanded(101, 2, 1)).toBeTrue();
   });
 
+  it('tracks league and cup progress using saved scores and keeps filters independent', () => {
+    component.championshipLeagueFixtures[101] = [
+      { id: 1, round: 1, homeScore: 2, awayScore: 1 },
+      { id: 2, round: 1, homeScore: null, awayScore: null },
+      { id: 3, round: 2, homeScore: 0, awayScore: 0 },
+      { id: 4, round: 3, homeScore: null, awayScore: null }
+    ] as any;
+    component.championshipCupDraws[102] = { matches: [
+      { id: 5, round: 1, homeScore: 2, awayScore: 0 },
+      { id: 6, round: 2, homeScore: null, awayScore: null }
+    ], byes: [] } as any;
+    expect(component.championshipRoundOverview(101, 'LEAGUE'))
+      .toEqual({ total: 4, completed: 2, pending: 2, rounds: 3, percent: 50 });
+    expect(component.championshipRoundOverview(102, 'CUP'))
+      .toEqual({ total: 2, completed: 1, pending: 1, rounds: 2, percent: 50 });
+    expect(component.visibleChampionshipRounds(101, 'LEAGUE')).toEqual([1, 2, 3]);
+    component.setChampionshipRoundView(101, 'PENDING');
+    expect(component.visibleChampionshipRounds(101, 'LEAGUE')).toEqual([1, 3]);
+    expect(component.visibleChampionshipRounds(102, 'CUP')).toEqual([1, 2]);
+    component.setChampionshipRoundView(102, 'COMPLETED');
+    expect(component.visibleChampionshipRounds(102, 'CUP')).toEqual([1]);
+    component.setChampionshipRoundView(101, 'COMPLETED');
+    expect(component.visibleChampionshipRounds(101, 'LEAGUE')).toEqual([2]);
+    component.championshipLeagueFixtures[101][1].homeScore = 1;
+    component.championshipLeagueFixtures[101][1].awayScore = 1;
+    expect(component.visibleChampionshipRounds(101, 'LEAGUE')).toEqual([1, 2]);
+    expect(component.championshipRoundOverview(101, 'LEAGUE').completed).toBe(3);
+  });
+
+  it('focuses the earliest unfinished cup matchday and never changes other events', () => {
+    component.championshipCupDraws[102] = { matches: [
+      { id: 4, round: 1, homeScore: 2, awayScore: 1 },
+      { id: 5, round: 2, homeScore: null, awayScore: null },
+      { id: 6, round: 3, homeScore: null, awayScore: null }
+    ], byes: [] } as any;
+    component.setAllChampionshipRoundsExpanded(102, [1, 2, 3], true);
+    component.setAllChampionshipRoundsExpanded(101, [1], false);
+    expect(component.championshipNextPendingRound(102, 'CUP')).toBe(2);
+    component.focusNextChampionshipRound(15, 102, 'CUP');
+    expect(component.championshipRoundView[102]).toBe('PENDING');
+    expect(component.visibleChampionshipRounds(102, 'CUP')).toEqual([2, 3]);
+    expect(component.isChampionshipRoundExpanded(102, 1, 1)).toBeFalse();
+    expect(component.isChampionshipRoundExpanded(102, 2, 1)).toBeTrue();
+    expect(component.isChampionshipRoundExpanded(102, 3, 1)).toBeFalse();
+    expect(component.isChampionshipRoundExpanded(101, 1, 1)).toBeFalse();
+  });
+
+  it('shows empty matchday states without selecting invented fixtures', () => {
+    expect(component.championshipRoundOverview(102, 'CUP'))
+      .toEqual({ total: 0, completed: 0, pending: 0, rounds: 0, percent: 0 });
+    expect(component.championshipNextPendingRound(102, 'CUP')).toBeNull();
+    component.focusNextChampionshipRound(15, 102, 'CUP');
+    expect(component.championshipRoundView[102]).toBeUndefined();
+    expect(component.visibleChampionshipRounds(102, 'CUP')).toEqual([]);
+  });
+
   it('forgets expanded matchdays when navigating to a different community', () => {
     component.setAllChampionshipRoundsExpanded(101, [1, 2], false);
+    component.setChampionshipRoundView(101, 'PENDING');
     const previousCommunity = component.community;
     const nextCommunity = { ...previousCommunity, id: 9 };
     component.community = nextCommunity;
     component.ngOnChanges({ community: new SimpleChange(previousCommunity, nextCommunity, false) });
 
     expect(component.championshipRoundExpanded).toEqual({});
+    expect(component.championshipRoundView).toEqual({});
     expect(component.isChampionshipRoundExpanded(101, 1, 1)).toBeTrue();
   });
 
