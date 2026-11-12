@@ -94,6 +94,27 @@ describe('Direct calls gated by authenticated realtime and backend availability'
     expect(calls.screenShareEnabled$.value).toBeFalse();
   });
 
+  it('does not claim that a missing or ended screen track is live', async () => {
+    http.expectOne(req=>req.url.endsWith('/api/calls/direct/availability')).flush({enabled:true});
+    spyOnProperty(calls,'canShareScreen','get').and.returnValue(true);
+    const participant={
+      videoTrackPublications:new Map<string,any>(),
+      setScreenShareEnabled:jasmine.createSpy('share').and.resolveTo()
+    };
+    calls.room={localParticipant:participant,disconnect:jasmine.createSpy('disconnect')} as any;
+    await calls.setScreenShare(true);
+    expect(calls.screenShareEnabled$.value).toBeFalse();
+    expect(calls.screenShareFeedback$.value).toBe('calls.screenShareFailed');
+
+    participant.videoTrackPublications.set('screen',{
+      source:Track.Source.ScreenShare,track:{mediaStreamTrack:{readyState:'ended'}},isMuted:false
+    });
+    await calls.setScreenShare(true);
+    expect(calls.screenShareEnabled$.value).toBeFalse();
+    expect(calls.screenShareFeedback$.value).toBe('calls.screenShareFailed');
+    calls.room=null;
+  });
+
   it('does not reveal an incoming call while provider is unconfigured', () => {
     http.expectOne(r => r.url.endsWith('/api/calls/direct/availability')).flush({enabled:false});
     events.next({callId:'uuid',caller:'bea',peer:'ana',media:'video',
