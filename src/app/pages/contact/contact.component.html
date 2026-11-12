@@ -87,6 +87,7 @@
             [disabled]="loading"
             [attr.aria-invalid]="fieldErrors.problem ? 'true' : 'false'"
             (input)="clearFieldError('problem')"
+            (paste)="onMessagePaste($event)"
             [placeholder]="'contact.messagePlaceholder' | t"></textarea>
           <div class="field-footer">
             @if (fieldErrors.problem) {
@@ -98,6 +99,32 @@
           </div>
         </label>
       </div>
+
+      <section class="contact-attachment" aria-label="Imagem ou captura de ecrã">
+        <div class="contact-attachment-heading">
+          <div>
+            <strong>Adicionar um print ou imagem</strong>
+            <p>Ajuda-nos a perceber o problema. PNG, JPG, WebP ou GIF até 3 MB. Também podes colar uma captura na mensagem.</p>
+          </div>
+          <label class="contact-attachment-picker" for="contact-screenshot">📎 Escolher imagem</label>
+          <input id="contact-screenshot" type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            [disabled]="loading"
+            (change)="onScreenshotChosen($event)">
+        </div>
+        @if (screenshotError) {
+          <p class="contact-attachment-error" role="alert">{{ screenshotError }}</p>
+        }
+        @if (screenshot && screenshotPreviewUrl) {
+          <div class="contact-attachment-preview">
+            <img [src]="screenshotPreviewUrl" alt="Pré-visualização da imagem selecionada">
+            <div class="contact-attachment-meta">
+              <span>{{ screenshot.name }} · {{ (screenshot.size / 1024) | number:'1.0-0' }} KB</span>
+              <button type="button" [disabled]="loading" (click)="clearScreenshot()">Remover imagem</button>
+            </div>
+          </div>
+        }
+      </section>
 
       <div class="form-actions">
         <button class="jynlo-action jynlo-action--primary" type="submit" [disabled]="loading">
