@@ -678,7 +678,9 @@ describe('NavbarComponent', () => {
     authService.hasSessionCandidate.and.returnValue(true);
     (component as any).syncAuthenticatedState();
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.account-identity-trigger')?.textContent).toContain('Bea');
+    // While the profile request is pending, show the authenticated username,
+    // not a guessed/capitalized nickname from an earlier account.
+    expect(fixture.nativeElement.querySelector('.account-identity-copy')?.textContent?.trim()).toBe('bea');
 
     (authService as any).loggedInPerfilname = 'miguel_alt';
     (component as any).syncAuthenticatedState();
