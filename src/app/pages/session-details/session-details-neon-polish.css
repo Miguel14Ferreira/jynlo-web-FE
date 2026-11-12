@@ -407,3 +407,77 @@
 @media(max-width:620px) {
   .session-details-editor-fields { grid-template-columns:1fr; }
 }
+
+/* Compact roster: one clear contact affordance, full tools only on request. */
+:host .detail-page.jynlo-session-detail-premium .session-participant-list > .session-player-card,
+:host .detail-page.jynlo-session-detail-premium .confirmed-teams .session-player-card {
+  gap: 8px;
+  min-height: 58px;
+  padding: 9px 11px;
+  align-content: center;
+}
+:host .detail-page.jynlo-session-detail-premium .session-player-card__avatar {
+  width: 34px;
+  height: 34px;
+  border-width: 1px;
+}
+:host .detail-page.jynlo-session-detail-premium .session-player-card--member .session-player-card__profile {
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  min-height: 36px;
+}
+:host .detail-page.jynlo-session-detail-premium .session-player-card__contact-actions {
+  display: block;
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+:host .detail-page.jynlo-session-detail-premium .session-player-card__contact-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 32px;
+  max-width: 100%;
+  padding: 5px 10px;
+  cursor: pointer;
+  list-style: none;
+  border: 1px solid rgba(125, 211, 252, .3);
+  border-radius: 8px;
+  background: rgba(17, 50, 68, .8);
+  color: #d6f5f0;
+  font: inherit;
+  font-size: .76rem;
+  font-weight: 750;
+}
+:host .detail-page.jynlo-session-detail-premium .session-player-card__contact-toggle::-webkit-details-marker {
+  display: none;
+}
+:host .detail-page.jynlo-session-detail-premium .session-player-card__contact-toggle:hover,
+:host .detail-page.jynlo-session-detail-premium .session-player-card__contact-actions[open] > .session-player-card__contact-toggle {
+  border-color: rgba(86, 235, 203, .65);
+  background: rgba(39, 106, 110, .3);
+}
+:host .detail-page.jynlo-session-detail-premium .session-player-card__contact-toggle:focus-visible {
+  outline: 2px solid #8effdf;
+  outline-offset: 3px;
+}
+:host .detail-page.jynlo-session-detail-premium .session-player-card__contact-actions[open] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+}
+:host .detail-page.jynlo-session-detail-premium .session-player-card__contact-actions[open] > .session-player-card__contact-toggle {
+  flex-basis: 100%;
+  width: fit-content;
+}
+:host .detail-page.jynlo-session-detail-premium .session-player-card__contact-actions > button {
+  min-height: 34px;
+  padding: 6px 10px;
+  font-size: .76rem;
+}
+@media (max-width: 480px) {
+  :host .detail-page.jynlo-session-detail-premium .session-player-card__badge {font-size: .61rem;}
+  :host .detail-page.jynlo-session-detail-premium .session-player-card__contact-actions[open] > button {
+    flex: 1 1 auto;
+  }
+}
