@@ -15,6 +15,10 @@ import { LocalParticipant, RemoteParticipant, Track } from 'livekit-client';
       <video #video autoplay playsinline [muted]="local" [hidden]="!hasVideo"
         [attr.aria-label]="label"></video>
       @if (!hasVideo) {
+        @if (avatarUrl && !avatarFailed) {
+          <img class="connect-photo-backdrop" [src]="avatarUrl" alt=""
+            referrerpolicy="no-referrer" aria-hidden="true">
+        }
         <div class="connect-avatar" aria-hidden="true">
           @if (avatarUrl && !avatarFailed) {
             <img [src]="avatarUrl" alt="" referrerpolicy="no-referrer"
@@ -50,7 +54,9 @@ import { LocalParticipant, RemoteParticipant, Track } from 'livekit-client';
     .connect-tile.presenting video{object-fit:contain}
     .connect-tile.presenting video[muted]{transform:none}
     .connect-tile:not(.presenting) video[muted]{transform:scaleX(-1)}
-    .connect-avatar{display:grid;place-items:center;width:clamp(70px,10vw,112px);aspect-ratio:1;
+    .connect-photo-backdrop{position:absolute;inset:-24px;width:calc(100% + 48px);height:calc(100% + 48px);
+      object-fit:cover;filter:blur(38px) brightness(.37);opacity:.65;pointer-events:none}
+    .connect-avatar{position:relative;display:grid;place-items:center;width:clamp(70px,10vw,112px);aspect-ratio:1;
       border-radius:50%;border:3px solid #8396a777;background:#34414f;font-size:clamp(2rem,4vw,2.7rem);
       font-weight:850;box-shadow:0 0 0 10px #8ba5bc12;overflow:hidden}
     .connect-avatar img{display:block;width:100%;height:100%;object-fit:cover}
