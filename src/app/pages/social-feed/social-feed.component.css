@@ -1035,3 +1035,148 @@ h1 {
 .feed-gallery-draft-item {min-width:0;}
 .feed-gallery-draft img,.feed-gallery-draft video,.feed-extra-media img,.feed-extra-media video {display:block;width:100%;max-height:280px;object-fit:contain;border-radius:10px;background:rgba(5,20,27,.48);}
 .feed-gallery-draft-item button {margin-top:8px;}
+
+
+/* Feed composer: media preview is a contained attachment, not a full-width post. */
+.composer { min-width: 0; }
+.composer-media {
+  display: grid;
+  gap: .8rem;
+  min-width: 0;
+  padding: .85rem;
+  border: 1px solid rgba(75, 185, 168, .25);
+  border-radius: .9rem;
+  background: rgba(3, 19, 31, .55);
+}
+.composer-media-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+.composer-media-title { display: grid; gap: .18rem; min-width: 0; }
+.composer-media-title strong { font-size: .86rem; font-weight: 800; color: #edfef9; }
+.composer-media-title span { font-size: .75rem; color: #b9cccf; }
+.composer-media-item {
+  display: grid;
+  gap: .45rem;
+  min-width: 0;
+  padding: .45rem;
+  border-radius: .78rem;
+  border: 1px solid rgba(148, 163, 184, .19);
+  background: rgba(10, 28, 41, .75);
+}
+.composer-media-item--single { width: min(100%, 380px); }
+.composer-media-frame {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  height: 190px;
+  overflow: hidden;
+  border-radius: .55rem;
+  background: rgba(4, 15, 25, .84);
+}
+.composer-media-item--single .composer-media-frame { height: 224px; }
+.composer-media-frame img,
+.composer-media-frame video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.composer-media-item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .5rem;
+  min-width: 0;
+  padding: .15rem .2rem;
+}
+.composer-media-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .74rem;
+  color: #c6d6de;
+}
+.composer .composer-media-remove,
+.composer .composer-media-clear {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: .4rem .7rem;
+  border: 1px solid rgba(251, 113, 133, .38);
+  border-radius: .6rem;
+  background: rgba(130, 35, 52, .16);
+  color: #ffcad3;
+  font: inherit;
+  font-size: .76rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+.composer .composer-media-remove:hover:not(:disabled),
+.composer .composer-media-clear:hover:not(:disabled) {
+  background: rgba(130, 35, 52, .32);
+}
+.composer-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 188px), 1fr));
+  gap: .7rem;
+  align-items: start;
+  min-width: 0;
+}
+.composer .composer-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .75rem;
+}
+.composer-media-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+  min-width: 0;
+  flex: 1 1 350px;
+}
+.composer-media-tools .image-picker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  min-height: 40px;
+  max-width: 100%;
+  padding: .55rem .75rem;
+  border-radius: .72rem;
+  font-size: .81rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.composer-media-tools .feed-ui-icon {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+}
+.composer .composer-publish {
+  min-height: 42px;
+  min-width: 112px;
+  flex: 0 0 auto;
+}
+@media (max-width: 600px) {
+  .composer { padding: .85rem; }
+  .composer-media { padding: .65rem; }
+  .composer-media-item--single { width: 100%; }
+  .composer-media-item--single .composer-media-frame { height: 190px; }
+  .composer-media-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .composer-media-frame { height: 150px; }
+  .composer-media-tools { flex-basis: 100%; }
+  .composer-media-tools .image-picker { flex: 1 1 auto; min-width: 0; }
+  .composer .composer-publish { width: 100%; }
+}
+@media (max-width: 375px) {
+  .composer-media-grid { grid-template-columns: minmax(0, 1fr); }
+  .composer-media-tools .image-picker { width: 100%; }
+}
