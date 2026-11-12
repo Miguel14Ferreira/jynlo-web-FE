@@ -483,6 +483,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.removePostVideo();
+    this.clearPostGallery();
     this.destroyed.next();
     this.destroyed.complete();
   }
