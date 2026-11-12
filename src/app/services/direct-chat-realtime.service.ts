@@ -124,6 +124,7 @@ export class DirectChatRealtimeService {
   private readonly readReceiptSubject = new Subject<DirectChatReadReceiptEvent>();
   private readonly ownReadSubject = new Subject<InboxOwnReadEvent>();
   private readonly connectedSubject = new BehaviorSubject<boolean>(false);
+  private readonly socialFeedInvalidatedSubject = new Subject<void>();
 
   readonly messages$ = this.messageSubject.asObservable();
   readonly sessionMessages$ = this.sessionMessageSubject.asObservable();
@@ -136,6 +137,7 @@ export class DirectChatRealtimeService {
   readonly readReceipts$ = this.readReceiptSubject.asObservable();
   readonly ownReads$ = this.ownReadSubject.asObservable();
   readonly connected$ = this.connectedSubject.asObservable();
+  readonly socialFeedInvalidated$ = this.socialFeedInvalidatedSubject.asObservable();
 
   connect(): void {
     const token = localStorage.getItem('t');
@@ -204,6 +206,11 @@ export class DirectChatRealtimeService {
         // The backend requires AUTH before delivering private messages.
         // Apply the same contract on the client, including typing/reactions.
         if (!authenticated) return;
+
+        if (envelope.type === 'SOCIAL_FEED_INVALIDATED') {
+          this.socialFeedInvalidatedSubject.next();
+          return;
+        }
 
         if (envelope.type === 'CHAT_TYPING' && envelope.typing) {
           const event = envelope.typing;
