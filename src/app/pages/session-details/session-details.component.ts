@@ -581,6 +581,14 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   joinPassword = '';
   messageBody = '';
   showEmojiPicker = false;
+  attachmentAvailable = false;
+  attachmentChecking = false;
+  attachmentSending = false;
+  attachmentDownloadingId: number | null = null;
+  attachmentFile: File | null = null;
+  attachmentFeedback = '';
+  private attachmentCheckVersion = 0;
+  private readonly maxSessionAttachmentBytes = 5 * 1024 * 1024;
 
   readonly emojis = ['😀', '😂', '😊', '😍', '🥳', '😎', '😉', '👍', '👏', '🙌', '🔥', '⚽', '🏀', '🎾', '🏓', '💪', '❤️', '✅'];
 
@@ -1852,7 +1860,12 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     if (this.sessionChatOpen) {
       this.scrollChatToBottomRequested = true;
       this.refreshMessages();
+      this.refreshAttachmentAvailability();
     } else {
+      ++this.attachmentCheckVersion;
+      this.attachmentAvailable = false;
+      this.attachmentFile = null;
+      this.attachmentFeedback = '';
       this.showEmojiPicker = false;
       this.replyingToSessionMessage = null;
     }
@@ -1908,11 +1921,127 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     if (!this.messageSending && !this.chatDeliveryUncertain) this.replyingToSessionMessage = null;
   }
 
+  refreshAttachmentAvailability(): void {
+    if (!this.sessionId || !this.canSendChat()) {
+      this.attachmentAvailable = false;
+      return;
+    }
+    const sessionId = this.sessionId;
+    const version = ++this.attachmentCheckVersion;
+    this.attachmentChecking = true;
+    this.attachmentAvailable = false;
+    this.sessionService.attachmentsAvailable(sessionId).pipe(timeout(8_000)).subscribe({
+      next: result => {
+        if (version !== this.attachmentCheckVersion || this.sessionId !== sessionId
+            || !this.canSendChat()) return;
+        this.attachmentChecking = false;
+        this.attachmentAvailable = result?.available === true;
+      },
+      error: () => {
+        if (version !== this.attachmentCheckVersion || this.sessionId !== sessionId) return;
+        this.attachmentChecking = false;
+        this.attachmentAvailable = false;
+      }
+    });
+  }
+
+  chooseSessionAttachment(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.item(0) ?? null;
+    input.value = '';
+    if (!this.canSendChat() || !this.attachmentAvailable || this.messageSending
+        || this.attachmentSending || this.chatDeliveryUncertain || !file) return;
+    if (file.size === 0 || file.size > this.maxSessionAttachmentBytes) {
+      this.attachmentFeedback = 'O ficheiro deve ter entre 1 byte e 5 MB.';
+      this.attachmentFile = null;
+      return;
+    }
+    this.attachmentFile = file;
+    this.attachmentFeedback = '';
+  }
+
+  clearSessionAttachment(): void {
+    if (!this.attachmentSending) this.attachmentFile = null;
+  }
+
+  sendSessionAttachment(): void {
+    if (!this.sessionId || !this.canSendChat() || !this.attachmentAvailable
+        || !this.attachmentFile || this.attachmentSending || this.messageSending
+        || this.chatDeliveryUncertain) return;
+    const file = this.attachmentFile;
+    const sessionId = this.sessionId;
+    const body = this.messageBody.trim();
+    if (body.length > 2000) {
+      this.attachmentFeedback = t('feedback.chat.messageLong');
+      return;
+    }
+    this.typing.stop();
+    this.attachmentSending = true;
+    this.attachmentFeedback = '';
+    this.sessionService.sendAttachment(sessionId, file, body,
+      this.replyingToSessionMessage?.id).pipe(timeout(30_000)).subscribe({
+      next: message => {
+        this.attachmentSending = false;
+        if (this.sessionId !== sessionId) return;
+        this.appendMessageIfMissing(message);
+        this.attachmentFile = null;
+        this.messageBody = '';
+        this.replyingToSessionMessage = null;
+        this.scrollChatToBottomRequested = true;
+      },
+      error: error => {
+        this.attachmentSending = false;
+        if (this.sessionId !== sessionId) return;
+        if (this.isUncertainChatSendError(error)) {
+          // The server may have accepted the upload before the response was lost.
+          // Never automatically post the same attachment twice.
+          this.attachmentFile = null;
+          this.attachmentFeedback = 'Não foi possível confirmar o envio. Atualiza o chat antes de tentares novamente.';
+          this.refreshMessages(false);
+        } else {
+          this.attachmentFeedback = this.errorFrom(error, 'Não foi possível enviar o anexo.');
+          if (error instanceof HttpErrorResponse && [403, 409, 503].includes(error.status)) {
+            this.attachmentAvailable = false;
+          }
+        }
+      }
+    });
+  }
+
+  downloadSessionAttachment(message: SessionMessage): void {
+    if (!this.sessionId || !this.canSendChat() || !message.attachmentName
+        || message.deletedAt || this.attachmentDownloadingId !== null) return;
+    const sessionId = this.sessionId;
+    this.attachmentDownloadingId = message.id;
+    this.attachmentFeedback = '';
+    this.sessionService.downloadAttachment(sessionId, message.id)
+      .pipe(timeout(30_000)).subscribe({
+        next: blob => {
+          this.attachmentDownloadingId = null;
+          if (this.sessionId !== sessionId || !this.canSendChat()) return;
+          const url = URL.createObjectURL(blob);
+          const anchor = document.createElement('a');
+          anchor.href = url;
+          anchor.download = message.attachmentName || 'anexo';
+          anchor.click();
+          // Revoking on a later task lets the browser start the download.
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        },
+        error: error => {
+          this.attachmentDownloadingId = null;
+          if (this.sessionId === sessionId) {
+            this.attachmentFeedback = this.errorFrom(error, 'Não foi possível descarregar o anexo.');
+          }
+        }
+      });
+  }
+
   sendMessage(): void {
     this.typing.stop();
     const body = this.messageBody.trim();
 
-    if (!this.sessionId || !this.canSendChat() || this.messageSending || this.chatDeliveryUncertain) {
+    if (!this.sessionId || !this.canSendChat() || this.messageSending
+        || this.attachmentSending || this.chatDeliveryUncertain) {
       return;
     }
 
