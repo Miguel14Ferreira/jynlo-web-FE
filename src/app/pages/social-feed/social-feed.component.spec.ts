@@ -90,6 +90,10 @@ describe('SocialFeedComponent discovery sidebar', () => {
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelectorAll('.feed-attendance-row').length).toBe(2);
+    const summaries = Array.from(root.querySelectorAll('.feed-attendance-summary strong'))
+      .map(element => element.textContent?.trim());
+    expect(summaries).toContain('miguel e mais 1 participaram numa sessão de Futebol');
+    expect(summaries).toContain('joao participou numa sessão de Futebol');
     expect(root.querySelectorAll('.feed-list .feed-card').length).toBe(1);
   }));
 
