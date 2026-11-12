@@ -179,6 +179,25 @@ export class CallParticipantTileComponent implements AfterViewChecked, OnDestroy
     }
   }
 
+  /** Must be invoked from a real click/tap to satisfy Safari/iOS audio
+   * autoplay rules. Visual tracks remain muted, microphone and shared-screen
+   * audio are resumed through their own elements. */
+  resumeAudioFromGesture(): void {
+    if (this.local || this.presentation) return;
+    for (const element of [this.audioElement?.nativeElement, this.screenAudioElement?.nativeElement]) {
+      if (!element) continue;
+      try {
+        const playback = element.play();
+        void playback?.catch(() => {
+          // A missing track or a denied device should not end the call.
+          // The existing audio-unlock control remains available for retry.
+        });
+      } catch {
+        // Older mobile browsers may throw synchronously rather than reject.
+      }
+    }
+  }
+
   ngOnDestroy(): void {
     if (this.attachedVideoElement) this.lastVideo?.detach(this.attachedVideoElement);
     if (this.attachedAudioElement) this.lastAudio?.detach(this.attachedAudioElement);
