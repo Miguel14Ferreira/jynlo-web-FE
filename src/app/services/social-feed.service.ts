@@ -51,6 +51,14 @@ export class SocialFeedService {
     );
   }
 
+  createPostAlbum(content: string, files: File[], sessionId?: number): Observable<FeedItem> {
+    const form = new FormData();
+    form.append('content', content);
+    for (const file of files) form.append('files', file, file.name);
+    if (sessionId != null) form.append('sessionId', String(sessionId));
+    return this.http.post<FeedItem>(this.baseUrl + '/posts', form);
+  }
+
   /** Creates or retrieves a persistent post linked to a public attendance activity. */
   ensureAttendancePost(sessionId: number, attendeeUsername: string): Observable<number> {
     return this.http.post<number>(
