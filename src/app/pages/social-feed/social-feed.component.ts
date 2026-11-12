@@ -710,7 +710,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     return this.resolvePostMedia(item.imageUrl);
   }
 
-  private resolvePostMedia(path: string | null | undefined): string | null {
+  resolvePostMedia(path: string | null | undefined): string | null {
     if (!path) {
       return null;
     }
