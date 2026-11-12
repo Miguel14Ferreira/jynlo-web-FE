@@ -1051,6 +1051,11 @@ export class DirectCallOverlayComponent implements OnDestroy {
         calls.members$.value.participants.forEach(member => this.requestPhoto(member.username));
       }
       if (!call) {
+        // Profile images may change between calls. Clear both successful and
+        // failed lookups so a subsequent call fetches the current avatar.
+        this.photos.clear();
+        this.photoRequests.clear();
+        this.photoFailures.clear();
         this.settingsOpen=false;
         this.inviteOpen=false;
         this.minimized=false;
