@@ -343,7 +343,7 @@ describe('SocialStoriesComponent', () => {
 
       const panel: HTMLElement = fixture.nativeElement.querySelector('.stories-panel');
       expect(panel.querySelector('.stories-eyebrow')?.textContent?.trim()).toBe('Momentos desportivos');
-      expect(panel.querySelector('.story-retry')?.textContent?.trim()).toBe('Tentar novamente');
+      expect(panel.querySelector('.story-retry')).toBeNull();
       expect(panel.querySelector('.stories-empty')?.textContent).toContain('Ainda não há Stories');
 
       i18n.setLanguage('en');
@@ -352,7 +352,7 @@ describe('SocialStoriesComponent', () => {
       expect(panel.querySelector('.stories-eyebrow')?.textContent?.trim()).toBe('Sporting moments');
       expect(panel.querySelector('.stories-heading p')?.textContent?.trim())
         .toBe('Your friends’ and communities’ best moments, for 24 hours.');
-      expect(panel.querySelector('.story-retry')?.textContent?.trim()).toBe('Try again');
+      expect(panel.querySelector('.story-retry')).toBeNull();
       expect(panel.querySelector('.story-add-action')?.textContent?.trim()).toContain('Create Story');
       expect(panel.querySelector('.stories-empty')?.textContent?.trim())
         .toBe('No Stories yet. Share the first moment!');
@@ -364,7 +364,7 @@ describe('SocialStoriesComponent', () => {
       i18n.setLanguage('pt');
       fixture.detectChanges();
       expect(panel.querySelector('.stories-eyebrow')?.textContent?.trim()).toBe('Momentos desportivos');
-      expect(panel.querySelector('.story-retry')?.textContent?.trim()).toBe('Tentar novamente');
+      expect(panel.querySelector('.story-retry')).toBeNull();
     } finally {
       i18n.setLanguage(initial === 'en' ? 'en' : 'pt');
       if (initial === null) localStorage.removeItem('d24-language');
@@ -383,7 +383,7 @@ describe('SocialStoriesComponent', () => {
 
       const panel: HTMLElement = fixture.nativeElement.querySelector('.stories-panel');
       expect(panel.querySelector('.stories-eyebrow')?.textContent?.trim()).toBe('Sporting moments');
-      expect(panel.querySelector('.story-retry')?.textContent?.trim()).toBe('Try again');
+      expect(panel.querySelector('.story-retry')).toBeNull();
       expect(panel.querySelector('.story-add-action')?.textContent).toContain('Create Story');
       expect(panel.querySelector('.stories-empty')?.textContent?.trim())
         .toBe('No Stories yet. Share the first moment!');
