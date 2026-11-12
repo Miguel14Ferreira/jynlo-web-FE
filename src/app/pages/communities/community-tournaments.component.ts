@@ -1402,12 +1402,16 @@ export class CommunityTournamentsComponent implements OnChanges {
     const loadVersion = this.championshipFixtureDetailsLoadVersion[fixtureId] =
       (this.championshipFixtureDetailsLoadVersion[fixtureId] || 0) + 1;
     // A direct refresh of one event category can finish while this four-part
-    // request is still pending. Only commit categories that were not refreshed
-    // independently after the aggregate request started.
-    const goalsVersion = this.championshipFixtureGoalsLoadVersion[fixtureId] || 0;
-    const cardsVersion = this.championshipFixtureCardsLoadVersion[fixtureId] || 0;
-    const substitutionsVersion = this.championshipFixtureSubstitutionsLoadVersion[fixtureId] || 0;
-    const lineupsVersion = this.championshipFixtureLineupsLoadVersion[fixtureId] || 0;
+    // request is still pending. A newer aggregate request also supersedes
+    // direct category reads that started earlier; latest request wins.
+    const goalsVersion = this.championshipFixtureGoalsLoadVersion[fixtureId] =
+      (this.championshipFixtureGoalsLoadVersion[fixtureId] || 0) + 1;
+    const cardsVersion = this.championshipFixtureCardsLoadVersion[fixtureId] =
+      (this.championshipFixtureCardsLoadVersion[fixtureId] || 0) + 1;
+    const substitutionsVersion = this.championshipFixtureSubstitutionsLoadVersion[fixtureId] =
+      (this.championshipFixtureSubstitutionsLoadVersion[fixtureId] || 0) + 1;
+    const lineupsVersion = this.championshipFixtureLineupsLoadVersion[fixtureId] =
+      (this.championshipFixtureLineupsLoadVersion[fixtureId] || 0) + 1;
     this.championshipFixtureDetailsState[fixtureId] = 'loading';
     forkJoin({
       goals: this.championshipsApi.fixtureGoals(communityId, championshipId, eventId, fixtureId),
