@@ -80,19 +80,23 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   permanentTeamRegistry: CommunityPermanentTeams | null = null;
+  private permanentTeamRegistryLoadVersion = 0;
   permanentTeamNameDraft = '';
 
   loadPermanentTeams(): void {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
+    const loadVersion = ++this.permanentTeamRegistryLoadVersion;
     this.championshipsApi.permanentTeams(communityId).subscribe({
       next: registry => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.permanentTeamRegistryLoadVersion) return;
         this.permanentTeamRegistry = registry;
         this.changeDetector.markForCheck();
       },
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (loadVersion !== this.permanentTeamRegistryLoadVersion) return;
         this.championshipError = 'Não foi possível carregar as equipas permanentes.';
         this.changeDetector.markForCheck();
       }
@@ -108,6 +112,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipsApi.createPermanentTeam(communityId, name).subscribe({
       next: registry => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        ++this.permanentTeamRegistryLoadVersion;
         this.permanentTeamRegistry = registry;
         this.permanentTeamNameDraft = '';
         this.championshipBusy = false;
@@ -133,6 +138,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       communityId, championshipId, seasonTeamId, permanentTeamId).subscribe({
       next: registry => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        ++this.permanentTeamRegistryLoadVersion;
         this.permanentTeamRegistry = registry;
         this.championshipBusy = false;
         this.loadChampionshipTeams(championshipId);
@@ -2177,6 +2183,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipHonours = null;
     this.championshipHonoursError = '';
     this.permanentTeamRegistry = null;
+    this.permanentTeamRegistryLoadVersion = 0;
     this.selectedPermanentTeamId = null;
     this.rankingChartSport = '';
     this.comparisonOlderChampionshipId = null;
