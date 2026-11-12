@@ -12,6 +12,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
 import { ChatTypingTracker } from '../../services/chat-typing-tracker';
 import { chatContinuesGroup, chatDaySeparator } from '../../shared/chat-thread-presentation';
 import { ChatReadSyncService } from '../../services/chat-read-sync.service';
+import { readPastedChatImage } from '../../shared/chat-clipboard-image';
 
 @Component({
   selector: 'app-direct-chat',
@@ -38,6 +39,11 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
   actionError = '';
   actionSuccess = '';
   messageBody = '';
+  attachmentReady = false;
+  selectedAttachment: File | null = null;
+  readonly attachmentPreviews = new Map<number, string>();
+  readonly attachmentLoading = new Set<number>();
+  private attachmentRequestVersion = 0;
   replyingTo: DirectChatMessage | null = null;
   showEmojiPicker = false;
   realtimeConnected = false;
@@ -80,6 +86,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
     }
 
     this.load();
+    this.checkAttachmentAvailability();
     this.realtimeService.connect();
 
     this.realtimeSubscriptions.add(
@@ -124,6 +131,9 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   ngOnDestroy(): void {
+    ++this.attachmentRequestVersion;
+    for (const url of this.attachmentPreviews.values()) URL.revokeObjectURL(url);
+    this.attachmentPreviews.clear();
     this.typing.destroy();
     this.realtimeSubscriptions.unsubscribe();
   }
@@ -270,6 +280,77 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
     if (!this.sending && !this.deliveryUncertain) this.replyingTo = null;
   }
 
+  private checkAttachmentAvailability(): void {
+    const version = ++this.attachmentRequestVersion;
+    this.attachmentReady = false;
+    this.chatService.attachmentsAvailable(this.recipientUsername)
+      .pipe(timeout(10_000))
+      .subscribe({
+        next: result => {
+          if (version === this.attachmentRequestVersion) this.attachmentReady = result.available === true;
+        },
+        error: () => { if (version === this.attachmentRequestVersion) this.attachmentReady = false; }
+      });
+  }
+
+  onImagePaste(event: ClipboardEvent): void {
+    const image = readPastedChatImage(event.clipboardData);
+    if (!image) return;
+    event.preventDefault();
+    if (!this.attachmentReady || this.sending || this.deliveryUncertain || this.chatInfo?.chatBlocked) {
+      this.actionError = 'O envio de imagens não está disponível nesta conversa.';
+      return;
+    }
+    this.stageAttachment(image);
+  }
+
+  onAttachmentSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (file) this.stageAttachment(file);
+  }
+
+  stageAttachment(file: File): void {
+    const accepted = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!accepted.includes(file.type.toLowerCase()) || file.size === 0 || file.size > 10 * 1024 * 1024) {
+      this.actionError = 'Escolhe uma imagem JPG, PNG, WebP ou GIF até 10 MB.';
+      return;
+    }
+    this.selectedAttachment = file;
+    this.actionError = '';
+  }
+
+  removeAttachment(): void {
+    if (!this.sending) this.selectedAttachment = null;
+  }
+
+  openAttachment(message: DirectChatMessage): void {
+    if (!message.id || !message.attachmentName || this.attachmentLoading.has(message.id)) return;
+    const id = message.id;
+    const existing = this.attachmentPreviews.get(id);
+    if (existing) {
+      URL.revokeObjectURL(existing);
+      this.attachmentPreviews.delete(id);
+      return;
+    }
+    const version = this.attachmentRequestVersion;
+    this.attachmentLoading.add(id);
+    this.chatService.downloadAttachment(this.recipientUsername, id)
+      .pipe(timeout(15_000), finalize(() => this.attachmentLoading.delete(id)))
+      .subscribe({
+        next: blob => {
+          if (version !== this.attachmentRequestVersion) return;
+          if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(blob.type.toLowerCase())) {
+            this.actionError = 'O anexo não é uma imagem suportada.';
+            return;
+          }
+          this.attachmentPreviews.set(id, URL.createObjectURL(blob));
+        },
+        error: () => this.actionError = 'Não foi possível abrir a imagem.'
+      });
+  }
+
   onEnter(event: Event): void {
     const keyboardEvent = event as KeyboardEvent;
 
@@ -289,7 +370,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
       return;
     }
 
-    if (!text) {
+    if (!text && !this.selectedAttachment) {
       this.actionError = t('feedback.chat.writeFirst');
       return;
     }
@@ -313,9 +394,12 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
       startedAt: Date.now()
     };
 
-    const send = replyId
-      ? this.chatService.send(this.recipientUsername, text, replyId)
-      : this.chatService.send(this.recipientUsername, text);
+    const attachment = this.selectedAttachment;
+    const send = attachment
+      ? this.chatService.sendAttachment(this.recipientUsername, attachment, text, replyId ?? undefined)
+      : replyId
+        ? this.chatService.send(this.recipientUsername, text, replyId)
+        : this.chatService.send(this.recipientUsername, text);
     send.pipe(
         timeout(10_000),
         finalize(() => this.sending = false)
@@ -330,6 +414,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
           }
 
           this.messageBody = '';
+          this.selectedAttachment = null;
           this.replyingTo = null;
           this.showEmojiPicker = false;
           this.scrollToBottomRequested = true;
@@ -337,7 +422,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
           this.pendingDelivery = undefined;
         },
         error: error => {
-          if (this.isUncertainSendError(error)) {
+          if (!attachment && this.isUncertainSendError(error)) {
             // A timeout can happen *after* the server committed the message.
             // Never automatically retry a POST that could have succeeded.
             this.pendingDelivery = pending;
@@ -345,7 +430,9 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
             this.actionError = t('chat.sendUncertain');
             this.verifyDelivery();
           } else {
-            this.actionError = this.errorFrom(error, t('feedback.chat.sendError'));
+            this.actionError = attachment && this.isUncertainSendError(error)
+              ? 'Não foi possível confirmar o envio da imagem. Verifica a conversa antes de tentar novamente.'
+              : this.errorFrom(error, t('feedback.chat.sendError'));
           }
         }
       });
