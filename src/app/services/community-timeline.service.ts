@@ -17,6 +17,7 @@ export interface CommunityTimelineEntry {
   imageUrl?: string | null;
   videoUrl?: string | null;
   extraMedia?: {url: string; mimeType: string}[];
+  attachments?: {index: number; filename: string; mimeType: string; size: number}[];
   attachmentName?: string | null;
   attachmentMimeType?: string | null;
   attachmentSize?: number | null;
