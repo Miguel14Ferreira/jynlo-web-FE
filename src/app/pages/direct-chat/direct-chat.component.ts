@@ -478,7 +478,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
         ? this.chatService.send(this.recipientUsername, text, replyId)
         : this.chatService.send(this.recipientUsername, text);
     send.pipe(
-        timeout(10_000),
+        timeout(attachments.length ? 120_000 : 10_000),
         finalize(() => this.sending = false)
       )
       .subscribe({
