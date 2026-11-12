@@ -442,6 +442,8 @@ const PT: Dictionary = {
   'sessionDetail.minimumLabel': 'Mínimo de jogadores',
   'sessionDetail.cityLabel': 'Localidade',
   'sessionDetail.addressLabel': 'Morada',
+  'sessionDetail.sportEditRestriction': 'A modalidade só pode mudar numa sessão independente, sem outros jogadores nem ligações a recintos ou comunidades.',
+  'sessionDetail.restrictedEdit': 'Esta sessão tem campos protegidos por ligações ou recorrência. Mantém esses dados inalterados.',
   'sessionDetail.venueEditRestriction': 'O recinto associado não pode ser alterado aqui para não perder a localização exata.',
   'sessionDetail.recurrenceEditRestriction': 'A data de uma sessão recorrente não pode ser alterada isoladamente.',
   'sessionDetail.saveDetails': 'Guardar alterações',
