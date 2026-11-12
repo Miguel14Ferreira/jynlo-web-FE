@@ -1251,7 +1251,7 @@
                         @if (event.status === 'SCHEDULED' && championship.sport !== 'Futebol' && championship.sport !== 'Futsal') {
                           <p class="jynlo-score-guidance" role="status">{{ 'championshipRounds.sportPending' | t }}</p>
                         }
-                        <section class="jynlo-round-overview" [attr.aria-label]="'Progresso de ' + (format === 'LEAGUE' ? 'liga' : 'taça')">
+                        <section class="jynlo-round-overview" aria-label="Progresso da liga">
                           @if (championshipRoundOverview(event.id, 'LEAGUE'); as progress) {
                             <div class="jynlo-round-progress-heading">
                               <div>
@@ -1691,7 +1691,7 @@
                             @if (event.status === 'SCHEDULED' && championship.sport !== 'Futebol' && championship.sport !== 'Futsal') {
                               <p class="jynlo-score-guidance" role="status">{{ 'championshipRounds.sportPending' | t }}</p>
                             }
-                            <section class="jynlo-round-overview" [attr.aria-label]="'Progresso de ' + (format === 'LEAGUE' ? 'liga' : 'taça')">
+                            <section class="jynlo-round-overview" aria-label="Progresso da taça">
                               @if (championshipRoundOverview(event.id, 'CUP'); as progress) {
                                 <div class="jynlo-round-progress-heading">
                                   <div>
