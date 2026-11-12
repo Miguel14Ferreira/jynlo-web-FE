@@ -4397,6 +4397,11 @@ describe('SessionDetailsComponent', () => {
     expect(callClient.start).toHaveBeenCalledWith('player-two', 'video');
 
     activeCall.next({ id: 'ongoing', phase: 'active' });
+    fixture.detectChanges();
+    callButtons = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('.session-player-card__contact-actions button')
+    ).filter(button => /Voz|Vídeo/.test(button.textContent || ''));
+    expect(callButtons.every(button => button.disabled)).toBeTrue();
     callClient.start.calls.reset();
     component.callSessionMember('player-two', 'voice');
     expect(callClient.start).not.toHaveBeenCalled();
