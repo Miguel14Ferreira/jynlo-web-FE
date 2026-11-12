@@ -987,6 +987,57 @@ describe('PerfisComponent', () => {
     expect(component.actionSuccess).toContain('ana');
   });
 
+  it('clears loaded posts as soon as the profile owner is blocked', () => {
+    const post: FeedItem = {
+      type: 'POST', postId: 99, authorUsername: 'ana', authorDisplayName: 'Ana',
+      authorProfilePicUrl: null, content: 'Publicação antiga', imageUrl: null,
+      createdAt: '2026-11-11T17:00:00Z', sessionId: null, sport: null,
+      city: null, gameDate: null, likeCount: 0, likedByMe: false, commentCount: 0
+    };
+    component.profilePage = true;
+    component.selectedProfile = profile;
+    component.profilePosts = [post];
+    component.postsHasMore = true;
+    component.postsExpanded = true;
+    component.toggleBlock(profile);
+    fixture.detectChanges();
+
+    expect(component.selectedBlocked).toBeTrue();
+    expect(component.profilePosts).toEqual([]);
+    expect(component.postsHasMore).toBeFalse();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.profile-publications'))
+      .toBeNull();
+  });
+
+  it('does not expose posts from a pending request after a profile is blocked', () => {
+    const oldPosts = new Subject<FeedItem[]>();
+    socialFeed.profilePosts.and.returnValue(oldPosts);
+    component.selectedProfile = profile;
+    component.loadProfilePosts('ana');
+    expect(component.postsLoading).toBeTrue();
+
+    component.toggleBlock(profile);
+    oldPosts.next([{
+      type: 'POST', postId: 99, authorUsername: 'ana', authorDisplayName: 'Ana',
+      authorProfilePicUrl: null, content: 'Não mostrar', imageUrl: null,
+      createdAt: '2026-11-11T17:00:00Z', sessionId: null, sport: null,
+      city: null, gameDate: null, likeCount: 0, likedByMe: false, commentCount: 0
+    }]);
+
+    expect(component.selectedBlocked).toBeTrue();
+    expect(component.profilePosts).toEqual([]);
+    expect(component.postsLoading).toBeFalse();
+  });
+
+  it('reloads the selected profile posts after unblocking', () => {
+    component.selectedProfile = profile;
+    component.selectedBlocked = true;
+    component.toggleBlock(profile);
+
+    expect(component.selectedBlocked).toBeFalse();
+    expect(socialFeed.profilePosts).toHaveBeenCalledWith('ana', 0);
+  });
+
   it('should unblock a selected user', () => {
     component.selectedProfile = profile;
     component.selectedBlocked = true;
