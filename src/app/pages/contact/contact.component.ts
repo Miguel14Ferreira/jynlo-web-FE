@@ -24,6 +24,10 @@ export class ContactComponent implements OnDestroy {
   readonly maxTotalScreenshotBytes = 16 * 1024 * 1024;
   screenshotError = '';
   readonly maxScreenshotBytes = 3 * 1024 * 1024;
+  readonly maxMediaBytes = 12 * 1024 * 1024;
+  isImage(file: File): boolean { return file.type.startsWith('image/'); }
+  isVideo(file: File): boolean { return file.type.startsWith('video/'); }
+  isAudio(file: File): boolean { return file.type.startsWith('audio/'); }
 
   readonly categories = [
     'contact.category.partners',
@@ -112,20 +116,21 @@ export class ContactComponent implements OnDestroy {
 
   private addScreenshots(files: File[]): void {
     if (this.loading || !files.length) return;
-    const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+    const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/gif',
+      'video/mp4', 'video/webm', 'audio/mpeg', 'audio/mp4', 'audio/ogg', 'application/pdf'];
     const problems: string[] = [];
     let total = this.screenshots.reduce((sum, item) => sum + item.file.size, 0);
     for (const file of files) {
       if (this.screenshots.length >= this.maxScreenshots) {
-        problems.push('Só podes adicionar até 8 imagens.');
+        problems.push('Só podes adicionar até 8 ficheiros.');
         break;
       }
       if (!allowed.includes(file.type.toLowerCase())) {
-        problems.push('Usa PNG, JPG, WebP ou GIF.');
+        problems.push('Formatos permitidos: PNG, JPG, WebP, GIF, MP4, WebM, MP3, M4A, OGG ou PDF.');
         continue;
       }
-      if (!file.size || file.size > this.maxScreenshotBytes) {
-        problems.push('Cada imagem pode ter até 3 MB.');
+      if (!file.size || file.size > (this.isImage(file) ? this.maxScreenshotBytes : this.maxMediaBytes)) {
+        problems.push('Cada imagem pode ter até 3 MB; vídeos, áudio e PDF até 12 MB.');
         continue;
       }
       if (total + file.size > this.maxTotalScreenshotBytes) {
