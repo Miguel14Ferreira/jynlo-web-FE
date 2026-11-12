@@ -384,6 +384,21 @@ export class SessionService {
       + id + '/messages/attachments', form);
   }
 
+  sendAttachments(id: number, files: File[], caption: string,
+                  replyToMessageId?: number): Observable<SessionMessage> {
+    const form = new FormData();
+    for (const file of files) form.append('files', file, file.name);
+    if (caption.trim()) form.append('caption', caption.trim());
+    if (replyToMessageId) form.append('replyToMessageId', String(replyToMessageId));
+    return this.http.post<SessionMessage>(
+      this.chatUrl(id) + '/attachments/batch', form);
+  }
+
+  downloadAttachmentAt(id: number, messageId: number, index: number): Observable<Blob> {
+    return this.http.get(this.chatUrl(id) + '/attachments/' + messageId + '/' + index,
+      {responseType: 'blob'});
+  }
+
   downloadAttachment(id: number, messageId: number): Observable<Blob> {
     return this.http.get(this.baseUrl + '/' + id
       + '/messages/attachments/' + messageId, { responseType: 'blob' });
