@@ -126,7 +126,11 @@ export class CallParticipantTileComponent implements AfterViewChecked, OnDestroy
     if (this.audioOnly) return null;
     const publications=[...this.participant.videoTrackPublications.values()];
     const desired=this.presentation ? Track.Source.ScreenShare : Track.Source.Camera;
-    return publications.find(p=>p.source===desired && !!p.track && !p.isMuted)?.track || null;
+    // A camera can remain published after the OS revokes access (especially
+    // on mobile background/foreground transitions). Never show a black,
+    // already-ended MediaStreamTrack as though it were live video.
+    return publications.find(p=>p.source===desired && !!p.track && !p.isMuted
+      && p.track.mediaStreamTrack?.readyState !== 'ended')?.track || null;
   }
   get hasVideo(): boolean { return !!this.activeVideo; }
   get isSharing(): boolean { return this.presentation; }
