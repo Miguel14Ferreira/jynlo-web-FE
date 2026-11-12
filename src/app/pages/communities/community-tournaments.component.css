@@ -574,3 +574,62 @@
 @media (max-width: 700px) {
   .championship-concept-compare { grid-template-columns: 1fr; }
 }
+
+
+/* League matchdays and cup rounds can be expanded in bulk without crowding
+   the competition header or competing with the score-entry controls. */
+.jynlo-round-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:9px;
+  margin:14px 0 10px;
+  padding:11px 12px;
+  border:1px solid rgba(78,194,191,.28);
+  border-radius:12px;
+  background:rgba(5,42,53,.6);
+}
+.jynlo-round-toolbar>strong{
+  flex:1 1 180px;
+  min-width:0;
+  color:#e1fff7;
+  font-size:.88rem;
+}
+.jynlo-round-toolbar>.t-btn{
+  min-height:36px;
+  padding:7px 11px;
+  white-space:normal;
+}
+.jynlo-fixture-round-summary{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px 14px;
+  cursor:pointer;
+}
+.jynlo-fixture-round-summary strong{
+  flex:1 1 130px;
+  min-width:0;
+}
+.jynlo-fixture-round-summary>span{
+  font-size:.78rem;
+  color:#b8ddd9;
+}
+.jynlo-fixture-round-summary .jynlo-fixture-round-hint{
+  color:#9ad6ce;
+}
+@media(max-width:620px){
+  .jynlo-round-toolbar{
+    justify-content:stretch;
+  }
+  .jynlo-round-toolbar>strong{
+    flex-basis:100%;
+  }
+  .jynlo-round-toolbar>.t-btn{
+    flex:1 1 120px;
+  }
+  .jynlo-fixture-round-summary .jynlo-fixture-round-hint{
+    display:none;
+  }
+}
