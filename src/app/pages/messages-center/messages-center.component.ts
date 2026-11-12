@@ -825,8 +825,12 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       this.scheduleSelectedSessionCutoff();
       this.conversations = orderInbox(entries.map(item => ({
         ...item,
-        // Keep an already loaded avatar if a later response has no image.
-        avatarUrl: item.avatarUrl ?? existing.get(item.key)?.avatarUrl ?? null,
+        // Successful membership refreshes are authoritative, including when
+        // a user removes their profile/community photo. Retain the previous
+        // image only if that membership source failed.
+        avatarUrl: failedKinds.has(item.kind)
+          ? (item.avatarUrl ?? existing.get(item.key)?.avatarUrl ?? null)
+          : item.avatarUrl ?? null,
         latestText: existing.get(item.key)?.latestText,
         latestAt: existing.get(item.key)?.latestAt,
         newThisVisit: existing.get(item.key)?.newThisVisit || 0,
