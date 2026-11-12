@@ -11,7 +11,8 @@ import { LocalParticipant, RemoteParticipant, Track } from 'livekit-client';
   imports: [CommonModule, TranslatePipe],
   template: `
     <article class="connect-tile" [class.speaking]="participant.isSpeaking"
-      [class.presenting]="presentation" [class.with-video]="hasVideo">
+      [class.presenting]="presentation" [class.local-camera]="local && !presentation"
+      [class.with-video]="hasVideo">
       <video #video autoplay playsinline [muted]="local" [hidden]="!hasVideo"
         [attr.aria-label]="label"></video>
       @if (!hasVideo) {
@@ -54,8 +55,10 @@ import { LocalParticipant, RemoteParticipant, Track } from 'livekit-client';
     .connect-tile video[hidden]{display:none}
     /* Desktop/window/tab shares must fit in full, never be cropped like webcam video. */
     .connect-tile.presenting video{object-fit:contain}
-    .connect-tile.presenting video[muted]{transform:none}
-    .connect-tile:not(.presenting) video[muted]{transform:scaleX(-1)}
+    /* Angular [muted] is a DOM property, not a guaranteed HTML attribute.
+       Mirror the local preview from component state, never remote cameras. */
+    .connect-tile.local-camera video{transform:scaleX(-1)}
+    .connect-tile.presenting video{transform:none}
     .connect-photo-backdrop{position:absolute;inset:-24px;width:calc(100% + 48px);height:calc(100% + 48px);
       object-fit:cover;filter:blur(38px) brightness(.37);opacity:.65;pointer-events:none}
     .connect-avatar{position:relative;display:grid;place-items:center;width:clamp(70px,10vw,112px);aspect-ratio:1;
@@ -129,6 +132,9 @@ export class CallParticipantTileComponent implements AfterViewChecked, OnDestroy
   ngAfterViewChecked(): void {
     const video=this.videoElement?.nativeElement;
     const nextVideo=this.activeVideo;
+    // A locally generated video must never play through the speakers even if
+    // a browser reuses an element after a layout or track transition.
+    if (video) video.muted = this.local;
     // Angular can replace a media element while keeping the same LiveKit
     // track (e.g. expanded/minimized call or a refreshed participant tile).
     // Reattach to the new element; a track reference alone is insufficient.
