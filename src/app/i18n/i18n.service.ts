@@ -6,6 +6,8 @@ export type AppLanguage = 'pt' | 'en';
 type Dictionary = Record<string, string>;
 
 const PT: Dictionary = {
+  'championshipRounds.matchDetails': 'Detalhes e gestão do jogo',
+  'championshipRounds.unsavedScore': 'Resultado por guardar',
   'championshipRounds.sportPending': 'O calendário está disponível, mas o registo de resultados desta modalidade requer um motor próprio. Atualmente, este formulário suporta Futebol e Futsal.',
   'championshipRounds.loadDetails': 'Carregar detalhes do jogo',
   'championshipRounds.loadingDetails': 'A carregar os acontecimentos do jogo…',
