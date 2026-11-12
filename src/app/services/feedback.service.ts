@@ -23,10 +23,14 @@ export class FeedbackService {
   constructor(private http: HttpClient) {}
 
   submitWithImage(request: FeedbackRequest, image: File): Observable<CustomHttpResponse> {
+    return this.submitWithImages(request, [image]);
+  }
+
+  submitWithImages(request: FeedbackRequest, images: File[]): Observable<CustomHttpResponse> {
     const form = new FormData();
     form.append('request', new Blob([JSON.stringify(request)], { type: 'application/json' }));
-    form.append('image', image, image.name);
-    return this.http.post<CustomHttpResponse>(this.url + '-with-attachment', form);
+    for (const image of images) form.append('images', image, image.name);
+    return this.http.post<CustomHttpResponse>(this.url + '-with-attachments', form);
   }
 
   submit(request: FeedbackRequest): Observable<CustomHttpResponse> {
