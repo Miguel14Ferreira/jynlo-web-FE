@@ -344,6 +344,34 @@ describe('Direct calls gated by authenticated realtime and backend availability'
     http.expectOne(r=>r.url.endsWith('/api/calls/direct/fallback-resolution/end')).flush(null);
   });
 
+  it('does not treat a screen share as evidence that the camera is published', async () => {
+    http.expectOne(r=>r.url.endsWith('/api/calls/direct/availability')).flush({enabled:true});
+    const room:any={
+      on:jasmine.createSpy('on').and.callFake(()=>room),
+      connect:jasmine.createSpy('connect').and.resolveTo(),
+      disconnect:jasmine.createSpy('disconnect').and.resolveTo(),
+      remoteParticipants:new Map(),
+      localParticipant:{
+        videoTrackPublications:new Map([
+          ['share',{source:Track.Source.ScreenShare,track:{},isMuted:false}]
+        ]),
+        setMicrophoneEnabled:jasmine.createSpy('mic').and.resolveTo(),
+        setCameraEnabled:jasmine.createSpy('camera').and.resolveTo()
+      }
+    };
+    spyOn(calls as any,'createRoom').and.returnValue(room);
+    const start=calls.start('bea','video');
+    http.expectOne(r=>r.url.endsWith('/api/calls/direct/bea')).flush({
+      callId:'screen-is-not-camera',peer:'bea',media:'video',serverUrl:'wss://livekit.example.test',
+      token:'fixture',expiresAt:new Date(Date.now()+60000).toISOString()
+    });
+    await start;
+    expect(calls.state$.value?.cameraEnabled).toBeFalse();
+    expect(calls.state$.value?.error).toBe('calls.cameraPublicationFailed');
+    calls.end();
+    http.expectOne(r=>r.url.endsWith('/api/calls/direct/screen-is-not-camera/end')).flush(null);
+  });
+
   it('reports an unpublished camera track without terminating the call', async () => {
     http.expectOne(r=>r.url.endsWith('/api/calls/direct/availability')).flush({enabled:true});
     const room:any={
