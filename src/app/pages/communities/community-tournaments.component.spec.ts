@@ -630,7 +630,7 @@ describe('Community tournaments management', () => {
 
   it('does not request private invitation lists without verified team permission', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
-    (component as any).canManage = false;
+    component.community = {...component.community, myRole: 'MEMBER'};
     component.championshipTeamAdministrators[99] = {teamId: 99, adminProfileId: null,
       pendingProfileId: null, canManage: false, canAccept: false, canTransfer: false};
     component.loadChampionshipPendingInvites(15, 99);
