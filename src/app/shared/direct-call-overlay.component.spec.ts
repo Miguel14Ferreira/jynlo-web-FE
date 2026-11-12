@@ -83,7 +83,8 @@ describe('Global incoming call popup', () => {
   });
 
   it('diagnoses an apparently enabled camera whose local publication is missing', () => {
-    const self = {identity:'self',videoTrackPublications:new Map()} as any;
+    const self = {identity:'self',videoTrackPublications:new Map(),
+      audioTrackPublications:new Map(),isMicrophoneEnabled:true} as any;
     calls.room = {localParticipant:self,remoteParticipants:new Map()};
     state.next({...invitation('video'),phase:'active',cameraEnabled:true,startedAt:Date.now()});
     fixture.detectChanges();
@@ -91,7 +92,8 @@ describe('Global incoming call popup', () => {
     expect(overlay.ownCameraPublished).toBeFalse();
     expect(fixture.nativeElement.querySelector('.connect-camera-health')).not.toBeNull();
     const liveCamera={source:Track.Source.Camera,track:{
-      mediaStreamTrack:{readyState:'live'}
+      mediaStreamTrack:{readyState:'live'},
+      attach:jasmine.createSpy('attach'),detach:jasmine.createSpy('detach')
     },isMuted:false};
     self.videoTrackPublications.set('camera',liveCamera);
     calls.mediaChanged$.next(5);
