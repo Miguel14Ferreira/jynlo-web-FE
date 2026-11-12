@@ -770,6 +770,43 @@ describe('Community tournaments management', () => {
     expect(component.championshipTeamInvitePending[44]).toBeFalse();
   });
 
+  it('blocks stale team-manager privileges while verification is pending or fails', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const pending = new Subject<any>();
+    (championships as any).teamAdministrator = jasmine.createSpy('teamAdministrator')
+      .and.returnValues(pending, throwError(() => new Error('Offline')), of({
+        teamId: 44, adminProfileId: 25, canManage: true, canTransfer: true, canAccept: false
+      }));
+    component.championshipTeamAdministrators[44] = {
+      adminProfileId: 25, canManage: true, canTransfer: true, canAccept: false
+    } as any;
+    const transfer = jasmine.createSpy('inviteTeamAdministrator');
+    (championships as any).inviteTeamAdministrator = transfer;
+    component.championships = [{ id: 15, closedAt: null }] as any;
+    component.championshipTeamAdminDrafts[44] = 26;
+    component.championshipTeamPlayers[44] = [{ profileId: 26 }] as any;
+    expect(component.canManageChampionshipTeam(44)).toBeTrue();
+
+    component.loadChampionshipTeamAdministrator(15, 44);
+    expect(component.championshipTeamAdminLoading[44]).toBeTrue();
+    expect(component.canManageChampionshipTeam(44)).toBeFalse();
+    component.inviteChampionshipTeamAdministrator(15, 44);
+    expect(transfer).not.toHaveBeenCalled();
+
+    pending.error(new Error('Timed out'));
+    expect(component.championshipTeamAdminLoadError[44]).toBeTrue();
+    expect(component.canManageChampionshipTeam(44)).toBeFalse();
+
+    component.loadChampionshipTeamAdministrator(15, 44);
+    expect(component.championshipTeamAdminLoadError[44]).toBeTrue();
+    expect(component.canManageChampionshipTeam(44)).toBeFalse();
+
+    component.loadChampionshipTeamAdministrator(15, 44);
+    expect(component.championshipTeamAdminLoadError[44]).toBeFalse();
+    expect(component.championshipTeamAdminLoading[44]).toBeFalse();
+    expect(component.canManageChampionshipTeam(44)).toBeTrue();
+  });
+
   it('lets the latest same-team roster fetch win without disturbing another team', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const first = new Subject<any>();
