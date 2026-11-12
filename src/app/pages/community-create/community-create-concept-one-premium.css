@@ -84,3 +84,137 @@
   .jynlo-community-create-premium button,
   .jynlo-community-create-premium input {transition:none;}
 }
+
+
+/* Community photo upload: one quiet surface, not a second navy card.
+   Component-scoped overrides take precedence over older nested-panel styles. */
+.jynlo-community-create-premium .community-photo-field {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 18px;
+  margin: 18px 0 2px;
+  padding: 14px 0 18px;
+  min-height: 105px;
+  border: 0;
+  border-bottom: 1px solid rgba(111, 184, 185, .19);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.jynlo-community-create-premium .community-photo-preview {
+  box-sizing: border-box;
+  flex: 0 0 76px;
+  width: 76px;
+  height: 76px;
+  border-radius: 16px;
+  border: 1px dashed rgba(98, 208, 192, .43);
+  background: rgba(16, 85, 88, .20);
+  display: grid;
+  place-items: center;
+  color: #9ceadb;
+  overflow: hidden;
+}
+.jynlo-community-create-premium .community-photo-preview svg {
+  width: 29px;
+  height: 29px;
+}
+.jynlo-community-create-premium .community-photo-preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.jynlo-community-create-premium .community-photo-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.jynlo-community-create-premium .community-photo-copy > strong {
+  display: block;
+  font-size: .95rem;
+  line-height: 1.35;
+  color: #f1fffe;
+}
+.jynlo-community-create-premium .community-photo-copy > p {
+  margin: 4px 0 12px;
+  font-size: .82rem;
+  line-height: 1.45;
+  color: #b6d3d7;
+}
+.jynlo-community-create-premium .community-photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+}
+.jynlo-community-create-premium .photo-picker {
+  box-sizing: border-box;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 8px 13px;
+  margin: 0;
+  border-radius: 10px;
+  border: 1px solid rgba(83, 194, 185, .42);
+  background: rgba(30, 100, 102, .19);
+  color: #d9fff6;
+  font-size: .81rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.jynlo-community-create-premium .photo-picker:hover {
+  background: rgba(36, 149, 137, .22);
+  border-color: rgba(116, 234, 204, .8);
+}
+.jynlo-community-create-premium .photo-picker input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.jynlo-community-create-premium .photo-picker:focus-within {
+  outline: 2px solid #9af8e1;
+  outline-offset: 3px;
+}
+.jynlo-community-create-premium .photo-picker:has(input:disabled) {
+  opacity: .55;
+  cursor: not-allowed;
+}
+.jynlo-community-create-premium .community-photo-actions > button {
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: .81rem;
+}
+.jynlo-community-create-premium .create-panel > .creation-note {
+  background: rgba(30, 116, 112, .065);
+  border-color: rgba(93, 180, 169, .16);
+}
+.jynlo-community-create-premium .form-actions {
+  margin-top: 18px;
+  padding-top: 17px;
+  border-top: 1px solid rgba(111, 184, 185, .17);
+}
+@media (max-width: 620px) {
+  .jynlo-community-create-premium .community-photo-field {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 13px;
+  }
+  .jynlo-community-create-premium .community-photo-preview {
+    flex-basis: 64px;
+    width: 64px;
+    height: 64px;
+    border-radius: 13px;
+  }
+  .jynlo-community-create-premium .community-photo-copy > p {
+    margin-bottom: 10px;
+  }
+}
