@@ -771,6 +771,7 @@ describe('Community tournaments management', () => {
   });
 
   it('blocks stale team-manager privileges while verification is pending or fails', () => {
+    component.community = { ...component.community, myRole: 'MEMBER' };
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const pending = new Subject<any>();
     (championships as any).teamAdministrator = jasmine.createSpy('teamAdministrator')
