@@ -25,7 +25,16 @@
         }
 
         <div class="detail-content">
-          @if (!canShareGuestInvites() && (showCreationSharePanel() || (promotionOpen && canOpenOrganizerShare()))) {
+          @if (session.status === 'CANCELLED') {
+            <section class="session-cancelled-banner" role="status" aria-label="Sessão cancelada">
+              <div class="session-cancelled-banner__icon" aria-hidden="true">×</div>
+              <div>
+                <strong>{{ 'mySessions.statusCancelled' | t }}</strong>
+                <p>Esta sessão foi cancelada. Já não é possível confirmar presença ou juntar novos participantes.</p>
+              </div>
+            </section>
+          }
+          @if (session.status !== 'CANCELLED' && !canShareGuestInvites() && (showCreationSharePanel() || (promotionOpen && canOpenOrganizerShare()))) {
             <section class="session-created-share" [attr.aria-label]="('sessionDetail.invitePlayers') | t">
               <strong>{{ ('sessionDetail.invitePlayers') | t }}</strong>
               <p>{{ (canShareSession()
@@ -69,7 +78,9 @@
               <h1>{{ session.city }}</h1>
             </div>
             <div class="badges">
-              <span>{{ session.status }}</span>
+              <span [class.session-status-cancelled]="session.status === 'CANCELLED'">
+                {{ session.status === 'CANCELLED' ? ('mySessions.statusCancelled' | t) : session.status }}
+              </span>
               @if (session.privateGame) {
                 <span>{{ 'events.private' | t }}</span>
               }
