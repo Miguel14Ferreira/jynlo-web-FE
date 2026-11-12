@@ -507,15 +507,15 @@
                      routerLink="/menu/feed">{{ 'profilePosts.openFeed' | t }}</a>
                 }
               </header>
-              @if (postsLoading) {
+              @if (postsLoading && profilePosts.length === 0) {
                 <p class="profile-publications-state" role="status">{{ 'common.loading' | t }}</p>
-              } @else if (postsLoadError) {
+              } @else if (postsLoadError && profilePosts.length === 0) {
                 <div class="profile-publications-state" role="alert">
                   <p>{{ 'profilePosts.loadError' | t }}</p>
                   <button type="button" class="jynlo-action jynlo-action--neutral"
                     (click)="loadProfilePosts(selectedProfile.username)">{{ 'common.retry' | t }}</button>
                 </div>
-              } @else if (profilePosts.length === 0) {
+              } @else if (profilePosts.length === 0 && !postsLoading) {
                 <p class="profile-publications-state">{{ 'profilePosts.empty' | t }}</p>
               } @else {
                 <div class="profile-publications-grid">
@@ -540,11 +540,30 @@
                     </article>
                   }
                 </div>
-                @if (profilePosts.length > 9) {
+                @if (postsLoadError) {
+                  <div class="profile-publications-state" role="alert">
+                    <p>{{ 'profilePosts.loadError' | t }}</p>
+                    <button type="button" class="jynlo-action jynlo-action--neutral"
+                      (click)="loadMoreProfilePosts()">{{ 'common.retry' | t }}</button>
+                  </div>
+                }
+                @if (postsLoading) {
+                  <p class="profile-publications-state" role="status">{{ 'common.loading' | t }}</p>
+                }
+                @if (!postsExpanded && profilePosts.length > 9) {
                   <button type="button" class="jynlo-action jynlo-action--neutral profile-publications-more"
-                    [attr.aria-expanded]="postsExpanded"
-                    (click)="postsExpanded = !postsExpanded">
-                    {{ (postsExpanded ? 'profilePosts.showLess' : 'profilePosts.showMore') | t }}
+                    [attr.aria-expanded]="false" (click)="postsExpanded = true">
+                    {{ 'profilePosts.showMore' | t }}
+                  </button>
+                } @else if (postsExpanded && postsHasMore && !postsLoadError) {
+                  <button type="button" class="jynlo-action jynlo-action--neutral profile-publications-more"
+                    [disabled]="postsLoading" (click)="loadMoreProfilePosts()">
+                    {{ 'profilePosts.loadMore' | t }}
+                  </button>
+                } @else if (postsExpanded && !postsHasMore) {
+                  <button type="button" class="jynlo-action jynlo-action--neutral profile-publications-more"
+                    (click)="postsExpanded = false">
+                    {{ 'profilePosts.showLess' | t }}
                   </button>
                 }
               }
