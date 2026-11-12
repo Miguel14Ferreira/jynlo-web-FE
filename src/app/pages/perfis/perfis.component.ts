@@ -11,6 +11,8 @@ import { catchError, finalize, forkJoin, of, retry, Subscription, timeout } from
 import { environment } from 'src/environment/environment';
 import { CommunityProfile } from '../model/community-profile';
 import { ProfileActivity } from '../model/my-profile';
+import { FeedItem } from '../model/feed-item';
+import { SocialFeedService } from '../../services/social-feed.service';
 import { FollowStatus, FollowProfile } from '../model/follow';
 import { CommunityService, FriendshipStatus, ProfileSearchFilters } from '../../services/community.service';
 import { AuthenticationService } from '../../services/authethication.service';
@@ -39,6 +41,8 @@ export class PerfisComponent implements OnInit, OnDestroy {
   private routeSubscription?: Subscription;
   private profileSubscription?: Subscription;
   private detailSubscription?: Subscription;
+  private postsSubscription?: Subscription;
+  private postsRevision = 0;
   private friendshipSubscription?: Subscription;
   profilePage = false;
   backToFriends = false;
@@ -115,6 +119,9 @@ export class PerfisComponent implements OnInit, OnDestroy {
   profiles: CommunityProfile[] = [];
   selectedProfile?: CommunityProfile;
   selectedActivity?: ProfileActivity;
+  profilePosts: FeedItem[] = [];
+  postsLoading = false;
+  postsLoadError = false;
   selectedFollowStatus?: FollowStatus;
 
   loading = false;
@@ -248,7 +255,8 @@ export class PerfisComponent implements OnInit, OnDestroy {
     private socialGraphService: SocialGraphService,
     private route: ActivatedRoute,
     private communityGroups: CommunityGroupsService,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private socialFeed: SocialFeedService
   ) {
     this.authenticationService.isLoggedIn();
     this.currentUsername = this.authenticationService.loggedInPerfilname || '';
@@ -297,6 +305,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.profileSubscription?.unsubscribe();
     this.detailSubscription?.unsubscribe();
     this.friendshipSubscription?.unsubscribe();
+    this.postsSubscription?.unsubscribe();
     this.closeInvitePanel();
   }
 
@@ -473,9 +482,36 @@ export class PerfisComponent implements OnInit, OnDestroy {
           this.selectedActivity = activity;
           this.selectedFollowStatus = followStatus;
           this.selectedBlocked = blockStatus.blocked;
+          if (!blockStatus.blocked) this.loadProfilePosts(profile.username);
         },
         error: () => {
           this.actionError = t('community.profileDetailsError');
+        }
+      });
+  }
+
+  /** Fetch only the profile being viewed and discard late responses after navigation. */
+  loadProfilePosts(username: string): void {
+    if (this.selectedProfile?.username.toLowerCase() !== username.toLowerCase()
+        || this.selectedBlocked) return;
+    this.postsSubscription?.unsubscribe();
+    const revision = ++this.postsRevision;
+    this.postsLoading = true;
+    this.postsLoadError = false;
+    this.postsSubscription = this.socialFeed.profilePosts(username)
+      .pipe(timeout(10_000))
+      .subscribe({
+        next: posts => {
+          if (revision !== this.postsRevision
+              || this.selectedProfile?.username.toLowerCase() !== username.toLowerCase()) return;
+          this.profilePosts = posts.filter(post => post.type === 'POST' && post.postId != null);
+          this.postsLoading = false;
+        },
+        error: () => {
+          if (revision !== this.postsRevision
+              || this.selectedProfile?.username.toLowerCase() !== username.toLowerCase()) return;
+          this.postsLoading = false;
+          this.postsLoadError = true;
         }
       });
   }
@@ -484,6 +520,11 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.closeFollowList();
     this.closeInvitePanel();
     this.sentInvites.clear();
+    this.postsSubscription?.unsubscribe();
+    ++this.postsRevision;
+    this.profilePosts = [];
+    this.postsLoading = false;
+    this.postsLoadError = false;
     this.selectedProfile = undefined;
     this.selectedFriendshipStatus = null;
     this.friendshipLoading = false;
