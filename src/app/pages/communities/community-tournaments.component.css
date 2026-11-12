@@ -664,3 +664,54 @@
 @media(max-width:560px){
   .jynlo-round-detail-retry>.t-btn{width:100%;}
 }
+
+
+/* Keep a match result visible while its optional editor and event timeline
+   remain collapsed. Each match is independent of its parent league round. */
+.jynlo-fixture-editor{
+  margin:10px 0 4px;
+  border:1px solid rgba(78,194,191,.23);
+  border-radius:11px;
+  background:rgba(5,42,53,.36);
+  overflow:hidden;
+}
+.jynlo-fixture-editor-toggle{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  min-height:42px;
+  padding:9px 12px;
+  cursor:pointer;
+  font-size:.8rem;
+  font-weight:700;
+  color:#d8fff1;
+}
+.jynlo-fixture-editor-toggle:hover,
+.jynlo-fixture-editor-toggle:focus-visible{
+  background:rgba(78,194,191,.13);
+}
+.jynlo-fixture-editor-toggle small{
+  color:#ffe0a7;
+  font-size:.74rem;
+  font-weight:600;
+}
+.jynlo-fixture-editor[open]{
+  padding-bottom:11px;
+}
+.jynlo-fixture-editor[open]>.jynlo-fixture-editor-toggle{
+  margin-bottom:9px;
+  border-bottom:1px solid rgba(78,194,191,.23);
+}
+.jynlo-fixture-editor>.jynlo-match-score-edit,
+.jynlo-fixture-editor>.jynlo-goal-timeline,
+.jynlo-fixture-editor>.jynlo-discipline-panel,
+.jynlo-fixture-editor>.jynlo-score-guidance,
+.jynlo-fixture-editor>.jynlo-round-detail-retry,
+.jynlo-fixture-editor>.jynlo-round-detail-refresh{
+  margin-left:11px;
+  margin-right:11px;
+}
+@media(max-width:560px){
+  .jynlo-fixture-editor-toggle{flex-wrap:wrap;}
+}
