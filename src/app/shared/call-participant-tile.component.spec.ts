@@ -72,6 +72,51 @@ describe('Call participant tile track selection', () => {
     expect(remoteVideo.detach).toHaveBeenCalledOnceWith(element);
   });
 
+  it('detaches an ended webcam track and falls back to the participant avatar', () => {
+    const stoppedCamera = {
+      ...track(),
+      mediaStreamTrack: {readyState:'live'}
+    };
+    const remote={
+      ...participant,
+      videoTrackPublications:new Map([
+        ['camera',{source:Track.Source.Camera,track:stoppedCamera,isMuted:false}]
+      ])
+    } as unknown as LocalParticipant;
+    const tile=new CallParticipantTileComponent();
+    tile.participant=remote;
+    const video=document.createElement('video');
+    (tile as any).videoElement={nativeElement:video};
+    tile.ngAfterViewChecked();
+    expect(tile.hasVideo).toBeTrue();
+    expect(stoppedCamera.attach).toHaveBeenCalledOnceWith(video);
+
+    stoppedCamera.mediaStreamTrack.readyState='ended';
+    tile.ngAfterViewChecked();
+    expect(tile.hasVideo).toBeFalse();
+    expect(stoppedCamera.detach).toHaveBeenCalledOnceWith(video);
+    tile.ngOnDestroy();
+  });
+
+  it('does not display an ended remote screen-share track', () => {
+    const stoppedScreen={...track(),mediaStreamTrack:{readyState:'ended'}};
+    const remote={
+      ...participant,
+      videoTrackPublications:new Map([
+        ['screen',{source:Track.Source.ScreenShare,track:stoppedScreen,isMuted:false}]
+      ])
+    } as unknown as LocalParticipant;
+    const tile=new CallParticipantTileComponent();
+    tile.participant=remote;
+    tile.presentation=true;
+    const video=document.createElement('video');
+    (tile as any).videoElement={nativeElement:video};
+    tile.ngAfterViewChecked();
+    expect(tile.hasVideo).toBeFalse();
+    expect(stoppedScreen.attach).not.toHaveBeenCalled();
+    tile.ngOnDestroy();
+  });
+
   it('keeps remote sound but detaches invisible video while minimized and restores it on expand', () => {
     const microphone = track();
     const device = {
