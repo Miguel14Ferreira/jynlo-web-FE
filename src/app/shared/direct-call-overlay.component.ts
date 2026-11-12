@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject } from '@angular/core';
+import { Component, HostListener, OnDestroy, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommunityService } from '../services/community.service';
 import { FriendSummary } from '../pages/model/friend-summary';
@@ -753,11 +753,14 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
        unnecessary detach/attach cycles during participant changes. */
     .connect-camera-slot{position:relative;min-width:0;min-height:150px;height:100%}
     .connect-camera-slot app-call-participant-tile{display:block;width:100%;height:100%}
-    .connect-camera-focus-hit{position:absolute;z-index:3;top:11px;right:11px;
-      width:36px;height:36px;display:grid;place-items:center;border-radius:10px;
-      border:1px solid #83b6b1;background:#0b2839d9;color:#f3fffa;
-      cursor:pointer;font-size:1.15rem}
-    .connect-camera-focus-hit:hover,.connect-camera-focus-hit:focus-visible{
+    .connect-camera-focus-hit{position:absolute;z-index:3;inset:0;
+      width:100%;height:100%;border:0;border-radius:14px;background:transparent;
+      color:#f3fffa;cursor:zoom-in;text-align:right}
+    .connect-camera-focus-hit span{position:absolute;top:11px;right:11px;
+      display:grid;place-items:center;width:36px;height:36px;border-radius:10px;
+      border:1px solid #83b6b1;background:#0b2839d9;font-size:1.15rem}
+    .connect-camera-slot.is-focused .connect-camera-focus-hit{cursor:zoom-out}
+    .connect-camera-focus-hit:hover span,.connect-camera-focus-hit:focus-visible span{
       outline:2px solid #70ecd3;outline-offset:2px;background:#205a63}
     .connect-participants--camera-focus{display:flex;align-content:flex-start;
       flex-wrap:wrap;gap:10px}
@@ -770,7 +773,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
       width:auto;max-width:none;border-radius:17px;background:#091f2c;
       box-shadow:0 0 0 100vmax #000c}
     .connect-participants--camera-zoom .connect-camera-slot.is-focused
-      .connect-camera-focus-hit{position:fixed;top:25px;right:25px}
+      .connect-camera-focus-hit span{top:15px;right:15px}
     @media(max-width:600px){
       .connect-participants--camera-focus .connect-camera-slot.is-focused{
         height:clamp(220px,45dvh,470px)}
@@ -972,6 +975,13 @@ export class DirectCallOverlayComponent implements OnDestroy {
   clearCameraFocus(): void {
     this.focusedCameraIdentity = null;
     this.cameraZoomed = false;
+  }
+
+  // Escape restores the normal camera layout even when the tile's control
+  // lost focus (e.g. after clicking elsewhere). Do not intercept chat input.
+  @HostListener('document:keydown.escape')
+  onEscapeCameraFocus(): void {
+    if (this.cameraZoomed || this.focusedCameraIdentity !== null) this.clearCameraFocus();
   }
   private screenVolumes: Record<string, number> = {};
   screenVolumeFor(identity: string): number { return this.screenVolumes[identity] ?? 1; }
