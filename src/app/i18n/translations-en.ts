@@ -1,6 +1,10 @@
 // Loaded only for users who choose English. Keep the original key/value table intact.
 export const EN: Record<string, string> = {
   'championshipRounds.sportPending': 'The schedule is available, but recording results for this sport requires a dedicated scoring engine. This form currently supports football and futsal.',
+  'championshipRounds.loadingDetails': 'Loading match events…',
+  'championshipRounds.detailError': 'Could not load match details.',
+  'championshipRounds.retry': 'Try again',
+  'championshipRounds.refreshDetails': 'Refresh details',
   'championshipRounds.manage': 'Manage rounds',
   'championshipRounds.leagueTitle': 'League matchdays',
   'championshipRounds.cupTitle': 'Cup rounds',
