@@ -963,6 +963,9 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipFixtureCards: Record<number, ChampionshipFixtureCard[]> = {};
   championshipFixtureSubstitutions: Record<number, ChampionshipFixtureSubstitution[]> = {};
   championshipFixtureLineups: Record<number, ChampionshipFixtureLineupPlayer[]> = {};
+  championshipFixtureDetailsState: Record<number, 'loading' | 'ready' | 'error'> = {};
+  private championshipFixtureDetailsLoadVersion: Record<number, number> = {};
+
   championshipLineupTeamDrafts: Record<number, number | null> = {};
   championshipLineupPlayerDrafts: Record<number, number | null> = {};
   championshipLineupSelectionDrafts: Record<number, 'STARTER' | 'BENCH'> = {};
@@ -1331,6 +1334,65 @@ export class CommunityTournamentsComponent implements OnChanges {
     };
   }
 
+  /**
+   * Fetch detailed match events only for rounds the user opens.
+   * A full season can contain hundreds of fixtures, each with four detail endpoints.
+   */
+  loadChampionshipFixtureDetails(championshipId: number, eventId: number,
+                                 fixtureId: number, force = false): void {
+    const state = this.championshipFixtureDetailsState[fixtureId];
+    if (!force && (state === 'loading' || state === 'ready')) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    const loadVersion = this.championshipFixtureDetailsLoadVersion[fixtureId] =
+      (this.championshipFixtureDetailsLoadVersion[fixtureId] || 0) + 1;
+    this.championshipFixtureDetailsState[fixtureId] = 'loading';
+    forkJoin({
+      goals: this.championshipsApi.fixtureGoals(communityId, championshipId, eventId, fixtureId),
+      cards: this.championshipsApi.fixtureCards(communityId, championshipId, eventId, fixtureId),
+      substitutions: this.championshipsApi.fixtureSubstitutions(communityId, championshipId, eventId, fixtureId),
+      lineup: this.championshipsApi.fixtureLineup(communityId, championshipId, eventId, fixtureId)
+    }).subscribe({
+      next: details => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipFixtureDetailsLoadVersion[fixtureId]) return;
+        this.championshipFixtureGoals[fixtureId] = details.goals;
+        this.championshipFixtureCards[fixtureId] = details.cards;
+        this.championshipFixtureSubstitutions[fixtureId] = details.substitutions;
+        this.championshipFixtureLineups[fixtureId] = details.lineup;
+        this.championshipFixtureDetailsState[fixtureId] = 'ready';
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipFixtureDetailsLoadVersion[fixtureId]) return;
+        this.championshipFixtureDetailsState[fixtureId] = 'error';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  private loadChampionshipLeagueRoundDetails(championshipId: number, eventId: number, round: number): void {
+    for (const fixture of this.leagueRoundFixtures(eventId, round)) {
+      if (fixture.homeScore != null && fixture.awayScore != null) {
+        this.loadChampionshipFixtureDetails(championshipId, eventId, fixture.id);
+      }
+    }
+  }
+
+  onChampionshipLeagueRoundToggle(championshipId: number, eventId: number,
+                                  round: number, expanded: boolean): void {
+    this.setChampionshipRoundExpanded(eventId, round, expanded);
+    if (expanded) this.loadChampionshipLeagueRoundDetails(championshipId, eventId, round);
+  }
+
+  setAllChampionshipLeagueRoundsExpanded(championshipId: number, eventId: number,
+                                         rounds: number[], expanded: boolean): void {
+    this.setAllChampionshipRoundsExpanded(eventId, rounds, expanded);
+    if (expanded) rounds.forEach(round =>
+      this.loadChampionshipLeagueRoundDetails(championshipId, eventId, round));
+  }
+
   /** A player goal can only fill a goal that exists in the saved score. */
   championshipFixtureCanAssignGoal(fixture: ChampionshipOwnedLeagueFixture, teamId: number | null | undefined): boolean {
     const totals = this.championshipFixtureGoalAttribution(fixture);
@@ -1672,15 +1734,6 @@ export class CommunityTournamentsComponent implements OnChanges {
           this.loadChampionshipOwnedLeagueTable(championshipId, eventId);
           this.loadChampionshipLeaguePlayerStats(championshipId, eventId);
         }
-        if (this.championships.some(item => item.id === championshipId
-            && (item.sport === 'Futebol' || item.sport === 'Futsal'))) {
-          matches.forEach(match => {
-            this.loadFixtureGoals(championshipId, eventId, match.id);
-            this.loadFixtureCards(championshipId, eventId, match.id);
-            this.loadFixtureSubstitutions(championshipId, eventId, match.id);
-            this.loadFixtureLineup(championshipId, eventId, match.id);
-          });
-        }
         this.changeDetector.markForCheck();
       },
       error: () => {
@@ -1972,6 +2025,8 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipFixtureCards = {};
     this.championshipFixtureSubstitutions = {};
     this.championshipFixtureLineups = {};
+    this.championshipFixtureDetailsState = {};
+    this.championshipFixtureDetailsLoadVersion = {};
     this.championshipLineupTeamDrafts = {};
     this.championshipLineupPlayerDrafts = {};
     this.championshipLineupSelectionDrafts = {};
