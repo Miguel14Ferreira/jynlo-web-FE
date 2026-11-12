@@ -117,6 +117,31 @@
                   }
                 }
               }
+              @if (message.attachments?.length) {
+                <div class="direct-multi-gallery" aria-label="Ficheiros adicionais da mensagem">
+                  @for (asset of message.attachments; track asset.index) {
+                    @if (asset.index > 0) {
+                      <div class="direct-extra-file">
+                        @if (extraAttachmentPreviews.get(extraAttachmentKey(message, asset.index)); as url) {
+                          @if (asset.mimeType.startsWith('image/')) {
+                            <img [src]="url" [alt]="asset.filename" loading="lazy">
+                          } @else if (asset.mimeType.startsWith('video/')) {
+                            <video [src]="url" controls preload="metadata"></video>
+                          } @else if (asset.mimeType.startsWith('audio/')) {
+                            <audio [src]="url" controls preload="metadata"></audio>
+                          }
+                        }
+                        <button type="button" class="direct-attachment-button"
+                          [disabled]="extraAttachmentLoading.has(extraAttachmentKey(message, asset.index))"
+                          (click)="openExtraAttachment(message, asset)">
+                          {{ extraAttachmentPreviews.has(extraAttachmentKey(message, asset.index)) ? 'Fechar' : 'Abrir' }}
+                          {{ asset.filename }}
+                        </button>
+                      </div>
+                    }
+                  }
+                </div>
+              }
               <button type="button" class="message-reply-action"
                 [disabled]="sending || deliveryUncertain || chatInfo?.chatBlocked === true"
                 (click)="replyTo(message)">
@@ -159,6 +184,15 @@
               <button type="button" (click)="removeAttachment()" [disabled]="sending">Remover</button>
             </div>
           }
+          @for (file of extraSelectedAttachments; track file; let i = $index) {
+            <div class="direct-image-draft" role="status">
+              <span>Ficheiro pronto a enviar: {{ file.name }}</span>
+              <button type="button" (click)="removeAttachment(i + 1)" [disabled]="sending">Remover</button>
+            </div>
+          }
+          @if (selectedFiles.length) {
+            <small>{{ selectedFiles.length }}/4 ficheiros · 40 MB no total</small>
+          }
           <label>
             <span>{{ 'chat.message' | t }}</span>
             <textarea #composerTextarea
@@ -179,7 +213,7 @@
             @if (attachmentReady && chatInfo?.chatBlocked !== true) {
               <label class="direct-attachment-picker">
                 <span>Adicionar ficheiro</span>
-                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,video/mp4,video/webm,audio/mpeg,audio/mp4,audio/ogg,audio/webm"
+                <input type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,video/mp4,video/webm,audio/mpeg,audio/mp4,audio/ogg,audio/webm"
                   [disabled]="sending || deliveryUncertain" (change)="onAttachmentSelected($event)" />
               </label>
             }
