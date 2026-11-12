@@ -585,7 +585,10 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   attachmentChecking = false;
   attachmentSending = false;
   attachmentDownloadingId: number | null = null;
+  attachmentPreviewId: number | null = null;
+  attachmentPreviewUrl: string | null = null;
   attachmentFile: File | null = null;
+  private attachmentPreviewVersion = 0;
   attachmentFeedback = '';
   private attachmentCheckVersion = 0;
   private readonly maxSessionAttachmentBytes = 5 * 1024 * 1024;
@@ -751,6 +754,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   ngOnDestroy(): void {
     if (this.registrationClockTimer) clearInterval(this.registrationClockTimer);
     this.typing.destroy();
+    this.closeSessionAttachmentPreview();
     this.realtimeSubscriptions.unsubscribe();
   }
 
@@ -1865,6 +1869,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       ++this.attachmentCheckVersion;
       this.attachmentAvailable = false;
       this.attachmentFile = null;
+      this.closeSessionAttachmentPreview();
       this.attachmentFeedback = '';
       this.showEmojiPicker = false;
       this.replyingToSessionMessage = null;
@@ -2027,6 +2032,49 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         }
       }
     });
+  }
+
+  previewSessionAttachment(message: SessionMessage): void {
+    if (!this.sessionId || !this.canSendChat() || !message.attachmentName
+        || !message.attachmentMimeType?.startsWith('image/')
+        || message.deletedAt || this.attachmentDownloadingId !== null) return;
+    if (this.attachmentPreviewId === message.id && this.attachmentPreviewUrl) {
+      this.closeSessionAttachmentPreview();
+      return;
+    }
+    this.closeSessionAttachmentPreview();
+    const sessionId = this.sessionId;
+    const version = ++this.attachmentPreviewVersion;
+    this.attachmentDownloadingId = message.id;
+    this.attachmentFeedback = '';
+    this.sessionService.downloadAttachment(sessionId, message.id)
+      .pipe(timeout(30_000)).subscribe({
+        next: blob => {
+          this.attachmentDownloadingId = null;
+          if (version !== this.attachmentPreviewVersion
+              || this.sessionId !== sessionId || !this.canSendChat()) return;
+          // The server must supply the requested image type; never render HTML/SVG.
+          if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(blob.type)) {
+            this.attachmentFeedback = 'Não foi possível pré-visualizar esta imagem.';
+            return;
+          }
+          this.attachmentPreviewUrl = URL.createObjectURL(blob);
+          this.attachmentPreviewId = message.id;
+        },
+        error: error => {
+          this.attachmentDownloadingId = null;
+          if (version === this.attachmentPreviewVersion && this.sessionId === sessionId) {
+            this.attachmentFeedback = this.errorFrom(error, 'Não foi possível abrir a imagem.');
+          }
+        }
+      });
+  }
+
+  closeSessionAttachmentPreview(): void {
+    ++this.attachmentPreviewVersion;
+    if (this.attachmentPreviewUrl) URL.revokeObjectURL(this.attachmentPreviewUrl);
+    this.attachmentPreviewUrl = null;
+    this.attachmentPreviewId = null;
   }
 
   downloadSessionAttachment(message: SessionMessage): void {
@@ -3251,6 +3299,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
             ++this.attachmentCheckVersion;
             this.attachmentAvailable = false;
             this.attachmentFile = null;
+            this.closeSessionAttachmentPreview();
             this.sessionChatOpen = false;
             this.messages = [];
             this.chatError = '';
