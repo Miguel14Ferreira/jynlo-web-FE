@@ -1632,9 +1632,70 @@ export class CommunityTournamentsComponent implements OnChanges {
 
   /** Round disclosure state is scoped to its competition and round, not a whole page. */
   championshipRoundExpanded: Record<string, boolean> = {};
+  /** Independent progress filters per event; never shared between communities. */
+  championshipRoundView: Record<number, 'ALL' | 'PENDING' | 'COMPLETED'> = {};
 
   private championshipRoundKey(eventId: number, round: number): string {
     return eventId + ':' + round;
+  }
+
+  /** The dashboard reads saved scores, not incomplete local score drafts. */
+  championshipRoundOverview(eventId: number, format: 'LEAGUE' | 'CUP'): {
+    total: number; completed: number; pending: number; rounds: number; percent: number;
+  } {
+    const fixtures = format === 'LEAGUE'
+      ? (this.championshipLeagueFixtures[eventId] || [])
+      : (this.championshipCupDraws[eventId]?.matches || []);
+    const completed = fixtures.filter(match =>
+      match.homeScore != null && match.awayScore != null).length;
+    return {
+      total: fixtures.length,
+      completed,
+      pending: fixtures.length - completed,
+      rounds: new Set(fixtures.map(match => match.round)).size,
+      percent: fixtures.length ? Math.round(completed * 100 / fixtures.length) : 0
+    };
+  }
+
+  visibleChampionshipRounds(eventId: number, format: 'LEAGUE' | 'CUP'): number[] {
+    const all = format === 'LEAGUE' ? this.leagueRounds(eventId) : this.cupRounds(eventId);
+    const filter = this.championshipRoundView[eventId] || 'ALL';
+    if (filter === 'ALL') return all;
+    return all.filter(round => {
+      const games = format === 'LEAGUE'
+        ? this.leagueRoundFixtures(eventId, round) : this.cupRoundMatches(eventId, round);
+      const complete = games.length > 0
+        && games.every(match => match.homeScore != null && match.awayScore != null);
+      return filter === 'COMPLETED' ? complete : !complete;
+    });
+  }
+
+  championshipNextPendingRound(eventId: number, format: 'LEAGUE' | 'CUP'): number | null {
+    const all = format === 'LEAGUE' ? this.leagueRounds(eventId) : this.cupRounds(eventId);
+    return all.find(round => {
+      const games = format === 'LEAGUE'
+        ? this.leagueRoundFixtures(eventId, round) : this.cupRoundMatches(eventId, round);
+      return games.some(match => match.homeScore == null || match.awayScore == null);
+    }) ?? null;
+  }
+
+  setChampionshipRoundView(eventId: number,
+                           view: 'ALL' | 'PENDING' | 'COMPLETED'): void {
+    this.championshipRoundView[eventId] = view;
+    this.changeDetector.markForCheck();
+  }
+
+  focusNextChampionshipRound(championshipId: number, eventId: number,
+                              format: 'LEAGUE' | 'CUP'): void {
+    const round = this.championshipNextPendingRound(eventId, format);
+    if (round == null) return;
+    this.championshipRoundView[eventId] = 'PENDING';
+    const rounds = format === 'LEAGUE' ? this.leagueRounds(eventId) : this.cupRounds(eventId);
+    for (const item of rounds) this.setChampionshipRoundExpanded(eventId, item, item === round);
+    if (format === 'LEAGUE') {
+      this.loadChampionshipLeagueRoundDetails(championshipId, eventId, round);
+    }
+    this.changeDetector.markForCheck();
   }
 
   isChampionshipRoundExpanded(eventId: number, round: number, initialRound: number): boolean {
@@ -3694,6 +3755,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.championshipHonoursError = '';
       this.championshipTeamRegistries = {};
       this.championshipRoundExpanded = {};
+      this.championshipRoundView = {};
       this.championshipTeamDrafts = {};
       this.championshipCloseConfirmed = {};
       // Confirmation belongs to the previous community and must not carry over,
