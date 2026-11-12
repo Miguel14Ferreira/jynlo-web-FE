@@ -1037,8 +1037,10 @@ export class DirectCallOverlayComponent implements OnDestroy {
   }
 
   get videoActive(): boolean {
+    // Screen sharing is tracked separately. A live screen track does not
+    // mean a webcam is working (particularly on mobile and reconnect).
     return this.participants.some(p=>[...p.videoTrackPublications.values()]
-      .some(pub=>!!pub.track && !pub.isMuted));
+      .some(pub=>pub.source===Track.Source.Camera && !!pub.track && !pub.isMuted));
   }
   personHasScreenShare(person: LocalParticipant | RemoteParticipant): boolean {
     return [...person.videoTrackPublications.values()].some(
