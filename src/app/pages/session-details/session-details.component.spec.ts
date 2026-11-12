@@ -2766,6 +2766,69 @@ describe('SessionDetailsComponent', () => {
     expect(component.session?.maxParticipants).toBe(6);
   });
 
+  it('keeps community sports locked but allows updating the other details', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.sessionId = session.id;
+    component.session = {
+      ...session, address: 'Rua do Campo', communityId: 20,
+      gameDate: new Date(Date.now() + 3_600_000).toISOString()
+    };
+    component.beginDetailsEdit();
+    fixture.detectChanges();
+    const sportsSelect = (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLSelectElement>('.session-details-editor select');
+    expect(sportsSelect?.disabled).toBeTrue();
+    expect(component.canChangeSessionSport()).toBeFalse();
+
+    component.detailsDraft.sport = 'Futebol';
+    component.saveDetailsEdit();
+    expect(sessionService.updateDetails).not.toHaveBeenCalled();
+    expect(component.detailsError).toBeTruthy();
+
+    component.detailsDraft.sport = 'Padel';
+    component.detailsDraft.priceAmount = 7;
+    component.saveDetailsEdit();
+    expect(sessionService.updateDetails).toHaveBeenCalledOnceWith(7,
+      jasmine.objectContaining({ sport: 'Padel', priceAmount: 7 }));
+  });
+
+  it('prevents changing a recurring date or a linked venue through direct drafts', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.sessionId = session.id;
+    component.session = {
+      ...session, address: 'Rua do Campo', recurrenceSeriesId: 'series-20',
+      venue: { id: 35 } as any,
+      gameDate: new Date(Date.now() + 3_600_000).toISOString()
+    };
+    component.beginDetailsEdit();
+    component.detailsDraft.gameDate = '2030-01-01T18:00';
+    component.saveDetailsEdit();
+    expect(sessionService.updateDetails).not.toHaveBeenCalled();
+
+    component.detailsDraft.gameDate = component.session.gameDate.slice(0, 16);
+    // Use the local input value the editor computed, not a UTC assumption.
+    component.beginDetailsEdit();
+    component.detailsDraft.address = 'Outra rua';
+    component.saveDetailsEdit();
+    expect(sessionService.updateDetails).not.toHaveBeenCalled();
+    expect(component.detailsError).toBeTruthy();
+  });
+
+  it('lets the creator change sports in an otherwise independent empty session', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.sessionId = session.id;
+    component.session = {
+      ...session, address: 'Rua do Campo', participantCount: 1,
+      gameDate: new Date(Date.now() + 3_600_000).toISOString()
+    };
+    component.beginDetailsEdit();
+    expect(component.canChangeSessionSport()).toBeTrue();
+    component.detailsDraft.sport = 'Futebol';
+    component.saveDetailsEdit();
+    expect(sessionService.updateDetails).toHaveBeenCalledOnceWith(7,
+      jasmine.objectContaining({ sport: 'Futebol' }));
+  });
+
   it('shows an existing optional description as its own read-only detail section', () => {
     component.session = {
       ...session,
