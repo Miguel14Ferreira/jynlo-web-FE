@@ -84,6 +84,32 @@
               </div>
 
               <p class="idea-message">{{ selected.problem }}</p>
+              @if (selected.attachmentName) {
+                <section class="idea-attachment" aria-label="Captura de ecrã enviada">
+                  <strong>Imagem anexada</strong>
+                  <p>{{ selected.attachmentName }}</p>
+                  <div class="idea-attachment-actions">
+                    <button type="button" class="jynlo-action jynlo-action--neutral"
+                      [disabled]="attachmentLoading"
+                      (click)="showAttachment(selected)">
+                      {{ attachmentLoading ? 'A carregar…' :
+                         attachmentPreviewUrl ? 'Fechar imagem' : 'Ver imagem' }}
+                    </button>
+                    @if (attachmentPreviewUrl) {
+                      <button type="button" class="jynlo-action jynlo-action--neutral"
+                        (click)="downloadAttachment(selected)">Descarregar</button>
+                    }
+                  </div>
+                  @if (attachmentPreviewUrl) {
+                    <img [src]="attachmentPreviewUrl"
+                      [alt]="'Imagem anexada: ' + selected.attachmentName" loading="lazy">
+                  }
+                  @if (attachmentError) {
+                    <p role="alert" class="idea-attachment-error">{{ attachmentError }}</p>
+                  }
+                </section>
+              }
+
 
               <div class="meta-row">
                 <span>{{ 'adminIdeas.receivedAt' | t }}</span>
