@@ -421,6 +421,15 @@ describe('Direct calls gated by authenticated realtime and backend availability'
     toggle.calls.reset();
     await calls.setCamera(true);
     expect(toggle).toHaveBeenCalledOnceWith(true,undefined);
+
+    // LiveKit may already have marked the camera disabled after the OS
+    // revoked access. An explicit retry must still discard a stale track.
+    publications.set('camera',ended);
+    calls.state$.next({...calls.state$.value!,cameraEnabled:false});
+    toggle.calls.reset();
+    await calls.setCamera(true);
+    expect(toggle.calls.allArgs().map(args=>args[0])).toEqual([false,true]);
+    expect(calls.state$.value?.cameraEnabled).toBeTrue();
     calls.room=null;
   });
 
