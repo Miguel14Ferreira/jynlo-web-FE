@@ -1543,6 +1543,22 @@ describe('SessionDetailsComponent', () => {
     expect(fixture.nativeElement.querySelector('.membership-status')).toBeNull();
   });
 
+  it('identifies a cancelled session immediately and never promotes obsolete invitations', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = {...session, status: 'CANCELLED',
+      gameDate: new Date(Date.now() + 3600_000).toISOString(),
+      canSharePublicly: true};
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const cancelled = root.querySelector('.session-cancelled-banner') as HTMLElement;
+    expect(cancelled).not.toBeNull();
+    expect(cancelled.textContent).toContain(t('mySessions.statusCancelled'));
+    expect(cancelled.textContent).toContain('Já não é possível confirmar presença');
+    expect(root.querySelector('.session-created-share')).toBeNull();
+    expect(root.querySelector('.session-status-cancelled')?.textContent)
+      .toContain(t('mySessions.statusCancelled'));
+  });
+
   it('allows only the creator to cancel from details with a confirmation', () => {
     (component as any).currentUsername = 'creator-user';
     component.session = { ...session, gameDate: '2099-10-01T18:00:00Z', canSharePublicly: true };
