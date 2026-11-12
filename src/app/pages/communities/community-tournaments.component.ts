@@ -384,6 +384,8 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipTeamAdministrators: Record<number, ChampionshipTeamAdministrator> = {};
   championshipTeamAdminDrafts: Record<number, number | null> = {};
   championshipTeamAdminBusy: Record<number, boolean> = {};
+  championshipTeamAdminLoading: Record<number, boolean> = {};
+  championshipTeamAdminLoadError: Record<number, boolean> = {};
   championshipTeamInvitePending: Record<number, boolean> = {};
   championshipTeamInviteLoadError: Record<number, boolean> = {};
   championshipTeamInviteLoading: Record<number, boolean> = {};
@@ -396,6 +398,7 @@ export class CommunityTournamentsComponent implements OnChanges {
   private invalidateChampionshipTeamLoads(teamId: number): void {
     this.championshipTeamPlayersLoadVersion[teamId] = (this.championshipTeamPlayersLoadVersion[teamId] || 0) + 1;
     this.championshipTeamAdminLoadVersion[teamId] = (this.championshipTeamAdminLoadVersion[teamId] || 0) + 1;
+    this.championshipTeamAdminLoading[teamId] = false;
     this.championshipTeamInviteLoadVersion[teamId] = (this.championshipTeamInviteLoadVersion[teamId] || 0) + 1;
     this.championshipTeamInviteLoading[teamId] = false;
   }
@@ -408,7 +411,14 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   canManageChampionshipTeam(teamId: number): boolean {
-    return this.canManage || !!this.championshipTeamAdministrators[teamId]?.canManage;
+    return this.canManage || (!this.championshipTeamAdminLoading[teamId]
+      && !this.championshipTeamAdminLoadError[teamId]
+      && !!this.championshipTeamAdministrators[teamId]?.canManage);
+  }
+
+  championshipTeamAdminVerified(teamId: number): boolean {
+    return !this.championshipTeamAdminLoading[teamId]
+      && !this.championshipTeamAdminLoadError[teamId];
   }
 
   championshipTeamAdminName(profileId: number | null): string {
@@ -426,16 +436,22 @@ export class CommunityTournamentsComponent implements OnChanges {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     const loadVersion = this.championshipTeamAdminLoadVersion[teamId] = (this.championshipTeamAdminLoadVersion[teamId] || 0) + 1;
+    this.championshipTeamAdminLoading[teamId] = true;
+    this.championshipTeamAdminLoadError[teamId] = false;
     this.championshipsApi.teamAdministrator(communityId, championshipId, teamId).subscribe({
       next: state => {
         if (revision !== this.championshipRevision || communityId !== this.community.id
             || loadVersion !== this.championshipTeamAdminLoadVersion[teamId]) return;
         this.championshipTeamAdministrators[teamId] = state;
+        this.championshipTeamAdminLoading[teamId] = false;
+        this.championshipTeamAdminLoadError[teamId] = false;
         this.changeDetector.markForCheck();
       },
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id
             || loadVersion !== this.championshipTeamAdminLoadVersion[teamId]) return;
+        this.championshipTeamAdminLoading[teamId] = false;
+        this.championshipTeamAdminLoadError[teamId] = true;
         this.championshipError = 'Não foi possível verificar o responsável da equipa.';
         this.changeDetector.markForCheck();
       }
@@ -503,7 +519,8 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   cancelChampionshipTeamAdminTransfer(championshipId: number, teamId: number): void {
-    if (!this.championshipSeasonEditable(championshipId)
+    if (!this.championshipTeamAdminVerified(teamId)
+        || !this.championshipSeasonEditable(championshipId)
         || !this.championshipTeamAdministrators[teamId]?.canTransfer
         || this.championshipTeamAdminBusy[teamId]) return;
     const revision = this.championshipRevision;
@@ -528,7 +545,8 @@ export class CommunityTournamentsComponent implements OnChanges {
 
   inviteChampionshipTeamAdministrator(championshipId: number, teamId: number): void {
     const profileId = this.championshipTeamAdminDrafts[teamId];
-    if (!this.championshipSeasonEditable(championshipId)
+    if (!this.championshipTeamAdminVerified(teamId)
+        || !this.championshipSeasonEditable(championshipId)
         || !this.championshipTeamAdministrators[teamId]?.canTransfer || this.championshipTeamAdminBusy[teamId]
         || !profileId || !Number.isInteger(profileId)
         || !(this.championshipTeamPlayers[teamId] || []).some(player => player.profileId === profileId)
@@ -555,7 +573,8 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   respondChampionshipTeamAdministrator(championshipId: number, teamId: number, accept: boolean): void {
-    if (!this.championshipSeasonEditable(championshipId)
+    if (!this.championshipTeamAdminVerified(teamId)
+        || !this.championshipSeasonEditable(championshipId)
         || !this.championshipTeamAdministrators[teamId]?.canAccept || this.championshipTeamAdminBusy[teamId]) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
@@ -2179,6 +2198,8 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipTeamAdministrators = {};
     this.championshipTeamAdminDrafts = {};
     this.championshipTeamAdminBusy = {};
+    this.championshipTeamAdminLoading = {};
+    this.championshipTeamAdminLoadError = {};
     this.championshipTeamInvitePending = {};
     this.championshipTeamInviteLoadError = {};
     this.championshipTeamInviteLoading = {};
