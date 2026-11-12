@@ -1238,12 +1238,25 @@
                       }
 
                       @if (leagueRounds(event.id).length) {
+                        <div class="jynlo-round-toolbar" role="group" [attr.aria-label]="'championshipRounds.manage' | t">
+                          <strong>{{ 'championshipRounds.leagueTitle' | t }}</strong>
+                          <button type="button" class="t-btn t-btn-secondary"
+                            (click)="setAllChampionshipRoundsExpanded(event.id, leagueRounds(event.id), true)">
+                            {{ 'championshipRounds.expandAll' | t }}
+                          </button>
+                          <button type="button" class="t-btn t-btn-secondary"
+                            (click)="setAllChampionshipRoundsExpanded(event.id, leagueRounds(event.id), false)">
+                            {{ 'championshipRounds.collapseAll' | t }}
+                          </button>
+                        </div>
                         @for (round of leagueRounds(event.id); track round) {
-                          <details class="create-step jynlo-fixture-round" [open]="requestedChampionshipId === championship.id && round === 1">
+                          <details class="create-step jynlo-fixture-round"
+                            [open]="isChampionshipRoundExpanded(event.id, round, 1)"
+                            (toggle)="setChampionshipRoundExpanded(event.id, round, $any($event.target).open)">
                             <summary class="jynlo-fixture-round-summary">
                               <strong>{{ 'communities.championshipOwned.round' | t }} {{ round }}</strong>
-                              <span>{{ leagueRoundFixtures(event.id, round).length }} jogo(s)</span>
-                              <span class="jynlo-fixture-round-hint">Expandir / recolher</span>
+                              <span>{{ championshipRoundResultCount(event.id, round, 'LEAGUE') }}/{{ leagueRoundFixtures(event.id, round).length }} {{ 'championshipRounds.completed' | t }}</span>
+                              <span class="jynlo-fixture-round-hint">{{ 'championshipRounds.toggle' | t }}</span>
                             </summary>
                             <ul>
                               @for (fixture of leagueRoundFixtures(event.id, round); track fixture.id) {
@@ -1589,14 +1602,28 @@
                           @if (event.status === 'COMPLETED') {
                             <p class="jynlo-league-winner" role="status">Vencedor da taça: <strong>{{ event.winnerTeamName }}</strong></p>
                           }
-                          @for (round of [1, 2, 3, 4, 5, 6]; track round) {
-                            @if (cupRoundMatches(event.id, round).length) {
-                              <details class="create-step jynlo-fixture-round" [open]="requestedChampionshipId === championship.id && round === cupCurrentRound(event.id)">
-                                <summary class="jynlo-fixture-round-summary">
-                                  <strong>Ronda {{ round }}</strong>
-                                  <span>{{ cupRoundMatches(event.id, round).length }} jogo(s)</span>
-                                  <span class="jynlo-fixture-round-hint">Expandir / recolher</span>
-                                </summary>
+                          @if (cupRounds(event.id).length) {
+                            <div class="jynlo-round-toolbar" role="group" [attr.aria-label]="'championshipRounds.manage' | t">
+                              <strong>{{ 'championshipRounds.cupTitle' | t }}</strong>
+                              <button type="button" class="t-btn t-btn-secondary"
+                                (click)="setAllChampionshipRoundsExpanded(event.id, cupRounds(event.id), true)">
+                                {{ 'championshipRounds.expandAll' | t }}
+                              </button>
+                              <button type="button" class="t-btn t-btn-secondary"
+                                (click)="setAllChampionshipRoundsExpanded(event.id, cupRounds(event.id), false)">
+                                {{ 'championshipRounds.collapseAll' | t }}
+                              </button>
+                            </div>
+                          }
+                          @for (round of cupRounds(event.id); track round) {
+                            <details class="create-step jynlo-fixture-round"
+                              [open]="isChampionshipRoundExpanded(event.id, round, cupCurrentRound(event.id))"
+                              (toggle)="setChampionshipRoundExpanded(event.id, round, $any($event.target).open)">
+                              <summary class="jynlo-fixture-round-summary">
+                                <strong>{{ 'championshipRounds.cupRound' | t }} {{ round }}</strong>
+                                <span>{{ championshipRoundResultCount(event.id, round, 'CUP') }}/{{ cupRoundMatches(event.id, round).length }} {{ 'championshipRounds.completed' | t }}</span>
+                                <span class="jynlo-fixture-round-hint">{{ 'championshipRounds.toggle' | t }}</span>
+                              </summary>
                                 @for (match of draw.matches; track match.id) {
                                   @if (match.round === round) {
                                     <div class="jynlo-match-result">
@@ -1647,8 +1674,7 @@
                                     </div>
                                   }
                                 }
-                              </details>
-                            }
+                            </details>
                           }
                           @if (draw.byes.length) {
                             <p>Apuramento direto na primeira ronda:</p>
