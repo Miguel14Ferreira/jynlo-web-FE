@@ -242,7 +242,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     const root = fixture.nativeElement as HTMLElement;
 
     expect(root.querySelector('.feed-rail-links')).toBeNull();
-    expect(root.querySelectorAll('.composer-actions .jynlo-premium-btn').length).toBe(3);
+    expect(root.querySelectorAll('.composer-actions .jynlo-premium-btn').length).toBe(4);
 
     const primary = root.querySelector('.feed-hero-cta') as HTMLAnchorElement;
     expect(primary.classList.contains('jynlo-premium-btn--primary')).toBeTrue();
@@ -254,7 +254,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
 
     const composer = root.querySelector('.composer')!;
     const pickers = Array.from(composer.querySelectorAll<HTMLLabelElement>('.image-picker'));
-    expect(pickers.length).toBe(2);
+    expect(pickers.length).toBe(3);
     expect(pickers.every(label => label.classList.contains('jynlo-premium-btn--quiet'))).toBeTrue();
     expect(pickers.every(label => label.querySelector('input[type="file"]') !== null)).toBeTrue();
     expect(pickers.every(label => label.querySelector('svg.feed-ui-icon') !== null)).toBeTrue();
@@ -292,7 +292,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(header.querySelector('.feed-hero-cta')?.getAttribute('href')).toBe('/menu/createEvent');
     expect(root.querySelector('.week-hub-heading .week-hub-create')?.getAttribute('href')).toBe('/menu/my-sessions');
     expect(root.querySelector('.composer textarea')).not.toBeNull();
-    expect(root.querySelectorAll('.composer-actions .image-picker').length).toBe(2);
+    expect(root.querySelectorAll('.composer-actions .image-picker').length).toBe(3);
     expect(root.querySelector('.composer-actions button.jynlo-action--primary')).not.toBeNull();
     expect(root.querySelector('.feed-layout .feed-main')).not.toBeNull();
     expect(root.querySelector('.feed-layout .feed-sidebar')).not.toBeNull();
