@@ -391,11 +391,11 @@ export class SessionService {
     if (caption.trim()) form.append('caption', caption.trim());
     if (replyToMessageId) form.append('replyToMessageId', String(replyToMessageId));
     return this.http.post<SessionMessage>(
-      this.chatUrl(id) + '/attachments/batch', form);
+      this.baseUrl + '/' + id + '/messages/attachments/batch', form);
   }
 
   downloadAttachmentAt(id: number, messageId: number, index: number): Observable<Blob> {
-    return this.http.get(this.chatUrl(id) + '/attachments/' + messageId + '/' + index,
+    return this.http.get(this.baseUrl + '/' + id + '/messages/attachments/' + messageId + '/' + index,
       {responseType: 'blob'});
   }
 
