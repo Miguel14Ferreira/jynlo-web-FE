@@ -307,6 +307,18 @@
                       <blockquote>{{ message.replyToSender }}: {{ message.replyToText }}</blockquote>
                     }
                     <p>{{ message.deletedAt ? ('chat.messageDeleted' | t) : message.body }}</p>
+                    @if (message.attachmentName && !message.deletedAt && canSendChat()) {
+                      <button type="button" class="session-chat-attachment-download"
+                        [disabled]="attachmentDownloadingId !== null"
+                        (click)="downloadSessionAttachment(message)"
+                        [attr.aria-label]="'Descarregar anexo ' + message.attachmentName">
+                        <span aria-hidden="true">📎</span>
+                        <span>{{ message.attachmentName }}</span>
+                        @if (message.attachmentSize != null) {
+                          <small>{{ (message.attachmentSize / 1024) | number:'1.0-0' }} KB</small>
+                        }
+                      </button>
+                    }
                     <footer>
                       <time>{{ messageDate(message) }}</time>
                       @if (canSendChat() && !message.deletedAt) {
@@ -330,13 +342,36 @@
                       [disabled]="messageSending || chatDeliveryUncertain">×</button>
                   </div>
                 }
+                @if (attachmentFeedback) {
+                  <p class="session-chat-attachment-feedback" role="alert">{{ attachmentFeedback }}</p>
+                }
+                @if (attachmentChecking) {
+                  <p class="session-chat-attachment-help" role="status">A verificar se os anexos privados estão disponíveis…</p>
+                }
+                @if (attachmentAvailable) {
+                  <div class="session-chat-attachment-compose">
+                    <label class="jynlo-action jynlo-action--neutral" for="session-chat-attachment-file">📎 Anexar ficheiro</label>
+                    <input id="session-chat-attachment-file" type="file"
+                      [disabled]="attachmentSending || messageSending || chatDeliveryUncertain"
+                      (change)="chooseSessionAttachment($event)" aria-label="Escolher anexo privado">
+                    @if (attachmentFile) {
+                      <span class="session-chat-attachment-name">{{ attachmentFile.name }}</span>
+                      <button type="button" class="jynlo-action jynlo-action--neutral"
+                        [disabled]="attachmentSending" (click)="clearSessionAttachment()">Remover</button>
+                      <button type="button" class="jynlo-action jynlo-action--primary"
+                        [disabled]="attachmentSending || messageSending || chatDeliveryUncertain"
+                        (click)="sendSessionAttachment()">{{ attachmentSending ? 'A enviar…' : 'Enviar anexo' }}</button>
+                    }
+                    <small>Máximo 5 MB · visível apenas aos participantes autorizados antes do início da sessão.</small>
+                  </div>
+                }
                 <div class="session-inline-chat-compose">
                   <textarea #sessionComposer rows="2" maxlength="2000"
                     [placeholder]="'sessionDetail.chatPlaceholder' | t"
                     [(ngModel)]="messageBody" (ngModelChange)="onTypingInput()"
                     (keydown.enter)="onChatEnter($event)"></textarea>
                   <button type="button" class="jynlo-action jynlo-action--primary"
-                    [disabled]="messageSending || chatDeliveryUncertain || !messageBody.trim()"
+                    [disabled]="messageSending || attachmentSending || chatDeliveryUncertain || !messageBody.trim()"
                     (click)="sendMessage()">{{ (messageSending ? 'chat.sending' : 'chat.send') | t }}</button>
                 </div>
               } @else {
