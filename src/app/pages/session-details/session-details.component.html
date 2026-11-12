@@ -353,6 +353,7 @@
                     <label class="jynlo-action jynlo-action--neutral" for="session-chat-attachment-file">📎 Anexar ficheiro</label>
                     <input id="session-chat-attachment-file" type="file"
                       [disabled]="attachmentSending || messageSending || chatDeliveryUncertain"
+                      accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,audio/webm,audio/ogg"
                       (change)="chooseSessionAttachment($event)" aria-label="Escolher anexo privado">
                     @if (attachmentFile) {
                       <span class="session-chat-attachment-name">{{ attachmentFile.name }}</span>
@@ -362,14 +363,14 @@
                         [disabled]="attachmentSending || messageSending || chatDeliveryUncertain"
                         (click)="sendSessionAttachment()">{{ attachmentSending ? 'A enviar…' : 'Enviar anexo' }}</button>
                     }
-                    <small>Máximo 5 MB · visível apenas aos participantes autorizados antes do início da sessão.</small>
+                    <small>Imagens, PDF e áudio até 5 MB · privado entre participantes · também podes colar uma imagem na mensagem.</small>
                   </div>
                 }
                 <div class="session-inline-chat-compose">
                   <textarea #sessionComposer rows="2" maxlength="2000"
                     [placeholder]="'sessionDetail.chatPlaceholder' | t"
                     [(ngModel)]="messageBody" (ngModelChange)="onTypingInput()"
-                    (keydown.enter)="onChatEnter($event)"></textarea>
+                    (keydown.enter)="onChatEnter($event)" (paste)="onSessionChatPaste($event)"></textarea>
                   <button type="button" class="jynlo-action jynlo-action--primary"
                     [disabled]="messageSending || attachmentSending || chatDeliveryUncertain || !messageBody.trim()"
                     (click)="sendMessage()">{{ (messageSending ? 'chat.sending' : 'chat.send') | t }}</button>
