@@ -1303,7 +1303,9 @@
                           <details class="create-step jynlo-fixture-round"
                             [open]="isChampionshipRoundExpanded(event.id, round, championshipNextPendingRound(event.id, 'LEAGUE') ?? 1)"
                             (toggle)="onChampionshipLeagueRoundToggle(championship.id, event.id, round, $any($event.target).open)">
-                            <summary class="jynlo-fixture-round-summary">
+                            <summary class="jynlo-fixture-round-summary"
+                              [attr.id]="'championship-round-' + event.id + '-' + round"
+                              tabindex="-1">
                               <strong>{{ 'communities.championshipOwned.round' | t }} {{ round }}</strong>
                               <span>{{ championshipRoundResultCount(event.id, round, 'LEAGUE') }}/{{ leagueRoundFixtures(event.id, round).length }} {{ 'championshipRounds.completed' | t }}</span>
                               <span class="jynlo-fixture-round-hint">{{ 'championshipRounds.toggle' | t }}</span>
@@ -1742,7 +1744,9 @@
                             <details class="create-step jynlo-fixture-round"
                               [open]="isChampionshipRoundExpanded(event.id, round, cupCurrentRound(event.id))"
                               (toggle)="setChampionshipRoundExpanded(event.id, round, $any($event.target).open)">
-                              <summary class="jynlo-fixture-round-summary">
+                              <summary class="jynlo-fixture-round-summary"
+                              [attr.id]="'championship-round-' + event.id + '-' + round"
+                              tabindex="-1">
                                 <strong>{{ 'championshipRounds.cupRound' | t }} {{ round }}</strong>
                                 <span>{{ championshipRoundResultCount(event.id, round, 'CUP') }}/{{ cupRoundMatches(event.id, round).length }} {{ 'championshipRounds.completed' | t }}</span>
                                 <span class="jynlo-fixture-round-hint">{{ 'championshipRounds.toggle' | t }}</span>
