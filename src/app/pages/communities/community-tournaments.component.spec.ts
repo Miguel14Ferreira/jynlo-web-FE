@@ -1034,6 +1034,85 @@ describe('Community tournaments management', () => {
     expect(component.championshipAggregateStandings[15]).toEqual(latestSeason as any);
   });
 
+  it('loads detailed events only when a scored league round is expanded', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const goals = jasmine.createSpy('fixtureGoals').and.returnValue(of([]));
+    const cards = jasmine.createSpy('fixtureCards').and.returnValue(of([]));
+    const substitutions = jasmine.createSpy('fixtureSubstitutions').and.returnValue(of([]));
+    const lineup = jasmine.createSpy('fixtureLineup').and.returnValue(of([]));
+    (championships as any).fixtureGoals = goals;
+    (championships as any).fixtureCards = cards;
+    (championships as any).fixtureSubstitutions = substitutions;
+    (championships as any).fixtureLineup = lineup;
+    component.championshipLeagueFixtures[101] = [
+      { id: 501, round: 1, homeScore: 2, awayScore: 1 },
+      { id: 502, round: 1, homeScore: null, awayScore: null },
+      { id: 503, round: 2, homeScore: 3, awayScore: 0 }
+    ] as any;
+
+    component.onChampionshipLeagueRoundToggle(15, 101, 1, false);
+    expect(goals).not.toHaveBeenCalled();
+    component.onChampionshipLeagueRoundToggle(15, 101, 1, true);
+    expect(goals).toHaveBeenCalledOnceWith(7, 15, 101, 501);
+    expect(cards).toHaveBeenCalledOnceWith(7, 15, 101, 501);
+    expect(substitutions).toHaveBeenCalledOnceWith(7, 15, 101, 501);
+    expect(lineup).toHaveBeenCalledOnceWith(7, 15, 101, 501);
+    expect(component.championshipFixtureDetailsState[501]).toBe('ready');
+    expect(component.championshipFixtureDetailsState[502]).toBeUndefined();
+    expect(component.championshipFixtureDetailsState[503]).toBeUndefined();
+
+    component.onChampionshipLeagueRoundToggle(15, 101, 1, false);
+    component.onChampionshipLeagueRoundToggle(15, 101, 1, true);
+    expect(goals).toHaveBeenCalledTimes(1);
+    component.setAllChampionshipLeagueRoundsExpanded(15, 101, [1, 2], true);
+    expect(goals).toHaveBeenCalledTimes(2);
+    expect(goals).toHaveBeenCalledWith(7, 15, 101, 503);
+  });
+
+  it('can retry a failed game detail request without losing the schedule', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const goals = jasmine.createSpy('fixtureGoals').and.returnValues(
+      throwError(() => new Error('temporary network error')), of([{ id: 9 }]));
+    (championships as any).fixtureGoals = goals;
+    (championships as any).fixtureCards = jasmine.createSpy('fixtureCards').and.returnValue(of([]));
+    (championships as any).fixtureSubstitutions = jasmine.createSpy('fixtureSubstitutions').and.returnValue(of([]));
+    (championships as any).fixtureLineup = jasmine.createSpy('fixtureLineup').and.returnValue(of([]));
+    component.championshipLeagueFixtures[101] = [
+      { id: 501, round: 1, homeScore: 2, awayScore: 1 }
+    ] as any;
+
+    component.onChampionshipLeagueRoundToggle(15, 101, 1, true);
+    expect(component.championshipFixtureDetailsState[501]).toBe('error');
+    expect(component.championshipLeagueFixtures[101].length).toBe(1);
+    component.loadChampionshipFixtureDetails(15, 101, 501, true);
+    expect(component.championshipFixtureDetailsState[501]).toBe('ready');
+    expect(component.championshipFixtureGoals[501].length).toBe(1);
+    expect(goals).toHaveBeenCalledTimes(2);
+  });
+
+  it('ignores game details arriving after a newer forced refresh', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const oldGoals = new Subject<any[]>();
+    const oldCards = new Subject<any[]>();
+    const oldSubs = new Subject<any[]>();
+    const oldLineup = new Subject<any[]>();
+    const goals = jasmine.createSpy('fixtureGoals').and.returnValues(oldGoals, of([{ id: 77 }]));
+    (championships as any).fixtureGoals = goals;
+    (championships as any).fixtureCards = jasmine.createSpy('fixtureCards').and.returnValues(oldCards, of([]));
+    (championships as any).fixtureSubstitutions = jasmine.createSpy('fixtureSubstitutions').and.returnValues(oldSubs, of([]));
+    (championships as any).fixtureLineup = jasmine.createSpy('fixtureLineup').and.returnValues(oldLineup, of([]));
+
+    component.loadChampionshipFixtureDetails(15, 101, 501);
+    component.loadChampionshipFixtureDetails(15, 101, 501, true);
+    oldGoals.next([{ id: 12 }]); oldGoals.complete();
+    oldCards.next([]); oldCards.complete();
+    oldSubs.next([]); oldSubs.complete();
+    oldLineup.next([]); oldLineup.complete();
+
+    expect(component.championshipFixtureDetailsState[501]).toBe('ready');
+    expect(component.championshipFixtureGoals[501][0].id).toBe(77);
+  });
+
   it('keeps latest player statistics after out-of-order responses', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const oldStats = new Subject<any>();
