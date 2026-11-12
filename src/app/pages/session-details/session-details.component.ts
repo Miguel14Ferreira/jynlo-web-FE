@@ -629,16 +629,16 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     void this.router.navigate(['/menu/messages'], { queryParams: { kind: 'direct', id: username } });
   }
 
-  callSessionMember(username: string): void {
-    if (!this.canContactSessionMember(username)) return;
-    const calls = this.sessionCallInjector.get(DirectCallClientService);
-    if (!calls.available$.value) return;
-    void calls.start(username, 'voice');
+  /** Live provider readiness also controls the buttons on the roster. */
+  get sessionCallAvailability$() {
+    return this.sessionCallInjector.get(DirectCallClientService).available$;
   }
 
-  get sessionCallingAvailable(): boolean {
-    // Avoid initializing the global call client just to render the roster.
-    return true;
+  callSessionMember(username: string, media: 'voice' | 'video' = 'voice'): void {
+    if (!this.canContactSessionMember(username)) return;
+    const calls = this.sessionCallInjector.get(DirectCallClientService);
+    if (!calls.available$.value || calls.state$.value) return;
+    void calls.start(username, media);
   }
 
   // Only a known, internal navigation source can change the back destination.
