@@ -1741,8 +1741,9 @@ export class CommunityTournamentsComponent implements OnChanges {
         // A refreshed score can invalidate cached match events, especially if
         // another organizer changed the result while this page remained open.
         const previousFixtures = this.championshipLeagueFixtures[eventId] || [];
+        const incomingById = new Map(matches.map(match => [match.id, match]));
         for (const fixture of previousFixtures) {
-          const current = matches.find(match => match.id === fixture.id);
+          const current = incomingById.get(fixture.id);
           if (!current || current.homeScore !== fixture.homeScore || current.awayScore !== fixture.awayScore) {
             this.invalidateChampionshipFixtureDetails(fixture.id);
           }
