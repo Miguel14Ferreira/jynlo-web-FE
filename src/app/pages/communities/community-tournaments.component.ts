@@ -1401,6 +1401,13 @@ export class CommunityTournamentsComponent implements OnChanges {
     const communityId = this.community.id;
     const loadVersion = this.championshipFixtureDetailsLoadVersion[fixtureId] =
       (this.championshipFixtureDetailsLoadVersion[fixtureId] || 0) + 1;
+    // A direct refresh of one event category can finish while this four-part
+    // request is still pending. Only commit categories that were not refreshed
+    // independently after the aggregate request started.
+    const goalsVersion = this.championshipFixtureGoalsLoadVersion[fixtureId] || 0;
+    const cardsVersion = this.championshipFixtureCardsLoadVersion[fixtureId] || 0;
+    const substitutionsVersion = this.championshipFixtureSubstitutionsLoadVersion[fixtureId] || 0;
+    const lineupsVersion = this.championshipFixtureLineupsLoadVersion[fixtureId] || 0;
     this.championshipFixtureDetailsState[fixtureId] = 'loading';
     forkJoin({
       goals: this.championshipsApi.fixtureGoals(communityId, championshipId, eventId, fixtureId),
@@ -1411,10 +1418,14 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: details => {
         if (revision !== this.championshipRevision || communityId !== this.community.id
             || loadVersion !== this.championshipFixtureDetailsLoadVersion[fixtureId]) return;
-        this.championshipFixtureGoals[fixtureId] = details.goals;
-        this.championshipFixtureCards[fixtureId] = details.cards;
-        this.championshipFixtureSubstitutions[fixtureId] = details.substitutions;
-        this.championshipFixtureLineups[fixtureId] = details.lineup;
+        if (goalsVersion === (this.championshipFixtureGoalsLoadVersion[fixtureId] || 0))
+          this.championshipFixtureGoals[fixtureId] = details.goals;
+        if (cardsVersion === (this.championshipFixtureCardsLoadVersion[fixtureId] || 0))
+          this.championshipFixtureCards[fixtureId] = details.cards;
+        if (substitutionsVersion === (this.championshipFixtureSubstitutionsLoadVersion[fixtureId] || 0))
+          this.championshipFixtureSubstitutions[fixtureId] = details.substitutions;
+        if (lineupsVersion === (this.championshipFixtureLineupsLoadVersion[fixtureId] || 0))
+          this.championshipFixtureLineups[fixtureId] = details.lineup;
         this.championshipFixtureDetailsState[fixtureId] = 'ready';
         this.changeDetector.markForCheck();
       },
