@@ -481,3 +481,42 @@
     flex: 1 1 auto;
   }
 }
+
+/* Cancellation is a visible session state, never only an untranslated code badge. */
+:host .detail-page.jynlo-session-detail-premium .session-cancelled-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 15px 17px;
+  margin-bottom: 17px;
+  border: 1px solid rgba(251, 113, 133, .48);
+  border-radius: 13px;
+  background: linear-gradient(120deg, rgba(116, 29, 47, .3), rgba(32, 21, 37, .7));
+  color: #ffe1e5;
+}
+:host .detail-page.jynlo-session-detail-premium .session-cancelled-banner__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  height: 32px;
+  border: 1px solid rgba(251, 113, 133, .48);
+  border-radius: 50%;
+  background: rgba(251, 113, 133, .15);
+  font-size: 1.2rem;
+  font-weight: 850;
+}
+:host .detail-page.jynlo-session-detail-premium .session-cancelled-banner strong {
+  display: block;
+  font-size: 1rem;
+}
+:host .detail-page.jynlo-session-detail-premium .session-cancelled-banner p {
+  margin: 4px 0 0;
+  color: #f7c8d0;
+  font-size: .86rem;
+  line-height: 1.5;
+}
+:host .detail-page.jynlo-session-detail-premium .session-status-cancelled {
+  color: #ffd6dd;
+  border-color: rgba(251, 113, 133, .45);
+  background: rgba(148, 34, 59, .25);
+}
