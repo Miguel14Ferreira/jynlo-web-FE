@@ -1226,17 +1226,23 @@ export class CommunityTournamentsComponent implements OnChanges {
     return this.championshipTeamPlayers[teamId] || [];
   }
 
+  private championshipFixtureGoalsLoadVersion: Record<number, number> = {};
+
   loadFixtureGoals(championshipId: number, eventId: number, fixtureId: number): void {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
+    const loadVersion = this.championshipFixtureGoalsLoadVersion[fixtureId] =
+      (this.championshipFixtureGoalsLoadVersion[fixtureId] || 0) + 1;
     this.championshipsApi.fixtureGoals(communityId, championshipId, eventId, fixtureId).subscribe({
       next: goals => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipFixtureGoalsLoadVersion[fixtureId]) return;
         this.championshipFixtureGoals[fixtureId] = goals;
         this.changeDetector.markForCheck();
       },
       error: () => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipFixtureGoalsLoadVersion[fixtureId]) return;
         this.championshipError = 'Não foi possível carregar os marcadores deste jogo.';
         this.changeDetector.markForCheck();
       }
@@ -1335,6 +1341,8 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   private invalidateChampionshipFixtureDetails(fixtureId: number): void {
+    this.championshipFixtureGoalsLoadVersion[fixtureId] =
+      (this.championshipFixtureGoalsLoadVersion[fixtureId] || 0) + 1;
     this.championshipFixtureDetailsLoadVersion[fixtureId] =
       (this.championshipFixtureDetailsLoadVersion[fixtureId] || 0) + 1;
     delete this.championshipFixtureDetailsState[fixtureId];
@@ -1485,6 +1493,9 @@ export class CommunityTournamentsComponent implements OnChanges {
           (this.championshipLeagueFixtureLoadVersion[event.id] || 0) + 1;
         this.championshipLeagueFixtures[event.id] = (this.championshipLeagueFixtures[event.id] || [])
           .map(item => item.id === updated.id ? updated : item);
+        // A previous expanded detail request may still contain the old score's
+        // event data. Invalidate it before re-fetching persisted scorers.
+        this.invalidateChampionshipFixtureDetails(fixture.id);
         // Only replace the draft after the API confirms the saved result.
         delete this.championshipFixtureScoreDrafts[fixture.id];
         this.loadChampionshipOwnedLeagueTable(championship.id, event.id);
@@ -2046,6 +2057,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipFixtureSubstitutions = {};
     this.championshipFixtureLineups = {};
     this.championshipFixtureDetailsState = {};
+    this.championshipFixtureGoalsLoadVersion = {};
     this.championshipFixtureDetailsLoadVersion = {};
     this.championshipLineupTeamDrafts = {};
     this.championshipLineupPlayerDrafts = {};
