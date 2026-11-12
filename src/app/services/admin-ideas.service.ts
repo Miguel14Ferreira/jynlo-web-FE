@@ -11,6 +11,16 @@ export class AdminIdeasService {
 
   constructor(private http: HttpClient) {}
 
+  attachments(id: number): Observable<{index: number; filename: string; mimeType: string}[]> {
+    return this.http.get<{index: number; filename: string; mimeType: string}[]>(
+      this.url + '/' + encodeURIComponent(id) + '/attachments');
+  }
+
+  attachmentAt(id: number, index: number): Observable<Blob> {
+    return this.http.get(this.url + '/' + encodeURIComponent(id) + '/attachments/' + index,
+      {responseType: 'blob'});
+  }
+
   attachment(id: number): Observable<Blob> {
     return this.http.get(this.url + '/' + encodeURIComponent(id) + '/attachment',
       { responseType: 'blob' });
