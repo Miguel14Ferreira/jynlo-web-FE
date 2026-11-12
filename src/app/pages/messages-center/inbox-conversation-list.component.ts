@@ -21,6 +21,8 @@ export interface InboxListFormatters {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InboxConversationListComponent {
+  /** A broken or removed image never hides the conversation's fallback icon. */
+  readonly failedAvatars = new Set<string>();
   @Input() conversations: readonly InboxConversation[] = [];
   @Input() selectedKey: string | null = null;
   @Input({ required: true }) formatters!: InboxListFormatters;
