@@ -318,6 +318,19 @@
                           <small>{{ (message.attachmentSize / 1024) | number:'1.0-0' }} KB</small>
                         }
                       </button>
+                      @if (message.attachmentMimeType?.startsWith('image/')) {
+                        <button type="button" class="session-chat-preview-toggle"
+                          [disabled]="attachmentDownloadingId !== null"
+                          (click)="previewSessionAttachment(message)">
+                          {{ attachmentPreviewId === message.id ? 'Fechar imagem' : 'Ver imagem' }}
+                        </button>
+                        @if (attachmentPreviewId === message.id && attachmentPreviewUrl) {
+                          <div class="session-chat-attachment-preview">
+                            <img [src]="attachmentPreviewUrl" [alt]="message.attachmentName"
+                              loading="lazy">
+                          </div>
+                        }
+                      }
                     }
                     <footer>
                       <time>{{ messageDate(message) }}</time>
