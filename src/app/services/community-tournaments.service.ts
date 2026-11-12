@@ -292,6 +292,18 @@ export class CommunityTournamentsService {
     return this.http.post<TournamentTeam>(this.url(communityId, tournamentId) + '/teams', { name });
   }
 
+  pendingTeamInvitations(communityId: number, tournamentId: number, teamId: number):
+    Observable<{ profileId: number; username: string; displayName: string; invitedAt: string }[]> {
+    return this.http.get<{ profileId: number; username: string; displayName: string; invitedAt: string }[]>(
+      this.url(communityId, tournamentId) + '/teams/' + teamId + '/invitations/pending');
+  }
+
+  revokeTeamInvitation(communityId: number, tournamentId: number,
+                       teamId: number, profileId: number): Observable<void> {
+    return this.http.delete<void>(
+      this.url(communityId, tournamentId) + '/teams/' + teamId + '/invitations/' + profileId);
+  }
+
   teamInvitationStatus(communityId: number, tournamentId: number, teamId: number):
     Observable<{ invited: boolean }> {
     return this.http.get<{ invited: boolean }>(
