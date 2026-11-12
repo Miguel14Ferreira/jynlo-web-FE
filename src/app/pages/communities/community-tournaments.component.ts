@@ -1,4 +1,4 @@
-import { ChampionshipTeamAdministrator, ChampionshipTeamPlayer, ChampionshipFixtureGoal, ChampionshipOwnedLeagueTable, ChampionshipFixtureCard, ChampionshipLeaguePlayerStats, ChampionshipFixtureSubstitution, ChampionshipFixtureLineupPlayer } from '../../services/community-championships.service';
+import { ChampionshipTeamAdministrator, ChampionshipPendingTeamInvitation, ChampionshipTeamPlayer, ChampionshipFixtureGoal, ChampionshipOwnedLeagueTable, ChampionshipFixtureCard, ChampionshipLeaguePlayerStats, ChampionshipFixtureSubstitution, ChampionshipFixtureLineupPlayer } from '../../services/community-championships.service';
 import { CommunityChampionshipsService, ChampionshipOwnedEvent, ChampionshipOwnedEventTeam, ChampionshipOwnedLeagueFixture, ChampionshipCupOpeningRound, ChampionshipOwnedEventFormat, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
 import { championshipTeamProfile, ChampionshipTeamProfile } from './community-championship-team-profile';
 import { compareTeamSeasons, comparableTeamSeasons, TeamSeasonComparison } from './community-championship-team-comparison';
@@ -390,6 +390,10 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipTeamInviteLoadError: Record<number, boolean> = {};
   championshipTeamInviteLoading: Record<number, boolean> = {};
   championshipTeamInviteFeedback: Record<number, string> = {};
+  championshipPendingInvites: Record<number, ChampionshipPendingTeamInvitation[]> = {};
+  championshipPendingInvitesLoading: Record<number, boolean> = {};
+  championshipPendingInvitesError: Record<number, boolean> = {};
+  private championshipPendingInvitesLoadVersion: Record<number, number> = {};
   private championshipTeamPlayersLoadVersion: Record<number, number> = {};
   private championshipTeamAdminLoadVersion: Record<number, number> = {};
   private championshipTeamInviteLoadVersion: Record<number, number> = {};
@@ -401,6 +405,8 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipTeamAdminLoading[teamId] = false;
     this.championshipTeamInviteLoadVersion[teamId] = (this.championshipTeamInviteLoadVersion[teamId] || 0) + 1;
     this.championshipTeamInviteLoading[teamId] = false;
+    this.championshipPendingInvitesLoadVersion[teamId] = (this.championshipPendingInvitesLoadVersion[teamId] || 0) + 1;
+    this.championshipPendingInvitesLoading[teamId] = false;
   }
   championshipTeamCreatedNotice = false;
 
@@ -606,6 +612,61 @@ export class CommunityTournamentsComponent implements OnChanges {
     });
   }
 
+  loadChampionshipPendingInvites(championshipId: number, teamId: number): void {
+    if (!this.canManageChampionshipTeam(teamId)) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    const loadVersion = this.championshipPendingInvitesLoadVersion[teamId] =
+      (this.championshipPendingInvitesLoadVersion[teamId] || 0) + 1;
+    this.championshipPendingInvitesLoading[teamId] = true;
+    this.championshipPendingInvitesError[teamId] = false;
+    this.championshipsApi.pendingTeamInvitations(communityId, championshipId, teamId).subscribe({
+      next: invitations => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipPendingInvitesLoadVersion[teamId]) return;
+        this.championshipPendingInvites[teamId] = invitations;
+        this.championshipPendingInvitesLoading[teamId] = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipPendingInvitesLoadVersion[teamId]) return;
+        this.championshipPendingInvitesLoading[teamId] = false;
+        this.championshipPendingInvitesError[teamId] = true;
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  revokeChampionshipPendingInvite(championshipId: number, teamId: number, profileId: number): void {
+    if (!this.championshipSeasonEditable(championshipId) || !this.canManageChampionshipTeam(teamId)
+        || this.championshipTeamPlayerBusy[teamId]
+        || !this.championshipPendingInvites[teamId]?.some(invite => invite.profileId === profileId)) return;
+    const revision = this.championshipRevision;
+    const communityId = this.community.id;
+    this.championshipTeamPlayerBusy[teamId] = true;
+    this.invalidateChampionshipTeamLoads(teamId);
+    this.championshipsApi.revokeTeamInvitation(communityId, championshipId, teamId, profileId).subscribe({
+      next: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamPlayerBusy[teamId] = false;
+        this.championshipPendingInvites[teamId] = (this.championshipPendingInvites[teamId] || [])
+          .filter(invite => invite.profileId !== profileId);
+        this.championshipTeamInviteFeedback[teamId] = t('teams.autonomy.inviteRevoked');
+        this.loadChampionshipPendingInvites(championshipId, teamId);
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipTeamPlayerBusy[teamId] = false;
+        this.championshipTeamInviteFeedback[teamId] = '';
+        this.loadChampionshipPendingInvites(championshipId, teamId);
+        this.championshipError = t('teams.autonomy.inviteRevokeError');
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
   loadChampionshipTeamPlayers(championshipId: number, teamId: number): void {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
@@ -667,6 +728,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamInviteFeedback[teamId] = t('teams.autonomy.inviteSent');
+        this.loadChampionshipPendingInvites(championshipId, teamId);
         this.championshipTeamPlayerDrafts[teamId] = null;
         this.championshipTeamMemberSearch[teamId] = '';
         this.championshipTeamPlayerBusy[teamId] = false;
@@ -731,6 +793,7 @@ export class CommunityTournamentsComponent implements OnChanges {
           this.loadChampionshipTeamPlayers(championshipId, team.id);
           this.loadChampionshipTeamAdministrator(championshipId, team.id);
           this.loadChampionshipTeamInvitation(championshipId, team.id);
+          this.loadChampionshipPendingInvites(championshipId, team.id);
         });
         this.changeDetector.markForCheck();
         if (this.requestedChampionshipId === championshipId && typeof requestAnimationFrame !== 'undefined') {
@@ -2282,6 +2345,10 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipTeamInviteLoadError = {};
     this.championshipTeamInviteLoading = {};
     this.championshipTeamInviteFeedback = {};
+    this.championshipPendingInvites = {};
+    this.championshipPendingInvitesLoading = {};
+    this.championshipPendingInvitesError = {};
+    this.championshipPendingInvitesLoadVersion = {};
     this.championshipTeamPlayersLoadVersion = {};
     this.championshipTeamAdminLoadVersion = {};
     this.championshipTeamInviteLoadVersion = {};
