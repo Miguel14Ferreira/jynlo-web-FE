@@ -533,11 +533,14 @@
               <p>{{ 'sessionDetail.detailsHelp' | t }}</p>
               <div class="session-details-editor-fields">
                 <label>{{ 'communities.sportLabel' | t }}
-                  <select [(ngModel)]="detailsDraft.sport" [disabled]="detailsSaving">
+                  <select [(ngModel)]="detailsDraft.sport" [disabled]="detailsSaving || !canChangeSessionSport()">
                     @for (sport of editableSports; track sport) {
                       <option [value]="sport">{{ sport }}</option>
                     }
                   </select>
+                  @if (!canChangeSessionSport()) {
+                    <small>{{ 'sessionDetail.sportEditRestriction' | t }}</small>
+                  }
                 </label>
                 <label>{{ 'mySessions.date' | t }}
                   <input type="datetime-local" [(ngModel)]="detailsDraft.gameDate"
