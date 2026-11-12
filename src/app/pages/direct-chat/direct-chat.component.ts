@@ -41,6 +41,12 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
   messageBody = '';
   attachmentReady = false;
   selectedAttachment: File | null = null;
+  extraSelectedAttachments: File[] = [];
+  get selectedFiles(): File[] {
+    return [...(this.selectedAttachment ? [this.selectedAttachment] : []), ...this.extraSelectedAttachments];
+  }
+  readonly extraAttachmentPreviews = new Map<string, string>();
+  readonly extraAttachmentLoading = new Set<string>();
   readonly attachmentPreviews = new Map<number, string>();
   readonly attachmentLoading = new Set<number>();
   private attachmentRequestVersion = 0;
@@ -134,6 +140,8 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
     ++this.attachmentRequestVersion;
     for (const url of this.attachmentPreviews.values()) URL.revokeObjectURL(url);
     this.attachmentPreviews.clear();
+    for (const url of this.extraAttachmentPreviews.values()) URL.revokeObjectURL(url);
+    this.extraAttachmentPreviews.clear();
     this.typing.destroy();
     this.realtimeSubscriptions.unsubscribe();
   }
@@ -307,26 +315,78 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   onAttachmentSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
+    const files = Array.from(input.files ?? []);
     input.value = '';
-    if (file) this.stageAttachment(file);
+    if (files.length) this.stageAttachments(files);
   }
 
   stageAttachment(file: File): void {
+    this.stageAttachments([file]);
+  }
+
+  stageAttachments(incoming: File[]): void {
+    const all = [...this.selectedFiles, ...incoming];
     const accepted = ['image/jpeg', 'image/png', 'image/webp', 'image/gif',
       'application/pdf', 'video/mp4', 'video/webm', 'audio/mpeg', 'audio/mp4',
       'audio/ogg', 'audio/webm'];
-    const limit = file.type.startsWith('video/') ? 20 : file.type.startsWith('audio/') ? 12 : 5;
-    if (!accepted.includes(file.type.toLowerCase()) || file.size === 0 || file.size > limit * 1024 * 1024) {
-      this.actionError = 'Formato não suportado ou ficheiro demasiado grande (imagens/PDF 5 MB, áudio 12 MB, vídeo 20 MB).';
+    if (all.length > 4 || all.reduce((sum, item) => sum + item.size, 0) > 40 * 1024 * 1024
+        || all.some(file => !accepted.includes(file.type.toLowerCase()) || !file.size
+          || file.size > (file.type.startsWith('video/') ? 20 : file.type.startsWith('audio/') ? 12 : 5) * 1024 * 1024)) {
+      this.actionError = 'Até 4 ficheiros (40 MB no total): imagens/PDF 5 MB, áudio 12 MB, vídeo 20 MB.';
       return;
     }
-    this.selectedAttachment = file;
+    if (!this.selectedAttachment) this.selectedAttachment = incoming.shift() || null;
+    this.extraSelectedAttachments.push(...incoming);
     this.actionError = '';
   }
 
-  removeAttachment(): void {
-    if (!this.sending) this.selectedAttachment = null;
+  removeAttachment(index = 0): void {
+    if (this.sending) return;
+    if (index === 0) {
+      this.selectedAttachment = this.extraSelectedAttachments.shift() || null;
+    } else this.extraSelectedAttachments.splice(index - 1, 1);
+  }
+
+  private clearSelectedAttachments(): void {
+    this.selectedAttachment = null;
+    this.extraSelectedAttachments = [];
+  }
+
+  extraAttachmentKey(message: DirectChatMessage, index: number): string {
+    return message.id + ':' + index;
+  }
+
+  openExtraAttachment(message: DirectChatMessage, asset: {index: number; filename: string; mimeType: string}): void {
+    if (!message.id || asset.index <= 0 || asset.index >= 4 || !this.attachmentReady
+        || this.chatInfo?.chatBlocked) return;
+    const key = this.extraAttachmentKey(message, asset.index);
+    const existing = this.extraAttachmentPreviews.get(key);
+    if (existing) {
+      URL.revokeObjectURL(existing);
+      this.extraAttachmentPreviews.delete(key);
+      return;
+    }
+    if (this.extraAttachmentLoading.has(key)) return;
+    const version = this.attachmentRequestVersion;
+    this.extraAttachmentLoading.add(key);
+    this.chatService.downloadAttachmentAt(this.recipientUsername, message.id, asset.index)
+      .pipe(timeout(30_000), finalize(() => this.extraAttachmentLoading.delete(key)))
+      .subscribe({
+        next: blob => {
+          if (version !== this.attachmentRequestVersion || blob.type !== asset.mimeType) return;
+          const url = URL.createObjectURL(blob);
+          if (blob.type.startsWith('image/') || blob.type.startsWith('video/') || blob.type.startsWith('audio/')) {
+            this.extraAttachmentPreviews.set(key, url);
+          } else {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = asset.filename;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 60_000);
+          }
+        },
+        error: () => this.actionError = 'Não foi possível abrir o anexo.'
+      });
   }
 
   openAttachment(message: DirectChatMessage): void {
@@ -410,7 +470,10 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
     };
 
     const attachment = this.selectedAttachment;
-    const send = attachment
+    const attachments = this.selectedFiles;
+    const send = attachments.length > 1
+      ? this.chatService.sendAttachments(this.recipientUsername, attachments, text, replyId ?? undefined)
+      : attachment
       ? this.chatService.sendAttachment(this.recipientUsername, attachment, text, replyId ?? undefined)
       : replyId
         ? this.chatService.send(this.recipientUsername, text, replyId)
@@ -429,7 +492,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
           }
 
           this.messageBody = '';
-          this.selectedAttachment = null;
+          this.clearSelectedAttachments();
           this.replyingTo = null;
           this.showEmojiPicker = false;
           this.scrollToBottomRequested = true;
