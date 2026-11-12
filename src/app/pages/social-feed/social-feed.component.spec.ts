@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { SocialFeedComponent } from './social-feed.component';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
 import { SessionDetail } from '../model/session-detail';
 import { SessionSummary } from '../model/session-summary';
 import { SocialFeedService } from '../../services/social-feed.service';
+import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
 import { SessionService } from '../../services/session.service';
 import { CommunityService } from '../../services/community.service';
 import { CommunityGroupsService } from '../../services/community-groups.service';
@@ -25,12 +26,16 @@ describe('SocialFeedComponent discovery sidebar', () => {
   let sessions: jasmine.SpyObj<SessionService>;
   let community: jasmine.SpyObj<CommunityService>;
   let groups: jasmine.SpyObj<CommunityGroupsService>;
+  let socialChanged: Subject<void>;
+  let realtimeConnected: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
     // Feed onboarding is persisted per user: isolate repeated component renders.
     for (const key of Object.keys(localStorage)) {
       if (key.startsWith('jynlo:feed-welcome:v1:')) localStorage.removeItem(key);
     }
+    socialChanged = new Subject<void>();
+    realtimeConnected = new BehaviorSubject<boolean>(false);
     feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'createPost', 'createPostAlbum']);
     feed.feed.and.returnValue(of([]));
     sessions = jasmine.createSpyObj<SessionService>('SessionService', ['discover', 'mine', 'detail']);
@@ -55,6 +60,11 @@ describe('SocialFeedComponent discovery sidebar', () => {
         ...TEST_PROVIDERS,
         { provide: AuthenticationService, useValue: auth },
         { provide: SocialFeedService, useValue: feed },
+        { provide: DirectChatRealtimeService, useValue: {
+          connect: jasmine.createSpy('connect'),
+          socialFeedInvalidated$: socialChanged.asObservable(),
+          connected$: realtimeConnected.asObservable()
+        } },
         { provide: SessionService, useValue: sessions },
         { provide: CommunityService, useValue: community },
         { provide: CommunityGroupsService, useValue: groups }
@@ -64,6 +74,29 @@ describe('SocialFeedComponent discovery sidebar', () => {
     fixture = TestBed.createComponent(SocialFeedComponent);
     component = fixture.componentInstance;
   });
+
+  it('reconciles live like and comment counts without replacing the current feed card', fakeAsync(() => {
+    const post: FeedItem = {
+      type:'POST', postId:42, authorUsername:'ana', authorDisplayName:'Ana',
+      authorProfilePicUrl:null, content:'Jogo de hoje', imageUrl:null,
+      createdAt:'2026-11-12T20:00:00Z', sessionId:null, sport:null, city:null,
+      gameDate:null, likeCount:2, likedByMe:false, commentCount:1
+    };
+    feed.feed.and.returnValues(of([post]), of([{
+      ...post, likeCount:3, commentCount:2, likedByMe:true
+    }]));
+    fixture.detectChanges();
+    tick(351);
+    const displayed = component.items[0];
+    expect(displayed.likeCount).toBe(2);
+    socialChanged.next();
+    tick(751);
+    expect(displayed.likeCount).toBe(3);
+    expect(displayed.commentCount).toBe(2);
+    expect(displayed.likedByMe).toBeTrue();
+    expect(component.items[0]).toBe(displayed);
+    fixture.destroy();
+  }));
 
   it('groups repeated attendance per session without hiding regular posts', fakeAsync(() => {
     const makeItem = (type: FeedItem['type'], username: string, sessionId: number | null): FeedItem => ({
