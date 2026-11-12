@@ -27,12 +27,77 @@ import { CommunityProfile } from '../model/community-profile';
 export class SocialFeedComponent implements OnInit, OnDestroy {
   items: FeedItem[] = [];
 
+  // A viewer may hide any feed entry without deleting the author's content.
+  // These browser-local preferences are isolated by the logged-in username.
+  private hiddenFeedEntries = new Set<string>();
+  recentlyHiddenFeedEntry: string | null = null;
+
+  private get hiddenFeedStorageKey(): string {
+    return 'jynlo:hidden-feed:v1:' + this.currentUsername.toLocaleLowerCase();
+  }
+
+  private loadHiddenFeedEntries(): void {
+    if (!this.currentUsername || typeof localStorage === 'undefined') return;
+    try {
+      const value: unknown = JSON.parse(localStorage.getItem(this.hiddenFeedStorageKey) || '[]');
+      this.hiddenFeedEntries = new Set(
+        Array.isArray(value)
+          ? value.filter((key): key is string => typeof key === 'string' && key.length <= 150).slice(-500)
+          : []
+      );
+    } catch {
+      this.hiddenFeedEntries = new Set();
+    }
+  }
+
+  private persistHiddenFeedEntries(): void {
+    if (!this.currentUsername || typeof localStorage === 'undefined') return;
+    try {
+      localStorage.setItem(this.hiddenFeedStorageKey, JSON.stringify([...this.hiddenFeedEntries].slice(-500)));
+    } catch {
+      // Storage may be disabled; hiding still applies to the current view.
+    }
+  }
+
+  private feedEntryKey(item: FeedItem): string | null {
+    if (item.type === 'POST' && Number.isSafeInteger(item.postId) && (item.postId ?? 0) > 0)
+      return 'post:' + item.postId;
+    if (item.type === 'SESSION_ATTENDED' && Number.isSafeInteger(item.sessionId) && (item.sessionId ?? 0) > 0)
+      return 'attendance:' + item.sessionId;
+    if (item.type === 'SESSION_CREATED' && Number.isSafeInteger(item.sessionId) && (item.sessionId ?? 0) > 0)
+      return 'created:' + item.sessionId + ':' + item.authorUsername;
+    return null;
+  }
+
+  hideFromMyFeed(item: FeedItem): void {
+    const key = this.feedEntryKey(item);
+    if (!this.currentUsername || !key) return;
+    this.hiddenFeedEntries.add(key);
+    this.recentlyHiddenFeedEntry = key;
+    this.persistHiddenFeedEntries();
+  }
+
+  undoHideFromMyFeed(): void {
+    const key = this.recentlyHiddenFeedEntry;
+    if (!key) return;
+    this.hiddenFeedEntries.delete(key);
+    this.recentlyHiddenFeedEntry = null;
+    this.persistHiddenFeedEntries();
+  }
+
+  get visibleFeedItems(): FeedItem[] {
+    return this.items.filter(item => {
+      const key = this.feedEntryKey(item);
+      return !key || !this.hiddenFeedEntries.has(key);
+    });
+  }
+
   // Automatic attendance is a compact, session-level update rather than
   // one full-sized publication per participant. Only use entries already
   // returned by the permission-filtered feed endpoint.
   get attendanceGroups(): Array<{ sessionId: number; item: FeedItem; count: number; ownActivity?: FeedItem }> {
     const groups = new Map<number, { sessionId: number; item: FeedItem; usernames: Set<string>; ownActivity?: FeedItem }>();
-    for (const item of this.items) {
+    for (const item of this.visibleFeedItems) {
       if (item.type !== 'SESSION_ATTENDED' || !Number.isSafeInteger(item.sessionId) || (item.sessionId ?? 0) <= 0) continue;
       const sessionId = item.sessionId as number;
       let group = groups.get(sessionId);
@@ -57,7 +122,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   get fullFeedItems(): FeedItem[] {
-    return this.items.filter(item =>
+    return this.visibleFeedItems.filter(item =>
       item.type !== 'SESSION_ATTENDED' ||
       !Number.isSafeInteger(item.sessionId) || (item.sessionId ?? 0) <= 0);
   }
@@ -193,6 +258,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.updateWelcomeVisibility();
+    this.loadHiddenFeedEntries();
     this.load();
     this.loadSuggestedPeople();
     this.preparePostGameMoment();
