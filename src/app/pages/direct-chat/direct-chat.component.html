@@ -101,7 +101,16 @@
                   <span>{{ message.replyToText }}</span>
                 </div>
               }
-              <p>{{ message.text }}</p>
+              @if (message.text) { <p>{{ message.text }}</p> }
+              @if (message.attachmentName && message.id) {
+                <button type="button" class="direct-attachment-button" (click)="openAttachment(message)"
+                  [disabled]="attachmentLoading.has(message.id)">
+                  {{ attachmentPreviews.has(message.id) ? 'Fechar imagem' : (attachmentLoading.has(message.id) ? 'A abrir imagem…' : 'Ver imagem: ' + message.attachmentName) }}
+                </button>
+                @if (attachmentPreviews.get(message.id); as imageUrl) {
+                  <img class="direct-attachment-image" [src]="imageUrl" [alt]="message.attachmentName" loading="lazy" />
+                }
+              }
               <button type="button" class="message-reply-action"
                 [disabled]="sending || deliveryUncertain || chatInfo?.chatBlocked === true"
                 (click)="replyTo(message)">
@@ -138,6 +147,12 @@
                 (click)="cancelReply()">{{ 'chat.cancelReply' | t }}</button>
             </div>
           }
+          @if (selectedAttachment; as image) {
+            <div class="direct-image-draft" role="status">
+              <span>Imagem pronta a enviar: {{ image.name }}</span>
+              <button type="button" (click)="removeAttachment()" [disabled]="sending">Remover</button>
+            </div>
+          }
           <label>
             <span>{{ 'chat.message' | t }}</span>
             <textarea #composerTextarea
@@ -148,12 +163,20 @@
               [readOnly]="sending"
               [disabled]="deliveryUncertain || chatInfo?.chatBlocked === true"
               [placeholder]="'chat.placeholder' | t"
+              (paste)="onImagePaste($event)"
               (ngModelChange)="onTypingInput()"
               (blur)="typing.stop()"
               (keydown.enter)="onEnter($event)"></textarea>
           </label>
 
           <div class="composer-tools">
+            @if (attachmentReady && chatInfo?.chatBlocked !== true) {
+              <label class="direct-attachment-picker">
+                <span>Adicionar imagem</span>
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif"
+                  [disabled]="sending || deliveryUncertain" (change)="onAttachmentSelected($event)" />
+              </label>
+            }
             <div class="emoji-wrap">
               <button
                 type="button"
@@ -182,7 +205,7 @@
             <span>{{ 'chat.enterHint' | t }}</span>
             <button class="jynlo-action jynlo-action--primary"
               type="submit"
-              [disabled]="sending || deliveryUncertain || chatInfo?.chatBlocked === true || !messageBody.trim()">
+              [disabled]="sending || deliveryUncertain || chatInfo?.chatBlocked === true || (!messageBody.trim() && !selectedAttachment)">
               {{ sending ? ('chat.sending' | t) : ('chat.send' | t) }}
             </button>
           </div>
