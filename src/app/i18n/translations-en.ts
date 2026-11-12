@@ -436,6 +436,8 @@ export const EN: Record<string, string> = {
   'sessionDetail.minimumLabel': 'Minimum players',
   'sessionDetail.cityLabel': 'City',
   'sessionDetail.addressLabel': 'Address',
+  'sessionDetail.sportEditRestriction': 'The sport can only change for an independent session without other players or linked venues or communities.',
+  'sessionDetail.restrictedEdit': 'Some session fields are protected by venue, community or recurrence links. Leave them unchanged.',
   'sessionDetail.venueEditRestriction': 'The linked venue cannot be changed here to preserve accurate location data.',
   'sessionDetail.recurrenceEditRestriction': 'A recurring session\'s date cannot be changed separately.',
   'sessionDetail.saveDetails': 'Save changes',
