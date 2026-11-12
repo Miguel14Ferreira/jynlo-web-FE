@@ -2377,21 +2377,34 @@ describe('Events2Component', () => {
     expect(venueService.reverseLocation).toHaveBeenCalledWith(38.725, -9.145, 40);
   });
 
-  it('does not allow saving an inaccurate GPS pin without explicit confirmation', () => {
-    component.applyCurrentPosition(38.72, -9.14, 500);
+  it('never accepts a Cacém-like inaccurate browser fix as the actual venue location', () => {
+    component.chooseLocationMethod('gps');
+    component.applyCurrentPosition(38.7655, -9.2902, 500);
     fixture.detectChanges();
     expect(component.gpsAccuracyIsLow).toBeTrue();
-    expect(component.gpsLowAccuracyConfirmed).toBeFalse();
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('O pino pode estar bastante afastado');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Esta posição não será guardada como recinto');
     expect(venueService.reverseLocation).not.toHaveBeenCalled();
-    expect((component as any).validate()).not.toBeNull();
+    expect((component as any).validate()).toContain('não é seguro guardar');
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain(
+      'Confirmo este ponto aproximado');
 
-    component.confirmApproximateGps();
-    expect(component.gpsLowAccuracyConfirmed).toBeTrue();
-    component.applyCurrentPosition(38.73, -9.15, 400);
-    expect(component.gpsLowAccuracyConfirmed).toBeFalse();
+    component.applyCurrentPosition(38.7655, -9.2902);
+    expect(component.gpsAccuracyIsLow).toBeTrue();
+    expect((component as any).validate()).toContain('não é seguro guardar');
     component.clearLocation();
-    expect(component.gpsLowAccuracyConfirmed).toBeFalse();
+    expect(component.gpsAccuracyMeters).toBeNull();
+  });
+
+  it('accepts a newly confirmed accurate fix after an imprecise browser position', () => {
+    component.chooseLocationMethod('gps');
+    component.applyCurrentPosition(38.7655, -9.2902, 500);
+    expect(component.gpsAccuracyIsLow).toBeTrue();
+    component.applyCurrentPosition(38.729, -9.2, 18);
+    expect(component.gpsAccuracyIsLow).toBeFalse();
+    expect(component.latitude).toBe(38.729);
+    expect(component.longitude).toBe(-9.2);
+    expect(venueService.reverseLocation).toHaveBeenCalledWith(38.729, -9.2, 18);
   });
 
   it('ignores late GPS refinements after switching to a Maps link', () => {
