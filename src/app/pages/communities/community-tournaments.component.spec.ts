@@ -661,6 +661,54 @@ describe('Community tournaments management', () => {
     expect(component.championshipTeamInviteLoading[44]).toBeFalse();
   });
 
+  it('does not accept a cached invitation while validation is pending or has failed', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const pending = new Subject<any>();
+    (championships as any).teamInviteStatus = jasmine.createSpy('teamInviteStatus')
+      .and.returnValue(pending);
+    const respond = jasmine.createSpy('respondTeamInvite');
+    (championships as any).respondTeamInvite = respond;
+    component.championships = [{ id: 15, closedAt: null }] as any;
+    component.championshipTeamInvitePending[44] = true;
+
+    component.loadChampionshipTeamInvitation(15, 44);
+    component.respondChampionshipTeamInvitation(15, 44, true);
+    expect(respond).not.toHaveBeenCalled();
+
+    pending.error(new Error('Network unavailable'));
+    expect(component.championshipTeamInvitePending[44]).toBeTrue();
+    expect(component.championshipTeamInviteLoadError[44]).toBeTrue();
+    component.respondChampionshipTeamInvitation(15, 44, false);
+    expect(respond).not.toHaveBeenCalled();
+
+    (championships as any).teamInviteStatus = jasmine.createSpy('teamInviteStatus')
+      .and.returnValue(of({ invited: true }));
+    (championships as any).respondTeamInvite = jasmine.createSpy('respondTeamInvite')
+      .and.returnValue(of([{ profileId: 25 }]));
+    (championships as any).teamAdministrator = jasmine.createSpy('teamAdministrator')
+      .and.returnValue(of({ adminProfileId: 25, canManage: true }));
+    component.loadChampionshipTeamInvitation(15, 44);
+    component.respondChampionshipTeamInvitation(15, 44, true);
+    expect((championships as any).respondTeamInvite).toHaveBeenCalledOnceWith(7, 15, 44, true);
+  });
+
+  it('rechecks invitation status after a failed team decision before enabling retry', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    (championships as any).respondTeamInvite = jasmine.createSpy('respondTeamInvite')
+      .and.returnValue(throwError(() => new Error('Request failed')));
+    (championships as any).teamInviteStatus = jasmine.createSpy('teamInviteStatus')
+      .and.returnValue(of({ invited: false }));
+    component.championships = [{ id: 15, closedAt: null }] as any;
+    component.championshipTeamInvitePending[44] = true;
+
+    component.respondChampionshipTeamInvitation(15, 44, true);
+
+    expect((championships as any).respondTeamInvite).toHaveBeenCalledOnceWith(7, 15, 44, true);
+    expect((championships as any).teamInviteStatus).toHaveBeenCalledOnceWith(7, 15, 44);
+    expect(component.championshipTeamInvitePending[44]).toBeFalse();
+    expect(component.championshipTeamPlayerBusy[44]).toBeFalse();
+  });
+
   it('ignores errors from an obsolete team invitation lookup after a newer success', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const oldRequest = new Subject<any>();
