@@ -79,6 +79,30 @@ describe('Unified Jynlo message center', () => {
     (component as any).sessionKickoffs.set(41, Date.now() + 3600_000);
   });
 
+  it('uses real profile and community photographs in conversation rows and the selected header', () => {
+    const photo = 'https://cdn.example.test/maria.jpg';
+    const groupPhoto = 'https://cdn.example.test/club.jpg';
+    friends.friends.and.returnValue(of([{
+      username:'maria',fullName:'Maria',nickname:null,profilePicUrl:photo,
+      chatBlocked:false,blockedByMe:false
+    }]));
+    communities.mine.and.returnValue(of([{
+      id:21,name:'ACM',sport:'Futebol',photoUrl:groupPhoto
+    }] as any));
+    sessions.mine.and.returnValue(of({created:[{
+      id:44,sport:'Futebol',city:'Lisboa',communityId:21,
+      gameDate:new Date(Date.now() + 86_400_000).toISOString(),status:'OPEN'
+    }],joined:[],waitlisted:[]} as any));
+
+    component.loadInbox();
+    expect(component.conversations.find(x => x.key === 'direct:maria')?.avatarUrl).toBe(photo);
+    expect(component.conversations.find(x => x.key === 'community:21')?.avatarUrl).toBe(groupPhoto);
+    expect(component.conversations.find(x => x.key === 'session:44')?.avatarUrl).toBe(groupPhoto);
+    component.selectedKey = 'community:21';
+    expect(component.selected?.avatarUrl).toBe(groupPhoto);
+    expect(component.filteredConversations.find(x => x.key === 'direct:maria')?.avatarUrl).toBe(photo);
+  });
+
   it('persists the selected conversation mute without changing another chat', () => {
     const api = jasmine.createSpyObj('ConversationMuteService', ['list','set']);
     api.set.and.returnValue(of({kind:'direct',id:'bea'}));
