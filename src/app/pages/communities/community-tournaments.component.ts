@@ -864,6 +864,7 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipOwnedEventTeams: Record<number, ChampionshipOwnedEventTeam[]> = {};
   championshipOwnedTeamDrafts: Record<number, number | null> = {};
   championshipLeagueFixtures: Record<number, ChampionshipOwnedLeagueFixture[]> = {};
+  private championshipLeagueFixtureLoadVersion: Record<number, number> = {};
   championshipOwnedLeagueTables: Record<number, ChampionshipOwnedLeagueTable> = {};
   championshipLeagueFinalizeConfirm: Record<number, boolean> = {};
   championshipLeagueFinalizeBusy: Record<number, boolean> = {};
@@ -1393,6 +1394,8 @@ export class CommunityTournamentsComponent implements OnChanges {
       fixture.id, score.home!, score.away!).subscribe({
       next: updated => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipLeagueFixtureLoadVersion[event.id] =
+          (this.championshipLeagueFixtureLoadVersion[event.id] || 0) + 1;
         this.championshipLeagueFixtures[event.id] = (this.championshipLeagueFixtures[event.id] || [])
           .map(item => item.id === updated.id ? updated : item);
         // Only replace the draft after the API confirms the saved result.
@@ -1413,6 +1416,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     });
   }
   championshipCupDraws: Record<number, ChampionshipCupOpeningRound> = {};
+  private championshipCupDrawLoadVersion: Record<number, number> = {};
   championshipCupBusy = false;
   championshipCupResultDrafts: Record<number, { home: number | null; away: number | null }> = {};
   championshipCupScoreBusy: Record<number, boolean> = {};
@@ -1513,6 +1517,8 @@ export class CommunityTournamentsComponent implements OnChanges {
       match.id, score.home!, score.away!).subscribe({
       next: updated => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipCupDrawLoadVersion[event.id] =
+          (this.championshipCupDrawLoadVersion[event.id] || 0) + 1;
         const draw = this.championshipCupDraws[event.id];
         if (draw) this.championshipCupDraws[event.id] = {
           ...draw, matches: draw.matches.map(row => row.id === updated.id ? updated : row)
@@ -1545,6 +1551,8 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipsApi.advanceOwnedCup(communityId, championship.id, event.id).subscribe({
       next: draw => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipCupDrawLoadVersion[event.id] =
+          (this.championshipCupDrawLoadVersion[event.id] || 0) + 1;
         this.championshipCupDraws[event.id] = draw;
         this.championshipCupAdvanceConfirm[event.id] = false;
         this.championshipCupBusy = false;
@@ -1566,9 +1574,12 @@ export class CommunityTournamentsComponent implements OnChanges {
   loadChampionshipCupDraw(championshipId: number, eventId: number): void {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
+    const loadVersion = this.championshipCupDrawLoadVersion[eventId] =
+      (this.championshipCupDrawLoadVersion[eventId] || 0) + 1;
     this.championshipsApi.ownedCupDraw(communityId, championshipId, eventId).subscribe({
       next: draw => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipCupDrawLoadVersion[eventId]) return;
         this.championshipCupDraws[eventId] = draw;
         // A refreshed bracket is authoritative; stale local scores and prior consent
         // must never be applied to another round or a different winner.
@@ -1579,7 +1590,8 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.changeDetector.markForCheck();
       },
       error: () => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipCupDrawLoadVersion[eventId]) return;
         this.championshipError = t('communities.championshipOwned.cupLoadError');
         this.changeDetector.markForCheck();
       }
@@ -1597,6 +1609,8 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipsApi.drawOwnedCup(communityId, championship.id, event.id).subscribe({
       next: draw => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        this.championshipCupDrawLoadVersion[event.id] =
+          (this.championshipCupDrawLoadVersion[event.id] || 0) + 1;
         this.championshipCupDraws[event.id] = draw;
         this.championshipOwnedEvents[championship.id] = (this.championshipOwnedEvents[championship.id] || [])
           .map(item => item.id === event.id ? { ...item, status: 'SCHEDULED' as const } : item);
@@ -1631,9 +1645,12 @@ export class CommunityTournamentsComponent implements OnChanges {
   loadChampionshipLeagueFixtures(championshipId: number, eventId: number): void {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
+    const loadVersion = this.championshipLeagueFixtureLoadVersion[eventId] =
+      (this.championshipLeagueFixtureLoadVersion[eventId] || 0) + 1;
     this.championshipsApi.ownedLeagueFixtures(communityId, championshipId, eventId).subscribe({
       next: matches => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipLeagueFixtureLoadVersion[eventId]) return;
         this.championshipLeagueFixtures[eventId] = matches;
         if (this.championships.some(item => item.id === championshipId
             && (item.sport === 'Futebol' || item.sport === 'Futsal'))) {
@@ -1652,7 +1669,8 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.changeDetector.markForCheck();
       },
       error: () => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipLeagueFixtureLoadVersion[eventId]) return;
         this.championshipError = t('communities.championshipOwned.fixturesLoadError');
         this.changeDetector.markForCheck();
       }
@@ -1926,6 +1944,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipOwnedEventTeams = {};
     this.championshipOwnedTeamDrafts = {};
     this.championshipLeagueFixtures = {};
+    this.championshipLeagueFixtureLoadVersion = {};
     this.championshipOwnedLeagueTables = {};
     this.championshipLeagueFinalizeConfirm = {};
     this.championshipLeagueFinalizeBusy = {};
@@ -1956,6 +1975,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipFixtureGoalMinuteDrafts = {};
     this.championshipFixtureGoalBusy = {};
     this.championshipCupDraws = {};
+    this.championshipCupDrawLoadVersion = {};
     this.championshipCupResultDrafts = {};
     this.championshipCupScoreBusy = {};
     this.championshipCupAdvanceConfirm = {};
