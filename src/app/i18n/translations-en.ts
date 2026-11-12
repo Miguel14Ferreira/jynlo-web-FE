@@ -1617,6 +1617,8 @@ export const EN: Record<string, string> = {
   'feed.emptyText': 'Follow people, create sessions or make your first post.',
   'feed.delete': 'Delete',
   'feed.hideAttendance': 'Hide activity',
+  'feed.attendanceDigest.single': '{{name}} took part in a {{sport}} session',
+  'feed.attendanceDigest.multiple': '{{name}} and {{count}} others took part in a {{sport}} session',
   'feed.activity.sessionCreated': 'New session',
   'feed.activity.createdSession': '{{sport}} in {{city}}',
   'feed.activity.sessionAttended': 'Activity completed',
