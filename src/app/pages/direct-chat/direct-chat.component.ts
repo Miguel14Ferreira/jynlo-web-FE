@@ -283,6 +283,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
   private checkAttachmentAvailability(): void {
     const version = ++this.attachmentRequestVersion;
     this.attachmentReady = false;
+    if (typeof this.chatService.attachmentsAvailable !== 'function') return;
     this.chatService.attachmentsAvailable(this.recipientUsername)
       .pipe(timeout(10_000))
       .subscribe({
