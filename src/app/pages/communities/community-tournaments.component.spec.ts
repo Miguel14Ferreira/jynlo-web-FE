@@ -812,6 +812,38 @@ describe('Community tournaments management', () => {
     expect(component.canManageChampionshipTeam(44)).toBeTrue();
   });
 
+  it('rechecks administrator authority after a failed transfer instead of trusting a cached manager', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    component.community = { ...component.community, myRole: 'MEMBER' };
+    component.championships = [{ id: 15, closedAt: null }] as any;
+    component.championshipTeamAdministrators[44] = {
+      teamId: 44, adminProfileId: 25, canManage: true, canTransfer: true, canAccept: false
+    } as any;
+    component.championshipTeamPlayers[44] = [{ profileId: 26 }] as any;
+    component.championshipTeamAdminDrafts[44] = 26;
+    const verify = new Subject<any>();
+    const transfer = jasmine.createSpy('inviteTeamAdministrator')
+      .and.returnValue(throwError(() => new Error('Timeout')));
+    (championships as any).inviteTeamAdministrator = transfer;
+    (championships as any).teamAdministrator = jasmine.createSpy('teamAdministrator')
+      .and.returnValue(verify);
+
+    component.inviteChampionshipTeamAdministrator(15, 44);
+    expect(transfer).toHaveBeenCalledOnceWith(7, 15, 44, 26);
+    expect((championships as any).teamAdministrator).toHaveBeenCalledOnceWith(7, 15, 44);
+    expect(component.championshipTeamAdminLoading[44]).toBeTrue();
+    expect(component.canManageChampionshipTeam(44)).toBeFalse();
+
+    component.inviteChampionshipTeamAdministrator(15, 44);
+    expect(transfer).toHaveBeenCalledTimes(1);
+
+    verify.next({ teamId: 44, adminProfileId: 26, canManage: false, canTransfer: false });
+    verify.complete();
+    expect(component.championshipTeamAdminLoading[44]).toBeFalse();
+    expect(component.canManageChampionshipTeam(44)).toBeFalse();
+    expect(component.championshipTeamAdministrators[44].adminProfileId).toBe(26);
+  });
+
   it('lets the latest same-team roster fetch win without disturbing another team', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const first = new Subject<any>();
