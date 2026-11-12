@@ -1666,8 +1666,9 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       return;
     }
     this.clearVoicePreview();
-    if (!this.selectedAttachment) this.setSelectedAttachment(incoming.shift()!);
-    for (const file of incoming) {
+    const pending = [...incoming];
+    if (!this.selectedAttachment) this.setSelectedAttachment(pending.shift()!);
+    for (const file of pending) {
       let url: string | null = null;
       if (file.type.startsWith('image/') || file.type.startsWith('video/') || file.type.startsWith('audio/')) {
         try { url = URL.createObjectURL(file); } catch { /* filename remains visible */ }
