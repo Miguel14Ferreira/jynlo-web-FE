@@ -468,8 +468,12 @@ export class CommunityTournamentsComponent implements OnChanges {
   }
 
   respondChampionshipTeamInvitation(championshipId: number, teamId: number, accept: boolean): void {
+    // A cached pending flag is not proof that the invitation still exists.
+    // Disable actions while a refresh is pending or its verification failed.
     if (!this.championshipSeasonEditable(championshipId)
-        || !this.championshipTeamInvitePending[teamId] || this.championshipTeamPlayerBusy[teamId]) return;
+        || !this.championshipTeamInvitePending[teamId]
+        || this.championshipTeamInviteLoading[teamId] || this.championshipTeamInviteLoadError[teamId]
+        || this.championshipTeamPlayerBusy[teamId]) return;
     const revision = this.championshipRevision;
     const communityId = this.community.id;
     this.championshipTeamPlayerBusy[teamId] = true;
@@ -490,6 +494,9 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamPlayerBusy[teamId] = false;
         this.championshipError = 'Não foi possível responder ao convite. Confirma a elegibilidade nesta época.';
+        // The server may have consumed or revoked the invitation even if the
+        // response failed. Revalidate before allowing another decision.
+        this.loadChampionshipTeamInvitation(championshipId, teamId);
         this.changeDetector.markForCheck();
       }
     });
