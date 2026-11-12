@@ -489,3 +489,10 @@ h1 {
 .direct-attachment-image {max-width:100%;}
 .message audio {display:block;width:min(360px,100%);max-width:100%;margin:8px 0;}
 .message video {background:#081d2c;border-radius:10px;}
+
+/* Private message multi-file gallery: responsive and independently accessible. */
+.direct-multi-gallery { display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:10px;margin:10px 0; }
+.direct-extra-file { min-width:0; }
+.direct-extra-file img,.direct-extra-file video { display:block;width:100%;max-height:250px;object-fit:contain;border-radius:9px;background:#0d2530; }
+.direct-extra-file audio { display:block;max-width:100%;width:100%; }
+.direct-extra-file .direct-attachment-button { overflow-wrap:anywhere; }
