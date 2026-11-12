@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, ElementRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy } from '@angular/core';
 import { finalize, timeout } from 'rxjs';
 
 import { appTranslate as t } from '../../i18n/i18n.service';
@@ -14,11 +14,15 @@ type ContactField = 'name' | 'email' | 'category' | 'problem';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
-export class ContactComponent {
+export class ContactComponent implements OnDestroy {
   name = '';
   email = '';
   category = '';
   problem = '';
+  screenshot: File | null = null;
+  screenshotError = '';
+  screenshotPreviewUrl: string | null = null;
+  readonly maxScreenshotBytes = 3 * 1024 * 1024;
 
   readonly categories = [
     'contact.category.partners',
@@ -66,13 +70,19 @@ export class ContactComponent {
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.feedbackService.submit(request)
-      .pipe(timeout(10_000), finalize(() => this.loading = false))
+    const send = this.screenshot
+      ? this.feedbackService.submitWithImage(request, this.screenshot)
+      : this.feedbackService.submit(request);
+    send.pipe(timeout(20_000), finalize(() => this.loading = false))
       .subscribe({
         next: response => {
           this.successMessage = response.message || t('feedback.contact.thanks');
           this.category = '';
           this.problem = '';
+          if (this.screenshotPreviewUrl) URL.revokeObjectURL(this.screenshotPreviewUrl);
+          this.screenshotPreviewUrl = null;
+          this.screenshot = null;
+          this.screenshotError = '';
           this.fieldErrors = {};
         },
         error: error => {
@@ -82,6 +92,51 @@ export class ContactComponent {
           );
         }
       });
+  }
+
+  onScreenshotChosen(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.item(0) ?? null;
+    input.value = '';
+    if (file) this.selectScreenshot(file);
+  }
+
+  onMessagePaste(event: ClipboardEvent): void {
+    const image = Array.from(event.clipboardData?.files ?? [])
+      .find(file => file.type.startsWith('image/'));
+    if (!image || this.loading) return;
+    event.preventDefault();
+    this.selectScreenshot(image);
+  }
+
+  private selectScreenshot(file: File): void {
+    if (this.loading) return;
+    const supported = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+    if (!supported.includes(file.type.toLowerCase())) {
+      this.screenshotError = 'Usa PNG, JPG, WebP ou GIF.';
+      return;
+    }
+    if (!file.size || file.size > this.maxScreenshotBytes) {
+      this.screenshotError = 'A imagem não pode ultrapassar 3 MB.';
+      return;
+    }
+    this.clearScreenshot();
+    this.screenshot = file;
+    this.screenshotPreviewUrl = URL.createObjectURL(file);
+    this.screenshotError = '';
+  }
+
+  clearScreenshot(): void {
+    if (this.loading) return;
+    if (this.screenshotPreviewUrl) URL.revokeObjectURL(this.screenshotPreviewUrl);
+    this.screenshotPreviewUrl = null;
+    this.screenshot = null;
+    this.screenshotError = '';
+  }
+
+  ngOnDestroy(): void {
+    if (this.screenshotPreviewUrl) URL.revokeObjectURL(this.screenshotPreviewUrl);
+    this.screenshotPreviewUrl = null;
   }
 
   clearFieldError(field: ContactField): void {
