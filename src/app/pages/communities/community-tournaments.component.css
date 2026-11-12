@@ -633,3 +633,34 @@
     display:none;
   }
 }
+
+
+/* Deferred fixture events: feedback remains inside the relevant match card. */
+.jynlo-round-detail-retry{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:10px 0;
+  padding:10px 12px;
+  border:1px solid rgba(253,186,116,.4);
+  border-radius:10px;
+  background:rgba(120,53,15,.2);
+  color:#ffe3be;
+  font-size:.79rem;
+}
+.jynlo-round-detail-retry>.t-btn{
+  min-height:34px;
+  white-space:normal;
+}
+.jynlo-round-detail-refresh{
+  display:block;
+  margin:8px 0;
+  min-height:34px;
+  padding:6px 10px;
+  font-size:.75rem;
+}
+@media(max-width:560px){
+  .jynlo-round-detail-retry>.t-btn{width:100%;}
+}
