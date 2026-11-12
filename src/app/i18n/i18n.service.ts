@@ -6,6 +6,17 @@ export type AppLanguage = 'pt' | 'en';
 type Dictionary = Record<string, string>;
 
 const PT: Dictionary = {
+  'championshipRounds.progressLeague': 'Progresso da liga',
+  'championshipRounds.progressCup': 'Progresso da taça',
+  'championshipRounds.progressCount': '{{completed}} de {{total}} jogos concluídos',
+  'championshipRounds.progressMeta': '{{rounds}} jornadas · {{pending}} jogos por registar',
+  'championshipRounds.progressAria': 'Jogos concluídos: {{completed}} de {{total}}',
+  'championshipRounds.filterAria': 'Filtrar jornadas',
+  'championshipRounds.filterAll': 'Todas',
+  'championshipRounds.filterPending': 'Por concluir',
+  'championshipRounds.filterCompleted': 'Concluídas',
+  'championshipRounds.nextPending': 'Ir para próxima jornada pendente',
+  'championshipRounds.filterEmpty': 'Não existem jornadas para este filtro.',
   'championshipRounds.editCupResult': 'Editar resultado da eliminatória',
   'championshipRounds.matchDetails': 'Detalhes e gestão do jogo',
   'championshipRounds.unsavedScore': 'Resultado por guardar',
