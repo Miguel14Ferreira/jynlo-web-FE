@@ -13,4 +13,6 @@ export interface AdminIdea {
   adminReply?: string | null;
   adminRepliedAt?: string | null;
   adminRepliedBy?: string | null;
+  attachmentName?: string | null;
+  attachmentMimeType?: string | null;
 }
