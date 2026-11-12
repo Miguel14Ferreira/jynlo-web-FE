@@ -3176,7 +3176,7 @@
                                 <strong>{{ invite.displayName }}</strong>
                                 <small>&#64;{{ invite.username }}</small>
                               </div>
-                              @if (selected.status === 'DRAFT') {
+                              @if (selected?.status === 'DRAFT') {
                                 <button type="button" class="t-btn t-btn-secondary t-btn-small"
                                   [disabled]="busy || tournamentPendingInviteRevoking[team.id]"
                                   (click)="revokeTournamentPendingInvite(team, invite.profileId)">
