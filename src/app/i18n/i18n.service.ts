@@ -4965,7 +4965,7 @@ const PT: Dictionary = {
   'calls.retryMicrophone': 'Tentar microfone novamente',
   'calls.swapView': 'Trocar vista',
   'calls.shareScreen': 'Partilhar ecrã',
-  'calls.fullScreenShareHint': 'Para mostrar o monitor completo, escolhe «Ecrã inteiro» na janela do navegador.',
+  'calls.fullScreenShareHint': 'Clica em Partilhar ecrã, seleciona separador, janela ou Ecrã inteiro no navegador e confirma Partilhar. Alguns navegadores móveis não suportam esta função.',
   'calls.stopSharing': 'Parar partilha',
   'calls.openChatKeepCall': 'Abrir mensagens sem terminar a chamada',
   'calls.liveShare': 'Partilha de ecrã em direto',
