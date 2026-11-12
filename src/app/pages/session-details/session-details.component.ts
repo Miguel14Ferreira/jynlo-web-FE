@@ -3248,11 +3248,15 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
           // Preserve the visible conversation across silent roster refreshes.
           // Deep-linked chat opens only after membership has been verified.
           if (!this.canSendChat()) {
+            ++this.attachmentCheckVersion;
+            this.attachmentAvailable = false;
+            this.attachmentFile = null;
             this.sessionChatOpen = false;
             this.messages = [];
             this.chatError = '';
           } else if (this.sessionChatOpen && showPageLoader) {
             this.refreshMessages();
+            this.refreshAttachmentAvailability();
           }
         },
         error: () => {
