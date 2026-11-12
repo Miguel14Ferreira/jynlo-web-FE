@@ -644,6 +644,36 @@ describe('Community tournaments management', () => {
     expect(championships.revokeTeamInvitation).not.toHaveBeenCalled();
   });
 
+  it('supports outstanding tournament invites without confusing them with confirmed players', async () => {
+    const team = {id: 10, name: 'Azul', players: [{profileId: 55, username:'confirmed'}],
+      playersPerTeam: 5} as any;
+    component.selected = {id: 19, entryType: 'TEAM', status:'DRAFT'} as any;
+    component.teams = [team];
+    component.tournamentTeamAdministrators[10] = {teamId:10, adminProfileId:1,
+      pendingProfileId:null, canManage:true, canAccept:false};
+    const pending = [{profileId: 44, username:'invitee', displayName:'Convidado',
+      invitedAt:'2026-11-12T10:00:00Z'}];
+    api.pendingTeamInvitations.and.returnValue(of(pending));
+    component.refreshTournamentPendingInvites(10);
+    expect(api.pendingTeamInvitations).toHaveBeenCalledWith(7, 19, 10);
+    expect(component.tournamentPendingInvites[10]).toEqual(pending);
+    await component.revokeTournamentPendingInvite(team, 44);
+    expect(api.revokeTeamInvitation).toHaveBeenCalledOnceWith(7, 19, 10, 44);
+    expect(team.players.length).toBe(1);
+    expect(team.players[0].profileId).toBe(55);
+    expect(component.tournamentPendingInviteRevoking[10]).toBeFalse();
+  });
+
+  it('does not request pending tournament invites for a regular member', () => {
+    component.community = {...component.community, myRole:'MEMBER'};
+    component.selected = {id:19, entryType:'TEAM', status:'DRAFT'} as any;
+    component.teams = [{id:10, name:'Azul', players:[], playersPerTeam:5}] as any;
+    component.tournamentTeamAdministrators[10] = {teamId:10, adminProfileId:null,
+      pendingProfileId:null, canManage:false, canAccept:false};
+    component.refreshTournamentPendingInvites(10);
+    expect(api.pendingTeamInvitations).not.toHaveBeenCalled();
+  });
+
   it('keeps archived championship rosters read-only even with stale manager privileges', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const invite = jasmine.createSpy('inviteTeamPlayer');
