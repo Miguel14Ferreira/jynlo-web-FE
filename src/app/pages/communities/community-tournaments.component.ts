@@ -2734,6 +2734,11 @@ export class CommunityTournamentsComponent implements OnChanges {
     return team.players.find(player => player.profileId === administrator)?.displayName || t('teams.autonomy.adminFallback');
   }
 
+  refreshTournamentPendingInvites(teamId: number): void {
+    if (!this.selected) return;
+    this.loadTournamentPendingInvites(teamId, this.selected.id, this.detailRevision);
+  }
+
   loadTournamentPendingInvites(teamId: number, tournamentId: number, revision: number): void {
     const team = this.teams.find(item => item.id === teamId);
     if (!team || !(this.canManageTeamRoster || this.tournamentTeamAdministrators[teamId]?.canManage)) return;
@@ -6614,7 +6619,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     await this.mutate(this.api.addTeamPlayer(this.community.id, this.selected.id, team.id, id),
       t('teams.autonomy.inviteSent'), () => {
         this.teamPlayerDraft[team.id] = null;
-        this.loadTournamentPendingInvites(team.id, this.selected!.id, this.detailRevision);
+        this.refreshTournamentPendingInvites(team.id);
       });
   }
 
