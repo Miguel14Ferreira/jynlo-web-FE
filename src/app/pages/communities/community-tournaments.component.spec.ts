@@ -1167,6 +1167,60 @@ describe('Community tournaments management', () => {
     expect((component.championshipLeaguePlayerStats[101][0] as any).goals).toBe(4);
   });
 
+  it('invalidates an older expanded-match response after saving a corrected result', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const oldGoals = new Subject<any[]>();
+    const oldCards = new Subject<any[]>();
+    const oldSubs = new Subject<any[]>();
+    const oldLineup = new Subject<any[]>();
+    (championships as any).fixtureGoals = jasmine.createSpy('fixtureGoals')
+      .and.returnValues(oldGoals, of([{ id: 90, teamId: 1 }]));
+    (championships as any).fixtureCards = jasmine.createSpy('fixtureCards').and.returnValue(oldCards);
+    (championships as any).fixtureSubstitutions = jasmine.createSpy('fixtureSubstitutions').and.returnValue(oldSubs);
+    (championships as any).fixtureLineup = jasmine.createSpy('fixtureLineup').and.returnValue(oldLineup);
+    (championships as any).recordOwnedFixtureScore = jasmine.createSpy('recordOwnedFixtureScore')
+      .and.returnValue(of({ id: 501, homeScore: 2, awayScore: 1 }));
+    spyOn(component, 'loadChampionshipOwnedLeagueTable');
+    spyOn(component, 'loadChampionshipLeaguePlayerStats');
+    spyOn(component, 'loadChampionshipStandings');
+
+    const fixture = { id: 501, homeScore: 1, awayScore: 0, homeTeamId: 1, awayTeamId: 2 } as any;
+    component.championshipLeagueFixtures[101] = [fixture];
+    component.loadChampionshipFixtureDetails(15, 101, 501);
+    expect(component.championshipFixtureDetailsState[501]).toBe('loading');
+    component.championshipFixtureScoreDrafts[501] = { home: 2, away: 1 };
+    component.saveChampionshipFixtureScore(
+      { id: 15, sport: 'Futebol', closedAt: null } as any,
+      { id: 101, format: 'LEAGUE', status: 'SCHEDULED' } as any, fixture
+    );
+
+    expect(component.championshipFixtureDetailsState[501]).toBeUndefined();
+    expect(component.championshipFixtureGoals[501].map(goal => goal.id)).toEqual([90]);
+    oldGoals.next([{ id: 1 }]); oldGoals.complete();
+    oldCards.next([{ id: 2 }]); oldCards.complete();
+    oldSubs.next([{ id: 3 }]); oldSubs.complete();
+    oldLineup.next([{ id: 4 }]); oldLineup.complete();
+
+    expect(component.championshipFixtureDetailsState[501]).toBeUndefined();
+    expect(component.championshipFixtureGoals[501].map(goal => goal.id)).toEqual([90]);
+    expect(component.championshipFixtureCards[501]).toBeUndefined();
+  });
+
+  it('keeps only the newest direct scorer reload after out-of-order responses', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const oldGoals = new Subject<any[]>();
+    const newGoals = new Subject<any[]>();
+    (championships as any).fixtureGoals = jasmine.createSpy('fixtureGoals')
+      .and.returnValues(oldGoals, newGoals);
+
+    component.loadFixtureGoals(15, 101, 501);
+    component.loadFixtureGoals(15, 101, 501);
+    newGoals.next([{ id: 99 }]); newGoals.complete();
+    oldGoals.next([{ id: 12 }]); oldGoals.complete();
+
+    expect(component.championshipFixtureGoals[501].map(goal => goal.id)).toEqual([99]);
+  });
+
   it('refreshes the league fixture and clears its draft after a successful score save', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const fixture = { id: 501, homeScore: 1, awayScore: 0 };
