@@ -2362,15 +2362,13 @@ describe('Events2Component', () => {
     const clearWatch = spyOn(navigator.geolocation, 'clearWatch');
     component.chooseLocationMethod('gps');
     component.captureCurrentLocation();
-    onInitial!(({ coords: { latitude: 38.72, longitude: -9.14, accuracy: 500 } })
-      as unknown as GeolocationPosition);
+    onInitial!({ coords: { latitude: 38.72, longitude: -9.14, accuracy: 500 } } as unknown as GeolocationPosition);
     expect(component.gpsAccuracyMeters).toBe(500);
     expect(component.gpsRefining).toBeTrue();
     expect(watch).toHaveBeenCalled();
     expect(venueService.reverseLocation).not.toHaveBeenCalled();
 
-    onWatch!(({ coords: { latitude: 38.725, longitude: -9.145, accuracy: 40 } })
-      as unknown as GeolocationPosition);
+    onWatch!({ coords: { latitude: 38.725, longitude: -9.145, accuracy: 40 } } as unknown as GeolocationPosition);
     expect(component.latitude).toBe(38.725);
     expect(component.longitude).toBe(-9.145);
     expect(component.gpsAccuracyMeters).toBe(40);
@@ -2407,12 +2405,10 @@ describe('Events2Component', () => {
     const clearWatch = spyOn(navigator.geolocation, 'clearWatch');
     component.chooseLocationMethod('gps');
     component.captureCurrentLocation();
-    onInitial!(({ coords: { latitude: 38.72, longitude: -9.14, accuracy: 500 } })
-      as unknown as GeolocationPosition);
+    onInitial!({ coords: { latitude: 38.72, longitude: -9.14, accuracy: 500 } } as unknown as GeolocationPosition);
     component.chooseLocationMethod('maps');
     const previousLatitude = component.latitude;
-    onWatch!(({ coords: { latitude: 41.1, longitude: -8.6, accuracy: 10 } })
-      as unknown as GeolocationPosition);
+    onWatch!({ coords: { latitude: 41.1, longitude: -8.6, accuracy: 10 } } as unknown as GeolocationPosition);
     expect(clearWatch).toHaveBeenCalledWith(21);
     expect(component.latitude).toBe(previousLatitude);
     expect(component.locationSource).not.toBe('gps');
