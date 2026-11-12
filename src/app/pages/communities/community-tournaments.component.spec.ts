@@ -587,7 +587,10 @@ describe('Community tournaments management', () => {
       markForCheck: jasmine.createSpy('markForCheck'),
       detectChanges: jasmine.createSpy('detectChanges')
     } as unknown as ChangeDetectorRef;
-    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam', 'ownedEvents', 'createOwnedEvent', 'updateOwnedEvent', 'deleteOwnedEvent', 'deleteUnplayed', 'ownedEventTeams', 'addOwnedEventTeam', 'removeOwnedEventTeam', 'ownedLeagueFixtures', 'scheduleOwnedLeague', 'ownedCupDraw', 'drawOwnedCup', 'ownedLeagueStandings', 'ownedLeaguePlayerStats', 'advanceOwnedCup']);
+    const championships = jasmine.createSpyObj<CommunityChampionshipsService>('CommunityChampionshipsService', ['list', 'create', 'addCompetition', 'standings', 'setWinnerPoints', 'setPlacementPoints', 'teams', 'createTeam', 'linkTeam', 'honours', 'permanentTeams', 'createPermanentTeam', 'linkPermanentTeam', 'ownedEvents', 'createOwnedEvent', 'updateOwnedEvent', 'deleteOwnedEvent', 'deleteUnplayed', 'ownedEventTeams', 'addOwnedEventTeam', 'removeOwnedEventTeam', 'ownedLeagueFixtures', 'scheduleOwnedLeague', 'ownedCupDraw', 'drawOwnedCup', 'ownedLeagueStandings', 'ownedLeaguePlayerStats', 'advanceOwnedCup',
+      'pendingTeamInvitations', 'revokeTeamInvitation']);
+    championships.pendingTeamInvitations.and.returnValue(of([]));
+    championships.revokeTeamInvitation.and.returnValue(of(void 0));
     championships.list.and.returnValue(of([]));
     championships.ownedEvents.and.returnValue(of([]));
     championships.ownedEventTeams.and.returnValue(of([]));
@@ -605,6 +608,39 @@ describe('Community tournaments management', () => {
     component.ngOnChanges({ community: new SimpleChange(undefined, community, true) });
   });
 
+
+  it('loads pending team invitations for managers and cancels them without changing the roster', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const pending = [{profileId: 44, username: 'jogador', displayName: 'Jogador',
+      invitedAt: '2026-11-12T10:00:00Z'}];
+    championships.pendingTeamInvitations.and.returnValue(of(pending));
+    component.championships = [{id: 15, closedAt: null}] as any;
+    component.championshipTeamAdministrators[99] = {teamId: 99, adminProfileId: 33,
+      pendingProfileId: null, canManage: true, canAccept: false, canTransfer: true};
+    component.championshipTeamPlayers[99] = [{profileId: 55, username:'inscrito', displayName:'Confirmado'}];
+    component.loadChampionshipPendingInvites(15, 99);
+    expect(championships.pendingTeamInvitations).toHaveBeenCalledOnceWith(7, 15, 99);
+    expect(component.championshipPendingInvites[99]).toEqual(pending);
+    component.revokeChampionshipPendingInvite(15, 99, 44);
+    expect(championships.revokeTeamInvitation).toHaveBeenCalledOnceWith(7, 15, 99, 44);
+    expect(component.championshipTeamPlayers[99].length).toBe(1);
+    expect(component.championshipTeamPlayers[99][0].profileId).toBe(55);
+    expect(component.championshipTeamInviteFeedback[99]).toContain('cancelado');
+  });
+
+  it('does not request private invitation lists without verified team permission', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    (component as any).canManage = false;
+    component.championshipTeamAdministrators[99] = {teamId: 99, adminProfileId: null,
+      pendingProfileId: null, canManage: false, canAccept: false, canTransfer: false};
+    component.loadChampionshipPendingInvites(15, 99);
+    expect(championships.pendingTeamInvitations).not.toHaveBeenCalled();
+    component.championshipPendingInvites[99] = [{profileId:44, username:'jogador',
+      displayName:'Jogador', invitedAt:'2026-11-12T10:00:00Z'}];
+    component.championships = [{id:15, closedAt:null}] as any;
+    component.revokeChampionshipPendingInvite(15, 99, 44);
+    expect(championships.revokeTeamInvitation).not.toHaveBeenCalled();
+  });
 
   it('keeps archived championship rosters read-only even with stale manager privileges', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
