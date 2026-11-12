@@ -120,6 +120,8 @@ export class PerfisComponent implements OnInit, OnDestroy {
   selectedProfile?: CommunityProfile;
   selectedActivity?: ProfileActivity;
   profilePosts: FeedItem[] = [];
+  postsPage = 0;
+  postsHasMore = false;
   postsExpanded = false;
   postsLoading = false;
   postsLoadError = false;
@@ -491,21 +493,33 @@ export class PerfisComponent implements OnInit, OnDestroy {
       });
   }
 
-  /** Fetch only the profile being viewed and discard late responses after navigation. */
-  loadProfilePosts(username: string): void {
+  /** Fetch published posts, ignoring late responses from a different profile. */
+  loadProfilePosts(username: string, append = false): void {
     if (this.selectedProfile?.username.toLowerCase() !== username.toLowerCase()
-        || this.selectedBlocked) return;
+        || this.selectedBlocked || (append && (this.postsLoading || !this.postsHasMore))) return;
     this.postsSubscription?.unsubscribe();
     const revision = ++this.postsRevision;
+    const page = append ? this.postsPage + 1 : 0;
+    if (!append) {
+      this.profilePosts = [];
+      this.postsExpanded = false;
+      this.postsPage = 0;
+      this.postsHasMore = false;
+    }
     this.postsLoading = true;
     this.postsLoadError = false;
-    this.postsSubscription = this.socialFeed.profilePosts(username)
+    this.postsSubscription = this.socialFeed.profilePosts(username, page)
       .pipe(timeout(10_000))
       .subscribe({
         next: posts => {
           if (revision !== this.postsRevision
               || this.selectedProfile?.username.toLowerCase() !== username.toLowerCase()) return;
-          this.profilePosts = posts.filter(post => post.type === 'POST' && post.postId != null);
+          const published = posts.filter(post => post.type === 'POST' && post.postId != null);
+          const previous = append ? this.profilePosts : [];
+          const known = new Set(previous.map(post => post.postId));
+          this.profilePosts = [...previous, ...published.filter(post => !known.has(post.postId))];
+          this.postsPage = page;
+          this.postsHasMore = posts.length === 20;
           this.postsLoading = false;
         },
         error: () => {
@@ -517,6 +531,11 @@ export class PerfisComponent implements OnInit, OnDestroy {
       });
   }
 
+  loadMoreProfilePosts(): void {
+    const username = this.selectedProfile?.username;
+    if (username && this.postsExpanded) this.loadProfilePosts(username, true);
+  }
+
   closeProfile(): void {
     this.closeFollowList();
     this.closeInvitePanel();
@@ -524,6 +543,8 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.postsSubscription?.unsubscribe();
     ++this.postsRevision;
     this.profilePosts = [];
+    this.postsPage = 0;
+    this.postsHasMore = false;
     this.postsExpanded = false;
     this.postsLoading = false;
     this.postsLoadError = false;
