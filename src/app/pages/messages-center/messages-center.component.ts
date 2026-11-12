@@ -67,6 +67,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   @ViewChild('composerTextarea') composerTextarea?: ElementRef<HTMLTextAreaElement>;
 
   conversations: InboxConversation[] = [];
+  readonly failedAvatarKeys = new Set<string>();
   selectedKey: string | null = null;
   mutedConversations: MutedConversation[] = [];
   muteLoading = false;
@@ -124,6 +125,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     ++this.summaryVersion;
     ++this.peerReceiptVersion;
     this.conversations = [];
+    this.failedAvatarKeys.clear();
     this.selectedKey = null;
     this.messages = [];
     this.draft = '';
