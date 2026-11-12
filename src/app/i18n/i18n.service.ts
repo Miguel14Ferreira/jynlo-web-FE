@@ -6,6 +6,17 @@ export type AppLanguage = 'pt' | 'en';
 type Dictionary = Record<string, string>;
 
 const PT: Dictionary = {
+  'profilePosts.kicker': 'SOCIAL',
+  'profilePosts.title': 'Publicações',
+  'profilePosts.description': 'Publicações guardadas no perfil, separadas das stories e da atividade automática.',
+  'profilePosts.openFeed': 'Abrir feed',
+  'profilePosts.loadError': 'Não foi possível carregar as publicações deste perfil.',
+  'profilePosts.empty': 'Ainda não existem publicações neste perfil.',
+  'profilePosts.imageAlt': 'Fotografia da publicação',
+  'profilePosts.likes': 'Gostos',
+  'profilePosts.comments': 'Comentários',
+  'profilePosts.showLess': 'Mostrar menos',
+  'profilePosts.showMore': 'Ver todas as publicações',
   'notification.team.inviteSubject': "Convite para a equipa {{team}}",
   'notification.team.transferSubject': "Transferência da administração de {{team}}",
   'notification.team.assignedSubject': "Agora administras a equipa {{team}}",
