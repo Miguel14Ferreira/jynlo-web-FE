@@ -74,6 +74,21 @@ export class CommunityTimelineService {
       this.url(id, 'CHAT') + '/attachments', form);
   }
 
+  sendChatAttachments(id: number, files: File[], caption: string,
+                      replyToMessageId?: number): Observable<CommunityTimelineEntry> {
+    const form = new FormData();
+    for (const file of files) form.append('files', file, file.name);
+    if (caption.trim()) form.append('caption', caption.trim());
+    if (replyToMessageId) form.append('replyToMessageId', String(replyToMessageId));
+    return this.http.post<CommunityTimelineEntry>(
+      this.url(id, 'CHAT') + '/attachments/batch', form);
+  }
+
+  downloadChatAttachmentAt(id: number, messageId: number, index: number): Observable<Blob> {
+    return this.http.get(this.url(id, 'CHAT') + '/attachments/' + messageId + '/' + index,
+      {responseType: 'blob'});
+  }
+
   downloadChatAttachment(id: number, messageId: number): Observable<Blob> {
     return this.http.get(this.url(id, 'CHAT') + '/attachments/' + messageId,
       { responseType: 'blob' });
