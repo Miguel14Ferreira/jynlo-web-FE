@@ -2775,9 +2775,10 @@ describe('SessionDetailsComponent', () => {
     };
     component.beginDetailsEdit();
     fixture.detectChanges();
-    const sportsSelect = (fixture.nativeElement as HTMLElement)
-      .querySelector<HTMLSelectElement>('.session-details-editor select');
-    expect(sportsSelect?.disabled).toBeTrue();
+    const readonlySport = (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLInputElement>('.session-details-editor input[readonly]');
+    expect(readonlySport?.readOnly).toBeTrue();
+    expect(readonlySport?.value).toBe('Padel');
     expect(component.canChangeSessionSport()).toBeFalse();
 
     component.detailsDraft.sport = 'Futebol';
