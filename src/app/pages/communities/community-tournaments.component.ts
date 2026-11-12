@@ -65,6 +65,7 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipAggregateStandings: Record<number, CommunityChampionshipStandings> = {};
   private championshipStandingsLoadVersion: Record<number, number> = {};
   championshipTeamRegistries: Record<number, CommunityChampionshipTeams> = {};
+  private championshipTeamRegistryLoadVersion: Record<number, number> = {};
   championshipHonoursSportFilter = '';
   get championshipHonoursSports(): string[] {
     return [...new Set((this.championshipHonours?.titles || []).map(title => title.sport))]
@@ -668,13 +669,23 @@ export class CommunityTournamentsComponent implements OnChanges {
   championshipTeamDrafts: Record<number, string> = {};
   championshipCloseConfirmed: Record<number, boolean> = {};
 
+  /** Confirmed creations and links supersede earlier roster directory reads. */
+  private commitChampionshipTeamRegistry(championshipId: number, registry: CommunityChampionshipTeams): void {
+    this.championshipTeamRegistryLoadVersion[championshipId] =
+      (this.championshipTeamRegistryLoadVersion[championshipId] || 0) + 1;
+    this.championshipTeamRegistries = { ...this.championshipTeamRegistries, [championshipId]: registry };
+  }
+
   loadChampionshipTeams(championshipId: number): void {
     const revision = this.championshipRevision;
     const communityId = this.community.id;
+    const loadVersion = this.championshipTeamRegistryLoadVersion[championshipId] =
+      (this.championshipTeamRegistryLoadVersion[championshipId] || 0) + 1;
     this.championshipsApi.teams(communityId, championshipId).subscribe({
       next: registry => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
-        this.championshipTeamRegistries = { ...this.championshipTeamRegistries, [championshipId]: registry };
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipTeamRegistryLoadVersion[championshipId]) return;
+        this.commitChampionshipTeamRegistry(championshipId, registry);
         registry.teams.forEach(team => {
           this.loadChampionshipTeamPlayers(championshipId, team.id);
           this.loadChampionshipTeamAdministrator(championshipId, team.id);
@@ -693,7 +704,8 @@ export class CommunityTournamentsComponent implements OnChanges {
         }
       },
       error: () => {
-        if (revision !== this.championshipRevision || communityId !== this.community.id) return;
+        if (revision !== this.championshipRevision || communityId !== this.community.id
+            || loadVersion !== this.championshipTeamRegistryLoadVersion[championshipId]) return;
         this.championshipError = 'Não foi possível carregar as equipas do campeonato.';
         this.changeDetector.markForCheck();
       }
@@ -711,7 +723,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipsApi.createTeam(communityId, championshipId, name).subscribe({
       next: registry => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
-        this.championshipTeamRegistries = { ...this.championshipTeamRegistries, [championshipId]: registry };
+        this.commitChampionshipTeamRegistry(championshipId, registry);
         registry.teams.forEach(team => {
           if (!this.championshipTeamPlayers[team.id]) this.loadChampionshipTeamPlayers(championshipId, team.id);
           this.loadChampionshipTeamAdministrator(championshipId, team.id);
@@ -740,7 +752,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipsApi.linkTeam(communityId, championshipId, tournamentTeamId, targetId).subscribe({
       next: registry => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
-        this.championshipTeamRegistries = { ...this.championshipTeamRegistries, [championshipId]: registry };
+        this.commitChampionshipTeamRegistry(championshipId, registry);
         this.championshipBusy = false;
         this.loadChampionshipStandings(championshipId);
         this.changeDetector.markForCheck();
@@ -2145,6 +2157,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     this.championshipAggregateStandings = {};
     this.championshipStandingsLoadVersion = {};
     this.championshipTeamRegistries = {};
+    this.championshipTeamRegistryLoadVersion = {};
     this.championshipTeamPlayers = {};
     this.championshipTeamPlayerDrafts = {};
     this.championshipTeamMemberSearch = {};
