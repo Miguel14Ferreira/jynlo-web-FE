@@ -77,7 +77,7 @@ describe('SessionDetailsComponent', () => {
     directChatService.send.and.returnValue(of({} as any));
     sessionService = jasmine.createSpyObj<SessionService>(
       'SessionService',
-      ['detail', 'context', 'postGameCommunities', 'joinCommunityAfterGame', 'updateMeetingPoint', 'updateCapacity', 'updateDetails', 'join', 'leave', 'cancel', 'complete', 'reportDidNotOccur', 'reportProblem', 'messages', 'postMessage', 'participants', 'removeParticipant', 'teamSuggestion', 'confirmTeams', 'futureExclusionStatus', 'excludeFromFutureSessions', 'allowFutureSessions', 'myOverallRating', 'rateOverall', 'myVenueRating', 'rateVenue', 'sentCompliments', 'receivedCompliments', 'giveCompliment', 'issueGuestLink', 'guestRequests', 'confirmedGuests', 'reviewGuestRequest', 'cancelGuestRequest']
+      ['detail', 'context', 'postGameCommunities', 'joinCommunityAfterGame', 'updateMeetingPoint', 'updateCapacity', 'updateDetails', 'join', 'leave', 'cancel', 'complete', 'reportDidNotOccur', 'reportProblem', 'messages', 'postMessage', 'attachmentsAvailable', 'sendAttachment', 'downloadAttachment', 'participants', 'removeParticipant', 'teamSuggestion', 'confirmTeams', 'futureExclusionStatus', 'excludeFromFutureSessions', 'allowFutureSessions', 'myOverallRating', 'rateOverall', 'myVenueRating', 'rateVenue', 'sentCompliments', 'receivedCompliments', 'giveCompliment', 'issueGuestLink', 'guestRequests', 'confirmedGuests', 'reviewGuestRequest', 'cancelGuestRequest']
     );
     sessionService.detail.and.returnValue(of(session));
     sessionService.context.and.returnValue(of({communities:[],seasonGame:false,seasonName:null}));
@@ -85,6 +85,11 @@ describe('SessionDetailsComponent', () => {
     sessionService.joinCommunityAfterGame.and.returnValue(of({communityId:22,state:'REQUESTED'}));
     sessionService.guestRequests.and.returnValue(of([]));
     sessionService.confirmedGuests.and.returnValue(of([]));
+    sessionService.attachmentsAvailable.and.returnValue(of({ available: false }));
+    sessionService.sendAttachment.and.returnValue(of({ id: 42, sessionId: 7,
+      senderUsername: 'creator-user', body: 'Anexo', createdAt: new Date().toISOString(),
+      attachmentName: 'documento.pdf', attachmentSize: 64 } as SessionMessage));
+    sessionService.downloadAttachment.and.returnValue(of(new Blob(['safe'])));
     sessionService.issueGuestLink.and.returnValue(of({token:'T'.repeat(43)}));
     sessionService.cancelGuestRequest.and.returnValue(of({id:30,name:'Convidado',status:'CANCELLED',note:'',teamCode:null}));
     sessionService.join.and.returnValue(of({
@@ -4366,6 +4371,66 @@ describe('SessionDetailsComponent', () => {
     expect(preview).toBeTruthy();
     component.confirmTeams();
     expect(sessionService.confirmTeams).toHaveBeenCalledWith(7, 'RANDOM', preview);
+  });
+
+  it('only exposes session attachments after the private storage availability check', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = {...session, joined: true, gameDate: '2099-01-01T18:00:00Z'};
+    component.sessionId = 7;
+    const availability = new Subject<{available: boolean}>();
+    sessionService.attachmentsAvailable.and.returnValue(availability.asObservable());
+
+    component.refreshAttachmentAvailability();
+    fixture.detectChanges();
+    expect(component.attachmentChecking).toBeTrue();
+    expect((fixture.nativeElement as HTMLElement).querySelector('#session-chat-attachment-file')).toBeNull();
+    availability.next({available: true});
+    availability.complete();
+    expect(component.attachmentAvailable).toBeTrue();
+    // The uploader belongs to the inline chat, never the public session header.
+    component.sessionChatOpen = true;
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('#session-chat-attachment-file')).not.toBeNull();
+  });
+
+  it('validates file sizes and sends private attachments with captions and reply context', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = {...session, joined: true, gameDate: '2099-01-01T18:00:00Z'};
+    component.sessionId = 7;
+    component.sessionChatOpen = true;
+    component.attachmentAvailable = true;
+    const oversized = new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'too-large.png');
+    const input = document.createElement('input');
+    input.type = 'file';
+    Object.defineProperty(input, 'files', {value: {item: () => oversized}});
+    component.chooseSessionAttachment({target: input} as unknown as Event);
+    expect(component.attachmentFile).toBeNull();
+    expect(component.attachmentFeedback).toContain('5 MB');
+    const file = new File(['content'], 'results.txt', {type:'text/plain'});
+    Object.defineProperty(input, 'files', {value: {item: () => file}, configurable:true});
+    component.chooseSessionAttachment({target: input} as unknown as Event);
+    expect(component.attachmentFile).toBe(file);
+    component.messageBody = 'Resultado do jogo';
+    component.replyingToSessionMessage = {id: 11, sessionId: 7,
+      senderUsername:'player-two', body:'Jogo', createdAt:new Date().toISOString()};
+    component.sendSessionAttachment();
+    expect(sessionService.sendAttachment).toHaveBeenCalledOnceWith(
+      7, file, 'Resultado do jogo', 11);
+    expect(component.attachmentFile).toBeNull();
+    expect(component.messageBody).toBe('');
+  });
+
+  it('does not automatically resend a private attachment after an uncertain response', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = {...session, joined: true, gameDate: '2099-01-01T18:00:00Z'};
+    component.sessionId = 7;
+    component.attachmentAvailable = true;
+    component.attachmentFile = new File(['test'], 'file.txt');
+    sessionService.sendAttachment.and.returnValue(throwError(() => new HttpErrorResponse({status: 0})));
+    component.sendSessionAttachment();
+    expect(sessionService.sendAttachment).toHaveBeenCalledTimes(1);
+    expect(component.attachmentFile).toBeNull();
+    expect(component.attachmentFeedback).toContain('Atualiza o chat');
   });
 
   it('only enables roster calls when the provider is ready and supports voice and video', () => {
