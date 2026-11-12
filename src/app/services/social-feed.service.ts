@@ -19,9 +19,10 @@ export class SocialFeedService {
   }
 
   /** Persistent authored publications, excluding expiring stories and generated activities. */
-  profilePosts(username: string): Observable<FeedItem[]> {
+  profilePosts(username: string, page = 0): Observable<FeedItem[]> {
     return this.http.get<FeedItem[]>(
-      this.baseUrl + '/users/' + encodeURIComponent(username) + '/posts'
+      this.baseUrl + '/users/' + encodeURIComponent(username) + '/posts',
+      { params: { page: String(page) } }
     );
   }
 
