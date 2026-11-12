@@ -1434,12 +1434,12 @@
                                   <span aria-hidden="true">💬</span> Mensagem
                                 </button>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
-                                  [disabled]="!(sessionCallAvailability$ | async)"
+                                  [disabled]="!(sessionCallAvailability$ | async) || (sessionCallState$ | async) !== null"
                                   (click)="callSessionMember(participant.username, 'voice')">
                                   <span aria-hidden="true">📞</span> Voz
                                 </button>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
-                                  [disabled]="!(sessionCallAvailability$ | async)"
+                                  [disabled]="!(sessionCallAvailability$ | async) || (sessionCallState$ | async) !== null"
                                   (click)="callSessionMember(participant.username, 'video')">
                                   <span aria-hidden="true">📹</span> Vídeo
                                 </button>
@@ -1518,12 +1518,12 @@
                                   <span aria-hidden="true">💬</span> Mensagem
                                 </button>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
-                                  [disabled]="!(sessionCallAvailability$ | async)"
+                                  [disabled]="!(sessionCallAvailability$ | async) || (sessionCallState$ | async) !== null"
                                   (click)="callSessionMember(participant.username, 'voice')">
                                   <span aria-hidden="true">📞</span> Voz
                                 </button>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
-                                  [disabled]="!(sessionCallAvailability$ | async)"
+                                  [disabled]="!(sessionCallAvailability$ | async) || (sessionCallState$ | async) !== null"
                                   (click)="callSessionMember(participant.username, 'video')">
                                   <span aria-hidden="true">📹</span> Vídeo
                                 </button>
@@ -1602,12 +1602,12 @@
                                   <span aria-hidden="true">💬</span> Mensagem
                                 </button>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
-                                  [disabled]="!(sessionCallAvailability$ | async)"
+                                  [disabled]="!(sessionCallAvailability$ | async) || (sessionCallState$ | async) !== null"
                                   (click)="callSessionMember(participant.username, 'voice')">
                                   <span aria-hidden="true">📞</span> Voz
                                 </button>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
-                                  [disabled]="!(sessionCallAvailability$ | async)"
+                                  [disabled]="!(sessionCallAvailability$ | async) || (sessionCallState$ | async) !== null"
                                   (click)="callSessionMember(participant.username, 'video')">
                                   <span aria-hidden="true">📹</span> Vídeo
                                 </button>
