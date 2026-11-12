@@ -326,7 +326,6 @@ export class Events2Component implements OnInit, OnDestroy {
   private gpsWatchId: number | null = null;
   private gpsRefinementTimeout?: ReturnType<typeof setTimeout>;
   gpsRefining = false;
-  gpsLowAccuracyConfirmed = false;
 
   private stopGpsRefinement(): void {
     if (this.gpsWatchId !== null) {
@@ -338,13 +337,12 @@ export class Events2Component implements OnInit, OnDestroy {
     this.gpsRefining = false;
   }
 
-  confirmApproximateGps(): void {
-    if (this.locationSource === 'gps' && this.gpsAccuracyIsLow)
-      this.gpsLowAccuracyConfirmed = true;
-  }
-
+  // Browser geolocation can resolve to a completely different neighbourhood
+  // (for example Wi-Fi/IP positioning), irrespective of the requested GPS mode.
+  // Never treat an inaccurate or unknown fix as a verified venue coordinate.
   get gpsAccuracyIsLow(): boolean {
-    return this.gpsAccuracyMeters !== null && this.gpsAccuracyMeters > 100;
+    return this.locationSource === 'gps'
+      && (this.gpsAccuracyMeters === null || this.gpsAccuracyMeters > 100);
   }
 
   get hasCoordinates(): boolean {
@@ -1626,7 +1624,7 @@ export class Events2Component implements OnInit, OnDestroy {
         this.applyCurrentPosition(latitude, longitude, accuracy);
         // Desktop browsers often resolve from Wi-Fi/IP instead of satellite GPS.
         // Keep the first point visible but seek a better reading before trusting it.
-        if (Number.isFinite(accuracy) && accuracy > 100) this.refineGpsPosition();
+        if (!Number.isFinite(accuracy) || accuracy > 100) this.refineGpsPosition();
       }),
       () => this.ngZone.run(() => {
         if (requestId !== this.gpsRequestId) {
@@ -1694,7 +1692,6 @@ export class Events2Component implements OnInit, OnDestroy {
     this.longitude = longitude;
     this.locationCaptured = true;
     this.locationSource = 'gps';
-    this.gpsLowAccuracyConfirmed = false;
     this.gpsAccuracyMeters = accuracyMeters !== undefined
       && Number.isFinite(accuracyMeters) && accuracyMeters >= 0
         ? Math.max(1, Math.round(accuracyMeters))
@@ -1774,7 +1771,6 @@ export class Events2Component implements OnInit, OnDestroy {
 
   clearLocation(): void {
     this.stopGpsRefinement();
-    this.gpsLowAccuracyConfirmed = false;
     this.invalidateVenueMapLinkRequest();
     this.gpsRequestId++;
     this.clearAutoGpsFields();
@@ -1857,8 +1853,8 @@ export class Events2Component implements OnInit, OnDestroy {
     if (this.locationMethod === 'gps' && !(this.hasCoordinates && this.locationSource === 'gps')) {
       return 'Autoriza e confirma primeiro a tua localização atual.';
     }
-    if (this.locationSource === 'gps' && this.gpsAccuracyIsLow && !this.gpsLowAccuracyConfirmed) {
-      return 'A localização do browser é demasiado imprecisa. Usa uma ligação do Google Maps para indicar o campo exato ou confirma expressamente o ponto aproximado.';
+    if (this.locationSource === 'gps' && this.gpsAccuracyIsLow) {
+      return 'O browser não conseguiu localizar o campo com precisão. Escolhe Ligação Google Maps e indica o recinto correto; não é seguro guardar este ponto aproximado.';
     }
 
     if (this.selectedVenueId !== null) {
