@@ -664,6 +664,38 @@
                        rel="noopener noreferrer">© OpenStreetMap contributors</a>
                   </small>
                 }
+                @if (locationSource === 'gps' && gpsRefining) {
+                  <p class="venue-current-location" role="status">
+                    <span aria-hidden="true">◎</span> A tentar obter uma localização mais precisa…
+                    No computador, o browser pode usar Wi-Fi em vez de GPS.
+                  </p>
+                }
+                @if (locationSource === 'gps' && gpsAccuracyIsLow) {
+                  <div class="gps-precision-review" role="group" aria-label="Confirmar localização aproximada">
+                    <strong>O pino pode estar bastante afastado do campo.</strong>
+                    <p>O browser não conseguiu garantir a posição exata. Para indicar o recinto correto,
+                      escolhe <b>Ligação Google Maps</b> e cola o link do campo. Em alternativa,
+                      podes confirmar manualmente este ponto, mas verifica-o primeiro no mapa.</p>
+                    <div class="header-actions">
+                      <button type="button" class="secondary-action jynlo-action jynlo-action--neutral"
+                        [disabled]="locating || gpsRefining" (click)="captureCurrentLocation()">
+                        Tentar novamente
+                      </button>
+                      <button type="button" class="secondary-action jynlo-action jynlo-action--neutral"
+                        (click)="chooseLocationMethod('maps')">
+                        Indicar campo no Google Maps
+                      </button>
+                      @if (!gpsLowAccuracyConfirmed) {
+                        <button type="button" class="secondary-action jynlo-action jynlo-action--neutral"
+                          (click)="confirmApproximateGps()">
+                          Confirmo este ponto aproximado
+                        </button>
+                      } @else {
+                        <span role="status">Ponto aproximado confirmado manualmente.</span>
+                      }
+                    </div>
+                  </div>
+                }
                 @if (locationSource === 'gps' && gpsAccuracyMeters !== null) {
                   <p class="gps-accuracy" [class.gps-accuracy-warning]="gpsAccuracyIsLow"
                      [attr.role]="gpsAccuracyIsLow ? 'status' : null">
