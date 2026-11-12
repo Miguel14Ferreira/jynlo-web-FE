@@ -155,6 +155,12 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                 <div class="connect-wait-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
               </div>
             } @else {
+              @if (call.cameraEnabled && !ownCameraPublished && !(calls.busyMedia$ | async)) {
+                <div class="connect-camera-health" role="status">
+                  <span>{{ 'calls.cameraNoVideo' | t }}</span>
+                  <button type="button" (click)="calls.setCamera(true)">{{ 'calls.retryCamera' | t }}</button>
+                </div>
+              }
               <div class="connect-participants" [class.connect-participants--video]="videoActive"
                 [class.connect-participants--presenting]="hasPresentation"
                 [class.connect-participants--camera-focus]="!hasPresentation && !!focusedCamera"
@@ -751,6 +757,13 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
     .connect-wait-bars i{width:4px;height:9px;border-radius:9px;background:#56f2c5;animation:connect-wave 1s ease-in-out infinite alternate}
     .connect-wait-bars i:nth-child(2),.connect-wait-bars i:nth-child(4){animation-delay:.22s}.connect-wait-bars i:nth-child(3){animation-delay:.44s}
     @keyframes connect-wave{to{height:24px}}
+    .connect-camera-health{display:flex;align-items:center;justify-content:center;
+      flex-wrap:wrap;gap:12px;margin:2px 4px 8px;padding:9px 12px;
+      border:1px solid #b38c50;border-radius:10px;background:#30291e;color:#ffe4b9;
+      font-size:.8rem}
+    .connect-camera-health button{border:1px solid #d3ae70;border-radius:8px;
+      background:#5b4223;color:#fff4db;padding:6px 11px;cursor:pointer;font:inherit}
+    .connect-camera-health button:focus-visible{outline:2px solid #fff4db;outline-offset:2px}
     .connect-participants{flex:1;min-height:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));
       grid-auto-rows:minmax(150px,1fr);gap:12px;overflow:auto;padding:4px}
     .connect-participants:has(app-call-participant-tile:only-child){grid-template-columns:1fr}
@@ -1034,6 +1047,14 @@ export class DirectCallOverlayComponent implements OnDestroy {
   get participants(): (LocalParticipant | RemoteParticipant)[] {
     const room = this.calls.room;
     return room ? [room.localParticipant, ...room.remoteParticipants.values()] : [];
+  }
+
+  get ownCameraPublished(): boolean {
+    const local = this.calls.room?.localParticipant;
+    if (!local?.videoTrackPublications) return false;
+    return [...local.videoTrackPublications.values()].some(pub =>
+      pub.source===Track.Source.Camera && !!pub.track && !pub.isMuted
+      && pub.track.mediaStreamTrack?.readyState !== 'ended');
   }
 
   get videoActive(): boolean {
