@@ -754,7 +754,7 @@ describe('Community tournaments management', () => {
         canManage: true, canAccept: false, canTransfer: true
       }));
     (championships as any).teamInviteStatus = jasmine.createSpy('teamInviteStatus')
-      .and.returnValue(oldInvitation);
+      .and.returnValues(oldInvitation, of({ invited: true }));
     (championships as any).respondTeamInvite = jasmine.createSpy('respondTeamInvite')
       .and.returnValue(of([{ profileId: 25, displayName: 'Novo jogador' }]));
     component.championships = [{ id: 15, closedAt: null } as any];
@@ -762,6 +762,10 @@ describe('Community tournaments management', () => {
 
     component.loadChampionshipTeamAdministrator(15, 44);
     component.loadChampionshipTeamInvitation(15, 44);
+    // The old status request is unresolved: verify the pending invite anew
+    // before deciding, while preserving the original stale-response scenario.
+    component.loadChampionshipTeamInvitation(15, 44);
+    expect(component.championshipTeamInviteLoading[44]).toBeFalse();
     component.respondChampionshipTeamInvitation(15, 44, true);
     oldAdmin.next({ teamId: 44, adminProfileId: null, canManage: false });
     oldInvitation.next({ invited: true });
