@@ -1820,3 +1820,33 @@ h1 {
   font-size: .85rem;
   opacity: .8;
 }
+
+.session-chat-preview-toggle {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  margin-left: .5rem;
+  padding: .3rem .6rem;
+  border: 1px solid rgba(94, 234, 176, .35);
+  border-radius: .55rem;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.session-chat-preview-toggle:disabled { opacity: .5; cursor: not-allowed; }
+.session-chat-preview-toggle:hover:not(:disabled) { background: rgba(41, 151, 113, .15); }
+.session-chat-attachment-preview {
+  max-width: min(100%, 36rem);
+  margin-top: .5rem;
+  overflow: hidden;
+  border: 1px solid rgba(140, 161, 176, .22);
+  border-radius: .8rem;
+}
+.session-chat-attachment-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 28rem;
+  object-fit: contain;
+  background: rgba(5, 18, 25, .4);
+}
