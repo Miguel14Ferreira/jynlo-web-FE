@@ -240,11 +240,11 @@
                 <span>{{ group.item.city }} · {{ group.item.gameDate | date:'dd/MM/yyyy' }}</span>
               </div>
               <a class="feed-attendance-link" [routerLink]="['/menu/events', group.sessionId]">{{ 'feed.viewSession' | t }} →</a>
-              @if (group.ownActivity; as ownActivity) {
-                <button type="button" class="feed-attendance-hide" [disabled]="hidingAttendanceSessionId !== null"
-                  (click)="hideAttendanceActivity(ownActivity)"
-                  [attr.aria-label]="'feed.hideAttendance' | t">{{ 'feed.hideAttendance' | t }}</button>
-              }
+              <button type="button" class="feed-attendance-hide"
+                (click)="hideFromMyFeed(group.item)"
+                [attr.aria-label]="'feed.hideFromMyFeed' | t">
+                {{ 'feed.hideFromMyFeed' | t }}
+              </button>
             </div>
           }
           @if (attendanceGroups.length > 5) {
@@ -255,6 +255,12 @@
             </button>
           }
         </section>
+      }
+      @if (recentlyHiddenFeedEntry) {
+        <div class="feed-hide-feedback" role="status">
+          <span>{{ 'feed.hiddenOnlyForYou' | t }}</span>
+          <button type="button" (click)="undoHideFromMyFeed()">{{ 'common.undo' | t }}</button>
+        </div>
       }
       <div class="feed-list">
         @for (item of fullFeedItems; track item.type + '-' + (item.postId || item.sessionId) + '-' + item.createdAt) {
@@ -278,6 +284,13 @@
                   <span>@{{ item.authorUsername }} · {{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
                 </div>
               </a>
+
+              <button type="button"
+                class="feed-hide-post jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small"
+                (click)="hideFromMyFeed(item)"
+                [attr.aria-label]="'feed.hideFromMyFeed' | t">
+                {{ 'feed.hideFromMyFeed' | t }}
+              </button>
 
               @if (item.type === 'SESSION_ATTENDED' && item.sessionId !== null
                    && item.authorUsername === currentUsername) {
