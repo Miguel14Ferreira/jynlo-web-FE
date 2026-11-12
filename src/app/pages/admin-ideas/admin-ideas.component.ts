@@ -96,6 +96,11 @@ export class AdminIdeasComponent implements OnInit, OnDestroy {
   }
 
   private loadAttachments(idea: AdminIdea): void {
+    if (typeof this.adminIdeasService.attachments !== 'function') {
+      if (idea.attachmentName) this.attachments = [{index: 0, filename: idea.attachmentName,
+        mimeType: idea.attachmentMimeType || 'image/png'}];
+      return;
+    }
     const version = this.attachmentRequestVersion;
     this.attachmentListLoading = true;
     this.adminIdeasService.attachments(idea.id).pipe(timeout(10_000),
