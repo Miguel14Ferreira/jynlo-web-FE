@@ -1623,6 +1623,8 @@ const PT: Dictionary = {
   'feed.emptyText': 'Segue pessoas, cria sessões ou faz a tua primeira publicação.',
   'feed.delete': 'Apagar',
   'feed.hideAttendance': 'Ocultar atividade',
+  'feed.attendanceDigest.single': '{{name}} participou numa sessão de {{sport}}',
+  'feed.attendanceDigest.multiple': '{{name}} e mais {{count}} participaram numa sessão de {{sport}}',
   'feed.activity.sessionCreated': 'Nova sessão',
   'feed.activity.createdSession': '{{sport}} em {{city}}',
   'feed.activity.sessionAttended': 'Atividade realizada',
