@@ -20,6 +20,10 @@ export class AdminIdeasComponent implements OnInit, OnDestroy {
   replyingId: number | null = null;
   replyText = '';
   attachmentLoading = false;
+  attachments: {index: number; filename: string; mimeType: string}[] = [];
+  attachmentUrls = new Map<number, string>();
+  loadingAttachmentIndex: number | null = null;
+  attachmentListLoading = false;
   attachmentError = '';
   attachmentPreviewUrl: string | null = null;
   private attachmentBlob: Blob | null = null;
@@ -78,6 +82,7 @@ export class AdminIdeasComponent implements OnInit, OnDestroy {
     if (this.replyingId !== null) return;
     this.clearAttachmentPreview();
     this.selected = idea;
+    this.loadAttachments(idea);
     this.replyText = '';
     this.replyError = '';
     this.replySuccess = false;
@@ -90,27 +95,48 @@ export class AdminIdeasComponent implements OnInit, OnDestroy {
     this.replyText = '';
   }
 
-  showAttachment(idea: AdminIdea): void {
-    if (!idea.attachmentName || this.attachmentLoading) return;
-    if (this.selected?.id !== idea.id) return;
-    if (this.attachmentPreviewUrl) {
-      this.clearAttachmentPreview();
+  private loadAttachments(idea: AdminIdea): void {
+    const version = this.attachmentRequestVersion;
+    this.attachmentListLoading = true;
+    this.adminIdeasService.attachments(idea.id).pipe(timeout(10_000),
+      finalize(() => {
+        if (version === this.attachmentRequestVersion) this.attachmentListLoading = false;
+      })).subscribe({
+        next: items => {
+          if (version === this.attachmentRequestVersion && this.selected?.id === idea.id)
+            this.attachments = items;
+        },
+        error: () => {
+          if (version === this.attachmentRequestVersion) {
+            this.attachmentError = 'Não foi possível obter a lista de anexos.';
+            if (idea.attachmentName) this.attachments =
+              [{index:0,filename:idea.attachmentName,mimeType:idea.attachmentMimeType || 'image/png'}];
+          }
+        }
+      });
+  }
+
+  showAttachmentAt(idea: AdminIdea, index: number): void {
+    if (this.selected?.id !== idea.id || this.loadingAttachmentIndex !== null) return;
+    const existing = this.attachmentUrls.get(index);
+    if (existing) {
+      URL.revokeObjectURL(existing);
+      this.attachmentUrls.delete(index);
       return;
     }
-    const version = ++this.attachmentRequestVersion;
+    const version = this.attachmentRequestVersion;
     this.attachmentError = '';
-    this.attachmentLoading = true;
-    this.adminIdeasService.attachment(idea.id).pipe(timeout(15_000),
-      finalize(() => { if (version === this.attachmentRequestVersion) this.attachmentLoading = false; }))
+    this.loadingAttachmentIndex = index;
+    this.adminIdeasService.attachmentAt(idea.id, index).pipe(timeout(15_000),
+      finalize(() => { if (version === this.attachmentRequestVersion) this.loadingAttachmentIndex = null; }))
       .subscribe({
         next: blob => {
           if (version !== this.attachmentRequestVersion || this.selected?.id !== idea.id) return;
-          if (!['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(blob.type)) {
+          if (!['image/png','image/jpeg','image/webp','image/gif'].includes(blob.type)) {
             this.attachmentError = 'O formato da imagem não é suportado.';
             return;
           }
-          this.attachmentBlob = blob;
-          this.attachmentPreviewUrl = URL.createObjectURL(blob);
+          this.attachmentUrls.set(index, URL.createObjectURL(blob));
         },
         error: () => {
           if (version === this.attachmentRequestVersion)
@@ -119,17 +145,22 @@ export class AdminIdeasComponent implements OnInit, OnDestroy {
       });
   }
 
-  downloadAttachment(idea: AdminIdea): void {
-    if (!this.attachmentBlob || !this.attachmentPreviewUrl || this.selected?.id !== idea.id) return;
+  downloadAttachmentAt(index: number, filename: string): void {
+    const url = this.attachmentUrls.get(index);
+    if (!url) return;
     const link = document.createElement('a');
-    link.href = this.attachmentPreviewUrl;
-    link.download = idea.attachmentName || 'captura';
+    link.href = url;
+    link.download = filename;
     link.click();
   }
 
   private clearAttachmentPreview(): void {
     ++this.attachmentRequestVersion;
-    if (this.attachmentPreviewUrl) URL.revokeObjectURL(this.attachmentPreviewUrl);
+    for (const url of this.attachmentUrls.values()) URL.revokeObjectURL(url);
+    this.attachmentUrls.clear();
+    this.attachments = [];
+    this.attachmentListLoading = false;
+    this.loadingAttachmentIndex = null;
     this.attachmentPreviewUrl = null;
     this.attachmentBlob = null;
     this.attachmentLoading = false;
