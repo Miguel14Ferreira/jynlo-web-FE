@@ -163,65 +163,102 @@
         [disabled]="posting"
         [placeholder]="'feed.sharePlaceholder' | t"></textarea>
 
-      @if (postImagePreview) {
-        <div class="composer-image-preview">
-          <img [src]="postImagePreview" [alt]="'feed.imagePreviewAlt' | t">
-          <button
-            type="button"
-            class="remove-image jynlo-premium-btn jynlo-premium-btn--danger jynlo-premium-btn--small"
-            [disabled]="posting"
-            (click)="removePostImage()">
-            {{ 'feed.removeImage' | t }}
-          </button>
-        </div>
-      }
+      @if (postImagePreview || postVideoPreview || postGallery.length) {
+        <div class="composer-media" aria-label="Pré-visualização dos anexos">
+          <div class="composer-media-heading">
+            <div class="composer-media-title">
+              <strong>Fotografias e vídeos</strong>
+              <span>{{ postGallery.length || 1 }} {{ (postGallery.length || 1) === 1 ? 'ficheiro selecionado' : 'ficheiros selecionados' }}</span>
+            </div>
+            @if (postGallery.length) {
+              <button type="button" class="composer-media-clear"
+                [disabled]="posting" (click)="clearPostGallery()">
+                Remover todos
+              </button>
+            }
+          </div>
 
-      @if (postVideoPreview) {
-        <div class="composer-image-preview">
-          <video [src]="postVideoPreview" controls preload="metadata" playsinline
-            [attr.aria-label]="'feed.videoPreviewAlt' | t"></video>
-          <button type="button" class="remove-image jynlo-premium-btn jynlo-premium-btn--danger jynlo-premium-btn--small" [disabled]="posting"
-            (click)="removePostVideo()">{{ 'feed.removeVideo' | t }}</button>
-        </div>
-      }
+          @if (postImagePreview) {
+            <div class="composer-media-item composer-media-item--single">
+              <div class="composer-media-frame">
+                <img [src]="postImagePreview" [alt]="'feed.imagePreviewAlt' | t">
+              </div>
+              <div class="composer-media-item-footer">
+                <span class="composer-media-name" [title]="postImageFile?.name">{{ postImageFile?.name || 'Fotografia' }}</span>
+                <button type="button" class="composer-media-remove"
+                  [disabled]="posting" (click)="removePostImage()"
+                  [attr.aria-label]="'Remover ' + (postImageFile?.name || 'fotografia')">
+                  Remover
+                </button>
+              </div>
+            </div>
+          }
 
-      @if (postGallery.length) {
-        <div class="feed-gallery-draft" aria-label="Media selecionados">
-          @for (item of postGallery; track item.url; let i = $index) {
-            <div class="feed-gallery-draft-item">
-              @if (item.file.type.startsWith('video/')) {
-                <video [src]="item.url" controls preload="metadata"></video>
-              } @else {
-                <img [src]="item.url" [alt]="item.file.name">
+          @if (postVideoPreview) {
+            <div class="composer-media-item composer-media-item--single">
+              <div class="composer-media-frame">
+                <video [src]="postVideoPreview" controls preload="metadata" playsinline
+                  [attr.aria-label]="'feed.videoPreviewAlt' | t"></video>
+              </div>
+              <div class="composer-media-item-footer">
+                <span class="composer-media-name" [title]="postVideoFile?.name">{{ postVideoFile?.name || 'Vídeo' }}</span>
+                <button type="button" class="composer-media-remove"
+                  [disabled]="posting" (click)="removePostVideo()"
+                  [attr.aria-label]="'Remover ' + (postVideoFile?.name || 'vídeo')">
+                  Remover
+                </button>
+              </div>
+            </div>
+          }
+
+          @if (postGallery.length) {
+            <div class="composer-media-grid">
+              @for (item of postGallery; track item.url; let i = $index) {
+                <div class="composer-media-item">
+                  <div class="composer-media-frame">
+                    @if (item.file.type.startsWith('video/')) {
+                      <video [src]="item.url" controls preload="metadata" playsinline
+                        [attr.aria-label]="item.file.name"></video>
+                    } @else {
+                      <img [src]="item.url" [alt]="item.file.name">
+                    }
+                  </div>
+                  <div class="composer-media-item-footer">
+                    <span class="composer-media-name" [title]="item.file.name">{{ item.file.name }}</span>
+                    <button type="button" class="composer-media-remove"
+                      [disabled]="posting" (click)="removePostGalleryItem(i)"
+                      [attr.aria-label]="'Remover ' + item.file.name">Remover</button>
+                  </div>
+                </div>
               }
-              <button type="button" [disabled]="posting" (click)="removePostGalleryItem(i)"
-                [attr.aria-label]="'Remover ' + item.file.name">Remover</button>
             </div>
           }
         </div>
       }
 
       <div class="composer-actions">
-        <label class="image-picker jynlo-action jynlo-premium-btn jynlo-premium-btn--quiet" [class.disabled]="posting">
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            [disabled]="posting"
-            (change)="onPostImageChange($event)">
-          <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.4"/><path d="m3 17 5.5-5.5 3.6 3.6 3-3L21 18"/></svg><span>{{ postImagePreview ? ('feed.changeImage' | t) : ('feed.addImage' | t) }}</span>
-        </label>
-        <label class="image-picker jynlo-action jynlo-premium-btn jynlo-premium-btn--quiet" [class.disabled]="posting">
-          <input type="file" accept="video/mp4,video/webm" [disabled]="posting"
-            (change)="onPostVideoChange($event)">
-          <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="m17 10 4-3v10l-4-3"/></svg><span>{{ postVideoPreview ? ('feed.changeVideo' | t) : ('feed.addVideo' | t) }}</span>
-        </label>
-        <label class="image-picker jynlo-action jynlo-premium-btn jynlo-premium-btn--quiet" [class.disabled]="posting">
-          <input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
-            [disabled]="posting" (change)="onPostGalleryChange($event)">
-          <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="6" width="13" height="13" rx="2"/><path d="M8 3h10a3 3 0 0 1 3 3v11"/><path d="m5 16 3-3 3 3 2-2 3 3"/></svg><span>Álbum (até 6)</span>
-        </label>
+        <div class="composer-media-tools" role="group" aria-label="Adicionar fotografias e vídeos">
+          <label class="image-picker jynlo-action jynlo-premium-btn jynlo-premium-btn--quiet" [class.disabled]="posting">
+            <input type="file" accept="image/jpeg,image/png,image/webp"
+              [disabled]="posting" (change)="onPostImageChange($event)">
+            <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.4"/><path d="m3 17 5.5-5.5 3.6 3.6 3-3L21 18"/></svg>
+            <span>{{ postImagePreview ? ('feed.changeImage' | t) : ('feed.addImage' | t) }}</span>
+          </label>
+          <label class="image-picker jynlo-action jynlo-premium-btn jynlo-premium-btn--quiet" [class.disabled]="posting">
+            <input type="file" accept="video/mp4,video/webm" [disabled]="posting"
+              (change)="onPostVideoChange($event)">
+            <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="m17 10 4-3v10l-4-3"/></svg>
+            <span>{{ postVideoPreview ? ('feed.changeVideo' | t) : ('feed.addVideo' | t) }}</span>
+          </label>
+          <label class="image-picker jynlo-action jynlo-premium-btn jynlo-premium-btn--quiet" [class.disabled]="posting">
+            <input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+              [disabled]="posting" (change)="onPostGalleryChange($event)">
+            <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="6" width="13" height="13" rx="2"/><path d="M8 3h10a3 3 0 0 1 3 3v11"/><path d="m5 16 3-3 3 3 2-2 3 3"/></svg>
+            <span>Álbum (até 6)</span>
+          </label>
+        </div>
         <button
-          class="jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary"
+          class="composer-publish jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary"
           type="button"
           [disabled]="posting || !postContent.trim()"
           (click)="publish()">
