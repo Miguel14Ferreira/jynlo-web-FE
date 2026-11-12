@@ -1,0 +1,49 @@
+# Isolated checks for the existing develop branch. No deploys or live data.
+name: Jynlo Connect develop validation
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'src/app/shared/direct-call-overlay.component.ts'
+      - 'src/app/shared/direct-call-overlay.component.spec.ts'
+      - 'src/app/shared/call-participant-tile.component.ts'
+      - 'src/app/shared/call-participant-tile.component.spec.ts'
+      - 'src/app/services/direct-call-client.service.ts'
+      - 'src/app/services/direct-call-client.service.spec.ts'
+      - 'src/app/i18n/i18n.service.ts'
+      - 'src/app/i18n/translations-en.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/jynlo-connect-develop-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jynlo-connect-develop-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  connect-tests-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Call media, layout and reconnect regression tests
+        run: |
+          npm test -- --watch=false --browsers=ChromeHeadless \
+            --include=src/app/shared/direct-call-overlay.component.spec.ts \
+            --include=src/app/shared/call-participant-tile.component.spec.ts \
+            --include=src/app/services/direct-call-client.service.spec.ts
+      - name: Compile production frontend without deployment
+        run: npm run build
