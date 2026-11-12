@@ -775,6 +775,16 @@
                     <strong>{{ seasonTeam.name }}</strong>
                     <span>{{ (championshipTeamPlayers[seasonTeam.id] || []).length }} jogadores</span>
                   </div>
+                  @if (championshipTeamAdminLoadError[seasonTeam.id] && !championship.closedAt) {
+                    <div class="jynlo-team-admin-decision" role="status">
+                      <p>Não foi possível verificar as permissões de administração desta equipa.</p>
+                      <button type="button" class="t-btn t-btn-secondary t-btn-small"
+                        [disabled]="championshipTeamAdminLoading[seasonTeam.id] || championshipTeamAdminBusy[seasonTeam.id]"
+                        (click)="loadChampionshipTeamAdministrator(championship.id, seasonTeam.id)">
+                        Tentar novamente
+                      </button>
+                    </div>
+                  }
                   @if (championshipTeamAdministrators[seasonTeam.id]; as administrator) {
                     <section class="jynlo-team-admin-card" [class.is-waiting]="!administrator.adminProfileId"
                       [attr.aria-label]="'Administração de ' + seasonTeam.name">
@@ -799,10 +809,10 @@
                           <p>{{ 'teams.autonomy.transferHint' | t }}</p>
                           <div class="jynlo-team-admin-actions">
                             <button type="button" class="t-btn t-btn-primary"
-                              [disabled]="championshipTeamAdminBusy[seasonTeam.id]"
+                              [disabled]="championshipTeamAdminBusy[seasonTeam.id] || !championshipTeamAdminVerified(seasonTeam.id)"
                               (click)="respondChampionshipTeamAdministrator(championship.id, seasonTeam.id, true)">{{ 'teams.autonomy.acceptAdmin' | t }}</button>
                             <button type="button" class="t-btn t-btn-secondary"
-                              [disabled]="championshipTeamAdminBusy[seasonTeam.id]"
+                              [disabled]="championshipTeamAdminBusy[seasonTeam.id] || !championshipTeamAdminVerified(seasonTeam.id)"
                               (click)="respondChampionshipTeamAdministrator(championship.id, seasonTeam.id, false)">{{ 'teams.autonomy.decline' | t }}</button>
                           </div>
                         </div>
@@ -813,7 +823,7 @@
                           <p>{{ 'teams.autonomy.pendingChamp' | t:{name:championshipTeamAdminName(administrator.pendingProfileId)} }}</p>
                           @if (administrator.canTransfer && !championship.closedAt) {
                             <button type="button" class="t-btn t-btn-secondary t-btn-small"
-                              [disabled]="championshipTeamAdminBusy[seasonTeam.id]"
+                              [disabled]="championshipTeamAdminBusy[seasonTeam.id] || !championshipTeamAdminVerified(seasonTeam.id)"
                               (click)="cancelChampionshipTeamAdminTransfer(championship.id, seasonTeam.id)">{{ 'teams.autonomy.cancel' | t }}</button>
                           }
                         </div>
@@ -833,7 +843,7 @@
                               }
                             </select>
                             <button type="button" class="t-btn t-btn-secondary"
-                              [disabled]="championshipTeamAdminBusy[seasonTeam.id] || !championshipTeamAdminDrafts[seasonTeam.id]"
+                              [disabled]="championshipTeamAdminBusy[seasonTeam.id] || !championshipTeamAdminVerified(seasonTeam.id) || !championshipTeamAdminDrafts[seasonTeam.id]"
                               (click)="inviteChampionshipTeamAdministrator(championship.id, seasonTeam.id)">{{ 'teams.autonomy.propose' | t }}</button>
                           </div>
                           <small>{{ 'teams.autonomy.transferChampHint' | t }}</small>
