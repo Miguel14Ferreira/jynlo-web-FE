@@ -42,9 +42,34 @@ describe('Call participant tile track selection', () => {
     tile.ngAfterViewChecked();
     expect(tile.hasVideo).toBeTrue();
     expect(selfCamera.attach).toHaveBeenCalledOnceWith(video);
-    expect(video.muted).toBeFalse(); // Angular's template sets the muted property.
+    expect(video.muted).toBeTrue(); // Even direct track attachment keeps the local preview silent.
     tile.ngOnDestroy();
     expect(selfCamera.detach).toHaveBeenCalledOnceWith(video);
+  });
+
+  it('never mutes a remote camera preview while keeping local camera audio silent', () => {
+    const remoteVideo=track();
+    const remote={
+      ...participant,
+      videoTrackPublications:new Map([
+        ['camera',{source:Track.Source.Camera,track:remoteVideo,isMuted:false}]
+      ])
+    } as unknown as LocalParticipant;
+    const tile=new CallParticipantTileComponent();
+    tile.participant=remote;
+    const element=document.createElement('video');
+    element.muted=true; // A previously used local media element.
+    (tile as any).videoElement={nativeElement:element};
+    tile.local=false;
+    tile.ngAfterViewChecked();
+    expect(element.muted).toBeFalse();
+    expect(remoteVideo.attach).toHaveBeenCalledOnceWith(element);
+    tile.local=true;
+    tile.ngAfterViewChecked();
+    expect(element.muted).toBeTrue();
+    expect(remoteVideo.attach).toHaveBeenCalledTimes(1);
+    tile.ngOnDestroy();
+    expect(remoteVideo.detach).toHaveBeenCalledOnceWith(element);
   });
 
   it('keeps remote sound but detaches invisible video while minimized and restores it on expand', () => {
