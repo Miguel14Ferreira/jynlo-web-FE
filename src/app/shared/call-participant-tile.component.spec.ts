@@ -47,7 +47,7 @@ describe('Call participant tile track selection', () => {
     expect(selfCamera.detach).toHaveBeenCalledOnceWith(video);
   });
 
-  it('never mutes a remote camera preview while keeping local camera audio silent', () => {
+  it('keeps both remote and self video silent for autoplay while audio remains separate', () => {
     const remoteVideo=track();
     const remote={
       ...participant,
@@ -62,7 +62,7 @@ describe('Call participant tile track selection', () => {
     (tile as any).videoElement={nativeElement:element};
     tile.local=false;
     tile.ngAfterViewChecked();
-    expect(element.muted).toBeFalse();
+    expect(element.muted).toBeTrue();
     expect(remoteVideo.attach).toHaveBeenCalledOnceWith(element);
     tile.local=true;
     tile.ngAfterViewChecked();
