@@ -857,10 +857,10 @@
                       <p>{{ 'teams.autonomy.joinHint' | t }}</p>
                       <div class="jynlo-team-admin-actions">
                         <button type="button" class="t-btn t-btn-primary"
-                          [disabled]="championshipTeamPlayerBusy[seasonTeam.id]"
+                          [disabled]="championshipTeamPlayerBusy[seasonTeam.id] || championshipTeamInviteLoading[seasonTeam.id] || championshipTeamInviteLoadError[seasonTeam.id]"
                           (click)="respondChampionshipTeamInvitation(championship.id, seasonTeam.id, true)">{{ 'teams.autonomy.joinAccept' | t }}</button>
                         <button type="button" class="t-btn t-btn-secondary"
-                          [disabled]="championshipTeamPlayerBusy[seasonTeam.id]"
+                          [disabled]="championshipTeamPlayerBusy[seasonTeam.id] || championshipTeamInviteLoading[seasonTeam.id] || championshipTeamInviteLoadError[seasonTeam.id]"
                           (click)="respondChampionshipTeamInvitation(championship.id, seasonTeam.id, false)">{{ 'teams.autonomy.joinDecline' | t }}</button>
                       </div>
                     </div>
