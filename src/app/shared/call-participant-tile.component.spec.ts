@@ -25,6 +25,28 @@ describe('Call participant tile track selection', () => {
     screen.detach.calls.reset();
   });
 
+  it('attaches a published local camera to the self preview without requiring a remote track', () => {
+    const selfCamera=track();
+    const self={
+      ...participant,
+      videoTrackPublications:new Map([
+        ['camera',{source:Track.Source.Camera,track:selfCamera,isMuted:false}]
+      ])
+    } as unknown as LocalParticipant;
+    const tile=new CallParticipantTileComponent();
+    tile.participant=self;
+    tile.local=true;
+    tile.label='Tu';
+    const video=document.createElement('video');
+    (tile as any).videoElement={nativeElement:video};
+    tile.ngAfterViewChecked();
+    expect(tile.hasVideo).toBeTrue();
+    expect(selfCamera.attach).toHaveBeenCalledOnceWith(video);
+    expect(video.muted).toBeFalse(); // Angular's template sets the muted property.
+    tile.ngOnDestroy();
+    expect(selfCamera.detach).toHaveBeenCalledOnceWith(video);
+  });
+
   it('keeps remote sound but detaches invisible video while minimized and restores it on expand', () => {
     const microphone = track();
     const device = {
