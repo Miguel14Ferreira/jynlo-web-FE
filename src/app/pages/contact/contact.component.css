@@ -211,3 +211,70 @@ small {
   border-color: rgba(248, 113, 113, .72);
   box-shadow: 0 0 0 2px rgba(248, 113, 113, .10);
 }
+
+/* Private screenshot evidence on the public contact form. */
+.contact-attachment {
+  display: grid;
+  gap: .75rem;
+  margin-top: 1.15rem;
+  padding: 1rem;
+  border: 1px solid rgba(62, 204, 178, .27);
+  border-radius: .9rem;
+  background: rgba(7, 48, 57, .44);
+}
+.contact-attachment-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .85rem;
+}
+.contact-attachment-heading > div { flex: 1 1 260px; }
+.contact-attachment-heading strong { color: #f0fffb; font-size: .93rem; }
+.contact-attachment-heading p { margin: .35rem 0 0; color: #b8d8dc; line-height: 1.5; font-size: .82rem; }
+.contact-attachment-picker,
+.contact-attachment-meta button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: .6rem .85rem;
+  border: 1px solid rgba(75, 209, 191, .42);
+  border-radius: .7rem;
+  color: #b8fff0;
+  background: rgba(37, 125, 112, .2);
+  font: inherit;
+  font-weight: 700;
+  font-size: .83rem;
+  cursor: pointer;
+}
+.contact-attachment-picker:focus-within,
+.contact-attachment-meta button:focus-visible {
+  outline: 2px solid #a5fce6;
+  outline-offset: 2px;
+}
+.contact-attachment input[type=file] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.contact-attachment-error { color: #fecaca; margin: 0; font-size: .85rem; }
+.contact-attachment-preview { display: grid; gap: .65rem; min-width: 0; }
+.contact-attachment-preview img {
+  width: 100%;
+  max-width: 450px;
+  max-height: 240px;
+  object-fit: contain;
+  border-radius: .75rem;
+  border: 1px solid rgba(126, 169, 174, .24);
+  background: rgba(3, 23, 36, .65);
+}
+.contact-attachment-meta { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+.contact-attachment-meta span { font-size: .8rem; color: #c2e2e5; overflow-wrap: anywhere; }
+.contact-attachment-meta button:disabled { opacity: .45; cursor: not-allowed; }
+@media (max-width: 540px) {
+  .contact-attachment-picker { width: 100%; }
+}
