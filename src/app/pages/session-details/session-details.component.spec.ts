@@ -4402,7 +4402,7 @@ describe('SessionDetailsComponent', () => {
     const oversized = new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'too-large.png');
     const input = document.createElement('input');
     input.type = 'file';
-    Object.defineProperty(input, 'files', {value: {item: () => oversized}});
+    Object.defineProperty(input, 'files', {value: {item: () => oversized}, configurable:true});
     component.chooseSessionAttachment({target: input} as unknown as Event);
     expect(component.attachmentFile).toBeNull();
     expect(component.attachmentFeedback).toContain('5 MB');
