@@ -634,6 +634,10 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     return this.sessionCallInjector.get(DirectCallClientService).available$;
   }
 
+  get sessionCallState$() {
+    return this.sessionCallInjector.get(DirectCallClientService).state$;
+  }
+
   callSessionMember(username: string, media: 'voice' | 'video' = 'voice'): void {
     if (!this.canContactSessionMember(username)) return;
     const calls = this.sessionCallInjector.get(DirectCallClientService);
