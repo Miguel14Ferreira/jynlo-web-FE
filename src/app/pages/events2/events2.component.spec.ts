@@ -815,6 +815,7 @@ describe('Events2Component', () => {
 
   it('allows three weekly games with separate first-week dates and shows 12 future games', () => {
     component.communityId = 7;
+    component.directCommunity = { id: 7, myRole: 'OWNER' } as any;
     component.recurrence = 'WEEKLY';
     component.recurrenceOccurrences = 4;
     component.gameDate = '2099-10-15T18:00';
@@ -851,6 +852,7 @@ describe('Events2Component', () => {
 
   it('rejects duplicated out-of-window weekly dates or more than 52 created games', () => {
     component.communityId = 7;
+    component.directCommunity = { id: 7, myRole: 'OWNER' } as any;
     component.sport = 'Padel';
     component.city = 'Lisboa';
     component.address = 'Rua do Campo';
@@ -903,6 +905,7 @@ describe('Events2Component', () => {
 
   it('keeps one-weekly-session default compatible with existing request', () => {
     component.communityId = 7;
+    component.directCommunity = { id: 7, myRole: 'OWNER' } as any;
     component.sport = 'Padel';
     component.city = 'Lisboa';
     component.address = 'Rua do Campo';
@@ -953,6 +956,7 @@ describe('Events2Component', () => {
 
   it('requires a future scheduled callup before kickoff', () => {
     component.communityId = 7;
+    component.directCommunity = { id: 7, myRole: 'OWNER' } as any;
     component.sport = 'Padel';
     component.gameDate = '2099-10-15T18:00';
     component.city = 'Lisboa';
@@ -975,6 +979,7 @@ describe('Events2Component', () => {
 
   it('creates a manually gated callup only for community sessions', () => {
     component.communityId = 7;
+    component.directCommunity = { id: 7, myRole: 'OWNER' } as any;
     component.sport = 'Padel';
     component.gameDate = '2099-10-15T18:00';
     component.city = 'Lisboa';
@@ -3321,6 +3326,7 @@ describe('Events2Component', () => {
     component.address = 'Rua do Campo';
     component.maxParticipants = 4;
     component.communityId = 12;
+    component.directCommunity = { id: 12, myRole: 'OWNER' } as any;
     component.recurrence = 'WEEKLY';
     component.recurrenceOccurrences = 1;
 
@@ -3351,7 +3357,7 @@ describe('Events2Component', () => {
     const communities = TestBed.inject(CommunityGroupsService);
     communityGroups.get.and.returnValue(of({
       id: 7, name: 'Desportistas de Lisboa', sport: 'Futebol',
-      sports: ['Futebol', 'Padel']
+      sports: ['Futebol', 'Padel'], myRole: 'OWNER'
     } as any));
 
     const page = TestBed.createComponent(Events2Component);
