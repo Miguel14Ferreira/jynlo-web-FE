@@ -11,8 +11,9 @@ describe('ContactComponent', () => {
   let service: jasmine.SpyObj<FeedbackService>;
 
   beforeEach(async () => {
-    service = jasmine.createSpyObj<FeedbackService>('FeedbackService', ['submit']);
+    service = jasmine.createSpyObj<FeedbackService>('FeedbackService', ['submit', 'submitWithImage']);
     service.submit.and.returnValue(of({ message: 'Obrigado' } as any));
+    service.submitWithImage.and.returnValue(of({ message: 'Recebido' } as any));
 
     await TestBed.configureTestingModule({
       declarations: [ContactComponent],
@@ -58,6 +59,36 @@ describe('ContactComponent', () => {
       problem: 'Gostava de ter torneios.'
     });
     expect(component.successMessage).toContain('Obrigado');
+  });
+
+  it('can send one screenshot with the feedback and clears it on success', () => {
+    fill();
+    const file = new File(['mock screenshot'], 'captura.png', { type: 'image/png' });
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', { value: { item: () => file } });
+    component.onScreenshotChosen({ target: input } as unknown as Event);
+    expect(component.screenshot).toBe(file);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.contact-attachment-preview img')).toBeTruthy();
+    component.submit();
+    expect(service.submit).not.toHaveBeenCalled();
+    expect(service.submitWithImage).toHaveBeenCalledOnceWith(jasmine.objectContaining({
+      name: 'Miguel Ferreira', email: 'miguel@example.com'
+    }), file);
+    expect(component.screenshot).toBeNull();
+    expect(component.successMessage).toContain('Recebido');
+  });
+
+  it('does not intercept pasted text and rejects invalid screenshot formats', () => {
+    const fake = new File(['<script>unsafe</script>'], 'test.html', { type:'text/html' });
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', { value: { item: () => fake } });
+    component.onScreenshotChosen({ target: input } as unknown as Event);
+    expect(component.screenshot).toBeNull();
+    expect(component.screenshotError).toContain('PNG');
+    const preventDefault = jasmine.createSpy('preventDefault');
+    component.onMessagePaste({ clipboardData: { files: [] }, preventDefault } as unknown as ClipboardEvent);
+    expect(preventDefault).not.toHaveBeenCalled();
   });
 
   it('should show contextual email validation', () => {
