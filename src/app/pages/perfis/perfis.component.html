@@ -494,6 +494,63 @@
             </section>
           }
 
+          @if (!selectedBlocked) {
+            <section class="profile-publications" [attr.aria-label]="'profilePosts.title' | t">
+              <header class="profile-publications-header">
+                <div>
+                  <span class="section-kicker">{{ 'profilePosts.kicker' | t }}</span>
+                  <h2>{{ 'profilePosts.title' | t }}</h2>
+                  <p>{{ 'profilePosts.description' | t }}</p>
+                </div>
+                @if (isOwnProfile(selectedProfile)) {
+                  <a class="jynlo-action jynlo-action--neutral profile-publications-create"
+                     routerLink="/menu/feed">{{ 'profilePosts.openFeed' | t }}</a>
+                }
+              </header>
+              @if (postsLoading) {
+                <p class="profile-publications-state" role="status">{{ 'common.loading' | t }}</p>
+              } @else if (postsLoadError) {
+                <div class="profile-publications-state" role="alert">
+                  <p>{{ 'profilePosts.loadError' | t }}</p>
+                  <button type="button" class="jynlo-action jynlo-action--neutral"
+                    (click)="loadProfilePosts(selectedProfile.username)">{{ 'common.retry' | t }}</button>
+                </div>
+              } @else if (profilePosts.length === 0) {
+                <p class="profile-publications-state">{{ 'profilePosts.empty' | t }}</p>
+              } @else {
+                <div class="profile-publications-grid">
+                  @for (post of (postsExpanded ? profilePosts : profilePosts.slice(0, 9)); track post.postId) {
+                    <article class="profile-publication-card">
+                      @if (post.imageUrl) {
+                        <img class="profile-publication-image" [src]="post.imageUrl"
+                          [alt]="'profilePosts.imageAlt' | t" loading="lazy">
+                      }
+                      @if (post.videoUrl) {
+                        <video class="profile-publication-video" controls preload="none"
+                          [src]="post.videoUrl"></video>
+                      }
+                      @if (post.content) {
+                        <p class="profile-publication-copy">{{ post.content }}</p>
+                      }
+                      <footer class="profile-publication-meta">
+                        <time>{{ post.createdAt | date:'mediumDate' }}</time>
+                        <span>{{ 'profilePosts.likes' | t }}: {{ post.likeCount }}</span>
+                        <span>{{ 'profilePosts.comments' | t }}: {{ post.commentCount }}</span>
+                      </footer>
+                    </article>
+                  }
+                </div>
+                @if (profilePosts.length > 9) {
+                  <button type="button" class="jynlo-action jynlo-action--neutral profile-publications-more"
+                    [attr.aria-expanded]="postsExpanded"
+                    (click)="postsExpanded = !postsExpanded">
+                    {{ (postsExpanded ? 'profilePosts.showLess' : 'profilePosts.showMore') | t }}
+                  </button>
+                }
+              }
+            </section>
+          }
+
           @if (!isOwnProfile(selectedProfile)) {
           <details class="profile-safety">
             <summary>{{ 'community.moreOptions' | t }}</summary>
