@@ -3150,6 +3150,49 @@
                         </div>
                       }
                     </div>
+                    @if (canManageTeamRoster || tournamentTeamAdministrators[team.id]?.canManage) {
+                      <section class="jynlo-team-pending-invitations"
+                        [attr.aria-label]="'teams.autonomy.pendingListTitle' | t">
+                        <div class="jynlo-team-pending-heading">
+                          <div>
+                            <strong>{{ 'teams.autonomy.pendingListTitle' | t }}
+                              ({{ (tournamentPendingInvites[team.id] || []).length }})</strong>
+                            <small>{{ 'teams.autonomy.pendingListHint' | t }}</small>
+                          </div>
+                          <button type="button" class="t-btn t-btn-secondary t-btn-small"
+                            [disabled]="tournamentPendingInvitesLoading[team.id] || tournamentPendingInviteRevoking[team.id]"
+                            (click)="loadTournamentPendingInvites(team.id, selected.id, detailRevision)">
+                            {{ 'teams.autonomy.pendingRefresh' | t }}
+                          </button>
+                        </div>
+                        @if (tournamentPendingInvitesLoading[team.id]) {
+                          <p class="t-muted" role="status">{{ 'teams.autonomy.pendingLoading' | t }}</p>
+                        } @else if (tournamentPendingInvitesError[team.id]) {
+                          <p role="alert">{{ 'teams.autonomy.pendingError' | t }}</p>
+                        } @else {
+                          @for (invite of tournamentPendingInvites[team.id] || []; track invite.profileId) {
+                            <div class="jynlo-team-pending-person">
+                              <div>
+                                <strong>{{ invite.displayName }}</strong>
+                                <small>&#64;{{ invite.username }}</small>
+                              </div>
+                              @if (selected.status === 'DRAFT') {
+                                <button type="button" class="t-btn t-btn-secondary t-btn-small"
+                                  [disabled]="busy || tournamentPendingInviteRevoking[team.id]"
+                                  (click)="revokeTournamentPendingInvite(team, invite.profileId)">
+                                  {{ 'teams.autonomy.pendingRevoke' | t }}
+                                </button>
+                              }
+                            </div>
+                          } @empty {
+                            <p class="t-muted">{{ 'teams.autonomy.pendingEmpty' | t }}</p>
+                          }
+                        }
+                        @if (tournamentTeamInviteFeedback) {
+                          <p role="status">{{ tournamentTeamInviteFeedback }}</p>
+                        }
+                      </section>
+                    }
           </article>
                     @if (canManageTournamentTeam(team) && !isTeamRosterFull(team)) {
                       <aside class="team-page-management" [attr.aria-label]="'communities.tournaments.teamPage.manageTitle' | t">
