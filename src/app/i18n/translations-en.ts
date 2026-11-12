@@ -1,5 +1,13 @@
 // Loaded only for users who choose English. Keep the original key/value table intact.
 export const EN: Record<string, string> = {
+  'championshipRounds.manage': 'Manage rounds',
+  'championshipRounds.leagueTitle': 'League matchdays',
+  'championshipRounds.cupTitle': 'Cup rounds',
+  'championshipRounds.expandAll': 'Expand all',
+  'championshipRounds.collapseAll': 'Collapse all',
+  'championshipRounds.completed': 'matches with results',
+  'championshipRounds.toggle': 'Expand or collapse',
+  'championshipRounds.cupRound': 'Round',
   'profilePosts.kicker': 'SOCIAL',
   'profilePosts.title': 'Posts',
   'profilePosts.description': 'Posts kept on this profile, separate from stories and automatic activities.',
