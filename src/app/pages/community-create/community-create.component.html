@@ -37,29 +37,32 @@
         <p>{{ 'communityCreate.editLater' | t }}</p>
       </div>
 
-      <section class="community-photo-field">
+      <section class="community-photo-field" [attr.aria-label]="'communityCreate.photo' | t">
         <div class="community-photo-preview">
           @if (photoPreview) {
             <img [src]="photoPreview" [alt]="'communityCreate.photo' | t">
           } @else {
-            <span>◎</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 7h4l1.5-2h5L16 7h4v12H4z"/>
+              <circle cx="12" cy="13" r="3"/>
+            </svg>
           }
         </div>
 
         <div class="community-photo-copy">
           <strong>{{ 'communityCreate.photo' | t }}</strong>
           <p>{{ 'communityCreate.photoOptional' | t }}</p>
-
           <div class="community-photo-actions">
             <label class="secondary-action photo-picker">
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
+                [attr.aria-label]="'communityCreate.choosePhoto' | t"
                 [disabled]="saving"
                 (change)="onPhotoChange($event)">
               {{ photoPreview ? ('communityCreate.changePhoto' | t) : ('communityCreate.choosePhoto' | t) }}
             </label>
-
             @if (photoPreview) {
               <button type="button" class="secondary-action jynlo-action jynlo-action--neutral" [disabled]="saving" (click)="removePhoto()">
                 {{ 'communityCreate.removePhoto' | t }}
