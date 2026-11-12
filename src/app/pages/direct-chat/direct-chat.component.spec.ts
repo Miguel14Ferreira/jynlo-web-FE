@@ -26,7 +26,7 @@ describe('DirectChatComponent', () => {
     connection = new Subject();
     service = jasmine.createSpyObj<DirectChatService>(
       'DirectChatService',
-      ['recentHistory', 'send', 'info']
+      ['recentHistory', 'send', 'sendAttachments', 'downloadAttachmentAt', 'info']
     );
     service.recentHistory.and.returnValue(of({ content: [], last: true }));
     service.info.and.returnValue(of({
@@ -124,6 +124,46 @@ describe('DirectChatComponent', () => {
     expect(component.recipientUsername).toBe('ana');
     expect(service.recentHistory).toHaveBeenCalledWith('ana');
     expect(service.info).toHaveBeenCalledWith('ana');
+  });
+
+  it('sends several photos in one direct message and clears the batch on success', () => {
+    const files = [
+      new File(['first'], 'primeiro.png', {type: 'image/png'}),
+      new File(['second'], 'segundo.png', {type: 'image/png'})
+    ];
+    component.stageAttachments(files);
+    expect(component.selectedFiles).toEqual(files);
+    const sent = { id: 98, username1:'fixture-user', username2:'ana',
+      text:'Duas fotografias', date:'2026-11-12T18:00:00Z', dataDisplay:null,
+      attachmentName:'primeiro.png', attachments:[
+        {index:0,filename:'primeiro.png',mimeType:'image/png',size:5},
+        {index:1,filename:'segundo.png',mimeType:'image/png',size:6}
+      ]};
+    service.sendAttachments.and.returnValue(of(sent));
+    component.messageBody = 'Duas fotografias';
+    component.sendMessage();
+    expect(service.sendAttachments).toHaveBeenCalledOnceWith(
+      'ana', files, 'Duas fotografias', undefined);
+    expect(service.send).not.toHaveBeenCalled();
+    expect(component.selectedFiles.length).toBe(0);
+    expect(component.messages[0].attachments?.length).toBe(2);
+  });
+
+  it('removes one staged file without deleting the remaining attachment', () => {
+    const files = [new File(['first'], 'primeiro.png', {type:'image/png'}),
+      new File(['second'], 'segundo.png', {type:'image/png'})];
+    component.stageAttachments(files);
+    component.removeAttachment(0);
+    expect(component.selectedFiles).toEqual([files[1]]);
+  });
+
+  it('blocks five attachments before uploading any of them', () => {
+    const files = Array.from({length:5}, (_, i) => new File(['image'], 'foto' + i + '.png',
+      {type:'image/png'}));
+    component.stageAttachments(files);
+    expect(component.selectedFiles.length).toBe(0);
+    expect(component.actionError).toContain('4 ficheiros');
+    expect(service.sendAttachments).not.toHaveBeenCalled();
   });
 
   it('should send a direct message and append it locally', () => {
