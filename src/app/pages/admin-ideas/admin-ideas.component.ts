@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from '@angular/core';
 import { finalize, retry, timeout } from 'rxjs';
 
 import { AdminIdea, IdeaStatus } from '../model/admin-idea';
@@ -12,13 +12,18 @@ import { AdminIdeasService } from '../../services/admin-ideas.service';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
-export class AdminIdeasComponent implements OnInit {
+export class AdminIdeasComponent implements OnInit, OnDestroy {
   ideas: AdminIdea[] = [];
   selected?: AdminIdea;
   loading = false;
   updatingId: number | null = null;
   replyingId: number | null = null;
   replyText = '';
+  attachmentLoading = false;
+  attachmentError = '';
+  attachmentPreviewUrl: string | null = null;
+  private attachmentBlob: Blob | null = null;
+  private attachmentRequestVersion = 0;
   replySuccess = false;
   replyError = '';
   errorMessage = '';
@@ -71,6 +76,7 @@ export class AdminIdeasComponent implements OnInit {
 
   select(idea: AdminIdea): void {
     if (this.replyingId !== null) return;
+    this.clearAttachmentPreview();
     this.selected = idea;
     this.replyText = '';
     this.replyError = '';
@@ -79,8 +85,59 @@ export class AdminIdeasComponent implements OnInit {
 
   close(): void {
     if (this.replyingId !== null) return;
+    this.clearAttachmentPreview();
     this.selected = undefined;
     this.replyText = '';
+  }
+
+  showAttachment(idea: AdminIdea): void {
+    if (!idea.attachmentName || this.attachmentLoading) return;
+    if (this.selected?.id !== idea.id) return;
+    if (this.attachmentPreviewUrl) {
+      this.clearAttachmentPreview();
+      return;
+    }
+    const version = ++this.attachmentRequestVersion;
+    this.attachmentError = '';
+    this.attachmentLoading = true;
+    this.adminIdeasService.attachment(idea.id).pipe(timeout(15_000),
+      finalize(() => { if (version === this.attachmentRequestVersion) this.attachmentLoading = false; }))
+      .subscribe({
+        next: blob => {
+          if (version !== this.attachmentRequestVersion || this.selected?.id !== idea.id) return;
+          if (!['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(blob.type)) {
+            this.attachmentError = 'O formato da imagem não é suportado.';
+            return;
+          }
+          this.attachmentBlob = blob;
+          this.attachmentPreviewUrl = URL.createObjectURL(blob);
+        },
+        error: () => {
+          if (version === this.attachmentRequestVersion)
+            this.attachmentError = 'Não foi possível carregar a imagem.';
+        }
+      });
+  }
+
+  downloadAttachment(idea: AdminIdea): void {
+    if (!this.attachmentBlob || !this.attachmentPreviewUrl || this.selected?.id !== idea.id) return;
+    const link = document.createElement('a');
+    link.href = this.attachmentPreviewUrl;
+    link.download = idea.attachmentName || 'captura';
+    link.click();
+  }
+
+  private clearAttachmentPreview(): void {
+    ++this.attachmentRequestVersion;
+    if (this.attachmentPreviewUrl) URL.revokeObjectURL(this.attachmentPreviewUrl);
+    this.attachmentPreviewUrl = null;
+    this.attachmentBlob = null;
+    this.attachmentLoading = false;
+    this.attachmentError = '';
+  }
+
+  ngOnDestroy(): void {
+    this.clearAttachmentPreview();
   }
 
   useThankYouTemplate(): void {
