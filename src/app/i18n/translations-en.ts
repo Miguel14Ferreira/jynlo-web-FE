@@ -4957,7 +4957,7 @@ export const EN: Record<string, string> = {
   'calls.retryMicrophone': 'Retry microphone',
   'calls.swapView': 'Swap view',
   'calls.shareScreen': 'Share screen',
-  'calls.fullScreenShareHint': 'To share your full monitor, choose “Entire screen” in the browser picker.',
+  'calls.fullScreenShareHint': 'Click Share screen, choose a tab, window or Entire screen in your browser, then confirm Share. Some mobile browsers do not support this.',
   'calls.stopSharing': 'Stop sharing',
   'calls.openChatKeepCall': 'Open messages without ending the call',
   'calls.liveShare': 'Live screen share',
