@@ -926,6 +926,91 @@ describe('Community tournaments management', () => {
     expect(remove).not.toHaveBeenCalled();
   });
 
+  it('does not allow an older fixture fetch to undo a saved league result', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const previousFetch = new Subject<any[]>();
+    championships.ownedLeagueFixtures.and.returnValue(previousFetch);
+    const original = { id: 501, round: 1, homeScore: 1, awayScore: 0 };
+    const saved = { ...original, homeScore: 2, awayScore: 1 };
+    component.championshipLeagueFixtures[101] = [original as any];
+    component.championshipFixtureScoreDrafts[501] = { home: 2, away: 1 };
+    (championships as any).recordOwnedFixtureScore = jasmine.createSpy('recordOwnedFixtureScore')
+      .and.returnValue(of(saved));
+    spyOn(component, 'loadChampionshipOwnedLeagueTable');
+    spyOn(component, 'loadChampionshipLeaguePlayerStats');
+    spyOn(component, 'loadFixtureGoals');
+    spyOn(component, 'loadChampionshipStandings');
+
+    component.loadChampionshipLeagueFixtures(15, 101);
+    component.saveChampionshipFixtureScore(
+      { id: 15, sport: 'Futebol', closedAt: null } as any,
+      { id: 101, format: 'LEAGUE', status: 'SCHEDULED' } as any, original as any);
+    previousFetch.next([original]);
+
+    expect(component.championshipLeagueFixtures[101][0].homeScore).toBe(2);
+    expect(component.championshipLeagueFixtures[101][0].awayScore).toBe(1);
+    expect(component.championshipFixtureScoreDrafts[501]).toBeUndefined();
+  });
+
+  it('accepts only the most recently requested fixture list for each event', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const older = new Subject<any[]>();
+    const newer = new Subject<any[]>();
+    championships.ownedLeagueFixtures.and.returnValues(older, newer);
+    component.loadChampionshipLeagueFixtures(15, 101);
+    component.loadChampionshipLeagueFixtures(15, 101);
+    newer.next([{ id: 501, round: 1, homeScore: 3, awayScore: 1 }]);
+    older.next([{ id: 501, round: 1, homeScore: 0, awayScore: 0 }]);
+
+    expect(component.championshipLeagueFixtures[101][0].homeScore).toBe(3);
+  });
+
+  it('keeps confirmed cup scores when an older bracket fetch arrives late', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const previousDraw = new Subject<any>();
+    championships.ownedCupDraw.and.returnValue(previousDraw);
+    const fixture = { id: 503, round: 1, homeScore: 1, awayScore: 0 };
+    const saved = { ...fixture, homeScore: 2, awayScore: 0 };
+    component.championshipCupDraws[103] = { matches: [fixture], byes: [] } as any;
+    component.championshipCupResultDrafts[503] = { home: 2, away: 0 };
+    (championships as any).recordOwnedFixtureScore = jasmine.createSpy('recordOwnedFixtureScore')
+      .and.returnValue(of(saved));
+    spyOn(component, 'loadChampionshipStandings');
+
+    component.loadChampionshipCupDraw(15, 103);
+    component.saveChampionshipCupScore(
+      { id: 15, sport: 'Futebol', closedAt: null } as any,
+      { id: 103, format: 'CUP', status: 'SCHEDULED' } as any, fixture as any);
+    previousDraw.next({ matches: [fixture], byes: [] });
+
+    expect(component.championshipCupDraws[103].matches[0].homeScore).toBe(2);
+    expect(component.championshipCupAdvanceConfirm[103]).toBeFalse();
+  });
+
+  it('does not overwrite a newer cup round with an older bracket response', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const oldDraw = new Subject<any>();
+    championships.ownedCupDraw.and.returnValue(oldDraw);
+    const firstRound = { id: 503, round: 1, homeScore: 2, awayScore: 0 };
+    const advanced = { matches: [
+      firstRound, { id: 504, round: 2, homeScore: null, awayScore: null }
+    ], byes: [] };
+    component.championshipCupDraws[103] = { matches: [firstRound], byes: [] } as any;
+    component.championshipCupAdvanceConfirm[103] = true;
+    championships.advanceOwnedCup.and.returnValue(of(advanced as any));
+    spyOn(component, 'loadChampionshipOwnedEvents');
+    spyOn(component, 'loadChampionshipStandings');
+
+    component.loadChampionshipCupDraw(15, 103);
+    component.advanceChampionshipCup(
+      { id: 15, sport: 'Futebol', closedAt: null } as any,
+      { id: 103, format: 'CUP', status: 'SCHEDULED' } as any);
+    oldDraw.next({ matches: [firstRound], byes: [] });
+
+    expect(component.cupCurrentRound(103)).toBe(2);
+    expect(component.championshipCupDraws[103].matches.length).toBe(2);
+  });
+
   it('refreshes the league fixture and clears its draft after a successful score save', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const fixture = { id: 501, homeScore: 1, awayScore: 0 };
