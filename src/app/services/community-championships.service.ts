@@ -145,6 +145,13 @@ export interface CommunityChampionship {
   standingsMode?: 'AGGREGATE' | 'INDEPENDENT';
 }
 
+export interface ChampionshipPendingTeamInvitation {
+  profileId: number;
+  username: string;
+  displayName: string;
+  invitedAt: string;
+}
+
 export interface ChampionshipTeamPlayer {
   profileId: number;
   username: string;
@@ -281,6 +288,18 @@ export class CommunityChampionshipsService {
   teams(communityId: number, championshipId: number): Observable<CommunityChampionshipTeams> {
     return this.http.get<CommunityChampionshipTeams>(
       this.base(communityId) + '/' + championshipId + '/teams');
+  }
+
+  pendingTeamInvitations(communityId: number, championshipId: number, teamId: number):
+    Observable<ChampionshipPendingTeamInvitation[]> {
+    return this.http.get<ChampionshipPendingTeamInvitation[]>(
+      this.base(communityId) + '/' + championshipId + '/teams/' + teamId + '/invitations/pending');
+  }
+
+  revokeTeamInvitation(communityId: number, championshipId: number,
+                       teamId: number, profileId: number): Observable<void> {
+    return this.http.delete<void>(
+      this.base(communityId) + '/' + championshipId + '/teams/' + teamId + '/invitations/' + profileId);
   }
 
   teamInviteStatus(communityId: number, championshipId: number, teamId: number): Observable<{ invited: boolean }> {
