@@ -1251,6 +1251,40 @@
                         @if (event.status === 'SCHEDULED' && championship.sport !== 'Futebol' && championship.sport !== 'Futsal') {
                           <p class="jynlo-score-guidance" role="status">{{ 'championshipRounds.sportPending' | t }}</p>
                         }
+                        <section class="jynlo-round-overview" [attr.aria-label]="'Progresso de ' + (format === 'LEAGUE' ? 'liga' : 'taça')">
+                          @if (championshipRoundOverview(event.id, 'LEAGUE'); as progress) {
+                            <div class="jynlo-round-progress-heading">
+                              <div>
+                                <strong>{{ progress.completed }} de {{ progress.total }} jogos concluídos</strong>
+                                <small>{{ progress.rounds }} jornadas · {{ progress.pending }} jogos por registar</small>
+                              </div>
+                              <span>{{ progress.percent }}%</span>
+                            </div>
+                            <div class="jynlo-round-progress-track" role="progressbar"
+                              [attr.aria-valuenow]="progress.completed" [attr.aria-valuemin]="0"
+                              [attr.aria-valuemax]="progress.total"
+                              [attr.aria-label]="'Jogos concluídos: ' + progress.completed + ' de ' + progress.total">
+                              <span [style.width.%]="progress.percent"></span>
+                            </div>
+                            <div class="jynlo-round-filters" role="group" aria-label="Filtrar jornadas">
+                              <button type="button" [class.is-selected]="(championshipRoundView[event.id] || 'ALL') === 'ALL'"
+                                [attr.aria-pressed]="(championshipRoundView[event.id] || 'ALL') === 'ALL'"
+                                (click)="setChampionshipRoundView(event.id, 'ALL')">Todas</button>
+                              <button type="button" [class.is-selected]="championshipRoundView[event.id] === 'PENDING'"
+                                [attr.aria-pressed]="championshipRoundView[event.id] === 'PENDING'"
+                                (click)="setChampionshipRoundView(event.id, 'PENDING')">Por concluir</button>
+                              <button type="button" [class.is-selected]="championshipRoundView[event.id] === 'COMPLETED'"
+                                [attr.aria-pressed]="championshipRoundView[event.id] === 'COMPLETED'"
+                                (click)="setChampionshipRoundView(event.id, 'COMPLETED')">Concluídas</button>
+                              @if (progress.pending > 0) {
+                                <button type="button" class="jynlo-next-round"
+                                  (click)="focusNextChampionshipRound(championship.id, event.id, 'LEAGUE')">
+                                  Ir para próxima jornada pendente
+                                </button>
+                              }
+                            </div>
+                          }
+                        </section>
                         <div class="jynlo-round-toolbar" role="group" [attr.aria-label]="'championshipRounds.manage' | t">
                           <strong>{{ 'championshipRounds.leagueTitle' | t }}</strong>
                           <button type="button" class="t-btn t-btn-secondary"
@@ -1262,9 +1296,12 @@
                             {{ 'championshipRounds.collapseAll' | t }}
                           </button>
                         </div>
-                        @for (round of leagueRounds(event.id); track round) {
+                        @if (!visibleChampionshipRounds(event.id, 'LEAGUE').length) {
+                          <p class="jynlo-round-empty" role="status">Não existem jornadas para este filtro.</p>
+                        }
+                        @for (round of visibleChampionshipRounds(event.id, 'LEAGUE'); track round) {
                           <details class="create-step jynlo-fixture-round"
-                            [open]="isChampionshipRoundExpanded(event.id, round, 1)"
+                            [open]="isChampionshipRoundExpanded(event.id, round, championshipNextPendingRound(event.id, 'LEAGUE') ?? leagueRounds(event.id)[0])"
                             (toggle)="onChampionshipLeagueRoundToggle(championship.id, event.id, round, $any($event.target).open)">
                             <summary class="jynlo-fixture-round-summary">
                               <strong>{{ 'communities.championshipOwned.round' | t }} {{ round }}</strong>
@@ -1652,6 +1689,40 @@
                             @if (event.status === 'SCHEDULED' && championship.sport !== 'Futebol' && championship.sport !== 'Futsal') {
                               <p class="jynlo-score-guidance" role="status">{{ 'championshipRounds.sportPending' | t }}</p>
                             }
+                            <section class="jynlo-round-overview" [attr.aria-label]="'Progresso de ' + (format === 'LEAGUE' ? 'liga' : 'taça')">
+                              @if (championshipRoundOverview(event.id, 'CUP'); as progress) {
+                                <div class="jynlo-round-progress-heading">
+                                  <div>
+                                    <strong>{{ progress.completed }} de {{ progress.total }} jogos concluídos</strong>
+                                    <small>{{ progress.rounds }} jornadas · {{ progress.pending }} jogos por registar</small>
+                                  </div>
+                                  <span>{{ progress.percent }}%</span>
+                                </div>
+                                <div class="jynlo-round-progress-track" role="progressbar"
+                                  [attr.aria-valuenow]="progress.completed" [attr.aria-valuemin]="0"
+                                  [attr.aria-valuemax]="progress.total"
+                                  [attr.aria-label]="'Jogos concluídos: ' + progress.completed + ' de ' + progress.total">
+                                  <span [style.width.%]="progress.percent"></span>
+                                </div>
+                                <div class="jynlo-round-filters" role="group" aria-label="Filtrar jornadas">
+                                  <button type="button" [class.is-selected]="(championshipRoundView[event.id] || 'ALL') === 'ALL'"
+                                    [attr.aria-pressed]="(championshipRoundView[event.id] || 'ALL') === 'ALL'"
+                                    (click)="setChampionshipRoundView(event.id, 'ALL')">Todas</button>
+                                  <button type="button" [class.is-selected]="championshipRoundView[event.id] === 'PENDING'"
+                                    [attr.aria-pressed]="championshipRoundView[event.id] === 'PENDING'"
+                                    (click)="setChampionshipRoundView(event.id, 'PENDING')">Por concluir</button>
+                                  <button type="button" [class.is-selected]="championshipRoundView[event.id] === 'COMPLETED'"
+                                    [attr.aria-pressed]="championshipRoundView[event.id] === 'COMPLETED'"
+                                    (click)="setChampionshipRoundView(event.id, 'COMPLETED')">Concluídas</button>
+                                  @if (progress.pending > 0) {
+                                    <button type="button" class="jynlo-next-round"
+                                      (click)="focusNextChampionshipRound(championship.id, event.id, 'CUP')">
+                                      Ir para próxima jornada pendente
+                                    </button>
+                                  }
+                                </div>
+                              }
+                            </section>
                             <div class="jynlo-round-toolbar" role="group" [attr.aria-label]="'championshipRounds.manage' | t">
                               <strong>{{ 'championshipRounds.cupTitle' | t }}</strong>
                               <button type="button" class="t-btn t-btn-secondary"
@@ -1664,7 +1735,10 @@
                               </button>
                             </div>
                           }
-                          @for (round of cupRounds(event.id); track round) {
+                          @if (!visibleChampionshipRounds(event.id, 'CUP').length) {
+                            <p class="jynlo-round-empty" role="status">Não existem jornadas para este filtro.</p>
+                          }
+                          @for (round of visibleChampionshipRounds(event.id, 'CUP'); track round) {
                             <details class="create-step jynlo-fixture-round"
                               [open]="isChampionshipRoundExpanded(event.id, round, cupCurrentRound(event.id))"
                               (toggle)="setChampionshipRoundExpanded(event.id, round, $any($event.target).open)">
