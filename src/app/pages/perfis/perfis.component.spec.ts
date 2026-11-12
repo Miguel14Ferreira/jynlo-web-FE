@@ -1060,12 +1060,12 @@ describe('PerfisComponent', () => {
       city: null, gameDate: null, likeCount: 2, likedByMe: false, commentCount: 1
     };
     socialFeed.profilePosts.and.returnValue(of([
-      post, { ...post, postId: 10, type: 'SESSION_ATTENDED' }
+      post, { ...post, postId: 10, type: 'SESSION_ATTENDED' as const }
     ]));
     routeParams.next(convertToParamMap({ username: 'ana' }));
     fixture.detectChanges();
 
-    expect(socialFeed.profilePosts).toHaveBeenCalledOnceWith('ana');
+    expect(socialFeed.profilePosts).toHaveBeenCalledOnceWith('ana', 0);
     expect(component.profilePosts.map(p => p.postId)).toEqual([9]);
     expect((fixture.nativeElement as HTMLElement).querySelector('.profile-publication-card')?.textContent)
       .toContain('Jogo de hoje');
@@ -1091,6 +1091,55 @@ describe('PerfisComponent', () => {
     expect(component.selectedProfile?.username).toBe('bruno');
     expect(component.profilePosts).toEqual([]);
     expect(component.postsLoading).toBeFalse();
+  });
+
+  it('appends the next posts page without duplicates and keeps the latest page number', () => {
+    const makePost = (id: number): FeedItem => ({
+      type: 'POST', postId: id, authorUsername: 'ana',
+      authorDisplayName: 'Ana', authorProfilePicUrl: null,
+      content: 'Post ' + id, imageUrl: null, createdAt: '2026-11-11T17:00:00Z',
+      sessionId: null, sport: null, city: null, gameDate: null,
+      likeCount: 0, likedByMe: false, commentCount: 0
+    });
+    socialFeed.profilePosts.and.returnValues(
+      of(Array.from({ length: 20 }, (_, i) => makePost(i + 1))),
+      of([makePost(20), makePost(21)])
+    );
+    routeParams.next(convertToParamMap({ username: 'ana' }));
+    expect(component.profilePosts.length).toBe(20);
+    expect(component.postsHasMore).toBeTrue();
+
+    component.postsExpanded = true;
+    component.loadMoreProfilePosts();
+    expect(socialFeed.profilePosts).toHaveBeenCalledWith('ana', 1);
+    expect(component.profilePosts.length).toBe(21);
+    expect(component.postsPage).toBe(1);
+    expect(component.postsHasMore).toBeFalse();
+  });
+
+  it('retains already loaded posts when the next page fails and permits retry', () => {
+    const makePost = (id: number): FeedItem => ({
+      type: 'POST', postId: id, authorUsername: 'ana',
+      authorDisplayName: 'Ana', authorProfilePicUrl: null,
+      content: 'Post ' + id, imageUrl: null, createdAt: '2026-11-11T17:00:00Z',
+      sessionId: null, sport: null, city: null, gameDate: null,
+      likeCount: 0, likedByMe: false, commentCount: 0
+    });
+    socialFeed.profilePosts.and.returnValues(
+      of(Array.from({ length: 20 }, (_, i) => makePost(i + 1))),
+      throwError(() => new Error('Unavailable')),
+      of([makePost(21)])
+    );
+    routeParams.next(convertToParamMap({ username: 'ana' }));
+    component.postsExpanded = true;
+    component.loadMoreProfilePosts();
+    expect(component.postsLoadError).toBeTrue();
+    expect(component.profilePosts.length).toBe(20);
+    expect(component.postsPage).toBe(0);
+
+    component.loadMoreProfilePosts();
+    expect(component.postsLoadError).toBeFalse();
+    expect(component.profilePosts.length).toBe(21);
   });
 
   it('can retry failed profile post loading without hiding the profile', () => {
