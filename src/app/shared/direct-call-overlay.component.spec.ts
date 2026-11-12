@@ -116,8 +116,8 @@ describe('Global incoming call popup', () => {
 
     calls.room.remoteParticipants.delete('guest');
     calls.members$.next({participants:[], pending:[]});
-    expect(overlay.participantUsername(originalPeer)).toBe('beatriz',
-      'Before the 1:1 roster sync completes, the sole remote is still the peer');
+    expect(overlay.participantUsername(originalPeer)).toBeNull(
+      'Even a sole remote cannot be identified without the verified roster');
   });
 
   it('resets presentation, focus and both playback volumes between calls', () => {
