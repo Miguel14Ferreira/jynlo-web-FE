@@ -6,6 +6,7 @@ export type AppLanguage = 'pt' | 'en';
 type Dictionary = Record<string, string>;
 
 const PT: Dictionary = {
+  'championshipRounds.sportPending': 'O calendário está disponível, mas o registo de resultados desta modalidade requer um motor próprio. Atualmente, este formulário suporta Futebol e Futsal.',
   'championshipRounds.manage': 'Gestão das jornadas e rondas',
   'championshipRounds.leagueTitle': 'Jornadas da Liga',
   'championshipRounds.cupTitle': 'Rondas da Taça',
