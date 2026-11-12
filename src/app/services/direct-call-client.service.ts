@@ -540,9 +540,10 @@ export class DirectCallClientService implements OnDestroy {
     // Mobile backgrounding can leave a stale publication while the UI still
     // says that the camera is enabled. On an explicit retry only, discard the
     // broken camera before asking LiveKit to capture again. Never restart an
-    // actually healthy webcam or reactivate a camera the user switched off.
+    // actually healthy webcam. This runs only when the user explicitly enables
+    // video or a newly connected video call starts, never from background events.
     const publications=room.localParticipant.videoTrackPublications;
-    if (this.state$.value?.cameraEnabled && publications) {
+    if (publications) {
       const cameras=[...publications.values()].filter(pub=>pub.source===Track.Source.Camera);
       const healthy=cameras.some(pub=>!!pub.track && !pub.isMuted
         && pub.track.mediaStreamTrack?.readyState !== 'ended');
