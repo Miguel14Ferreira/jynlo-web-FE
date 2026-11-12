@@ -97,6 +97,61 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(root.querySelectorAll('.feed-list .feed-card').length).toBe(1);
   }));
 
+  it('lets a viewer hide grouped activity and regular posts without deleting them', fakeAsync(() => {
+    const storageKey = 'jynlo:hidden-feed:v1:miguel';
+    localStorage.removeItem(storageKey);
+    const attendance: FeedItem = {
+      type: 'SESSION_ATTENDED', sessionId: 17, postId: null,
+      authorUsername: 'ana', authorDisplayName: 'Ana',
+      authorProfilePicUrl: null, content: null, imageUrl: null,
+      createdAt: '2026-11-11T18:00:00Z', sport: 'Futebol', city: 'Lisboa',
+      gameDate: '2026-11-11T17:00:00Z', likeCount: 0, likedByMe: false, commentCount: 0
+    };
+    const post: FeedItem = { ...attendance, type: 'POST', sessionId: null, postId: 42, content: 'Grande jogo!' };
+    fixture.detectChanges();
+    tick(351);
+    component.items = [attendance, post];
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.feed-attendance-hide')).not.toBeNull();
+    expect(root.querySelector('.feed-hide-post')).not.toBeNull();
+
+    (root.querySelector('.feed-attendance-hide') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(component.attendanceGroups.length).toBe(0);
+    expect(component.items.length).toBe(2);
+    expect(JSON.parse(localStorage.getItem(storageKey) || '[]')).toContain('attendance:17');
+    expect(root.textContent).toContain(t('feed.hiddenOnlyForYou'));
+
+    component.undoHideFromMyFeed();
+    expect(component.attendanceGroups.length).toBe(1);
+    component.hideFromMyFeed(post);
+    fixture.detectChanges();
+    expect(component.fullFeedItems.length).toBe(0);
+    expect(component.items.length).toBe(2);
+    expect(JSON.parse(localStorage.getItem(storageKey) || '[]')).toContain('post:42');
+
+    localStorage.removeItem(storageKey);
+  }));
+
+  it('restores hidden entries from account-scoped storage on feed initialization', fakeAsync(() => {
+    const storageKey = 'jynlo:hidden-feed:v1:miguel';
+    localStorage.setItem(storageKey, JSON.stringify(['post:42', 'attendance:17']));
+    const post: FeedItem = {
+      type: 'POST', postId: 42, sessionId: null,
+      authorUsername: 'ana', authorDisplayName: 'Ana',
+      authorProfilePicUrl: null, content: 'Publicação', imageUrl: null,
+      createdAt: '2026-11-11T18:00:00Z', sport: null, city: null, gameDate: null,
+      likeCount: 0, likedByMe: false, commentCount: 0
+    };
+    fixture.detectChanges();
+    tick(351);
+    component.items = [post, { ...post, postId: 43 }];
+    expect(component.fullFeedItems.map(item => item.postId)).toEqual([43]);
+    localStorage.removeItem(storageKey);
+  }));
+
   it('limits automatic activity to five sessions until explicitly expanded', fakeAsync(() => {
     fixture.detectChanges();
     tick(351);
