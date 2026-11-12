@@ -15,7 +15,14 @@ import { LocalParticipant, RemoteParticipant, Track } from 'livekit-client';
       <video #video autoplay playsinline [muted]="local" [hidden]="!hasVideo"
         [attr.aria-label]="label"></video>
       @if (!hasVideo) {
-        <div class="connect-avatar" aria-hidden="true">{{ label.slice(0,1).toUpperCase() }}</div>
+        <div class="connect-avatar" aria-hidden="true">
+          @if (avatarUrl && !avatarFailed) {
+            <img [src]="avatarUrl" alt="" referrerpolicy="no-referrer"
+              (error)="avatarFailed=true">
+          } @else {
+            <span>{{ label.slice(0,1).toUpperCase() }}</span>
+          }
+        </div>
       }
       <audio #audio autoplay></audio>
       <audio #screenAudio autoplay></audio>
@@ -35,7 +42,7 @@ import { LocalParticipant, RemoteParticipant, Track } from 'livekit-client';
     :host{display:block;min-width:0;min-height:0}
     .connect-tile{position:relative;display:flex;align-items:center;justify-content:center;
       min-height:170px;height:100%;overflow:hidden;border:1px solid #315562;border-radius:17px;
-      background:radial-gradient(circle at 50% 40%,#174b51,#0d2634 68%);color:#eafff9}
+      background:radial-gradient(circle at 50% 40%,#26313b,#111923 74%);color:#eafff9}
     .connect-tile.speaking{border-color:#44ecc1;box-shadow:inset 0 0 0 2px #44ecc122}
     .connect-tile video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0a2029}
     .connect-tile video[hidden]{display:none}
@@ -44,8 +51,9 @@ import { LocalParticipant, RemoteParticipant, Track } from 'livekit-client';
     .connect-tile.presenting video[muted]{transform:none}
     .connect-tile:not(.presenting) video[muted]{transform:scaleX(-1)}
     .connect-avatar{display:grid;place-items:center;width:clamp(70px,10vw,112px);aspect-ratio:1;
-      border-radius:50%;border:3px solid #55c8b77a;background:#286b68;font-size:clamp(2rem,4vw,2.7rem);
-      font-weight:850;box-shadow:0 0 0 10px #4be8c311}
+      border-radius:50%;border:3px solid #8396a777;background:#34414f;font-size:clamp(2rem,4vw,2.7rem);
+      font-weight:850;box-shadow:0 0 0 10px #8ba5bc12;overflow:hidden}
+    .connect-avatar img{display:block;width:100%;height:100%;object-fit:cover}
     .connect-tile.speaking .connect-avatar{border-color:#5bf1cb;box-shadow:0 0 0 9px #4be8c32c}
     .connect-person{position:absolute;left:12px;bottom:12px;display:flex;align-items:center;gap:7px;
       max-width:calc(100% - 24px);padding:7px 12px;border-radius:11px;background:#071e29dc;
@@ -60,6 +68,13 @@ import { LocalParticipant, RemoteParticipant, Track } from 'livekit-client';
 export class CallParticipantTileComponent implements AfterViewChecked, OnDestroy {
   @Input({required:true}) participant!: LocalParticipant | RemoteParticipant;
   @Input() label = '';
+  private _avatarUrl: string | null = null;
+  avatarFailed = false;
+  @Input() set avatarUrl(value: string | null) {
+    if (this._avatarUrl !== value) this.avatarFailed = false;
+    this._avatarUrl = value;
+  }
+  get avatarUrl(): string | null { return this._avatarUrl; }
   @Input() local = false;
   /** A separate presentation tile never replaces the user's own camera preview. */
   @Input() presentation = false;
