@@ -369,6 +369,8 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                 }
                 @if (calls.canShareScreen && call.phase === 'active' && !(calls.screenShareEnabled$ | async)) {
                   <span class="connect-screen-share-tip">{{ 'calls.fullScreenShareHint' | t }}</span>
+                } @else if (!calls.canShareScreen && call.phase === 'active') {
+                  <span class="connect-screen-share-tip" role="status">{{ 'calls.screenShareUnsupported' | t }}</span>
                 }
                 @if (calls.audioPlaybackBlocked$ | async) {
                   <button type="button" class="call-enable-sound" (click)="calls.allowAudio()">
