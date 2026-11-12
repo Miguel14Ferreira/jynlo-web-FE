@@ -484,3 +484,8 @@ h1 {
 .direct-attachment-image { display:block; max-width:min(100%,420px); max-height:350px; object-fit:contain;
   border-radius:9px; margin:8px 0; }
 @media (max-width:700px) { .composer-tools {flex-wrap:wrap;} .direct-attachment-picker {flex-wrap:wrap;} }
+
+/* Private media: fit video/audio to conversation width without disrupting bubble layout. */
+.direct-attachment-image {max-width:100%;}
+.message audio {display:block;width:min(360px,100%);max-width:100%;margin:8px 0;}
+.message video {background:#081d2c;border-radius:10px;}
