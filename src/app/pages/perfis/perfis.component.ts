@@ -691,12 +691,14 @@ export class PerfisComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: status => {
+          if (this.selectedProfile?.username.toLowerCase() !== profile.username.toLowerCase()) return;
           this.selectedFollowStatus = status;
           this.actionSuccess = status.followedByMe
             ? t('feedback.social.followed', { username: profile.username })
             : t('feedback.social.unfollowed', { username: profile.username });
         },
         error: error => {
+          if (this.selectedProfile?.username.toLowerCase() !== profile.username.toLowerCase()) return;
           this.actionError = this.errorFrom(
             error,
             t('feedback.social.followError')
@@ -731,6 +733,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.pendingFriendRequests.add(profile.username);
+          if (this.selectedProfile?.username.toLowerCase() !== profile.username.toLowerCase()) return;
           this.selectedFriendshipStatus = { friends: false, pendingRequest: true };
           this.actionSuccess = t('feedback.community.requestSent', { username: profile.username });
         },
@@ -744,6 +747,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
             this.pendingFriendRequests.add(profile.username);
           }
 
+          if (this.selectedProfile?.username.toLowerCase() !== profile.username.toLowerCase()) return;
           this.actionError = message;
           // The relation may have changed in another tab. Reconcile rather than
           // leaving an erroneous 'send request' action visible indefinitely.
