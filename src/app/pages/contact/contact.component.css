@@ -287,3 +287,8 @@ small {
 .contact-attachment-grid .contact-attachment-meta span { min-width:0; overflow-wrap:anywhere; }
 .contact-attachment-count { font-size:.8rem; font-weight:700; color:#b5eddf; margin:12px 0 0; }
 .contact-attachment-clear { margin-top:12px; padding:8px 12px; border:1px solid #357d75; border-radius:9px; background:#123b40; color:#d7fff2; cursor:pointer; }
+
+/* Safe attachment previews, including video, audio and PDF summaries. */
+.contact-attachment-grid video { display:block; width:100%; height:150px; background:#071c27; border-radius:8px; }
+.contact-attachment-grid audio { display:block; width:100%; min-height:55px; }
+.contact-attachment-file-icon {display:flex;align-items:center;justify-content:center;height:150px;border:1px solid rgba(97,202,173,.25);border-radius:8px;color:#c8e6e0;}
