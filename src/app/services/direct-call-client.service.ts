@@ -537,6 +537,20 @@ export class DirectCallClientService implements OnDestroy {
    * a call, and permission denial must never trigger repeated prompts.
    */
   private async enableCameraWithFallback(room: Room): Promise<void> {
+    // Mobile backgrounding can leave a stale publication while the UI still
+    // says that the camera is enabled. On an explicit retry only, discard the
+    // broken camera before asking LiveKit to capture again. Never restart an
+    // actually healthy webcam or reactivate a camera the user switched off.
+    const publications=room.localParticipant.videoTrackPublications;
+    if (this.state$.value?.cameraEnabled && publications) {
+      const cameras=[...publications.values()].filter(pub=>pub.source===Track.Source.Camera);
+      const healthy=cameras.some(pub=>!!pub.track && !pub.isMuted
+        && pub.track.mediaStreamTrack?.readyState !== 'ended');
+      if (cameras.length && !healthy) {
+        await room.localParticipant.setCameraEnabled(false);
+        if (room!==this.room) return;
+      }
+    }
     const enable=async (options?: Parameters<typeof room.localParticipant.setCameraEnabled>[1]): Promise<void> => {
       await room.localParticipant.setCameraEnabled(true,options);
       this.assertCameraPublished(room);
