@@ -130,6 +130,16 @@ describe('Global incoming call popup', () => {
     expect(tip.textContent).toContain('partilha de ecrã');
   });
 
+  it('routes the explicit sound-unlock action to both the LiveKit room and media tiles', () => {
+    const overlay=fixture.componentInstance;
+    const resume=jasmine.createSpy('resume');
+    const first={resumeAudioFromGesture:resume};
+    (overlay as any).callTiles={forEach:(fn:(tile:any)=>void)=>fn(first)};
+    overlay.allowCallAudio();
+    expect(resume).toHaveBeenCalledTimes(1);
+    expect(calls.allowAudio).toHaveBeenCalledTimes(1);
+  });
+
   it('focuses a camera, switches participant and restores the layout with Escape', () => {
     const self = {identity:'local-user', videoTrackPublications:new Map()} as any;
     const friend = {identity:'remote-user', videoTrackPublications:new Map()} as any;
