@@ -1,5 +1,6 @@
 // Loaded only for users who choose English. Keep the original key/value table intact.
 export const EN: Record<string, string> = {
+  'championshipRounds.editCupResult': 'Edit knockout result',
   'championshipRounds.matchDetails': 'Match details and management',
   'championshipRounds.unsavedScore': 'Unsaved result',
   'championshipRounds.sportPending': 'The schedule is available, but recording results for this sport requires a dedicated scoring engine. This form currently supports football and futsal.',
