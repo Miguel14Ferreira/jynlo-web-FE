@@ -57,7 +57,10 @@ describe('Global incoming call popup', () => {
       imports: [DirectCallOverlayComponent],
       providers: [{provide: Router, useValue:{navigate}},
         {provide: DirectCallClientService, useValue: calls},
-        {provide: CommunityService, useValue: {friends: () => of([{username:'carlos',fullName:'Carlos Silva',nickname:'Carlos',profilePicUrl:null,chatBlocked:false,blockedByMe:false}])}}]
+        {provide: CommunityService, useValue: {
+          friends: () => of([{username:'carlos',fullName:'Carlos Silva',nickname:'Carlos',profilePicUrl:null,chatBlocked:false,blockedByMe:false}]),
+          publicProfile: (username: string) => of({username, profilePicUrl: username === 'beatriz' ? 'https://example.com/beatriz.jpg' : null})
+        }}]
     }).compileComponents();
     fixture = TestBed.createComponent(DirectCallOverlayComponent);
     fixture.detectChanges();
@@ -66,6 +69,20 @@ describe('Global incoming call popup', () => {
   afterEach(() => {
     fixture.destroy();
     localStorage.removeItem('d24-language');
+  });
+
+  it('shows the caller public profile photo instead of the initial when available', () => {
+    state.next(invitation('voice'));
+    fixture.detectChanges();
+    const img = fixture.nativeElement.querySelector('.call-incoming-avatar img') as HTMLImageElement;
+    expect(img).not.toBeNull();
+    expect(img.getAttribute('src')).toBe('https://example.com/beatriz.jpg');
+
+    // A broken image must fall back to initials, not leave an empty circle.
+    img.dispatchEvent(new Event('error'));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.call-incoming-avatar img')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.call-incoming-avatar').textContent).toContain('B');
   });
 
   it('resets presentation, focus and both playback volumes between calls', () => {
