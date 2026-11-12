@@ -132,8 +132,9 @@ export class AdminIdeasComponent implements OnInit, OnDestroy {
       .subscribe({
         next: blob => {
           if (version !== this.attachmentRequestVersion || this.selected?.id !== idea.id) return;
-          if (!['image/png','image/jpeg','image/webp','image/gif'].includes(blob.type)) {
-            this.attachmentError = 'O formato da imagem não é suportado.';
+          if (!['image/png','image/jpeg','image/webp','image/gif',
+            'video/mp4','video/webm','audio/mpeg','audio/mp4','audio/ogg','application/pdf'].includes(blob.type)) {
+            this.attachmentError = 'O formato do ficheiro não é suportado.';
             return;
           }
           this.attachmentUrls.set(index, URL.createObjectURL(blob));
@@ -144,6 +145,10 @@ export class AdminIdeasComponent implements OnInit, OnDestroy {
         }
       });
   }
+
+  isAttachmentImage(mime: string): boolean { return mime.startsWith('image/'); }
+  isAttachmentVideo(mime: string): boolean { return mime.startsWith('video/'); }
+  isAttachmentAudio(mime: string): boolean { return mime.startsWith('audio/'); }
 
   downloadAttachmentAt(index: number, filename: string): void {
     const url = this.attachmentUrls.get(index);
