@@ -533,14 +533,15 @@
               <p>{{ 'sessionDetail.detailsHelp' | t }}</p>
               <div class="session-details-editor-fields">
                 <label>{{ 'communities.sportLabel' | t }}
-                  <select [(ngModel)]="detailsDraft.sport"
-                    [disabled]="detailsSaving || !canChangeSessionSport()"
-                    [attr.disabled]="detailsSaving || !canChangeSessionSport() ? '' : null">
-                    @for (sport of editableSports; track sport) {
-                      <option [value]="sport">{{ sport }}</option>
-                    }
-                  </select>
-                  @if (!canChangeSessionSport()) {
+                  @if (canChangeSessionSport()) {
+                    <select [(ngModel)]="detailsDraft.sport" [disabled]="detailsSaving">
+                      @for (sport of editableSports; track sport) {
+                        <option [value]="sport">{{ sport }}</option>
+                      }
+                    </select>
+                  } @else {
+                    <input type="text" [value]="detailsDraft.sport" readonly
+                      [attr.aria-label]="'communities.sportLabel' | t">
                     <small>{{ 'sessionDetail.sportEditRestriction' | t }}</small>
                   }
                 </label>
