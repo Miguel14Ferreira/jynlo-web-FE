@@ -306,6 +306,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   timelineDeletingId: number | null = null;
   timelineError = '';
   feedDraft = '';
+  feedGallery: {file: File; url: string}[] = [];
   feedImageFile?: File;
   feedVideoFile?: File;
   feedImagePreview = '';
@@ -579,7 +580,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   }
 
   get canPublishCommunityPost(): boolean {
-    return !!(this.feedDraft.trim() || this.feedImageFile || this.feedVideoFile)
+    return !!(this.feedDraft.trim() || this.feedImageFile || this.feedVideoFile || this.feedGallery.length)
       && !this.timelineSending;
   }
 
@@ -604,6 +605,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     }
     this.clearCommunityFeedVideo();
     this.clearCommunityFeedImage();
+    this.clearCommunityFeedGallery();
     this.feedImageFile = file;
     this.feedImagePreview = URL.createObjectURL(file);
     this.timelineError = '';
@@ -624,9 +626,40 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     }
     this.clearCommunityFeedImage();
     this.clearCommunityFeedVideo();
+    this.clearCommunityFeedGallery();
     this.feedVideoFile = file;
     this.feedVideoPreview = URL.createObjectURL(file);
     this.timelineError = '';
+  }
+
+  onCommunityFeedGalleryChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    input.value = '';
+    if (!files.length) return;
+    const valid = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm'];
+    const combined = [...this.feedGallery.map(item => item.file), ...files];
+    if (combined.length > 6 || combined.some(file => !valid.includes(file.type)
+        || file.size === 0 || file.size > (file.type.startsWith('video/') ? 20 : 5) * 1024 * 1024)
+        || combined.reduce((sum, file) => sum + file.size, 0) > 60 * 1024 * 1024) {
+      this.timelineError = 'Até 6 fotografias ou vídeos, máximo de 60 MB no total (5 MB por foto e 20 MB por vídeo).';
+      return;
+    }
+    this.clearCommunityFeedImage();
+    this.clearCommunityFeedVideo();
+    this.feedGallery.push(...files.map(file => ({file, url: URL.createObjectURL(file)})));
+    this.timelineError = '';
+  }
+
+  removeCommunityFeedGalleryItem(index: number): void {
+    if (this.timelineSending || index < 0 || index >= this.feedGallery.length) return;
+    const [item] = this.feedGallery.splice(index, 1);
+    URL.revokeObjectURL(item.url);
+  }
+
+  clearCommunityFeedGallery(): void {
+    for (const item of this.feedGallery) URL.revokeObjectURL(item.url);
+    this.feedGallery = [];
   }
 
   clearCommunityFeedImage(): void {
@@ -696,7 +729,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     const communityId = this.selected.id;
     const text = kind === 'CHAT' ? this.chatDraft.trim() : this.feedDraft.trim();
     const max = kind === 'CHAT' ? 2000 : 1000;
-    if ((!text && (kind === 'CHAT' || !this.feedImageFile && !this.feedVideoFile))
+    if ((!text && (kind === 'CHAT' || !this.feedImageFile && !this.feedVideoFile && !this.feedGallery.length))
         || text.length > max) return;
     this.timelineSending = true;
     this.timelineError = '';
@@ -706,14 +739,16 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       ? { communityId, text, replyToMessageId: replyId,
           ids: new Set(this.timelineEntries.map(entry => entry.id)), at: Date.now() }
       : undefined;
-    const send = kind === 'POST' && (this.feedImageFile || this.feedVideoFile)
+    const send = kind === 'POST' && this.feedGallery.length
+      ? this.timelineService.sendPostAlbum(communityId, text, this.feedGallery.map(item => item.file))
+      : kind === 'POST' && (this.feedImageFile || this.feedVideoFile)
       ? this.timelineService.sendPostWithMedia(
           communityId, text, this.feedImageFile, this.feedVideoFile)
       : replyId
         ? this.timelineService.send(communityId, kind, text, replyId)
         : this.timelineService.send(communityId, kind, text);
     send
-      .pipe(timeout(kind === 'POST' && (this.feedImageFile || this.feedVideoFile) ? 90_000 : 10_000),
+      .pipe(timeout(kind === 'POST' && (this.feedImageFile || this.feedVideoFile || this.feedGallery.length) ? 90_000 : 10_000),
         finalize(() => this.timelineSending = false))
       .subscribe({
         next: entry => {
@@ -733,6 +768,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
             this.feedDraft = '';
             this.clearCommunityFeedImage();
             this.clearCommunityFeedVideo();
+            this.clearCommunityFeedGallery();
             if (this.timelineKind === kind) this.loadTimeline();
           }
         },
