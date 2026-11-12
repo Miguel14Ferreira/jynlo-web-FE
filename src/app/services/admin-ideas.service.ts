@@ -11,6 +11,11 @@ export class AdminIdeasService {
 
   constructor(private http: HttpClient) {}
 
+  attachment(id: number): Observable<Blob> {
+    return this.http.get(this.url + '/' + encodeURIComponent(id) + '/attachment',
+      { responseType: 'blob' });
+  }
+
   list(): Observable<AdminIdea[]> {
     return this.http.get<AdminIdea[]>(this.url);
   }
