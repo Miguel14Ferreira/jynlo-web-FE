@@ -1015,6 +1015,41 @@ describe('PerfisComponent', () => {
     expect(component.actionSuccess).toContain('ana');
   });
 
+  it('does not request publications when block status cannot be verified and allows retry', () => {
+    service.userBlockStatus.and.returnValues(
+      throwError(() => new Error('Unavailable')), of({ blocked: false }));
+    routeParams.next(convertToParamMap({ username: 'ana' }));
+    fixture.detectChanges();
+
+    expect(component.blockStatusError).toBeTrue();
+    expect(component.blockStatusPending).toBeFalse();
+    expect(socialFeed.profilePosts).not.toHaveBeenCalled();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.profile-publications')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[role="alert"] button')).not.toBeNull();
+
+    component.loadProfilePosts('ana');
+    expect(socialFeed.profilePosts).not.toHaveBeenCalled();
+
+    component.checkProfileBlockStatus('ana');
+    fixture.detectChanges();
+    expect(component.blockStatusError).toBeFalse();
+    expect(socialFeed.profilePosts).toHaveBeenCalledWith('ana', 0);
+  });
+
+  it('keeps an in-flight block check from loading posts before permission is known', () => {
+    const pending = new Subject<{ blocked: boolean }>();
+    service.userBlockStatus.and.returnValue(pending.asObservable());
+    routeParams.next(convertToParamMap({ username: 'ana' }));
+    expect(component.blockStatusPending).toBeTrue();
+    component.loadProfilePosts('ana');
+    expect(socialFeed.profilePosts).not.toHaveBeenCalled();
+
+    pending.next({ blocked: true });
+    pending.complete();
+    expect(component.selectedBlocked).toBeTrue();
+    expect(socialFeed.profilePosts).not.toHaveBeenCalled();
+  });
+
   it('clears loaded posts as soon as the profile owner is blocked', () => {
     const post: FeedItem = {
       type: 'POST', postId: 99, authorUsername: 'ana', authorDisplayName: 'Ana',
