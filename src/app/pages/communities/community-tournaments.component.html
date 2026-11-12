@@ -1326,6 +1326,11 @@
                                         (click)="loadChampionshipFixtureDetails(championship.id, event.id, fixture.id, true)">
                                         {{ 'championshipRounds.refreshDetails' | t }}
                                       </button>
+                                    } @else {
+                                      <button type="button" class="t-btn t-btn-secondary jynlo-round-detail-refresh"
+                                        (click)="loadChampionshipFixtureDetails(championship.id, event.id, fixture.id)">
+                                        {{ 'championshipRounds.loadDetails' | t }}
+                                      </button>
                                     }
                                     <details class="jynlo-goal-timeline jynlo-discipline-panel">
                                       <summary><strong>Escalação do jogo</strong>
