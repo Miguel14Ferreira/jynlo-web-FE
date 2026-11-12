@@ -103,11 +103,12 @@
       <section class="contact-attachment" aria-label="Imagem ou captura de ecrã">
         <div class="contact-attachment-heading">
           <div>
-            <strong>Adicionar um print ou imagem</strong>
-            <p>Ajuda-nos a perceber o problema. PNG, JPG, WebP ou GIF até 3 MB. Também podes colar uma captura na mensagem.</p>
+            <strong>Adicionar prints ou imagens</strong>
+            <p>Ajuda-nos a perceber o problema. Até 8 imagens (3 MB cada, 16 MB no total). Podes selecionar várias de uma vez ou colar capturas na mensagem.</p>
           </div>
-          <label class="contact-attachment-picker" for="contact-screenshot">📎 Escolher imagem</label>
+          <label class="contact-attachment-picker" for="contact-screenshot">📎 Escolher imagens</label>
           <input id="contact-screenshot" type="file"
+            multiple
             accept="image/png,image/jpeg,image/webp,image/gif"
             [disabled]="loading"
             (change)="onScreenshotChosen($event)">
@@ -115,14 +116,23 @@
         @if (screenshotError) {
           <p class="contact-attachment-error" role="alert">{{ screenshotError }}</p>
         }
-        @if (screenshot && screenshotPreviewUrl) {
-          <div class="contact-attachment-preview">
-            <img [src]="screenshotPreviewUrl" alt="Pré-visualização da imagem selecionada">
-            <div class="contact-attachment-meta">
-              <span>{{ screenshot.name }} · {{ (screenshot.size / 1024) | number:'1.0-0' }} KB</span>
-              <button type="button" [disabled]="loading" (click)="clearScreenshot()">Remover imagem</button>
-            </div>
+        @if (screenshots.length) {
+          <p class="contact-attachment-count">{{ screenshots.length }}/{{ maxScreenshots }} imagens</p>
+          <div class="contact-attachment-grid">
+            @for (item of screenshots; track item.url; let index = $index) {
+              <div class="contact-attachment-preview">
+                <img [src]="item.url" [alt]="'Pré-visualização de ' + item.file.name">
+                <div class="contact-attachment-meta">
+                  <span [title]="item.file.name">{{ item.file.name }} · {{ (item.file.size / 1024) | number:'1.0-0' }} KB</span>
+                  <button type="button" [disabled]="loading" (click)="removeScreenshot(index)"
+                    [attr.aria-label]="'Remover ' + item.file.name">Remover</button>
+                </div>
+              </div>
+            }
           </div>
+          <button type="button" class="contact-attachment-clear" [disabled]="loading" (click)="clearScreenshot()">
+            Remover todas as imagens
+          </button>
         }
       </section>
 
