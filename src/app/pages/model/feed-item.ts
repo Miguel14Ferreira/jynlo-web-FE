@@ -9,6 +9,7 @@ export interface FeedItem {
   content: string | null;
   imageUrl: string | null;
   videoUrl?: string | null;
+  extraMedia?: { url: string; mimeType: string }[];
   createdAt: string;
   sessionId: number | null;
   sport: string | null;
