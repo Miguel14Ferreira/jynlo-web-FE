@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subject, catchError, finalize, forkJoin, of, retry, switchMap, takeUntil, timeout } from 'rxjs';
+import { Subject, auditTime, catchError, finalize, forkJoin, of, retry, switchMap, takeUntil, timeout } from 'rxjs';
 
 import { environment } from 'src/environment/environment';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { AuthenticationService } from '../../services/authethication.service';
 import { SocialFeedService } from '../../services/social-feed.service';
+import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
 import { CommunityService } from '../../services/community.service';
 import { CommunityGroupsService } from '../../services/community-groups.service';
 import { CommunityGroup } from '../model/community-group';
@@ -141,6 +142,43 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   // Populated only by verified deep links from session details.
   availableSessions: SessionSummary[] = [];
   private readonly destroyed = new Subject<void>();
+  private readonly liveRefreshRequested = new Subject<void>();
+
+  /**
+   * Reconcile visible like/comment counters through the authorized HTTP feed.
+   * Never replace or reorder on-screen cards merely because someone liked
+   * one; this preserves scroll position and the user's open comment drafts.
+   */
+  private connectLiveCounters(): void {
+    if (!this.realtime || !this.currentUsername) return;
+    this.realtime.connect();
+    this.realtime.socialFeedInvalidated$
+      .pipe(takeUntil(this.destroyed))
+      .subscribe(() => this.liveRefreshRequested.next());
+    this.realtime.connected$
+      .pipe(takeUntil(this.destroyed))
+      .subscribe(connected => { if (connected) this.liveRefreshRequested.next(); });
+    this.liveRefreshRequested.pipe(
+      auditTime(750),
+      switchMap(() => this.feedService.feed().pipe(
+        timeout(10_000),
+        catchError(() => of(null as FeedItem[] | null))
+      )),
+      takeUntil(this.destroyed)
+    ).subscribe(latest => {
+      if (!latest) return;
+      const byPostId = new Map(latest.filter(item => item.postId !== null)
+        .map(item => [item.postId, item]));
+      for (const current of this.items) {
+        if (current.postId === null || current.postId === this.interactionLoadingPostId) continue;
+        const updated = byPostId.get(current.postId);
+        if (!updated) continue;
+        current.likeCount = updated.likeCount;
+        current.likedByMe = updated.likedByMe;
+        current.commentCount = updated.commentCount;
+      }
+    });
+  }
   suggestedSessions: SessionSummary[] = [];
   suggestedPeople: CommunityProfile[] = [];
 
@@ -251,7 +289,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     private authenticationService: AuthenticationService,
     private route: ActivatedRoute,
     private communityService: CommunityService,
-    @Optional() private communityGroupsService: CommunityGroupsService | null = null
+    @Optional() private communityGroupsService: CommunityGroupsService | null = null,
+    @Optional() private realtime: DirectChatRealtimeService | null = null
   ) {
     this.authenticationService.isLoggedIn();
     this.currentUsername = this.authenticationService.loggedInPerfilname || '';
@@ -261,6 +300,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.updateWelcomeVisibility();
     this.loadHiddenFeedEntries();
     this.load();
+    this.connectLiveCounters();
     this.loadSuggestedPeople();
     this.preparePostGameMoment();
     this.prepareNewSessionShare();
