@@ -278,3 +278,12 @@ small {
 @media (max-width: 540px) {
   .contact-attachment-picker { width: 100%; }
 }
+
+/* Multiple evidence images: compact, responsive and independently removable. */
+.contact-attachment-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr)); gap:12px; margin-top:12px; }
+.contact-attachment-grid .contact-attachment-preview { min-width:0; width:100%; }
+.contact-attachment-grid .contact-attachment-preview img { display:block; width:100%; max-width:100%; height:150px; object-fit:contain; }
+.contact-attachment-grid .contact-attachment-meta { min-width:0; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.contact-attachment-grid .contact-attachment-meta span { min-width:0; overflow-wrap:anywhere; }
+.contact-attachment-count { font-size:.8rem; font-weight:700; color:#b5eddf; margin:12px 0 0; }
+.contact-attachment-clear { margin-top:12px; padding:8px 12px; border:1px solid #357d75; border-radius:9px; background:#123b40; color:#d7fff2; cursor:pointer; }
