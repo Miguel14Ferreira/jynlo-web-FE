@@ -31,7 +31,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     for (const key of Object.keys(localStorage)) {
       if (key.startsWith('jynlo:feed-welcome:v1:')) localStorage.removeItem(key);
     }
-    feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'createPost']);
+    feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'createPost', 'createPostAlbum']);
     feed.feed.and.returnValue(of([]));
     sessions = jasmine.createSpyObj<SessionService>('SessionService', ['discover', 'mine', 'detail']);
     sessions.discover.and.returnValue(of([]));
@@ -297,6 +297,38 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(root.querySelector('.feed-layout .feed-main')).not.toBeNull();
     expect(root.querySelector('.feed-layout .feed-sidebar')).not.toBeNull();
     component.ngOnDestroy();
+  }));
+
+  it('builds a single mixed album and keeps all files together on publish', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const create = spyOn(URL, 'createObjectURL').and.returnValues('blob:photo', 'blob:video');
+    const revoke = spyOn(URL, 'revokeObjectURL');
+    const photo = new File(['photo'], 'jogo.png', { type: 'image/png' });
+    const video = new File(['video'], 'golo.mp4', { type: 'video/mp4' });
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', { value: [photo, video], configurable: true });
+    component.onPostGalleryChange({ target: input } as unknown as Event);
+    expect(component.postGallery.map(item => item.file)).toEqual([photo, video]);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.feed-gallery-draft-item').length).toBe(2);
+    component.postContent = 'Grande jogo!';
+    const published: FeedItem = {
+      type: 'POST', postId: 123, authorUsername: 'miguel', authorDisplayName: 'Miguel',
+      authorProfilePicUrl: null, content: 'Grande jogo!', imageUrl: null,
+      createdAt: '2026-11-12T18:00:00Z', sessionId: null, sport: null,
+      city: null, gameDate: null, likeCount: 0, likedByMe: false, commentCount: 0,
+      extraMedia: [{url:'/media/photo.png', mimeType:'image/png'}]
+    };
+    feed.createPostAlbum.and.returnValue(of(published));
+    component.publish();
+    expect(feed.createPostAlbum).toHaveBeenCalledOnceWith('Grande jogo!', [photo, video], undefined);
+    expect(feed.createPost).not.toHaveBeenCalled();
+    expect(component.postGallery.length).toBe(0);
+    expect(component.items[0].postId).toBe(123);
+    expect(revoke).toHaveBeenCalledWith('blob:photo');
+    expect(revoke).toHaveBeenCalledWith('blob:video');
+    expect(create).toHaveBeenCalledTimes(2);
   }));
 
   it('allows video selection, limits its size and keeps photo/video mutually exclusive', fakeAsync(() => {
