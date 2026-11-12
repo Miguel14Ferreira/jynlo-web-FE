@@ -2349,6 +2349,75 @@ describe('Events2Component', () => {
     expect(component.gpsAddressLoading).toBeFalse();
   });
 
+  it('tries to improve an approximate browser location and keeps the best GPS fix', () => {
+    let onInitial: PositionCallback | undefined;
+    let onWatch: PositionCallback | undefined;
+    spyOn(navigator.geolocation, 'getCurrentPosition').and.callFake(success => {
+      onInitial = success;
+    });
+    const watch = spyOn(navigator.geolocation, 'watchPosition').and.callFake(success => {
+      onWatch = success;
+      return 45;
+    });
+    const clearWatch = spyOn(navigator.geolocation, 'clearWatch');
+    component.chooseLocationMethod('gps');
+    component.captureCurrentLocation();
+    onInitial!({ coords: { latitude: 38.72, longitude: -9.14, accuracy: 500 } }
+      as unknown as GeolocationPosition);
+    expect(component.gpsAccuracyMeters).toBe(500);
+    expect(component.gpsRefining).toBeTrue();
+    expect(watch).toHaveBeenCalled();
+    expect(venueService.reverseLocation).not.toHaveBeenCalled();
+
+    onWatch!({ coords: { latitude: 38.725, longitude: -9.145, accuracy: 40 } }
+      as unknown as GeolocationPosition);
+    expect(component.latitude).toBe(38.725);
+    expect(component.longitude).toBe(-9.145);
+    expect(component.gpsAccuracyMeters).toBe(40);
+    expect(component.gpsRefining).toBeFalse();
+    expect(clearWatch).toHaveBeenCalledWith(45);
+    expect(venueService.reverseLocation).toHaveBeenCalledWith(38.725, -9.145, 40);
+  });
+
+  it('does not allow saving an inaccurate GPS pin without explicit confirmation', () => {
+    component.applyCurrentPosition(38.72, -9.14, 500);
+    fixture.detectChanges();
+    expect(component.gpsAccuracyIsLow).toBeTrue();
+    expect(component.gpsLowAccuracyConfirmed).toBeFalse();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('O pino pode estar bastante afastado');
+    expect(venueService.reverseLocation).not.toHaveBeenCalled();
+    expect((component as any).validate()).not.toBeNull();
+
+    component.confirmApproximateGps();
+    expect(component.gpsLowAccuracyConfirmed).toBeTrue();
+    component.applyCurrentPosition(38.73, -9.15, 400);
+    expect(component.gpsLowAccuracyConfirmed).toBeFalse();
+    component.clearLocation();
+    expect(component.gpsLowAccuracyConfirmed).toBeFalse();
+  });
+
+  it('ignores late GPS refinements after switching to a Maps link', () => {
+    let onInitial: PositionCallback | undefined;
+    let onWatch: PositionCallback | undefined;
+    spyOn(navigator.geolocation, 'getCurrentPosition').and.callFake(success => { onInitial = success; });
+    spyOn(navigator.geolocation, 'watchPosition').and.callFake(success => {
+      onWatch = success;
+      return 21;
+    });
+    const clearWatch = spyOn(navigator.geolocation, 'clearWatch');
+    component.chooseLocationMethod('gps');
+    component.captureCurrentLocation();
+    onInitial!({ coords: { latitude: 38.72, longitude: -9.14, accuracy: 500 } }
+      as unknown as GeolocationPosition);
+    component.chooseLocationMethod('maps');
+    const previousLatitude = component.latitude;
+    onWatch!({ coords: { latitude: 41.1, longitude: -8.6, accuracy: 10 } }
+      as unknown as GeolocationPosition);
+    expect(clearWatch).toHaveBeenCalledWith(21);
+    expect(component.latitude).toBe(previousLatitude);
+    expect(component.locationSource).not.toBe('gps');
+  });
+
   it('shows the browser-reported GPS accuracy and warns when it exceeds 100 metres', () => {
     component.applyCurrentPosition(38.72, -9.14, 245.7);
     fixture.detectChanges();
