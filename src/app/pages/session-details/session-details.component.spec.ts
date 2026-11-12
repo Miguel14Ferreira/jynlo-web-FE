@@ -4456,6 +4456,31 @@ describe('SessionDetailsComponent', () => {
     expect(component.attachmentFeedback).toContain('Atualiza o chat');
   });
 
+  it('keeps the roster compact and expands contact tools only on request', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = {...session, joined: true,
+      gameDate: new Date(Date.now() + 60_000).toISOString()};
+    component.sessionParticipants = [
+      {id: 1, username: 'creator-user', attendanceStatus: 'PENDING', joinedAt: ''},
+      {id: 2, username: 'player-two', attendanceStatus: 'PENDING', joinedAt: ''}
+    ];
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const contact = root.querySelector('details.session-player-card__contact-actions') as HTMLDetailsElement;
+    expect(contact).not.toBeNull();
+    expect(contact.open).toBeFalse();
+    expect(contact.querySelector('summary.session-player-card__contact-toggle')?.textContent)
+      .toContain('Contactar');
+    expect(contact.querySelectorAll('button').length).toBe(3);
+    (contact.querySelector('summary') as HTMLElement).click();
+    fixture.detectChanges();
+    expect(contact.open).toBeTrue();
+    expect(Array.from(contact.querySelectorAll('button'))
+      .map(button => button.textContent?.trim())).toEqual(
+        jasmine.arrayContaining(['💬 Mensagem', '📞 Voz', '📹 Vídeo']));
+    expect(root.querySelectorAll('a.session-player-card__profile').length).toBeGreaterThan(0);
+  });
+
   it('only enables roster calls when the provider is ready and supports voice and video', () => {
     const now = Date.now();
     (component as any).currentUsername = 'creator-user';
