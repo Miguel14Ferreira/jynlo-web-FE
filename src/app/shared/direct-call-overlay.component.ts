@@ -138,6 +138,11 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
             </div>
           }
           @if (call.phase !== 'error') {
+            <!-- LiveKit's track events can run outside Angular's change detection.
+                 Keep the expanded view subscribed just like the minimized view:
+                 otherwise a camera can publish successfully while its tile
+                 continues to display the placeholder until another UI action. -->
+            <span class="call-refresh" aria-hidden="true">{{ calls.mediaChanged$ | async }}</span>
             @if (call.phase === 'dialing' || (call.phase === 'connecting' && !call.startedAt)) {
               <div class="connect-waiting">
                 <div class="connect-wait-avatar" aria-hidden="true">
