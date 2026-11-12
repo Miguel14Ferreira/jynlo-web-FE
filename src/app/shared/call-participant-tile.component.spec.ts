@@ -101,6 +101,39 @@ describe('Call participant tile track selection', () => {
     component.ngOnDestroy();
   });
 
+  it('unlocks microphone and shared-screen playback on a user gesture, but not local audio', () => {
+    const tile = new CallParticipantTileComponent();
+    tile.participant = participant;
+    const mic=document.createElement('audio');
+    const screenSound=document.createElement('audio');
+    const micPlay=jasmine.createSpy('micPlay').and.resolveTo();
+    const screenPlay=jasmine.createSpy('screenPlay').and.resolveTo();
+    spyOn(mic,'play').and.callFake(micPlay);
+    spyOn(screenSound,'play').and.callFake(screenPlay);
+    (tile as any).audioElement={nativeElement:mic};
+    (tile as any).screenAudioElement={nativeElement:screenSound};
+    tile.local=false;
+    tile.presentation=false;
+    tile.resumeAudioFromGesture();
+    expect(micPlay).toHaveBeenCalledTimes(1);
+    expect(screenPlay).toHaveBeenCalledTimes(1);
+    tile.local=true;
+    tile.resumeAudioFromGesture();
+    expect(micPlay).toHaveBeenCalledTimes(1);
+    tile.local=false;
+    tile.presentation=true;
+    tile.resumeAudioFromGesture();
+    expect(screenPlay).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not throw when an audio gesture is rejected by a mobile browser', () => {
+    const tile=new CallParticipantTileComponent();
+    const blocked=document.createElement('audio');
+    spyOn(blocked,'play').and.returnValue(Promise.reject(new DOMException('Blocked','NotAllowedError')));
+    (tile as any).audioElement={nativeElement:blocked};
+    expect(() => tile.resumeAudioFromGesture()).not.toThrow();
+  });
+
   it('separately adjusts remote microphone and shared-screen audio playback', () => {
     const microphone = track();
     const screenSound = track();
