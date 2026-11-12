@@ -229,3 +229,111 @@
   flex: 0 0 auto;
   margin-left: auto;
 }
+
+
+/* Owned card refinement: tighter, consistent reading rhythm and a proper
+   two-column footer. Match discovery card geometry without wasted dead space. */
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card {
+  box-sizing: border-box;
+  min-height: 190px;
+  height: 100%;
+  padding: 16px;
+  gap: 14px;
+  justify-content: flex-start;
+  border-radius: 16px;
+  background: linear-gradient(158deg, rgba(12, 51, 64, .97), rgba(7, 37, 50, .97));
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card:hover {
+  border-color: rgba(71, 226, 202, .85);
+  background: linear-gradient(158deg, rgba(15, 63, 72, .98), rgba(8, 43, 56, .98));
+  transform: translateY(-2px);
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card:focus-visible {
+  outline: 2px solid #a6ffe4;
+  outline-offset: 3px;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card .community-card-main {
+  align-items: flex-start;
+  gap: 13px;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card .community-card-copy {
+  gap: 7px;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card .community-card-copy > strong {
+  font-size: .99rem;
+  line-height: 1.3;
+  overflow-wrap: break-word;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card .community-discovery-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.5;
+  max-width: 100%;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card .community-discovery-card-footer {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  justify-content: stretch;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  margin-top: auto;
+  padding-top: 13px;
+  border-top: 1px solid rgba(113, 200, 195, .18);
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card .community-visibility-pill {
+  justify-self: start;
+  min-width: max-content;
+  max-width: none;
+  white-space: nowrap;
+  word-break: keep-all;
+  padding: 6px 10px;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-mine-grid > button.community-card .community-discovery-card-link {
+  box-sizing: border-box;
+  justify-self: end;
+  justify-content: flex-end;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 6px 0 6px 9px;
+  white-space: nowrap;
+  font-weight: 750;
+  font-size: .81rem;
+  color: #8cf4df;
+}
+@media (max-width: 400px) {
+  :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+    .community-mine-grid > button.community-card {
+    min-height: 180px;
+    padding: 13px;
+  }
+  :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+    .community-mine-grid > button.community-card .community-discovery-card-footer {
+    gap: 6px;
+  }
+  :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+    .community-mine-grid > button.community-card .community-discovery-card-link {
+    font-size: .76rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+    .community-mine-grid > button.community-card { transition: none; transform: none; }
+}
