@@ -928,6 +928,46 @@
                       </button>
                     </div>
                   }
+                  @if (canManageChampionshipTeam(seasonTeam.id)) {
+                    <section class="jynlo-team-pending-invitations"
+                      [attr.aria-label]="'teams.autonomy.pendingListTitle' | t">
+                      <div class="jynlo-team-pending-heading">
+                        <div>
+                          <strong>{{ 'teams.autonomy.pendingListTitle' | t }}
+                            ({{ (championshipPendingInvites[seasonTeam.id] || []).length }})</strong>
+                          <small>{{ 'teams.autonomy.pendingListHint' | t }}</small>
+                        </div>
+                        <button type="button" class="t-btn t-btn-secondary t-btn-small"
+                          [disabled]="championshipPendingInvitesLoading[seasonTeam.id] || championshipTeamPlayerBusy[seasonTeam.id]"
+                          (click)="loadChampionshipPendingInvites(championship.id, seasonTeam.id)">
+                          {{ 'teams.autonomy.pendingRefresh' | t }}
+                        </button>
+                      </div>
+                      @if (championshipPendingInvitesLoading[seasonTeam.id]) {
+                        <p class="team-honours-muted" role="status">{{ 'teams.autonomy.pendingLoading' | t }}</p>
+                      } @else if (championshipPendingInvitesError[seasonTeam.id]) {
+                        <p role="alert">{{ 'teams.autonomy.pendingError' | t }}</p>
+                      } @else {
+                        @for (invitation of championshipPendingInvites[seasonTeam.id] || []; track invitation.profileId) {
+                          <div class="jynlo-team-pending-person">
+                            <div>
+                              <strong>{{ invitation.displayName }}</strong>
+                              <small>&#64;{{ invitation.username }}</small>
+                            </div>
+                            @if (!championship.closedAt) {
+                              <button type="button" class="t-btn t-btn-secondary t-btn-small"
+                                [disabled]="championshipTeamPlayerBusy[seasonTeam.id]"
+                                (click)="revokeChampionshipPendingInvite(championship.id, seasonTeam.id, invitation.profileId)">
+                                {{ 'teams.autonomy.pendingRevoke' | t }}
+                              </button>
+                            }
+                          </div>
+                        } @empty {
+                          <p class="team-honours-muted">{{ 'teams.autonomy.pendingEmpty' | t }}</p>
+                        }
+                      }
+                    </section>
+                  }
                   @if (seasonTeam.permanentTeamId) {
                     <button type="button" class="t-btn t-btn-secondary"
                       (click)="openPermanentTeamProfile(seasonTeam.permanentTeamId)">
