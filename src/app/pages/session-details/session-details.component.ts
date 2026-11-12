@@ -1949,10 +1949,31 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     const input = event.target as HTMLInputElement;
     const file = input.files?.item(0) ?? null;
     input.value = '';
+    if (!file) return;
+    this.selectSessionAttachment(file);
+  }
+
+  onSessionChatPaste(event: ClipboardEvent): void {
+    if (!this.attachmentAvailable || !this.canSendChat()) return;
+    const file = Array.from(event.clipboardData?.files ?? [])
+      .find(item => item.type.startsWith('image/'));
+    if (!file) return; // Keep ordinary text paste unchanged.
+    event.preventDefault();
+    this.selectSessionAttachment(file);
+  }
+
+  private selectSessionAttachment(file: File): void {
     if (!this.canSendChat() || !this.attachmentAvailable || this.messageSending
-        || this.attachmentSending || this.chatDeliveryUncertain || !file) return;
+        || this.attachmentSending || this.chatDeliveryUncertain) return;
     if (file.size === 0 || file.size > this.maxSessionAttachmentBytes) {
       this.attachmentFeedback = 'O ficheiro deve ter entre 1 byte e 5 MB.';
+      this.attachmentFile = null;
+      return;
+    }
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif',
+      'application/pdf', 'audio/webm', 'audio/ogg'];
+    if (!allowed.includes(file.type.toLowerCase())) {
+      this.attachmentFeedback = 'Formato não suportado. Usa imagem, PDF ou áudio WebM/Ogg.';
       this.attachmentFile = null;
       return;
     }
