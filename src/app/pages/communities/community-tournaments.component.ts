@@ -1334,6 +1334,16 @@ export class CommunityTournamentsComponent implements OnChanges {
     };
   }
 
+  private invalidateChampionshipFixtureDetails(fixtureId: number): void {
+    this.championshipFixtureDetailsLoadVersion[fixtureId] =
+      (this.championshipFixtureDetailsLoadVersion[fixtureId] || 0) + 1;
+    delete this.championshipFixtureDetailsState[fixtureId];
+    delete this.championshipFixtureGoals[fixtureId];
+    delete this.championshipFixtureCards[fixtureId];
+    delete this.championshipFixtureSubstitutions[fixtureId];
+    delete this.championshipFixtureLineups[fixtureId];
+  }
+
   /**
    * Fetch detailed match events only for rounds the user opens.
    * A full season can contain hundreds of fixtures, each with four detail endpoints.
@@ -1728,6 +1738,15 @@ export class CommunityTournamentsComponent implements OnChanges {
       next: matches => {
         if (revision !== this.championshipRevision || communityId !== this.community.id
             || loadVersion !== this.championshipLeagueFixtureLoadVersion[eventId]) return;
+        // A refreshed score can invalidate cached match events, especially if
+        // another organizer changed the result while this page remained open.
+        const previousFixtures = this.championshipLeagueFixtures[eventId] || [];
+        for (const fixture of previousFixtures) {
+          const current = matches.find(match => match.id === fixture.id);
+          if (!current || current.homeScore !== fixture.homeScore || current.awayScore !== fixture.awayScore) {
+            this.invalidateChampionshipFixtureDetails(fixture.id);
+          }
+        }
         this.championshipLeagueFixtures[eventId] = matches;
         if (this.championships.some(item => item.id === championshipId
             && (item.sport === 'Futebol' || item.sport === 'Futsal'))) {
