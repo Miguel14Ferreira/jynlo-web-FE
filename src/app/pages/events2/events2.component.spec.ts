@@ -2726,7 +2726,7 @@ describe('Events2Component', () => {
     component.venueMapLink = 'https://maps.app.goo.gl/test';
     component.venueMapCandidateResolvedUrl = 'https://maps.google.com/old';
 
-    component.applyCurrentPosition(38.72, -9.14);
+    component.applyCurrentPosition(38.72, -9.14, 20);
     fixture.detectChanges();
 
     expect(component.hasCoordinates).toBeTrue();
