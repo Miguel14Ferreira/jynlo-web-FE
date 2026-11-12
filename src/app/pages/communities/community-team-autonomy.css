@@ -430,3 +430,53 @@
 @media(max-width:570px){
   :host .jynlo-championship-delete-actions > button{flex:1 1 150px;}
 }
+
+/* Pending team invitations, separated visually from confirmed members. */
+:host .tournaments .jynlo-team-pending-invitations {
+  display: grid;
+  gap: 11px;
+  margin: 14px 0;
+  padding: clamp(12px, 2vw, 17px);
+  min-width: 0;
+  border: 1px solid rgba(73, 204, 189, .29);
+  border-radius: 13px;
+  background: rgba(7, 45, 59, .57);
+}
+:host .tournaments .jynlo-team-pending-heading,
+:host .tournaments .jynlo-team-pending-person {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+:host .tournaments .jynlo-team-pending-heading > div,
+:host .tournaments .jynlo-team-pending-person > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+:host .tournaments .jynlo-team-pending-heading strong { color: #e5fff7; }
+:host .tournaments .jynlo-team-pending-heading small,
+:host .tournaments .jynlo-team-pending-person small {
+  color: #b4d5db;
+  font-size: .78rem;
+  overflow-wrap: anywhere;
+}
+:host .tournaments .jynlo-team-pending-person {
+  padding: 11px 0;
+  border-top: 1px solid rgba(104, 175, 180, .22);
+}
+:host .tournaments .jynlo-team-pending-person strong {
+  color: #f4fffa;
+  overflow-wrap: anywhere;
+}
+:host .tournaments .jynlo-team-pending-person button {
+  flex: 0 0 auto;
+}
+@media (max-width: 480px) {
+  :host .tournaments .jynlo-team-pending-person button {
+    width: 100%;
+  }
+}
