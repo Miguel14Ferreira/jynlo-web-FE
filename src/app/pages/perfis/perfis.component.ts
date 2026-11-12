@@ -120,6 +120,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
   selectedProfile?: CommunityProfile;
   selectedActivity?: ProfileActivity;
   profilePosts: FeedItem[] = [];
+  postsExpanded = false;
   postsLoading = false;
   postsLoadError = false;
   selectedFollowStatus?: FollowStatus;
@@ -523,6 +524,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.postsSubscription?.unsubscribe();
     ++this.postsRevision;
     this.profilePosts = [];
+    this.postsExpanded = false;
     this.postsLoading = false;
     this.postsLoadError = false;
     this.selectedProfile = undefined;
