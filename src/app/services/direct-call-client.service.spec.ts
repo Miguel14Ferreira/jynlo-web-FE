@@ -372,6 +372,37 @@ describe('Direct calls gated by authenticated realtime and backend availability'
     http.expectOne(r=>r.url.endsWith('/api/calls/direct/screen-is-not-camera/end')).flush(null);
   });
 
+  it('restarts a stale mobile camera only on explicit retry and leaves healthy video untouched', async () => {
+    http.expectOne(r=>r.url.endsWith('/api/calls/direct/availability')).flush({enabled:true});
+    const ended={source:Track.Source.Camera,track:{
+      mediaStreamTrack:{readyState:'ended'}
+    },isMuted:false};
+    const healthy={source:Track.Source.Camera,track:{
+      mediaStreamTrack:{readyState:'live'}
+    },isMuted:false};
+    const publications=new Map<string,any>([['camera',ended]]);
+    const toggle=jasmine.createSpy('toggle').and.callFake(async (enabled:boolean) => {
+      if (!enabled) publications.clear();
+      else publications.set('camera',healthy);
+    });
+    const room:any={
+      localParticipant:{videoTrackPublications:publications,setCameraEnabled:toggle},
+      disconnect:jasmine.createSpy('disconnect')
+    };
+    calls.room=room;
+    calls.state$.next({id:'mobile-recovery',peer:'bea',media:'video',
+      phase:'active',micEnabled:true,cameraEnabled:true});
+    await calls.setCamera(true);
+    expect(toggle.calls.allArgs().map(args=>args[0])).toEqual([false,true]);
+    expect(calls.state$.value?.cameraEnabled).toBeTrue();
+    expect(calls.state$.value?.error).toBeUndefined();
+
+    toggle.calls.reset();
+    await calls.setCamera(true);
+    expect(toggle).toHaveBeenCalledOnceWith(true,undefined);
+    calls.room=null;
+  });
+
   it('reports an unpublished camera track without terminating the call', async () => {
     http.expectOne(r=>r.url.endsWith('/api/calls/direct/availability')).flush({enabled:true});
     const room:any={
