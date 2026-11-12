@@ -4406,7 +4406,7 @@ describe('SessionDetailsComponent', () => {
     component.chooseSessionAttachment({target: input} as unknown as Event);
     expect(component.attachmentFile).toBeNull();
     expect(component.attachmentFeedback).toContain('5 MB');
-    const file = new File(['content'], 'results.txt', {type:'text/plain'});
+    const file = new File(['content'], 'results.pdf', {type:'application/pdf'});
     Object.defineProperty(input, 'files', {value: {item: () => file}, configurable:true});
     component.chooseSessionAttachment({target: input} as unknown as Event);
     expect(component.attachmentFile).toBe(file);
@@ -4418,6 +4418,29 @@ describe('SessionDetailsComponent', () => {
       7, file, 'Resultado do jogo', 11);
     expect(component.attachmentFile).toBeNull();
     expect(component.messageBody).toBe('');
+  });
+
+  it('pastes clipboard images as pending private attachments without intercepting plain text', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = {...session, joined: true, gameDate: '2099-01-01T18:00:00Z'};
+    component.sessionId = 7;
+    component.attachmentAvailable = true;
+    const image = new File(['image'], 'captura.png', {type:'image/png'});
+    const preventDefault = jasmine.createSpy('preventDefault');
+    component.onSessionChatPaste({clipboardData: {files: [image]}, preventDefault} as unknown as ClipboardEvent);
+    expect(preventDefault).toHaveBeenCalled();
+    expect(component.attachmentFile).toBe(image);
+    preventDefault.calls.reset();
+    component.onSessionChatPaste({clipboardData: {files: []}, preventDefault} as unknown as ClipboardEvent);
+    expect(preventDefault).not.toHaveBeenCalled();
+
+    component.attachmentFile = null;
+    const wrongFormat = new File(['test'], 'script.sh', {type:'text/x-shellscript'});
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', {value: {item: () => wrongFormat}});
+    component.chooseSessionAttachment({target:input} as unknown as Event);
+    expect(component.attachmentFile).toBeNull();
+    expect(component.attachmentFeedback).toContain('Formato não suportado');
   });
 
   it('does not automatically resend a private attachment after an uncertain response', () => {
