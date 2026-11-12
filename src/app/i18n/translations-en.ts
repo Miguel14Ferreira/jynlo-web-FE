@@ -4981,6 +4981,7 @@ export const EN: Record<string, string> = {
   'calls.sharedScreens': 'Shared screens',
   'calls.callParticipants': 'Call participants',
   'calls.screenShareCancelled': 'Screen sharing was cancelled or blocked by the browser. Choose a screen and allow sharing to try again.',
+  'calls.screenShareUnsupported': 'Screen sharing is not supported by this browser or device. You can continue the call normally; to share your screen, try the web app on a compatible desktop browser.',
   'calls.screenShareFailed': 'Could not start or stop screen sharing. Check browser permissions and try again.',
   'calls.cameraConstraints': 'This camera does not support the requested video settings. Try another camera or a lower resolution.',
   'calls.cameraNoVideo': 'Your camera is marked as on but is not sending video. Retry or select another camera.',
