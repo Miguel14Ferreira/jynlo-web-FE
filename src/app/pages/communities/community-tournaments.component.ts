@@ -538,6 +538,9 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamAdminBusy[teamId] = false;
         this.championshipError = 'Não foi possível cancelar a transferência.';
+        // A timed-out mutation may have succeeded on the server. Recheck the
+        // authoritative administrator state before another transfer action.
+        this.loadChampionshipTeamAdministrator(championshipId, teamId);
         this.changeDetector.markForCheck();
       }
     });
@@ -567,6 +570,9 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamAdminBusy[teamId] = false;
         this.championshipError = 'Só podes transferir a administração para outro jogador já inscrito nesta equipa.';
+        // A timed-out mutation may have succeeded on the server. Recheck the
+        // authoritative administrator state before another transfer action.
+        this.loadChampionshipTeamAdministrator(championshipId, teamId);
         this.changeDetector.markForCheck();
       }
     });
@@ -592,6 +598,9 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamAdminBusy[teamId] = false;
         this.championshipError = 'Não foi possível responder ao convite. Confirma que continuas na comunidade e na mesma época.';
+        // A timed-out mutation may have succeeded on the server. Recheck the
+        // authoritative administrator state before another transfer action.
+        this.loadChampionshipTeamAdministrator(championshipId, teamId);
         this.changeDetector.markForCheck();
       }
     });
