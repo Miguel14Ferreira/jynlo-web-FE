@@ -1702,8 +1702,3 @@ input,textarea,select {
 .community-chat-compose-meta small { font-size: .76rem; line-height: 1.35; }
 .community-chat-compose-meta small:last-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
 
-/* Multiple media stay within the community feed card on desktop and mobile. */
-.community-feed-gallery-draft,.community-feed-gallery {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px;margin:12px 0;}
-.community-feed-gallery-draft .community-feed-media-preview {min-width:0;margin:0;}
-.community-feed-gallery-draft img,.community-feed-gallery-draft video,.community-feed-gallery img,.community-feed-gallery video {display:block;width:100%;max-height:260px;object-fit:contain;background:rgba(5,20,27,.48);border-radius:10px;}
-.community-feed-gallery-draft button {margin:8px 0 0;}
