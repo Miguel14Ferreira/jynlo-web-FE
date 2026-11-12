@@ -100,6 +100,34 @@ describe('ContactComponent', () => {
     expect(component.screenshotError).toContain('8');
   });
 
+  it('accepts a mixed batch of video, audio and PDF with separate controls', () => {
+    const files = [
+      new File(['video'], 'clip.mp4', {type: 'video/mp4'}),
+      new File(['audio'], 'note.mp3', {type: 'audio/mpeg'}),
+      new File(['%PDF-1.7'], 'rules.pdf', {type: 'application/pdf'})
+    ];
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', {value: files});
+    component.onScreenshotChosen({target: input} as unknown as Event);
+    fixture.detectChanges();
+    expect(component.screenshots.length).toBe(3);
+    expect(fixture.nativeElement.querySelector('video')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('audio')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.contact-attachment-file-icon')).toBeTruthy();
+  });
+
+  it('rejects an oversized video but keeps a valid PDF', () => {
+    const files = [
+      new File([new Uint8Array(12 * 1024 * 1024 + 1)], 'large.mp4', {type: 'video/mp4'}),
+      new File(['%PDF-1.7'], 'small.pdf', {type: 'application/pdf'})
+    ];
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', {value: files});
+    component.onScreenshotChosen({target: input} as unknown as Event);
+    expect(component.screenshots.map(item => item.file.name)).toEqual(['small.pdf']);
+    expect(component.screenshotError).toContain('12 MB');
+  });
+
   it('does not intercept pasted text and rejects invalid screenshot formats', () => {
     const fake = new File(['<script>unsafe</script>'], 'test.html', { type:'text/html' });
     const input = document.createElement('input');
