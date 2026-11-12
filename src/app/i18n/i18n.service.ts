@@ -6,6 +6,14 @@ export type AppLanguage = 'pt' | 'en';
 type Dictionary = Record<string, string>;
 
 const PT: Dictionary = {
+  'championshipRounds.manage': 'Gestão das jornadas e rondas',
+  'championshipRounds.leagueTitle': 'Jornadas da Liga',
+  'championshipRounds.cupTitle': 'Rondas da Taça',
+  'championshipRounds.expandAll': 'Expandir todas',
+  'championshipRounds.collapseAll': 'Recolher todas',
+  'championshipRounds.completed': 'jogos com resultado',
+  'championshipRounds.toggle': 'Expandir ou recolher',
+  'championshipRounds.cupRound': 'Ronda',
   'profilePosts.kicker': 'SOCIAL',
   'profilePosts.title': 'Publicações',
   'profilePosts.description': 'Publicações guardadas no perfil, separadas das stories e da atividade automática.',
