@@ -85,9 +85,9 @@
 
               <p class="idea-message">{{ selected.problem }}</p>
               @if (selected.attachmentName || attachments.length || attachmentListLoading) {
-                <section class="idea-attachment" aria-label="Imagens enviadas">
-                  <strong>Imagens anexadas</strong>
-                  @if (attachmentListLoading) { <p>A obter imagens…</p> }
+                <section class="idea-attachment" aria-label="Ficheiros enviados">
+                  <strong>Ficheiros anexados</strong>
+                  @if (attachmentListLoading) { <p>A obter ficheiros…</p> }
                   <div class="idea-attachment-grid">
                     @for (item of attachments; track item.index) {
                       <div class="idea-attachment-item">
@@ -97,12 +97,20 @@
                             [disabled]="loadingAttachmentIndex !== null"
                             (click)="showAttachmentAt(selected, item.index)">
                             {{ loadingAttachmentIndex === item.index ? 'A carregar…' :
-                               attachmentUrls.has(item.index) ? 'Fechar' : 'Ver imagem' }}
+                               attachmentUrls.has(item.index) ? 'Fechar' : 'Ver ficheiro' }}
                           </button>
                           @if (attachmentUrls.has(item.index)) {
                             <button type="button" class="jynlo-action jynlo-action--neutral"
                               (click)="downloadAttachmentAt(item.index, item.filename)">Descarregar</button>
-                            <img [src]="attachmentUrls.get(item.index)" [alt]="'Imagem: ' + item.filename" loading="lazy">
+                            @if (isAttachmentImage(item.mimeType)) {
+                              <img [src]="attachmentUrls.get(item.index)" [alt]="'Imagem: ' + item.filename" loading="lazy">
+                            } @else if (isAttachmentVideo(item.mimeType)) {
+                              <video [src]="attachmentUrls.get(item.index)" controls preload="metadata"></video>
+                            } @else if (isAttachmentAudio(item.mimeType)) {
+                              <audio [src]="attachmentUrls.get(item.index)" controls preload="metadata"></audio>
+                            } @else {
+                              <span>PDF disponível para descarregar</span>
+                            }
                           }
                         </div>
                       </div>
