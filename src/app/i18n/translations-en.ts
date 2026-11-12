@@ -1,5 +1,16 @@
 // Loaded only for users who choose English. Keep the original key/value table intact.
 export const EN: Record<string, string> = {
+  'championshipRounds.progressLeague': 'League progress',
+  'championshipRounds.progressCup': 'Cup progress',
+  'championshipRounds.progressCount': '{{completed}} of {{total}} matches completed',
+  'championshipRounds.progressMeta': '{{rounds}} matchdays · {{pending}} matches without a result',
+  'championshipRounds.progressAria': 'Completed matches: {{completed}} of {{total}}',
+  'championshipRounds.filterAria': 'Filter matchdays',
+  'championshipRounds.filterAll': 'All',
+  'championshipRounds.filterPending': 'Not completed',
+  'championshipRounds.filterCompleted': 'Completed',
+  'championshipRounds.nextPending': 'Go to next unfinished matchday',
+  'championshipRounds.filterEmpty': 'No matchdays match this filter.',
   'championshipRounds.editCupResult': 'Edit knockout result',
   'championshipRounds.matchDetails': 'Match details and management',
   'championshipRounds.unsavedScore': 'Unsaved result',
