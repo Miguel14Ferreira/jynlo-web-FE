@@ -35,7 +35,9 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
             </header>
             <div class="call-incoming-person">
               <div class="call-incoming-avatar" aria-hidden="true">
-                {{ call.peer.slice(0,1).toUpperCase() }}
+                @if (profilePhoto(call.peer); as photo) {
+                  <img [src]="photo" alt="" referrerpolicy="no-referrer" (error)="hideBrokenPhoto(call.peer)">
+                } @else { {{ call.peer.slice(0,1).toUpperCase() }} }
               </div>
               <div class="call-incoming-person-copy">
                 <h2>{{ call.peer }}</h2>
@@ -72,7 +74,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
           <div class="connect-mini-audio" aria-hidden="true">
             @for (person of participants; track person.identity) {
               @if (person !== calls.room?.localParticipant) {
-                <app-call-participant-tile [participant]="person" [label]="participantLabel(person)"
+                <app-call-participant-tile [participant]="person" [label]="participantLabel(person)" [avatarUrl]="profilePhoto(participantUsername(person))"
                   [audioOnly]="true" [volume]="volumeFor(person.identity)"
                   [microphoneVolume]="volumeFor(person.identity)"
                   [screenShareVolume]="screenVolumeFor(person.identity)"
@@ -106,7 +108,11 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
             </div>
           </header>
           <div class="call-info">
-            <div class="call-avatar" aria-hidden="true">{{ call.peer.slice(0,1).toUpperCase() }}</div>
+            <div class="call-avatar" aria-hidden="true">
+              @if (profilePhoto(call.peer); as photo) {
+                <img [src]="photo" alt="" referrerpolicy="no-referrer" (error)="hideBrokenPhoto(call.peer)">
+              } @else { {{ call.peer.slice(0,1).toUpperCase() }} }
+            </div>
             <div class="call-summary">
               <h2>{{ call.peer }}</h2>
               <p class="call-phase" role="status">
@@ -134,7 +140,11 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
           @if (call.phase !== 'error') {
             @if (call.phase === 'dialing' || (call.phase === 'connecting' && !call.startedAt)) {
               <div class="connect-waiting">
-                <div class="connect-wait-avatar" aria-hidden="true">{{ call.peer.slice(0,1).toUpperCase() }}</div>
+                <div class="connect-wait-avatar" aria-hidden="true">
+                  @if (profilePhoto(call.peer); as photo) {
+                    <img [src]="photo" alt="" referrerpolicy="no-referrer" (error)="hideBrokenPhoto(call.peer)">
+                  } @else { {{ call.peer.slice(0,1).toUpperCase() }} }
+                </div>
                 <h3>{{ call.peer }}</h3>
                 <p>{{ 'calls.waitingForAnswer' | t }}</p>
                 <div class="connect-wait-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
@@ -189,7 +199,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                     [attr.aria-label]="'calls.callParticipants' | t">
                     @for (person of participants; track person.identity) {
                       <app-call-participant-tile [participant]="person"
-                        [label]="participantLabel(person)" [local]="person === calls.room?.localParticipant"
+                        [label]="participantLabel(person)" [avatarUrl]="profilePhoto(participantUsername(person))" [local]="person === calls.room?.localParticipant"
                         [volume]="volumeFor(person.identity)"
                         [microphoneVolume]="volumeFor(person.identity)"
                         [screenShareVolume]="screenVolumeFor(person.identity)"
@@ -220,7 +230,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                 } @else {
                   @for (person of participants; track person.identity) {
                     <app-call-participant-tile [participant]="person"
-                      [label]="participantLabel(person)" [local]="person === calls.room?.localParticipant"
+                      [label]="participantLabel(person)" [avatarUrl]="profilePhoto(participantUsername(person))" [local]="person === calls.room?.localParticipant"
                       [volume]="volumeFor(person.identity)"
                       [microphoneVolume]="volumeFor(person.identity)"
                       [screenShareVolume]="screenVolumeFor(person.identity)"
@@ -366,7 +376,11 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                       <button type="button" class="connect-contact-option"
                         [disabled]="(calls.invitationBusy$ | async) ?? false"
                         (click)="inviteContact(contact.username)">
-                        <span class="connect-contact-avatar">{{ contact.username.slice(0,1).toUpperCase() }}</span>
+                        <span class="connect-contact-avatar">
+                          @if (contact.profilePicUrl) {
+                            <img [src]="contact.profilePicUrl" alt="" loading="lazy" referrerpolicy="no-referrer">
+                          } @else { {{ contact.username.slice(0,1).toUpperCase() }} }
+                        </span>
                         <span class="connect-contact-names"><strong>{{ contact.nickname || contact.fullName || contact.username }}</strong>
                         <small>&#64;{{ contact.username }}</small></span>
                         <span aria-hidden="true">＋</span>
@@ -530,7 +544,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
       height: 54px;
       border: 1px solid #60c7ac;
       border-radius: 50%;
-      background: #275a58;
+      background: #303f50;overflow:hidden;
       color: #eafff6;
       font-size: 1.3rem;
       font-weight: 850;
@@ -610,7 +624,9 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
     .call-kind{color:#e0eef4;font-weight:650}
     .call-info{justify-content:center;gap:12px;margin:8px 0 2px;min-height:55px}
     .call-avatar{display:grid;place-items:center;flex:0 0 auto;width:50px;height:50px;
-      border-radius:50%;background:#276b68;color:#e0fff8;font-size:1.25rem;font-weight:850}
+      border-radius:50%;background:#303f50;color:#e0fff8;font-size:1.25rem;font-weight:850;overflow:hidden}
+    .call-incoming-avatar img,.call-avatar img,.connect-wait-avatar img,.connect-contact-avatar img{
+      display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
     .call-summary{min-width:0;text-align:left}
     .call-summary h2{font-size:clamp(1.12rem,2.2vw,1.42rem);margin:0 0 4px;overflow-wrap:anywhere}
     .call-phase{display:flex;gap:8px;align-items:center;margin:0;font-size:.8rem;color:#bbd5db}
@@ -705,7 +721,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
     .connect-waiting{flex:1;min-height:145px;display:flex;flex-direction:column;align-items:center;
       justify-content:center;gap:13px;padding:20px;background:radial-gradient(circle at 50% 50%,#194950,#0c2634 70%);border-radius:17px}
     .connect-wait-avatar{width:108px;height:108px;display:grid;place-items:center;border-radius:50%;background:#286d69;
-      border:3px solid #4ee7bb;box-shadow:0 0 0 13px #49e7bd18;font-size:2.8rem;font-weight:850}
+      border:3px solid #8b9cab;box-shadow:0 0 0 13px #8299af18;font-size:2.8rem;font-weight:850;overflow:hidden}
     .connect-waiting h3,.connect-waiting p{margin:0}.connect-waiting p{color:#a6d2d5;font-size:.82rem}
     .connect-wait-bars{display:flex;align-items:center;gap:5px;height:25px}
     .connect-wait-bars i{width:4px;height:9px;border-radius:9px;background:#56f2c5;animation:connect-wave 1s ease-in-out infinite alternate}
@@ -840,6 +856,34 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
 })
 export class DirectCallOverlayComponent implements OnDestroy {
   private readonly mediaSubscription: Subscription;
+  private readonly memberPhotoSubscription: Subscription;
+  private readonly photos = new Map<string, string | null>();
+  private readonly photoRequests = new Set<string>();
+  private readonly photoFailures = new Set<string>();
+
+  profilePhoto(username: string | null): string | null {
+    if (!username) return null;
+    const key = username.toLowerCase();
+    return this.photoFailures.has(key) ? null : (this.photos.get(key) ?? null);
+  }
+  hideBrokenPhoto(username: string): void {
+    this.photoFailures.add(username.toLowerCase());
+  }
+  participantUsername(person: LocalParticipant | RemoteParticipant): string | null {
+    return this.calls.members$.value.participants.find(member => member.identity === person.identity)?.username
+      ?? (person === this.calls.room?.localParticipant ? null : this.calls.state$.value?.peer ?? null);
+  }
+  private requestPhoto(username: string | null | undefined): void {
+    const name = username?.trim();
+    if (!name) return;
+    const key = name.toLowerCase();
+    if (this.photoRequests.has(key)) return;
+    this.photoRequests.add(key);
+    this.community.publicProfile(name).pipe(timeout(10000)).subscribe({
+      next: profile => { this.photos.set(key, profile.profilePicUrl || null); },
+      error: () => { this.photos.set(key, null); }
+    });
+  }
   settingsOpen = false;
   inviteOpen = false;
   inviteUsername = '';
@@ -994,7 +1038,14 @@ export class DirectCallOverlayComponent implements OnDestroy {
       : [Math.floor(seconds/60),seconds%60].map(x=>String(x).padStart(2,'0')).join(':');
   }));
 
+    this.memberPhotoSubscription = calls.members$.subscribe(members => {
+      if (calls.state$.value) members.participants.forEach(member => this.requestPhoto(member.username));
+    });
     this.mediaSubscription = calls.state$.subscribe(call=>{
+      if (call) {
+        this.requestPhoto(call.peer);
+        calls.members$.value.participants.forEach(member => this.requestPhoto(member.username));
+      }
       if (!call) {
         this.settingsOpen=false;
         this.inviteOpen=false;
@@ -1052,5 +1103,6 @@ export class DirectCallOverlayComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.mediaSubscription.unsubscribe();
+    this.memberPhotoSubscription.unsubscribe();
   }
 }
