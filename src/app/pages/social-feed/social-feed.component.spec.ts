@@ -311,7 +311,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     component.onPostGalleryChange({ target: input } as unknown as Event);
     expect(component.postGallery.map(item => item.file)).toEqual([photo, video]);
     fixture.detectChanges();
-    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.feed-gallery-draft-item').length).toBe(2);
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.composer-media-grid .composer-media-item').length).toBe(2);
     component.postContent = 'Grande jogo!';
     const published: FeedItem = {
       type: 'POST', postId: 123, authorUsername: 'miguel', authorDisplayName: 'Miguel',
@@ -331,6 +331,50 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(create).toHaveBeenCalledTimes(2);
   }));
 
+  it('shows a contained image preview with a separate accessible remove action', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    component.postImageFile = new File(['screenshot'], 'captura-de-ecra.png', {type: 'image/png'});
+    component.postImagePreview = 'data:image/png;base64,c2NyZWVuc2hvdA==';
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const preview = root.querySelector('.composer-media-item--single') as HTMLElement;
+    expect(preview).not.toBeNull();
+    expect(preview.querySelector('.composer-media-frame img')).not.toBeNull();
+    expect(preview.querySelector('.composer-media-item-footer .composer-media-name')?.textContent)
+      .toContain('captura-de-ecra.png');
+    expect(preview.querySelector('.remove-image')).toBeNull();
+    const remove = preview.querySelector('button.composer-media-remove') as HTMLButtonElement;
+    expect(remove).not.toBeNull();
+    expect(remove.getAttribute('aria-label')).toContain('captura-de-ecra.png');
+    remove.click();
+    fixture.detectChanges();
+    expect(component.postImageFile).toBeUndefined();
+    expect(root.querySelector('.composer-media')).toBeNull();
+    expect(root.querySelector('.composer-publish')).not.toBeNull();
+  }));
+
+  it('presents gallery thumbnails and independent removal inside a responsive media stage', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    spyOn(URL, 'createObjectURL').and.returnValues('blob:one', 'blob:two');
+    const files = [new File(['one'], 'primeira.png', {type: 'image/png'}),
+      new File(['two'], 'segunda.png', {type: 'image/png'})];
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', {value: files});
+    component.onPostGalleryChange({target: input} as unknown as Event);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelectorAll('.composer-media-grid .composer-media-item').length).toBe(2);
+    expect(root.querySelector('.composer-media-title')?.textContent).toContain('2 ficheiros');
+    const remove = root.querySelector('.composer-media-grid .composer-media-remove') as HTMLButtonElement;
+    remove.click();
+    fixture.detectChanges();
+    expect(component.postGallery.length).toBe(1);
+    expect(root.querySelectorAll('.composer-media-grid .composer-media-item').length).toBe(1);
+  }));
+
   it('allows video selection, limits its size and keeps photo/video mutually exclusive', fakeAsync(() => {
     fixture.detectChanges();
     tick(351);
@@ -344,7 +388,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(url).toHaveBeenCalledOnceWith(video);
     expect(component.postVideoFile).toBe(video);
     expect(component.postImageFile).toBeUndefined();
-    expect((fixture.nativeElement as HTMLElement).querySelector('.composer-image-preview video')).not.toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.composer-media-frame video')).not.toBeNull();
     component.removePostVideo();
     expect(revoke).toHaveBeenCalledWith('blob:test-video');
     expect(component.postVideoFile).toBeUndefined();
