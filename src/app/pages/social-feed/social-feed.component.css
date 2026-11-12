@@ -1029,3 +1029,9 @@ h1 {
     overflow-wrap: anywhere;
   }
 }
+
+/* Photo/video albums share one publication, comments and reactions. */
+.feed-gallery-draft,.feed-extra-media {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px;margin:12px 0;}
+.feed-gallery-draft-item {min-width:0;}
+.feed-gallery-draft img,.feed-gallery-draft video,.feed-extra-media img,.feed-extra-media video {display:block;width:100%;max-height:280px;object-fit:contain;border-radius:10px;background:rgba(5,20,27,.48);}
+.feed-gallery-draft-item button {margin-top:8px;}
