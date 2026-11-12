@@ -1476,8 +1476,11 @@
                             <span class="session-player-card__badge">{{ 'guestAdmin.memberBadge' | t }}</span>
                                                       </a>
                             @if (canContactSessionMember(participant.username)) {
-                              <div class="session-player-card__contact-actions" role="group"
+                              <details class="session-player-card__contact-actions"
                                    [attr.aria-label]="'Contactar ' + participant.username">
+                                <summary class="session-player-card__contact-toggle" [attr.aria-label]="'Opções para contactar ' + participant.username">
+                                  <span aria-hidden="true">•••</span><span>Contactar</span>
+                                </summary>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
                                   (click)="contactSessionMember(participant.username)">
                                   <span aria-hidden="true">💬</span> Mensagem
@@ -1492,7 +1495,7 @@
                                   (click)="callSessionMember(participant.username, 'video')">
                                   <span aria-hidden="true">📹</span> Vídeo
                                 </button>
-                              </div>
+                              </details>
                             }
                             @if (canCancelRegisteredPresence(participant)) {
                               <div class="session-player-card__guest-actions">
@@ -1560,8 +1563,11 @@
                             <span class="session-player-card__badge">{{ 'guestAdmin.memberBadge' | t }}</span>
                                                       </a>
                             @if (canContactSessionMember(participant.username)) {
-                              <div class="session-player-card__contact-actions" role="group"
+                              <details class="session-player-card__contact-actions"
                                    [attr.aria-label]="'Contactar ' + participant.username">
+                                <summary class="session-player-card__contact-toggle" [attr.aria-label]="'Opções para contactar ' + participant.username">
+                                  <span aria-hidden="true">•••</span><span>Contactar</span>
+                                </summary>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
                                   (click)="contactSessionMember(participant.username)">
                                   <span aria-hidden="true">💬</span> Mensagem
@@ -1576,7 +1582,7 @@
                                   (click)="callSessionMember(participant.username, 'video')">
                                   <span aria-hidden="true">📹</span> Vídeo
                                 </button>
-                              </div>
+                              </details>
                             }
                             @if (canCancelRegisteredPresence(participant)) {
                               <div class="session-player-card__guest-actions">
@@ -1644,8 +1650,11 @@
                             <span class="session-player-card__badge">{{ 'guestAdmin.memberBadge' | t }}</span>
                                                       </a>
                             @if (canContactSessionMember(participant.username)) {
-                              <div class="session-player-card__contact-actions" role="group"
+                              <details class="session-player-card__contact-actions"
                                    [attr.aria-label]="'Contactar ' + participant.username">
+                                <summary class="session-player-card__contact-toggle" [attr.aria-label]="'Opções para contactar ' + participant.username">
+                                  <span aria-hidden="true">•••</span><span>Contactar</span>
+                                </summary>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
                                   (click)="contactSessionMember(participant.username)">
                                   <span aria-hidden="true">💬</span> Mensagem
@@ -1660,7 +1669,7 @@
                                   (click)="callSessionMember(participant.username, 'video')">
                                   <span aria-hidden="true">📹</span> Vídeo
                                 </button>
-                              </div>
+                              </details>
                             }
                             @if (canCancelRegisteredPresence(participant)) {
                               <div class="session-player-card__guest-actions">
