@@ -82,6 +82,29 @@ describe('Global incoming call popup', () => {
     expect(expanded.querySelector('.call-refresh')?.textContent).toContain('7');
   });
 
+  it('diagnoses an apparently enabled camera whose local publication is missing', () => {
+    const self = {identity:'self',videoTrackPublications:new Map()} as any;
+    calls.room = {localParticipant:self,remoteParticipants:new Map()};
+    state.next({...invitation('video'),phase:'active',cameraEnabled:true,startedAt:Date.now()});
+    fixture.detectChanges();
+    const overlay = fixture.componentInstance;
+    expect(overlay.ownCameraPublished).toBeFalse();
+    expect(fixture.nativeElement.querySelector('.connect-camera-health')).not.toBeNull();
+    const liveCamera={source:Track.Source.Camera,track:{
+      mediaStreamTrack:{readyState:'live'}
+    },isMuted:false};
+    self.videoTrackPublications.set('camera',liveCamera);
+    calls.mediaChanged$.next(5);
+    fixture.detectChanges();
+    expect(overlay.ownCameraPublished).toBeTrue();
+    expect(fixture.nativeElement.querySelector('.connect-camera-health')).toBeNull();
+    liveCamera.track.mediaStreamTrack.readyState='ended';
+    calls.mediaChanged$.next(6);
+    fixture.detectChanges();
+    expect(overlay.ownCameraPublished).toBeFalse();
+    expect(fixture.nativeElement.querySelector('.connect-camera-health')).not.toBeNull();
+  });
+
   it('focuses a camera, switches participant and restores the layout with Escape', () => {
     const self = {identity:'local-user', videoTrackPublications:new Map()} as any;
     const friend = {identity:'remote-user', videoTrackPublications:new Map()} as any;
