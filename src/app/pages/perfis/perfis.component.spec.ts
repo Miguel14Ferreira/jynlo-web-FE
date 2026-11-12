@@ -949,6 +949,7 @@ describe('PerfisComponent', () => {
 
   it('should send a friend request for the selected profile', () => {
     component.selectedProfile = profile;
+    component.selectedFriendshipStatus = { friends: false, pendingRequest: false };
     component.sendFriendRequest(profile);
 
     expect(service.sendFriendRequest).toHaveBeenCalledWith('ana');
