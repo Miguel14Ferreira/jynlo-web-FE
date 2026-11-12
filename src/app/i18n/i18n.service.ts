@@ -4989,6 +4989,7 @@ const PT: Dictionary = {
   'calls.sharedScreens': 'Ecrãs partilhados',
   'calls.callParticipants': 'Participantes na chamada',
   'calls.screenShareCancelled': 'A partilha foi cancelada ou bloqueada pelo navegador. Seleciona um ecrã e permite a partilha para tentar novamente.',
+  'calls.screenShareUnsupported': 'A partilha de ecrã não é suportada por este navegador ou dispositivo. Podes continuar a chamada normalmente; para partilhar o ecrã, experimenta a versão Web num computador compatível.',
   'calls.screenShareFailed': 'Não foi possível iniciar ou parar a partilha. Verifica as permissões do navegador e tenta novamente.',
   'calls.cameraConstraints': 'Esta câmara não suporta as definições de vídeo pedidas. Experimenta outra câmara ou uma resolução mais baixa.',
   'calls.cameraNoVideo': 'A câmara está marcada como ligada, mas ainda não está a enviar imagem. Tenta novamente ou escolhe outra câmara.',
