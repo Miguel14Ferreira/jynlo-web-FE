@@ -19,9 +19,10 @@ export class ContactComponent implements OnDestroy {
   email = '';
   category = '';
   problem = '';
-  screenshot: File | null = null;
+  screenshots: { file: File; url: string }[] = [];
+  readonly maxScreenshots = 8;
+  readonly maxTotalScreenshotBytes = 16 * 1024 * 1024;
   screenshotError = '';
-  screenshotPreviewUrl: string | null = null;
   readonly maxScreenshotBytes = 3 * 1024 * 1024;
 
   readonly categories = [
@@ -70,8 +71,8 @@ export class ContactComponent implements OnDestroy {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const send = this.screenshot
-      ? this.feedbackService.submitWithImage(request, this.screenshot)
+    const send = this.screenshots.length
+      ? this.feedbackService.submitWithImages(request, this.screenshots.map(item => item.file))
       : this.feedbackService.submit(request);
     send.pipe(timeout(20_000), finalize(() => this.loading = false))
       .subscribe({
@@ -79,9 +80,7 @@ export class ContactComponent implements OnDestroy {
           this.successMessage = response.message || t('feedback.contact.thanks');
           this.category = '';
           this.problem = '';
-          if (this.screenshotPreviewUrl) URL.revokeObjectURL(this.screenshotPreviewUrl);
-          this.screenshotPreviewUrl = null;
-          this.screenshot = null;
+          this.revokeScreenshots();
           this.screenshotError = '';
           this.fieldErrors = {};
         },
@@ -96,47 +95,74 @@ export class ContactComponent implements OnDestroy {
 
   onScreenshotChosen(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.item(0) ?? null;
+    const files = Array.from(input.files ?? []);
     input.value = '';
-    if (file) this.selectScreenshot(file);
+    this.addScreenshots(files);
   }
 
   onMessagePaste(event: ClipboardEvent): void {
-    const image = Array.from(event.clipboardData?.files ?? [])
-      .find(file => file.type.startsWith('image/'));
-    if (!image || this.loading) return;
+    const images = Array.from(event.clipboardData?.items ?? [])
+      .filter(item => item.kind === 'file' && item.type.startsWith('image/'))
+      .map(item => item.getAsFile())
+      .filter((file): file is File => !!file);
+    if (!images.length || this.loading) return;
     event.preventDefault();
-    this.selectScreenshot(image);
+    this.addScreenshots(images);
   }
 
-  private selectScreenshot(file: File): void {
-    if (this.loading) return;
-    const supported = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-    if (!supported.includes(file.type.toLowerCase())) {
-      this.screenshotError = 'Usa PNG, JPG, WebP ou GIF.';
-      return;
+  private addScreenshots(files: File[]): void {
+    if (this.loading || !files.length) return;
+    const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+    const problems: string[] = [];
+    let total = this.screenshots.reduce((sum, item) => sum + item.file.size, 0);
+    for (const file of files) {
+      if (this.screenshots.length >= this.maxScreenshots) {
+        problems.push('Só podes adicionar até 8 imagens.');
+        break;
+      }
+      if (!allowed.includes(file.type.toLowerCase())) {
+        problems.push('Usa PNG, JPG, WebP ou GIF.');
+        continue;
+      }
+      if (!file.size || file.size > this.maxScreenshotBytes) {
+        problems.push('Cada imagem pode ter até 3 MB.');
+        continue;
+      }
+      if (total + file.size > this.maxTotalScreenshotBytes) {
+        problems.push('O conjunto das imagens pode ter até 16 MB.');
+        continue;
+      }
+      if (this.screenshots.some(item => item.file.name === file.name
+            && item.file.size === file.size && item.file.lastModified === file.lastModified)) {
+        problems.push('Essa imagem já foi adicionada.');
+        continue;
+      }
+      this.screenshots.push({ file, url: URL.createObjectURL(file) });
+      total += file.size;
     }
-    if (!file.size || file.size > this.maxScreenshotBytes) {
-      this.screenshotError = 'A imagem não pode ultrapassar 3 MB.';
-      return;
-    }
-    this.clearScreenshot();
-    this.screenshot = file;
-    this.screenshotPreviewUrl = URL.createObjectURL(file);
+    this.screenshotError = [...new Set(problems)].join(' ');
+  }
+
+  removeScreenshot(index: number): void {
+    if (this.loading || index < 0 || index >= this.screenshots.length) return;
+    const removed = this.screenshots.splice(index, 1)[0];
+    URL.revokeObjectURL(removed.url);
     this.screenshotError = '';
   }
 
   clearScreenshot(): void {
     if (this.loading) return;
-    if (this.screenshotPreviewUrl) URL.revokeObjectURL(this.screenshotPreviewUrl);
-    this.screenshotPreviewUrl = null;
-    this.screenshot = null;
+    this.revokeScreenshots();
     this.screenshotError = '';
   }
 
+  private revokeScreenshots(): void {
+    for (const item of this.screenshots) URL.revokeObjectURL(item.url);
+    this.screenshots = [];
+  }
+
   ngOnDestroy(): void {
-    if (this.screenshotPreviewUrl) URL.revokeObjectURL(this.screenshotPreviewUrl);
-    this.screenshotPreviewUrl = null;
+    this.revokeScreenshots();
   }
 
   clearFieldError(field: ContactField): void {
