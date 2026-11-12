@@ -132,9 +132,6 @@ export class CallParticipantTileComponent implements AfterViewChecked, OnDestroy
   ngAfterViewChecked(): void {
     const video=this.videoElement?.nativeElement;
     const nextVideo=this.activeVideo;
-    // A locally generated video must never play through the speakers even if
-    // a browser reuses an element after a layout or track transition.
-    if (video) video.muted = this.local;
     // Angular can replace a media element while keeping the same LiveKit
     // track (e.g. expanded/minimized call or a refreshed participant tile).
     // Reattach to the new element; a track reference alone is insufficient.
@@ -144,6 +141,9 @@ export class CallParticipantTileComponent implements AfterViewChecked, OnDestroy
       this.attachedVideoElement=video ?? null;
       if (video) nextVideo?.attach(video);
     }
+    // Set this *after* LiveKit attachment, which may configure the element.
+    // Local self-view must never output audio to its own speakers.
+    if (video) video.muted = this.local;
     const audio=this.audioElement?.nativeElement;
     if (audio) audio.volume=Math.max(0,Math.min(1,this.microphoneVolume ?? this.volume));
     this.syncAudioOutput(audio);
