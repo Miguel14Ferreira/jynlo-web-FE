@@ -82,6 +82,35 @@ describe('Global incoming call popup', () => {
     expect(expanded.querySelector('.call-refresh')?.textContent).toContain('7');
   });
 
+  it('focuses a camera, switches participant and restores the layout with Escape', () => {
+    const self = {identity:'local-user', videoTrackPublications:new Map()} as any;
+    const friend = {identity:'remote-user', videoTrackPublications:new Map()} as any;
+    calls.room = {localParticipant:self,remoteParticipants:new Map([['remote-user',friend]])};
+    state.next({...invitation('video'),phase:'active',startedAt:Date.now()});
+    const overlay = fixture.componentInstance;
+    overlay.toggleCameraFocus('remote-user');
+    expect(overlay.focusedCamera).toBe(friend);
+    expect(overlay.cameraZoomed).toBeFalse();
+    overlay.zoomCamera('remote-user');
+    expect(overlay.cameraZoomed).toBeTrue();
+    overlay.toggleCameraFocus('local-user');
+    expect(overlay.focusedCamera).toBe(self);
+    expect(overlay.cameraZoomed).toBeFalse();
+    overlay.onEscapeCameraFocus();
+    expect(overlay.focusedCamera).toBeNull();
+    expect(overlay.cameraZoomed).toBeFalse();
+  });
+
+  it('clears any enlarged camera when a call ends', () => {
+    const overlay = fixture.componentInstance;
+    state.next({...invitation('video'),phase:'active',startedAt:Date.now()});
+    overlay.zoomCamera('remote-user');
+    expect(overlay.cameraZoomed).toBeTrue();
+    state.next(null);
+    expect(overlay.focusedCameraIdentity).toBeNull();
+    expect(overlay.cameraZoomed).toBeFalse();
+  });
+
   it('shows the caller public profile photo instead of the initial when available', () => {
     state.next(invitation('voice'));
     fixture.detectChanges();
