@@ -766,7 +766,8 @@ export class PerfisComponent implements OnInit, OnDestroy {
   }
 
   isOwnProfile(profile: CommunityProfile): boolean {
-    return profile.username === this.currentUsername;
+    const authenticated = (this.currentUsername || '').trim().toLowerCase();
+    return !!authenticated && profile.username.trim().toLowerCase() === authenticated;
   }
 
   friendRequestPending(profile: CommunityProfile): boolean {
