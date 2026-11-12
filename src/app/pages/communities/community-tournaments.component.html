@@ -1244,7 +1244,7 @@
                         <div class="jynlo-round-toolbar" role="group" [attr.aria-label]="'championshipRounds.manage' | t">
                           <strong>{{ 'championshipRounds.leagueTitle' | t }}</strong>
                           <button type="button" class="t-btn t-btn-secondary"
-                            (click)="setAllChampionshipRoundsExpanded(event.id, leagueRounds(event.id), true)">
+                            (click)="setAllChampionshipLeagueRoundsExpanded(championship.id, event.id, leagueRounds(event.id), true)">
                             {{ 'championshipRounds.expandAll' | t }}
                           </button>
                           <button type="button" class="t-btn t-btn-secondary"
@@ -1255,7 +1255,7 @@
                         @for (round of leagueRounds(event.id); track round) {
                           <details class="create-step jynlo-fixture-round"
                             [open]="isChampionshipRoundExpanded(event.id, round, 1)"
-                            (toggle)="setChampionshipRoundExpanded(event.id, round, $any($event.target).open)">
+                            (toggle)="onChampionshipLeagueRoundToggle(championship.id, event.id, round, $any($event.target).open)">
                             <summary class="jynlo-fixture-round-summary">
                               <strong>{{ 'communities.championshipOwned.round' | t }} {{ round }}</strong>
                               <span>{{ championshipRoundResultCount(event.id, round, 'LEAGUE') }}/{{ leagueRoundFixtures(event.id, round).length }} {{ 'championshipRounds.completed' | t }}</span>
@@ -1311,6 +1311,22 @@
                                   }
                                   @if ((championship.sport === 'Futebol' || championship.sport === 'Futsal')
                                       && fixture.homeScore != null && fixture.awayScore != null) {
+                                    @if (championshipFixtureDetailsState[fixture.id] === 'loading') {
+                                      <p class="jynlo-score-guidance" role="status">{{ 'championshipRounds.loadingDetails' | t }}</p>
+                                    } @else if (championshipFixtureDetailsState[fixture.id] === 'error') {
+                                      <div class="jynlo-round-detail-retry" role="alert">
+                                        <span>{{ 'championshipRounds.detailError' | t }}</span>
+                                        <button type="button" class="t-btn t-btn-secondary"
+                                          (click)="loadChampionshipFixtureDetails(championship.id, event.id, fixture.id, true)">
+                                          {{ 'championshipRounds.retry' | t }}
+                                        </button>
+                                      </div>
+                                    } @else if (championshipFixtureDetailsState[fixture.id] === 'ready') {
+                                      <button type="button" class="t-btn t-btn-secondary jynlo-round-detail-refresh"
+                                        (click)="loadChampionshipFixtureDetails(championship.id, event.id, fixture.id, true)">
+                                        {{ 'championshipRounds.refreshDetails' | t }}
+                                      </button>
+                                    }
                                     <details class="jynlo-goal-timeline jynlo-discipline-panel">
                                       <summary><strong>Escalação do jogo</strong>
                                         <small>({{ (championshipFixtureLineups[fixture.id] || []).length }} selecionados)</small>
