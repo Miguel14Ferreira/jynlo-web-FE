@@ -1294,6 +1294,16 @@
                                   } @else {
                                     <p class="jynlo-fixture-pending">Resultado por registar</p>
                                   }
+                                  @if ((championship.sport === 'Futebol' || championship.sport === 'Futsal')
+                                      && ((canManage && !championship.closedAt && event.status === 'SCHEDULED')
+                                        || (fixture.homeScore != null && fixture.awayScore != null))) {
+                                    <details class="jynlo-fixture-editor">
+                                      <summary class="jynlo-fixture-editor-toggle">
+                                        <span>{{ 'championshipRounds.matchDetails' | t }}</span>
+                                        @if (championshipFixtureScoreDrafts[fixture.id]) {
+                                          <small>{{ 'championshipRounds.unsavedScore' | t }}</small>
+                                        }
+                                      </summary>
                                   @if (canManage && !championship.closedAt && event.status === 'SCHEDULED'
                                     && (championship.sport === 'Futebol' || championship.sport === 'Futsal')) {
                                     <div class="jynlo-match-score-edit">
@@ -1600,6 +1610,8 @@
                                         </div>
                                       }
                                     </div>
+                                    </details>
+                                  }
                                   }
                                 </li>
                               }
