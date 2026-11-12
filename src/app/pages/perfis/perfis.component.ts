@@ -41,6 +41,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
   private routeSubscription?: Subscription;
   private profileSubscription?: Subscription;
   private detailSubscription?: Subscription;
+  private blockStatusSubscription?: Subscription;
   private postsSubscription?: Subscription;
   private postsRevision = 0;
   private friendshipSubscription?: Subscription;
@@ -308,6 +309,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.routeSubscription?.unsubscribe();
     this.profileSubscription?.unsubscribe();
     this.detailSubscription?.unsubscribe();
+    this.blockStatusSubscription?.unsubscribe();
     this.friendshipSubscription?.unsubscribe();
     this.postsSubscription?.unsubscribe();
     this.closeInvitePanel();
@@ -439,6 +441,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
   private loadProfile(username: string): void {
     this.profileSubscription?.unsubscribe();
     this.detailSubscription?.unsubscribe();
+    this.blockStatusSubscription?.unsubscribe();
     this.friendshipSubscription?.unsubscribe();
     this.closeProfile();
     this.loading = true;
@@ -469,29 +472,32 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.actionSuccess = '';
     this.loadFriendshipStatus(profile.username);
 
+    // Posts must not wait for optional activity metrics. Check blocks first.
+    this.blockStatusSubscription?.unsubscribe();
+    this.blockStatusSubscription = this.communityService.userBlockStatus(profile.username)
+      .pipe(timeout(10_000), catchError(() => of({ blocked: false })))
+      .subscribe(blockStatus => {
+        if (this.selectedProfile?.username !== profile.username) return;
+        this.selectedBlocked = blockStatus.blocked;
+        if (!blockStatus.blocked) this.loadProfilePosts(profile.username);
+      });
+
     this.detailSubscription = forkJoin({
       activity: this.reliabilityService.activity(profile.username)
-        .pipe(catchError(() => of(undefined))),
+        .pipe(timeout(10_000), catchError(() => of(undefined))),
       followStatus: this.socialGraphService.status(profile.username)
-        .pipe(catchError(() => of(undefined))),
-      blockStatus: this.communityService.userBlockStatus(profile.username)
-        .pipe(catchError(() => of({ blocked: false })))
-    })
-      .pipe(
-        timeout(10_000),
-        retry({ count: 1 })
-      )
-      .subscribe({
-        next: ({ activity, followStatus, blockStatus }) => {
-          this.selectedActivity = activity;
-          this.selectedFollowStatus = followStatus;
-          this.selectedBlocked = blockStatus.blocked;
-          if (!blockStatus.blocked) this.loadProfilePosts(profile.username);
-        },
-        error: () => {
-          this.actionError = t('community.profileDetailsError');
-        }
-      });
+        .pipe(timeout(10_000), catchError(() => of(undefined)))
+    }).subscribe({
+      next: ({ activity, followStatus }) => {
+        if (this.selectedProfile?.username !== profile.username) return;
+        this.selectedActivity = activity;
+        this.selectedFollowStatus = followStatus;
+      },
+      error: () => {
+        if (this.selectedProfile?.username !== profile.username) return;
+        this.actionError = t('community.profileDetailsError');
+      }
+    });
   }
 
   /** Fetch published posts, ignoring late responses from a different profile. */
