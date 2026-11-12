@@ -617,7 +617,7 @@ describe('Community tournaments management', () => {
     component.championships = [{id: 15, closedAt: null}] as any;
     component.championshipTeamAdministrators[99] = {teamId: 99, adminProfileId: 33,
       pendingProfileId: null, canManage: true, canAccept: false, canTransfer: true};
-    component.championshipTeamPlayers[99] = [{profileId: 55, username:'inscrito', displayName:'Confirmado'}];
+    component.championshipTeamPlayers[99] = [{profileId: 55, username:'inscrito', displayName:'Confirmado', profilePicUrl: null}];
     component.loadChampionshipPendingInvites(15, 99);
     expect(championships.pendingTeamInvitations).toHaveBeenCalledOnceWith(7, 15, 99);
     expect(component.championshipPendingInvites[99]).toEqual(pending);
