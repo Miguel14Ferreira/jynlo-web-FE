@@ -246,12 +246,18 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                         [audioOutputDeviceId]="(calls.selectedDevices$ | async)?.audiooutput">
                       </app-call-participant-tile>
                       <button type="button" class="connect-camera-focus-hit"
-                        [attr.aria-label]="(focusedCamera?.identity === person.identity ? 'Voltar à grelha: ' : 'Destacar câmara: ') + participantLabel(person)"
+                        [attr.aria-label]="((focusedCamera?.identity === person.identity ? 'calls.restoreCameraGrid' : 'calls.focusCamera') | t) + ': ' + participantLabel(person)"
                         [attr.aria-pressed]="focusedCamera?.identity === person.identity"
                         (click)="toggleCameraFocus(person.identity)"
-                        (dblclick)="zoomCamera(person.identity); $event.preventDefault()"
                         (keydown.escape)="clearCameraFocus(); $event.stopPropagation()">
                         <span aria-hidden="true">{{ focusedCamera?.identity === person.identity ? '↙' : '⤢' }}</span>
+                      </button>
+                      <button type="button" class="connect-camera-maximize"
+                        [attr.aria-label]="((cameraZoomed && focusedCamera?.identity === person.identity ? 'calls.restoreCameraFocus' : 'calls.maximizeCamera') | t) + ': ' + participantLabel(person)"
+                        [attr.aria-pressed]="cameraZoomed && focusedCamera?.identity === person.identity"
+                        (click)="zoomCamera(person.identity)"
+                        (keydown.escape)="clearCameraFocus(); $event.stopPropagation()">
+                        <span aria-hidden="true">{{ cameraZoomed && focusedCamera?.identity === person.identity ? '↙' : '⛶' }}</span>
                       </button>
                     </div>
                   }
@@ -760,7 +766,12 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
       display:grid;place-items:center;width:36px;height:36px;border-radius:10px;
       border:1px solid #83b6b1;background:#0b2839d9;font-size:1.15rem}
     .connect-camera-slot.is-focused .connect-camera-focus-hit{cursor:zoom-out}
-    .connect-camera-focus-hit:hover span,.connect-camera-focus-hit:focus-visible span{
+    .connect-camera-maximize{position:absolute;z-index:5;top:11px;right:55px;
+      display:grid;place-items:center;width:36px;height:36px;border-radius:10px;
+      border:1px solid #83b6b1;background:#0b2839e8;color:#f3fffa;
+      cursor:pointer;font-size:1.2rem}
+    .connect-camera-focus-hit:hover span,.connect-camera-focus-hit:focus-visible span,
+    .connect-camera-maximize:hover,.connect-camera-maximize:focus-visible{
       outline:2px solid #70ecd3;outline-offset:2px;background:#205a63}
     .connect-participants--camera-focus{display:flex;align-content:flex-start;
       flex-wrap:wrap;gap:10px}
@@ -774,6 +785,8 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
       box-shadow:0 0 0 100vmax #000c}
     .connect-participants--camera-zoom .connect-camera-slot.is-focused
       .connect-camera-focus-hit span{top:15px;right:15px}
+    .connect-participants--camera-zoom .connect-camera-slot.is-focused
+      .connect-camera-maximize{top:15px;right:59px}
     @media(max-width:600px){
       .connect-participants--camera-focus .connect-camera-slot.is-focused{
         height:clamp(220px,45dvh,470px)}
@@ -908,6 +921,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
 export class DirectCallOverlayComponent implements OnDestroy {
   private readonly mediaSubscription: Subscription;
   private readonly memberPhotoSubscription: Subscription;
+  private readonly cameraLifecycleSubscription: Subscription;
   private readonly photos = new Map<string, string | null>();
   private readonly photoRequests = new Set<string>();
   private readonly photoFailures = new Set<string>();
@@ -1125,6 +1139,11 @@ export class DirectCallOverlayComponent implements OnDestroy {
       : [Math.floor(seconds/60),seconds%60].map(x=>String(x).padStart(2,'0')).join(':');
   }));
 
+    this.cameraLifecycleSubscription = calls.mediaChanged$.subscribe(() => {
+      // The focused remote participant can leave while the browser is zoomed.
+      // Never leave a full-screen backdrop covering an empty call.
+      if (this.focusedCameraIdentity && !this.focusedCamera) this.clearCameraFocus();
+    });
     this.memberPhotoSubscription = calls.members$.subscribe(members => {
       if (calls.state$.value) members.participants.forEach(member => this.requestPhoto(member.username));
     });
@@ -1197,5 +1216,6 @@ export class DirectCallOverlayComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.mediaSubscription.unsubscribe();
     this.memberPhotoSubscription.unsubscribe();
+    this.cameraLifecycleSubscription.unsubscribe();
   }
 }
