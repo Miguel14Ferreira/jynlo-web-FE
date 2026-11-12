@@ -14,7 +14,7 @@ import { ChatReadSyncService } from '../../services/chat-read-sync.service';
 import { SessionMessage } from '../model/session-message';
 import { TEST_IMPORTS, TEST_PROVIDERS } from '../../testing/test-providers';
 import { ChatReactionsStubComponent } from '../../testing/chat-reactions-stub.component';
-import { I18nService } from '../../i18n/i18n.service';
+import { I18nService, appTranslate as t } from '../../i18n/i18n.service';
 
 describe('SessionDetailsComponent', () => {
   let component: SessionDetailsComponent;
