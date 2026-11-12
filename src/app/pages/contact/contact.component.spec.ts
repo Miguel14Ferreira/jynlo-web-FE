@@ -11,9 +11,9 @@ describe('ContactComponent', () => {
   let service: jasmine.SpyObj<FeedbackService>;
 
   beforeEach(async () => {
-    service = jasmine.createSpyObj<FeedbackService>('FeedbackService', ['submit', 'submitWithImage']);
+    service = jasmine.createSpyObj<FeedbackService>('FeedbackService', ['submit', 'submitWithImage', 'submitWithImages']);
     service.submit.and.returnValue(of({ message: 'Obrigado' } as any));
-    service.submitWithImage.and.returnValue(of({ message: 'Recebido' } as any));
+    service.submitWithImages.and.returnValue(of({ message: 'Recebido' } as any));
 
     await TestBed.configureTestingModule({
       declarations: [ContactComponent],
@@ -61,33 +61,54 @@ describe('ContactComponent', () => {
     expect(component.successMessage).toContain('Obrigado');
   });
 
-  it('can send one screenshot with the feedback and clears it on success', () => {
+  it('submits multiple screenshots together and clears the batch on success', () => {
     fill();
-    const file = new File(['mock screenshot'], 'captura.png', { type: 'image/png' });
+    const first = new File(['mock screenshot'], 'captura.png', { type: 'image/png' });
+    const second = new File(['another screenshot'], 'captura2.png', { type: 'image/png' });
     const input = document.createElement('input');
-    Object.defineProperty(input, 'files', { value: { item: () => file } });
+    Object.defineProperty(input, 'files', { value: [first, second] });
     component.onScreenshotChosen({ target: input } as unknown as Event);
-    expect(component.screenshot).toBe(file);
+    expect(component.screenshots.map(item => item.file)).toEqual([first, second]);
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.contact-attachment-preview img')).toBeTruthy();
+    expect(fixture.nativeElement.querySelectorAll('.contact-attachment-preview img').length).toBe(2);
     component.submit();
     expect(service.submit).not.toHaveBeenCalled();
-    expect(service.submitWithImage).toHaveBeenCalledOnceWith(jasmine.objectContaining({
+    expect(service.submitWithImages).toHaveBeenCalledOnceWith(jasmine.objectContaining({
       name: 'Miguel Ferreira', email: 'miguel@example.com'
-    }), file);
-    expect(component.screenshot).toBeNull();
+    }), [first, second]);
+    expect(component.screenshots.length).toBe(0);
     expect(component.successMessage).toContain('Recebido');
+  });
+
+  it('removes one image without disturbing other previews', () => {
+    const files = [new File(['one'], 'one.png', {type:'image/png'}),
+      new File(['two'], 'two.png', {type:'image/png'})];
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', { value: files });
+    component.onScreenshotChosen({target:input} as unknown as Event);
+    component.removeScreenshot(0);
+    expect(component.screenshots.map(item => item.file.name)).toEqual(['two.png']);
+  });
+
+  it('enforces the eight-image cap without discarding accepted images', () => {
+    const files = Array.from({length: 10}, (_, i) =>
+      new File(['image'], 'img' + i + '.png', {type: 'image/png'}));
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', {value: files});
+    component.onScreenshotChosen({target:input} as unknown as Event);
+    expect(component.screenshots.length).toBe(8);
+    expect(component.screenshotError).toContain('8');
   });
 
   it('does not intercept pasted text and rejects invalid screenshot formats', () => {
     const fake = new File(['<script>unsafe</script>'], 'test.html', { type:'text/html' });
     const input = document.createElement('input');
-    Object.defineProperty(input, 'files', { value: { item: () => fake } });
+    Object.defineProperty(input, 'files', { value: [fake] });
     component.onScreenshotChosen({ target: input } as unknown as Event);
-    expect(component.screenshot).toBeNull();
+    expect(component.screenshots.length).toBe(0);
     expect(component.screenshotError).toContain('PNG');
     const preventDefault = jasmine.createSpy('preventDefault');
-    component.onMessagePaste({ clipboardData: { files: [] }, preventDefault } as unknown as ClipboardEvent);
+    component.onMessagePaste({ clipboardData: { items: [] }, preventDefault } as unknown as ClipboardEvent);
     expect(preventDefault).not.toHaveBeenCalled();
   });
 
