@@ -57,6 +57,22 @@ export class DirectChatService {
       + encodeURIComponent(username) + '/attachments', form);
   }
 
+  sendAttachments(username: string, files: File[], caption: string,
+                  replyToMessageId?: number): Observable<DirectChatMessage> {
+    const form = new FormData();
+    for (const file of files) form.append('files', file, file.name);
+    if (caption.trim()) form.append('caption', caption.trim());
+    if (replyToMessageId) form.append('replyToMessageId', String(replyToMessageId));
+    return this.http.post<DirectChatMessage>(this.baseUrl + '/'
+      + encodeURIComponent(username) + '/attachments/batch', form);
+  }
+
+  downloadAttachmentAt(username: string, messageId: number, index: number): Observable<Blob> {
+    return this.http.get(this.baseUrl + '/'
+      + encodeURIComponent(username) + '/attachments/' + messageId + '/' + index,
+      {responseType: 'blob'});
+  }
+
   downloadAttachment(username: string, messageId: number): Observable<Blob> {
     return this.http.get(this.baseUrl + '/'
       + encodeURIComponent(username) + '/attachments/' + messageId, {responseType:'blob'});
