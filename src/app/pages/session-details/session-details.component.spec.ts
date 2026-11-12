@@ -6,6 +6,7 @@ import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
 import { SessionDetailsComponent } from './session-details.component';
 import { CommunityService } from '../../services/community.service';
 import { DirectChatService } from '../../services/direct-chat.service';
+import { DirectCallClientService } from '../../services/direct-call-client.service';
 import { SessionService } from '../../services/session.service';
 import { ReliabilityService } from '../../services/reliability.service';
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
@@ -21,6 +22,9 @@ describe('SessionDetailsComponent', () => {
   let sessionService: jasmine.SpyObj<SessionService>;
   let communityService: jasmine.SpyObj<CommunityService>;
   let directChatService: jasmine.SpyObj<DirectChatService>;
+  let callClient: jasmine.SpyObj<DirectCallClientService>;
+  let callsReady: BehaviorSubject<boolean>;
+  let activeCall: BehaviorSubject<any>;
   let reliabilityService: jasmine.SpyObj<ReliabilityService>;
   let realtimeService: jasmine.SpyObj<DirectChatRealtimeService>;
   let realtimeSessionMessages: Subject<SessionMessage>;
@@ -60,6 +64,12 @@ describe('SessionDetailsComponent', () => {
   }
 
   beforeEach(async () => {
+    callsReady = new BehaviorSubject<boolean>(false);
+    activeCall = new BehaviorSubject<any>(null);
+    callClient = jasmine.createSpyObj<DirectCallClientService>('DirectCallClientService', ['start'], {
+      available$: callsReady,
+      state$: activeCall
+    });
     readSync = jasmine.createSpyObj<ChatReadSyncService>('ChatReadSyncService', ['markVisible']);
     communityService = jasmine.createSpyObj<CommunityService>('CommunityService', ['friends']);
     communityService.friends.and.returnValue(of([{username:'player-two', fullName: 'Player Two', nickname: null, profilePicUrl: null, chatBlocked: false, blockedByMe: false}]));
@@ -200,6 +210,7 @@ describe('SessionDetailsComponent', () => {
         },
         { provide: CommunityService, useValue: communityService },
         { provide: DirectChatService, useValue: directChatService },
+        { provide: DirectCallClientService, useValue: callClient },
         {
           provide: ReliabilityService,
           useValue: reliabilityService
@@ -4355,6 +4366,42 @@ describe('SessionDetailsComponent', () => {
     expect(preview).toBeTruthy();
     component.confirmTeams();
     expect(sessionService.confirmTeams).toHaveBeenCalledWith(7, 'RANDOM', preview);
+  });
+
+  it('only enables roster calls when the provider is ready and supports voice and video', () => {
+    const now = Date.now();
+    (component as any).currentUsername = 'creator-user';
+    component.session = {...session, joined: true, gameDate: new Date(now + 60_000).toISOString()};
+    component.sessionParticipants = [
+      {id: 1, username: 'creator-user', attendanceStatus: 'PENDING', joinedAt: ''},
+      {id: 2, username: 'player-two', attendanceStatus: 'PENDING', joinedAt: ''}
+    ];
+    fixture.detectChanges();
+    let callButtons = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('.session-player-card__contact-actions button')
+    ).filter(button => /Voz|Vídeo/.test(button.textContent || ''));
+    expect(callButtons.length).toBe(2);
+    expect(callButtons.every(button => button.disabled)).toBeTrue();
+    component.callSessionMember('player-two', 'video');
+    expect(callClient.start).not.toHaveBeenCalled();
+
+    callsReady.next(true);
+    fixture.detectChanges();
+    callButtons = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('.session-player-card__contact-actions button')
+    ).filter(button => /Voz|Vídeo/.test(button.textContent || ''));
+    expect(callButtons.every(button => !button.disabled)).toBeTrue();
+    component.callSessionMember('player-two', 'voice');
+    component.callSessionMember('player-two', 'video');
+    expect(callClient.start).toHaveBeenCalledWith('player-two', 'voice');
+    expect(callClient.start).toHaveBeenCalledWith('player-two', 'video');
+
+    activeCall.next({ id: 'ongoing', phase: 'active' });
+    callClient.start.calls.reset();
+    component.callSessionMember('player-two', 'voice');
+    expect(callClient.start).not.toHaveBeenCalled();
+    component.callSessionMember('outsider', 'video');
+    expect(callClient.start).not.toHaveBeenCalled();
   });
 
   it('offers session contact only between confirmed roster members within four hours of kickoff', () => {
