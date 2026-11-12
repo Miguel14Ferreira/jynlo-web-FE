@@ -1154,6 +1154,52 @@ describe('Community tournaments management', () => {
     expect(component.championshipFixtureGoals[501][0].id).toBe(77);
   });
 
+  it('keeps only the latest independently refreshed cards, substitutions and lineups', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const categories = [
+      { api: 'fixtureCards', load: 'loadFixtureCards', cache: 'championshipFixtureCards' },
+      { api: 'fixtureSubstitutions', load: 'loadFixtureSubstitutions', cache: 'championshipFixtureSubstitutions' },
+      { api: 'fixtureLineup', load: 'loadFixtureLineup', cache: 'championshipFixtureLineups' }
+    ] as const;
+    for (const category of categories) {
+      const oldResponse = new Subject<any[]>();
+      const latestResponse = new Subject<any[]>();
+      (championships as any)[category.api] = jasmine.createSpy(category.api)
+        .and.returnValues(oldResponse, latestResponse);
+      (component as any)[category.load](15, 101, 501);
+      (component as any)[category.load](15, 101, 501);
+      latestResponse.next([{ id: 90 }]); latestResponse.complete();
+      oldResponse.next([{ id: 1 }]); oldResponse.complete();
+      expect((component as any)[category.cache][501].map((item: any) => item.id))
+        .withContext(category.api).toEqual([90]);
+    }
+  });
+
+  it('does not restore older cards when a saved disciplinary event arrives later', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const oldCards = new Subject<any[]>();
+    (championships as any).fixtureCards = jasmine.createSpy('fixtureCards').and.returnValue(oldCards);
+    (championships as any).addFixtureCard = jasmine.createSpy('addFixtureCard')
+      .and.returnValue(of([{ id: 90, teamId: 1, profileId: 25, type: 'YELLOW' }]));
+    spyOn(component, 'loadChampionshipLeaguePlayerStats');
+    component.championshipTeamRegistries[15] = { teams: [{ id: 1 }] } as any;
+    component.championshipTeamPlayers[1] = [{ profileId: 25 }] as any;
+    component.championshipCardTeamDrafts[501] = 1;
+    component.championshipCardPlayerDrafts[501] = 25;
+    component.championshipCardTypeDrafts[501] = 'YELLOW';
+    const match = { id: 501, homeTeamId: 1, awayTeamId: 2, homeScore: 1, awayScore: 0 } as any;
+
+    component.loadFixtureCards(15, 101, 501);
+    component.addFixtureCard(
+      { id: 15, sport: 'Futebol', closedAt: null } as any,
+      { id: 101, format: 'LEAGUE', status: 'SCHEDULED' } as any,
+      match
+    );
+    oldCards.next([{ id: 1 }]); oldCards.complete();
+
+    expect(component.championshipFixtureCards[501].map(card => card.id)).toEqual([90]);
+  });
+
   it('keeps latest player statistics after out-of-order responses', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const oldStats = new Subject<any>();
