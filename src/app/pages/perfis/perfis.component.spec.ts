@@ -60,7 +60,7 @@ describe('PerfisComponent', () => {
 
     socialGraphService = jasmine.createSpyObj<SocialGraphService>(
       'SocialGraphService',
-      ['status', 'follow', 'unfollow']
+      ['status', 'follow', 'unfollow', 'followers', 'following']
     );
     socialGraphService.status.and.returnValue(of({
       followedByMe: false,
@@ -80,6 +80,8 @@ describe('PerfisComponent', () => {
       followers: 3,
       following: 5
     }));
+    socialGraphService.followers.and.returnValue(of([]));
+    socialGraphService.following.and.returnValue(of([]));
 
     socialFeed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['profilePosts']);
     socialFeed.profilePosts.and.returnValue(of([]));
@@ -946,11 +948,36 @@ describe('PerfisComponent', () => {
   });
 
   it('should send a friend request for the selected profile', () => {
+    component.selectedProfile = profile;
     component.sendFriendRequest(profile);
 
     expect(service.sendFriendRequest).toHaveBeenCalledWith('ana');
     expect(component.actionSuccess).toContain('ana');
     expect(component.friendRequestPending(profile)).toBeTrue();
+  });
+
+  it('cancels stale follower requests when switching lists or profiles', () => {
+    const oldFollowers = new Subject<any[]>();
+    socialGraphService.followers.and.returnValue(oldFollowers);
+    component.selectedProfile = { ...profile };
+    component.openFollowList('followers');
+    expect(component.followListLoading).toBeTrue();
+
+    socialGraphService.following.and.returnValue(of([{ username: 'rui' }] as any));
+    component.openFollowList('following');
+    oldFollowers.next([{ username: 'obsolete' }]);
+    expect(component.followListMode).toBe('following');
+    expect(component.followListProfiles.map(user => user.username)).toEqual(['rui']);
+    expect(component.followListLoading).toBeFalse();
+
+    const pending = new Subject<any[]>();
+    socialGraphService.followers.and.returnValue(pending);
+    component.openFollowList('followers');
+    component.closeProfile();
+    pending.next([{ username: 'obsolete' }]);
+    expect(component.followListProfiles).toEqual([]);
+    expect(component.followListMode).toBeNull();
+    expect(component.followListLoading).toBeFalse();
   });
 
   it('should follow a selected profile', () => {
