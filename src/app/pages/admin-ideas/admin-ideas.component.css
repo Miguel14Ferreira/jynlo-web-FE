@@ -291,3 +291,27 @@ h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); }
     min-height: 0;
   }
 }
+
+/* Feedback image evidence is displayed only after authenticated retrieval. */
+.idea-attachment {
+  display: grid;
+  gap: .65rem;
+  margin: 1rem 0;
+  padding: .95rem;
+  border: 1px solid rgba(67, 200, 178, .32);
+  border-radius: .85rem;
+  background: rgba(10, 56, 60, .2);
+}
+.idea-attachment > strong { color: #eafff7; }
+.idea-attachment p { margin: 0; color: #c9e5e4; overflow-wrap: anywhere; }
+.idea-attachment-actions { display: flex; gap: .65rem; flex-wrap: wrap; }
+.idea-attachment img {
+  display: block;
+  max-width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  border-radius: .7rem;
+  border: 1px solid rgba(170, 211, 211, .22);
+  background: rgba(4, 26, 35, .66);
+}
+.idea-attachment .idea-attachment-error { color: #ffbab5; }
