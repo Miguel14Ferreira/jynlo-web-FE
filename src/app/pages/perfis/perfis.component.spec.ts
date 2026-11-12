@@ -788,6 +788,20 @@ describe('PerfisComponent', () => {
     expect(fixture.nativeElement.querySelector('.profile-primary-actions')?.children.length).toBe(0);
   });
 
+  it('recognizes the authenticated profile regardless of username capitalization', () => {
+    component.currentUsername = 'tmf14';
+    component.profilePage = true;
+    component.selectedProfile = { ...profile, username: 'TMF14' };
+    fixture.detectChanges();
+    expect(component.isOwnProfile(component.selectedProfile)).toBeTrue();
+    expect((fixture.nativeElement as HTMLElement).querySelector('a.profile-edit-action')?.getAttribute('href'))
+      .toBe('/menu/alterardados');
+
+    component.selectedProfile = { ...profile, username: 'another-player' };
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('a.profile-edit-action')).toBeNull();
+  });
+
   it('keeps edit profile private to the owner and achievements collapsed by default', () => {
     component.profilePage = true;
     component.selectedProfile = { ...profile, username: 'ana' };
