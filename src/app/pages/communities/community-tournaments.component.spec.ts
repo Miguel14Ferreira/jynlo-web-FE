@@ -334,6 +334,46 @@ describe('Community tournaments management', () => {
     expect(JSON.stringify(component.tournaments)).toEqual(independent);
   });
 
+  it('groups league and cup results into independently controlled matchday disclosures', () => {
+    component.championshipLeagueFixtures[101] = [
+      { id: 1, round: 1, homeScore: 2, awayScore: 1 },
+      { id: 2, round: 1, homeScore: null, awayScore: null },
+      { id: 3, round: 2, homeScore: 0, awayScore: 0 }
+    ] as any;
+    component.championshipCupDraws[102] = { matches: [
+      { id: 4, round: 1, homeScore: 1, awayScore: 0 },
+      { id: 5, round: 3, homeScore: null, awayScore: null }
+    ], byes: [] } as any;
+
+    expect(component.leagueRounds(101)).toEqual([1, 2]);
+    expect(component.cupRounds(102)).toEqual([1, 3]);
+    expect(component.championshipRoundResultCount(101, 1, 'LEAGUE')).toBe(1);
+    expect(component.championshipRoundResultCount(101, 2, 'LEAGUE')).toBe(1);
+    expect(component.championshipRoundResultCount(102, 1, 'CUP')).toBe(1);
+    expect(component.championshipRoundResultCount(102, 3, 'CUP')).toBe(0);
+
+    expect(component.isChampionshipRoundExpanded(101, 1, 1)).toBeTrue();
+    expect(component.isChampionshipRoundExpanded(101, 2, 1)).toBeFalse();
+    expect(component.isChampionshipRoundExpanded(102, 3, 3)).toBeTrue();
+    component.setAllChampionshipRoundsExpanded(101, [1, 2], false);
+    expect(component.isChampionshipRoundExpanded(101, 1, 1)).toBeFalse();
+    expect(component.isChampionshipRoundExpanded(101, 2, 1)).toBeFalse();
+    expect(component.isChampionshipRoundExpanded(102, 3, 3)).toBeTrue();
+    component.setAllChampionshipRoundsExpanded(101, [1, 2], true);
+    expect(component.isChampionshipRoundExpanded(101, 2, 1)).toBeTrue();
+  });
+
+  it('forgets expanded matchdays when navigating to a different community', () => {
+    component.setAllChampionshipRoundsExpanded(101, [1, 2], false);
+    const previousCommunity = component.community;
+    const nextCommunity = { ...previousCommunity, id: 9 };
+    component.community = nextCommunity;
+    component.ngOnChanges({ community: new SimpleChange(previousCommunity, nextCommunity, false) });
+
+    expect(component.championshipRoundExpanded).toEqual({});
+    expect(component.isChampionshipRoundExpanded(101, 1, 1)).toBeTrue();
+  });
+
   it('does not schedule a cup or a league with fewer than two registered teams', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const championship = { id: 15, closedAt: null } as any;
