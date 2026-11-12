@@ -1238,6 +1238,9 @@
                       }
 
                       @if (leagueRounds(event.id).length) {
+                        @if (event.status === 'SCHEDULED' && championship.sport !== 'Futebol' && championship.sport !== 'Futsal') {
+                          <p class="jynlo-score-guidance" role="status">{{ 'championshipRounds.sportPending' | t }}</p>
+                        }
                         <div class="jynlo-round-toolbar" role="group" [attr.aria-label]="'championshipRounds.manage' | t">
                           <strong>{{ 'championshipRounds.leagueTitle' | t }}</strong>
                           <button type="button" class="t-btn t-btn-secondary"
@@ -1603,6 +1606,9 @@
                             <p class="jynlo-league-winner" role="status">Vencedor da taça: <strong>{{ event.winnerTeamName }}</strong></p>
                           }
                           @if (cupRounds(event.id).length) {
+                            @if (event.status === 'SCHEDULED' && championship.sport !== 'Futebol' && championship.sport !== 'Futsal') {
+                              <p class="jynlo-score-guidance" role="status">{{ 'championshipRounds.sportPending' | t }}</p>
+                            }
                             <div class="jynlo-round-toolbar" role="group" [attr.aria-label]="'championshipRounds.manage' | t">
                               <strong>{{ 'championshipRounds.cupTitle' | t }}</strong>
                               <button type="button" class="t-btn t-btn-secondary"
