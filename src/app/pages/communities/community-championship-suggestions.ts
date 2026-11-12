@@ -16,7 +16,10 @@ export interface ChampionshipSuggestion {
  */
 export function championshipSuggestions(sport: string | null | undefined): ChampionshipSuggestion[] {
   if (!championshipModeAvailability(sport).canOrganize) return [];
-  if (tournamentSportCapabilities(sport).team === 'NUMERIC_TEAM') {
+  // Owned league/cup fixtures currently have a verified result engine only
+  // for football/futsal. Other sports may use independent tournaments, but
+  // must never be offered football-specific owned fixtures.
+  if (sport === 'Futebol' || sport === 'Futsal') {
     return [
       { id: 'league', title: 'Liga', description: 'Jornadas entre equipas. Podes organizar uma ou duas voltas.', nextStep: 'OWNED_TEAM', format: 'LEAGUE' },
       { id: 'cup', title: 'Taça', description: 'Eliminatórias entre equipas, com sorteio inicial.', nextStep: 'OWNED_TEAM', format: 'CUP' },
