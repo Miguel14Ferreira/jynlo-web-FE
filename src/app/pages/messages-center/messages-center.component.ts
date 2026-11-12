@@ -1626,7 +1626,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       this.selectedAttachmentPreviewUrl = null;
     }
     this.selectedAttachment = file;
-    if (file?.type.startsWith('image/')) {
+    if (file && (file.type.startsWith('image/') || file.type.startsWith('video/') || file.type.startsWith('audio/'))) {
       try { this.selectedAttachmentPreviewUrl = URL.createObjectURL(file); }
       catch { /* The filename remains available when previews are unsupported. */ }
     }
@@ -1634,8 +1634,10 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
 
   private stageAttachment(file: File): void {
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif',
-      'application/pdf'].includes(file.type);
-    if (!allowed || file.size === 0 || file.size > 5 * 1024 * 1024) {
+      'application/pdf', 'video/mp4', 'video/webm', 'audio/mpeg', 'audio/mp4',
+      'audio/ogg', 'audio/webm'].includes(file.type);
+    const limit = file.type.startsWith('video/') ? 20 : file.type.startsWith('audio/') ? 12 : 5;
+    if (!allowed || file.size === 0 || file.size > limit * 1024 * 1024) {
       this.composerError = t('chat.attachmentInvalid');
       return;
     }
@@ -1967,6 +1969,14 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       || message.attachmentMimeType === 'audio/ogg';
   }
 
+  isAudioAttachment(message: InboxMessage): boolean {
+    return (message.attachmentMimeType || '').startsWith('audio/');
+  }
+
+  isVideoAttachment(message: InboxMessage): boolean {
+    return ['video/mp4', 'video/webm'].includes(message.attachmentMimeType || '');
+  }
+
   showMessageBody(message: InboxMessage): boolean {
     const body = (message.text || '').trim();
     if (readGiphyText(body)) return false;
@@ -2041,7 +2051,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
               || !this.isAttachmentIdentityCurrent() || !this.isSelectedSessionOpen()) return;
           const url = URL.createObjectURL(blob);
           if (message.attachmentMimeType?.startsWith('image/')
-              || message.attachmentMimeType?.startsWith('audio/')) {
+              || message.attachmentMimeType?.startsWith('audio/')
+              || message.attachmentMimeType?.startsWith('video/')) {
             this.inlineImageFailures.delete(message.id);
             this.attachmentPreviews.set(message.id, url);
           } else {
