@@ -139,6 +139,8 @@ export class PerfisComponent implements OnInit, OnDestroy {
   reportLoading = false;
   blockLoading = false;
   selectedBlocked = false;
+  blockStatusPending = false;
+  blockStatusError = false;
   reportOpen = false;
   reportReason = '';
   searched = false;
@@ -466,21 +468,16 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.selectedActivity = undefined;
     this.selectedFollowStatus = undefined;
     this.selectedBlocked = false;
+    this.blockStatusPending = false;
+    this.blockStatusError = false;
     this.reportOpen = false;
     this.reportReason = '';
     this.actionError = '';
     this.actionSuccess = '';
     this.loadFriendshipStatus(profile.username);
 
-    // Posts must not wait for optional activity metrics. Check blocks first.
-    this.blockStatusSubscription?.unsubscribe();
-    this.blockStatusSubscription = this.communityService.userBlockStatus(profile.username)
-      .pipe(timeout(10_000), catchError(() => of({ blocked: false })))
-      .subscribe(blockStatus => {
-        if (this.selectedProfile?.username !== profile.username) return;
-        this.selectedBlocked = blockStatus.blocked;
-        if (!blockStatus.blocked) this.loadProfilePosts(profile.username);
-      });
+    // Never infer permission from a failed or pending block-status request.
+    this.checkProfileBlockStatus(profile.username);
 
     this.detailSubscription = forkJoin({
       activity: this.reliabilityService.activity(profile.username)
@@ -500,10 +497,40 @@ export class PerfisComponent implements OnInit, OnDestroy {
     });
   }
 
+  checkProfileBlockStatus(username: string): void {
+    if (this.selectedProfile?.username.toLowerCase() !== username.toLowerCase()) return;
+    this.blockStatusSubscription?.unsubscribe();
+    this.blockStatusPending = true;
+    this.blockStatusError = false;
+    this.blockStatusSubscription = this.communityService.userBlockStatus(username)
+      .pipe(timeout(10_000))
+      .subscribe({
+        next: status => {
+          if (this.selectedProfile?.username.toLowerCase() !== username.toLowerCase()) return;
+          this.blockStatusPending = false;
+          this.selectedBlocked = status.blocked;
+          if (!status.blocked) this.loadProfilePosts(username);
+        },
+        error: () => {
+          if (this.selectedProfile?.username.toLowerCase() !== username.toLowerCase()) return;
+          this.blockStatusPending = false;
+          this.blockStatusError = true;
+          // Existing posts must not survive a failed permission recheck.
+          this.postsSubscription?.unsubscribe();
+          ++this.postsRevision;
+          this.profilePosts = [];
+          this.postsLoading = false;
+          this.postsHasMore = false;
+          this.postsExpanded = false;
+        }
+      });
+  }
+
   /** Fetch published posts, ignoring late responses from a different profile. */
   loadProfilePosts(username: string, append = false): void {
     if (this.selectedProfile?.username.toLowerCase() !== username.toLowerCase()
-        || this.selectedBlocked || (append && (this.postsLoading || !this.postsHasMore))) return;
+        || this.selectedBlocked || this.blockStatusPending || this.blockStatusError
+        || (append && (this.postsLoading || !this.postsHasMore))) return;
     this.postsSubscription?.unsubscribe();
     const revision = ++this.postsRevision;
     const page = append ? this.postsPage + 1 : 0;
@@ -590,6 +617,8 @@ export class PerfisComponent implements OnInit, OnDestroy {
       .subscribe({
         next: status => {
           this.selectedBlocked = status.blocked;
+          this.blockStatusPending = false;
+          this.blockStatusError = false;
 
           if (status.blocked) {
             this.postsSubscription?.unsubscribe();
