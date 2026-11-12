@@ -357,8 +357,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   openExtraAttachment(message: DirectChatMessage, asset: {index: number; filename: string; mimeType: string}): void {
-    if (!message.id || asset.index <= 0 || asset.index >= 4 || !this.attachmentReady
-        || this.chatInfo?.chatBlocked) return;
+    if (!message.id || asset.index <= 0 || asset.index >= 4 || this.chatInfo?.chatBlocked) return;
     const key = this.extraAttachmentKey(message, asset.index);
     const existing = this.extraAttachmentPreviews.get(key);
     if (existing) {
