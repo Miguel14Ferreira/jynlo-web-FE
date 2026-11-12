@@ -1288,6 +1288,38 @@ describe('Community tournaments management', () => {
     expect(component.championshipTeamRegistries[15].teams.map(team => team.id)).toEqual([73]);
   });
 
+  it('does not replace a newly created permanent team with an older registry response', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const pending = new Subject<any>();
+    const created = { communityId: 7, teams: [{ id: 81, name: 'Clube Azul' }] } as any;
+    championships.permanentTeams.and.returnValue(pending);
+    championships.createPermanentTeam.and.returnValue(of(created));
+    component.permanentTeamNameDraft = 'Clube Azul';
+
+    component.loadPermanentTeams();
+    component.createPermanentTeam();
+    pending.next({ communityId: 7, teams: [] }); pending.complete();
+
+    expect(component.permanentTeamRegistry).toEqual(created);
+    expect(component.permanentTeamNameDraft).toBe('');
+    expect(component.championshipBusy).toBeFalse();
+  });
+
+  it('uses the latest permanent-team list when multiple requests finish out of order', () => {
+    const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
+    const old = new Subject<any>();
+    const latest = new Subject<any>();
+    championships.permanentTeams.and.returnValues(old, latest);
+    const fresh = { communityId: 7, teams: [{ id: 83 }] } as any;
+
+    component.loadPermanentTeams();
+    component.loadPermanentTeams();
+    latest.next(fresh); latest.complete();
+    old.next({ communityId: 7, teams: [] }); old.complete();
+
+    expect(component.permanentTeamRegistry).toEqual(fresh);
+  });
+
   it('keeps latest player statistics after out-of-order responses', () => {
     const championships = (component as any).championshipsApi as jasmine.SpyObj<CommunityChampionshipsService>;
     const oldStats = new Subject<any>();
