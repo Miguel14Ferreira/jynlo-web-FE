@@ -322,3 +322,9 @@
   line-height: 1.1;
   text-transform: uppercase;
 }
+ 
+/* Profile and community pictures use the same treatment in the chat header. */
+.inbox-detail-avatar {overflow:hidden;position:relative}
+.inbox-detail-avatar .inbox-avatar-image {
+  display:block;width:100%;height:100%;object-fit:cover;border-radius:50%
+}
