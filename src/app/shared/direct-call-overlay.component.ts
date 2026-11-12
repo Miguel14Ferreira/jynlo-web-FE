@@ -156,7 +156,9 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
               </div>
             } @else {
               <div class="connect-participants" [class.connect-participants--video]="videoActive"
-                [class.connect-participants--presenting]="hasPresentation">
+                [class.connect-participants--presenting]="hasPresentation"
+                [class.connect-participants--camera-focus]="!hasPresentation && !!focusedCamera"
+                [class.connect-participants--camera-zoom]="!hasPresentation && cameraZoomed">
                 @if (hasPresentation) {
                   <div class="connect-share-bar">
                     <span class="connect-share-live"><span aria-hidden="true">●</span>
@@ -234,13 +236,24 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                   }
                 } @else {
                   @for (person of participants; track person.identity) {
-                    <app-call-participant-tile [participant]="person"
-                      [label]="participantLabel(person)" [avatarUrl]="profilePhoto(participantUsername(person))" [local]="person === calls.room?.localParticipant"
-                      [volume]="volumeFor(person.identity)"
-                      [microphoneVolume]="volumeFor(person.identity)"
-                      [screenShareVolume]="screenVolumeFor(person.identity)"
-                      [audioOutputDeviceId]="(calls.selectedDevices$ | async)?.audiooutput">
-                    </app-call-participant-tile>
+                    <div class="connect-camera-slot"
+                      [class.is-focused]="focusedCamera?.identity === person.identity">
+                      <app-call-participant-tile [participant]="person"
+                        [label]="participantLabel(person)" [avatarUrl]="profilePhoto(participantUsername(person))" [local]="person === calls.room?.localParticipant"
+                        [volume]="volumeFor(person.identity)"
+                        [microphoneVolume]="volumeFor(person.identity)"
+                        [screenShareVolume]="screenVolumeFor(person.identity)"
+                        [audioOutputDeviceId]="(calls.selectedDevices$ | async)?.audiooutput">
+                      </app-call-participant-tile>
+                      <button type="button" class="connect-camera-focus-hit"
+                        [attr.aria-label]="(focusedCamera?.identity === person.identity ? 'Voltar à grelha: ' : 'Destacar câmara: ') + participantLabel(person)"
+                        [attr.aria-pressed]="focusedCamera?.identity === person.identity"
+                        (click)="toggleCameraFocus(person.identity)"
+                        (dblclick)="zoomCamera(person.identity); $event.preventDefault()"
+                        (keydown.escape)="clearCameraFocus(); $event.stopPropagation()">
+                        <span aria-hidden="true">{{ focusedCamera?.identity === person.identity ? '↙' : '⤢' }}</span>
+                      </button>
+                    </div>
                   }
                 }
               </div>
@@ -735,6 +748,36 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
     .connect-participants{flex:1;min-height:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));
       grid-auto-rows:minmax(150px,1fr);gap:12px;overflow:auto;padding:4px}
     .connect-participants:has(app-call-participant-tile:only-child){grid-template-columns:1fr}
+    /* A focused camera reflows the existing LiveKit tile rather than
+       mounting a second video/audio element. This prevents double audio and
+       unnecessary detach/attach cycles during participant changes. */
+    .connect-camera-slot{position:relative;min-width:0;min-height:150px;height:100%}
+    .connect-camera-slot app-call-participant-tile{display:block;width:100%;height:100%}
+    .connect-camera-focus-hit{position:absolute;z-index:3;top:11px;right:11px;
+      width:36px;height:36px;display:grid;place-items:center;border-radius:10px;
+      border:1px solid #83b6b1;background:#0b2839d9;color:#f3fffa;
+      cursor:pointer;font-size:1.15rem}
+    .connect-camera-focus-hit:hover,.connect-camera-focus-hit:focus-visible{
+      outline:2px solid #70ecd3;outline-offset:2px;background:#205a63}
+    .connect-participants--camera-focus{display:flex;align-content:flex-start;
+      flex-wrap:wrap;gap:10px}
+    .connect-participants--camera-focus .connect-camera-slot{
+      flex:0 0 clamp(135px,19vw,210px);height:120px;min-height:120px;order:1}
+    .connect-participants--camera-focus .connect-camera-slot.is-focused{
+      flex:1 0 100%;height:clamp(250px,52vh,650px);order:0}
+    .connect-participants--camera-zoom .connect-camera-slot.is-focused{
+      position:fixed;inset:10px;z-index:9000;height:auto!important;
+      width:auto;max-width:none;border-radius:17px;background:#091f2c;
+      box-shadow:0 0 0 100vmax #000c}
+    .connect-participants--camera-zoom .connect-camera-slot.is-focused
+      .connect-camera-focus-hit{position:fixed;top:25px;right:25px}
+    @media(max-width:600px){
+      .connect-participants--camera-focus .connect-camera-slot.is-focused{
+        height:clamp(220px,45dvh,470px)}
+      .connect-participants--camera-focus .connect-camera-slot{
+        flex-basis:calc(50% - 6px);height:105px;min-height:105px}
+    }
+
     /* Presentations use a dedicated stage and a compact camera filmstrip.
        The complete shared desktop remains visible while both cameras stay accessible. */
     .call-panel:has(.connect-participants--presenting){width:min(100%,1600px);height:calc(100dvh - 20px)}
@@ -905,6 +948,31 @@ export class DirectCallOverlayComponent implements OnDestroy {
   showOwnSharePreview = true;
   presentationZoomed = false;
   focusOnly = false;
+  focusedCameraIdentity: string | null = null;
+  cameraZoomed = false;
+  get focusedCamera(): LocalParticipant | RemoteParticipant | null {
+    return this.participants.find(person => person.identity === this.focusedCameraIdentity) ?? null;
+  }
+  toggleCameraFocus(identity: string): void {
+    if (this.focusedCameraIdentity === identity) {
+      this.clearCameraFocus();
+    } else {
+      this.focusedCameraIdentity = identity;
+      this.cameraZoomed = false;
+    }
+  }
+  zoomCamera(identity: string): void {
+    if (this.focusedCameraIdentity === identity && this.cameraZoomed) {
+      this.cameraZoomed = false;
+    } else {
+      this.focusedCameraIdentity = identity;
+      this.cameraZoomed = true;
+    }
+  }
+  clearCameraFocus(): void {
+    this.focusedCameraIdentity = null;
+    this.cameraZoomed = false;
+  }
   private screenVolumes: Record<string, number> = {};
   screenVolumeFor(identity: string): number { return this.screenVolumes[identity] ?? 1; }
   setScreenVolume(identity: string, percent: number | string): void {
@@ -1073,6 +1141,7 @@ export class DirectCallOverlayComponent implements OnDestroy {
         this.showOwnSharePreview=true;
         this.presentationZoomed=false;
         this.focusOnly=false;
+        this.clearCameraFocus();
       }
     });
   }
