@@ -85,6 +85,41 @@ describe('Global incoming call popup', () => {
     expect(fixture.nativeElement.querySelector('.call-incoming-avatar').textContent).toContain('B');
   });
 
+  it('uses roster identity for group avatars instead of showing the original caller on every tile', () => {
+    const overlay = fixture.componentInstance;
+    const self = {identity:'jynlo-user-1'} as any;
+    const originalPeer = {identity:'jynlo-user-2'} as any;
+    const guest = {identity:'jynlo-user-3'} as any;
+    calls.room = {
+      localParticipant: self,
+      remoteParticipants: new Map([
+        ['peer', originalPeer],
+        ['guest', guest]
+      ])
+    };
+    state.next({...invitation('voice'), phase:'active', startedAt: Date.now()});
+
+    // The room may connect before the roster arrives. Unknown group
+    // identities must not inherit the original peer's photograph.
+    expect(overlay.participantUsername(guest)).toBeNull();
+    expect(overlay.participantUsername(originalPeer)).toBeNull();
+    expect(overlay.participantUsername(self)).toBeNull();
+
+    calls.members$.next({participants:[
+      {identity:'jynlo-user-1',username:'ana'},
+      {identity:'jynlo-user-2',username:'beatriz'},
+      {identity:'jynlo-user-3',username:'carlos'}
+    ],pending:[]});
+    expect(overlay.participantUsername(self)).toBe('ana');
+    expect(overlay.participantUsername(originalPeer)).toBe('beatriz');
+    expect(overlay.participantUsername(guest)).toBe('carlos');
+
+    calls.room.remoteParticipants.delete('guest');
+    calls.members$.next({participants:[], pending:[]});
+    expect(overlay.participantUsername(originalPeer)).toBe('beatriz',
+      'Before the 1:1 roster sync completes, the sole remote is still the peer');
+  });
+
   it('resets presentation, focus and both playback volumes between calls', () => {
     state.next({...invitation('video'), phase: 'active', startedAt: Date.now()});
     const overlay = fixture.componentInstance;
