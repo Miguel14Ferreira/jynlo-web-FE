@@ -3161,7 +3161,7 @@
                           </div>
                           <button type="button" class="t-btn t-btn-secondary t-btn-small"
                             [disabled]="tournamentPendingInvitesLoading[team.id] || tournamentPendingInviteRevoking[team.id]"
-                            (click)="loadTournamentPendingInvites(team.id, selected.id, detailRevision)">
+                            (click)="refreshTournamentPendingInvites(team.id)">
                             {{ 'teams.autonomy.pendingRefresh' | t }}
                           </button>
                         </div>
