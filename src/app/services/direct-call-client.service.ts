@@ -649,6 +649,12 @@ export class DirectCallClientService implements OnDestroy {
     return typeof navigator.mediaDevices?.getDisplayMedia === 'function';
   }
 
+  private hasLiveLocalScreenShare(room: Room): boolean {
+    return [...room.localParticipant.videoTrackPublications.values()].some(pub =>
+      pub.source===Track.Source.ScreenShare && !!pub.track && !pub.isMuted
+      && pub.track.mediaStreamTrack?.readyState !== 'ended');
+  }
+
   async setScreenShare(enabled: boolean): Promise<void> {
     const room=this.room;
     if (!room || !this.canShareScreen || this.busyMedia$.value) return;
@@ -659,19 +665,15 @@ export class DirectCallClientService implements OnDestroy {
       if (this.room===room) {
         // The browser may end sharing from its own toolbar. The publication,
         // not the last button press, is authoritative when one is available.
-        const publication=[...room.localParticipant.videoTrackPublications.values()]
-          .find(pub=>pub.source===Track.Source.ScreenShare);
-        this.screenShareEnabled$.next(publication
-          ? !!publication.track && !publication.isMuted : enabled);
+        const active=this.hasLiveLocalScreenShare(room);
+        this.screenShareEnabled$.next(active);
+        if (enabled && !active) this.screenShareFeedback$.next('calls.screenShareFailed');
       }
     } catch (error) {
       // A denied/cancelled picker must never report an existing share as
       // stopped; likewise a failed stop must not conceal a live screen track.
       if (this.room===room) {
-        const publication=[...room.localParticipant.videoTrackPublications.values()]
-          .find(pub=>pub.source===Track.Source.ScreenShare);
-        this.screenShareEnabled$.next(publication
-          ? !!publication.track && !publication.isMuted : this.screenShareEnabled$.value);
+        this.screenShareEnabled$.next(this.hasLiveLocalScreenShare(room));
         const errorName = error && typeof error === 'object' && 'name' in error
           ? String((error as {name: unknown}).name) : '';
         this.screenShareFeedback$.next(errorName === 'NotAllowedError' || errorName === 'AbortError'
@@ -812,8 +814,13 @@ export class DirectCallClientService implements OnDestroy {
     this.room=room;
     // A camera published after joining (or a fresh screen-share track) needs
     // an immediate view refresh on the publishing browser as well.
-    room.on(RoomEvent.LocalTrackPublished, () => {
-      if (room===this.room) this.mediaChanged$.next(this.mediaChanged$.value+1);
+    room.on(RoomEvent.LocalTrackPublished, (publication) => {
+      if (room!==this.room) return;
+      if (publication.source===Track.Source.ScreenShare) {
+        this.screenShareEnabled$.next(this.hasLiveLocalScreenShare(room));
+        if (this.screenShareEnabled$.value) this.screenShareFeedback$.next(null);
+      }
+      this.mediaChanged$.next(this.mediaChanged$.value+1);
     });
     // A remote publication can appear or vanish before subscription is
     // established. Refresh tiles for both events, otherwise the last camera
@@ -842,7 +849,8 @@ export class DirectCallClientService implements OnDestroy {
     room.on(RoomEvent.LocalTrackUnpublished, (publication) => {
       if (room!==this.room) return;
       this.mediaChanged$.next(this.mediaChanged$.value+1);
-      if (publication.source===Track.Source.ScreenShare) this.screenShareEnabled$.next(false);
+      if (publication.source===Track.Source.ScreenShare)
+        this.screenShareEnabled$.next(this.hasLiveLocalScreenShare(room));
       else if (!this.busyMedia$.value && !this.transportReconnecting)
         this.markUnexpectedLocalTrackLoss(publication.source);
     });
