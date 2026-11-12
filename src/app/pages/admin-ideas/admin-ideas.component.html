@@ -84,32 +84,35 @@
               </div>
 
               <p class="idea-message">{{ selected.problem }}</p>
-              @if (selected.attachmentName) {
-                <section class="idea-attachment" aria-label="Captura de ecrã enviada">
-                  <strong>Imagem anexada</strong>
-                  <p>{{ selected.attachmentName }}</p>
-                  <div class="idea-attachment-actions">
-                    <button type="button" class="jynlo-action jynlo-action--neutral"
-                      [disabled]="attachmentLoading"
-                      (click)="showAttachment(selected)">
-                      {{ attachmentLoading ? 'A carregar…' :
-                         attachmentPreviewUrl ? 'Fechar imagem' : 'Ver imagem' }}
-                    </button>
-                    @if (attachmentPreviewUrl) {
-                      <button type="button" class="jynlo-action jynlo-action--neutral"
-                        (click)="downloadAttachment(selected)">Descarregar</button>
+              @if (selected.attachmentName || attachments.length || attachmentListLoading) {
+                <section class="idea-attachment" aria-label="Imagens enviadas">
+                  <strong>Imagens anexadas</strong>
+                  @if (attachmentListLoading) { <p>A obter imagens…</p> }
+                  <div class="idea-attachment-grid">
+                    @for (item of attachments; track item.index) {
+                      <div class="idea-attachment-item">
+                        <p>{{ item.filename }}</p>
+                        <div class="idea-attachment-actions">
+                          <button type="button" class="jynlo-action jynlo-action--neutral"
+                            [disabled]="loadingAttachmentIndex !== null"
+                            (click)="showAttachmentAt(selected, item.index)">
+                            {{ loadingAttachmentIndex === item.index ? 'A carregar…' :
+                               attachmentUrls.has(item.index) ? 'Fechar' : 'Ver imagem' }}
+                          </button>
+                          @if (attachmentUrls.has(item.index)) {
+                            <button type="button" class="jynlo-action jynlo-action--neutral"
+                              (click)="downloadAttachmentAt(item.index, item.filename)">Descarregar</button>
+                            <img [src]="attachmentUrls.get(item.index)" [alt]="'Imagem: ' + item.filename" loading="lazy">
+                          }
+                        </div>
+                      </div>
                     }
                   </div>
-                  @if (attachmentPreviewUrl) {
-                    <img [src]="attachmentPreviewUrl"
-                      [alt]="'Imagem anexada: ' + selected.attachmentName" loading="lazy">
-                  }
                   @if (attachmentError) {
                     <p role="alert" class="idea-attachment-error">{{ attachmentError }}</p>
                   }
                 </section>
               }
-
 
               <div class="meta-row">
                 <span>{{ 'adminIdeas.receivedAt' | t }}</span>
