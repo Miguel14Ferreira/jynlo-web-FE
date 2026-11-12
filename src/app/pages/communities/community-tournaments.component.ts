@@ -1696,6 +1696,14 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.loadChampionshipLeagueRoundDetails(championshipId, eventId, round);
     }
     this.changeDetector.markForCheck();
+    // The user should actually arrive at the opened round, not just change a
+    // disclosure further down the page. No navigation or results mutation.
+    requestAnimationFrame(() => {
+      const target = document.getElementById('championship-round-' + eventId + '-' + round);
+      if (!target?.isConnected) return;
+      target.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+      target.focus({ preventScroll: true });
+    });
   }
 
   isChampionshipRoundExpanded(eventId: number, round: number, initialRound: number): boolean {
