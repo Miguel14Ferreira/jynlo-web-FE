@@ -2378,6 +2378,7 @@ describe('Events2Component', () => {
   });
 
   it('never accepts a Cacém-like inaccurate browser fix as the actual venue location', () => {
+    component.sport = 'Padel';
     component.chooseLocationMethod('gps');
     component.applyCurrentPosition(38.7655, -9.2902, 500);
     fixture.detectChanges();
