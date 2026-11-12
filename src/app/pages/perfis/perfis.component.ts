@@ -44,6 +44,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
   private postsSubscription?: Subscription;
   private postsRevision = 0;
   private friendshipSubscription?: Subscription;
+  private followListSubscription?: Subscription;
   profilePage = false;
   backToFriends = false;
   get backToFeed(): boolean {
@@ -756,24 +757,38 @@ export class PerfisComponent implements OnInit, OnDestroy {
   openFollowList(mode: 'followers' | 'following'): void {
     if (!this.selectedProfile || this.selectedBlocked) return;
     const username = this.selectedProfile.username;
+    // Cancel the previous request before switching tabs/profiles. A late
+    // response must never overwrite the active list or its loading state.
+    this.followListSubscription?.unsubscribe();
     this.followListMode = mode;
     this.followListProfiles = [];
     this.followListLoading = true;
     this.followListError = false;
-    (mode === 'followers' ? this.socialGraphService.followers(username) : this.socialGraphService.following(username))
-      .pipe(timeout(10000), finalize(() => this.followListLoading = false))
+    this.followListSubscription = (mode === 'followers'
+      ? this.socialGraphService.followers(username)
+      : this.socialGraphService.following(username))
+      .pipe(timeout(10000))
       .subscribe({
         next: profiles => {
-          if (this.selectedProfile?.username === username && this.followListMode === mode)
-            this.followListProfiles = profiles;
+          if (this.selectedProfile?.username !== username || this.followListMode !== mode) return;
+          this.followListProfiles = profiles;
+          this.followListLoading = false;
         },
-        error: () => { if (this.followListMode === mode) this.followListError = true; }
+        error: () => {
+          if (this.selectedProfile?.username !== username || this.followListMode !== mode) return;
+          this.followListError = true;
+          this.followListLoading = false;
+        }
       });
   }
 
   closeFollowList(): void {
+    this.followListSubscription?.unsubscribe();
+    this.followListSubscription = undefined;
     this.followListMode = null;
     this.followListProfiles = [];
+    this.followListLoading = false;
+    this.followListError = false;
   }
 
   isOwnProfile(profile: CommunityProfile): boolean {
