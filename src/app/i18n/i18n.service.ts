@@ -7,6 +7,10 @@ type Dictionary = Record<string, string>;
 
 const PT: Dictionary = {
   'championshipRounds.sportPending': 'O calendário está disponível, mas o registo de resultados desta modalidade requer um motor próprio. Atualmente, este formulário suporta Futebol e Futsal.',
+  'championshipRounds.loadingDetails': 'A carregar os acontecimentos do jogo…',
+  'championshipRounds.detailError': 'Não foi possível carregar os detalhes do jogo.',
+  'championshipRounds.retry': 'Tentar novamente',
+  'championshipRounds.refreshDetails': 'Atualizar detalhes',
   'championshipRounds.manage': 'Gestão das jornadas e rondas',
   'championshipRounds.leagueTitle': 'Jornadas da Liga',
   'championshipRounds.cupTitle': 'Rondas da Taça',
