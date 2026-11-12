@@ -1,50 +1,53 @@
-/* One card contract for search results and the user's communities.
-   This file loads last and replaces the old compact/list-only overrides. */
+/* Shared card contract for discovery AND owned communities.
+ * No separate mine overrides: both views use identical sizing and footer layout. */
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
   .community-discovery-grid,
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
   .communities-layout > aside.community-list.community-discovery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 235px), 1fr));
-  align-items: stretch;
-  align-content: start;
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
   width: 100%;
   min-width: 0;
+  gap: 14px;
+  align-items: stretch;
+  align-content: start;
 }
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > .list-heading {
+  .community-discovery-grid > .list-heading {
   grid-column: 1 / -1;
   margin-bottom: 6px;
 }
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-discovery-grid > button.community-card,
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .communities-layout > aside.community-mine-grid > button.community-card {
+  .community-discovery-grid > button.community-card {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: stretch;
+  justify-content: space-between;
   width: 100%;
   min-width: 0;
-  min-height: 225px;
+  min-height: 210px;
   height: 100%;
   padding: 17px;
   gap: 14px;
   border: 1px solid rgba(37,193,202,.42);
   border-radius: 17px;
-  background: linear-gradient(145deg,rgba(12,51,65,.98),rgba(8,34,48,.98));
   color: #f1fffb;
+  background: linear-gradient(145deg,rgba(12,51,65,.98),rgba(8,34,48,.98));
   text-align: left;
   cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
 }
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-discovery-grid > button.community-card:hover,
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card:hover {
+  .community-discovery-grid > button.community-card:hover {
   border-color: rgba(43,219,201,.85);
   background: linear-gradient(145deg,rgba(15,70,79,.98),rgba(8,40,54,.98));
+  transform: translateY(-2px);
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid > button.community-card:focus-visible {
+  outline: 2px solid #a6ffe4;
+  outline-offset: 3px;
 }
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
   .community-discovery-grid > button.community-card .community-card-main {
@@ -52,19 +55,19 @@
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 14px;
-  min-width: 0;
   width: 100%;
+  gap: 13px;
+  min-width: 0;
 }
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
   .community-discovery-grid > button.community-card .community-discovery-cover {
   display: grid;
   place-items: center;
-  flex: 0 0 54px;
-  width: 54px;
-  height: 54px;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
   border: 1px solid rgba(79,214,193,.29);
-  border-radius: 13px;
+  border-radius: 12px;
   overflow: hidden;
 }
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
@@ -80,15 +83,13 @@
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
   .community-discovery-grid > button.community-card .community-card-copy > strong {
   color: #effcfb;
-  font-size: 1rem;
+  font-size: .98rem;
   font-weight: 800;
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-discovery-grid > button.community-card .community-discovery-sports {
-  min-width: 0;
-}
+  .community-discovery-grid > button.community-card .community-discovery-sports { min-width: 0; }
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
   .community-discovery-grid > button.community-card .community-discovery-description {
   display: -webkit-box;
@@ -105,28 +106,51 @@
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
   .community-discovery-grid > button.community-card .community-discovery-card-footer {
   box-sizing: border-box;
-  display: flex;
+  display: grid;
+  grid-template-columns: max-content minmax(0,1fr);
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: nowrap;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
+  min-width: 0;
+  min-height: 46px;
   margin-top: auto;
   padding-top: 12px;
-  border-top: 1px solid rgba(91,190,187,.18);
+  border-top: 1px solid rgba(91,190,187,.25);
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid > button.community-card .community-visibility-pill {
+  box-sizing: border-box;
+  display: inline-flex;
+  justify-self: start;
+  justify-content: center;
+  align-items: center;
+  min-width: max-content;
+  width: auto;
+  padding: 6px 11px;
+  color: #d5f9f3;
+  white-space: nowrap;
+  word-break: keep-all;
+  line-height: 1.25;
 }
 :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
   .community-discovery-grid > button.community-card .community-discovery-card-link {
-  margin-left: auto;
+  box-sizing: border-box;
+  display: inline-flex;
+  justify-self: end;
+  justify-content: flex-end;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  padding: 5px 0;
   font-size: .81rem;
   font-weight: 750;
-  color: #78e9d8;
-  white-space: nowrap;
+  color: #8cf4df;
   text-align: right;
+  white-space: nowrap;
 }
 .community-session-create-action { margin-left: auto; justify-content: flex-end; }
 .community-session-create-action > a { white-space: nowrap; }
-@media(max-width: 660px) {
+@media (max-width: 660px) {
   :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
     .community-discovery-grid,
   :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
@@ -134,206 +158,10 @@
     grid-template-columns: minmax(0,1fr);
   }
 }
-@media(prefers-reduced-motion:reduce) {
-  :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-    .community-discovery-grid > button.community-card { transition: none; transform: none; }
-}
-
-/* Explicit shared footer contract for discovery and owned-community cards.
-   A two-column grid reserves intrinsic width for the status and keeps the CTA
-   aligned at the far edge instead of squeezing the Portuguese badge text. */
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-discovery-grid > button.community-card .community-discovery-card-footer {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  align-items: center;
-  justify-content: stretch;
-  column-gap: 8px;
-  min-width: 0;
-  min-height: 43px;
-  margin-top: auto;
-  padding-top: 12px;
-}
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-discovery-grid > button.community-card .community-visibility-pill {
-  box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  justify-self: start;
-  flex: none;
-  width: auto;
-  min-width: max-content;
-  max-width: none;
-  padding: 6px 11px;
-  white-space: nowrap;
-  overflow-wrap: normal;
-  word-break: keep-all;
-  line-height: 1.25;
-  text-align: center;
-}
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-discovery-grid > button.community-card .community-discovery-card-link {
-  box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  justify-self: end;
-  min-width: 0;
-  max-width: 100%;
-  margin: 0;
-  font-size: .8rem;
-  white-space: nowrap;
-  overflow-wrap: normal;
-  text-align: right;
-}
-@media(max-width: 440px) {
-  :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-    .community-discovery-grid > button.community-card .community-discovery-card-footer {
-    column-gap: 6px;
-  }
-}
-
-/* Owned communities: comfortable cards without split badges or dead space. */
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card {
-  min-height: 172px;
-  height: auto;
-  justify-content: flex-start;
-}
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card .community-card-copy > strong {
-  overflow-wrap: break-word;
-  word-break: normal;
-}
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card .community-discovery-card-footer {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 10px;
-  min-height: 0;
-}
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card .community-visibility-pill {
-  flex: 0 0 auto;
-  min-width: max-content;
-  width: auto;
-  max-width: none;
-  white-space: nowrap;
-  overflow-wrap: normal;
-  word-break: normal;
-}
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card .community-discovery-card-link {
-  flex: 0 0 auto;
-  margin-left: auto;
-}
-
-
-/* Owned card refinement: tighter, consistent reading rhythm and a proper
-   two-column footer. Match discovery card geometry without wasted dead space. */
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card {
-  box-sizing: border-box;
-  min-height: 190px;
-  height: 100%;
-  padding: 16px;
-  gap: 14px;
-  justify-content: flex-start;
-  border-radius: 16px;
-  background: linear-gradient(158deg, rgba(12, 51, 64, .97), rgba(7, 37, 50, .97));
-  transition: background .18s ease, border-color .18s ease, transform .18s ease;
-}
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card:hover {
-  border-color: rgba(71, 226, 202, .85);
-  background: linear-gradient(158deg, rgba(15, 63, 72, .98), rgba(8, 43, 56, .98));
-  transform: translateY(-2px);
-}
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card:focus-visible {
-  outline: 2px solid #a6ffe4;
-  outline-offset: 3px;
-}
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card .community-card-main {
-  align-items: flex-start;
-  gap: 13px;
-}
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card .community-card-copy {
-  gap: 7px;
-}
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card .community-card-copy > strong {
-  font-size: .99rem;
-  line-height: 1.3;
-  overflow-wrap: break-word;
-}
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card .community-discovery-description {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
-  line-height: 1.5;
-  max-width: 100%;
-}
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card .community-discovery-card-footer {
-  box-sizing: border-box;
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  align-items: center;
-  justify-content: stretch;
-  gap: 10px;
-  width: 100%;
-  min-height: 42px;
-  margin-top: auto;
-  padding-top: 13px;
-  border-top: 1px solid rgba(113, 200, 195, .18);
-}
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card .community-visibility-pill {
-  justify-self: start;
-  min-width: max-content;
-  max-width: none;
-  white-space: nowrap;
-  word-break: keep-all;
-  padding: 6px 10px;
-}
-:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-  .community-mine-grid > button.community-card .community-discovery-card-link {
-  box-sizing: border-box;
-  justify-self: end;
-  justify-content: flex-end;
-  max-width: 100%;
-  min-width: 0;
-  margin: 0;
-  padding: 6px 0 6px 9px;
-  white-space: nowrap;
-  font-weight: 750;
-  font-size: .81rem;
-  color: #8cf4df;
-}
-@media (max-width: 400px) {
-  :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-    .community-mine-grid > button.community-card {
-    min-height: 180px;
-    padding: 13px;
-  }
-  :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-    .community-mine-grid > button.community-card .community-discovery-card-footer {
-    gap: 6px;
-  }
-  :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-    .community-mine-grid > button.community-card .community-discovery-card-link {
-    font-size: .76rem;
-  }
-}
 @media (prefers-reduced-motion: reduce) {
   :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
-    .community-mine-grid > button.community-card { transition: none; transform: none; }
+    .community-discovery-grid > button.community-card {
+    transition: none;
+    transform: none;
+  }
 }
