@@ -335,8 +335,9 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
       this.actionError = 'Até 4 ficheiros (40 MB no total): imagens/PDF 5 MB, áudio 12 MB, vídeo 20 MB.';
       return;
     }
-    if (!this.selectedAttachment) this.selectedAttachment = incoming.shift() || null;
-    this.extraSelectedAttachments.push(...incoming);
+    const pending = [...incoming];
+    if (!this.selectedAttachment) this.selectedAttachment = pending.shift() || null;
+    this.extraSelectedAttachments.push(...pending);
     this.actionError = '';
   }
 
