@@ -185,6 +185,22 @@
         </div>
       }
 
+      @if (postGallery.length) {
+        <div class="feed-gallery-draft" aria-label="Media selecionados">
+          @for (item of postGallery; track item.url; let i = $index) {
+            <div class="feed-gallery-draft-item">
+              @if (item.file.type.startsWith('video/')) {
+                <video [src]="item.url" controls preload="metadata"></video>
+              } @else {
+                <img [src]="item.url" [alt]="item.file.name">
+              }
+              <button type="button" [disabled]="posting" (click)="removePostGalleryItem(i)"
+                [attr.aria-label]="'Remover ' + item.file.name">Remover</button>
+            </div>
+          }
+        </div>
+      }
+
       <div class="composer-actions">
         <label class="image-picker jynlo-action jynlo-premium-btn jynlo-premium-btn--quiet" [class.disabled]="posting">
           <input
@@ -198,6 +214,11 @@
           <input type="file" accept="video/mp4,video/webm" [disabled]="posting"
             (change)="onPostVideoChange($event)">
           <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="m17 10 4-3v10l-4-3"/></svg><span>{{ postVideoPreview ? ('feed.changeVideo' | t) : ('feed.addVideo' | t) }}</span>
+        </label>
+        <label class="image-picker jynlo-action jynlo-premium-btn jynlo-premium-btn--quiet" [class.disabled]="posting">
+          <input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+            [disabled]="posting" (change)="onPostGalleryChange($event)">
+          <span>Álbum (até 6)</span>
         </label>
         <button
           class="jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary"
@@ -323,6 +344,18 @@
                   class="post-image"
                   [src]="image"
                   [alt]="'feed.postImageAlt' | t:{ user: item.authorDisplayName }">
+              }
+
+              @if (item.extraMedia?.length) {
+                <div class="feed-extra-media" aria-label="Outras fotografias e vídeos da publicação">
+                  @for (media of item.extraMedia; track media.url) {
+                    @if (media.mimeType.startsWith('video/')) {
+                      <video [src]="resolvePostMedia(media.url)" controls preload="none" playsinline></video>
+                    } @else {
+                      <img [src]="resolvePostMedia(media.url)" alt="Fotografia adicional da publicação" loading="lazy">
+                    }
+                  }
+                </div>
               }
 
               @if (item.sessionId !== null) {
