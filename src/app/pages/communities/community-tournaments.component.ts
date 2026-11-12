@@ -1423,6 +1423,41 @@ export class CommunityTournamentsComponent implements OnChanges {
     return Math.max(0, ...matches.map(match => match.round));
   }
 
+  /** Round disclosure state is scoped to its competition and round, not a whole page. */
+  championshipRoundExpanded: Record<string, boolean> = {};
+
+  private championshipRoundKey(eventId: number, round: number): string {
+    return eventId + ':' + round;
+  }
+
+  isChampionshipRoundExpanded(eventId: number, round: number, initialRound: number): boolean {
+    return this.championshipRoundExpanded[this.championshipRoundKey(eventId, round)]
+      ?? round === initialRound;
+  }
+
+  setChampionshipRoundExpanded(eventId: number, round: number, expanded: boolean): void {
+    this.championshipRoundExpanded[this.championshipRoundKey(eventId, round)] = expanded;
+  }
+
+  setAllChampionshipRoundsExpanded(eventId: number, rounds: number[], expanded: boolean): void {
+    for (const round of rounds) {
+      this.setChampionshipRoundExpanded(eventId, round, expanded);
+    }
+    this.changeDetector.markForCheck();
+  }
+
+  cupRounds(eventId: number): number[] {
+    return [...new Set((this.championshipCupDraws[eventId]?.matches || [])
+      .map(match => match.round))].sort((a, b) => a - b);
+  }
+
+  championshipRoundResultCount(eventId: number, round: number, format: 'LEAGUE' | 'CUP'): number {
+    const fixtures = format === 'LEAGUE'
+      ? this.leagueRoundFixtures(eventId, round)
+      : this.cupRoundMatches(eventId, round);
+    return fixtures.filter(fixture => fixture.homeScore != null && fixture.awayScore != null).length;
+  }
+
   cupRoundMatches(eventId: number, round: number): ChampionshipOwnedLeagueFixture[] {
     return (this.championshipCupDraws[eventId]?.matches || []).filter(match => match.round === round);
   }
@@ -3420,6 +3455,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.championshipHonoursSportFilter = '';
       this.championshipHonoursError = '';
       this.championshipTeamRegistries = {};
+      this.championshipRoundExpanded = {};
       this.championshipTeamDrafts = {};
       this.championshipCloseConfirmed = {};
       // Confirmation belongs to the previous community and must not carry over,
