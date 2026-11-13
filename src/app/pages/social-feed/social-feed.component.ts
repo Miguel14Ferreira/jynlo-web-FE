@@ -791,6 +791,61 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     return media;
   }
 
+  // A compact, per-post carousel prevents an album of six files from
+  // occupying six full cards. Selection is independent for each publication.
+  activePostMediaIndex: Record<number, number> = {};
+  private postMediaTouchStart: { postId: number; x: number; y: number } | null = null;
+
+  selectedPostMediaIndex(item: FeedItem): number {
+    const id = item.postId;
+    const length = this.mediaForPost(item).length;
+    if (id == null || !length) return 0;
+    const index = this.activePostMediaIndex[id] ?? 0;
+    return index >= 0 && index < length ? index : 0;
+  }
+
+  setPostMediaIndex(item: FeedItem, index: number): void {
+    const id = item.postId;
+    const length = this.mediaForPost(item).length;
+    if (id == null || index < 0 || index >= length) return;
+    this.activePostMediaIndex[id] = index;
+  }
+
+  shiftPostMedia(item: FeedItem, direction: number): void {
+    const length = this.mediaForPost(item).length;
+    if (length < 2) return;
+    const next = this.selectedPostMediaIndex(item) + direction;
+    // The inline carousel does not wrap; its end controls clearly disable.
+    this.setPostMediaIndex(item, Math.min(length - 1, Math.max(0, next)));
+  }
+
+  onPostMediaKeydown(event: KeyboardEvent, item: FeedItem): void {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    // Avoid intercepting keystrokes intended for video playback controls.
+    if (event.target instanceof HTMLVideoElement) return;
+    this.shiftPostMedia(item, event.key === 'ArrowRight' ? 1 : -1);
+    event.preventDefault();
+  }
+
+  onPostMediaTouchStart(event: TouchEvent, item: FeedItem): void {
+    if (this.mediaForPost(item).length < 2 || item.postId == null) return;
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+    this.postMediaTouchStart = { postId: item.postId, x: touch.clientX, y: touch.clientY };
+  }
+
+  onPostMediaTouchEnd(event: TouchEvent, item: FeedItem): void {
+    const start = this.postMediaTouchStart;
+    this.postMediaTouchStart = null;
+    if (!start || item.postId !== start.postId) return;
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    if (Math.abs(dx) < 45 || Math.abs(dx) <= Math.abs(dy) * 1.3) return;
+    this.shiftPostMedia(item, dx < 0 ? 1 : -1);
+  }
+
   openPostMedia(item: FeedItem, index: number): void {
     const media = this.mediaForPost(item);
     if (index < 0 || index >= media.length) return;
