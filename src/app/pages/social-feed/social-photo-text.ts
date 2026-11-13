@@ -8,7 +8,9 @@ export async function addTextToPhoto(file: File, text: string,
   font: 'modern' | 'classic' | 'mono' = 'modern',
   imageTransform: {rotation: number; zoom: number; x?: number; y?: number} = {rotation: 0, zoom: 1}): Promise<File> {
   const caption = text.trim().slice(0, 120);
-  if (!caption) return file;
+  const hasPhotoTransform = imageTransform.rotation !== 0 || imageTransform.zoom !== 1 ||
+    (imageTransform.x ?? 0) !== 0 || (imageTransform.y ?? 0) !== 0;
+  if (!caption && !hasPhotoTransform) return file;
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type))
     throw new Error('Só é possível escrever sobre fotografias');
   const sourceUrl = URL.createObjectURL(file);
@@ -36,6 +38,7 @@ export async function addTextToPhoto(file: File, text: string,
     ctx.scale(imageTransform.zoom, imageTransform.zoom);
     ctx.drawImage(image, -width / 2, -height / 2, width, height);
     ctx.restore();
+    if (caption) {
     const fontSize = Math.max(19, Math.round(width * .052));
     const margin = Math.round(width * .08);
     const lineHeight = fontSize * 1.32;
@@ -83,6 +86,7 @@ export async function addTextToPhoto(file: File, text: string,
     lines.forEach((value, i) => ctx.fillText(value, 0,
       top + fontSize * .4 + lineHeight * (i + .55), width - margin * 1.8));
     ctx.restore();
+    }
     const mime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
     const blob = await new Promise<Blob>((resolve, reject) =>
       canvas.toBlob(value => value ? resolve(value) : reject(new Error('Não foi possível guardar a fotografia')), mime, .88));
