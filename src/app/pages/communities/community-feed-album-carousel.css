@@ -19,3 +19,19 @@
   .community-feed-carousel-stage { border-radius: .5rem; }
   .community-feed-carousel-prev,.community-feed-carousel-next { width: 32px; height: 38px; font-size: 1.6rem; }
 }
+
+
+/* Full-size photos retain their original framing; all controls stay reachable. */
+.community-feed-expand-photo { display: grid; place-items: center; width: 100%; padding: 0; margin: 0; background: transparent; border: 0; cursor: zoom-in; }
+.community-feed-expand-photo img { object-fit: contain; max-height: min(75vh,650px); }
+.community-feed-expand-photo:focus-visible { outline: 3px solid #34d399; outline-offset: -3px; }
+.community-feed-lightbox { position: fixed; inset: 0; z-index: 1300; display: grid; place-items: center; padding: 1rem; background: rgba(0,0,0,.92); }
+.community-feed-lightbox-dialog { width: min(100%,1100px); min-width: 0; max-height: 100%; }
+.community-feed-lightbox-dialog header { display: flex; align-items: center; justify-content: space-between; color: white; padding: .35rem .5rem; }
+.community-feed-lightbox-dialog header button,.community-feed-lightbox-arrow { border: 0; border-radius: .6rem; background: rgba(255,255,255,.15); color: white; min-width: 44px; min-height: 44px; font-size: 1.75rem; cursor: pointer; }
+.community-feed-lightbox-stage { display: flex; align-items: center; justify-content: center; gap: .5rem; }
+.community-feed-lightbox-stage img,.community-feed-lightbox-stage video { display: block; width: auto; height: auto; max-width: calc(100% - 104px); max-height: 82vh; object-fit: contain; }
+.community-feed-lightbox-stage:not(:has(.community-feed-lightbox-arrow)) img,.community-feed-lightbox-stage:not(:has(.community-feed-lightbox-arrow)) video { max-width: 100%; }
+.community-feed-lightbox-arrow { flex: 0 0 44px; }
+.community-feed-lightbox button:focus-visible { outline: 3px solid #34d399; outline-offset: 2px; }
+@media(max-width:600px) { .community-feed-lightbox { padding: .35rem; } .community-feed-lightbox-stage { gap: .15rem; } .community-feed-lightbox-arrow { min-width: 36px; flex-basis: 36px; } .community-feed-lightbox-stage img,.community-feed-lightbox-stage video { max-width: calc(100% - 76px); } }
