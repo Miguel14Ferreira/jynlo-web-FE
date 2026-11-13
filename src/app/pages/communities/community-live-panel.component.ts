@@ -69,7 +69,12 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
           <div class="live-player-header">
             <strong>{{ active?.title }}</strong>
             <span>{{ hosting ? 'A transmitir' : 'A assistir' }}</span>
-            <button type="button" (click)="leave()">Sair</button>
+            @if (hosting && active) {
+              <button type="button" class="live-end-button"
+                [disabled]="busy" (click)="end(active)">Terminar direto para todos</button>
+            } @else {
+              <button type="button" (click)="leave()">Sair da transmissão</button>
+            }
           </div>
           <div class="live-media" #stage aria-label="Vídeo e áudio da transmissão"></div>
           @if (!hosting) {
@@ -111,6 +116,7 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
     .live-player{display:grid;gap:10px}
     .live-player-header,.live-host-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
     .live-player-header>button{margin-left:auto}
+    .live-end-button{background:#77313d!important;border-color:#d07485!important}
     .live-media{min-height:220px;background:#020e16;border-radius:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;overflow:hidden}
     .live-media video{display:block;object-fit:contain;max-width:100%;max-height:65vh}
     @media(max-width:680px){.live-event{align-items:stretch;flex-direction:column}.live-schedule{grid-template-columns:minmax(0,1fr)}}
