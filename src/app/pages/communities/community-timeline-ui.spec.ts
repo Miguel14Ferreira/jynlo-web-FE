@@ -41,7 +41,7 @@ describe('Community feed/chat UI state isolation', () => {
   });
 
   it('shows one community album item at a time with isolated navigation and stable cover', () => {
-    component.communityPostMediaIndex = {};
+    Object.assign(component, { communityPostMediaIndex: {} });
     const first = { ...message('POST'), id: 20, imageUrl: '/media/first.jpg',
       extraMedia: [{ url: '/media/video.mp4', mimeType: 'video/mp4' },
                    { url: '/media/last.jpg', mimeType: 'image/jpeg' }] };
