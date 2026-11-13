@@ -277,7 +277,8 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   }
   sendMessage():void {
     const content=this.draft.trim();
-    if(!content||this.sending||!this.room||content.length>500)return;
+    if(!content||this.sending||!this.room||content.length>500||
+       (!this.event.canManage && (!this.controls?.chatEnabled || this.controls.mutedByHost)))return;
     this.sending=true;this.error='';
     this.service.sendMessage(this.event.id,content).pipe(timeout(10000),
       finalize(()=>this.sending=false)).subscribe({
@@ -304,7 +305,8 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     });
   }
   requestGuest():void {
-    if(this.event.canManage||this.moderationBusy)return;
+    if(this.event.canManage||this.moderationBusy||!this.room||
+       this.controls?.isGuest||this.controls?.requestStatus==='PENDING')return;
     this.moderationBusy=true;
     this.service.requestToJoin(this.event.id).pipe(timeout(10000),
       finalize(()=>this.moderationBusy=false)).subscribe({
@@ -346,14 +348,31 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     }
   }
   async toggleCamera():Promise<void> {
-    if(!this.room || !this.event.canManage)return;
-    try{await this.room.localParticipant.setCameraEnabled(!this.cameraOn);
-      this.cameraOn=!this.cameraOn;}catch{this.error='Não foi possível alterar a câmara.';}
+    // Guests accepted by the host may publish their own media, just like the host.
+    if(!this.room || this.connecting || this.rejoining || this.deviceBusy ||
+       (this.role!=='HOST' && this.role!=='GUEST'))return;
+    const activeRoom=this.room;
+    this.deviceBusy=true;
+    try{
+      const enabled=!this.cameraOn;
+      await activeRoom.localParticipant.setCameraEnabled(enabled);
+      if(this.room===activeRoom && !this.destroyed)this.cameraOn=enabled;
+    }catch{
+      if(this.room===activeRoom)this.error='Não foi possível alterar a câmara.';
+    }finally{this.deviceBusy=false;}
   }
   async toggleMic():Promise<void> {
-    if(!this.room || !this.event.canManage)return;
-    try{await this.room.localParticipant.setMicrophoneEnabled(!this.micOn);
-      this.micOn=!this.micOn;}catch{this.error='Não foi possível alterar o microfone.';}
+    if(!this.room || this.connecting || this.rejoining || this.deviceBusy ||
+       (this.role!=='HOST' && this.role!=='GUEST'))return;
+    const activeRoom=this.room;
+    this.deviceBusy=true;
+    try{
+      const enabled=!this.micOn;
+      await activeRoom.localParticipant.setMicrophoneEnabled(enabled);
+      if(this.room===activeRoom && !this.destroyed)this.micOn=enabled;
+    }catch{
+      if(this.room===activeRoom)this.error='Não foi possível alterar o microfone.';
+    }finally{this.deviceBusy=false;}
   }
   end():void {
     if(!this.event.canManage || this.ended || this.ending)return;
