@@ -17,7 +17,7 @@ export interface PersonalLiveGuestRequest {
   id:number;username:string;status:'PENDING'|'APPROVED'|'DECLINED';createdAt:string;
 }
 export interface PersonalLiveControls {
-  chatEnabled:boolean;mutedByHost:boolean;guestUsername:string|null;
+  chatEnabled:boolean;mutedByHost:boolean;guestUsername:string|null;isGuest:boolean;mutedUsernames:string[];
   requestStatus:string|null;pendingRequests:PersonalLiveGuestRequest[];
 }
 @Injectable({providedIn:'root'})
