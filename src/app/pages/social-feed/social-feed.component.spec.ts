@@ -502,6 +502,39 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(component.selectedPostMediaIndex(item)).toBe(0);
   }));
 
+  it('reorders album attachments and sends the chosen cover first', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const first = new File(['one'], 'first.jpg', { type: 'image/jpeg' });
+    const cover = new File(['two'], 'cover.jpg', { type: 'image/jpeg' });
+    const clip = new File(['three'], 'clip.mp4', { type: 'video/mp4' });
+    component.postGallery = [
+      { file: first, url: 'blob:first' },
+      { file: cover, url: 'blob:cover' },
+      { file: clip, url: 'blob:clip' }
+    ];
+
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelectorAll('.composer-media-order').length).toBe(3);
+    component.movePostGalleryItem(1, -1);
+    expect(component.postGallery.map(item => item.file.name)).toEqual([
+      'cover.jpg', 'first.jpg', 'clip.mp4'
+    ]);
+    expect(root.querySelector('.composer-cover-label')).not.toBeNull();
+    component.movePostGalleryItem(0, -1);
+    component.movePostGalleryItem(2, 1);
+    expect(component.postGallery[0].file).toBe(cover);
+    feed.createPostAlbum.and.returnValue(of({
+      type: 'POST', postId: 902, authorUsername: 'miguel', authorDisplayName: 'Miguel',
+      authorProfilePicUrl: null, content: '', imageUrl: '/media/cover.jpg',
+      createdAt: new Date().toISOString(), sessionId: null, sport: null, city: null,
+      gameDate: null, likeCount: 0, likedByMe: false, commentCount: 0
+    }));
+    component.publish();
+    expect(feed.createPostAlbum).toHaveBeenCalledOnceWith('', [cover, first, clip], undefined, undefined);
+  }));
+
   it('publishes a photo without a caption and keeps empty posts disabled', fakeAsync(() => {
     fixture.detectChanges();
     tick(351);
