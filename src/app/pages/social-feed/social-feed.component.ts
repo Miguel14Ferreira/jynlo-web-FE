@@ -26,6 +26,7 @@ import { RealPlace, RealPlaceSearchService } from '../../services/real-place-sea
 import { addTextToPhoto } from './social-photo-text';
 import { TextPlacement } from './movable-text.component';
 import { CommunityLiveEvent, CommunityLiveService } from '../../services/community-live.service';
+import { PersonalLiveEvent, PersonalLiveService } from '../../services/personal-live.service';
 
 @Component({
   selector: 'app-social-feed',
@@ -242,6 +243,25 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     if (this.postComposerOpen) this.closePostComposer();
   }
 
+  private readonly personalLiveService=inject(PersonalLiveService);
+  liveMode: 'PERSONAL' | 'COMMUNITY' = 'PERSONAL';
+  personalLiveEvents: PersonalLiveEvent[] = [];
+  personalLiveRoom: PersonalLiveEvent | null = null;
+  personalLiveError = '';
+
+  refreshPersonalLive(): void {
+    this.personalLiveService.active().pipe(timeout(10000),
+      catchError(() => of([] as PersonalLiveEvent[])), takeUntil(this.destroyed))
+      .subscribe(events => this.personalLiveEvents = events);
+  }
+  watchPersonalLive(event: PersonalLiveEvent): void {
+    if (event.status !== 'LIVE') return;
+    this.personalLiveRoom=event;
+  }
+  closePersonalLiveRoom(): void {
+    this.personalLiveRoom=null;
+    this.refreshPersonalLive();
+  }
   liveComposerOpen = false;
   liveCommunityId: number | null = null;
   liveTitle = '';
@@ -249,8 +269,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   liveStartError = '';
 
   openLiveComposer(): void {
-    if (!this.managedLiveCommunities.length || !this.communityLiveService) return;
-    this.liveCommunityId = this.managedLiveCommunities[0].id;
+    this.liveMode = 'PERSONAL';
+    this.liveCommunityId = this.managedLiveCommunities[0]?.id ?? null;
     this.liveTitle = 'Direto desportivo';
     this.liveStartError = '';
     this.liveComposerOpen = true;
@@ -262,6 +282,26 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   startLiveFromFeed(): void {
+    if (this.liveBusy) return;
+    const title=this.liveTitle.trim();
+    if (!title) {
+      this.liveStartError='Escreve o título do direto.';
+      return;
+    }
+    if (this.liveMode === 'PERSONAL') {
+      this.liveBusy=true;
+      this.liveStartError='';
+      this.personalLiveService.start(title).pipe(timeout(12000),
+        finalize(()=>this.liveBusy=false),takeUntil(this.destroyed)).subscribe({
+        next:event=>{
+          this.liveComposerOpen=false;
+          this.personalLiveRoom=event;
+          this.refreshPersonalLive();
+        },
+        error:()=>this.liveStartError='Não foi possível iniciar o teu direto. Confirma se já tens uma transmissão ativa.'
+      });
+      return;
+    }
     const communityId = this.liveCommunityId;
     if (!communityId || this.liveBusy || !this.communityLiveService ||
         !this.managedLiveCommunities.some(group => group.id === communityId)) return;
@@ -768,6 +808,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.prepareNewSessionShare();
     this.loadCompletedSessions();
     this.loadMyWeekCommunities();
+    this.refreshPersonalLive();
     // Suggestions and weekly vacancies still need discovery; the composer does not.
     this.loadingSessions = true;
     this.sessionService.discover({
