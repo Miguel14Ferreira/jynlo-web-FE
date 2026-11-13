@@ -1,0 +1,38 @@
+name: Web editor regression
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'src/app/pages/social-feed/**'
+      - 'src/app/services/social-stories.service.ts'
+      - 'src/app/pages/model/social-story.ts'
+      - 'src/app/pages/model/friend-summary.ts'
+      - 'src/app/services/community.service.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'angular.json'
+      - '.github/workflows/web-editor-regression.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: web-editor-regression-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Production build
+        run: npm run build
+      - name: Story and feed interaction regressions
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
+        run: npx ng test --watch=false --browsers=ChromeHeadless --include=src/app/pages/social-feed/social-stories.component.spec.ts --include=src/app/pages/social-feed/social-feed.component.spec.ts --include=src/app/pages/social-feed/movable-text.component.spec.ts
