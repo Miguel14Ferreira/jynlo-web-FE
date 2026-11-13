@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { firstValueFrom, interval, Subscription, timeout, finalize, Subject, takeUntil } from 'rxjs';
@@ -448,9 +449,11 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   private controlsLoading=false;
   private controlsRevision=0;
   private controlsMutation=false;
+  private lastRoleChangeAt=0;
+  private controlsUnavailable=false;
 
   refreshInteractions():void {
-    if(this.destroyed||this.closing)return;
+    if(this.destroyed||this.closing||this.controlsUnavailable)return;
     // Polling runs every three seconds, while a request may take ten.
     // Never overlap polls of the same resource: an older response could
     // otherwise overwrite fresh chat messages or guest permissions.
@@ -488,14 +491,33 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
           this.controls=state;
           if(this.room && !this.connecting && !this.rejoining && !this.reconnecting &&
               ((state.isGuest && this.role==='VIEWER') ||
-               (!state.isGuest && this.role==='GUEST')))void this.reconnectRole();
+               (!state.isGuest && this.role==='GUEST'))) {
+            // Avoid repeated token requests when the API and LiveKit briefly
+            // disagree about the assigned guest role.
+            const now=Date.now();
+            if(now-this.lastRoleChangeAt>=5000){
+              this.lastRoleChangeAt=now;
+              void this.reconnectRole();
+            }
+          }
         },
-        error:()=>{}
+        error:(error:unknown)=>{
+          if(this.destroyed||this.closing)return;
+          if(error instanceof HttpErrorResponse &&
+             (error.status===404 || error.status===410)){
+            // The broadcast was removed or has ended on the server.
+            this.controlsUnavailable=true;
+            this.error='Este direto terminou ou já não está disponível.';
+            this.leave();
+          }
+          // Do not disconnect on transient network, auth or server failures.
+        }
       });
     }
   }
   private async reconnectRole():Promise<void> {
     if(this.rejoining||this.destroyed||this.closing)return;
+    this.lastRoleChangeAt=Date.now();
     this.rejoining=true;
     this.switchingRole=true;
     this.controlsRevision++;
@@ -516,12 +538,17 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   }
   sendMessage():void {
     const content=this.draft.trim();
-    if(!content||this.sending||!this.room||this.connecting||this.reconnecting||content.length>500||
+    if(!content||this.sending||!this.room||this.connecting||this.reconnecting||
+       this.switchingRole||content.length>500||
        (!this.event.canManage && (!this.controls?.chatEnabled || this.controls.mutedByHost)))return;
     this.sending=true;this.error='';
     this.service.sendMessage(this.event.id,content).pipe(timeout(10000),takeUntil(this.destroy$),
       finalize(()=>this.sending=false)).subscribe({
-      next:()=>{this.draft='';this.refreshInteractions();},
+      next:()=>{
+        // Keep any new draft typed while the previous message was in flight.
+        if(this.draft.trim()===content)this.draft='';
+        this.refreshInteractions();
+      },
       error:()=>{this.error='Não foi possível enviar a mensagem. Verifica se o chat está ativo.';}
     });
   }
@@ -548,7 +575,8 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     });
   }
   requestGuest():void {
-    if(this.event.canManage||this.moderationBusy||!this.room||this.connecting||this.reconnecting||
+    if(this.event.canManage||this.moderationBusy||!this.room||this.connecting||
+       this.reconnecting||this.switchingRole||
        this.controls?.isGuest||this.controls?.requestStatus==='PENDING')return;
     this.moderationBusy=true;this.controlsMutation=true;this.controlsRevision++;
     this.service.requestToJoin(this.event.id).pipe(timeout(10000),takeUntil(this.destroy$),
@@ -722,6 +750,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     if(this.closing)return;
     this.closing=true;
     this.lastMessageId=null;
+    this.controlsUnavailable=true;
     this.confirmingEnd=false;
     this.heartbeats?.unsubscribe();this.heartbeats=undefined;
     this.interactionPoll?.unsubscribe();this.interactionPoll=undefined;
