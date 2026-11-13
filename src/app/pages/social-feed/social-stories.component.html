@@ -87,14 +87,10 @@
                   </div>
                 }
                 @if (captionPreview) {
-                  <p class="story-caption-overlay"
-                     [class.story-caption-overlay--plain]="storyTextStyle === 'plain'"
-                     [class.story-caption-overlay--small]="storyTextScale === 'small'"
-                     [class.story-caption-overlay--large]="storyTextScale === 'large'"
-                     [class.story-caption-overlay--top]="storyTextPosition === 'top'"
-                     [class.story-caption-overlay--center]="storyTextPosition === 'center'">
-                    {{ captionPreview }}
-                  </p>
+                  <app-movable-text [text]="captionPreview"
+                    [plain]="storyTextStyle === 'plain'"
+                    [placement]="storyTextPlacement"
+                    (placementChange)="storyTextPlacement = $event"></app-movable-text>
                 }
               </div>
             } @else {
@@ -139,9 +135,7 @@
               <button type="button" [disabled]="uploading" (click)="toggleTextStyle()">
                 {{ storyTextStyle === 'pill' ? 'Texto simples' : 'Texto destacado' }}
               </button>
-              <button type="button" [disabled]="uploading" (click)="changeTextPosition()">
-                Mover legenda
-              </button>
+              <p class="story-drag-hint">Arrasta o texto na fotografia. ↻ roda e ↘ ajusta o tamanho.</p>
               <label class="story-text-size">Tamanho
                 <select [(ngModel)]="storyTextScale" [disabled]="uploading">
                   <option value="small">Pequeno</option>
@@ -287,7 +281,12 @@
                [class.story-caption--small]="story.textScale === 'small'"
                [class.story-caption--large]="story.textScale === 'large'"
                [class.story-caption--top]="story.textPosition === 'top'"
-               [class.story-caption--center]="story.textPosition === 'center'">{{ story.caption }}</p>
+               [class.story-caption--center]="story.textX == null && story.textPosition === 'center'"
+               [class.story-caption--free]="story.textX != null && story.textY != null"
+               [style.left.%]="story.textX != null ? story.textX : null"
+               [style.top.%]="story.textY != null ? story.textY : null"
+               [style.bottom]="story.textY != null ? 'auto' : null"
+               [style.transform]="story.textX != null && story.textY != null ? 'translate(-50%,-50%) rotate(' + (story.textRotation || 0) + 'deg) scale(' + (story.textZoom || 1) + ')' : null">{{ story.caption }}</p>
           }
         </div>
 
