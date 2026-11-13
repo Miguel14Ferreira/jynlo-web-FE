@@ -434,25 +434,16 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   postTagSearchOpen = false;
   postTagSuggestions: FriendSummary[] = [];
   postTagSearchLoading = false;
-  private postTagProfiles: FriendSummary[] = [];
+  private postTagQuerySerial = 0;
+  private postTagSearchSubscription?: Subscription;
 
   openPostTagSearch(): void {
     this.postTagSearchOpen = !this.postTagSearchOpen;
-    if (!this.postTagSearchOpen) return;
-    this.postTagSearchLoading = true;
-    // Do not fetch Jynlo's public profile directory for tagging.
-    // Accepted, unblocked friendships are the only eligible suggestions.
-    this.communityService.friends().pipe(
-      timeout(10_000), catchError(() => of([] as FriendSummary[])),
-      takeUntil(this.destroyed)
-    ).subscribe(friends => {
-      if (!this.postTagSearchOpen) return;
-      this.postTagProfiles = friends.filter(friend =>
-        !!friend.username && !friend.blockedByMe && !friend.chatBlocked
-        && friend.username.toLowerCase() !== this.currentUsername.toLowerCase());
+    this.postTagSuggestions = [];
+    this.postTagSearchLoading = false;
+    this.postTagSearchSubscription?.unsubscribe();
+    if (this.postTagSearchOpen && this.postTagQuery.trim().replace(/^@/,'').length >= 3)
       this.searchPostTags(this.postTagQuery);
-      this.postTagSearchLoading = false;
-    });
   }
 
   photoTextEditorIndex: number | null = null;
@@ -610,10 +601,27 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   postTagQuery = '';
 
   searchPostTags(query: string): void {
-    const needle = query.trim().replace(/^@/, '').toLocaleLowerCase();
-    this.postTagSuggestions = this.postTagProfiles.filter(profile =>
-      profile.username.toLocaleLowerCase().includes(needle)
-      || (profile.fullName || '').toLocaleLowerCase().includes(needle)).slice(0, 8);
+    const needle = query.trim().replace(/^@/, '');
+    const serial = ++this.postTagQuerySerial;
+    this.postTagSearchSubscription?.unsubscribe();
+    this.postTagSuggestions = [];
+    this.postTagSearchLoading = needle.length >= 3;
+    if (!this.postTagSearchOpen || needle.length < 3) return;
+    this.postTagSearchSubscription = timer(350).pipe(
+      switchMap(() => this.communityService.searchProfiles(needle).pipe(timeout(8000),
+        catchError(() => of([] as CommunityProfile[])))),
+      takeUntil(this.destroyed)
+    ).subscribe(profiles => {
+      if (serial !== this.postTagQuerySerial || !this.postTagSearchOpen) return;
+      this.postTagSuggestions = profiles.filter(profile =>
+        !!profile.username &&
+        profile.username.toLocaleLowerCase() !== this.currentUsername.toLocaleLowerCase()
+      ).slice(0,8).map(profile => ({
+        username:profile.username,fullName:profile.fullName,nickname:profile.nickname,
+        profilePicUrl:profile.profilePicUrl,chatBlocked:false,blockedByMe:false
+      }));
+      this.postTagSearchLoading=false;
+    });
   }
 
   tagPostProfile(profile: FriendSummary): void {
