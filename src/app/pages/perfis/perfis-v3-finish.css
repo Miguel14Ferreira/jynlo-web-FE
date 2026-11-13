@@ -424,3 +424,17 @@
 :host .community-page.profile-page-open .profile-publication-open .profile-publication-meta{
   width:100%;
 }
+
+
+:host .community-page.profile-page-open .profile-story-avatar {
+  position:relative;appearance:none;padding:0;cursor:default;
+  border:3px solid transparent;background-color:transparent;
+  box-sizing:border-box;display:grid;place-items:center;
+}
+:host .community-page.profile-page-open .profile-story-avatar--active {
+  cursor:pointer;border-color:#1bddc4;box-shadow:0 0 0 2px #064f62;
+}
+:host .community-page.profile-page-open .profile-story-avatar--active:focus-visible{
+  outline:3px solid white;outline-offset:4px;
+}
+:host .community-page.profile-page-open .profile-story-avatar:disabled{opacity:1}
