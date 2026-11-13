@@ -81,6 +81,29 @@ describe('SocialFeedComponent discovery sidebar', () => {
     component = fixture.componentInstance;
   });
 
+  it('renders black photo text in black and keeps photo rotation and zoom visible', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const photo = new File([new Uint8Array([1, 2, 3])], 'treino.jpg', {type:'image/jpeg'});
+    component.postImageFile = photo;
+    component.openPhotoTextEditor(-1);
+    component.photoTextDraft = 'Grande jogo!';
+    component.photoTextInk = 'black';
+    component.photoTextBackground = 'light';
+    component.photoImageRotation = 25;
+    component.photoImageZoom = .65;
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const text = root.querySelector('.feed-photo-text-editor .movable-text') as HTMLElement;
+    expect(text).not.toBeNull();
+    expect(text.style.color).toBe('rgb(2, 6, 23)');
+    const photoPreview = root.querySelector('.feed-photo-direct-stage > img') as HTMLImageElement;
+    expect(photoPreview.style.transform).toContain('rotate(25deg)');
+    expect(photoPreview.style.transform).toContain('scale(0.65)');
+    component.closePhotoTextEditor();
+    fixture.destroy();
+  }));
+
   it('offers only accepted friends for publication mentions and never exposes discovered profiles', fakeAsync(() => {
     community.friends.and.returnValue(of([
       { username:'ana', fullName:'Ana Silva', nickname:null, profilePicUrl:null, chatBlocked:false, blockedByMe:false },
