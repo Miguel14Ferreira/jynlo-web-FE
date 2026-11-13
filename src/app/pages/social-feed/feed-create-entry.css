@@ -348,3 +348,34 @@
   background:#17404c;color:#f0fdfa;font-size:.78rem;cursor:pointer;}
 .feed-post-edit .feed-edit-file-picker input {position:absolute;width:1px;height:1px;opacity:0;}
 .feed-post-edit .feed-edit-file-picker:focus-within {outline:2px solid #5eead4;outline-offset:2px;}
+
+
+/* One media asset at a time, fully contained, as in a social carousel. */
+.feed-page .composer .composer-album {width:100%;max-width:100%;min-width:0;
+  display:grid;gap:.7rem;overflow:hidden;padding:0 .15rem;}
+.feed-page .composer .composer-album-stage {position:relative;width:100%;
+  height:clamp(190px,40vw,420px);min-width:0;display:grid;place-items:center;
+  overflow:hidden;background:#06131d;border-radius:12px;touch-action:pan-y;}
+.feed-page .composer .composer-album-stage img,
+.feed-page .composer .composer-album-stage video {display:block;width:100%;height:100%;
+  min-width:0;max-width:100%;max-height:100%;object-fit:contain;}
+.feed-page .composer .composer-album-arrow {position:absolute;top:50%;transform:translateY(-50%);
+  z-index:2;border:1px solid #7ca3ad;border-radius:50%;width:34px;height:34px;
+  background:#071e2edb;color:#fff;font-size:1.7rem;line-height:1;cursor:pointer;}
+.feed-page .composer .composer-album-prev{left:10px;}
+.feed-page .composer .composer-album-next{right:10px;}
+.feed-page .composer .composer-album-count {position:absolute;top:10px;right:10px;
+  border-radius:1rem;background:#061623cf;color:#fff;padding:.2rem .55rem;font-size:.76rem;}
+.feed-page .composer .composer-album-toolbar {display:flex;align-items:center;flex-wrap:wrap;
+  justify-content:space-between;gap:.5rem;min-width:0;}
+.feed-page .composer .composer-album-toolbar .composer-media-name {flex:1 1 100px;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.feed-page .composer .composer-album-toolbar button {border:1px solid #447982;border-radius:.6rem;
+  padding:.55rem .7rem;background:#123a46;color:#f1ffff;cursor:pointer;}
+.feed-page .composer .composer-album-dots {display:flex;justify-content:center;gap:8px;}
+.feed-page .composer .composer-album-dots button {height:8px;width:8px;border:0;border-radius:100%;
+  padding:0;background:#738b92;cursor:pointer;}
+.feed-page .composer .composer-album-dots button.active {background:#2dd4bf;width:20px;border-radius:10px;}
+.feed-page .composer .composer-album small {color:#a8c8ce;text-align:center;}
+.feed-page .composer .feed-photo-reset {align-self:flex-start;min-height:38px;padding:.45rem .75rem;
+  border:1px solid #3c8f91;border-radius:.65rem;background:#0c3741;color:#e9fffc;cursor:pointer;}
