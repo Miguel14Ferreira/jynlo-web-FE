@@ -80,7 +80,12 @@
       <div class="feed-post-dialog-header">
         <strong>Criar publicação</strong>
         <button type="button" aria-label="Fechar publicação" class="feed-post-dialog-close"
-                [disabled]="posting" (click)="closePostComposer()">×</button>
+                [disabled]="posting" (click)="closePostComposer()">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+            <path d="M5 5 19 19M19 5 5 19" fill="none" stroke="currentColor"
+                  stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </button>
       </div>
       <div class="composer-heading">
         <div class="feed-post-author">
