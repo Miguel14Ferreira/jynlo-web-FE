@@ -1424,3 +1424,14 @@ h1 {
 }
 .community-page.profile-page-open .profile-follow-request a{flex:1;color:#d9fff7}
 .community-page.profile-page-open .profile-privacy-settings [role="alert"]{color:#fecaca}
+
+
+.community-page.profile-page-open .profile-publication-play{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:2;width:40px;height:40px;border-radius:50%;
+  display:grid;place-items:center;color:#fff;background:#021827b9;
+  pointer-events:none;font-size:1rem;
+}
+.community-page.profile-page-open .profile-publication-open{
+  position:relative;
+}
