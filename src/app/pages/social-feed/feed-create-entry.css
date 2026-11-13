@@ -316,3 +316,18 @@
 .feed-share-copy input {width:min(270px,80vw);max-width:100%;color:#eafffa;
  background:#081923;border:1px solid #4a7980;border-radius:.4rem;padding:.45rem;}
 .feed-card[id^="jynlo-post-"] {scroll-margin-top:110px;}
+
+/* The feed live shortcut is a real action, never a navigation link. */
+.feed-entry-live-action button {display:inline-flex;align-items:center;gap:.4rem;
+  border:1px solid rgba(251,113,133,.45);padding:.55rem .8rem;
+  border-radius:.65rem;background:#193541;color:#f8fafc;
+  font:inherit;font-size:.81rem;font-weight:750;cursor:pointer;}
+.feed-entry-live-action button span {color:#fb7185;}
+.feed-entry-live-action button:hover {background:#254b58;}
+.feed-entry-live-action button:focus-visible {outline:2px solid #5eead4;outline-offset:2px;}
+.feed-live-dialog {display:grid;gap:.55rem;}
+.feed-live-dialog label {color:#d8f5ed;font-size:.82rem;font-weight:650;}
+.feed-live-dialog input,.feed-live-dialog select {width:100%;min-width:0;box-sizing:border-box;
+  padding:.7rem;border-radius:.65rem;border:1px solid #507480;
+  background:#0a2734;color:#f8fafc;font:inherit;}
+.feed-live-dialog p[role="alert"] {color:#fecaca;margin:0;}
