@@ -49,6 +49,9 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   storyTextScale: 'small' | 'medium' | 'large' = 'medium';
   storyTextPosition: 'top' | 'center' | 'bottom' = 'bottom';
   storyTextStyle: 'plain' | 'pill' = 'pill';
+  storyAltText = '';
+  storyShowTime = false;
+  readonly storyEditorTime = new Date();
   private readonly maxCaption = 180;
 
   openComposer(): void {
@@ -501,7 +504,9 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     this.stories.publish(this.file, this.caption, group, {
       textPosition: this.storyTextPosition,
       textScale: this.storyTextScale,
-      textStyle: this.storyTextStyle
+      textStyle: this.storyTextStyle,
+      altText: this.storyAltText.trim(),
+      showTime: this.storyShowTime
     }).pipe(
       timeout(90000),
       finalize(() => this.uploading = false),
@@ -513,6 +518,8 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
         this.mineError = '';
         this.removeFile();
         this.caption = '';
+        this.storyAltText = '';
+        this.storyShowTime = false;
         this.communityId = '';
         this.composerOpen = false;
         this.publishError = '';
