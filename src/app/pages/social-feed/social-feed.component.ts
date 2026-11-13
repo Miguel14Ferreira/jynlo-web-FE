@@ -343,6 +343,50 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   photoTextFont: 'modern' | 'classic' | 'mono' = 'modern';
   photoImageRotation = 0;
   photoImageZoom = 1;
+  photoImageX = 0;
+  photoImageY = 0;
+  private activePhotoGesture: 'move' | 'rotate' | 'zoom' | null = null;
+  private activePhotoPointer = -1;
+  private photoGestureInitial = {x:0,y:0,rotation:0,zoom:1,clientX:0,clientY:0};
+  private photoGestureDimensions = {width:1,height:1};
+
+  beginPhotoGesture(event: PointerEvent, kind: 'move' | 'rotate' | 'zoom'): void {
+    if (this.photoTextSaving || this.activePhotoGesture || event.button !== 0) return;
+    const target = event.currentTarget as HTMLElement;
+    const stage = target.closest('.feed-photo-direct-stage') as HTMLElement | null;
+    const rect = stage?.getBoundingClientRect();
+    if (!rect?.width || !rect.height) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.activePhotoGesture = kind;
+    this.activePhotoPointer = event.pointerId;
+    this.photoGestureInitial = {x:this.photoImageX,y:this.photoImageY,
+      rotation:this.photoImageRotation,zoom:this.photoImageZoom,
+      clientX:event.clientX,clientY:event.clientY};
+    this.photoGestureDimensions = {width:rect.width,height:rect.height};
+    target.setPointerCapture(event.pointerId);
+  }
+  movePhotoGesture(event: PointerEvent): void {
+    if (!this.activePhotoGesture || event.pointerId !== this.activePhotoPointer) return;
+    const dx = event.clientX-this.photoGestureInitial.clientX;
+    const dy = event.clientY-this.photoGestureInitial.clientY;
+    if (this.activePhotoGesture === 'move') {
+      this.photoImageX = Math.max(-45,Math.min(45,this.photoGestureInitial.x+dx/this.photoGestureDimensions.width*100));
+      this.photoImageY = Math.max(-45,Math.min(45,this.photoGestureInitial.y+dy/this.photoGestureDimensions.height*100));
+    } else if (this.activePhotoGesture === 'rotate') {
+      this.photoImageRotation = Math.max(-180,Math.min(180,
+        this.photoGestureInitial.rotation+Math.round(dx)));
+    } else {
+      this.photoImageZoom = Math.max(.4,Math.min(2,
+        this.photoGestureInitial.zoom+(dx+dy)/Math.min(
+          this.photoGestureDimensions.width,this.photoGestureDimensions.height)));
+    }
+  }
+  finishPhotoGesture(event: PointerEvent): void {
+    if (event.pointerId !== this.activePhotoPointer) return;
+    this.activePhotoGesture = null;
+    this.activePhotoPointer = -1;
+  }
 
   get photoTextColor(): string {
     return this.photoTextInk === 'black' ? '#020617' : this.photoTextInk === 'yellow' ? '#fef08a' : '#ffffff';
@@ -372,6 +416,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.photoTextFont = 'modern';
     this.photoImageRotation = 0;
     this.photoImageZoom = 1;
+    this.photoImageX = 0;
+    this.photoImageY = 0;
     if (this.photoTextPreview) URL.revokeObjectURL(this.photoTextPreview);
     this.photoTextPreview = URL.createObjectURL(file);
     this.photoTextAspect = '4 / 3';
@@ -404,7 +450,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       const image = await addTextToPhoto(input, this.photoTextDraft,
         this.photoTextPosition, this.photoTextInk, this.photoTextPlacement,
         this.photoTextBackground, this.photoTextFont,
-        { rotation: this.photoImageRotation, zoom: this.photoImageZoom });
+        { rotation: this.photoImageRotation, zoom: this.photoImageZoom,
+          x: this.photoImageX, y: this.photoImageY });
       if (index === -1) {
         this.postImageFile = image;
         const reader = new FileReader();
