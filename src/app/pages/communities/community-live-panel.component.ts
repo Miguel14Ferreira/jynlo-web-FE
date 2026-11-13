@@ -1,3 +1,4 @@
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, Input, OnChanges, OnDestroy, ViewChild, inject } from '@angular/core';
@@ -157,6 +158,24 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
     }
   }
   private readonly api = inject(CommunityLiveService);
+  private readonly route = inject(ActivatedRoute);
+  private attemptedDeepLinkedLiveId: number | null = null;
+
+  private tryJoinDeepLinkedLive(events: CommunityLiveEvent[]): void {
+    const raw = this.route.snapshot.queryParamMap.get('liveEvent');
+    if (!raw || !/^[1-9][0-9]{0,12}$/.test(raw)) return;
+    const id = Number(raw);
+    if (this.attemptedDeepLinkedLiveId === id || !this.canManage || !this.enabled ||
+        this.room || this.busy) return;
+    const event = events.find(entry => entry.id === id &&
+      entry.communityId === this.communityId && entry.status === 'LIVE' && entry.canManage);
+    if (!event) return;
+    this.attemptedDeepLinkedLiveId = id;
+    // The explicit start action happened in the feed; prompt for camera
+    // permissions only when the host joins this matching room.
+    queueMicrotask(() => void this.join(event));
+  }
+
   private updates = new Subscription();
   private hostHeartbeatSubscription?: Subscription;
   private readonly attached = new Set<HTMLMediaElement>();
@@ -213,6 +232,7 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
         )).subscribe(events => {
           if (version !== this.requestVersion || events === null) return;
           this.events = events;
+          this.tryJoinDeepLinkedLive(events);
           if (this.active && !events.some(e =>
               e.id === this.active?.id && e.status === 'LIVE')) this.leave();
         }));
