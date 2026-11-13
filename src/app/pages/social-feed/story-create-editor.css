@@ -84,3 +84,17 @@
 .story-overlay .story-caption--large { font-size: 1.25rem; }
 .story-overlay .story-caption--top { bottom: auto; top: 17%; }
 .story-overlay .story-caption--center { bottom: auto; top: 50%; transform: translateY(-50%); }
+
+
+.story-extra-options { display: grid; gap: .55rem; border-top: 1px solid rgba(148,163,184,.22); padding-top: .8rem; }
+.story-extra-options label { color: #cbd5e1; font-size: .83rem; }
+.story-extra-options textarea { min-height: 65px; }
+.story-time-toggle { display: flex; gap: .55rem; align-items: center; cursor: pointer; }
+.story-time-toggle input { width: 19px; height: 19px; accent-color: #2dd4bf; }
+.story-time-overlay {
+  position: absolute; z-index: 3; top: 9%; right: 8%; pointer-events: none;
+  padding: .4rem .7rem; color: #fff; background: rgba(2,6,23,.72);
+  border: 1px solid rgba(255,255,255,.24); border-radius: .65rem;
+  font-size: 1.25rem; font-weight: 850; letter-spacing: .04em;
+}
+.story-overlay .story-viewer-time { top: 17%; right: 9%; }
