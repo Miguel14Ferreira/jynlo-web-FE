@@ -6,6 +6,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
 import { SocialFeedComponent } from './social-feed.component';
 import { SocialStoriesComponent } from './social-stories.component';
 import { MovableTextComponent } from './movable-text.component';
+import { PersonalLiveRoomComponent } from './personal-live-room.component';
 import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/venue-sports-badges.component';
 
 // Load this screen only when its route is opened, not on the public home page.
@@ -19,6 +20,7 @@ import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/ven
     VenueSportsBadgesComponent,
     SocialStoriesComponent,
     MovableTextComponent,
+    PersonalLiveRoomComponent,
     RouterModule.forChild([{ path: '', component: SocialFeedComponent }])
   ]
 })
