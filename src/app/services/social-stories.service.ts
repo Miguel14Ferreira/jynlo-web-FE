@@ -25,6 +25,8 @@ export class SocialStoriesService {
     textPosition: 'top' | 'center' | 'bottom';
     textScale: 'small' | 'medium' | 'large';
     textStyle: 'plain' | 'pill';
+    altText?: string;
+    showTime?: boolean;
   }): Observable<SocialStory> {
     const body = new FormData();
     body.append('caption', caption.trim());
@@ -34,6 +36,8 @@ export class SocialStoriesService {
       body.append('textPosition', options.textPosition);
       body.append('textScale', options.textScale);
       body.append('textStyle', options.textStyle);
+      if (options.altText) body.append('altText', options.altText.trim());
+      body.append('showTime', String(!!options.showTime));
     }
     return this.http.post<SocialStory>(this.url, body);
   }
