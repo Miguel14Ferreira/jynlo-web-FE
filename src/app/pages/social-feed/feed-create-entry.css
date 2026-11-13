@@ -400,3 +400,9 @@
   background:#124a49;color:#edfffa;padding:.5rem .75rem;cursor:pointer;}
 .feed-friend-share-row button:disabled {opacity:.6;}
 .place-attribution {display:block;color:#9eb9bd;font-size:.7rem;padding:.3rem .65rem;}
+
+.feed-page a.feed-post-place {display:inline-flex;align-items:center;max-width:100%;
+  color:#b6e6e0;text-decoration:none;border:1px solid rgba(64,157,150,.26);
+  border-radius:1rem;padding:.2rem .55rem;overflow-wrap:anywhere;}
+.feed-page a.feed-post-place:hover,.feed-page a.feed-post-place:focus-visible {
+  color:#fff;border-color:#2dd4bf;background:#10464c;}
