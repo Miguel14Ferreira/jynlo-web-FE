@@ -128,7 +128,7 @@ describe('PerfisComponent', () => {
       createdAt:now,expiresAt:new Date(Date.now()+3600000).toISOString(),canDelete:false
     };
     stories.profile.and.returnValue(of([story]));
-    component.loadProfile('ana');
+    (component as any).loadProfile('ana');
     fixture.detectChanges();
     const avatar=fixture.nativeElement.querySelector('.profile-story-avatar--active') as HTMLButtonElement;
     expect(avatar).not.toBeNull();
@@ -142,7 +142,7 @@ describe('PerfisComponent', () => {
   });
 
   it('opens a profile publication in a large overlay without navigating away', () => {
-    component.loadProfile('ana');
+    (component as any).loadProfile('ana');
     const post={
       type:'POST',postId:301,authorUsername:'ana',authorDisplayName:'Ana',
       authorProfilePicUrl:null,content:'Um grande treino',imageUrl:'/media/posts/photo.jpg',
