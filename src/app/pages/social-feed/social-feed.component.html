@@ -57,6 +57,38 @@
       }
     </section>
 
+    @if (postShareFriendsOpen) {
+      <div class="feed-confirm-backdrop" (click)="closePostFriendShare()">
+        <section class="feed-confirm-dialog feed-friends-share-dialog" role="dialog" aria-modal="true"
+          aria-label="Enviar publicação a amigos" (click)="$event.stopPropagation()">
+          <div class="feed-friends-share-header">
+            <h3>Enviar a amigos da Jynlo</h3>
+            <button type="button" [disabled]="postShareSendingTo !== null"
+              (click)="closePostFriendShare()" aria-label="Fechar">×</button>
+          </div>
+          <label for="feed-share-friend-query">Pesquisar amigo</label>
+          <input id="feed-share-friend-query" type="search" [(ngModel)]="postShareSearch"
+            placeholder="Nome ou utilizador">
+          @if (postShareLoadingFriends) { <p>A carregar amigos…</p> }
+          @if (!postShareLoadingFriends && !filteredPostShareFriends.length) {
+            <p>Nenhum amigo encontrado.</p>
+          }
+          <div class="feed-friends-share-results">
+            @for (friend of filteredPostShareFriends; track friend.username) {
+              <div class="feed-friend-share-row">
+                <span><strong>{{ friend.fullName || friend.username }}</strong><small>@{{ friend.username }}</small></span>
+                <button type="button" [disabled]="postShareSendingTo !== null"
+                  (click)="sendPostToFriend(friend)">
+                  {{ postShareSendingTo === friend.username ? 'A enviar…' : 'Enviar' }}
+                </button>
+              </div>
+            }
+          </div>
+          @if (postShareFriendsError) { <p role="alert">{{ postShareFriendsError }}</p> }
+        </section>
+      </div>
+    }
+
     @if (liveComposerOpen) {
       <div class="feed-confirm-backdrop" (click)="closeLiveComposer()">
         <section class="feed-confirm-dialog feed-live-dialog" role="dialog" aria-modal="true"
@@ -701,6 +733,12 @@
                   </div>
                 }
               </div>
+            }
+            @if (item.type === 'POST' && item.postId != null) {
+              <button type="button" class="feed-share-friends-trigger"
+                (click)="openPostFriendShare(item)" aria-label="Enviar publicação a amigos da Jynlo">
+                <span aria-hidden="true">✉</span> Enviar a amigos
+              </button>
             }
             @if (item.type === 'POST') {
               @if (editingPostId === item.postId) {
