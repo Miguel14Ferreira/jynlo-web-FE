@@ -212,6 +212,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   private interactionPoll?:Subscription;
   private rejoining=false;
   private attached:HTMLMediaElement[]=[];
+  private readonly trackOwners=new Map<HTMLMediaElement,string>();
   videoTiles=0;
   audioBlocked=false;
   shareFeedback='';
@@ -253,7 +254,8 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       next=new Room({adaptiveStream:true,dynacast:true});
       const activeRoom=next;
       activeRoom.on(RoomEvent.TrackSubscribed,(track:RemoteTrack,_publication,participant)=>{
-        if (this.room===activeRoom) this.attach(track,participant.name || participant.identity,false);
+        if (this.room===activeRoom)
+          this.attach(track,participant.name || participant.identity,false,participant.identity);
       });
       activeRoom.on(RoomEvent.TrackUnsubscribed,track=>{
         for (const element of track.detach()) this.detachElement(element);
@@ -286,11 +288,22 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         }
       });
       activeRoom.on(RoomEvent.ParticipantConnected,()=>this.countParticipants());
-      activeRoom.on(RoomEvent.ParticipantDisconnected,()=>this.countParticipants());
+      activeRoom.on(RoomEvent.ParticipantDisconnected,participant=>{
+        // LiveKit may disconnect a participant before TrackUnsubscribed arrives.
+        // Remove any media owned by that identity so no frozen tile remains.
+        for(const [element,owner] of this.trackOwners)
+          if(owner===participant.identity)this.detachElement(element);
+        this.countParticipants();
+      });
       activeRoom.on(RoomEvent.Disconnected,()=>{
         // Ignore a late event from the previous connection when upgrading a
         // viewer to a host-approved guest or revoking guest permissions.
-        if (this.room===activeRoom && !this.rejoining && !this.destroyed) this.leave();
+        if(this.room!==activeRoom || this.rejoining || this.destroyed || this.closing)return;
+        // The host can revoke guest permissions while the viewer is connected.
+        // Return the former guest to the room as an audience member rather than
+        // closing the viewer entirely on LiveKit's terminal disconnect event.
+        if(this.role==='GUEST')void this.reconnectRole();
+        else this.leave();
       });
       this.room=activeRoom;
       await activeRoom.connect(credentials.serverUrl,credentials.token);
@@ -398,6 +411,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     this.cameraOn=false;this.micOn=false;this.screenOn=false;
     for(const el of [...this.attached])this.detachElement(el);
     this.attached=[];
+    this.trackOwners.clear();
     try {
       if(current)await current.disconnect().catch(()=>{});
       if(!this.destroyed&&!this.closing)await this.connect();
@@ -469,6 +483,9 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     if(this.room)this.participantCount=this.room.remoteParticipants.size+1;
   }
   private detachElement(element:HTMLMediaElement):void {
+    // Idempotent: both a disconnect and TrackUnsubscribed can report the same track.
+    if(!this.attached.includes(element))return;
+    this.trackOwners.delete(element);
     if(element instanceof HTMLVideoElement && element.parentElement?.classList.contains('live-video-tile')){
       element.parentElement.remove();
       this.videoTiles=Math.max(0,this.videoTiles-1);
@@ -477,7 +494,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     if(!this.attached.some(item=>item instanceof HTMLAudioElement))
       this.audioBlocked=false;
   }
-  private attach(track:{attach:()=>HTMLMediaElement},label:string,isLocal:boolean):void {
+  private attach(track:{attach:()=>HTMLMediaElement},label:string,isLocal:boolean,owner?:string):void {
     const stage=this.stage?.nativeElement;
     if(!stage || this.destroyed || this.closing)return;
     const element=track.attach();
@@ -493,11 +510,13 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       tile.append(element,name);
       stage.appendChild(tile);
       this.attached.push(element);
+      if(owner)this.trackOwners.set(element,owner);
       this.videoTiles++;
     } else if(element instanceof HTMLAudioElement && !isLocal) {
       element.style.display='none';
       stage.appendChild(element);
       this.attached.push(element);
+      if(owner)this.trackOwners.set(element,owner);
       // Browsers can refuse automatic remote audio; offer a user-gesture retry.
       void element.play().catch(()=>{
         if(this.attached.includes(element) && !this.closing)this.audioBlocked=true;
@@ -601,6 +620,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     if(active)void active.disconnect();
     for(const el of [...this.attached])this.detachElement(el);
     this.attached=[];
+    this.trackOwners.clear();
     this.closed.emit();
   }
   ngOnDestroy():void {
@@ -617,5 +637,6 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     if(this.room)void this.room.disconnect();
     for(const el of [...this.attached])this.detachElement(el);
     this.attached=[];
+    this.trackOwners.clear();
   }
 }
