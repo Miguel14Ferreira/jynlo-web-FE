@@ -394,19 +394,24 @@
               <p class="post-content">{{ item.content }}</p>
 
               @if (postImage(item); as image) {
-                <img
-                  class="post-image"
-                  [src]="image"
-                  [alt]="'feed.postImageAlt' | t:{ user: item.authorDisplayName }">
+                <button type="button" class="feed-media-open" (click)="openPostMedia(item, 0)"
+                        [attr.aria-label]="'Ampliar fotografia de ' + item.authorDisplayName">
+                  <img class="post-image" [src]="image"
+                       [alt]="'feed.postImageAlt' | t:{ user: item.authorDisplayName }" loading="lazy">
+                </button>
               }
 
               @if (item.extraMedia?.length) {
                 <div class="feed-extra-media" aria-label="Outras fotografias e vídeos da publicação">
-                  @for (media of item.extraMedia; track media.url) {
+                  @for (media of item.extraMedia; track media.url; let mediaIndex = $index) {
                     @if (media.mimeType.startsWith('video/')) {
                       <video [src]="resolvePostMedia(media.url)" controls preload="none" playsinline></video>
                     } @else {
-                      <img [src]="resolvePostMedia(media.url)" alt="Fotografia adicional da publicação" loading="lazy">
+                      <button type="button" class="feed-media-open feed-media-open--extra"
+                              (click)="openPostMedia(item, (item.imageUrl ? 1 : 0) + (item.videoUrl ? 1 : 0) + mediaIndex)"
+                              aria-label="Ampliar fotografia adicional">
+                        <img [src]="resolvePostMedia(media.url)" alt="Fotografia adicional da publicação" loading="lazy">
+                      </button>
                     }
                   }
                 </div>
@@ -862,6 +867,35 @@
       </aside>
     </div>
   </div>
+
+  @if (expandedMedia.length) {
+    <div class="feed-lightbox" (click)="closePostMedia()">
+      <section class="feed-lightbox-dialog" role="dialog" aria-modal="true"
+               aria-label="Fotografias e vídeos da publicação" (click)="$event.stopPropagation()">
+        <header class="feed-lightbox-toolbar">
+          <span>{{ expandedMediaIndex + 1 }} / {{ expandedMedia.length }}</span>
+          <button type="button" (click)="closePostMedia()" aria-label="Fechar visualização">×</button>
+        </header>
+        <div class="feed-lightbox-stage">
+          @if (expandedMedia.length > 1) {
+            <button type="button" class="feed-lightbox-arrow" (click)="changePostMedia(-1)"
+                    aria-label="Anterior">‹</button>
+          }
+          @if (expandedMedia[expandedMediaIndex].mimeType.startsWith('video/')) {
+            <video [src]="resolvePostMedia(expandedMedia[expandedMediaIndex].url)"
+                   controls playsinline preload="metadata" aria-label="Vídeo ampliado"></video>
+          } @else {
+            <img [src]="resolvePostMedia(expandedMedia[expandedMediaIndex].url)"
+                 alt="Fotografia completa da publicação">
+          }
+          @if (expandedMedia.length > 1) {
+            <button type="button" class="feed-lightbox-arrow" (click)="changePostMedia(1)"
+                    aria-label="Seguinte">›</button>
+          }
+        </div>
+      </section>
+    </div>
+  }
 
   @if (likersPostId !== null) {
     <div class="feed-likers-overlay" (click)="closeLikers()">
