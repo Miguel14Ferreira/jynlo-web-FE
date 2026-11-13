@@ -1471,3 +1471,16 @@ h1 {
 .feed-post-edit small { color: #b5c9c6; }
 .feed-post-edit-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .55rem; }
 @media(max-width:520px) { .feed-post-edit-actions > button { flex: 1 1 135px; } }
+
+
+/* Account-scoped hidden posts: management is intentionally separate from feed cards. */
+.feed-hidden-manager { margin: .75rem 0 1rem; display: grid; gap: .6rem; }
+.feed-hidden-manager > button { justify-self: start; }
+.feed-hidden-manager-list { border: 1px solid rgba(148,163,184,.24); border-radius: .85rem; background: rgba(5,22,32,.68); padding: .75rem; display: grid; gap: .55rem; }
+.feed-hidden-manager-list > p { margin: .4rem; color: #c6d7dc; }
+.feed-hidden-manager-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .65rem; padding: .75rem; border-radius: .7rem; border: 1px solid rgba(148,163,184,.19); }
+.feed-hidden-manager-row div { flex: 1 1 220px; min-width: 0; }
+.feed-hidden-manager-row strong { color: #e5fcf6; }
+.feed-hidden-manager-row p { margin: .25rem 0 0; color: #bfd1d9; overflow-wrap: anywhere; }
+.feed-hidden-manager-row button { flex: 0 0 auto; }
+@media(max-width:520px) { .feed-hidden-manager-row button { width: 100%; } }
