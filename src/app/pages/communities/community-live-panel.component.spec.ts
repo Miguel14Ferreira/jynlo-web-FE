@@ -62,12 +62,13 @@ describe('Community broadcast panel', () => {
     button.click();
     expect(live.schedule).toHaveBeenCalledWith(7, 'Direto de futebol', '', jasmine.any(String));
     expect(live.start).toHaveBeenCalledOnceWith(7, 57);
+    tick(0); // finalize must release the lock before joining LiveKit
     expect(join).toHaveBeenCalledOnceWith(started);
     expect(component.title).toBe('');
     fixture.destroy();
   }));
 
-  it('enters the presenter room after starting a previously scheduled direct', () => {
+  it('enters the presenter room after starting a previously scheduled direct', fakeAsync(() => {
     const now = new Date().toISOString();
     const scheduled: CommunityLiveEvent = {
       id: 91, communityId: 7, title: 'Treino de hoje', description: null,
@@ -85,9 +86,10 @@ describe('Community broadcast panel', () => {
     });
     component.start(scheduled);
     expect(live.start).toHaveBeenCalledOnceWith(7, 91);
+    tick(0);
     expect(join).toHaveBeenCalledOnceWith(started);
     fixture.destroy();
-  });
+  }));
 
   it('never creates a live event without broadcast permissions or while another is live', () => {
     const fixture = TestBed.createComponent(CommunityLivePanelComponent);
