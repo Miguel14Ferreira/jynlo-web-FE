@@ -12,4 +12,7 @@ export interface SocialStory {
   createdAt: string;
   expiresAt: string;
   canDelete: boolean;
+  textPosition?: 'top' | 'center' | 'bottom' | null;
+  textScale?: 'small' | 'medium' | 'large' | null;
+  textStyle?: 'plain' | 'pill' | null;
 }
