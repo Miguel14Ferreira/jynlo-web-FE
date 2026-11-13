@@ -9,6 +9,9 @@ export interface CommunityLiveEvent {
   status: CommunityLiveStatus; scheduledAt: string; startedAt: string | null;
   endedAt: string | null; canManage: boolean;
 }
+export interface CommunityLiveCapabilities {
+  canManage: boolean; enabled: boolean;
+}
 export interface CommunityLiveConnection {
   serverUrl: string; token: string; role: 'HOST' | 'VIEWER'; expiresAt: string;
 }
@@ -20,6 +23,9 @@ export class CommunityLiveService {
   private readonly base = environment.apiUrl.replace(/\/+$/, '');
   private url(communityId: number): string {
     return `${this.base}/api/communities/${communityId}/live`;
+  }
+  capabilities(communityId: number): Observable<CommunityLiveCapabilities> {
+    return this.http.get<CommunityLiveCapabilities>(this.url(communityId) + '/capabilities');
   }
   list(communityId: number): Observable<CommunityLiveEvent[]> {
     return this.http.get<CommunityLiveEvent[]>(this.url(communityId));
