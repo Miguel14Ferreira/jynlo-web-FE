@@ -491,9 +491,9 @@
           <div class="feed-photo-editor-actions">
             <button type="button" [disabled]="photoTextSaving" (click)="closePhotoTextEditor()">Cancelar</button>
             <button type="button" class="jynlo-action jynlo-action--primary"
-                    [disabled]="!photoTextDraft.trim() || photoTextSaving"
+                    [disabled]="photoTextSaving || (!photoTextDraft.trim() && photoImageRotation === 0 && photoImageZoom === 1 && photoImageX === 0 && photoImageY === 0)"
                     (click)="savePhotoText()">
-              {{ photoTextSaving ? 'A aplicar…' : 'Aplicar à fotografia' }}
+              {{ photoTextSaving ? 'A aplicar…' : 'Guardar edição da fotografia' }}
             </button>
           </div>
         </section>
