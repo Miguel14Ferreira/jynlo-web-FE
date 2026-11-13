@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { catchError, finalize, of, Subject, takeUntil, timeout } from 'rxjs';
+import { catchError, finalize, forkJoin, of, Subject, takeUntil, timeout } from 'rxjs';
 
 import { environment } from 'src/environment/environment';
 import { TranslatePipe } from '../../i18n/translate.pipe';
@@ -13,6 +13,10 @@ import { CommunityGroupsService } from '../../services/community-groups.service'
 import { SocialStoriesService } from '../../services/social-stories.service';
 import { CommunityGroup } from '../model/community-group';
 import { SocialStory } from '../model/social-story';
+import { VenueService } from '../../services/venue.service';
+import { Venue } from '../model/venue';
+import { CommunityService } from '../../services/community.service';
+import { CommunityProfile } from '../model/community-profile';
 
 interface StoryGroup {
   key: string;
@@ -24,7 +28,7 @@ interface StoryGroup {
 @Component({
   selector: 'app-social-stories',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, RouterModule, TranslatePipe],
   templateUrl: './social-stories.component.html',
   styleUrls: ['./social-stories.component.css', './story-create-editor.css']
 })
@@ -51,6 +55,97 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   storyTextStyle: 'plain' | 'pill' = 'pill';
   storyAltText = '';
   storyShowTime = false;
+  storyLocation = '';
+  storyVenueResults: Venue[] = [];
+  storyLocationSearchOpen = false;
+  storyLocationSearching = false;
+  private storyLocationSearchSerial = 0;
+
+  searchStoryLocation(query: string): void {
+    const input = query.trim();
+    this.storyLocationSearchOpen = input.length >= 2;
+    this.storyVenueResults = [];
+    const serial = ++this.storyLocationSearchSerial;
+    if (!this.storyLocationSearchOpen || !this.venues) return;
+    this.storyLocationSearching = true;
+    forkJoin([
+      this.venues.suggest(input).pipe(catchError(() => of({ venues: [], page: 0, hasMore: false }))),
+      this.venues.suggest(undefined, input).pipe(catchError(() => of({ venues: [], page: 0, hasMore: false })))
+    ]).pipe(timeout(10_000), takeUntil(this.destroyed)).subscribe({
+      next: pages => {
+        if (serial !== this.storyLocationSearchSerial) return;
+        const seen = new Set<number>();
+        this.storyVenueResults = pages.flatMap(page => page.venues)
+          .filter(venue => !seen.has(venue.id) && !!seen.add(venue.id)).slice(0, 8);
+        this.storyLocationSearching = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (serial !== this.storyLocationSearchSerial) return;
+        this.storyLocationSearching = false;
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  chooseStoryLocation(venue: Venue): void {
+    this.storyLocation = [venue.name, venue.city].filter(Boolean).join(', ').slice(0, 160);
+    this.storyLocationSearchOpen = false;
+    this.storyVenueResults = [];
+    this.storyLocationSearchSerial++;
+    this.changeDetector.markForCheck();
+  }
+
+  storyTagQuery = '';
+  storyTagOpen = false;
+  storyTagLoading = false;
+  storyTagResults: CommunityProfile[] = [];
+  storyTaggedProfiles: CommunityProfile[] = [];
+  private storyProfileIndex: CommunityProfile[] = [];
+
+  toggleStoryTags(): void {
+    this.storyTagOpen = !this.storyTagOpen;
+    if (!this.storyTagOpen || !this.profiles) return;
+    this.storyTagLoading = true;
+    this.profiles.discoverProfiles().pipe(
+      timeout(10_000), catchError(() => of([] as CommunityProfile[])),
+      takeUntil(this.destroyed)
+    ).subscribe(profiles => {
+      this.storyProfileIndex = profiles.filter(profile => !!profile.username);
+      this.searchStoryTag(this.storyTagQuery);
+      this.storyTagLoading = false;
+      this.changeDetector.markForCheck();
+    });
+  }
+
+  searchStoryTag(query: string): void {
+    const normalized = query.replace(/^@/, '').trim().toLowerCase();
+    const already = new Set(this.storyTaggedProfiles.map(profile => profile.username.toLowerCase()));
+    this.storyTagResults = this.storyProfileIndex.filter(profile =>
+      !already.has(profile.username.toLowerCase())
+      && (profile.username.toLowerCase().includes(normalized)
+        || (profile.fullName || '').toLowerCase().includes(normalized))).slice(0, 8);
+  }
+
+  addStoryTag(profile: CommunityProfile): void {
+    if (this.storyTaggedProfiles.length >= 5
+        || this.storyTaggedProfiles.some(item => item.username.toLowerCase() === profile.username.toLowerCase())) return;
+    this.storyTaggedProfiles = [...this.storyTaggedProfiles, profile];
+    this.searchStoryTag('');
+    this.storyTagQuery = '';
+    this.changeDetector.markForCheck();
+  }
+
+  removeStoryTag(username: string): void {
+    this.storyTaggedProfiles = this.storyTaggedProfiles.filter(profile => profile.username !== username);
+    this.searchStoryTag(this.storyTagQuery);
+  }
+
+  storyViewerTags(story: SocialStory): string[] {
+    return (story.taggedUsernames || '').split(',').map(tag => tag.trim()).filter(Boolean).slice(0, 5);
+  }
+
+
   readonly storyEditorTime = new Date();
   private readonly maxCaption = 180;
 
@@ -315,7 +410,9 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     private readonly changeDetector: ChangeDetectorRef,
     private readonly communities: CommunityGroupsService,
     private readonly route: ActivatedRoute,
-    private readonly i18n: I18nService
+    private readonly i18n: I18nService,
+    @Optional() private readonly venues: VenueService | null = null,
+    @Optional() private readonly profiles: CommunityService | null = null
   ) {}
 
   ngOnInit(): void {
@@ -506,7 +603,9 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
       textScale: this.storyTextScale,
       textStyle: this.storyTextStyle,
       altText: this.storyAltText.trim(),
-      showTime: this.storyShowTime
+      showTime: this.storyShowTime,
+      locationLabel: this.storyLocation.trim(),
+      taggedUsernames: this.storyTaggedProfiles.map(profile => profile.username).join(',')
     }).pipe(
       timeout(90000),
       finalize(() => this.uploading = false),
@@ -520,6 +619,9 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
         this.caption = '';
         this.storyAltText = '';
         this.storyShowTime = false;
+        this.storyLocation = '';
+        this.storyTaggedProfiles = [];
+        this.storyTagOpen = false;
         this.communityId = '';
         this.composerOpen = false;
         this.publishError = '';
