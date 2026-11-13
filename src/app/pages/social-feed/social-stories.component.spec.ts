@@ -246,6 +246,32 @@ describe('SocialStoriesComponent', () => {
     component.close();
   }));
 
+  it('keeps accessibility descriptions and an optional time sticker linked to the published Story', fakeAsync(() => {
+    fixture.detectChanges();
+    tick();
+    component.openComposer();
+    component.file = new File(['photo'], 'foto.jpg', { type: 'image/jpeg' });
+    component.storyAltText = 'Jogadores num campo de futebol';
+    component.storyShowTime = true;
+    component.caption = '';
+    api.publish.and.returnValue(of({ ...picture, id: 123, caption: '',
+      altText: component.storyAltText, showTime: true }));
+    component.publish();
+    expect(api.publish).toHaveBeenCalledWith(jasmine.any(File), '', null, {
+      textPosition: 'bottom', textScale: 'medium', textStyle: 'pill',
+      altText: 'Jogadores num campo de futebol', showTime: true
+    });
+    expect(component.mineEntries[0].id).toBe(123);
+    expect(component.storyAltText).toBe('');
+    expect(component.storyShowTime).toBeFalse();
+    component.showStory(component.mineEntries[0]);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.story-viewer-time')).not.toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.story-dialog-media > img')?.getAttribute('alt'))
+      .toBe('Jogadores num campo de futebol');
+    component.close();
+  }));
+
   it('opens an immersive Story editor with a vertical media preview and optional caption', fakeAsync(() => {
     fixture.detectChanges();
     tick();
@@ -285,7 +311,8 @@ describe('SocialStoriesComponent', () => {
     component.publish();
     fixture.detectChanges();
     expect(api.publish).toHaveBeenCalledWith(photo, 'Treino', null, {
-      textPosition: 'top', textScale: 'small', textStyle: 'pill'
+      textPosition: 'top', textScale: 'small', textStyle: 'pill',
+      altText: '', showTime: false
     });
     expect(component.composerOpen).toBeTrue();
     expect(component.file).toBe(photo);
