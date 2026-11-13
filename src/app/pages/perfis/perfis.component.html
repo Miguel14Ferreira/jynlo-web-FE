@@ -194,6 +194,10 @@
       }
     }
 
+    @if (profileStoryViewerOpen && selectedProfile && profileStories.length) {
+      <app-profile-story-viewer [stories]="profileStories"
+        [username]="selectedProfile.username" (closed)="closeProfileStories()"></app-profile-story-viewer>
+    }
     @if (expandedPost; as selectedPost) {
       <app-profile-post-viewer [post]="selectedPost"
         (closed)="closeExpandedPost()"></app-profile-post-viewer>
@@ -203,13 +207,17 @@
 
           <div class="profile-hero">
           <div class="detail-heading">
-            <div class="avatar large-avatar">
+            <button type="button" class="avatar large-avatar profile-story-avatar"
+              [class.profile-story-avatar--active]="profileStories.length > 0"
+              [disabled]="!profileStories.length || selectedBlocked || blockStatusPending"
+              [attr.aria-label]="profileStories.length ? 'Ver stories de ' + selectedProfile.username : 'Sem stories ativas'"
+              (click)="openProfileStories()">
               @if (profileImage(selectedProfile); as image) {
                 <img [src]="image" [alt]="selectedProfile.username">
               } @else {
                 <span>{{ initials(selectedProfile) }}</span>
               }
-            </div>
+            </button>
 
             <div class="profile-identity">
               <p class="eyebrow">{{ 'community.profile' | t }}</p>
