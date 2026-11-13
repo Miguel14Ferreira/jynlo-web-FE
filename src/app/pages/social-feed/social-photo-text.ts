@@ -6,7 +6,7 @@ export async function addTextToPhoto(file: File, text: string,
   placement?: TextPlacement,
   background: 'dark' | 'light' | 'none' = 'dark',
   font: 'modern' | 'classic' | 'mono' = 'modern',
-  imageTransform: {rotation: number; zoom: number} = {rotation: 0, zoom: 1}): Promise<File> {
+  imageTransform: {rotation: number; zoom: number; x?: number; y?: number} = {rotation: 0, zoom: 1}): Promise<File> {
   const caption = text.trim().slice(0, 120);
   if (!caption) return file;
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type))
@@ -30,7 +30,8 @@ export async function addTextToPhoto(file: File, text: string,
     if (!ctx) throw new Error('O navegador não permite editar esta fotografia');
     // Keep image preview and exported media in the same transform.
     ctx.save();
-    ctx.translate(width / 2, height / 2);
+    ctx.translate(width / 2 + width * (imageTransform.x ?? 0) / 100,
+      height / 2 + height * (imageTransform.y ?? 0) / 100);
     ctx.rotate(imageTransform.rotation * Math.PI / 180);
     ctx.scale(imageTransform.zoom, imageTransform.zoom);
     ctx.drawImage(image, -width / 2, -height / 2, width, height);
