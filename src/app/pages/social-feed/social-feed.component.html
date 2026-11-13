@@ -329,15 +329,31 @@
           <textarea id="feed-photo-overlay-text" [(ngModel)]="photoTextDraft"
                     maxlength="120" rows="2" [disabled]="photoTextSaving"
                     placeholder="Ex.: Grande jogo com a equipa!"></textarea>
-          <div class="feed-photo-direct-stage" [style.aspect-ratio]="photoTextAspect" aria-label="Pré-visualização da fotografia e texto">
+          <div class="feed-photo-direct-stage" [style.aspect-ratio]="photoTextAspect"
+               aria-label="Arrastar a fotografia para mover, usar as pegas para rodar ou redimensionar">
             <img [src]="photoTextPreview" alt="Pré-visualização da fotografia"
-              [style.transform]="'rotate(' + photoImageRotation + 'deg) scale(' + photoImageZoom + ')'">
+              [style.transform]="'translate(' + photoImageX + '%, ' + photoImageY + '%) rotate(' + photoImageRotation + 'deg) scale(' + photoImageZoom + ')'"
+              (pointerdown)="beginPhotoGesture($event, 'move')"
+              (pointermove)="movePhotoGesture($event)"
+              (pointerup)="finishPhotoGesture($event)" (pointercancel)="finishPhotoGesture($event)">
+            <button class="feed-photo-image-rotate" type="button"
+              (pointerdown)="beginPhotoGesture($event, 'rotate')"
+              (pointermove)="movePhotoGesture($event)"
+              (pointerup)="finishPhotoGesture($event)"
+              (pointercancel)="finishPhotoGesture($event)"
+              aria-label="Rodar fotografia">↻</button>
+            <button class="feed-photo-image-resize" type="button"
+              (pointerdown)="beginPhotoGesture($event, 'zoom')"
+              (pointermove)="movePhotoGesture($event)"
+              (pointerup)="finishPhotoGesture($event)"
+              (pointercancel)="finishPhotoGesture($event)"
+              aria-label="Redimensionar fotografia">↘</button>
             <app-movable-text [text]="photoTextDraft" [placement]="photoTextPlacement"
               [color]="photoTextColor" [background]="photoTextBackdrop"
               [fontFamily]="photoTextFontFamily"
               (placementChange)="photoTextPlacement = $event"></app-movable-text>
           </div>
-          <p class="feed-photo-overlay-hint">Arrasta o texto. Usa ↻ para rodar e ↘ para redimensionar.</p>
+          <p class="feed-photo-overlay-hint">Arrasta a fotografia ou o texto com o rato. As pegas ↻ e ↘ permitem rodar e redimensionar cada elemento.</p>
           <div class="feed-photo-image-tools">
             <label for="feed-photo-image-rotation">Rodar fotografia ({{ photoImageRotation }}°)</label>
             <input id="feed-photo-image-rotation" type="range" min="-180" max="180" step="1"
