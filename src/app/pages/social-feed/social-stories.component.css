@@ -283,3 +283,11 @@ button:disabled { opacity: .5; cursor: not-allowed; }
  .stories-panel .stories-heading {align-items:flex-start;}
  .stories-panel .story-header-create {font-size:.76rem;padding:.5rem .65rem;}
 }
+
+/* Closing a Story is a bare X, never a circular icon background. */
+.story-overlay .story-top-actions .story-close-button,
+.story-overlay .story-top-actions .story-close-button:hover,
+.story-overlay .story-top-actions .story-close-button:focus-visible {
+  border:0!important;border-radius:0!important;background:transparent!important;
+  box-shadow:none!important;color:#f8fafc;
+}
