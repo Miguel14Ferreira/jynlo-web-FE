@@ -70,3 +70,27 @@
 .feed-page .feed-post-dialog-close:hover { background: #375062; }
 .feed-page .feed-post-dialog-header { min-height: 58px; }
 .feed-page .feed-create-entry { padding-bottom: .65rem; }
+
+
+/* Search returns real venues from Jynlo, with a free-text fallback. */
+.composer-location-search { position: relative; }
+.composer-location-search > input { width: 100%; }
+.composer-location-results,.composer-tag-picker {
+  display: grid; gap: .15rem; padding: .45rem; background: #122f3c;
+  border: 1px solid rgba(94,234,212,.38); border-radius: .65rem;
+  max-height: 240px; overflow-y: auto; position: relative; z-index: 6;
+}
+.composer-location-results > button,.composer-tag-picker > button {
+  display: flex; align-items: center; gap: .65rem; text-align: left; width: 100%;
+  min-height: 46px; border: 0; border-radius: .5rem; padding: .45rem .6rem;
+  color: #e2e8f0; background: transparent; cursor: pointer;
+}
+.composer-location-results > button:hover,.composer-tag-picker > button:hover { background: rgba(94,234,212,.12); }
+.composer-location-results button > span:last-child,.composer-tag-picker button > span:last-child { min-width: 0; display: grid; gap: .1rem; }
+.composer-location-results small,.composer-tag-picker small { font-size: .73rem; color: #a6c7cd; overflow-wrap: anywhere; }
+.composer-location-results p,.composer-tag-picker p { margin: .35rem; color: #bfd1d9; font-size: .8rem; }
+.composer-tag-trigger { width: fit-content; border-radius: .65rem; padding: .5rem .7rem; border: 1px solid rgba(94,234,212,.3); color: #c5f9ed; background: #153441; cursor: pointer; }
+.composer-tag-trigger span { font-weight: 800; font-size: 1.1rem; }
+.composer-tag-picker label { padding: .2rem; color: #c5f9ed; }
+.composer-tag-picker > input { background: #081d2b; border-radius: .5rem; padding: .65rem; border: 1px solid #466b79; color: white; }
+.composer-tag-picker button img,.composer-tag-picker .tag-avatar-fallback { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; display: grid; place-items: center; background: #186d71; flex: none; }
