@@ -26,19 +26,21 @@ export class SocialFeedService {
     );
   }
 
-  createPost(content: string, image?: File, sessionId?: number, video?: File): Observable<FeedItem> {
+  createPost(content: string, image?: File, sessionId?: number, video?: File, location?: string): Observable<FeedItem> {
     if (image && video) {
       throw new Error('A post can contain either a photo or a video, not both');
     }
     if (!image && !video) {
       return this.http.post<FeedItem>(
         this.baseUrl + '/posts',
-        { content, ...(sessionId == null ? {} : { sessionId }) }
+        { content, ...(sessionId == null ? {} : { sessionId }),
+          ...(location?.trim() ? { location: location.trim() } : {}) }
       );
     }
 
     const formData = new FormData();
     formData.append('content', content);
+    if (location?.trim()) formData.append('location', location.trim());
     if (image) formData.append('image', image);
     if (video) formData.append('video', video);
     if (sessionId != null) {
@@ -51,9 +53,10 @@ export class SocialFeedService {
     );
   }
 
-  createPostAlbum(content: string, files: File[], sessionId?: number): Observable<FeedItem> {
+  createPostAlbum(content: string, files: File[], sessionId?: number, location?: string): Observable<FeedItem> {
     const form = new FormData();
     form.append('content', content);
+    if (location?.trim()) form.append('location', location.trim());
     for (const file of files) form.append('files', file, file.name);
     if (sessionId != null) form.append('sessionId', String(sessionId));
     return this.http.post<FeedItem>(this.baseUrl + '/posts', form);
