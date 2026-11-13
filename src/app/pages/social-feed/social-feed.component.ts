@@ -18,6 +18,7 @@ import { SessionSummary } from '../model/session-summary';
 import { FeedItem, SocialComment } from '../model/feed-item';
 import { FollowProfile } from '../model/follow';
 import { CommunityProfile } from '../model/community-profile';
+import { FriendSummary } from '../model/friend-summary';
 import { VenueService } from '../../services/venue.service';
 import { Venue } from '../model/venue';
 import { addTextToPhoto } from './social-photo-text';
@@ -303,21 +304,25 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   postTagSearchOpen = false;
-  postTagSuggestions: CommunityProfile[] = [];
+  postTagSuggestions: FriendSummary[] = [];
   postTagSearchLoading = false;
-  private postTagProfiles: CommunityProfile[] = [];
+  private postTagProfiles: FriendSummary[] = [];
 
   openPostTagSearch(): void {
     this.postTagSearchOpen = !this.postTagSearchOpen;
     if (!this.postTagSearchOpen) return;
     this.postTagSearchLoading = true;
-    this.communityService.discoverProfiles().pipe(
-      timeout(10_000), catchError(() => of([] as CommunityProfile[])),
+    // Do not fetch Jynlo's public profile directory for tagging.
+    // Accepted, unblocked friendships are the only eligible suggestions.
+    this.communityService.friends().pipe(
+      timeout(10_000), catchError(() => of([] as FriendSummary[])),
       takeUntil(this.destroyed)
-    ).subscribe(profiles => {
-      this.postTagProfiles = profiles.filter(profile =>
-        !!profile.username && profile.username.toLowerCase() !== this.currentUsername.toLowerCase());
-      this.postTagSuggestions = this.postTagProfiles.slice(0, 8);
+    ).subscribe(friends => {
+      if (!this.postTagSearchOpen) return;
+      this.postTagProfiles = friends.filter(friend =>
+        !!friend.username && !friend.blockedByMe && !friend.chatBlocked
+        && friend.username.toLowerCase() !== this.currentUsername.toLowerCase());
+      this.searchPostTags(this.postTagQuery);
       this.postTagSearchLoading = false;
     });
   }
@@ -397,7 +402,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       || (profile.fullName || '').toLocaleLowerCase().includes(needle)).slice(0, 8);
   }
 
-  tagPostProfile(profile: CommunityProfile): void {
+  tagPostProfile(profile: FriendSummary): void {
     const mention = '@' + profile.username;
     if (!this.postContent.includes(mention) && this.postContent.length + mention.length + 1 <= 1000) {
       this.postContent += (this.postContent.trim() ? ' ' : '') + mention + ' ';
@@ -698,7 +703,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     return value.trim().toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
 
-  suggestedProfileImage(profile: CommunityProfile): string | null {
+  suggestedProfileImage(profile: Pick<CommunityProfile, 'profilePicUrl'>): string | null {
     const path = profile.profilePicUrl;
     if (!path) {
       return null;
