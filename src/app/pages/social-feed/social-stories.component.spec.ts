@@ -55,7 +55,7 @@ describe('SocialStoriesComponent', () => {
     expect(component.storyGroups).toHaveSize(1);
     expect(component.storyGroups[0].name).toBe('@joao');
     expect(component.groups.map(c => c.id)).toEqual([3]);
-    expect(fixture.nativeElement.querySelectorAll('.story-bubble').length).toBe(1);
+    expect(fixture.nativeElement.querySelectorAll('.story-bubble:not(.story-add-action)').length).toBe(1);
   }));
 
   it('uses the shared premium hierarchy for Story creation and media controls', fakeAsync(() => {
@@ -153,7 +153,7 @@ describe('SocialStoriesComponent', () => {
     expect(api.mine).toHaveBeenCalled();
     expect(fixture.nativeElement.querySelector('.story-my-status')).toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('Stories publicadas por ti nas últimas 24 horas');
-    expect(fixture.nativeElement.querySelectorAll('.story-bubble').length).toBe(1);
+    expect(fixture.nativeElement.querySelectorAll('.story-bubble:not(.story-add-action)').length).toBe(1);
   }));
 
   it('groups several Stories from the same author and lets viewers move between them', fakeAsync(() => {
