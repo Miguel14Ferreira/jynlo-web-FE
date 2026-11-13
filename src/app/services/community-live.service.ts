@@ -38,6 +38,9 @@ export class CommunityLiveService {
   start(communityId: number, id: number): Observable<CommunityLiveEvent> {
     return this.http.post<CommunityLiveEvent>(`${this.url(communityId)}/${id}/start`, {});
   }
+  heartbeat(communityId: number, id: number): Observable<void> {
+    return this.http.post<void>(`${this.url(communityId)}/${id}/heartbeat`, {});
+  }
   end(communityId: number, id: number): Observable<CommunityLiveEvent> {
     return this.http.post<CommunityLiveEvent>(`${this.url(communityId)}/${id}/end`, {});
   }
