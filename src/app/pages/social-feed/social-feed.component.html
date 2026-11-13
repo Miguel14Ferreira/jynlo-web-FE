@@ -19,14 +19,15 @@
 
     <section class="feed-create-entry" aria-label="Partilhar um momento">
       <button type="button" class="feed-create-prompt" (click)="openPostComposer()">
-        <span class="feed-create-avatar" aria-hidden="true">{{ (currentUsername || 'J').charAt(0).toUpperCase() }}</span>
+        <span class="feed-create-avatar" aria-hidden="true">
+          @if (myWeekProfile && suggestedProfileImage(myWeekProfile); as avatar) {
+            <img [src]="avatar" alt="">
+          } @else {
+            {{ (currentUsername || 'J').charAt(0).toUpperCase() }}
+          }
+        </span>
         <span>Em que estás a pensar? Partilha um momento desportivo...</span>
       </button>
-      <div class="feed-create-actions">
-        <button type="button" (click)="openPostComposer()"><span aria-hidden="true">▣</span> Fotografia ou vídeo</button>
-        <button type="button" (click)="openPostComposer()"><span aria-hidden="true">✍</span> Publicação</button>
-        <a routerLink="/menu/createEvent"><span aria-hidden="true">⚽</span> Criar sessão</a>
-      </div>
     </section>
 
     <div class="feed-post-dialog-backdrop" [class.feed-post-dialog-visible]="postComposerOpen"
@@ -43,7 +44,13 @@
       </div>
       <div class="composer-heading">
         <div class="feed-post-author">
-          <span class="feed-post-author-avatar" aria-hidden="true">{{ (currentUsername || 'J').charAt(0).toUpperCase() }}</span>
+          <span class="feed-post-author-avatar" aria-hidden="true">
+            @if (myWeekProfile && suggestedProfileImage(myWeekProfile); as avatar) {
+              <img [src]="avatar" alt="">
+            } @else {
+              {{ (currentUsername || 'J').charAt(0).toUpperCase() }}
+            }
+          </span>
           <div><strong>{{ currentUsername }}</strong>
             <small>Partilhar com a comunidade Jynlo</small>
           </div>
