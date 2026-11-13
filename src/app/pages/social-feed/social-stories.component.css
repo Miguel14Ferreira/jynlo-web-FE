@@ -263,3 +263,23 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .stories-panel .story-create-circle-plus {font-size:2rem;margin:0;line-height:1;}
 .stories-panel .story-name { width:100%; text-align:center; white-space:normal; overflow-wrap:anywhere; font-size:.73rem; }
 .stories-panel .stories-empty { align-self:center; margin-left:.3rem; }
+
+/* Original Stories layout: circular author avatars only in the rail,
+   and a separate create action in the section header (Oct 2026 design). */
+.stories-panel .story-header-create {
+  display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
+  padding:.6rem .85rem;border:1px solid #2dd4bf;border-radius:.7rem;
+  background:#0f443f;color:#e4fff9;font:inherit;font-size:.81rem;font-weight:750;
+  cursor:pointer;white-space:nowrap;box-shadow:none;
+}
+.stories-panel .story-header-create:hover {background:#165c52;}
+.stories-panel .story-header-create:focus-visible {outline:2px solid #5eead4;outline-offset:3px;}
+.stories-panel .story-header-create span {font-size:1.25rem;line-height:1;}
+.stories-panel .story-rail .story-bubble {width:82px;flex:0 0 82px;padding:2px;
+  background:transparent;border:0;border-radius:0;box-shadow:none;}
+.stories-panel .story-rail .story-ring {width:66px;height:66px;flex:0 0 66px;border-radius:50%;overflow:hidden;}
+.stories-panel .story-rail .story-ring img,.stories-panel .story-rail .story-placeholder {border-radius:50%;}
+@media (max-width:540px) {
+ .stories-panel .stories-heading {align-items:flex-start;}
+ .stories-panel .story-header-create {font-size:.76rem;padding:.5rem .65rem;}
+}
