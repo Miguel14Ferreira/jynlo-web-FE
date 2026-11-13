@@ -78,7 +78,10 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   private queueCurrentSearchResult(): void {
     const matches = this.searchMatches;
-    if (!matches.length) return;
+    if (!matches.length) {
+      this.pendingSearchScrollId = null;
+      return;
+    }
     const selected = matches[Math.min(this.searchMatchIndex, matches.length - 1)];
     this.pendingSearchScrollId = selected.id;
   }
@@ -365,6 +368,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
       return;
     }
 
+    const matchesBeforeLoad = this.searchOpen ? this.searchMatches.length : 0;
     this.loadingOlder = true;
     const el = this.messageList?.nativeElement;
     const before = el ? { top: el.scrollTop, height: el.scrollHeight } : undefined;
@@ -380,7 +384,9 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
           if (this.searchOpen && this.searchQuery.trim()) {
             const matches = this.searchMatches;
             if (matches.length) {
-              this.searchMatchIndex = Math.min(this.searchMatchIndex, matches.length - 1);
+              this.searchMatchIndex = matchesBeforeLoad === 0
+                ? 0 : Math.min(this.searchMatchIndex, matches.length - 1);
+              if (matchesBeforeLoad === 0) this.queueCurrentSearchResult();
             }
           }
         },
