@@ -138,6 +138,14 @@ export class SocialFeedService {
     });
   }
 
+  hidePost(postId: number): Observable<void> {
+    return this.http.put<void>(this.baseUrl + '/posts/' + postId + '/hide', null);
+  }
+
+  restoreHiddenPost(postId: number): Observable<void> {
+    return this.http.delete<void>(this.baseUrl + '/posts/' + postId + '/hide');
+  }
+
   deletePost(postId: number): Observable<void> {
     return this.http.delete<void>(
       this.baseUrl + '/posts/' + postId
