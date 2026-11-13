@@ -94,3 +94,22 @@
 .composer-tag-picker label { padding: .2rem; color: #c5f9ed; }
 .composer-tag-picker > input { background: #081d2b; border-radius: .5rem; padding: .65rem; border: 1px solid #466b79; color: white; }
 .composer-tag-picker button img,.composer-tag-picker .tag-avatar-fallback { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; display: grid; place-items: center; background: #186d71; flex: none; }
+
+
+.composer-photo-edit-btn {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: .3rem;
+  padding: .38rem .55rem; border: 1px solid rgba(45,212,191,.4); border-radius: .5rem;
+  background: #123746; color: #c5f9ed; cursor: pointer; font-size: .76rem;
+}
+.composer-photo-edit-btn span { font-weight: 850; }
+.feed-photo-text-editor {
+  display: grid; gap: .55rem; padding: .85rem;
+  border: 1px solid rgba(45,212,191,.4); border-radius: .8rem; background: #0b2835;
+}
+.feed-photo-text-editor header { display: flex; align-items: center; justify-content: space-between; }
+.feed-photo-text-editor header button { width: 36px; height: 36px; border: 0; border-radius: 50%; color: white; background: #294250; font-size: 1.35rem; }
+.feed-photo-text-editor select,.feed-photo-text-editor textarea { width: 100%; background: #09222e; color: #f0fdfa; padding: .6rem; border-radius: .5rem; border: 1px solid #547b85; font: inherit; }
+.feed-photo-text-editor label { font-weight: 650; font-size: .82rem; }
+.feed-photo-overlay-hint { color: #b7d1d6; font-size: .8rem; }
+.feed-photo-editor-actions { display: flex; justify-content: flex-end; gap: .5rem; flex-wrap: wrap; }
+.feed-photo-editor-actions button { border-radius: .6rem; min-height: 40px; padding: .5rem .8rem; }
