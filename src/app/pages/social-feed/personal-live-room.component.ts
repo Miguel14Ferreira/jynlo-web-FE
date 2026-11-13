@@ -16,17 +16,20 @@ import { PersonalLiveEvent, PersonalLiveService } from '../../services/personal-
         <button type="button" class="close" (click)="event.canManage ? end() : leave()" aria-label="Sair do direto">×</button>
       </header>
       @if (error) {<p role="alert">{{error}}</p>}
-      @if (connecting) {<p>A ligar à transmissão…</p>}
-      <div #stage class="personal-live-stage" aria-label="Vídeo da transmissão"></div>
-      @if (event.canManage && !connecting && room) {
-        <footer>
-          <button type="button" (click)="toggleMic()">{{ micOn ? 'Desligar microfone' : 'Ligar microfone' }}</button>
-          <button type="button" (click)="toggleCamera()">{{ cameraOn ? 'Desligar câmara' : 'Ligar câmara' }}</button>
-          <button type="button" class="end" (click)="end()">Terminar direto</button>
-        </footer>
+      @if (connecting) {<p role="status">{{ connectionStatus }}</p>}
+      @if (!connecting && room) {
+        <p class="live-connection-status" role="status">● Transmissão ligada</p>
       }
-      @if (event.canManage && !room && !connecting) {
-        <button type="button" class="end" (click)="end()">Terminar direto</button>
+      <div #stage class="personal-live-stage" aria-label="Vídeo da transmissão"></div>
+      @if (event.canManage) {
+        <footer aria-label="Controlos do direto">
+          <button type="button" [disabled]="!room || connecting || deviceBusy"
+            [attr.aria-pressed]="micOn" (click)="toggleMic()">{{ micOn ? 'Silenciar microfone' : 'Ligar microfone' }}</button>
+          <button type="button" [disabled]="!room || connecting || deviceBusy"
+            [attr.aria-pressed]="cameraOn" (click)="toggleCamera()">{{ cameraOn ? 'Desligar câmara' : 'Ligar câmara' }}</button>
+          <button type="button" class="end" [disabled]="ending"
+            (click)="end()">{{ ending ? 'A terminar…' : 'Terminar direto' }}</button>
+        </footer>
       }
       @if (!room && !connecting && error) {
         <button type="button" (click)="connect()">Tentar novamente</button>
@@ -46,7 +49,8 @@ import { PersonalLiveEvent, PersonalLiveService } from '../../services/personal-
     .personal-live-stage video{max-width:100%;max-height:56dvh;object-fit:contain}
     footer{display:flex;flex-wrap:wrap;gap:.6rem}footer button{background:#184451;color:#fff;
       padding:.65rem;border:1px solid #47767e;border-radius:.6rem;cursor:pointer}
-    footer .end{background:#932d42}p[role="alert"]{color:#fecaca}
+    footer .end{background:#932d42}footer button:disabled{opacity:.5;cursor:not-allowed}
+    p[role="alert"]{color:#fecaca}.live-connection-status{color:#5eead4;margin:0;font-size:.82rem}
   `]
 })
 export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
@@ -58,6 +62,9 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   private attached:HTMLMediaElement[]=[];
   room:Room|null=null;
   connecting=false;
+  connectionStatus='A ligar à transmissão…';
+  deviceBusy=false;
+  ending=false;
   error='';
   cameraOn=false;
   micOn=false;
@@ -69,7 +76,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
 
   async connect():Promise<void> {
     if (this.room || this.connecting || this.destroyed) return;
-    this.connecting=true;this.error='';
+    this.connecting=true;this.connectionStatus='A ligar à transmissão…';this.error='';
     let next:Room|null=null;
     try {
       const credentials=await firstValueFrom(this.service.join(this.event.id).pipe(timeout(12000)));
@@ -96,20 +103,28 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       await activeRoom.connect(credentials.serverUrl,credentials.token);
       if (this.destroyed) {await activeRoom.disconnect();return;}
       this.countParticipants();
+      this.connecting=false;
       if (credentials.role==='HOST' && this.event.canManage) {
         this.heartbeats=interval(20000).subscribe(()=>
           this.service.heartbeat(this.event.id).pipe(timeout(10000)).subscribe({
             error:()=>{this.error='O direto terminou ou a ligação ao servidor falhou.';this.leave();}
           }));
-        // Starting the broadcast was an explicit presenter action; the browser
-        // will request permission before enabling camera and microphone.
+        // Device permissions are independent: microphone failures must not
+        // hide the controls or leave the room stuck in 'connecting'.
+        this.deviceBusy=true;
         try {
           await activeRoom.localParticipant.setCameraEnabled(true);
           this.cameraOn=true;
+        } catch {
+          this.error='Não foi possível ativar a câmara. Podes tentar novamente nos controlos.';
+        }
+        try {
           await activeRoom.localParticipant.setMicrophoneEnabled(true);
           this.micOn=true;
         } catch {
-          this.error='Confirma as permissões de câmara/microfone. Podes ativá-los pelos botões.';
+          this.error='Não foi possível ativar o microfone. Podes tentar novamente nos controlos.';
+        } finally {
+          this.deviceBusy=false;
         }
       }
     } catch {
@@ -143,10 +158,11 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       this.micOn=!this.micOn;}catch{this.error='Não foi possível alterar o microfone.';}
   }
   end():void {
-    if(!this.event.canManage || this.ended)return;
+    if(!this.event.canManage || this.ended || this.ending)return;
+    this.ending=true;
     this.service.end(this.event.id).pipe(timeout(10000)).subscribe({
       next:()=>{this.ended=true;this.leave();},
-      error:()=>this.error='Não foi possível terminar o direto. Tenta novamente.'
+      error:()=>{this.ending=false;this.error='Não foi possível terminar o direto. Tenta novamente.';}
     });
   }
   leave():void {
