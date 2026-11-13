@@ -19,6 +19,9 @@ export interface SocialStory {
   textZoom?: number | null;
   textScale?: 'small' | 'medium' | 'large' | null;
   textStyle?: 'plain' | 'pill' | null;
+  textColor?: 'white' | 'black' | 'yellow' | 'mint' | 'pink' | 'blue' | null;
+  textBackground?: 'dark' | 'light' | 'none' | null;
+  textFont?: 'modern' | 'classic' | 'mono' | null;
   altText?: string | null;
   showTime?: boolean;
   locationLabel?: string | null;
