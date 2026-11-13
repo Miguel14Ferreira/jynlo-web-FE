@@ -164,3 +164,20 @@
 .feed-live-create-links a span { color: #fb7185; }
 .feed-live-create-links a:focus-visible { outline: 2px solid #5eead4; outline-offset: 3px; }
 @media(max-width:540px) { .feed-live-create-links a { flex: 1 1 100%; } }
+
+
+/* Prevent inherited generic composer button styles from turning close into
+   a white square or shifting the cross outside its hit target. */
+.feed-page .composer .feed-post-dialog-header .feed-post-dialog-close {
+  box-sizing: border-box; position: absolute; inset: .55rem 0 auto auto;
+  display: flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; min-width: 40px; min-height: 40px;
+  padding: 0; margin: 0; border: 1px solid rgba(148,163,184,.3);
+  border-radius: 50%; background: #273b45; color: #f8fafc;
+  box-shadow: none; line-height: 1; cursor: pointer;
+}
+.feed-page .composer .feed-post-dialog-header .feed-post-dialog-close svg {
+  display: block; width: 20px; height: 20px; flex: 0 0 auto; overflow: visible;
+}
+.feed-page .composer .feed-post-dialog-header .feed-post-dialog-close:hover { background: #36515c; }
+.feed-page .composer .feed-post-dialog-header .feed-post-dialog-close:disabled { opacity: .55; cursor: not-allowed; }
