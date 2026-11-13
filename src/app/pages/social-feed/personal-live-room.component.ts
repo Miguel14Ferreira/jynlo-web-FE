@@ -155,6 +155,14 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       place-items:center;overflow:hidden;background:#0a2531;border-radius:10px;min-height:180px}
     :host ::ng-deep .personal-live-stage .live-video-tile video{width:100%;height:100%;max-height:64dvh;
       object-fit:contain;display:block}
+    /* Give a shared screen priority over face-camera tiles, Discord-style. */
+    :host ::ng-deep .personal-live-stage .live-screen-tile{
+      grid-column:1 / -1;min-height:clamp(240px,48dvh,650px);
+      background:#020b14}
+    :host ::ng-deep .personal-live-stage .live-screen-tile video{
+      max-height:70dvh;object-fit:contain}
+    :host ::ng-deep .personal-live-stage:fullscreen .live-screen-tile{
+      min-height:75dvh}
     :host ::ng-deep .personal-live-stage .live-video-label{position:absolute;left:9px;bottom:9px;
       padding:5px 9px;border-radius:20px;background:#051b27d9;color:white;font-size:.76rem}
     .live-stage-empty{display:grid;gap:.5rem;text-align:center;justify-items:center;
@@ -253,9 +261,10 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       if (this.destroyed || this.closing) return;
       next=new Room({adaptiveStream:true,dynacast:true});
       const activeRoom=next;
-      activeRoom.on(RoomEvent.TrackSubscribed,(track:RemoteTrack,_publication,participant)=>{
+      activeRoom.on(RoomEvent.TrackSubscribed,(track:RemoteTrack,publication,participant)=>{
         if (this.room===activeRoom)
-          this.attach(track,participant.name || participant.identity,false,participant.identity);
+          this.attach(track,participant.name || participant.identity,false,participant.identity,
+            publication.source===Track.Source.ScreenShare);
       });
       activeRoom.on(RoomEvent.TrackUnsubscribed,track=>{
         for (const element of track.detach()) this.detachElement(element);
@@ -266,7 +275,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
           this.attach(publication.track,'Tu',true);
         if(publication.source===Track.Source.ScreenShare) {
           this.screenOn=true;
-          this.attach(publication.track,'O teu ecrã',true);
+          this.attach(publication.track,'O teu ecrã',true,undefined,true);
         }
       });
       activeRoom.on(RoomEvent.LocalTrackUnpublished,publication=>{
@@ -494,19 +503,24 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     if(!this.attached.some(item=>item instanceof HTMLAudioElement))
       this.audioBlocked=false;
   }
-  private attach(track:{attach:()=>HTMLMediaElement},label:string,isLocal:boolean,owner?:string):void {
+  private attach(track:{attach:()=>HTMLMediaElement},label:string,isLocal:boolean,
+    owner?:string,isScreen=false):void {
     const stage=this.stage?.nativeElement;
     if(!stage || this.destroyed || this.closing)return;
     const element=track.attach();
     element.autoplay=true;
     if(element instanceof HTMLVideoElement) {
       element.playsInline=true;
-      if(isLocal)element.muted=true; // Never play our microphone back locally.
+      // Audio is provided by separate LiveKit audio tracks; always mute video
+      // elements so they can autoplay without browser audio restrictions.
+      element.muted=true;
       const tile=document.createElement('div');
-      tile.className='live-video-tile';
+      tile.className=isScreen?'live-video-tile live-screen-tile':'live-video-tile';
       const name=document.createElement('span');
       name.className='live-video-label';
-      name.textContent=isLocal?label:('@'+label.replace(/^@/,''));
+      name.textContent=isScreen
+        ? (isLocal?'O teu ecrã':'Ecrã de @'+label.replace(/^@/,''))
+        : (isLocal?label:'@'+label.replace(/^@/,''));
       tile.append(element,name);
       stage.appendChild(tile);
       this.attached.push(element);
