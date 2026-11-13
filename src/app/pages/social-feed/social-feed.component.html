@@ -393,28 +393,60 @@
             @if (item.type === 'POST') {
               <p class="post-content">{{ item.content }}</p>
 
-              @if (postImage(item); as image) {
-                <button type="button" class="feed-media-open" (click)="openPostMedia(item, 0)"
-                        [attr.aria-label]="'Ampliar fotografia de ' + item.authorDisplayName">
-                  <img class="post-image" [src]="image"
-                       [alt]="'feed.postImageAlt' | t:{ user: item.authorDisplayName }" loading="lazy">
-                </button>
-              }
-
-              @if (item.extraMedia?.length) {
-                <div class="feed-extra-media" aria-label="Outras fotografias e vídeos da publicação">
-                  @for (media of item.extraMedia; track media.url; let mediaIndex = $index) {
-                    @if (media.mimeType.startsWith('video/')) {
-                      <video [src]="resolvePostMedia(media.url)" controls preload="none" playsinline></video>
-                    } @else {
-                      <button type="button" class="feed-media-open feed-media-open--extra"
-                              (click)="openPostMedia(item, (item.imageUrl ? 1 : 0) + (item.videoUrl ? 1 : 0) + mediaIndex)"
-                              aria-label="Ampliar fotografia adicional">
-                        <img [src]="resolvePostMedia(media.url)" alt="Fotografia adicional da publicação" loading="lazy">
-                      </button>
+              @if (mediaForPost(item); as postMedia) {
+                @if (postMedia.length > 0) {
+                  <div class="feed-post-carousel"
+                       [attr.aria-label]="'Álbum de ' + item.authorDisplayName"
+                       (keydown)="onPostMediaKeydown($event, item)"
+                       (touchstart)="onPostMediaTouchStart($event, item)"
+                       (touchend)="onPostMediaTouchEnd($event, item)">
+                    <div class="feed-post-carousel-stage">
+                      @if (postMedia[selectedPostMediaIndex(item)]; as selectedMedia) {
+                        @if (selectedMedia.mimeType.startsWith('video/')) {
+                          <video class="feed-post-carousel-video"
+                                 [src]="resolvePostMedia(selectedMedia.url)"
+                                 controls playsinline preload="metadata"
+                                 [attr.aria-label]="'Vídeo ' + (selectedPostMediaIndex(item) + 1) + ' de ' + postMedia.length">
+                          </video>
+                        } @else {
+                          <button type="button" class="feed-media-open feed-post-carousel-image"
+                                  (click)="openPostMedia(item, selectedPostMediaIndex(item))"
+                                  [attr.aria-label]="'Ampliar fotografia ' + (selectedPostMediaIndex(item) + 1) + ' de ' + postMedia.length">
+                            <img class="post-image" [src]="resolvePostMedia(selectedMedia.url)"
+                                 [alt]="'Fotografia ' + (selectedPostMediaIndex(item) + 1) + ' de ' + item.authorDisplayName"
+                                 loading="lazy">
+                          </button>
+                        }
+                      }
+                      @if (postMedia.length > 1) {
+                        <span class="feed-post-carousel-counter" aria-live="polite">
+                          {{ selectedPostMediaIndex(item) + 1 }} / {{ postMedia.length }}
+                        </span>
+                        <button type="button" class="feed-post-carousel-prev"
+                                [disabled]="selectedPostMediaIndex(item) === 0"
+                                (click)="shiftPostMedia(item, -1)"
+                                aria-label="Fotografia ou vídeo anterior">‹</button>
+                        <button type="button" class="feed-post-carousel-next"
+                                [disabled]="selectedPostMediaIndex(item) === postMedia.length - 1"
+                                (click)="shiftPostMedia(item, 1)"
+                                aria-label="Fotografia ou vídeo seguinte">›</button>
+                      }
+                    </div>
+                    @if (postMedia.length > 1) {
+                      <div class="feed-post-carousel-dots" role="group" aria-label="Escolher fotografia ou vídeo">
+                        @for (media of postMedia; track $index; let mediaIndex = $index) {
+                          <button type="button"
+                                  [class.is-active]="selectedPostMediaIndex(item) === mediaIndex"
+                                  [attr.aria-current]="selectedPostMediaIndex(item) === mediaIndex ? 'true' : null"
+                                  [attr.aria-label]="'Mostrar anexo ' + (mediaIndex + 1) + ' de ' + postMedia.length"
+                                  (click)="setPostMediaIndex(item, mediaIndex)">
+                            <span class="sr-only">{{ media.mimeType.startsWith('video/') ? 'Vídeo' : 'Fotografia' }}</span>
+                          </button>
+                        }
+                      </div>
                     }
-                  }
-                </div>
+                  </div>
+                }
               }
 
               @if (item.sessionId !== null) {
@@ -434,11 +466,6 @@
               }
 
               <div class="post-actions">
-                @if (postVideo(item); as video) {
-                 <video class="post-video" [src]="video" controls playsinline preload="none"
-                   [attr.aria-label]="'feed.postVideoAlt' | t:{ user: item.authorDisplayName }"></video>
-               }
-
                @if (item.sessionId !== null) {
                   <button
                     type="button"
