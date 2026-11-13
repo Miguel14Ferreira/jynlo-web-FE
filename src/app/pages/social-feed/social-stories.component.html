@@ -11,7 +11,9 @@
           {{ 'stories.retry' | t }}
         </button>
       }
-
+      <button type="button" class="story-header-create" (click)="composerOpen ? closeComposer() : openComposer()">
+        <span aria-hidden="true">+</span> {{ 'stories.create' | t }}
+      </button>
     </div>
   </div>
 
@@ -22,13 +24,6 @@
   @if (true) {
     <div class="story-rail" [class.story-rail--empty]="storyGroups.length === 0"
          [attr.aria-busy]="loading || mineLoading">
-      <button type="button" class="story-bubble story-add-action jynlo-action jynlo-action--accent jynlo-premium-btn jynlo-premium-btn--primary"
-              (click)="composerOpen ? closeComposer() : openComposer()">
-        <span class="story-ring story-create-ring" aria-hidden="true">
-          <span class="story-create-circle-plus">+</span>
-        </span>
-        <span class="story-name">{{ 'stories.create' | t }}</span>
-      </button>
       @for (group of storyGroups; track group.key) {
         <button type="button" class="story-bubble" (click)="openGroup(group)"
             [attr.aria-label]="('stories.view' | t) + ' ' + group.name">
@@ -44,7 +39,7 @@
         </button>
       }
       @if (!loading && !mineLoading && storyGroups.length === 0) {
-        <p class="stories-empty">Ainda não há Stories. Cria o teu primeiro momento!</p>
+        <p class="stories-empty">Ainda não há Stories. Partilha o teu primeiro momento!</p>
       }
       @if ((loading || mineLoading) && storyGroups.length === 0) {
         <p class="stories-empty" role="status">{{ 'stories.loading' | t }}</p>
