@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, Optional, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { catchError, finalize, forkJoin, of, Subject, takeUntil, timeout } from 'rxjs';
+import { catchError, finalize, of, Subject, takeUntil, timeout, switchMap, timer } from 'rxjs';
 
 import { environment } from 'src/environment/environment';
 import { TranslatePipe } from '../../i18n/translate.pipe';
@@ -15,6 +15,7 @@ import { CommunityGroup } from '../model/community-group';
 import { SocialStory } from '../model/social-story';
 import { VenueService } from '../../services/venue.service';
 import { Venue } from '../model/venue';
+import { RealPlace, RealPlaceSearchService } from '../../services/real-place-search.service';
 import { CommunityService } from '../../services/community.service';
 import { MovableTextComponent, TextPlacement } from './movable-text.component';
 import { FriendSummary } from '../model/friend-summary';
@@ -93,53 +94,39 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   storyAltText = '';
   storyShowTime = false;
   storyLocation = '';
-  storyVenueResults: Venue[] = [];
+  private readonly realPlaceSearch = inject(RealPlaceSearchService);
+  storyRealPlaces: RealPlace[] = [];
+  storyLocationVerified = false;
   storyLocationSearchOpen = false;
   storyLocationSearching = false;
   private storyLocationSearchSerial = 0;
 
-  searchStoryLocation(query: string): void {
-    const input = query.trim();
+  searchStoryLocation(value: string): void {
+    const input = value.trim();
+    this.storyLocationVerified = false;
     this.storyLocationSearchOpen = input.length >= 2;
-    this.storyVenueResults = [];
+    this.storyRealPlaces = [];
     const serial = ++this.storyLocationSearchSerial;
-    if (!this.storyLocationSearchOpen || !this.venues) return;
-    this.storyLocationSearching = true;
-    forkJoin([
-      this.venues.suggest(input).pipe(catchError(() => of({ venues: [], page: 0, hasMore: false }))),
-      this.venues.suggest(undefined, input).pipe(catchError(() => of({ venues: [], page: 0, hasMore: false })))
-    ]).pipe(timeout(10_000), takeUntil(this.destroyed)).subscribe({
-      next: pages => {
-        if (serial !== this.storyLocationSearchSerial) return;
-        const seen = new Set<number>();
-        this.storyVenueResults = pages.flatMap(page => page.venues)
-          .filter(venue => !seen.has(venue.id) && !!seen.add(venue.id)).slice(0, 8);
-        this.storyLocationSearching = false;
-        this.changeDetector.markForCheck();
-      },
-      error: () => {
-        if (serial !== this.storyLocationSearchSerial) return;
-        this.storyLocationSearching = false;
-        this.changeDetector.markForCheck();
-      }
+    this.storyLocationSearching = this.storyLocationSearchOpen;
+    if (!this.storyLocationSearchOpen) return;
+    timer(400).pipe(
+      switchMap(() => this.realPlaceSearch.search(input).pipe(
+        timeout(8000), catchError(() => of([] as RealPlace[])))),
+      takeUntil(this.destroyed)
+    ).subscribe(places => {
+      if (serial !== this.storyLocationSearchSerial || !this.storyLocationSearchOpen) return;
+      this.storyRealPlaces = places;
+      this.storyLocationSearching = false;
+      this.changeDetector.markForCheck();
     });
   }
 
-  chooseStoryPlaceName(): void {
-    // Neighbourhoods, cities and countries are valid locations too;
-    // selecting a registered sports venue is never required.
-    this.storyLocation = this.storyLocation.trim().slice(0, 160);
+  chooseStoryRealPlace(place: RealPlace): void {
+    this.storyLocation = [place.label,place.subtitle].filter(Boolean).join(', ').slice(0,160);
+    this.storyLocationVerified = true;
     this.storyLocationSearchOpen = false;
-    this.storyVenueResults = [];
     this.storyLocationSearchSerial++;
-    this.changeDetector.markForCheck();
-  }
-
-  chooseStoryLocation(venue: Venue): void {
-    this.storyLocation = [venue.name, venue.city].filter(Boolean).join(', ').slice(0, 160);
-    this.storyLocationSearchOpen = false;
-    this.storyVenueResults = [];
-    this.storyLocationSearchSerial++;
+    this.storyRealPlaces = [];
     this.changeDetector.markForCheck();
   }
 
@@ -643,6 +630,10 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
 
   publish(): void {
     if (this.uploading || !this.file) return;
+    if (this.storyLocation.trim() && !this.storyLocationVerified) {
+      this.publishError = 'Escolhe uma localização real das sugestões ou limpa o campo.';
+      return;
+    }
     const group = this.communityId ? Number(this.communityId) : null;
     if (group !== null && !this.groups.some(item => item.id === group)) return;
     this.uploading = true;
@@ -681,6 +672,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
         this.storyAltText = '';
         this.storyShowTime = false;
         this.storyLocation = '';
+        this.storyLocationVerified = false;
         this.storyTaggedProfiles = [];
         this.storyTagOpen = false;
         this.communityId = '';
