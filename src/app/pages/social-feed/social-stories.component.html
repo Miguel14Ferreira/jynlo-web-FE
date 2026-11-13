@@ -69,10 +69,12 @@
                   <img [src]="filePreview" [alt]="'stories.preview' | t">
                 }
                 @if (storyShowTime) {
-                  <span class="story-time-overlay">{{ storyEditorTime | date:'HH:mm' }}</span>
+                  <span class="story-time-overlay">{{ storyEditorTime | date:'EEE, d MMM · HH:mm':'':'pt-PT' }}</span>
                 }
                 @if (storyLocation.trim()) {
-                  <span class="story-place-overlay">📍 {{ storyLocation }}</span>
+                  <a class="story-place-overlay" [href]="storyPlaceUrl(storyLocation)"
+                     target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()"
+                     [attr.aria-label]="'Abrir ' + storyLocation + ' no mapa'">📍 {{ storyLocation }}</a>
                 }
                 @if (storyTaggedProfiles.length) {
                   <div class="story-tag-overlay">
@@ -84,6 +86,8 @@
                 @if (captionPreview) {
                   <app-movable-text [text]="captionPreview"
                     [plain]="storyTextStyle === 'plain'"
+                    [color]="storyTextColorCss" [background]="storyTextBackgroundCss"
+                    [fontFamily]="storyTextFontCss"
                     [placement]="storyTextPlacement"
                     (placementChange)="storyTextPlacement = $event"></app-movable-text>
                 }
@@ -130,6 +134,32 @@
               <button type="button" [disabled]="uploading" (click)="toggleTextStyle()">
                 {{ storyTextStyle === 'pill' ? 'Texto simples' : 'Texto destacado' }}
               </button>
+              <div class="story-text-theme">
+                <label for="storyTextColor">Cor do texto
+                  <select id="storyTextColor" [(ngModel)]="storyTextColor" [disabled]="uploading">
+                    <option value="white">Branco</option>
+                    <option value="black">Preto</option>
+                    <option value="yellow">Amarelo</option>
+                    <option value="mint">Verde Jynlo</option>
+                    <option value="pink">Rosa</option>
+                    <option value="blue">Azul</option>
+                  </select>
+                </label>
+                <label for="storyTextBackground">Fundo
+                  <select id="storyTextBackground" [(ngModel)]="storyTextBackground" [disabled]="uploading">
+                    <option value="dark">Escuro</option>
+                    <option value="light">Claro</option>
+                    <option value="none">Sem fundo</option>
+                  </select>
+                </label>
+                <label for="storyTextFont">Tipo de letra
+                  <select id="storyTextFont" [(ngModel)]="storyTextFont" [disabled]="uploading">
+                    <option value="modern">Moderno</option>
+                    <option value="classic">Clássico</option>
+                    <option value="mono">Monoespaçado</option>
+                  </select>
+                </label>
+              </div>
               <p class="story-drag-hint">Arrasta o texto na fotografia. ↻ roda e ↘ ajusta o tamanho.</p>
 
             </div>
@@ -195,7 +225,7 @@
             <div class="story-extra-options">
               <label class="story-time-toggle">
                 <input type="checkbox" [(ngModel)]="storyShowTime" [disabled]="uploading">
-                <span>Mostrar hora na Story</span>
+                <span>Mostrar dia e hora na Story</span>
               </label>
               <label for="storyAltText">Texto alternativo (acessibilidade)</label>
               <textarea id="storyAltText" [(ngModel)]="storyAltText" [disabled]="uploading"
@@ -251,10 +281,13 @@
           <button class="story-tap-target story-tap-right" type="button"
             [attr.aria-label]="'stories.next' | t" (click)="next()"></button>
           @if (story.showTime) {
-            <span class="story-time-overlay story-viewer-time">{{ story.createdAt | date:'HH:mm' }}</span>
+            <span class="story-time-overlay story-viewer-time">{{ story.createdAt | date:'EEE, d MMM · HH:mm':'':'pt-PT' }}</span>
           }
           @if (story.locationLabel) {
-            <span class="story-place-overlay story-viewer-place">📍 {{ story.locationLabel }}</span>
+            <a class="story-place-overlay story-viewer-place"
+               [href]="storyPlaceUrl(story.locationLabel)" target="_blank" rel="noopener noreferrer"
+               (click)="$event.stopPropagation()"
+               [attr.aria-label]="'Abrir ' + story.locationLabel + ' no mapa'">📍 {{ story.locationLabel }}</a>
           }
           @if (storyViewerTags(story).length) {
             <nav class="story-tag-overlay story-viewer-tags" aria-label="Pessoas identificadas">
@@ -272,6 +305,9 @@
                [class.story-caption--top]="story.textPosition === 'top'"
                [class.story-caption--center]="story.textX == null && story.textPosition === 'center'"
                [class.story-caption--free]="story.textX != null && story.textY != null"
+               [style.color]="storyViewTextColor(story)"
+               [style.background]="storyViewTextBackground(story)"
+               [style.font-family]="storyViewTextFont(story)"
                [style.left.%]="story.textX != null ? story.textX : null"
                [style.top.%]="story.textY != null ? story.textY : null"
                [style.bottom]="story.textY != null ? 'auto' : null"
