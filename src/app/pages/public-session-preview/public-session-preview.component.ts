@@ -51,6 +51,7 @@ export class PublicSessionPreviewComponent implements OnInit, OnDestroy {
   errorMessageKey = '';
   canRetry = false;
   sharingSession = false;
+  mobileAppBannerDismissed = false;
   shareFeedbackKey = '';
   manualShareUrl = '';
   isAuthenticated = false;
