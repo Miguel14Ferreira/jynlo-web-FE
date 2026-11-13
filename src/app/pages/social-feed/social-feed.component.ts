@@ -579,7 +579,9 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     const index = this.photoTextEditorIndex;
     if (index === null || this.posting || this.photoTextSaving) return;
     const input = index === -1 ? this.postImageFile : this.postGallery[index]?.file;
-    if (!input || !this.photoTextDraft.trim()) return;
+    if (!input || (!this.photoTextDraft.trim() &&
+      this.photoImageRotation === 0 && this.photoImageZoom === 1 &&
+      this.photoImageX === 0 && this.photoImageY === 0)) return;
     this.photoTextSaving = true;
     this.photoTextError = '';
     try {
