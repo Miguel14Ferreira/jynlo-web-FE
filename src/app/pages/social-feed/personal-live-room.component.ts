@@ -419,6 +419,8 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   }
   private messagesLoading=false;
   private controlsLoading=false;
+  private controlsRevision=0;
+  private controlsMutation=false;
 
   refreshInteractions():void {
     if(this.destroyed||this.closing)return;
@@ -448,15 +450,16 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         error:()=>{}
       });
     }
-    if(!this.controlsLoading){
+    if(!this.controlsLoading && !this.controlsMutation){
+      const revision=this.controlsRevision;
       this.controlsLoading=true;
       this.service.controls(this.event.id).pipe(
         timeout(10000),takeUntil(this.destroy$),finalize(()=>this.controlsLoading=false)
       ).subscribe({
         next:state=>{
-          if(this.destroyed)return;
+          if(this.destroyed||this.closing||revision!==this.controlsRevision)return;
           this.controls=state;
-          if(this.room && !this.connecting && !this.rejoining &&
+          if(this.room && !this.connecting && !this.rejoining && !this.reconnecting &&
               ((state.isGuest && this.role==='VIEWER') ||
                (!state.isGuest && this.role==='GUEST')))void this.reconnectRole();
         },
@@ -467,6 +470,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   private async reconnectRole():Promise<void> {
     if(this.rejoining||this.destroyed||this.closing)return;
     this.rejoining=true;
+    this.controlsRevision++;
     this.heartbeats?.unsubscribe();this.heartbeats=undefined;
     const current=this.room;this.room=null;
     this.role='VIEWER';
@@ -496,18 +500,22 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   }
   toggleChat():void {
     if(!this.event.canManage||!this.controls||this.moderationBusy)return;
-    this.moderationBusy=true;
+    this.moderationBusy=true;this.controlsMutation=true;this.controlsRevision++;
     this.service.setChatEnabled(this.event.id,!this.controls.chatEnabled).pipe(timeout(10000),takeUntil(this.destroy$),
-      finalize(()=>this.moderationBusy=false)).subscribe({
+      finalize(()=>{
+        this.moderationBusy=false;this.controlsMutation=false;this.refreshInteractions();
+      })).subscribe({
       next:state=>this.controls=state,
       error:()=>this.error='Não foi possível alterar a moderação do chat.'
     });
   }
   toggleViewerMute(username:string,muted:boolean):void {
     if(!this.event.canManage||this.moderationBusy)return;
-    this.moderationBusy=true;
+    this.moderationBusy=true;this.controlsMutation=true;this.controlsRevision++;
     this.service.muteViewer(this.event.id,username,muted).pipe(timeout(10000),takeUntil(this.destroy$),
-      finalize(()=>this.moderationBusy=false)).subscribe({
+      finalize(()=>{
+        this.moderationBusy=false;this.controlsMutation=false;this.refreshInteractions();
+      })).subscribe({
       next:state=>this.controls=state,
       error:()=>this.error='Não foi possível alterar o silêncio do espectador.'
     });
@@ -515,28 +523,34 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   requestGuest():void {
     if(this.event.canManage||this.moderationBusy||!this.room||this.connecting||this.reconnecting||
        this.controls?.isGuest||this.controls?.requestStatus==='PENDING')return;
-    this.moderationBusy=true;
+    this.moderationBusy=true;this.controlsMutation=true;this.controlsRevision++;
     this.service.requestToJoin(this.event.id).pipe(timeout(10000),takeUntil(this.destroy$),
-      finalize(()=>this.moderationBusy=false)).subscribe({
-      next:()=>this.refreshInteractions(),
+      finalize(()=>{
+        this.moderationBusy=false;this.controlsMutation=false;this.refreshInteractions();
+      })).subscribe({
+      next:()=>{},
       error:()=>this.error='Não foi possível enviar o pedido para participar.'
     });
   }
   decideGuest(request:PersonalLiveGuestRequest,approve:boolean):void {
     if(!this.event.canManage||this.moderationBusy)return;
-    this.moderationBusy=true;
+    this.moderationBusy=true;this.controlsMutation=true;this.controlsRevision++;
     this.service.decideGuest(this.event.id,request.id,approve).pipe(timeout(10000),takeUntil(this.destroy$),
-      finalize(()=>this.moderationBusy=false)).subscribe({
-      next:()=>this.refreshInteractions(),
+      finalize(()=>{
+        this.moderationBusy=false;this.controlsMutation=false;this.refreshInteractions();
+      })).subscribe({
+      next:()=>{},
       error:()=>this.error='Não foi possível responder ao pedido.'
     });
   }
   removeGuest():void {
     if(!this.event.canManage||this.moderationBusy)return;
-    this.moderationBusy=true;
+    this.moderationBusy=true;this.controlsMutation=true;this.controlsRevision++;
     this.service.removeGuest(this.event.id).pipe(timeout(10000),takeUntil(this.destroy$),
-      finalize(()=>this.moderationBusy=false)).subscribe({
-      next:()=>this.refreshInteractions(),
+      finalize(()=>{
+        this.moderationBusy=false;this.controlsMutation=false;this.refreshInteractions();
+      })).subscribe({
+      next:()=>{},
       error:()=>this.error='Não foi possível retirar o convidado.'
     });
   }
