@@ -114,9 +114,9 @@
     }
 
     @if (personalLiveRoom; as event) {
-      <div class="feed-confirm-backdrop" (click)="closePersonalLiveRoom()">
-        <div (click)="$event.stopPropagation()">
-          <app-personal-live-room [event]="event" (closed)="closePersonalLiveRoom()"></app-personal-live-room>
+      <div class="feed-confirm-backdrop" role="presentation">
+        <div>
+          <app-personal-live-room [event]="event" (closed)="closePersonalLiveRoom($event)"></app-personal-live-room>
         </div>
       </div>
     }
