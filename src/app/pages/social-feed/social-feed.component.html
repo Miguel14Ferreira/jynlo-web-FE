@@ -49,14 +49,38 @@
       </button>
       @if (managedLiveCommunities.length) {
         <div class="feed-entry-live-action">
-          <a [routerLink]="['/menu/communities']"
-             [queryParams]="{ community: managedLiveCommunities[0].id, tab: 'feed' }">
+          <button type="button" (click)="openLiveComposer()">
             <span aria-hidden="true">●</span> Iniciar direto
-          </a>
+          </button>
           <small>Disponível nas tuas comunidades</small>
         </div>
       }
     </section>
+
+    @if (liveComposerOpen) {
+      <div class="feed-confirm-backdrop" (click)="closeLiveComposer()">
+        <section class="feed-confirm-dialog feed-live-dialog" role="dialog" aria-modal="true"
+          aria-label="Iniciar transmissão em direto" (click)="$event.stopPropagation()">
+          <h3>Iniciar direto na Jynlo</h3>
+          <p>Escolhe a comunidade. O direto só será iniciado depois de confirmares e entrares na sala.</p>
+          <label for="feed-live-community">Comunidade</label>
+          <select id="feed-live-community" [(ngModel)]="liveCommunityId" [disabled]="liveBusy">
+            @for (community of managedLiveCommunities; track community.id) {
+              <option [ngValue]="community.id">{{ community.name }}</option>
+            }
+          </select>
+          <label for="feed-live-title">Título do direto</label>
+          <input id="feed-live-title" [(ngModel)]="liveTitle" maxlength="90" [disabled]="liveBusy"
+                 placeholder="Ex.: Treino de futebol">
+          @if (liveStartError) { <p role="alert">{{ liveStartError }}</p> }
+          <div class="feed-confirm-actions">
+            <button type="button" [disabled]="liveBusy" (click)="closeLiveComposer()">Cancelar</button>
+            <button type="button" [disabled]="liveBusy || !liveTitle.trim()"
+              (click)="startLiveFromFeed()">{{ liveBusy ? 'A iniciar…' : 'Iniciar transmissão' }}</button>
+          </div>
+        </section>
+      </div>
+    }
 
     @if (pendingDeletePost; as postToDelete) {
       <div class="feed-confirm-backdrop" (click)="cancelDeletePost()">
