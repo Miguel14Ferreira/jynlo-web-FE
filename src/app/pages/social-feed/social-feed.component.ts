@@ -215,6 +215,25 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   likersError = false;
   likerPreview: Record<number, string> = {};
   likersPrivacySavingId: number | null = null;
+  postComposerOpen = false;
+  postComposerPrivacy = 'PUBLIC';
+  postComposerTagAi = false;
+
+  openPostComposer(): void {
+    this.postComposerOpen = true;
+  }
+
+  closePostComposer(): void {
+    if (this.posting) return;
+    // Closing the overlay never discards a draft or any uploaded photos.
+    this.postComposerOpen = false;
+  }
+
+  @HostListener('document:keydown.escape')
+  closePostComposerOnEscape(): void {
+    if (this.postComposerOpen) this.closePostComposer();
+  }
+
   postContent = '';
   postLocation = '';
   postImageFile?: File;
@@ -671,6 +690,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
           this.selectedSessionId = null;
           this.postGameSessionId = null;
           this.newSessionShareId = null;
+          this.postComposerOpen = false;
         },
         error: (error: unknown) => {
           if (error instanceof HttpErrorResponse) {
