@@ -99,9 +99,55 @@
         [placeholder]="'feed.sharePlaceholder' | t"></textarea>
       <p class="composer-caption-optional">Descrição opcional — podes publicar apenas fotografias ou vídeos.</p>
       <label class="composer-place-label" for="feed-post-location">Localização (opcional)</label>
-      <input id="feed-post-location" class="composer-place-input" type="text"
-        [(ngModel)]="postLocation" maxlength="160" autocomplete="off"
-        [disabled]="posting" placeholder="Ex.: Campo de futebol de Benfica, Lisboa">
+      <div class="composer-location-search">
+        <input id="feed-post-location" class="composer-place-input" type="search"
+               [(ngModel)]="postLocation" (ngModelChange)="onPostLocationQuery($event)"
+               maxlength="160" autocomplete="off" [disabled]="posting"
+               aria-controls="post-location-results" [attr.aria-expanded]="postLocationOpen"
+               placeholder="Pesquisar recinto ou cidade (ex.: Benfica)">
+        @if (postLocationOpen) {
+          <div id="post-location-results" class="composer-location-results">
+            @if (postLocationLoading) { <p role="status">A procurar recintos…</p> }
+            @for (place of postLocationSuggestions; track place.id) {
+              <button type="button" (click)="selectPostLocation(place)">
+                <span aria-hidden="true">📍</span>
+                <span><strong>{{ place.name }}</strong><small>{{ place.city }} @if (place.address) { · {{ place.address }} }</small></span>
+              </button>
+            }
+            @if (!postLocationLoading && !postLocationSuggestions.length) {
+              <p>Sem recintos encontrados. Podes escrever uma localização livre.</p>
+            }
+            @if (postLocationError) { <p role="alert">{{ postLocationError }}</p> }
+          </div>
+        }
+      </div>
+      <button type="button" class="composer-tag-trigger"
+              [attr.aria-expanded]="postTagSearchOpen"
+              [disabled]="posting" (click)="openPostTagSearch()">
+        <span aria-hidden="true">@</span> Identificar pessoas
+      </button>
+      @if (postTagSearchOpen) {
+        <div class="composer-tag-picker">
+          <label for="post-tag-query">Pesquisar perfil da Jynlo</label>
+          <input id="post-tag-query" type="search" [(ngModel)]="postTagQuery"
+                 (ngModelChange)="searchPostTags($event)" autocomplete="off"
+                 placeholder="Nome ou utilizador">
+          @if (postTagSearchLoading) { <p>A procurar perfis…</p> }
+          @for (profile of postTagSuggestions; track profile.username) {
+            <button type="button" (click)="tagPostProfile(profile)">
+              @if (suggestedProfileImage(profile); as avatar) {
+                <img [src]="avatar" alt="">
+              } @else {
+                <span class="tag-avatar-fallback">@</span>
+              }
+              <span><strong>{{ profile.fullName || profile.nickname || profile.username }}</strong><small>&#64;{{ profile.username }}</small></span>
+            </button>
+          }
+          @if (!postTagSearchLoading && !postTagSuggestions.length) {
+            <p>Não foram encontrados perfis.</p>
+          }
+        </div>
+      }
 
       @if (postImagePreview || postVideoPreview || postGallery.length) {
         <div class="composer-media" [class.composer-media--single]="postImagePreview || postVideoPreview || postGallery.length === 1"
