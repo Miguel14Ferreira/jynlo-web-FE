@@ -39,7 +39,7 @@
         </button>
       }
       @if (!loading && !mineLoading && storyGroups.length === 0) {
-        <p class="stories-empty">Ainda não há Stories. Partilha o teu primeiro momento!</p>
+        <p class="stories-empty">{{ 'stories.empty' | t }}</p>
       }
       @if ((loading || mineLoading) && storyGroups.length === 0) {
         <p class="stories-empty" role="status">{{ 'stories.loading' | t }}</p>
