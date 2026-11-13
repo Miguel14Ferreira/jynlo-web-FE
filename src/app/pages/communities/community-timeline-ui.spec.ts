@@ -75,7 +75,7 @@ describe('Community feed/chat UI state isolation', () => {
   });
 
   it('expands the selected community photo, navigates the full album and closes on Escape', () => {
-    component.communityPostMediaIndex = {};
+    Object.assign(component, { communityPostMediaIndex: {} });
     component.communityExpandedMedia = [];
     component.communityExpandedMediaIndex = 0;
     const entry = { ...message('POST'), id: 51, imageUrl: '/media/first.jpg',
