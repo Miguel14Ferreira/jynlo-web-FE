@@ -13,6 +13,10 @@ export class SocialStoriesService {
     return this.http.get<SocialStory[]>(this.url);
   }
 
+  profile(username: string): Observable<SocialStory[]> {
+    return this.http.get<SocialStory[]>(this.url+'/profile/'+encodeURIComponent(username));
+  }
+
   mine(): Observable<SocialStory[]> {
     return this.http.get<SocialStory[]>(this.url + '/mine');
   }
