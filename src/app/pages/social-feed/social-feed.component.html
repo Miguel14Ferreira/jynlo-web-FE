@@ -708,7 +708,12 @@
                 <div class="author-copy">
                   <strong>{{ item.authorDisplayName }}</strong>
                   <span>@{{ item.authorUsername }} · {{ isPostedToday(item.createdAt) ? 'Hoje' : (item.createdAt | date:'dd/MM/yyyy') }} {{ item.createdAt | date:'HH:mm' }}</span>
-                  @if (item.location) { <span class="feed-post-place">📍 {{ item.location }}</span> }
+                  @if (item.location) {
+                    <a class="feed-post-place" [href]="'https://www.google.com/maps/search/?api=1&query=' + encodeLocation(item.location)"
+                      target="_blank" rel="noopener noreferrer" [attr.aria-label]="'Ver ' + item.location + ' no mapa'">
+                      📍 {{ item.location }}
+                    </a>
+                  }
                 </div>
               </a>
 
