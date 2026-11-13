@@ -17,6 +17,27 @@
 
     <app-social-stories></app-social-stories>
 
+    @if (managedLiveCommunities.length) {
+      <section class="feed-live-create" aria-label="Transmitir em direto nas tuas comunidades">
+        <div class="feed-live-create-heading">
+          <span class="feed-live-create-dot" aria-hidden="true"></span>
+          <div>
+            <strong>Faz um direto na Jynlo</strong>
+            <p>Transmite um jogo, treino ou momento desportivo para a tua comunidade.</p>
+          </div>
+        </div>
+        <div class="feed-live-create-links">
+          @for (community of managedLiveCommunities; track community.id) {
+            <a [routerLink]="['/menu/communities']"
+               [queryParams]="{ community: community.id, tab: 'feed' }"
+               [attr.aria-label]="'Gerir direto da comunidade ' + community.name">
+              <span aria-hidden="true">●</span> {{ community.name }} — abrir diretos
+            </a>
+          }
+        </div>
+      </section>
+    }
+
     @if (publicLiveEvents.length) {
       <section class="feed-live-community" aria-label="Transmissões em direto das comunidades">
         <div class="feed-live-heading"><strong><span aria-hidden="true">●</span> Em direto na Jynlo</strong>
