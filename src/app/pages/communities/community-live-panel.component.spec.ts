@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
+import { Track } from 'livekit-client';
 import { CommunityLivePanelComponent } from './community-live-panel.component';
 import { CommunityLiveService, CommunityLiveEvent } from '../../services/community-live.service';
 
@@ -41,6 +42,25 @@ describe('Community broadcast panel', () => {
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('.live-panel')?.hasAttribute('hidden')).toBeTrue();
     expect(live.list).not.toHaveBeenCalled();
+    fixture.destroy();
+  });
+
+  it('mutes visual-only remote video to support mobile autoplay without silencing separate audio', () => {
+    const fixture=TestBed.createComponent(CommunityLivePanelComponent);
+    fixture.componentRef.setInput('communityId', 7);
+    fixture.detectChanges();
+    const c=fixture.componentInstance;
+    const stage=document.createElement('div');
+    (c as any).stageElement=stage;
+    const video=document.createElement('video');
+    const attach=jasmine.createSpy('attach').and.returnValue(video);
+    (c as any).attach({kind:Track.Kind.Video,attach});
+    expect(attach).toHaveBeenCalledTimes(1);
+    expect(video.muted).toBeTrue();
+    expect(video.getAttribute('playsinline')).toBe('');
+    expect(stage.contains(video)).toBeTrue();
+    c.leave();
+    expect(stage.contains(video)).toBeFalse();
     fixture.destroy();
   });
 
