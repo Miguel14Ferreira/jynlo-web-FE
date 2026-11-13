@@ -344,7 +344,8 @@
       @if (recentlyHiddenFeedEntry) {
         <div class="feed-hide-feedback" role="status">
           <span>{{ 'feed.hiddenOnlyForYou' | t }}</span>
-          <button type="button" (click)="undoHideFromMyFeed()">{{ 'common.undo' | t }}</button>
+          <button type="button" [disabled]="hidingFeedPostId !== null"
+                  (click)="undoHideFromMyFeed()">{{ 'common.undo' | t }}</button>
         </div>
       }
       <div class="feed-list">
@@ -373,6 +374,7 @@
 
               <button type="button"
                 class="feed-hide-post jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small"
+                [disabled]="hidingFeedPostId !== null"
                 (click)="hideFromMyFeed(item)"
                 [attr.aria-label]="'feed.hideFromMyFeed' | t">
                 {{ 'feed.hideFromMyFeed' | t }}
