@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
-import { firstValueFrom, interval, Subscription, timeout, finalize } from 'rxjs';
+import { firstValueFrom, interval, Subscription, timeout, finalize, Subject, takeUntil } from 'rxjs';
 import { Room, RoomEvent, RemoteTrack, Track } from 'livekit-client';
 import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
   PersonalLiveControls, PersonalLiveGuestRequest } from '../../services/personal-live.service';
@@ -151,6 +151,8 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   @Output() closed=new EventEmitter<void>();
   @ViewChild('stage') stage?:ElementRef<HTMLElement>;
   private readonly service=inject(PersonalLiveService);
+  private readonly destroy$=new Subject<void>();
+  private closing=false;
   private heartbeats?:Subscription;
   private interactionPoll?:Subscription;
   private rejoining=false;
@@ -180,12 +182,12 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   }
 
   async connect():Promise<void> {
-    if (this.room || this.connecting || this.destroyed) return;
+    if (this.room || this.connecting || this.destroyed || this.closing) return;
     this.connecting=true;this.connectionStatus='A ligar à transmissão…';this.error='';
     let next:Room|null=null;
     try {
       const credentials=await firstValueFrom(this.service.join(this.event.id).pipe(timeout(12000)));
-      if (this.destroyed) return;
+      if (this.destroyed || this.closing) return;
       next=new Room({adaptiveStream:true,dynacast:true});
       const activeRoom=next;
       activeRoom.on(RoomEvent.TrackSubscribed,(track:RemoteTrack)=>{
@@ -210,51 +212,66 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       });
       this.room=activeRoom;
       await activeRoom.connect(credentials.serverUrl,credentials.token);
-      if (this.destroyed) {await activeRoom.disconnect();return;}
+      if (this.destroyed || this.closing || this.room!==activeRoom) {
+        await activeRoom.disconnect();return;
+      }
       this.countParticipants();
       this.role=credentials.role;
       this.connecting=false;
       if (credentials.role==='HOST' || credentials.role==='GUEST') {
-        if (credentials.role==='HOST') this.heartbeats=interval(20000).subscribe(()=>
-          this.service.heartbeat(this.event.id).pipe(timeout(10000)).subscribe({
-            error:()=>{this.error='O direto terminou ou a ligação ao servidor falhou.';this.leave();}
-          }));
-        // Device permissions are independent: microphone failures must not
-        // hide the controls or leave the room stuck in 'connecting'.
-        this.deviceBusy=true;
-        try {
-          await activeRoom.localParticipant.setCameraEnabled(true);
-          this.cameraOn=true;
-        } catch {
-          this.error='Não foi possível ativar a câmara. Podes tentar novamente nos controlos.';
+        if (credentials.role==='HOST') {
+          this.heartbeats?.unsubscribe();
+          this.heartbeats=interval(20000).pipe(takeUntil(this.destroy$)).subscribe(()=>
+            this.service.heartbeat(this.event.id).pipe(
+              timeout(10000),takeUntil(this.destroy$)
+            ).subscribe({
+              error:()=>{if(!this.destroyed&&!this.closing) {
+                this.error='O direto terminou ou a ligação ao servidor falhou.';
+                this.leave();
+              }}
+            }));
         }
-        try {
-          await activeRoom.localParticipant.setMicrophoneEnabled(true);
-          this.micOn=true;
-        } catch {
-          this.error='Não foi possível ativar o microfone. Podes tentar novamente nos controlos.';
-        } finally {
-          this.deviceBusy=false;
+        // A newly admitted guest must choose when to activate their devices.
+        // Hosts retain the existing auto-start behaviour for their broadcasts.
+        if (credentials.role==='HOST') {
+          this.deviceBusy=true;
+          try {
+            await activeRoom.localParticipant.setCameraEnabled(true);
+            if(this.room===activeRoom&&!this.destroyed)this.cameraOn=true;
+          } catch {
+            this.error='Não foi possível ativar a câmara. Podes tentar novamente nos controlos.';
+          }
+          try {
+            if(this.room===activeRoom&&!this.destroyed) {
+              await activeRoom.localParticipant.setMicrophoneEnabled(true);
+              if(this.room===activeRoom&&!this.destroyed)this.micOn=true;
+            }
+          } catch {
+            this.error='Não foi possível ativar o microfone. Podes tentar novamente nos controlos.';
+          } finally {
+            this.deviceBusy=false;
+          }
         }
       }
     } catch {
       if (next) await next.disconnect().catch(()=>{});
       if (this.room===next) this.room=null;
-      this.error='Não foi possível entrar no direto. Verifica a ligação e as permissões.';
+      if(!this.destroyed&&!this.closing)
+        this.error='Não foi possível entrar no direto. Verifica a ligação e as permissões.';
     } finally {this.connecting=false;}
   }
   private messagesLoading=false;
   private controlsLoading=false;
 
   refreshInteractions():void {
-    if(this.destroyed)return;
+    if(this.destroyed||this.closing)return;
     // Polling runs every three seconds, while a request may take ten.
     // Never overlap polls of the same resource: an older response could
     // otherwise overwrite fresh chat messages or guest permissions.
     if(!this.messagesLoading){
       this.messagesLoading=true;
       this.service.messages(this.event.id).pipe(
-        timeout(10000),finalize(()=>this.messagesLoading=false)
+        timeout(10000),takeUntil(this.destroy$),finalize(()=>this.messagesLoading=false)
       ).subscribe({
         next:entries=>{if(!this.destroyed)this.messages=entries;},
         error:()=>{}
@@ -263,7 +280,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     if(!this.controlsLoading){
       this.controlsLoading=true;
       this.service.controls(this.event.id).pipe(
-        timeout(10000),finalize(()=>this.controlsLoading=false)
+        timeout(10000),takeUntil(this.destroy$),finalize(()=>this.controlsLoading=false)
       ).subscribe({
         next:state=>{
           if(this.destroyed)return;
@@ -277,15 +294,18 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     }
   }
   private async reconnectRole():Promise<void> {
-    if(this.rejoining)return;
+    if(this.rejoining||this.destroyed||this.closing)return;
     this.rejoining=true;
+    this.heartbeats?.unsubscribe();this.heartbeats=undefined;
     const current=this.room;this.room=null;
+    this.role='VIEWER';
     this.cameraOn=false;this.micOn=false;
     for(const el of this.attached)el.remove();
     this.attached=[];
-    if(current)await current.disconnect().catch(()=>{});
-    this.rejoining=false;
-    if(!this.destroyed)await this.connect();
+    try {
+      if(current)await current.disconnect().catch(()=>{});
+      if(!this.destroyed&&!this.closing)await this.connect();
+    } finally {this.rejoining=false;}
   }
   isViewerMuted(username:string):boolean {
     return !!this.controls?.mutedUsernames.some(
@@ -296,7 +316,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     if(!content||this.sending||!this.room||content.length>500||
        (!this.event.canManage && (!this.controls?.chatEnabled || this.controls.mutedByHost)))return;
     this.sending=true;this.error='';
-    this.service.sendMessage(this.event.id,content).pipe(timeout(10000),
+    this.service.sendMessage(this.event.id,content).pipe(timeout(10000),takeUntil(this.destroy$),
       finalize(()=>this.sending=false)).subscribe({
       next:()=>{this.draft='';this.refreshInteractions();},
       error:()=>{this.error='Não foi possível enviar a mensagem. Verifica se o chat está ativo.';}
@@ -305,7 +325,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   toggleChat():void {
     if(!this.event.canManage||!this.controls||this.moderationBusy)return;
     this.moderationBusy=true;
-    this.service.setChatEnabled(this.event.id,!this.controls.chatEnabled).pipe(timeout(10000),
+    this.service.setChatEnabled(this.event.id,!this.controls.chatEnabled).pipe(timeout(10000),takeUntil(this.destroy$),
       finalize(()=>this.moderationBusy=false)).subscribe({
       next:state=>this.controls=state,
       error:()=>this.error='Não foi possível alterar a moderação do chat.'
@@ -314,7 +334,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   toggleViewerMute(username:string,muted:boolean):void {
     if(!this.event.canManage||this.moderationBusy)return;
     this.moderationBusy=true;
-    this.service.muteViewer(this.event.id,username,muted).pipe(timeout(10000),
+    this.service.muteViewer(this.event.id,username,muted).pipe(timeout(10000),takeUntil(this.destroy$),
       finalize(()=>this.moderationBusy=false)).subscribe({
       next:state=>this.controls=state,
       error:()=>this.error='Não foi possível alterar o silêncio do espectador.'
@@ -324,7 +344,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     if(this.event.canManage||this.moderationBusy||!this.room||
        this.controls?.isGuest||this.controls?.requestStatus==='PENDING')return;
     this.moderationBusy=true;
-    this.service.requestToJoin(this.event.id).pipe(timeout(10000),
+    this.service.requestToJoin(this.event.id).pipe(timeout(10000),takeUntil(this.destroy$),
       finalize(()=>this.moderationBusy=false)).subscribe({
       next:()=>this.refreshInteractions(),
       error:()=>this.error='Não foi possível enviar o pedido para participar.'
@@ -333,7 +353,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   decideGuest(request:PersonalLiveGuestRequest,approve:boolean):void {
     if(!this.event.canManage||this.moderationBusy)return;
     this.moderationBusy=true;
-    this.service.decideGuest(this.event.id,request.id,approve).pipe(timeout(10000),
+    this.service.decideGuest(this.event.id,request.id,approve).pipe(timeout(10000),takeUntil(this.destroy$),
       finalize(()=>this.moderationBusy=false)).subscribe({
       next:()=>this.refreshInteractions(),
       error:()=>this.error='Não foi possível responder ao pedido.'
@@ -342,7 +362,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   removeGuest():void {
     if(!this.event.canManage||this.moderationBusy)return;
     this.moderationBusy=true;
-    this.service.removeGuest(this.event.id).pipe(timeout(10000),
+    this.service.removeGuest(this.event.id).pipe(timeout(10000),takeUntil(this.destroy$),
       finalize(()=>this.moderationBusy=false)).subscribe({
       next:()=>this.refreshInteractions(),
       error:()=>this.error='Não foi possível retirar o convidado.'
@@ -358,8 +378,8 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     if(element instanceof HTMLVideoElement && this.stage?.nativeElement) {
       this.stage.nativeElement.appendChild(element);
       this.attached.push(element);
-    } else if (element instanceof HTMLAudioElement) {
-      document.body.appendChild(element);
+    } else if (element instanceof HTMLAudioElement && this.stage?.nativeElement) {
+      this.stage.nativeElement.appendChild(element);
       this.attached.push(element);
     }
   }
@@ -399,9 +419,13 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     });
   }
   leave():void {
+    if(this.closing)return;
+    this.closing=true;
     this.heartbeats?.unsubscribe();this.heartbeats=undefined;
     this.interactionPoll?.unsubscribe();this.interactionPoll=undefined;
+    this.destroy$.next();
     const active=this.room;this.room=null;
+    this.role='VIEWER';
     if(active)void active.disconnect();
     for(const el of this.attached)el.remove();
     this.attached=[];
@@ -409,7 +433,8 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy():void {
     this.destroyed=true;
-    if(this.event?.canManage && !this.ended) {
+    this.destroy$.next();this.destroy$.complete();
+    if(this.event?.canManage && !this.ended && !this.ending) {
       // A host closing the window must not leave a stream orphaned.
       this.service.end(this.event.id).pipe(timeout(10000)).subscribe({error:()=>{}});
     }
