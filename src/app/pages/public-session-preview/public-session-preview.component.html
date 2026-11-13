@@ -9,6 +9,24 @@
       }
     </header>
 
+    @if (!loading && session && !mobileAppBannerDismissed && nativeAppUrl()) {
+      <aside class="native-app-banner" aria-label="Abrir a Jynlo no telemóvel">
+        <span class="native-app-banner-icon" aria-hidden="true">J</span>
+        <div class="native-app-banner-copy">
+          <strong>Jynlo</strong>
+          <span>Já tens a aplicação? Abre o detalhe da sessão na Jynlo.</span>
+          @if (guestToken) {
+            <small>Para confirmar presença sem conta, continua nesta página e mantém o convite.</small>
+          }
+        </div>
+        <a class="native-app-banner-open" [href]="nativeAppUrl()" aria-label="Abrir detalhe da sessão na aplicação Jynlo">
+          Abrir app
+        </a>
+        <button class="native-app-banner-dismiss" type="button" aria-label="Dispensar sugestão da app"
+                (click)="mobileAppBannerDismissed = true">×</button>
+      </aside>
+    }
+
     @if (loading) {
       <div class="state-card" role="status">{{ 'publicSession.loading' | t }}</div>
     } @else if (session; as details) {
