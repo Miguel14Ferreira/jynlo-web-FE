@@ -911,6 +911,48 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       });
   }
 
+  editingCommunityPostId: number | null = null;
+  editingCommunityPostText = '';
+  savingCommunityPostId: number | null = null;
+
+  startCommunityPostEdit(entry: CommunityTimelineEntry): void {
+    if (entry.kind !== 'POST' || entry.username.toLowerCase() !== this.currentUsername?.toLowerCase()
+        || this.savingCommunityPostId !== null) return;
+    this.editingCommunityPostId = entry.id;
+    this.editingCommunityPostText = entry.body || '';
+    this.timelineError = '';
+  }
+
+  cancelCommunityPostEdit(): void {
+    if (this.savingCommunityPostId !== null) return;
+    this.editingCommunityPostId = null;
+  }
+
+  saveCommunityPostEdit(entry: CommunityTimelineEntry): void {
+    if (!this.selected || entry.communityId !== this.selected.id
+        || this.editingCommunityPostId !== entry.id
+        || entry.username.toLowerCase() !== this.currentUsername?.toLowerCase()
+        || this.savingCommunityPostId !== null) return;
+    const content = this.editingCommunityPostText.trim();
+    if (content.length > 1000 || (!content && !this.communityPostMedia(entry).length)) {
+      this.timelineError = 'A publicação deve ter uma descrição ou pelo menos um anexo.';
+      return;
+    }
+    this.savingCommunityPostId = entry.id;
+    this.timelineError = '';
+    this.timelineService.editPost(this.selected.id, entry.id, content)
+      .pipe(timeout(10_000), finalize(() => this.savingCommunityPostId = null))
+      .subscribe({
+        next: updated => {
+          if (this.selected?.id !== entry.communityId) return;
+          entry.body = updated.body;
+          entry.editedAt = updated.editedAt;
+          this.editingCommunityPostId = null;
+        },
+        error: () => this.timelineError = 'Não foi possível guardar as alterações. A publicação original foi mantida.'
+      });
+  }
+
   deleteTimeline(entry: CommunityTimelineEntry): void {
     if (!this.selected || this.timelineDeletingId !== null ||
         entry.communityId !== this.selected.id || entry.kind !== this.timelineKind ||
