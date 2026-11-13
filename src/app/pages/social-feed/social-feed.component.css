@@ -1461,3 +1461,13 @@ h1 {
   .composer-media-item-footer { flex-wrap: wrap; }
   .composer-media-order { width: 100%; justify-content: flex-end; }
 }
+
+
+/* Edit published captions without obscuring the album or changing the post card. */
+.feed-post-edit { display: grid; gap: .55rem; padding: .85rem; margin: .75rem 0; border: 1px solid rgba(52,211,153,.3); border-radius: .85rem; background: rgba(4,27,35,.55); }
+.feed-post-edit label { color: #c5ece0; font-size: .84rem; font-weight: 700; }
+.feed-post-edit textarea,.feed-post-edit input { display: block; width: 100%; box-sizing: border-box; padding: .7rem; color: #f0fdfa; background: rgba(4,16,28,.8); border: 1px solid #547477; border-radius: .6rem; font: inherit; }
+.feed-post-edit textarea:focus-visible,.feed-post-edit input:focus-visible { outline: 2px solid #34d399; outline-offset: 2px; }
+.feed-post-edit small { color: #b5c9c6; }
+.feed-post-edit-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .55rem; }
+@media(max-width:520px) { .feed-post-edit-actions > button { flex: 1 1 135px; } }
