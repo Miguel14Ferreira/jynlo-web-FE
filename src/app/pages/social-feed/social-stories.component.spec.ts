@@ -296,6 +296,7 @@ describe('SocialStoriesComponent', () => {
     component.publish();
     expect(api.publish).toHaveBeenCalledWith(photo, '', null, {
       textPosition: 'bottom', textScale: 'medium', textStyle: 'pill',
+      textX: 50, textY: 74, textRotation: 0, textZoom: 1,
       altText: '', showTime: false,
       locationLabel: 'Campo de Benfica, Lisboa', taggedUsernames: 'ana'
     });
@@ -323,6 +324,7 @@ describe('SocialStoriesComponent', () => {
     component.publish();
     expect(api.publish).toHaveBeenCalledWith(jasmine.any(File), '', null, {
       textPosition: 'bottom', textScale: 'medium', textStyle: 'pill',
+      textX: 50, textY: 74, textRotation: 0, textZoom: 1,
       altText: 'Jogadores num campo de futebol', showTime: true, locationLabel: '', taggedUsernames: ''
     });
     expect(component.mineEntries[0].id).toBe(123);
@@ -351,12 +353,32 @@ describe('SocialStoriesComponent', () => {
     const dialog = fixture.nativeElement.querySelector('.story-composer[role="dialog"]') as HTMLElement;
     expect(dialog).not.toBeNull();
     expect(dialog.querySelector('.story-create-stage')).not.toBeNull();
-    expect(dialog.querySelector('.story-caption-overlay')?.textContent).toContain('Golo!');
-    expect(dialog.querySelector('.story-caption-overlay--center')).not.toBeNull();
-    expect(dialog.querySelector('.story-caption-overlay--large')).not.toBeNull();
-    expect(dialog.querySelector('.story-caption-overlay--plain')).not.toBeNull();
+    expect(dialog.querySelector('app-movable-text')?.textContent).toContain('Golo!');
+    expect(dialog.querySelector('app-movable-text .movable-text.plain')).not.toBeNull();
+    expect(dialog.querySelector('.story-drag-hint')?.textContent).toContain('Arrasta');
     expect(dialog.querySelector('.story-primary')).not.toBeNull();
     component.filePreview = null;
+  }));
+
+  it('publishes the exact dragged position, rotation and zoom from the editor', fakeAsync(() => {
+    fixture.detectChanges();
+    tick();
+    component.openComposer();
+    component.file = new File(['photo'], 'treino.jpg', {type:'image/jpeg'});
+    component.caption = 'Golo de bicicleta!';
+    component.storyTextPlacement = {x:32,y:41,rotation:38,scale:1.6};
+    api.publish.and.returnValue(of({...picture, id:350, caption:component.caption,
+      textX:32,textY:41,textRotation:38,textZoom:1.6}));
+    component.publish();
+    expect(api.publish).toHaveBeenCalledWith(jasmine.any(File), 'Golo de bicicleta!', null,
+      jasmine.objectContaining({textX:32,textY:41,textRotation:38,textZoom:1.6}));
+    expect(component.storyTextPlacement).toEqual({x:50,y:74,rotation:0,scale:1});
+    component.showStory(component.mineEntries[0]);
+    fixture.detectChanges();
+    const overlay = fixture.nativeElement.querySelector('.story-caption--free') as HTMLElement;
+    expect(overlay).not.toBeNull();
+    expect(overlay.style.transform).toContain('rotate(38deg)');
+    component.close();
   }));
 
   it('preserves the image and caption on a failed backend upload with useful explanation', fakeAsync(() => {
@@ -376,6 +398,7 @@ describe('SocialStoriesComponent', () => {
     fixture.detectChanges();
     expect(api.publish).toHaveBeenCalledWith(photo, 'Treino', null, {
       textPosition: 'top', textScale: 'small', textStyle: 'pill',
+      textX: 50, textY: 74, textRotation: 0, textZoom: 1,
       altText: '', showTime: false, locationLabel: '', taggedUsernames: ''
     });
     expect(component.composerOpen).toBeTrue();
