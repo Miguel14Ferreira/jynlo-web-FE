@@ -243,7 +243,6 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     if (this.postComposerOpen) this.closePostComposer();
   }
 
-  private readonly personalLiveService=inject(PersonalLiveService);
   liveMode: 'PERSONAL' | 'COMMUNITY' = 'PERSONAL';
   personalLiveEvents: PersonalLiveEvent[] = [];
   personalLiveRoom: PersonalLiveEvent | null = null;
@@ -251,6 +250,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   personalLiveError = '';
 
   refreshPersonalLive(): void {
+    if (!this.personalLiveService) return;
     this.personalLiveService.active().pipe(timeout(10000),
       catchError(() => of([] as PersonalLiveEvent[])), takeUntil(this.destroyed))
       .subscribe(events => {
@@ -302,6 +302,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.liveMode === 'PERSONAL') {
+      if (!this.personalLiveService) {this.liveStartError='Diretos indisponíveis.';return;}
       this.liveBusy=true;
       this.liveStartError='';
       this.personalLiveService.start(title).pipe(timeout(12000),
@@ -864,7 +865,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     @Optional() private communityGroupsService: CommunityGroupsService | null = null,
     @Optional() private realtime: DirectChatRealtimeService | null = null,
     @Optional() private venueService: VenueService | null = null,
-    @Optional() private communityLiveService: CommunityLiveService | null = null
+    @Optional() private communityLiveService: CommunityLiveService | null = null,
+    @Optional() private personalLiveService: PersonalLiveService | null = null
   ) {
     this.authenticationService.isLoggedIn();
     this.currentUsername = this.authenticationService.loggedInPerfilname || '';
