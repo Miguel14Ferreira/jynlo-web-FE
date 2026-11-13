@@ -17,6 +17,17 @@
 
     <app-social-stories></app-social-stories>
 
+    @if (personalLiveNotice) {
+      <section class="feed-live-community" role="status" aria-label="Estado da transmissão">
+        <div class="feed-live-heading">
+          <strong>Direto terminado</strong>
+          <span>{{personalLiveNotice}}</span>
+        </div>
+        <button type="button" class="jynlo-premium-btn jynlo-premium-btn--quiet"
+          (click)="personalLiveNotice=''">Fechar aviso</button>
+      </section>
+    }
+
     @if (personalLiveError && !personalLiveRoom) {
       <section class="feed-live-community" aria-label="Estado do direto partilhado" role="status">
         <div class="feed-live-heading">
