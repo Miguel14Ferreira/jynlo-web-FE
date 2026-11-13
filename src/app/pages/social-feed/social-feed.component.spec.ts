@@ -16,6 +16,7 @@ import { FeedItem } from '../model/feed-item';
 import { appTranslate as t, preloadEnglishTranslations } from '../../i18n/i18n.service';
 import { TEST_IMPORTS, TEST_PROVIDERS } from '../../testing/test-providers';
 import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/venue-sports-badges.component';
+import { MovableTextComponent } from './movable-text.component';
 
 @Component({ selector: 'app-social-stories', standalone: true, template: '' })
 class StubStoriesComponent {}
@@ -60,7 +61,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
 
     await TestBed.configureTestingModule({
       declarations: [SocialFeedComponent],
-      imports: [...TEST_IMPORTS, StubStoriesComponent, VenueSportsBadgesComponent],
+      imports: [...TEST_IMPORTS, StubStoriesComponent, VenueSportsBadgesComponent, MovableTextComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: AuthenticationService, useValue: auth },
@@ -79,6 +80,39 @@ describe('SocialFeedComponent discovery sidebar', () => {
     fixture = TestBed.createComponent(SocialFeedComponent);
     component = fixture.componentInstance;
   });
+
+  it('offers only accepted friends for publication mentions and never exposes discovered profiles', fakeAsync(() => {
+    community.friends.and.returnValue(of([
+      { username:'ana', fullName:'Ana Silva', nickname:null, profilePicUrl:null, chatBlocked:false, blockedByMe:false },
+      { username:'bruno', fullName:'Bruno', nickname:null, profilePicUrl:null, chatBlocked:true, blockedByMe:false },
+      { username:'carla', fullName:'Carla', nickname:null, profilePicUrl:null, chatBlocked:false, blockedByMe:true }
+    ]));
+    fixture.detectChanges();
+    tick(351);
+    const initialDiscoveryCalls = community.discoverProfiles.calls.count();
+    component.openPostTagSearch();
+    expect(community.friends).toHaveBeenCalled();
+    expect(community.discoverProfiles.calls.count()).toBe(initialDiscoveryCalls);
+    expect(component.postTagSuggestions.map(p => p.username)).toEqual(['ana']);
+    component.searchPostTags('bruno');
+    expect(component.postTagSuggestions).toEqual([]);
+    component.searchPostTags('ana');
+    component.tagPostProfile(component.postTagSuggestions[0]);
+    expect(component.postContent).toContain('@ana');
+    expect(component.postTagSearchOpen).toBeFalse();
+    fixture.destroy();
+  }));
+
+  it('allows Benfica as a location independently of sports venue search', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    component.postLocation = ' Benfica ';
+    component.postLocationOpen = true;
+    component.selectPostPlaceName();
+    expect(component.postLocation).toBe('Benfica');
+    expect(component.postLocationOpen).toBeFalse();
+    fixture.destroy();
+  }));
 
   it('reconciles live like and comment counts without replacing the current feed card', fakeAsync(() => {
     const post: FeedItem = {
