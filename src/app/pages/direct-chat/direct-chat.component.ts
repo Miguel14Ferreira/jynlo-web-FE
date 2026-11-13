@@ -24,6 +24,94 @@ import { readPastedChatImage } from '../../shared/chat-clipboard-image';
 export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messageList') messageList?: ElementRef<HTMLElement>;
   @ViewChild('composerTextarea') composerTextarea?: ElementRef<HTMLTextAreaElement>;
+  // Search stays inside the authorized conversation already loaded in memory.
+  searchOpen = false;
+  searchQuery = '';
+  searchMatchIndex = 0;
+  private pendingSearchScrollId: number | null = null;
+  private pendingSearchFocus = false;
+  searchError = '';
+
+  get searchMatches(): DirectChatMessage[] {
+    const term = this.searchQuery.trim().toLocaleLowerCase();
+    if (!term) return [];
+    return this.messages.filter(message =>
+      [message.text, message.attachmentName, message.replyToText,
+       ...(message.attachments || []).map(asset => asset.filename)]
+        .some(value => typeof value === 'string' && value.toLocaleLowerCase().includes(term)));
+  }
+
+  toggleMessageSearch(): void {
+    this.searchOpen = !this.searchOpen;
+    this.searchError = '';
+    if (!this.searchOpen) {
+      this.searchQuery = '';
+      this.pendingSearchScrollId = null;
+      this.searchMatchIndex = 0;
+    } else {
+      this.pendingSearchFocus = true;
+    }
+  }
+
+  onMessageSearchChange(): void {
+    this.searchMatchIndex = 0;
+    this.searchError = '';
+    this.queueCurrentSearchResult();
+  }
+
+  navigateSearch(direction: -1 | 1): void {
+    const matches = this.searchMatches;
+    if (!matches.length) return;
+    this.searchMatchIndex = (this.searchMatchIndex + direction + matches.length) % matches.length;
+    this.queueCurrentSearchResult();
+  }
+
+  onMessageSearchKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.navigateSearch(event.shiftKey ? -1 : 1);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      this.toggleMessageSearch();
+    }
+  }
+
+  private queueCurrentSearchResult(): void {
+    const matches = this.searchMatches;
+    if (!matches.length) return;
+    const selected = matches[Math.min(this.searchMatchIndex, matches.length - 1)];
+    this.pendingSearchScrollId = selected.id;
+  }
+
+  isActiveSearchMatch(message: DirectChatMessage): boolean {
+    const matches = this.searchMatches;
+    return this.searchOpen && matches.length > 0
+      && matches[Math.min(this.searchMatchIndex, matches.length - 1)] === message;
+  }
+
+  jumpToQuotedMessage(message: DirectChatMessage): void {
+    if (!message.replyToMessageId) return;
+    const previous = this.messages.find(item => item.id === message.replyToMessageId);
+    if (!previous) {
+      this.searchOpen = true;
+      this.searchQuery = message.replyToText || '';
+      this.onMessageSearchChange();
+      this.searchError = 'A mensagem original pode estar no histórico anterior. Carrega mensagens antigas para a encontrar.';
+      return;
+    }
+    this.searchOpen = true;
+    this.searchQuery = message.replyToText || previous.text || '';
+    this.onMessageSearchChange();
+    const matches = this.searchMatches;
+    const index = matches.findIndex(item => item.id === previous.id);
+    if (index >= 0) {
+      this.searchMatchIndex = index;
+      this.queueCurrentSearchResult();
+    } else {
+      this.pendingSearchScrollId = previous.id;
+    }
+  }
+
   recipientUsername = '';
   currentUsername: string | null = null;
   messages: DirectChatMessage[] = [];
@@ -148,7 +236,25 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   ngAfterViewChecked(): void {
     const el = this.messageList?.nativeElement;
+    if (this.pendingSearchFocus) {
+      const input = document.getElementById('direct-chat-search-input') as HTMLInputElement | null;
+      if (input) {
+        input.focus({ preventScroll: true });
+        this.pendingSearchFocus = false;
+      }
+    }
     if (!el) return;
+    if (this.pendingSearchScrollId !== null) {
+      const id = this.pendingSearchScrollId;
+      const target = el.querySelector('[data-direct-message-id="' + id + '"]') as HTMLElement | null;
+      if (target) {
+        target.scrollIntoView({ block: 'center', behavior: 'auto' });
+        this.pendingSearchScrollId = null;
+        this.restoreScroll = undefined;
+        this.scrollToBottomRequested = false;
+        return;
+      }
+    }
     if (this.restoreScroll) {
       el.scrollTop = this.restoreScroll.top + el.scrollHeight - this.restoreScroll.height;
       this.restoreScroll = undefined;
@@ -271,6 +377,12 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
           this.historyPage = nextPage;
           this.hasOlderMessages = !page.last;
           if (before) this.restoreScroll = before;
+          if (this.searchOpen && this.searchQuery.trim()) {
+            const matches = this.searchMatches;
+            if (matches.length) {
+              this.searchMatchIndex = Math.min(this.searchMatchIndex, matches.length - 1);
+            }
+          }
         },
         error: error => {
           this.actionError = this.errorFrom(error, t('feedback.chat.loadError'));
