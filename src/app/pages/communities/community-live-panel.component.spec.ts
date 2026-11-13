@@ -81,6 +81,8 @@ describe('Community broadcast panel', () => {
     }];
     component.goLiveNow();
     expect(live.schedule).not.toHaveBeenCalled();
+    expect(component.hasActiveBroadcast).toBeTrue();
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('.live-go-now')?.hasAttribute('disabled')).toBeTrue();
     fixture.destroy();
