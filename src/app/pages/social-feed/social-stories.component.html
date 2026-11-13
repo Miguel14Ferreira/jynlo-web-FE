@@ -171,19 +171,16 @@
                      placeholder="Benfica, Lisboa, Portugal ou um recinto">
               @if (storyLocationSearchOpen) {
                 <div class="story-discovery-results" aria-label="Sugestões de locais">
-                  <button type="button" class="story-place-freeform" (click)="chooseStoryPlaceName()">
-                    <strong>📍 {{ storyLocation.trim() }}</strong>
-                    <small>Usar esta localização (bairro, cidade ou outro lugar)</small>
-                  </button>
-                  @if (storyLocationSearching) { <p>A pesquisar recintos…</p> }
-                  @for (venue of storyVenueResults; track venue.id) {
-                    <button type="button" (click)="chooseStoryLocation(venue)">
-                      <strong>{{ venue.name }}</strong> <small>{{ venue.city }}</small>
+                  @if (storyLocationSearching) { <p>A pesquisar locais reais…</p> }
+                  @for (place of storyRealPlaces; track place.id) {
+                    <button type="button" (click)="chooseStoryRealPlace(place)">
+                      <strong>📍 {{ place.label }}</strong><small>{{ place.subtitle }}</small>
                     </button>
                   }
-                  @if (!storyLocationSearching && !storyVenueResults.length) {
-                    <p>Sem recintos encontrados. Podes escolher o lugar escrito acima.</p>
+                  @if (!storyLocationSearching && !storyRealPlaces.length) {
+                    <p>Não foram encontrados locais. Experimenta escrever o nome completo.</p>
                   }
+                  <small>© OpenStreetMap contributors · Photon</small>
                 </div>
               }
               <button type="button" class="story-tag-toggle" (click)="toggleStoryTags()"
