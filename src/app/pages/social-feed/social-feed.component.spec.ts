@@ -38,7 +38,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     }
     socialChanged = new Subject<void>();
     realtimeConnected = new BehaviorSubject<boolean>(false);
-    feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'postById', 'createPost', 'createPostAlbum', 'editPost', 'editPostWithMedia', 'deletePost', 'hidePost', 'restoreHiddenPost', 'hiddenPosts', 'likers']);
+    feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'postById', 'createPost', 'createPostAlbum', 'editPost', 'editPostWithMedia', 'deletePost', 'hidePost', 'restoreHiddenPost', 'hiddenPosts', 'likers', 'editComment', 'likeComment', 'unlikeComment']);
     feed.feed.and.returnValue(of([]));
     feed.likers.and.returnValue(of([]));
     feed.deletePost.and.returnValue(of(undefined));
@@ -49,11 +49,12 @@ describe('SocialFeedComponent discovery sidebar', () => {
     sessions.discover.and.returnValue(of([]));
     sessions.mine.and.returnValue(of({ created: [], joined: [], waitlisted: [] }));
     community = jasmine.createSpyObj<CommunityService>(
-      'CommunityService', ['discoverProfiles', 'publicProfile', 'friends']
+      'CommunityService', ['discoverProfiles', 'publicProfile', 'friends', 'searchProfiles']
     );
     community.discoverProfiles.and.returnValue(of([]));
     community.publicProfile.and.returnValue(of(null as any));
     community.friends.and.returnValue(of([]));
+    community.searchProfiles.and.returnValue(of([]));
     groups = jasmine.createSpyObj<CommunityGroupsService>('CommunityGroupsService', ['mine']);
     groups.mine.and.returnValue(of([]));
     const auth = jasmine.createSpyObj<AuthenticationService>('AuthenticationService', ['isLoggedIn']);
@@ -105,25 +106,26 @@ describe('SocialFeedComponent discovery sidebar', () => {
     fixture.destroy();
   }));
 
-  it('offers only accepted friends for publication mentions and never exposes discovered profiles', fakeAsync(() => {
-    community.friends.and.returnValue(of([
-      { username:'ana', fullName:'Ana Silva', nickname:null, profilePicUrl:null, chatBlocked:false, blockedByMe:false },
-      { username:'bruno', fullName:'Bruno', nickname:null, profilePicUrl:null, chatBlocked:true, blockedByMe:false },
-      { username:'carla', fullName:'Carla', nickname:null, profilePicUrl:null, chatBlocked:false, blockedByMe:true }
-    ]));
+  it('searches public mentions only after 3 characters and never loads the entire directory', fakeAsync(() => {
+    community.searchProfiles.and.returnValue(of([
+      {username:'ana',fullName:'Ana Silva',nickname:null,profilePicUrl:null},
+      {username:'bruno',fullName:'Bruno',nickname:null,profilePicUrl:null}
+    ] as any));
     fixture.detectChanges();
     tick(351);
-    const initialDiscoveryCalls = community.discoverProfiles.calls.count();
     component.openPostTagSearch();
-    expect(community.friends).toHaveBeenCalled();
-    expect(community.discoverProfiles.calls.count()).toBe(initialDiscoveryCalls);
-    expect(component.postTagSuggestions.map(p => p.username)).toEqual(['ana']);
-    component.searchPostTags('bruno');
     expect(component.postTagSuggestions).toEqual([]);
+    expect(community.searchProfiles).not.toHaveBeenCalled();
+    component.searchPostTags('an');
+    tick(400);
+    expect(community.searchProfiles).not.toHaveBeenCalled();
     component.searchPostTags('ana');
+    tick(400);
+    expect(community.searchProfiles).toHaveBeenCalledOnceWith('ana');
+    expect(component.postTagSuggestions.map(p=>p.username)).toEqual(['ana','bruno']);
     component.tagPostProfile(component.postTagSuggestions[0]);
     expect(component.postContent).toContain('@ana');
-    expect(component.postTagSearchOpen).toBeFalse();
+    expect(community.discoverProfiles).toHaveBeenCalled();
     fixture.destroy();
   }));
 
