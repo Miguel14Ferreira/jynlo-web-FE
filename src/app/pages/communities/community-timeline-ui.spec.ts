@@ -38,7 +38,9 @@ describe('Community feed/chat UI state isolation', () => {
     sendPostWithMedia = jasmine.createSpy('sendPostWithMedia').and.returnValue(of(message('POST')));
     sendPostAlbum = jasmine.createSpy('sendPostAlbum').and.returnValue(of(message('POST')));
     remove = jasmine.createSpy('delete').and.returnValue(of(undefined));
-    (component as any).timelineService = { list, send, sendPostWithMedia, sendPostAlbum, editPost: jasmine.createSpy('editPost'), delete: remove };
+    (component as any).timelineService = { list, send, sendPostWithMedia, sendPostAlbum,
+      olderMessages: jasmine.createSpy('olderMessages').and.returnValue(of([])),
+      editPost: jasmine.createSpy('editPost'), delete: remove };
     (component as any).router = { navigate: jasmine.createSpy('navigate').and.returnValue(Promise.resolve(true)) };
     spyOn(component, 'canManage').and.returnValue(true);
   });
@@ -62,6 +64,24 @@ describe('Community feed/chat UI state isolation', () => {
     expect(component.communityChatSearchIndex).toBe(0);
     component.toggleCommunityChatSearch();
     expect(component.communityChatSearchMatches).toEqual([]);
+  });
+
+  it('continues searching through older member-authorized community chat messages', () => {
+    component.activeTab = 'chat';
+    component.chatOlderLoading = false;
+    component.chatHasOlder = true;
+    component.timelineEntries = [{ ...message('CHAT'), id: 55, body: 'Mais recente' }];
+    component.toggleCommunityChatSearch();
+    component.communityChatSearchQuery = 'histórico';
+    component.updateCommunityChatSearch();
+    expect(component.communityChatSearchMatches.length).toBe(0);
+    const older = (component as any).timelineService.olderMessages as jasmine.Spy;
+    older.and.returnValue(of([{ ...message('CHAT'), id: 5, body: 'Histórico antigo' }]));
+    component.loadOlderCommunityMessages();
+    expect(older).toHaveBeenCalledWith(7, 55);
+    expect(component.communityChatSearchMatches.map(entry => entry.id)).toEqual([5]);
+    expect(component.communityChatSearchIndex).toBe(0);
+    expect(component.chatHasOlder).toBeFalse();
   });
 
   it('jumps to a community reply and supports keyboard search without sending', () => {
