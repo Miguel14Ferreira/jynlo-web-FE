@@ -505,6 +505,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
         || !this.chatHasOlder || !this.timelineEntries.length) return;
     const communityId = this.selected.id;
     const oldestId = this.timelineEntries[0].id;
+    const matchesBeforeLoad = this.communityChatSearchOpen ? this.communityChatSearchMatches.length : 0;
     const el = this.communityChatLog?.nativeElement;
     const before = el ? { top: el.scrollTop, height: el.scrollHeight } : undefined;
     this.chatOlderLoading = true;
@@ -519,6 +520,11 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
           this.timelineEntries = this.sortChatEntries([...byId.values()]);
           this.chatHasOlder = entries.length === 60;
           if (before) this.chatScrollRestore = before;
+          if (this.communityChatSearchOpen && matchesBeforeLoad === 0
+              && this.communityChatSearchMatches.length) {
+            this.communityChatSearchIndex = 0;
+            this.queueCommunityChatSearchScroll();
+          }
         },
         error: () => {
           if (this.selected?.id === communityId) this.chatOlderError = t('chat.olderError');
