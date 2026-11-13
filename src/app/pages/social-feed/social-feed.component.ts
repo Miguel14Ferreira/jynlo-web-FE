@@ -21,6 +21,7 @@ import { CommunityProfile } from '../model/community-profile';
 import { VenueService } from '../../services/venue.service';
 import { Venue } from '../model/venue';
 import { addTextToPhoto } from './social-photo-text';
+import { TextPlacement } from './movable-text.component';
 import { CommunityLiveEvent, CommunityLiveService } from '../../services/community-live.service';
 
 @Component({
@@ -325,6 +326,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   photoTextDraft = '';
   photoTextPosition: 'top' | 'center' | 'bottom' = 'center';
   photoTextInk: 'white' | 'yellow' | 'black' = 'white';
+  photoTextPlacement: TextPlacement = {x:50,y:50,rotation:0,scale:1};
+  photoTextPreview = '';
   photoTextSaving = false;
   photoTextError = '';
 
@@ -333,12 +336,17 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     if (!file || !file.type.startsWith('image/') || this.posting) return;
     this.photoTextEditorIndex = index;
     this.photoTextDraft = '';
+    this.photoTextPlacement = {x:50,y:50,rotation:0,scale:1};
+    if (this.photoTextPreview) URL.revokeObjectURL(this.photoTextPreview);
+    this.photoTextPreview = URL.createObjectURL(file);
     this.photoTextError = '';
   }
 
   closePhotoTextEditor(): void {
     if (this.photoTextSaving) return;
     this.photoTextEditorIndex = null;
+    if (this.photoTextPreview) URL.revokeObjectURL(this.photoTextPreview);
+    this.photoTextPreview = '';
     this.photoTextError = '';
   }
 
@@ -351,7 +359,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.photoTextError = '';
     try {
       const image = await addTextToPhoto(input, this.photoTextDraft,
-        this.photoTextPosition, this.photoTextInk);
+        this.photoTextPosition, this.photoTextInk, this.photoTextPlacement);
       if (index === -1) {
         this.postImageFile = image;
         const reader = new FileReader();
@@ -362,6 +370,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         this.postGallery[index] = { file: image, url: URL.createObjectURL(image) };
       }
       this.photoTextEditorIndex = null;
+      if (this.photoTextPreview) URL.revokeObjectURL(this.photoTextPreview);
+      this.photoTextPreview = '';
     } catch (error) {
       this.photoTextError = error instanceof Error ? error.message : 'Não foi possível editar a fotografia.';
     } finally {
