@@ -361,15 +361,8 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         this.countParticipants();
       });
       activeRoom.on(RoomEvent.Disconnected,()=>{
-        // A role downgrade can invalidate the guest's LiveKit token. Keep the
-        // viewer open, but avoid an infinite reconnect loop on ordinary outages.
         if(this.room!==activeRoom || this.rejoining || this.destroyed || this.closing)return;
-        if(this.role==='GUEST' && this.controls?.isGuest===false)
-          void this.reconnectRole();
-        else {
-          this.error='A ligação ao direto foi interrompida.';
-          void this.disconnectForRetry(activeRoom);
-        }
+        void this.recoverDisconnectedRoom(activeRoom);
       });
       this.room=activeRoom;
       await activeRoom.connect(credentials.serverUrl,credentials.token);
@@ -444,6 +437,31 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         this.error='Não foi possível entrar no direto. Verifica a ligação e as permissões.';
       }
     } finally {this.connecting=false;}
+  }
+  private async recoverDisconnectedRoom(activeRoom:Room):Promise<void> {
+    if(this.room!==activeRoom || this.destroyed || this.closing)return;
+    const previousRole=this.role;
+    this.error='A ligação ao direto foi interrompida. A verificar o estado da transmissão…';
+    await this.disconnectForRetry(activeRoom);
+    if(this.destroyed || this.closing)return;
+    try {
+      const state=await firstValueFrom(this.service.controls(this.event.id).pipe(timeout(10000)));
+      if(this.destroyed || this.closing || this.room)return;
+      this.controls=state;
+      // A host may revoke a guest's publishing token, requiring a fresh
+      // spectator token. Rejoin only on an actual role change, not on an outage.
+      if(previousRole==='GUEST' && !state.isGuest){
+        this.lastRoleChangeAt=Date.now();
+        await this.connect();
+      } else {
+        this.error='A ligação ao direto foi interrompida. Podes tentar entrar novamente.';
+      }
+    } catch(error:unknown) {
+      if(this.destroyed || this.closing || this.room)return;
+      if(error instanceof HttpErrorResponse && (error.status===404 || error.status===410))
+        this.handleBroadcastEnded();
+      else this.error='A ligação ao direto foi interrompida. Podes tentar entrar novamente.';
+    }
   }
   private handleBroadcastEnded():void {
     if(this.destroyed || this.closing || this.ended)return;
