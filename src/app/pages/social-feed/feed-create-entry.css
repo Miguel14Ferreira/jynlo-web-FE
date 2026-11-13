@@ -127,3 +127,18 @@
 .feed-live-entry small { color: #b8d1d4; }
 .feed-live-entry a { display: inline-flex; padding: .55rem .7rem; min-height: 38px; align-items: center; border-radius: .55rem; text-decoration: none; font-weight: 700; color: #e6fffb; background: #137569; }
 .feed-live-entry a:hover { background: #0f766e; }
+
+
+/* Facebook-like publishing flow: text first, media below, no empty side column. */
+.feed-page .composer.feed-post-dialog-open .composer-create-stage {
+  display: flex; flex-direction: column; align-items: stretch; gap: .65rem;
+  grid-template-columns: none; max-width: 100%;
+}
+.feed-page .composer.feed-post-dialog-open .composer-create-stage > textarea {
+  width: 100%; min-height: 92px; resize: vertical;
+}
+.feed-page .composer.feed-post-dialog-open .composer-media { width: 100%; max-height: 52dvh; }
+.feed-page .composer.feed-post-dialog-open .composer-media-frame { max-height: min(46dvh,440px); }
+.feed-page .composer.feed-post-dialog-open .composer-media-frame img {
+  max-width: 100%; max-height: min(46dvh,440px); object-fit: contain;
+}
