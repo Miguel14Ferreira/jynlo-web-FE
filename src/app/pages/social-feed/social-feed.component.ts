@@ -550,20 +550,26 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       });
   }
 
+  get canPublishPost(): boolean {
+    return !this.posting && !!(this.postContent.trim() || this.postImageFile
+      || this.postVideoFile || this.postGallery.length);
+  }
+
   publish(): void {
     const content = this.postContent.trim();
-    if (!content || this.posting) {
-      return;
-    }
+    if (!this.canPublishPost) return;
 
     this.posting = true;
     this.actionError = '';
 
-    const send = this.postGallery.length
+    const singleGalleryFile = this.postGallery.length === 1 ? this.postGallery[0].file : undefined;
+    const send = this.postGallery.length > 1
       ? this.feedService.createPostAlbum(content, this.postGallery.map(item => item.file),
           this.selectedSessionId ?? undefined)
-      : this.feedService.createPost(content, this.postImageFile,
-          this.selectedSessionId ?? undefined, this.postVideoFile);
+      : this.feedService.createPost(content,
+          singleGalleryFile?.type.startsWith('image/') ? singleGalleryFile : this.postImageFile,
+          this.selectedSessionId ?? undefined,
+          singleGalleryFile?.type.startsWith('video/') ? singleGalleryFile : this.postVideoFile);
     send.pipe(
         timeout(this.postGallery.length || this.postVideoFile ? 90_000 : 30_000),
         finalize(() => this.posting = false)
