@@ -17,6 +17,21 @@
 
     <app-social-stories></app-social-stories>
 
+    @if (personalLiveEvents.length) {
+      <section class="feed-live-community" aria-label="Diretos pessoais na Jynlo">
+        <div class="feed-live-heading"><strong>● Diretos das pessoas</strong>
+          <span>Transmissões sem comunidade</span></div>
+        <div class="feed-live-list">
+          @for (stream of personalLiveEvents; track stream.id) {
+            <article class="feed-live-entry">
+              <div><strong>{{ stream.title }}</strong><small>@{{ stream.username }}</small></div>
+              <button type="button" (click)="watchPersonalLive(stream)">Assistir ao direto</button>
+            </article>
+          }
+        </div>
+      </section>
+    }
+
     @if (publicLiveEvents.length) {
       <section class="feed-live-community" aria-label="Transmissões em direto das comunidades">
         <div class="feed-live-heading"><strong><span aria-hidden="true">●</span> Em direto na Jynlo</strong>
@@ -47,14 +62,12 @@
         </span>
         <span>Em que estás a pensar? Partilha um momento desportivo...</span>
       </button>
-      @if (managedLiveCommunities.length) {
-        <div class="feed-entry-live-action">
+      <div class="feed-entry-live-action">
           <button type="button" (click)="openLiveComposer()">
             <span aria-hidden="true">●</span> Iniciar direto
           </button>
-          <small>Disponível nas tuas comunidades</small>
+          <small>Em direto para a Jynlo — sem comunidade obrigatória</small>
         </div>
-      }
     </section>
 
     @if (postShareFriendsOpen) {
@@ -89,18 +102,35 @@
       </div>
     }
 
+    @if (personalLiveRoom; as event) {
+      <div class="feed-confirm-backdrop" (click)="closePersonalLiveRoom()">
+        <div (click)="$event.stopPropagation()">
+          <app-personal-live-room [event]="event" (closed)="closePersonalLiveRoom()"></app-personal-live-room>
+        </div>
+      </div>
+    }
+
     @if (liveComposerOpen) {
       <div class="feed-confirm-backdrop" (click)="closeLiveComposer()">
         <section class="feed-confirm-dialog feed-live-dialog" role="dialog" aria-modal="true"
           aria-label="Iniciar transmissão em direto" (click)="$event.stopPropagation()">
           <h3>Iniciar direto na Jynlo</h3>
-          <p>Escolhe a comunidade. O direto só será iniciado depois de confirmares e entrares na sala.</p>
-          <label for="feed-live-community">Comunidade</label>
-          <select id="feed-live-community" [(ngModel)]="liveCommunityId" [disabled]="liveBusy">
-            @for (community of managedLiveCommunities; track community.id) {
-              <option [ngValue]="community.id">{{ community.name }}</option>
+          <p>Podes transmitir diretamente no teu perfil ou escolher uma comunidade.</p>
+          <label for="feed-live-mode">Onde queres transmitir?</label>
+          <select id="feed-live-mode" [(ngModel)]="liveMode" [disabled]="liveBusy">
+            <option value="PERSONAL">No meu perfil · direto pessoal</option>
+            @if (managedLiveCommunities.length) {
+              <option value="COMMUNITY">Numa comunidade</option>
             }
           </select>
+          @if (liveMode === 'COMMUNITY') {
+            <label for="feed-live-community">Comunidade</label>
+            <select id="feed-live-community" [(ngModel)]="liveCommunityId" [disabled]="liveBusy">
+              @for (community of managedLiveCommunities; track community.id) {
+                <option [ngValue]="community.id">{{ community.name }}</option>
+              }
+            </select>
+          }
           <label for="feed-live-title">Título do direto</label>
           <input id="feed-live-title" [(ngModel)]="liveTitle" maxlength="90" [disabled]="liveBusy"
                  placeholder="Ex.: Treino de futebol">
