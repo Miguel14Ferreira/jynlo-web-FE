@@ -81,6 +81,9 @@
                 } @else {
                   <img [src]="filePreview" [alt]="'stories.preview' | t">
                 }
+                @if (storyShowTime) {
+                  <span class="story-time-overlay">{{ storyEditorTime | date:'HH:mm' }}</span>
+                }
                 @if (captionPreview) {
                   <p class="story-caption-overlay"
                      [class.story-caption-overlay--plain]="storyTextStyle === 'plain'"
@@ -145,6 +148,16 @@
                 </select>
               </label>
             </div>
+            <div class="story-extra-options">
+              <label class="story-time-toggle">
+                <input type="checkbox" [(ngModel)]="storyShowTime" [disabled]="uploading">
+                <span>Mostrar hora na Story</span>
+              </label>
+              <label for="storyAltText">Texto alternativo (acessibilidade)</label>
+              <textarea id="storyAltText" [(ngModel)]="storyAltText" [disabled]="uploading"
+                        maxlength="350" rows="2"
+                        placeholder="Descreve a imagem para quem utiliza leitores de ecrã"></textarea>
+            </div>
             <small class="story-create-hint">A imagem aparece inteira na pré-visualização. A legenda é opcional.</small>
             @if (publishError) {
               <p class="story-publish-error" role="alert">{{ publishError }}</p>
@@ -176,7 +189,7 @@
               [muted]="muted" (loadedmetadata)="onVideoReady($event)"
               (timeupdate)="onVideoTime($event)" (ended)="next()" (error)="onMediaError()"></video>
           } @else {
-            <img [src]="media(story.mediaUrl)" [alt]="story.caption || ('stories.photo' | t)"
+            <img [src]="media(story.mediaUrl)" [alt]="story.altText || story.caption || ('stories.photo' | t)"
               (load)="onImageLoaded()" (error)="onMediaError()">
           }
           @if (mediaFailed) {
@@ -193,6 +206,9 @@
             (click)="previous()"></button>
           <button class="story-tap-target story-tap-right" type="button"
             [attr.aria-label]="'stories.next' | t" (click)="next()"></button>
+          @if (story.showTime) {
+            <span class="story-time-overlay story-viewer-time">{{ story.createdAt | date:'HH:mm' }}</span>
+          }
           @if (story.caption) {
             <p class="story-caption"
                [class.story-caption--plain]="story.textStyle === 'plain'"
