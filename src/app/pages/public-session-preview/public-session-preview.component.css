@@ -462,3 +462,45 @@ h1 {
  .session-main, .join-panel { padding: .75rem; }
  .guest-rsvp { padding: .7rem; }
 }
+
+/* Native-app suggestion only on phone screens; guest RSVP remains on the web. */
+.native-app-banner { display:none; }
+@media (max-width:767px) {
+ .native-app-banner {
+   display:grid;grid-template-columns:42px minmax(0,1fr) auto 28px;
+   gap:10px;align-items:center;
+   margin:0 0 14px;padding:12px 10px;
+   border:1px solid rgba(77,231,197,.4);border-radius:14px;
+   background:linear-gradient(120deg,#0d3941,#102d3d);
+   color:#f2fffb;box-sizing:border-box;min-width:0;
+ }
+ .native-app-banner-icon {
+   display:grid;place-items:center;width:42px;height:42px;
+   border:1px solid #29e2c5;border-radius:12px;
+   background:#062a36;color:#29e2c5;font-size:27px;font-weight:900;
+ }
+ .native-app-banner-copy{min-width:0;display:grid;gap:3px}
+ .native-app-banner-copy strong{font-size:14px}
+ .native-app-banner-copy span,.native-app-banner-copy small{
+   font-size:11px;line-height:1.4;color:#c4e6e7;
+ }
+ .native-app-banner-copy small{color:#9df1db}
+ .native-app-banner-open{
+   display:inline-flex;align-items:center;justify-content:center;
+   min-height:42px;padding:8px 12px;border-radius:10px;
+   background:#35dcc1;color:#092a34;font-size:12px;font-weight:800;
+   text-decoration:none;white-space:nowrap;
+ }
+ .native-app-banner-dismiss {
+   display:grid;place-items:center;width:28px;height:42px;
+   background:transparent;border:0;color:#cce3e6;
+   font:inherit;font-size:23px;cursor:pointer;
+ }
+ .native-app-banner :is(a,button):focus-visible{outline:2px solid #fff;outline-offset:2px}
+}
+@media (max-width:390px) {
+ .native-app-banner{grid-template-columns:38px minmax(0,1fr) 28px}
+ .native-app-banner-icon{width:38px;height:38px}
+ .native-app-banner-open{grid-column:2;grid-row:2;justify-self:start}
+ .native-app-banner-dismiss{grid-column:3;grid-row:1}
+}
