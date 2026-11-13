@@ -142,11 +142,11 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));
       gap:8px;align-content:center;overflow:hidden;padding:8px;box-sizing:border-box}
     .personal-live-stage:fullscreen{align-content:center;padding:20px;background:#020b14}
-    .personal-live-stage .live-video-tile{min-width:0;position:relative;display:grid;
+    :host ::ng-deep .personal-live-stage .live-video-tile{min-width:0;position:relative;display:grid;
       place-items:center;overflow:hidden;background:#0a2531;border-radius:10px;min-height:180px}
-    .personal-live-stage .live-video-tile video{width:100%;height:100%;max-height:64dvh;
+    :host ::ng-deep .personal-live-stage .live-video-tile video{width:100%;height:100%;max-height:64dvh;
       object-fit:contain;display:block}
-    .personal-live-stage .live-video-label{position:absolute;left:9px;bottom:9px;
+    :host ::ng-deep .personal-live-stage .live-video-label{position:absolute;left:9px;bottom:9px;
       padding:5px 9px;border-radius:20px;background:#051b27d9;color:white;font-size:.76rem}
     .live-stage-empty{display:grid;gap:.5rem;text-align:center;justify-items:center;
       padding:2rem;color:#adc9cf}
@@ -198,7 +198,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   @ViewChild('stage') stage?:ElementRef<HTMLElement>;
   private readonly service=inject(PersonalLiveService);
   private readonly destroy$=new Subject<void>();
-  private closing=false;
+  closing=false;
   private heartbeats?:Subscription;
   private interactionPoll?:Subscription;
   private rejoining=false;
@@ -475,6 +475,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       this.attached.push(element);
       this.videoTiles++;
     } else if(element instanceof HTMLAudioElement && !isLocal) {
+      element.style.display='none';
       stage.appendChild(element);
       this.attached.push(element);
     } else element.remove();
