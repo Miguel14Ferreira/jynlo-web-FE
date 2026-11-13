@@ -54,6 +54,41 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   storyTextScale: 'small' | 'medium' | 'large' = 'medium';
   storyTextPosition: 'top' | 'center' | 'bottom' = 'bottom';
   storyTextStyle: 'plain' | 'pill' = 'pill';
+  storyTextColor: 'white' | 'black' | 'yellow' | 'mint' | 'pink' | 'blue' = 'white';
+  storyTextBackground: 'dark' | 'light' | 'none' = 'dark';
+  storyTextFont: 'modern' | 'classic' | 'mono' = 'modern';
+
+  get storyTextColorCss(): string {
+    return {white:'#ffffff', black:'#020617', yellow:'#fef08a',
+      mint:'#5eead4', pink:'#f9a8d4', blue:'#93c5fd'}[this.storyTextColor];
+  }
+  get storyTextBackgroundCss(): string {
+    return this.storyTextBackground === 'none' ? 'transparent'
+      : this.storyTextBackground === 'light' ||
+        (this.storyTextBackground === 'dark' && this.storyTextColor === 'black')
+        ? 'rgba(255,255,255,.88)' : 'rgba(2,15,24,.8)';
+  }
+  get storyTextFontCss(): string {
+    return {modern:'system-ui,sans-serif', classic:'Georgia,serif',
+      mono:'monospace'}[this.storyTextFont];
+  }
+  storyViewTextColor(story: SocialStory): string {
+    return {white:'#ffffff', black:'#020617', yellow:'#fef08a',
+      mint:'#5eead4', pink:'#f9a8d4', blue:'#93c5fd'}[story.textColor || 'white'] || '#ffffff';
+  }
+  storyViewTextBackground(story: SocialStory): string {
+    if (story.textBackground === 'none' || story.textStyle === 'plain') return 'transparent';
+    return story.textBackground === 'light' ||
+      ((story.textBackground === 'dark' || !story.textBackground) && story.textColor === 'black')
+      ? 'rgba(255,255,255,.88)' : 'rgba(2,15,24,.8)';
+  }
+  storyViewTextFont(story: SocialStory): string {
+    return {modern:'system-ui,sans-serif',classic:'Georgia,serif',
+      mono:'monospace'}[story.textFont || 'modern'] || 'system-ui,sans-serif';
+  }
+  storyPlaceUrl(label: string): string {
+    return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(label);
+  }
   storyTextPlacement: TextPlacement = {x:50,y:74,rotation:0,scale:1};
   storyAltText = '';
   storyShowTime = false;
@@ -621,6 +656,9 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
       textY: this.storyTextPlacement.y,
       textRotation: this.storyTextPlacement.rotation,
       textZoom: this.storyTextPlacement.scale,
+      textColor: this.storyTextColor,
+      textBackground: this.storyTextBackground,
+      textFont: this.storyTextFont,
       altText: this.storyAltText.trim(),
       showTime: this.storyShowTime,
       locationLabel: this.storyLocation.trim(),
@@ -637,6 +675,9 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
         this.removeFile();
         this.caption = '';
         this.storyTextPlacement = {x:50,y:74,rotation:0,scale:1};
+        this.storyTextColor = 'white';
+        this.storyTextBackground = 'dark';
+        this.storyTextFont = 'modern';
         this.storyAltText = '';
         this.storyShowTime = false;
         this.storyLocation = '';
