@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, Optional, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { catchError, distinctUntilChanged, EMPTY, finalize, map, of, Subject, Subscription, takeUntil, timeout, switchMap, timer } from 'rxjs';
 
@@ -494,6 +494,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     private readonly changeDetector: ChangeDetectorRef,
     private readonly communities: CommunityGroupsService,
     private readonly route: ActivatedRoute,
+    private readonly router: Router,
     private readonly i18n: I18nService,
     @Optional() private readonly venues: VenueService | null = null,
     @Optional() private readonly profiles: CommunityService | null = null
@@ -650,6 +651,16 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     this.currentGroup = [];
     this.menuOpen = false;
     this.feedback = '';
+    // A shared-story permalink must not reopen an already dismissed viewer
+    // on browser refresh. Preserve unrelated Feed query parameters.
+    if (this.route.snapshot.queryParamMap.has('story')) {
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { story: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      });
+    }
     this.changeDetector.markForCheck();
   }
 
