@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { catchError, finalize, of, Subject, takeUntil, timeout } from 'rxjs';
 
 import { environment } from 'src/environment/environment';
@@ -43,6 +44,51 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   communityId = '';
   file: File | null = null;
   filePreview: string | null = null;
+  /** Keep the selected media in the editor after any failed POST. */
+  publishError = '';
+  storyTextScale: 'small' | 'medium' | 'large' = 'medium';
+  storyTextPosition: 'top' | 'center' | 'bottom' = 'bottom';
+  storyTextStyle: 'plain' | 'pill' = 'pill';
+  private readonly maxCaption = 180;
+
+  openComposer(): void {
+    this.composerOpen = true;
+    this.publishError = '';
+  }
+
+  closeComposer(): void {
+    if (this.uploading) return;
+    this.composerOpen = false;
+    this.publishError = '';
+  }
+
+  get captionPreview(): string {
+    return this.caption.trim();
+  }
+
+  toggleTextStyle(): void {
+    this.storyTextStyle = this.storyTextStyle === 'pill' ? 'plain' : 'pill';
+  }
+
+  changeTextPosition(): void {
+    this.storyTextPosition = this.storyTextPosition === 'bottom'
+      ? 'center' : this.storyTextPosition === 'center' ? 'top' : 'bottom';
+  }
+
+  private publishingErrorMessage(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 413) return 'O ficheiro é demasiado grande para enviar. Escolhe um mais pequeno.';
+      if (error.status === 401) return 'A tua sessão terminou. Inicia sessão antes de publicar.';
+      if (error.status === 403) return 'Não tens permissão para publicar nesta comunidade.';
+      if (error.status === 415) return 'Formato não suportado. Usa JPG, PNG, WebP, MP4 ou WebM.';
+      if (error.status === 400) return 'Este ficheiro não foi aceite. Experimenta uma imagem JPG/PNG diferente.';
+      if (error.status === 502 || error.status === 503 || error.status === 504 || error.status === 0)
+        return 'O servidor de imagens está temporariamente indisponível. A fotografia continua aqui para tentares novamente.';
+      if (error.status >= 500) return 'O servidor não conseguiu guardar a Story. O ficheiro foi mantido para repetires.';
+    }
+    return 'Não foi possível publicar. A fotografia continua selecionada; tenta novamente.';
+  }
+
   error = '';
   feedback = '';
   activeStory: SocialStory | null = null;
@@ -432,7 +478,9 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     this.removeFile();
     this.file = selected;
     this.filePreview = URL.createObjectURL(selected);
+    this.publishError = '';
     this.error = '';
+    this.changeDetector.markForCheck();
   }
 
   removeFile(): void {
@@ -447,6 +495,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     if (group !== null && !this.groups.some(item => item.id === group)) return;
     this.uploading = true;
     this.error = '';
+    this.publishError = '';
     this.stories.publish(this.file, this.caption, group).pipe(
       timeout(90000),
       finalize(() => this.uploading = false),
@@ -460,9 +509,14 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
         this.caption = '';
         this.communityId = '';
         this.composerOpen = false;
+        this.publishError = '';
         this.feedback = t('stories.published');
+        this.changeDetector.markForCheck();
       },
-      error: () => this.error = t('stories.publishFailed')
+      error: error => {
+        this.publishError = this.publishingErrorMessage(error);
+        this.changeDetector.markForCheck();
+      }
     });
   }
 
