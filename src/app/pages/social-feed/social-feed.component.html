@@ -673,7 +673,7 @@
               @if (item.type === 'POST' && item.authorUsername === currentUsername) {
                 <button type="button" class="jynlo-action jynlo-action--neutral"
                         [disabled]="savingPostId !== null" (click)="beginEditPost(item)"
-                        aria-label="Editar apenas descrição e localização">Editar descrição</button>
+                        aria-label="Editar descrição, localização e anexos">Editar publicação</button>
                 <button
                   type="button"
                   class="delete-post jynlo-action jynlo-action--danger jynlo-premium-btn jynlo-premium-btn--danger jynlo-premium-btn--small"
@@ -711,7 +711,35 @@
                   <label [attr.for]="'edit-post-location-' + item.postId">Localização (opcional)</label>
                   <input [id]="'edit-post-location-' + item.postId" maxlength="160"
                          [(ngModel)]="editingPostLocation" [disabled]="savingPostId !== null">
-                  <small>As fotografias e vídeos existentes são mantidos.</small>
+                  <div class="feed-edit-media-block">
+                    <strong>Fotografias e vídeos</strong>
+                    <p>Escolhe manter os anexos atuais, substituí-los ou removê-los.</p>
+                    @if (!editingPostReplaceMedia) {
+                      <small>Os anexos publicados serão mantidos.</small>
+                    } @else if (editingPostReplacementFiles.length) {
+                      <ul>
+                        @for (file of editingPostReplacementFiles; track $index) {
+                          <li>{{ file.name }} · {{ file.size / (1024 * 1024) | number:'1.1-1' }} MB</li>
+                        }
+                      </ul>
+                      <small>Os novos ficheiros substituem todos os anexos anteriores.</small>
+                    } @else {
+                      <small>Todos os anexos serão removidos ao guardar.</small>
+                    }
+                    <div class="feed-edit-media-actions">
+                      <label class="feed-edit-file-picker">
+                        Substituir anexos
+                        <input type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+                          multiple [disabled]="savingPostId !== null"
+                          (change)="selectEditPostMedia($event)">
+                      </label>
+                      <button type="button" [disabled]="savingPostId !== null"
+                        (click)="keepEditPostMedia()">Manter atuais</button>
+                      <button type="button" [disabled]="savingPostId !== null"
+                        (click)="removeEditPostMedia()">Remover anexos</button>
+                    </div>
+                    @if (editingPostMediaError) { <p role="alert">{{ editingPostMediaError }}</p> }
+                  </div>
                   <div class="feed-post-edit-actions">
                     <button type="button" class="jynlo-action jynlo-action--neutral"
                             [disabled]="savingPostId !== null" (click)="cancelEditPost()">Cancelar</button>
