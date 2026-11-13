@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, inject } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnChanges, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { catchError, finalize, of, timeout } from 'rxjs';
@@ -16,7 +16,7 @@ import { SocialFeedService } from '../../services/social-feed.service';
       <section class="post-viewer" role="dialog" aria-modal="true"
         aria-label="Publicação de {{post.authorDisplayName}}" (click)="$event.stopPropagation()">
         <button type="button" class="post-viewer-close" (click)="closed.emit()" aria-label="Fechar">×</button>
-        <div class="post-viewer-media">
+        <div class="post-viewer-media" (touchstart)="beginSwipe($event)" (touchend)="endSwipe($event)">
           @if (media.length) {
             @for (asset of media; track asset.url; let i=$index) {
               @if (i === index) {
@@ -130,6 +130,20 @@ export class ProfilePostViewerComponent implements OnChanges {
   @Output() closed=new EventEmitter<void>();
   private readonly feed=inject(SocialFeedService);
   index=0;
+  private swipeStartX:number|null=null;
+  @HostListener('document:keydown.escape')
+  onEscape():void {this.closed.emit();}
+  @HostListener('document:keydown.arrowright')
+  onArrowRight():void {this.change(1);}
+  @HostListener('document:keydown.arrowleft')
+  onArrowLeft():void {this.change(-1);}
+  beginSwipe(event:TouchEvent):void {this.swipeStartX=event.changedTouches[0]?.clientX??null;}
+  endSwipe(event:TouchEvent):void {
+    if(this.swipeStartX==null)return;
+    const dx=(event.changedTouches[0]?.clientX??this.swipeStartX)-this.swipeStartX;
+    if(Math.abs(dx)>48)this.change(dx<0?1:-1);
+    this.swipeStartX=null;
+  }
   comments:SocialComment[]=[];
   draft='';
   loading=false;
