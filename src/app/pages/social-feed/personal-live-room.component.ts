@@ -820,10 +820,12 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     const active=this.room;this.room=null;
     this.role='VIEWER';
-    if(active)void active.disconnect();
+    if(active)void active.disconnect().catch(()=>{});
     for(const el of [...this.attached])this.detachElement(el);
     this.attached=[];
     this.trackOwners.clear();
+    this.videoTiles=0;
+    this.participantCount=0;
     this.closed.emit(reason);
   }
   ngOnDestroy():void {
@@ -833,15 +835,21 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     this.screenOn=false;
     this.audioBlocked=false;
     this.destroy$.next();this.destroy$.complete();
-    if(this.event?.canManage && !this.ended && !this.ending) {
-      // A host closing the window must not leave a stream orphaned.
+    if(this.event?.canManage && !this.ended) {
+      // A pending end request can fail after navigation. Retry the idempotent
+      // server-side end operation on teardown to avoid orphaned broadcasts.
+      // The API may return "already ended" for a duplicate request.
       this.service.end(this.event.id).pipe(timeout(10000)).subscribe({error:()=>{}});
     }
     this.heartbeats?.unsubscribe();
     this.interactionPoll?.unsubscribe();
-    if(this.room)void this.room.disconnect();
+    const activeRoom=this.room;
+    this.room=null; // Ignore late LiveKit callbacks from a destroyed component.
+    if(activeRoom)void activeRoom.disconnect().catch(()=>{});
     for(const el of [...this.attached])this.detachElement(el);
     this.attached=[];
     this.trackOwners.clear();
+    this.videoTiles=0;
+    this.participantCount=0;
   }
 }
