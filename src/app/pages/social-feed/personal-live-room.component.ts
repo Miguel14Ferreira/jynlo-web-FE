@@ -304,7 +304,10 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
             publication.source===Track.Source.ScreenShare);
       });
       activeRoom.on(RoomEvent.TrackUnsubscribed,track=>{
-        for (const element of track.detach()) this.detachElement(element);
+        for (const element of track.detach()) {
+          if(this.room===activeRoom)this.detachElement(element);
+          else element.remove();
+        }
       });
       activeRoom.on(RoomEvent.LocalTrackPublished,publication=>{
         if (this.room!==activeRoom || !publication.track)return;
@@ -316,7 +319,10 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         }
       });
       activeRoom.on(RoomEvent.LocalTrackUnpublished,publication=>{
-        if (publication.track) for (const el of publication.track.detach()) this.detachElement(el);
+        if(publication.track)for(const el of publication.track.detach()){
+          if(this.room===activeRoom)this.detachElement(el);
+          else el.remove();
+        }
         if(this.room===activeRoom && publication.source===Track.Source.ScreenShare)
           this.screenOn=false;
       });
@@ -333,8 +339,11 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
           this.refreshInteractions();
         }
       });
-      activeRoom.on(RoomEvent.ParticipantConnected,()=>this.countParticipants());
+      activeRoom.on(RoomEvent.ParticipantConnected,()=>{
+        if(this.room===activeRoom)this.countParticipants();
+      });
       activeRoom.on(RoomEvent.ParticipantDisconnected,participant=>{
+        if(this.room!==activeRoom)return;
         // LiveKit may disconnect a participant before TrackUnsubscribed arrives.
         // Remove any media owned by that identity so no frozen tile remains.
         for(const [element,owner] of this.trackOwners)
@@ -342,14 +351,15 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         this.countParticipants();
       });
       activeRoom.on(RoomEvent.Disconnected,()=>{
-        // Ignore a late event from the previous connection when upgrading a
-        // viewer to a host-approved guest or revoking guest permissions.
+        // A role downgrade can invalidate the guest's LiveKit token. Keep the
+        // viewer open, but avoid an infinite reconnect loop on ordinary outages.
         if(this.room!==activeRoom || this.rejoining || this.destroyed || this.closing)return;
-        // The host can revoke guest permissions while the viewer is connected.
-        // Return the former guest to the room as an audience member rather than
-        // closing the viewer entirely on LiveKit's terminal disconnect event.
-        if(this.role==='GUEST')void this.reconnectRole();
-        else this.leave();
+        if(this.role==='GUEST' && this.controls?.isGuest===false)
+          void this.reconnectRole();
+        else {
+          this.error='A ligação ao direto foi interrompida.';
+          this.disconnectForRetry(activeRoom);
+        }
       });
       this.room=activeRoom;
       await activeRoom.connect(credentials.serverUrl,credentials.token);
@@ -392,14 +402,14 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
           this.deviceBusy=true;
           try {
             await activeRoom.localParticipant.setCameraEnabled(true);
-            if(this.room===activeRoom&&!this.destroyed)this.cameraOn=true;
+            if(this.room===activeRoom&&!this.destroyed&&!this.closing)this.cameraOn=true;
           } catch {
             this.error='Não foi possível ativar a câmara. Podes tentar novamente nos controlos.';
           }
           try {
-            if(this.room===activeRoom&&!this.destroyed) {
+            if(this.room===activeRoom&&!this.destroyed&&!this.closing) {
               await activeRoom.localParticipant.setMicrophoneEnabled(true);
-              if(this.room===activeRoom&&!this.destroyed)this.micOn=true;
+              if(this.room===activeRoom&&!this.destroyed&&!this.closing)this.micOn=true;
             }
           } catch {
             this.error='Não foi possível ativar o microfone. Podes tentar novamente nos controlos.';
@@ -409,13 +419,23 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         }
       }
     } catch {
-      // Invalidate the failed room *before* disconnecting it. Otherwise the
-      // LiveKit Disconnected callback mistakes a failed join for a closed live.
-      if (this.room===next) this.room=null;
-      if (next) await next.disconnect().catch(()=>{});
+      if(next && this.room===next)this.disconnectForRetry(next);
+      else if(next)await next.disconnect().catch(()=>{});
       if(!this.destroyed&&!this.closing)
         this.error='Não foi possível entrar no direto. Verifica a ligação e as permissões.';
     } finally {this.connecting=false;}
+  }
+  private disconnectForRetry(activeRoom:Room):void {
+    if(this.room!==activeRoom || this.destroyed || this.closing)return;
+    this.room=null;
+    this.reconnecting=false;
+    this.heartbeats?.unsubscribe();this.heartbeats=undefined;
+    this.cameraOn=false;this.micOn=false;this.screenOn=false;
+    this.role='VIEWER';
+    this.participantCount=0;
+    for(const element of [...this.attached])this.detachElement(element);
+    this.trackOwners.clear();
+    void activeRoom.disconnect().catch(()=>{});
   }
   private messagesLoading=false;
   private controlsLoading=false;
@@ -471,15 +491,9 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     if(this.rejoining||this.destroyed||this.closing)return;
     this.rejoining=true;
     this.controlsRevision++;
-    this.heartbeats?.unsubscribe();this.heartbeats=undefined;
-    const current=this.room;this.room=null;
-    this.role='VIEWER';
-    this.cameraOn=false;this.micOn=false;this.screenOn=false;
-    for(const el of [...this.attached])this.detachElement(el);
-    this.attached=[];
-    this.trackOwners.clear();
+    const current=this.room;
+    if(current)this.disconnectForRetry(current);
     try {
-      if(current)await current.disconnect().catch(()=>{});
       if(!this.destroyed&&!this.closing)await this.connect();
     } finally {this.rejoining=false;}
   }
