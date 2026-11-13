@@ -98,6 +98,8 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   private readonly realPlaceSearch = inject(RealPlaceSearchService);
   storyRealPlaces: RealPlace[] = [];
   storyLocationVerified = false;
+  storyLocationResolving = false;
+  private storyPlaceSessionToken = crypto.randomUUID();
   storyLocationSearchOpen = false;
   storyLocationSearching = false;
   private storyLocationSearchSerial = 0;
@@ -113,7 +115,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     this.storyLocationSearching = this.storyLocationSearchOpen;
     if (!this.storyLocationSearchOpen) return;
     this.storyLocationSearchSubscription = timer(400).pipe(
-      switchMap(() => this.realPlaceSearch.search(input).pipe(
+      switchMap(() => this.realPlaceSearch.search(input,this.storyPlaceSessionToken).pipe(
         timeout(8000), catchError(() => of([] as RealPlace[])))),
       takeUntil(this.destroyed)
     ).subscribe(places => {
@@ -125,11 +127,33 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   }
 
   chooseStoryRealPlace(place: RealPlace): void {
-    this.storyLocation = [place.label,place.subtitle].filter(Boolean).join(', ').slice(0,160);
-    this.storyLocationVerified = true;
-    this.storyLocationSearchOpen = false;
+    if(this.storyLocationResolving)return;
+    if(place.provider!=='google') {
+      this.setStoryVerifiedPlace(place);
+      return;
+    }
+    this.storyLocationResolving=true;
+    this.realPlaceSearch.resolve(place,this.storyPlaceSessionToken).pipe(
+      timeout(10000),takeUntil(this.destroyed),
+      finalize(()=>{this.storyLocationResolving=false;this.changeDetector.markForCheck();})
+    ).subscribe({
+      next:verified=>{
+        this.setStoryVerifiedPlace(verified);
+        this.storyPlaceSessionToken=crypto.randomUUID();
+      },
+      error:()=>{
+        this.publishError='Não foi possível verificar este local. Tenta novamente.';
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+  private setStoryVerifiedPlace(place:RealPlace):void {
+    this.storyLocation=[place.label,place.subtitle].filter(Boolean).join(', ').slice(0,160);
+    this.storyLocationVerified=true;
+    this.storyLocationSearchOpen=false;
     this.storyLocationSearchSerial++;
-    this.storyRealPlaces = [];
+    this.storyRealPlaces=[];
+    this.publishError='';
     this.changeDetector.markForCheck();
   }
 
