@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output } from '@angular/core';
 
 export interface TextPlacement {
   x: number; y: number; rotation: number; scale: number;
@@ -48,6 +48,7 @@ export interface TextPlacement {
   `]
 })
 export class MovableTextComponent {
+  constructor(private readonly host: ElementRef<HTMLElement>) {}
   @Input() text = '';
   @Input() plain = false;
   @Input() color = '#ffffff';
@@ -69,8 +70,7 @@ export class MovableTextComponent {
     event.stopPropagation();
     event.preventDefault();
     const target = event.currentTarget as HTMLElement;
-    const stage = target.closest('app-movable-text') as HTMLElement | null;
-    const rect = stage?.getBoundingClientRect();
+    const rect = this.host.nativeElement.getBoundingClientRect();
     if (!rect?.width || !rect.height) return;
     this.action = action;
     this.pointerId = event.pointerId;
