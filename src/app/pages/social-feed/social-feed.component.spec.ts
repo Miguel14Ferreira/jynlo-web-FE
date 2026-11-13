@@ -839,13 +839,13 @@ describe('SocialFeedComponent discovery sidebar', () => {
 
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.querySelectorAll('.composer-media-order').length).toBe(3);
+    expect(root.querySelectorAll('.composer-album-dots button').length).toBe(3);
     component.movePostGalleryItem(1, -1);
     fixture.detectChanges();
     expect(component.postGallery.map(item => item.file.name)).toEqual([
       'cover.jpg', 'first.jpg', 'clip.mp4'
     ]);
-    expect(root.querySelector('.composer-cover-label')?.parentElement?.textContent).toContain('cover.jpg');
+    expect(root.querySelector('.composer-album-toolbar .composer-media-name')?.textContent).toContain('cover.jpg');
     component.movePostGalleryItem(0, -1);
     component.movePostGalleryItem(2, 1);
     expect(component.postGallery[0].file).toBe(cover);
