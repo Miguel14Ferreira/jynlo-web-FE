@@ -914,7 +914,15 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
               return;
             }
             if (error.status === 415) {
-              this.actionError = 'Este formato de fotografia ou vídeo não é suportado.';
+              this.actionError = 'O servidor recusou o formato do envio. Experimenta uma fotografia JPG/PNG ou vídeo MP4.';
+              return;
+            }
+            if (error.status === 400 || error.status === 422) {
+              this.actionError = 'O servidor recusou algum campo da publicação. Verifica o ficheiro e os dados e tenta novamente.';
+              return;
+            }
+            if (error.status === 500 || error.status === 502 || error.status === 503 || error.status === 504) {
+              this.actionError = 'O servidor não conseguiu guardar a publicação. A fotografia continua selecionada para tentares novamente.';
               return;
             }
             if (error.status === 401 || error.status === 403) {
