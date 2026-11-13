@@ -406,3 +406,23 @@
   border-radius:1rem;padding:.2rem .55rem;overflow-wrap:anywhere;}
 .feed-page a.feed-post-place:hover,.feed-page a.feed-post-place:focus-visible {
   color:#fff;border-color:#2dd4bf;background:#10464c;}
+
+
+/* Sharing belongs to the same interaction row as likes and comments. */
+.feed-page .feed-share-copy--below {margin:.55rem 0 .75rem;max-width:100%;
+  width:fit-content;gap:.6rem;padding:.5rem;border:1px solid #37636d;}
+.feed-page .feed-share-copy--below input {flex:1 1 150px;min-width:0;}
+.feed-page .feed-share-copy--below button {border:0;background:transparent;color:#d9ffff;
+  font-size:1.3rem;cursor:pointer;}
+.feed-page .comment-interactions {display:flex;gap:.6rem;align-items:center;
+  margin-top:.25rem;}
+.feed-page .comment-interactions button {border:0;background:transparent;color:#a9c6ca;
+  font-size:.78rem;font-weight:700;padding:.15rem .2rem;cursor:pointer;}
+.feed-page .comment-interactions button.active {color:#fb7185;}
+.feed-page .comment-interactions button:focus-visible {outline:2px solid #5eead4;}
+.feed-page .comment-inline-editor {display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0;}
+.feed-page .comment-inline-editor textarea {width:100%;box-sizing:border-box;min-height:64px;
+  padding:.6rem;background:#0b2935;color:#f5fffd;border:1px solid #527985;border-radius:.5rem;}
+.feed-page .comment-inline-editor button {min-height:34px;background:#15414c;border:1px solid #477c85;
+  color:#f4fffc;border-radius:.5rem;padding:.35rem .65rem;cursor:pointer;}
+.feed-page .comment-edited {color:#a7c4c9;font-size:.68rem;}
