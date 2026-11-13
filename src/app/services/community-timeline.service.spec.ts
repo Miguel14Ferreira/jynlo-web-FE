@@ -30,6 +30,32 @@ describe('CommunityTimelineService API contract', () => {
     expect(http.post).toHaveBeenCalledWith(base + '/messages', { body: 'Até já!' });
   });
 
+  it('sends a single image using the established multipart image field', () => {
+    const image=new File(['jpeg'], 'MF.jpg', {type:'image/jpeg'});
+    service.sendPostWithMedia(7,'',image).subscribe();
+    const [url,body]=http.post.calls.mostRecent().args;
+    expect(url).toBe(base+'/posts');
+    expect(body instanceof FormData).toBeTrue();
+    const form=body as FormData;
+    expect(form.get('content')).toBe('');
+    expect((form.get('image') as File).name).toBe('MF.jpg');
+    expect(form.has('files')).toBeFalse();
+  });
+
+  it('uses repeated multipart files for a real multi-image gallery', () => {
+    const first=new File(['a'],'one.jpg',{type:'image/jpeg'});
+    const second=new File(['b'],'two.png',{type:'image/png'});
+    service.sendPostAlbum(7,'Fotografias',[first,second]).subscribe();
+    const [url,body]=http.post.calls.mostRecent().args;
+    expect(url).toBe(base+'/posts');
+    const form=body as FormData;
+    expect(form.get('content')).toBe('Fotografias');
+    expect((form.getAll('files') as File[]).map(file=>file.name))
+      .toEqual(['one.jpg','two.png']);
+    expect(form.has('image')).toBeFalse();
+    expect(form.has('video')).toBeFalse();
+  });
+
   it('only requests deletion of the selected item in the selected channel', () => {
     service.delete(7, 'CHAT', 19).subscribe();
     expect(http.delete).toHaveBeenCalledWith(base + '/messages/19');
