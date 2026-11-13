@@ -283,43 +283,48 @@
           }
 
           @if (postGallery.length) {
-            <div class="composer-media-grid">
-              @for (item of postGallery; track item.url; let i = $index) {
-                <div class="composer-media-item">
-                  <div class="composer-media-frame">
+            <div class="composer-album" role="region" aria-label="Fotografias e vídeos selecionados"
+                 (touchstart)="onComposerGalleryTouchStart($event)"
+                 (touchend)="onComposerGalleryTouchEnd($event)">
+              <div class="composer-album-stage">
+                @for (item of postGallery; track item.url; let i = $index) {
+                  @if (i === postGalleryIndex) {
                     @if (item.file.type.startsWith('video/')) {
                       <video [src]="item.url" controls preload="metadata" playsinline
                         [attr.aria-label]="item.file.name"></video>
                     } @else {
                       <img [src]="item.url" [alt]="item.file.name">
                     }
-                  </div>
-                  <div class="composer-media-item-footer">
-                    @if (item.file.type.startsWith('image/')) {
-                      <button type="button" class="composer-photo-edit-btn"
-                              [disabled]="posting" (click)="openPhotoTextEditor(i)">
-                        <span aria-hidden="true">Aa</span> Escrever na fotografia
-                      </button>
-                    }
-                    <span class="composer-media-name" [title]="item.file.name">
-                      @if (i === 0) { <strong class="composer-cover-label">Capa · </strong> }
-                      {{ item.file.name }}
-                    </span>
-                    <div class="composer-media-order">
-                      <button type="button" [disabled]="posting || i === 0"
-                        (click)="movePostGalleryItem(i, -1)"
-                        [attr.aria-label]="'Mover ' + item.file.name + ' para trás'">↑</button>
-                      <button type="button" [disabled]="posting || i === postGallery.length - 1"
-                        (click)="movePostGalleryItem(i, 1)"
-                        [attr.aria-label]="'Mover ' + item.file.name + ' para a frente'">↓</button>
-                      <button type="button" class="composer-media-remove"
-                        [disabled]="posting" (click)="removePostGalleryItem(i)"
-                        [attr.aria-label]="'Remover ' + item.file.name">Remover</button>
-                    </div>
-                  </div>
-                </div>
-              }
+                  }
+                }
+                @if (postGallery.length > 1) {
+                  <button type="button" class="composer-album-arrow composer-album-prev"
+                    [disabled]="posting" (click)="shiftPostGallery(-1)" aria-label="Fotografia anterior">‹</button>
+                  <button type="button" class="composer-album-arrow composer-album-next"
+                    [disabled]="posting" (click)="shiftPostGallery(1)" aria-label="Fotografia seguinte">›</button>
+                  <span class="composer-album-count">{{ postGalleryIndex + 1 }} / {{ postGallery.length }}</span>
+                }
+              </div>
+              <div class="composer-album-toolbar">
+                <strong class="composer-media-name">{{ postGallery[postGalleryIndex].file.name }}</strong>
+                @if (postGallery[postGalleryIndex].file.type.startsWith('image/')) {
+                  <button type="button" class="composer-photo-edit-btn" [disabled]="posting"
+                    (click)="openPhotoTextEditor(postGalleryIndex)">Aa Editar fotografia</button>
+                }
+                <button type="button" [disabled]="posting" (click)="removePostGalleryItem(postGalleryIndex)">
+                  Remover
+                </button>
+              </div>
+              <div class="composer-album-dots" aria-label="Selecionar fotografia ou vídeo">
+                @for (item of postGallery; track item.url; let i = $index) {
+                  <button type="button" [class.active]="i === postGalleryIndex"
+                    [attr.aria-label]="'Ver anexo ' + (i + 1)" [attr.aria-current]="i === postGalleryIndex ? 'true' : null"
+                    (click)="showPostGallery(i)"></button>
+                }
+              </div>
+              <small>Desliza ou utiliza as setas para ver todas as imagens, sem cortes.</small>
             </div>
+          }
           }
         </div>
       }
@@ -397,6 +402,8 @@
               (placementChange)="photoTextPlacement = $event"></app-movable-text>
           </div>
           <p class="feed-photo-overlay-hint">Arrasta a fotografia ou o texto com o rato. As pegas ↻ e ↘ permitem rodar e redimensionar cada elemento.</p>
+          <button type="button" class="feed-photo-reset" [disabled]="photoTextSaving"
+            (click)="resetPhotoEditor()">↺ Repor fotografia original</button>
           <div class="feed-photo-image-tools">
             <label for="feed-photo-image-rotation">Rodar fotografia ({{ photoImageRotation }}°)</label>
             <input id="feed-photo-image-rotation" type="range" min="-180" max="180" step="1"
