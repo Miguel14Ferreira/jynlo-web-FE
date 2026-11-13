@@ -16,7 +16,7 @@ import { SocialStory } from '../model/social-story';
 import { VenueService } from '../../services/venue.service';
 import { Venue } from '../model/venue';
 import { CommunityService } from '../../services/community.service';
-import { CommunityProfile } from '../model/community-profile';
+import { FriendSummary } from '../model/friend-summary';
 
 interface StoryGroup {
   key: string;
@@ -88,6 +88,16 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     });
   }
 
+  chooseStoryPlaceName(): void {
+    // Neighbourhoods, cities and countries are valid locations too;
+    // selecting a registered sports venue is never required.
+    this.storyLocation = this.storyLocation.trim().slice(0, 160);
+    this.storyLocationSearchOpen = false;
+    this.storyVenueResults = [];
+    this.storyLocationSearchSerial++;
+    this.changeDetector.markForCheck();
+  }
+
   chooseStoryLocation(venue: Venue): void {
     this.storyLocation = [venue.name, venue.city].filter(Boolean).join(', ').slice(0, 160);
     this.storyLocationSearchOpen = false;
@@ -99,19 +109,22 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   storyTagQuery = '';
   storyTagOpen = false;
   storyTagLoading = false;
-  storyTagResults: CommunityProfile[] = [];
-  storyTaggedProfiles: CommunityProfile[] = [];
-  private storyProfileIndex: CommunityProfile[] = [];
+  storyTagResults: FriendSummary[] = [];
+  storyTaggedProfiles: FriendSummary[] = [];
+  private storyProfileIndex: FriendSummary[] = [];
 
   toggleStoryTags(): void {
     this.storyTagOpen = !this.storyTagOpen;
     if (!this.storyTagOpen || !this.profiles) return;
     this.storyTagLoading = true;
-    this.profiles.discoverProfiles().pipe(
-      timeout(10_000), catchError(() => of([] as CommunityProfile[])),
+    // Only load the authenticated person's accepted friends, never the
+    // global profile discovery directory.
+    this.profiles.friends().pipe(
+      timeout(10_000), catchError(() => of([] as FriendSummary[])),
       takeUntil(this.destroyed)
     ).subscribe(profiles => {
-      this.storyProfileIndex = profiles.filter(profile => !!profile.username);
+      this.storyProfileIndex = profiles.filter(profile =>
+        !!profile.username && !profile.blockedByMe && !profile.chatBlocked);
       this.searchStoryTag(this.storyTagQuery);
       this.storyTagLoading = false;
       this.changeDetector.markForCheck();
@@ -127,7 +140,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
         || (profile.fullName || '').toLowerCase().includes(normalized))).slice(0, 8);
   }
 
-  addStoryTag(profile: CommunityProfile): void {
+  addStoryTag(profile: FriendSummary): void {
     if (this.storyTaggedProfiles.length >= 5
         || this.storyTaggedProfiles.some(item => item.username.toLowerCase() === profile.username.toLowerCase())) return;
     this.storyTaggedProfiles = [...this.storyTaggedProfiles, profile];
