@@ -18,6 +18,10 @@ export class SocialFeedService {
     return this.http.get<FeedItem[]>(this.baseUrl);
   }
 
+  postById(id: number): Observable<FeedItem> {
+    return this.http.get<FeedItem>(this.baseUrl + '/posts/' + id);
+  }
+
   /** Persistent authored publications, excluding expiring stories and generated activities. */
   profilePosts(username: string, page = 0): Observable<FeedItem[]> {
     return this.http.get<FeedItem[]>(
