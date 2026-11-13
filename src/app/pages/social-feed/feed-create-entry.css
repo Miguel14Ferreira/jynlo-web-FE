@@ -260,3 +260,59 @@
   border-radius:.55rem!important;box-shadow:none!important;
   font-weight:750;padding:.45rem .7rem;
 }
+
+
+/* Media controls and action buttons must never overlap the media preview. */
+.feed-page .composer .feed-photo-text-editor {min-width:0;box-sizing:border-box;
+  display:flex;flex-direction:column;gap:.65rem;padding:1rem;}
+.feed-page .composer .feed-photo-text-editor > * {min-width:0;max-width:100%;box-sizing:border-box;}
+.feed-page .composer .feed-photo-text-editor header {flex:0 0 auto;}
+.feed-page .composer .feed-photo-direct-stage {
+  width:min(100%,460px);height:auto;max-height:none;overflow:hidden;
+  flex:0 0 auto;isolation:isolate;position:relative;
+}
+.feed-page .composer .feed-photo-direct-stage > img {display:block;width:100%;height:100%;
+  object-fit:contain;max-height:none;box-sizing:border-box;pointer-events:auto;}
+.feed-page .composer .feed-photo-image-tools {position:relative;z-index:1;}
+.feed-page .composer .feed-photo-text-editor select,
+.feed-page .composer .feed-photo-text-editor textarea {
+  display:block;width:100%;max-width:100%;box-sizing:border-box;min-width:0;
+}
+.feed-page .composer .feed-photo-editor-actions {position:relative;z-index:1;gap:.5rem;align-items:center;}
+.feed-page .composer .feed-photo-editor-actions button {flex:1 1 150px;min-height:42px;}
+.feed-page .composer .feed-photo-direct-stage .feed-photo-image-rotate {top:10px;left:10px;}
+.feed-page .composer .feed-photo-direct-stage .feed-photo-image-resize {bottom:10px;right:10px;}
+@media(min-width:850px) {
+  .feed-page .composer.feed-post-dialog-open:has(.feed-photo-text-editor) {
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;
+    max-height:92dvh;overflow-y:auto;
+  }
+  .feed-page .composer.feed-post-dialog-open:has(.feed-photo-text-editor) > .feed-photo-text-editor {
+    grid-column:2;grid-row:2/span 18;position:relative;top:auto;
+    max-height:none;overflow:visible;
+  }
+}
+@media(max-width:849px) {
+  .feed-page .composer.feed-post-dialog-open:has(.feed-photo-text-editor) {
+    display:flex;flex-direction:column;overflow-y:auto;
+  }
+  .feed-page .composer .feed-photo-direct-stage {max-height:none;}
+}
+.feed-confirm-backdrop {position:fixed;inset:0;z-index:1800;display:grid;place-items:center;
+  padding:16px;background:rgba(1,8,14,.85);backdrop-filter:blur(5px);}
+.feed-confirm-dialog {width:min(410px,100%);padding:1.4rem;border-radius:1rem;
+  border:1px solid rgba(251,113,133,.4);background:#10232d;color:#f1f5f9;
+  box-shadow:0 25px 65px #0009;}
+.feed-confirm-dialog h3 {margin:0 0 .65rem;}
+.feed-confirm-dialog p {color:#cad5de;line-height:1.5;}
+.feed-confirm-actions {display:flex;gap:.7rem;justify-content:flex-end;margin-top:1.1rem;}
+.feed-confirm-actions button {border:1px solid #4c6976;background:#193642;
+  color:#fff;border-radius:.6rem;padding:.65rem 1rem;cursor:pointer;}
+.feed-confirm-actions .feed-confirm-danger {background:#ad263d;border-color:#fa6677;}
+.feed-confirm-actions button:disabled {opacity:.6;cursor:wait;}
+.feed-post-share {display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;}
+.feed-share-copy {display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;
+  background:#102d39;border-radius:.6rem;padding:.4rem .6rem;}
+.feed-share-copy input {width:min(270px,80vw);max-width:100%;color:#eafffa;
+ background:#081923;border:1px solid #4a7980;border-radius:.4rem;padding:.45rem;}
+.feed-card[id^="jynlo-post-"] {scroll-margin-top:110px;}
