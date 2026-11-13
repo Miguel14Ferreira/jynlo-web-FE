@@ -1639,12 +1639,53 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       });
   }
 
+  pendingDeletePost: FeedItem | null = null;
+  postShareMessage = '';
+  postShareLink = '';
+  postShareTargetId: number | null = null;
+
+  requestDeletePost(item: FeedItem): void {
+    if (item.type !== 'POST' || item.postId == null ||
+        item.authorUsername !== this.currentUsername || this.deletingPostId !== null) return;
+    this.pendingDeletePost = item;
+  }
+
+  cancelDeletePost(): void {
+    if (this.deletingPostId !== null) return;
+    this.pendingDeletePost = null;
+  }
+
+  async shareFeedPost(item: FeedItem): Promise<void> {
+    if (item.type !== 'POST' || item.postId == null) return;
+    // This is an absolute post permalink, not a link to the generic feed.
+    const url = new URL('/menu/feed?post=' + item.postId, window.location.origin).href;
+    this.postShareTargetId = item.postId;
+    this.postShareLink = url;
+    this.postShareMessage = '';
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title: 'Publicação na Jynlo', text: item.content || '', url });
+        this.postShareMessage = 'Partilhado';
+        return;
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') return;
+      }
+    }
+    try {
+      await this.copyShareUrl(url);
+      this.postShareMessage = 'Link copiado';
+    } catch {
+      this.postShareMessage = 'Copia o endereço abaixo para partilhar';
+    }
+  }
+
   deletePost(item: FeedItem): void {
     if (
       item.type !== 'POST'
       || item.postId === null
       || item.authorUsername !== this.currentUsername
       || this.deletingPostId !== null
+      || this.pendingDeletePost?.postId !== item.postId
     ) {
       return;
     }
@@ -1662,6 +1703,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
           this.items = this.items.filter(
             current => current.postId !== item.postId
           );
+          this.pendingDeletePost = null;
         },
         error: () => this.actionError = t('feedback.feed.deleteError')
       });
