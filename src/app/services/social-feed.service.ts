@@ -132,6 +132,12 @@ export class SocialFeedService {
     );
   }
 
+  editPost(postId: number, content: string, location?: string | null): Observable<FeedItem> {
+    return this.http.put<FeedItem>(this.baseUrl + '/posts/' + postId, {
+      content, location: location || null
+    });
+  }
+
   deletePost(postId: number): Observable<void> {
     return this.http.delete<void>(
       this.baseUrl + '/posts/' + postId
