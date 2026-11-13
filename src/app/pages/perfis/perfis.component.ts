@@ -182,7 +182,8 @@ export class PerfisComponent implements OnInit, OnDestroy {
   profileStoryViewerOpen=false;
   private profileStoriesSubscription?:Subscription;
   openProfileStories():void {
-    if(!this.profileStories.length||this.selectedBlocked||this.blockStatusPending)return;
+    if(!this.profileStories.length||this.selectedBlocked||this.blockStatusPending
+       || !this.privacyStatus?.canViewContent)return;
     this.profileStoryViewerOpen=true;
   }
   closeProfileStories():void {this.profileStoryViewerOpen=false;}
@@ -206,7 +207,8 @@ export class PerfisComponent implements OnInit, OnDestroy {
 
 
   openExpandedPost(post: FeedItem): void {
-    if (post.type !== 'POST' || post.postId == null || this.selectedBlocked || this.blockStatusPending) return;
+    if (post.type !== 'POST' || post.postId == null || this.selectedBlocked || this.blockStatusPending
+        || !this.privacyStatus?.canViewContent) return;
     this.expandedPost = post;
   }
 
@@ -557,6 +559,11 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.sentInvites.clear();
     this.selectedProfile = profile;
     this.expandedPost = null;
+    // Never flash content from a previously viewed profile while permissions load.
+    this.postsSubscription?.unsubscribe();
+    this.profilePosts=[];
+    this.postsHasMore=false;
+    this.profileStories=[];
     this.refreshProfileStories(profile.username);
     this.loadPrivacy(profile.username);
     this.selectedActivity = undefined;
