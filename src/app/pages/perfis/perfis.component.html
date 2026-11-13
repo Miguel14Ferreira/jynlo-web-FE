@@ -194,7 +194,7 @@
       }
     }
 
-    @if (profileStoryViewerOpen && selectedProfile && profileStories.length) {
+    @if (profileStoryViewerOpen && selectedProfile && profileStories.length && privacyStatus?.canViewContent !== false) {
       <app-profile-story-viewer [stories]="profileStories"
         [username]="selectedProfile.username" (closed)="closeProfileStories()"></app-profile-story-viewer>
     }
@@ -267,6 +267,10 @@
                     {{ 'common.processing' | t }}
                   } @else if (selectedFollowStatus?.followedByMe) {
                     {{ 'social.following' | t }}
+                  } @else if (selectedFollowStatus?.requestPending) {
+                    Pedido enviado
+                  } @else if (selectedFollowStatus?.privateProfile) {
+                    Pedir para seguir
                   } @else {
                     {{ 'social.follow' | t }}
                   }
@@ -506,6 +510,42 @@
             </section>
           }
 
+          @if (isOwnProfile(selectedProfile)) {
+            <section class="profile-privacy-settings" aria-label="Privacidade do perfil">
+              <div>
+                <strong>Privacidade do perfil</strong>
+                <p>{{ privacyStatus?.privateProfile ? 'O teu conteúdo está visível apenas para seguidores aprovados.' :
+                  'O teu perfil está público: qualquer utilizador pode ver as tuas publicações e stories.' }}</p>
+              </div>
+              @if (privacyStatus?.privateModeAvailable) {
+                <button type="button" [disabled]="privacyBusy"
+                  (click)="changeProfilePrivacy(!privacyStatus!.privateProfile)">
+                  {{ privacyStatus?.privateProfile ? 'Tornar público' : 'Tornar privado' }}
+                </button>
+              } @else {
+                <small>Perfis privados em preparação: estamos a proteger também o acesso às fotografias e vídeos.</small>
+              }
+              @if (privacyPending.length) {
+                <h3>Pedidos para seguir ({{ privacyPending.length }})</h3>
+                @for (request of privacyPending; track request.id) {
+                  <div class="profile-follow-request">
+                    <a [routerLink]="['/menu/perfis',request.username]">&#64;{{request.username}}</a>
+                    <button type="button" [disabled]="privacyBusy"
+                      (click)="decidePendingFollow(request.id,true)">Aceitar</button>
+                    <button type="button" [disabled]="privacyBusy"
+                      (click)="decidePendingFollow(request.id,false)">Recusar</button>
+                  </div>
+                }
+              }
+              @if (privacyError) { <p role="alert">{{privacyError}}</p> }
+            </section>
+          } @else if (privacyStatus?.privateProfile && !privacyStatus?.canViewContent) {
+            <div class="profile-private-notice" role="status">
+              <strong>Perfil privado</strong>
+              <p>Segue esta pessoa e aguarda a aprovação para veres as suas stories e publicações.</p>
+            </div>
+          }
+
           @if (blockStatusPending) {
             <p class="profile-publications-state" role="status">{{ 'common.loading' | t }}</p>
           } @else if (blockStatusError) {
@@ -514,7 +554,7 @@
               <button type="button" class="jynlo-action jynlo-action--neutral"
                 (click)="checkProfileBlockStatus(selectedProfile.username)">{{ 'common.retry' | t }}</button>
             </div>
-          } @else if (!selectedBlocked) {
+          } @else if (!selectedBlocked && privacyStatus?.canViewContent !== false) {
             <section class="profile-publications" [attr.aria-label]="'profilePosts.title' | t">
               <header class="profile-publications-header">
                 <div>
