@@ -482,7 +482,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   private controlsRevision=0;
   private controlsMutation=false;
   private lastRoleChangeAt=0;
-  private controlsUnavailable=false;
+  controlsUnavailable=false;
 
   refreshInteractions():void {
     if(this.destroyed||this.closing||this.controlsUnavailable)return;
