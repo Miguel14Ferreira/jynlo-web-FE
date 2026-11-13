@@ -820,7 +820,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.actionError = '';
     this.actionSuccess = '';
 
-    const request$ = this.selectedFollowStatus?.followedByMe
+    const request$ = this.selectedFollowStatus?.followedByMe || this.selectedFollowStatus?.requestPending
       ? this.socialGraphService.unfollow(profile.username)
       : this.socialGraphService.follow(profile.username);
 
