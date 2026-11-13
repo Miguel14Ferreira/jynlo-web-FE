@@ -1218,3 +1218,32 @@ h1 {
     max-height: 65dvh;
   }
 }
+
+/* A desktop creator follows the familiar large-photo / caption-sidebar layout.
+   The caption stays optional and mobile stacks the original media first. */
+.composer-create-stage { display:grid;gap:.75rem;min-width:0; }
+.composer-create-stage--with-media {
+  grid-template-columns:minmax(0, min(68%, 760px)) minmax(220px, 1fr);
+  align-items:start;
+}
+.composer-create-stage--with-media .composer-media {
+  grid-column:1;grid-row:1 / span 2;min-width:0;
+}
+.composer-create-stage--with-media textarea {
+  grid-column:2;grid-row:1;min-height:250px;
+}
+.composer-create-stage--with-media .composer-caption-optional {
+  grid-column:2;grid-row:2;margin:0;
+}
+.composer-note {font-size:.77rem;color:#a4c8c1;line-height:1.5}
+@media(max-width:760px){
+  .composer-create-stage--with-media{grid-template-columns:minmax(0,1fr)}
+  .composer-create-stage--with-media .composer-media,
+  .composer-create-stage--with-media textarea,
+  .composer-create-stage--with-media .composer-caption-optional{
+    grid-column:1;grid-row:auto;
+  }
+  .composer-create-stage--with-media .composer-media{order:0}
+  .composer-create-stage--with-media textarea{order:1;min-height:90px}
+  .composer-create-stage--with-media .composer-caption-optional{order:2}
+}
