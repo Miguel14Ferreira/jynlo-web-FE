@@ -16,6 +16,7 @@ import { SocialStory } from '../model/social-story';
 import { VenueService } from '../../services/venue.service';
 import { Venue } from '../model/venue';
 import { CommunityService } from '../../services/community.service';
+import { MovableTextComponent, TextPlacement } from './movable-text.component';
 import { FriendSummary } from '../model/friend-summary';
 
 interface StoryGroup {
@@ -28,7 +29,7 @@ interface StoryGroup {
 @Component({
   selector: 'app-social-stories',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, RouterModule, TranslatePipe, MovableTextComponent],
   templateUrl: './social-stories.component.html',
   styleUrls: ['./social-stories.component.css', './story-create-editor.css']
 })
@@ -53,6 +54,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   storyTextScale: 'small' | 'medium' | 'large' = 'medium';
   storyTextPosition: 'top' | 'center' | 'bottom' = 'bottom';
   storyTextStyle: 'plain' | 'pill' = 'pill';
+  storyTextPlacement: TextPlacement = {x:50,y:74,rotation:0,scale:1};
   storyAltText = '';
   storyShowTime = false;
   storyLocation = '';
@@ -615,6 +617,10 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
       textPosition: this.storyTextPosition,
       textScale: this.storyTextScale,
       textStyle: this.storyTextStyle,
+      textX: this.storyTextPlacement.x,
+      textY: this.storyTextPlacement.y,
+      textRotation: this.storyTextPlacement.rotation,
+      textZoom: this.storyTextPlacement.scale,
       altText: this.storyAltText.trim(),
       showTime: this.storyShowTime,
       locationLabel: this.storyLocation.trim(),
@@ -630,6 +636,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
         this.mineError = '';
         this.removeFile();
         this.caption = '';
+        this.storyTextPlacement = {x:50,y:74,rotation:0,scale:1};
         this.storyAltText = '';
         this.storyShowTime = false;
         this.storyLocation = '';
