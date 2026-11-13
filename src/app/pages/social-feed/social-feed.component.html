@@ -751,30 +751,6 @@
               }
             </div>
 
-            @if (item.type === 'POST' && item.postId != null) {
-              <div class="feed-post-share">
-                <button type="button" class="jynlo-action jynlo-action--neutral"
-                  (click)="shareFeedPost(item)" aria-label="Partilhar publicação">
-                  <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                    <path d="m22 2-7 20-4-9-9-4zM22 2 11 13"/>
-                  </svg>
-                  Partilhar
-                </button>
-                @if (postShareTargetId === item.postId) {
-                  <div class="feed-share-copy" role="status">
-                    <span>{{ postShareMessage || 'Link da publicação' }}</span>
-                    <input [value]="postShareLink" readonly aria-label="Link para partilhar publicação"
-                       (focus)="$any($event.target).select()" (click)="$any($event.target).select()">
-                  </div>
-                }
-              </div>
-            }
-            @if (item.type === 'POST' && item.postId != null) {
-              <button type="button" class="feed-share-friends-trigger"
-                (click)="openPostFriendShare(item)" aria-label="Enviar publicação a amigos da Jynlo">
-                <span aria-hidden="true">✉</span> Enviar a amigos
-              </button>
-            }
             @if (item.type === 'POST') {
               @if (editingPostId === item.postId) {
                 <div class="feed-post-edit" aria-label="Editar publicação">
@@ -953,6 +929,20 @@
                   <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8 8 0 0 1-8.5 8.5H4l2-3.8A8 8 0 1 1 21 11.5Z"/></svg>
                   {{ item.commentCount }}
                 </button>
+                @if (item.type === 'POST' && item.postId != null) {
+                  <button type="button" class="feed-post-reaction" (click)="shareFeedPost(item)"
+                     aria-label="Partilhar publicação" title="Partilhar publicação">
+                    <svg class="feed-ui-icon" viewBox="0 0 24 24" width="18" height="18"
+                      fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                      <path d="M22 2 11 13M22 2l-7 20-4-9-9-4Z"></path>
+                    </svg>
+                    Partilhar
+                  </button>
+                  <button type="button" class="feed-post-reaction"
+                    (click)="openPostFriendShare(item)" aria-label="Enviar publicação aos meus amigos">
+                    <span aria-hidden="true">✉</span> Amigos
+                  </button>
+                }
 
                 @if (item.authorUsername !== currentUsername) {
                   <button class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small feed-report-action"
@@ -965,6 +955,14 @@
                   </button>
                 }
               </div>
+              @if (postShareTargetId === item.postId && item.type === 'POST') {
+                <div class="feed-share-copy feed-share-copy--below" role="status">
+                  <span>{{ postShareMessage || 'Link da publicação' }}</span>
+                  <input [value]="postShareLink" readonly aria-label="Link para partilhar publicação"
+                    (focus)="$any($event.target).select()" (click)="$any($event.target).select()">
+                  <button type="button" (click)="postShareTargetId = null" aria-label="Fechar ligação">×</button>
+                </div>
+              }
 
               @if (item.postId !== null && openCommentPosts.has(item.postId)) {
                 <section class="comments-panel">
@@ -994,7 +992,30 @@
                           </a>
                           <span>@{{ comment.authorUsername }} · {{ comment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
                         </div>
-                        <p>{{ comment.content }}</p>
+                        @if (editingCommentId === comment.id) {
+                          <div class="comment-inline-editor">
+                            <textarea [(ngModel)]="editingCommentDraft" maxlength="500" rows="2"
+                              [disabled]="savingCommentId !== null"
+                              [attr.aria-label]="'Editar comentário de ' + comment.authorDisplayName"></textarea>
+                            <button type="button" (click)="saveCommentEdit(item.postId,comment)"
+                              [disabled]="savingCommentId !== null || !editingCommentDraft.trim()">Guardar</button>
+                            <button type="button" (click)="cancelCommentEdit()" [disabled]="savingCommentId !== null">Cancelar</button>
+                          </div>
+                        } @else {
+                          <p>{{ comment.content }}</p>
+                        }
+                        @if (comment.editedAt) { <small class="comment-edited">Editado</small> }
+                        <div class="comment-interactions">
+                          <button type="button" (click)="toggleCommentLike(item.postId,comment)"
+                            [disabled]="likingCommentId !== null" [class.active]="comment.likedByMe"
+                            [attr.aria-pressed]="!!comment.likedByMe"
+                            [attr.aria-label]="comment.likedByMe ? 'Retirar gosto no comentário' : 'Gostar do comentário'">
+                            <span aria-hidden="true">♥</span> {{ comment.likeCount || 0 }}
+                          </button>
+                          @if (comment.authorUsername === currentUsername && editingCommentId !== comment.id) {
+                            <button type="button" (click)="beginCommentEdit(comment)">Editar</button>
+                          }
+                        </div>
                       </div>
 
                       @if (comment.authorUsername === currentUsername) {
