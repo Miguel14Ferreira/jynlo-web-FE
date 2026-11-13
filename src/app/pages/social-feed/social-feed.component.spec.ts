@@ -369,7 +369,8 @@ describe('SocialFeedComponent discovery sidebar', () => {
     fixture.detectChanges();
     tick(351);
     expect(component.canPublishPost).toBeFalse();
-    component.postImageFile = new File(['image'], 'jogo.jpg', {type:'image/jpeg'});
+    const photo = new File(['image'], 'jogo.jpg', {type:'image/jpeg'});
+    component.postImageFile = photo;
     component.postImagePreview = 'blob:photo-preview';
     expect(component.canPublishPost).toBeTrue();
     feed.createPost.and.returnValue(of({
@@ -379,7 +380,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
       gameDate:null,likeCount:0,likedByMe:false,commentCount:0
     }));
     component.publish();
-    expect(feed.createPost).toHaveBeenCalledOnceWith('', component.postImageFile ?? jasmine.anything(), undefined, undefined);
+    expect(feed.createPost).toHaveBeenCalledOnceWith('', photo, undefined, undefined);
     expect(component.items[0].content).toBe('');
     expect(component.canPublishPost).toBeFalse();
   }));
