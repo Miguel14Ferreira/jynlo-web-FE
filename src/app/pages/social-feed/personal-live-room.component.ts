@@ -29,6 +29,11 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       <div class="live-toolbar" aria-label="Ações da transmissão">
         <button type="button" (click)="shareLive()" [disabled]="closing || ending">Partilhar direto</button>
         <button type="button" (click)="toggleFullscreen()" [disabled]="!room">Ampliar vídeo</button>
+        @if (audioBlocked) {
+          <button type="button" (click)="enableAudio()" [disabled]="!room">
+            Ativar som da transmissão
+          </button>
+        }
         @if (shareFeedback) { <span role="status">{{shareFeedback}}</span> }
       </div>
       <div class="personal-live-layout">
@@ -208,6 +213,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   private rejoining=false;
   private attached:HTMLMediaElement[]=[];
   videoTiles=0;
+  audioBlocked=false;
   shareFeedback='';
   room:Room|null=null;
   connecting=false;
@@ -468,6 +474,8 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       this.videoTiles=Math.max(0,this.videoTiles-1);
     } else element.remove();
     this.attached=this.attached.filter(item=>item!==element);
+    if(!this.attached.some(item=>item instanceof HTMLAudioElement))
+      this.audioBlocked=false;
   }
   private attach(track:{attach:()=>HTMLMediaElement},label:string,isLocal:boolean):void {
     const stage=this.stage?.nativeElement;
@@ -490,7 +498,21 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       element.style.display='none';
       stage.appendChild(element);
       this.attached.push(element);
+      // Browsers can refuse automatic remote audio; offer a user-gesture retry.
+      void element.play().catch(()=>{
+        if(this.attached.includes(element) && !this.closing)this.audioBlocked=true;
+      });
     } else element.remove();
+  }
+  async enableAudio():Promise<void> {
+    const remoteAudio=this.attached.filter(
+      (item):item is HTMLAudioElement=>item instanceof HTMLAudioElement
+    );
+    if(!remoteAudio.length){this.audioBlocked=false;return;}
+    const results=await Promise.allSettled(remoteAudio.map(element=>element.play()));
+    this.audioBlocked=results.some(result=>result.status==='rejected');
+    if(this.audioBlocked)this.error='O navegador bloqueou o áudio. Verifica as permissões de som.';
+    else if(this.error.includes('bloqueou o áudio'))this.error='';
   }
   async shareLive():Promise<void> {
     const url=new URL('/menu/feed',window.location.origin);
@@ -572,6 +594,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     this.interactionPoll?.unsubscribe();this.interactionPoll=undefined;
     this.reconnecting=false;
     this.screenOn=false;
+    this.audioBlocked=false;
     this.destroy$.next();
     const active=this.room;this.room=null;
     this.role='VIEWER';
@@ -583,6 +606,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   ngOnDestroy():void {
     this.destroyed=true;
     this.screenOn=false;
+    this.audioBlocked=false;
     this.destroy$.next();this.destroy$.complete();
     if(this.event?.canManage && !this.ended && !this.ending) {
       // A host closing the window must not leave a stream orphaned.
