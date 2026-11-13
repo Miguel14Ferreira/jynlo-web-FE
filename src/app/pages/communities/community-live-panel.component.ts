@@ -175,7 +175,9 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
   }
 
   load(): void {
-    if (this.busy || !this.communityId) return;
+    // Mutations call load() before finalize() releases the busy flag.
+    // Refreshing data is safe even while a button remains temporarily busy.
+    if (!this.communityId) return;
     const version = this.requestVersion;
     this.api.list(this.communityId).pipe(timeout(10000)).subscribe({
       next: events => { if (version === this.requestVersion) { this.events = events; this.error = ''; } },
