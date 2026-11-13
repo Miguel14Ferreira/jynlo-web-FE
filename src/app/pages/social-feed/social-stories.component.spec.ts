@@ -98,13 +98,15 @@ describe('SocialStoriesComponent', () => {
     expect(component.storyTagResults).toEqual([]);
   }));
 
-  it('permits a neighbourhood label without selecting a sports venue', fakeAsync(() => {
+  it('accepts a real place suggestion and rejects unverified typed locations', fakeAsync(() => {
     fixture.detectChanges();
     tick();
-    component.storyLocation = ' Benfica ';
+    component.storyLocation = 'ben';
     component.storyLocationSearchOpen = true;
-    component.chooseStoryPlaceName();
-    expect(component.storyLocation).toBe('Benfica');
+    component.chooseStoryRealPlace({id:'osm:1',label:'Benfica',subtitle:'Lisboa, Portugal',
+      latitude:38.75,longitude:-9.17});
+    expect(component.storyLocation).toContain('Benfica');
+    expect(component.storyLocationVerified).toBeTrue();
     expect(component.storyLocationSearchOpen).toBeFalse();
   }));
 
@@ -302,6 +304,7 @@ describe('SocialStoriesComponent', () => {
     expect(component.storyTagResults.map(profile => profile.username)).toEqual(['ana']);
     component.addStoryTag(teammate);
     component.storyLocation = 'Campo de Benfica, Lisboa';
+    component.storyLocationVerified = true;
     const photo = new File(['photo'], 'jogo.jpg', { type: 'image/jpeg' });
     component.file = photo;
     api.publish.and.returnValue(of({ ...picture, id: 155, locationLabel: component.storyLocation,
