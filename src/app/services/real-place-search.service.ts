@@ -32,7 +32,8 @@ export class RealPlaceSearchService {
     const params=sessionToken?new HttpParams().set('sessionToken',sessionToken):new HttpParams();
     const placeId=encodeURIComponent(place.id.substring(7));
     return this.http.get<RealPlace>(environment.apiUrl+'/api/places/google/'+placeId,{params}).pipe(
-      timeout(10000),map(location=>({...location,provider:'google' as const}))
+      timeout(10000),map(location=>({...location,label:place.label,
+        subtitle:location.subtitle || place.subtitle,provider:'google' as const}))
     );
   }
 
