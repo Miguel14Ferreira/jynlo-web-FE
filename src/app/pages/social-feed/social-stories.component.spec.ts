@@ -310,6 +310,7 @@ describe('SocialStoriesComponent', () => {
     expect(api.publish).toHaveBeenCalledWith(photo, '', null, {
       textPosition: 'bottom', textScale: 'medium', textStyle: 'pill',
       textX: 50, textY: 74, textRotation: 0, textZoom: 1,
+      textColor: 'white', textBackground: 'dark', textFont: 'modern',
       altText: '', showTime: false,
       locationLabel: 'Campo de Benfica, Lisboa', taggedUsernames: 'ana'
     });
@@ -321,6 +322,31 @@ describe('SocialStoriesComponent', () => {
       .toContain('Campo de Benfica');
     expect((fixture.nativeElement as HTMLElement).querySelector('.story-viewer-tags a')?.textContent)
       .toContain('ana');
+    component.close();
+  }));
+
+  it('keeps chosen text colors, font and backing on the published Story', fakeAsync(() => {
+    fixture.detectChanges();
+    tick();
+    component.openComposer();
+    component.file = new File(['photo'], 'jogo.jpg', {type:'image/jpeg'});
+    component.caption = 'Vamos jogar!';
+    component.storyTextColor = 'black';
+    component.storyTextBackground = 'light';
+    component.storyTextFont = 'classic';
+    api.publish.and.returnValue(of({...picture, id:177,
+      caption:'Vamos jogar!', textColor:'black', textBackground:'light', textFont:'classic'}));
+    fixture.detectChanges();
+    const preview = (fixture.nativeElement as HTMLElement).querySelector('.story-preview .movable-text') as HTMLElement;
+    expect(preview.style.color).toBe('rgb(2, 6, 23)');
+    component.publish();
+    expect(api.publish).toHaveBeenCalledWith(jasmine.any(File), 'Vamos jogar!', null,
+      jasmine.objectContaining({textColor:'black',textBackground:'light',textFont:'classic'}));
+    component.showStory(component.mineEntries[0]);
+    fixture.detectChanges();
+    const rendered = (fixture.nativeElement as HTMLElement).querySelector('.story-caption') as HTMLElement;
+    expect(rendered.style.color).toBe('rgb(2, 6, 23)');
+    expect(rendered.style.fontFamily).toContain('Georgia');
     component.close();
   }));
 
@@ -338,6 +364,7 @@ describe('SocialStoriesComponent', () => {
     expect(api.publish).toHaveBeenCalledWith(jasmine.any(File), '', null, {
       textPosition: 'bottom', textScale: 'medium', textStyle: 'pill',
       textX: 50, textY: 74, textRotation: 0, textZoom: 1,
+      textColor: 'white', textBackground: 'dark', textFont: 'modern',
       altText: 'Jogadores num campo de futebol', showTime: true, locationLabel: '', taggedUsernames: ''
     });
     expect(component.mineEntries[0].id).toBe(123);
@@ -412,6 +439,7 @@ describe('SocialStoriesComponent', () => {
     expect(api.publish).toHaveBeenCalledWith(photo, 'Treino', null, {
       textPosition: 'top', textScale: 'small', textStyle: 'pill',
       textX: 50, textY: 74, textRotation: 0, textZoom: 1,
+      textColor: 'white', textBackground: 'dark', textFont: 'modern',
       altText: '', showTime: false, locationLabel: '', taggedUsernames: ''
     });
     expect(component.composerOpen).toBeTrue();
