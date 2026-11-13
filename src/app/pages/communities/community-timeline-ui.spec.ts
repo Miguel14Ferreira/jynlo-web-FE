@@ -74,6 +74,30 @@ describe('Community feed/chat UI state isolation', () => {
     expect(component.communityPostCurrentIndex(first)).toBe(1);
   });
 
+  it('expands the selected community photo, navigates the full album and closes on Escape', () => {
+    component.communityPostMediaIndex = {};
+    component.communityExpandedMedia = [];
+    component.communityExpandedMediaIndex = 0;
+    const entry = { ...message('POST'), id: 51, imageUrl: '/media/first.jpg',
+      extraMedia: [
+        { url: '/media/clip.mp4', mimeType: 'video/mp4' },
+        { url: '/media/last.jpg', mimeType: 'image/jpeg' }
+      ] };
+    component.selectCommunityPostMedia(entry, 2);
+    component.openCommunityPostMedia(entry);
+    expect(component.communityExpandedMedia.length).toBe(3);
+    expect(component.communityExpandedMediaIndex).toBe(2);
+    component.shiftCommunityExpandedMedia(1);
+    expect(component.communityExpandedMediaIndex).toBe(0);
+    const left = new KeyboardEvent('keydown', { key: 'ArrowLeft', cancelable: true });
+    component.onCommunityMediaKeyboard(left);
+    expect(component.communityExpandedMediaIndex).toBe(2);
+    expect(left.defaultPrevented).toBeTrue();
+    component.onCommunityMediaKeyboard(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(component.communityExpandedMedia).toEqual([]);
+    expect(component.communityPostCurrentIndex(entry)).toBe(2);
+  });
+
   it('reorders community album cover and preserves exact upload order', () => {
     const first = new File(['a'], 'first.jpg', { type: 'image/jpeg' });
     const cover = new File(['b'], 'cover.jpg', { type: 'image/jpeg' });
