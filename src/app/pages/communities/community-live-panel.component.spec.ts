@@ -52,7 +52,9 @@ describe('Community broadcast panel', () => {
     fixture.componentRef.setInput('communityId', 7);
     fixture.detectChanges();
     const component = fixture.componentInstance;
-    const join = spyOn(component, 'join').and.resolveTo();
+    const join = spyOn(component, 'join').and.callFake(async () => {
+      expect(component.busy).toBeFalse();
+    });
     component.title = ' Direto de futebol ';
     const button = fixture.nativeElement.querySelector('.live-go-now') as HTMLButtonElement;
     expect(button).not.toBeNull();
@@ -64,6 +66,28 @@ describe('Community broadcast panel', () => {
     expect(component.title).toBe('');
     fixture.destroy();
   }));
+
+  it('enters the presenter room after starting a previously scheduled direct', () => {
+    const now = new Date().toISOString();
+    const scheduled: CommunityLiveEvent = {
+      id: 91, communityId: 7, title: 'Treino de hoje', description: null,
+      status: 'SCHEDULED', scheduledAt: now, startedAt: null,
+      endedAt: null, canManage: true
+    };
+    const started = {...scheduled, status: 'LIVE' as const, startedAt: now};
+    live.start.and.returnValue(of(started));
+    const fixture = TestBed.createComponent(CommunityLivePanelComponent);
+    fixture.componentRef.setInput('communityId', 7);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    const join = spyOn(component, 'join').and.callFake(async () => {
+      expect(component.busy).toBeFalse();
+    });
+    component.start(scheduled);
+    expect(live.start).toHaveBeenCalledOnceWith(7, 91);
+    expect(join).toHaveBeenCalledOnceWith(started);
+    fixture.destroy();
+  });
 
   it('never creates a live event without broadcast permissions or while another is live', () => {
     const fixture = TestBed.createComponent(CommunityLivePanelComponent);
