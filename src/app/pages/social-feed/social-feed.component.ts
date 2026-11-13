@@ -8,6 +8,7 @@ import { appTranslate as t } from '../../i18n/i18n.service';
 import { AuthenticationService } from '../../services/authethication.service';
 import { SocialFeedService } from '../../services/social-feed.service';
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
+import { DirectChatService } from '../../services/direct-chat.service';
 import { CommunityService } from '../../services/community.service';
 import { CommunityGroupsService } from '../../services/community-groups.service';
 import { CommunityGroup } from '../model/community-group';
@@ -1820,6 +1821,63 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   pendingDeletePost: FeedItem | null = null;
+  private readonly postShareChat = inject(DirectChatService);
+  postShareFriends: FriendSummary[] = [];
+  postShareLoadingFriends = false;
+  postShareSendingTo: string | null = null;
+  postShareFriendsOpen = false;
+  postShareFriendsError = '';
+  postShareSearch = '';
+
+  get filteredPostShareFriends(): FriendSummary[] {
+    const term = this.postShareSearch.trim().toLocaleLowerCase();
+    return this.postShareFriends.filter(friend => !term ||
+      friend.username.toLocaleLowerCase().includes(term) ||
+      (friend.fullName || '').toLocaleLowerCase().includes(term)).slice(0,30);
+  }
+
+  openPostFriendShare(item: FeedItem): void {
+    if (item.type !== 'POST' || item.postId == null) return;
+    this.postShareTargetId = item.postId;
+    this.postShareLink = new URL('/menu/feed?post=' + item.postId, window.location.origin).href;
+    this.postShareFriendsOpen = true;
+    this.postShareFriendsError = '';
+    this.postShareSearch = '';
+    this.postShareLoadingFriends = true;
+    this.communityService.friends().pipe(timeout(10000),takeUntil(this.destroyed))
+      .subscribe({
+        next: friends => {
+          this.postShareFriends = friends.filter(friend => !!friend.username &&
+            !friend.blockedByMe && !friend.chatBlocked);
+          this.postShareLoadingFriends = false;
+        },
+        error: () => {
+          this.postShareFriendsError = 'Não foi possível carregar os teus amigos.';
+          this.postShareLoadingFriends = false;
+        }
+      });
+  }
+
+  closePostFriendShare(): void {
+    if (this.postShareSendingTo) return;
+    this.postShareFriendsOpen = false;
+  }
+
+  sendPostToFriend(friend: FriendSummary): void {
+    if (!this.postShareFriendsOpen || this.postShareSendingTo ||
+        !this.postShareFriends.some(user => user.username === friend.username)) return;
+    this.postShareSendingTo = friend.username;
+    this.postShareFriendsError = '';
+    this.postShareChat.send(friend.username, 'Partilhei esta publicação contigo na Jynlo: ' +
+      this.postShareLink).pipe(timeout(12000),finalize(() => this.postShareSendingTo = null),
+        takeUntil(this.destroyed)).subscribe({
+      next: () => {
+        this.postShareMessage = 'Publicação enviada para @' + friend.username;
+        this.postShareFriendsOpen = false;
+      },
+      error: () => this.postShareFriendsError = 'Não foi possível enviar. Verifica se podes trocar mensagens com este amigo.'
+    });
+  }
   postShareMessage = '';
   postShareLink = '';
   postShareTargetId: number | null = null;
