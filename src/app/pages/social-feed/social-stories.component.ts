@@ -626,10 +626,20 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     this.changeDetector.markForCheck();
   }
 
-  @HostListener('document:keydown.escape')
-  escape(): void {
-    this.close();
-    this.composerOpen = false;
+  @HostListener('document:keydown.escape', ['$event'])
+  escape(event: KeyboardEvent): void {
+    // Escape must respect the same upload guard as the editor's close button.
+    // Only handle a key when this component actually owns an open overlay.
+    if (this.composerOpen) {
+      if (this.uploading) return;
+      event.preventDefault();
+      this.closeComposer();
+      return;
+    }
+    if (this.activeStory) {
+      event.preventDefault();
+      this.close();
+    }
   }
 
   pickFile(event: Event): void {
