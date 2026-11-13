@@ -23,6 +23,13 @@ export class RealPlaceSearchService {
   search(text:string):Observable<RealPlace[]> {
     const query=text.trim().slice(0,100);
     if(query.length<2)return of([]);
+    // A small, verified geographic seed for locations the search API
+    // does not reliably index as cities (e.g. Lisbon administrative parishes).
+    // Benfica: OpenStreetMap node 1493246250, place=suburb.
+    const known:RealPlace[] = [
+      {id:'osm:node:1493246250',label:'Benfica',subtitle:'Lisboa, Portugal',
+        latitude:38.7482,longitude:-9.1995}
+    ].filter(place=>place.label.toLocaleLowerCase().startsWith(query.toLocaleLowerCase()));
     // GeoNames indexes cities, towns and neighbourhoods. Photon adds POIs
     // and sports venues. Each source can fail independently without breaking
     // suggestions from the other provider.
@@ -50,7 +57,7 @@ export class RealPlaceSearchService {
     })),catchError(()=>of([] as RealPlace[])));
     return forkJoin([localities,places]).pipe(map(([cities,points])=>{
       const found=new Set<string>();
-      return [...cities,...points]
+      return [...known,...cities,...points]
         .filter(item=>{
           const key=(item.label+'|'+item.subtitle).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
             .toLocaleLowerCase();
