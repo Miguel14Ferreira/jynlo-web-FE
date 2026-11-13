@@ -27,6 +27,9 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       @if (reconnecting) {
         <p class="live-reconnection-status" role="status">A recuperar a ligação ao direto… Os controlos ficam temporariamente indisponíveis.</p>
       }
+      @if (switchingRole) {
+        <p class="live-reconnection-status" role="status">A atualizar a participação no direto…</p>
+      }
       <div class="live-toolbar" aria-label="Ações da transmissão">
         <button type="button" (click)="shareLive()" [disabled]="closing || ending">Partilhar direto</button>
         <button type="button" (click)="toggleFullscreen()" [disabled]="!room">Ampliar vídeo</button>
@@ -247,6 +250,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   private heartbeats?:Subscription;
   private interactionPoll?:Subscription;
   private rejoining=false;
+  switchingRole=false;
   private attached:HTMLMediaElement[]=[];
   private readonly trackOwners=new Map<HTMLMediaElement,string>();
   private lastMessageId:number|null=null;
@@ -289,8 +293,9 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     this.interactionPoll=interval(3000).subscribe(()=>this.refreshInteractions());
   }
 
-  async connect():Promise<void> {
-    if (this.room || this.connecting || this.destroyed || this.closing) return;
+  async connect(roleChange=false):Promise<void> {
+    if (this.room || this.connecting || this.destroyed || this.closing ||
+        (this.rejoining && !roleChange)) return;
     this.connecting=true;this.connectionStatus='A ligar à transmissão…';this.error='';
     let next:Room|null=null;
     try {
@@ -358,7 +363,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
           void this.reconnectRole();
         else {
           this.error='A ligação ao direto foi interrompida.';
-          this.disconnectForRetry(activeRoom);
+          void this.disconnectForRetry(activeRoom);
         }
       });
       this.room=activeRoom;
@@ -419,14 +424,16 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         }
       }
     } catch {
-      if(next && this.room===next)this.disconnectForRetry(next);
+      if(next && this.room===next)await this.disconnectForRetry(next);
       else if(next)await next.disconnect().catch(()=>{});
       if(!this.destroyed&&!this.closing)
         this.error='Não foi possível entrar no direto. Verifica a ligação e as permissões.';
     } finally {this.connecting=false;}
   }
-  private disconnectForRetry(activeRoom:Room):void {
+  private async disconnectForRetry(activeRoom:Room):Promise<void> {
     if(this.room!==activeRoom || this.destroyed || this.closing)return;
+    // Invalidate the room immediately so old LiveKit events cannot affect
+    // replacement media or permissions during an asynchronous disconnect.
     this.room=null;
     this.reconnecting=false;
     this.heartbeats?.unsubscribe();this.heartbeats=undefined;
@@ -435,7 +442,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     this.participantCount=0;
     for(const element of [...this.attached])this.detachElement(element);
     this.trackOwners.clear();
-    void activeRoom.disconnect().catch(()=>{});
+    await activeRoom.disconnect().catch(()=>{});
   }
   private messagesLoading=false;
   private controlsLoading=false;
@@ -490,12 +497,18 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   private async reconnectRole():Promise<void> {
     if(this.rejoining||this.destroyed||this.closing)return;
     this.rejoining=true;
+    this.switchingRole=true;
     this.controlsRevision++;
     const current=this.room;
-    if(current)this.disconnectForRetry(current);
     try {
-      if(!this.destroyed&&!this.closing)await this.connect();
-    } finally {this.rejoining=false;}
+      // Wait for the old identity to leave LiveKit before joining with the
+      // upgraded/downgraded token. Otherwise two connections may compete.
+      if(current)await this.disconnectForRetry(current);
+      if(!this.destroyed&&!this.closing)await this.connect(true);
+    } finally {
+      this.rejoining=false;
+      this.switchingRole=false;
+    }
   }
   isViewerMuted(username:string):boolean {
     return !!this.controls?.mutedUsernames.some(
@@ -713,6 +726,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     this.heartbeats?.unsubscribe();this.heartbeats=undefined;
     this.interactionPoll?.unsubscribe();this.interactionPoll=undefined;
     this.reconnecting=false;
+    this.switchingRole=false;
     this.screenOn=false;
     this.audioBlocked=false;
     this.destroy$.next();
@@ -726,6 +740,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy():void {
     this.destroyed=true;
+    this.switchingRole=false;
     this.screenOn=false;
     this.audioBlocked=false;
     this.destroy$.next();this.destroy$.complete();
