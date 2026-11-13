@@ -268,7 +268,7 @@
           <input id="post-tag-query" type="search" [(ngModel)]="postTagQuery"
                  (ngModelChange)="searchPostTags($event)" autocomplete="off"
                  placeholder="Nome ou utilizador">
-          @if (postTagSearchLoading) { <p>A procurar amigos…</p> }
+          @if (postTagSearchLoading) { <p>A procurar perfis…</p> }
           @for (profile of postTagSuggestions; track profile.username) {
             <button type="button" (click)="tagPostProfile(profile)">
               @if (suggestedProfileImage(profile); as avatar) {
@@ -280,7 +280,7 @@
             </button>
           }
           @if (!postTagSearchLoading && !postTagSuggestions.length) {
-            <p>Não foram encontrados amigos para identificar.</p>
+            <p>{{ postTagQuery.trim().replace('@', '').length < 3 ? 'Escreve pelo menos 3 caracteres para procurar.' : 'Nenhum perfil encontrado.' }}</p>
           }
         </div>
       }
