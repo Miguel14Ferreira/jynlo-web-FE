@@ -482,6 +482,12 @@
                [href]="whatsappShareUrl()" target="_blank" rel="noopener noreferrer">
               {{ 'publicSession.shareWhatsApp' | t }}
             </a>
+            @if (nativeAppUrl()) {
+              <a class="secondary-action jynlo-action jynlo-action--primary"
+                 [href]="nativeAppUrl()" aria-label="Abrir sessão na aplicação Jynlo">
+                Abrir na app Jynlo
+              </a>
+            }
             @if (shareFeedbackKey) {
               <p class="share-feedback" role="status">{{ shareFeedbackKey | t }}</p>
             }

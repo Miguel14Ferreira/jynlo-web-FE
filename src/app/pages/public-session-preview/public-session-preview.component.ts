@@ -972,7 +972,15 @@ export class PublicSessionPreviewComponent implements OnInit, OnDestroy {
     return this.session && this.canRequestParticipation && this.sessionId !== null
       ? new URL('/sessions/' + this.sessionId
           + (this.guestToken ? '?guest=' + encodeURIComponent(this.guestToken) : ''),
-          window.location.origin).href
+          'https://d24sports.com').href
+      : null;
+  }
+
+  /** Manually open the installed app when Android HTTPS link verification is disabled. */
+  nativeAppUrl(): string | null {
+    return this.session && this.sessionId !== null && Number.isSafeInteger(this.sessionId)
+      && this.sessionId > 0
+      ? 'jynlo://sessions/' + this.sessionId
       : null;
   }
 
