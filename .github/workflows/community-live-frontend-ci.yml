@@ -1,0 +1,36 @@
+name: Jynlo community live frontend CI
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'src/app/services/community-live.service.ts'
+      - 'src/app/services/community-live.service.spec.ts'
+      - 'src/app/pages/communities/community-live-panel.component.ts'
+      - 'src/app/pages/communities/community-live-panel.component.spec.ts'
+      - 'src/app/pages/communities/communities.module.ts'
+      - 'src/app/pages/communities/communities.component.html'
+      - '.github/workflows/community-live-frontend-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: community-live-frontend-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  live-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Validate live event, capability and player flows
+        run: |
+          npm test -- --watch=false --browsers=ChromeHeadless \
+            --include=src/app/services/community-live.service.spec.ts \
+            --include=src/app/pages/communities/community-live-panel.component.spec.ts
+      - name: Compile frontend without deploying
+        run: npm run build
