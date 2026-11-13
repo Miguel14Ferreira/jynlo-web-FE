@@ -339,6 +339,22 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   photoTextDraft = '';
   photoTextPosition: 'top' | 'center' | 'bottom' = 'center';
   photoTextInk: 'white' | 'yellow' | 'black' = 'white';
+  photoTextBackground: 'dark' | 'light' | 'none' = 'dark';
+  photoTextFont: 'modern' | 'classic' | 'mono' = 'modern';
+  photoImageRotation = 0;
+  photoImageZoom = 1;
+
+  get photoTextColor(): string {
+    return this.photoTextInk === 'black' ? '#020617' : this.photoTextInk === 'yellow' ? '#fef08a' : '#ffffff';
+  }
+  get photoTextBackdrop(): string {
+    return this.photoTextBackground === 'none' ? 'transparent'
+      : this.photoTextBackground === 'light' ? 'rgba(255,255,255,.86)' : 'rgba(1,9,20,.68)';
+  }
+  get photoTextFontFamily(): string {
+    return this.photoTextFont === 'classic' ? 'Georgia,serif'
+      : this.photoTextFont === 'mono' ? 'monospace' : 'system-ui,sans-serif';
+  }
   photoTextPlacement: TextPlacement = {x:50,y:50,rotation:0,scale:1};
   photoTextPreview = '';
   photoTextAspect = '4 / 3';
@@ -351,6 +367,11 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.photoTextEditorIndex = index;
     this.photoTextDraft = '';
     this.photoTextPlacement = {x:50,y:50,rotation:0,scale:1};
+    this.photoTextInk = 'white';
+    this.photoTextBackground = 'dark';
+    this.photoTextFont = 'modern';
+    this.photoImageRotation = 0;
+    this.photoImageZoom = 1;
     if (this.photoTextPreview) URL.revokeObjectURL(this.photoTextPreview);
     this.photoTextPreview = URL.createObjectURL(file);
     this.photoTextAspect = '4 / 3';
@@ -381,7 +402,9 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.photoTextError = '';
     try {
       const image = await addTextToPhoto(input, this.photoTextDraft,
-        this.photoTextPosition, this.photoTextInk, this.photoTextPlacement);
+        this.photoTextPosition, this.photoTextInk, this.photoTextPlacement,
+        this.photoTextBackground, this.photoTextFont,
+        { rotation: this.photoImageRotation, zoom: this.photoImageZoom });
       if (index === -1) {
         this.postImageFile = image;
         const reader = new FileReader();
