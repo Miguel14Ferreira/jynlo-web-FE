@@ -10,6 +10,9 @@ import { CommunityGroupsService } from '../../services/community-groups.service'
 import { SessionService } from '../../services/session.service';
 import { SocialGraphService } from '../../services/social-graph.service';
 import { SocialFeedService } from '../../services/social-feed.service';
+import { SocialStoriesService } from '../../services/social-stories.service';
+import { ProfilePostViewerComponent } from './profile-post-viewer.component';
+import { ProfileStoryViewerComponent } from './profile-story-viewer.component';
 import { FeedItem } from '../model/feed-item';
 import { TEST_IMPORTS, TEST_PROVIDERS } from '../../testing/test-providers';
 import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/venue-sports-badges.component';
@@ -20,6 +23,7 @@ describe('PerfisComponent', () => {
   let service: jasmine.SpyObj<CommunityService>;
   let socialGraphService: jasmine.SpyObj<SocialGraphService>;
   let socialFeed: jasmine.SpyObj<SocialFeedService>;
+  let stories: jasmine.SpyObj<SocialStoriesService>;
   let groups: jasmine.SpyObj<CommunityGroupsService>;
   let sessions: jasmine.SpyObj<SessionService>;
 
@@ -85,6 +89,8 @@ describe('PerfisComponent', () => {
 
     socialFeed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['profilePosts']);
     socialFeed.profilePosts.and.returnValue(of([]));
+    stories = jasmine.createSpyObj<SocialStoriesService>('SocialStoriesService',['profile']);
+    stories.profile.and.returnValue(of([]));
 
     groups = jasmine.createSpyObj<CommunityGroupsService>('CommunityGroupsService', ['mine','invite']);
     sessions = jasmine.createSpyObj<SessionService>('SessionService', ['mine','invitePlayer']);
@@ -95,12 +101,13 @@ describe('PerfisComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [PerfisComponent],
-      imports: [...TEST_IMPORTS, VenueSportsBadgesComponent],
+      imports: [...TEST_IMPORTS, VenueSportsBadgesComponent, ProfilePostViewerComponent, ProfileStoryViewerComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: CommunityService, useValue: service },
         { provide: SocialGraphService, useValue: socialGraphService },
         { provide: SocialFeedService, useValue: socialFeed },
+        { provide: SocialStoriesService, useValue: stories },
         { provide: CommunityGroupsService, useValue: groups },
         { provide: SessionService, useValue: sessions },
         { provide: ActivatedRoute, useValue: { paramMap: routeParams, snapshot: { params: {}, queryParams: {}, paramMap: convertToParamMap({}), queryParamMap: convertToParamMap({}) } } }
@@ -110,6 +117,49 @@ describe('PerfisComponent', () => {
     fixture = TestBed.createComponent(PerfisComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  it('shows a circular story ring and opens public stories from the profile avatar', () => {
+    const now=new Date().toISOString();
+    const story={
+      id:101,authorUsername:'ana',displayName:'Ana',avatarUrl:null,
+      communityId:null,communityName:null,communityPhotoUrl:null,
+      caption:'Treino!',mediaUrl:'/media/stories/test.jpg',video:false,
+      createdAt:now,expiresAt:new Date(Date.now()+3600000).toISOString(),canDelete:false
+    };
+    stories.profile.and.returnValue(of([story]));
+    component.loadProfile('ana');
+    fixture.detectChanges();
+    const avatar=fixture.nativeElement.querySelector('.profile-story-avatar--active') as HTMLButtonElement;
+    expect(avatar).not.toBeNull();
+    avatar.click();
+    fixture.detectChanges();
+    expect(component.profileStoryViewerOpen).toBeTrue();
+    expect(fixture.nativeElement.querySelector('app-profile-story-viewer')).not.toBeNull();
+    component.closeProfileStories();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-profile-story-viewer')).toBeNull();
+  });
+
+  it('opens a profile publication in a large overlay without navigating away', () => {
+    component.loadProfile('ana');
+    const post={
+      type:'POST',postId:301,authorUsername:'ana',authorDisplayName:'Ana',
+      authorProfilePicUrl:null,content:'Um grande treino',imageUrl:'/media/posts/photo.jpg',
+      createdAt:new Date().toISOString(),sessionId:null,sport:null,city:null,gameDate:null,
+      likeCount:2,likedByMe:false,commentCount:0
+    } as FeedItem;
+    component.profilePosts=[post];
+    fixture.detectChanges();
+    const thumbnail=fixture.nativeElement.querySelector('.profile-publication-open') as HTMLButtonElement;
+    expect(thumbnail).not.toBeNull();
+    thumbnail.click();
+    fixture.detectChanges();
+    expect(component.expandedPost?.postId).toBe(301);
+    expect(fixture.nativeElement.querySelector('app-profile-post-viewer')).not.toBeNull();
+    component.closeExpandedPost();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-profile-post-viewer')).toBeNull();
   });
 
   it('keeps the player-search title and actions without repeating the navbar brand', () => {
