@@ -194,6 +194,10 @@
       }
     }
 
+    @if (expandedPost; as selectedPost) {
+      <app-profile-post-viewer [post]="selectedPost"
+        (closed)="closeExpandedPost()"></app-profile-post-viewer>
+    }
     @if (profilePage && selectedProfile) {
         <article class="profile-detail" [attr.aria-label]="'community.profile' | t">
 
@@ -529,6 +533,9 @@
                 <div class="profile-publications-grid">
                   @for (post of (postsExpanded ? profilePosts : profilePosts.slice(0, 9)); track post.postId) {
                     <article class="profile-publication-card">
+                      <button type="button" class="profile-publication-open"
+                        (click)="openExpandedPost(post)"
+                        [attr.aria-label]="'Abrir publicação de ' + post.authorDisplayName + ' em tamanho maior'">
                       @if (post.imageUrl) {
                         <img class="profile-publication-image" [src]="post.imageUrl"
                           [alt]="'profilePosts.imageAlt' | t" loading="lazy">
@@ -545,6 +552,7 @@
                         <span>{{ 'profilePosts.likes' | t }}: {{ post.likeCount }}</span>
                         <span>{{ 'profilePosts.comments' | t }}: {{ post.commentCount }}</span>
                       </footer>
+                      </button>
                     </article>
                   }
                 </div>
