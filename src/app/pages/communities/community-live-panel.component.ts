@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, Input, OnChanges, OnDestroy, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Room, RoomEvent, Track, RemoteTrack, RemoteParticipant } from 'livekit-client';
-import { Subscription, finalize, firstValueFrom, interval, startWith, switchMap, catchError, of, timeout } from 'rxjs';
+import { Subscription, EMPTY, finalize, firstValueFrom, interval, startWith, switchMap, catchError, of, timeout } from 'rxjs';
 import { CommunityLiveEvent, CommunityLiveService } from '../../services/community-live.service';
 
 /**
@@ -144,6 +144,7 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
   }
   private readonly api = inject(CommunityLiveService);
   private updates = new Subscription();
+  private hostHeartbeatSubscription?: Subscription;
   private readonly attached = new Set<HTMLMediaElement>();
   private requestVersion = 0;
   events: CommunityLiveEvent[] = [];
@@ -307,6 +308,7 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
         await room.localParticipant.setMicrophoneEnabled(true);
         if (this.room !== room) return;
         this.micOn = true;
+        this.startPresenterHeartbeat(room, origin, event.id);
         // LocalTrackPublished already attaches the self-preview, including
         // camera changes during a running broadcast.
       }
@@ -314,6 +316,29 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
       this.error = 'Não foi possível entrar no direto. Verifica as permissões da câmara e do microfone.';
       this.leave();
     } finally { this.busy = false; }
+  }
+
+  /** Keep the event alive only while the presenter is actually connected.
+   * A dropped mobile browser will stop sending heartbeats; the backend
+   * expires abandoned streams after a two-minute grace period.
+   */
+  private startPresenterHeartbeat(room: Room, communityId: number, eventId: number): void {
+    this.hostHeartbeatSubscription?.unsubscribe();
+    this.hostHeartbeatSubscription = interval(20_000).pipe(startWith(0), switchMap(() => {
+      if (this.room !== room || !this.hosting || this.communityId !== communityId) return EMPTY;
+      return this.api.heartbeat(communityId, eventId).pipe(
+        timeout(8_000),
+        catchError((error: unknown) => {
+          if (error instanceof HttpErrorResponse
+              && [401, 403, 404, 409].includes(error.status)) {
+            this.error = 'O direto terminou ou deixaste de ter permissão para transmitir.';
+            this.leave();
+          }
+          // Ordinary network errors are retried by the next heartbeat.
+          return EMPTY;
+        })
+      );
+    })).subscribe();
   }
 
   private attach(track: {kind: Track.Kind; attach: () => HTMLMediaElement}): void {
@@ -368,6 +393,8 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
   }
 
   leave(): void {
+    this.hostHeartbeatSubscription?.unsubscribe();
+    this.hostHeartbeatSubscription = undefined;
     const room = this.room;
     this.room = null;
     this.active = null;
