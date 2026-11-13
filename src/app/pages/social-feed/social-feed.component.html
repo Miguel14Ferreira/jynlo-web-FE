@@ -17,6 +17,25 @@
 
     <app-social-stories></app-social-stories>
 
+    @if (publicLiveEvents.length) {
+      <section class="feed-live-community" aria-label="Transmissões em direto das comunidades">
+        <div class="feed-live-heading"><strong><span aria-hidden="true">●</span> Em direto na Jynlo</strong>
+          <span>Jogos e treinos das tuas comunidades</span></div>
+        <div class="feed-live-list">
+          @for (stream of publicLiveEvents; track stream.event.id) {
+            <article class="feed-live-entry">
+              <div><strong>{{ stream.event.title }}</strong>
+                <small>{{ stream.communityName }}</small></div>
+              <a [routerLink]="['/menu/communities']"
+                 [queryParams]="{ community: stream.event.communityId, tab: 'feed' }">
+                Assistir ao direto
+              </a>
+            </article>
+          }
+        </div>
+      </section>
+    }
+
     <section class="feed-create-entry" aria-label="Partilhar um momento">
       <button type="button" class="feed-create-prompt" (click)="openPostComposer()">
         <span class="feed-create-avatar" aria-hidden="true">
