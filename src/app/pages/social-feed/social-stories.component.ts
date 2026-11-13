@@ -19,6 +19,7 @@ import { RealPlace, RealPlaceSearchService } from '../../services/real-place-sea
 import { CommunityService } from '../../services/community.service';
 import { MovableTextComponent, TextPlacement } from './movable-text.component';
 import { FriendSummary } from '../model/friend-summary';
+import { CommunityProfile } from '../model/community-profile';
 
 interface StoryGroup {
   key: string;
@@ -137,33 +138,39 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   storyTagLoading = false;
   storyTagResults: FriendSummary[] = [];
   storyTaggedProfiles: FriendSummary[] = [];
-  private storyProfileIndex: FriendSummary[] = [];
+  private storyTagQuerySerial = 0;
+  private storyTagSubscription?: Subscription;
 
   toggleStoryTags(): void {
-    this.storyTagOpen = !this.storyTagOpen;
-    if (!this.storyTagOpen || !this.profiles) return;
-    this.storyTagLoading = true;
-    // Only load the authenticated person's accepted friends, never the
-    // global profile discovery directory.
-    this.profiles.friends().pipe(
-      timeout(10_000), catchError(() => of([] as FriendSummary[])),
-      takeUntil(this.destroyed)
-    ).subscribe(profiles => {
-      this.storyProfileIndex = profiles.filter(profile =>
-        !!profile.username && !profile.blockedByMe && !profile.chatBlocked);
+    this.storyTagOpen=!this.storyTagOpen;
+    this.storyTagResults=[];
+    this.storyTagLoading=false;
+    this.storyTagSubscription?.unsubscribe();
+    if (this.storyTagOpen && this.storyTagQuery.trim().replace(/^@/,'').length>=3)
       this.searchStoryTag(this.storyTagQuery);
-      this.storyTagLoading = false;
-      this.changeDetector.markForCheck();
-    });
   }
 
   searchStoryTag(query: string): void {
-    const normalized = query.replace(/^@/, '').trim().toLowerCase();
-    const already = new Set(this.storyTaggedProfiles.map(profile => profile.username.toLowerCase()));
-    this.storyTagResults = this.storyProfileIndex.filter(profile =>
-      !already.has(profile.username.toLowerCase())
-      && (profile.username.toLowerCase().includes(normalized)
-        || (profile.fullName || '').toLowerCase().includes(normalized))).slice(0, 8);
+    const term=query.trim().replace(/^@/,'');
+    const serial=++this.storyTagQuerySerial;
+    this.storyTagSubscription?.unsubscribe();
+    this.storyTagResults=[];
+    this.storyTagLoading=this.storyTagOpen && term.length>=3;
+    if (!this.storyTagOpen || term.length<3 || !this.profiles) return;
+    this.storyTagSubscription=timer(350).pipe(switchMap(()=>
+      this.profiles!.searchProfiles(term).pipe(timeout(8000),
+        catchError(()=>of([] as CommunityProfile[])))),
+      takeUntil(this.destroyed)).subscribe(profiles=>{
+        if (serial!==this.storyTagQuerySerial || !this.storyTagOpen) return;
+        const already=new Set(this.storyTaggedProfiles.map(p=>p.username.toLowerCase()));
+        this.storyTagResults=profiles.filter(profile=>!!profile.username &&
+          !already.has(profile.username.toLowerCase())).slice(0,8).map(profile=>({
+          username:profile.username,fullName:profile.fullName,nickname:profile.nickname,
+          profilePicUrl:profile.profilePicUrl,blockedByMe:false,chatBlocked:false
+        }));
+        this.storyTagLoading=false;
+        this.changeDetector.markForCheck();
+      });
   }
 
   addStoryTag(profile: FriendSummary): void {
