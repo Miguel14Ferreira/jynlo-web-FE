@@ -37,11 +37,12 @@ describe('SocialFeedComponent discovery sidebar', () => {
     }
     socialChanged = new Subject<void>();
     realtimeConnected = new BehaviorSubject<boolean>(false);
-    feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'createPost', 'createPostAlbum', 'editPost', 'hidePost', 'restoreHiddenPost', 'likers']);
+    feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'createPost', 'createPostAlbum', 'editPost', 'hidePost', 'restoreHiddenPost', 'hiddenPosts', 'likers']);
     feed.feed.and.returnValue(of([]));
     feed.likers.and.returnValue(of([]));
     feed.hidePost.and.returnValue(of(undefined));
     feed.restoreHiddenPost.and.returnValue(of(undefined));
+    feed.hiddenPosts.and.returnValue(of([]));
     sessions = jasmine.createSpyObj<SessionService>('SessionService', ['discover', 'mine', 'detail']);
     sessions.discover.and.returnValue(of([]));
     sessions.mine.and.returnValue(of({ created: [], joined: [], waitlisted: [] }));
@@ -210,6 +211,46 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(component.fullFeedItems).toContain(post);
     expect(component.actionError).toContain('Não foi possível');
     expect(component.recentlyHiddenFeedEntry).toBeNull();
+  }));
+
+  it('lists account-hidden publications and restores them through the management panel', fakeAsync(() => {
+    const post: FeedItem = {
+      type: 'POST', postId: 831, sessionId: null,
+      authorUsername: 'ana', authorDisplayName: 'Ana',
+      authorProfilePicUrl: null, content: 'Treino', imageUrl: null,
+      createdAt: '2026-11-12T18:00:00Z', sport: null, city: null, gameDate: null,
+      likeCount: 0, likedByMe: false, commentCount: 0
+    };
+    fixture.detectChanges();
+    tick(351);
+    feed.hiddenPosts.and.returnValue(of([post]));
+    feed.feed.and.returnValue(of([post]));
+    component.toggleHiddenPostsPanel();
+    expect(feed.hiddenPosts).toHaveBeenCalled();
+    expect(component.hiddenPostsList.map(item => item.postId)).toEqual([831]);
+    expect(component.hiddenPostsPanelOpen).toBeTrue();
+    component.restoreHiddenPostFromPanel(831);
+    expect(feed.restoreHiddenPost).toHaveBeenCalledOnceWith(831);
+    expect(component.hiddenPostsList).toEqual([]);
+    expect(component.items.map(item => item.postId)).toContain(831);
+  }));
+
+  it('does not remove hidden publications from management when restoring fails', fakeAsync(() => {
+    const post: FeedItem = {
+      type: 'POST', postId: 832, sessionId: null,
+      authorUsername: 'ana', authorDisplayName: 'Ana',
+      authorProfilePicUrl: null, content: 'Treino', imageUrl: null,
+      createdAt: '2026-11-12T18:00:00Z', sport: null, city: null, gameDate: null,
+      likeCount: 0, likedByMe: false, commentCount: 0
+    };
+    fixture.detectChanges();
+    tick(351);
+    feed.hiddenPosts.and.returnValue(of([post]));
+    component.toggleHiddenPostsPanel();
+    feed.restoreHiddenPost.and.returnValue(throwError(() => new HttpErrorResponse({ status: 503 })));
+    component.restoreHiddenPostFromPanel(832);
+    expect(component.hiddenPostsList.map(item => item.postId)).toEqual([832]);
+    expect(component.hiddenPostsError).toContain('Não foi possível');
   }));
 
   it('restores hidden entries from account-scoped storage on feed initialization', fakeAsync(() => {
