@@ -721,6 +721,26 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       });
   }
 
+  /** Display actionable upload failures without leaking server internals. */
+  communityPostUploadError(error: unknown): string {
+    if (error instanceof TimeoutError)
+      return 'O envio demorou demasiado. Verifica primeiro se a publicação apareceu antes de tentares novamente.';
+    if (!(error instanceof HttpErrorResponse)) return t('communities.timelineSendError');
+    if (error.status === 0 || error.status === 408 || error.status === 504)
+      return 'Não foi possível confirmar o envio. Verifica a ligação e se a publicação apareceu antes de repetir.';
+    if (error.status === 401 || error.status === 403)
+      return 'Não tens permissão para publicar nesta comunidade. Verifica a sessão e a tua participação.';
+    if (error.status === 413)
+      return 'O ficheiro é demasiado grande para o servidor. Experimenta uma imagem mais pequena.';
+    if (error.status === 415)
+      return 'O formato do ficheiro não é suportado. Utiliza JPG, PNG, WebP, MP4 ou WebM.';
+    if (error.status === 404 || error.status === 405)
+      return 'O servidor ainda não reconhece este tipo de publicação. Tenta enviar uma fotografia de cada vez.';
+    if (error.status === 400 || error.status === 422)
+      return 'A publicação foi rejeitada. Confirma o formato e o tamanho dos ficheiros e tenta novamente.';
+    return 'Não foi possível publicar (erro do servidor ' + error.status + '). O conteúdo foi mantido para tentares novamente.';
+  }
+
   sendTimeline(): void {
     if (this.activeTab === 'chat') this.typing?.stop();
     if (!this.selected || this.timelineSending ||
@@ -790,7 +810,9 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
             this.chatDeliveryUncertain = true;
             this.timelineError = t('chat.sendUncertain');
             this.verifyCommunityChatDelivery();
-          } else this.timelineError = t('communities.timelineSendError');
+          } else this.timelineError = kind === 'POST'
+            ? this.communityPostUploadError(error)
+            : t('communities.timelineSendError');
         }
       });
   }
