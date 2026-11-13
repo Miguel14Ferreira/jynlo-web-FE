@@ -25,6 +25,9 @@ export class SocialStoriesService {
     textPosition: 'top' | 'center' | 'bottom';
     textScale: 'small' | 'medium' | 'large';
     textStyle: 'plain' | 'pill';
+    textColor?: 'white' | 'black' | 'yellow' | 'mint' | 'pink' | 'blue';
+    textBackground?: 'dark' | 'light' | 'none';
+    textFont?: 'modern' | 'classic' | 'mono';
     textX?: number;
     textY?: number;
     textRotation?: number;
@@ -42,6 +45,9 @@ export class SocialStoriesService {
       body.append('textPosition', options.textPosition);
       body.append('textScale', options.textScale);
       body.append('textStyle', options.textStyle);
+      body.append('textColor', options.textColor || 'white');
+      body.append('textBackground', options.textBackground || 'dark');
+      body.append('textFont', options.textFont || 'modern');
       if (options.textX !== undefined) body.append('textX', String(options.textX));
       if (options.textY !== undefined) body.append('textY', String(options.textY));
       if (options.textRotation !== undefined) body.append('textRotation', String(options.textRotation));
