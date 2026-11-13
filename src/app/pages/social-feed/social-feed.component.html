@@ -17,111 +17,37 @@
 
     <app-social-stories></app-social-stories>
 
-    <section class="week-hub jynlo-premium-week" [attr.aria-label]="'week.title' | t">
-      <div class="week-hub-heading">
-        <div>
-          <p class="week-hub-eyebrow">{{ 'week.eyebrow' | t }}</p>
-          <h2>{{ 'week.title' | t }}</h2>
-          <p>{{ 'week.subtitle' | t }}</p>
-        </div>
-        <a class="jynlo-action jynlo-action--neutral week-hub-create jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small"
-           routerLink="/menu/my-sessions">{{ 'week.allMyGames' | t }} <span aria-hidden="true">↗</span></a>
-      </div>
-      <div class="week-hub-grid">
-        <article class="week-hub-card" aria-label="Os teus próximos jogos">
-          <div class="week-card-heading"><span aria-hidden="true">▦</span><h3>{{ 'week.upcoming' | t }}</h3></div>
-          @if (myWeekGamesLoading) {
-            <p class="week-muted" role="status">{{ 'week.loading' | t }}</p>
-          } @else if (myWeekGamesError) {
-            <p class="week-muted" role="alert">{{ 'week.unavailable' | t }}</p>
-          } @else if (myWeekGames.length === 0 && myWeekWaitlist.length === 0) {
-            <p class="week-muted">{{ 'week.noUpcoming' | t }}</p>
-          } @else {
-            @for (session of myWeekGames; track session.id) {
-              <a class="week-item" [routerLink]="['/menu/events', session.id]">
-                <strong>{{ session.sport }} <span aria-hidden="true">↗</span></strong>
-                <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
-                <small>{{ 'week.confirmed' | t }}</small>
-              </a>
-              @if (canPromoteWeekGame(session)) {
-                <a class="week-share-action jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small"
-                   [routerLink]="['/menu/events', session.id]"
-                   [queryParams]="{ promote: '1' }">
-                  {{ 'week.promoteVacancies' | t:{
-                    count: session.maxParticipants - session.participantCount
-                  } }}
-                  <span aria-hidden="true">↗</span>
-                </a>
-              }
-            }
-            @for (session of myWeekWaitlist; track session.id) {
-              <a class="week-item" [routerLink]="['/menu/events', session.id]">
-                <strong>{{ session.sport }} <span aria-hidden="true">↗</span></strong>
-                <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
-                <small class="week-waitlist">{{ 'week.waitlist' | t }}</small>
-              </a>
-            }
-          }
-          <a class="week-card-link" routerLink="/menu/my-sessions">{{ 'week.allMyGames' | t }} →</a>
-        </article>
-        <article class="week-hub-card" aria-label="Jogos a precisar de jogadores">
-          <div class="week-card-heading"><span aria-hidden="true">✦</span><h3>{{ 'week.openSlots' | t }}</h3></div>
-          @if ((loadingSessions || myWeekGamesLoading) && myWeekOffers.length === 0) {
-            <p class="week-muted" role="status">{{ 'week.loading' | t }}</p>
-          } @else if ((sessionSearchError || myWeekGamesError) && myWeekOffers.length === 0) {
-            <p class="week-muted" role="alert">{{ 'week.unavailable' | t }}</p>
-          } @else if (myWeekOffers.length === 0) {
-            <p class="week-muted">{{ 'week.noOpenSlots' | t }}</p>
-          } @else {
-            @for (session of myWeekOffers; track session.id) {
-              <a class="week-item" [routerLink]="['/menu/events', session.id]"
-                 [queryParams]="{ join: '1' }">
-                <strong>{{ session.sport }} <span aria-hidden="true">↗</span></strong>
-                <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
-                <small>{{ 'week.needs' | t }} {{ session.maxParticipants - session.participantCount }}
-                  {{ (session.maxParticipants - session.participantCount) === 1 ? ('week.player' | t) : ('week.players' | t) }}</small>
-              </a>
-            }
-          }
-          <a class="week-card-link" routerLink="/menu/discover">{{ 'week.discover' | t }} →</a>
-        </article>
-        <article class="week-hub-card" aria-label="As tuas comunidades">
-          <div class="week-card-heading"><span aria-hidden="true">◎</span><h3>{{ 'week.communities' | t }}</h3></div>
-          @if (myWeekCommunitiesLoading) {
-            <p class="week-muted" role="status">{{ 'week.loading' | t }}</p>
-          } @else if (myWeekCommunitiesError) {
-            <p class="week-muted" role="alert">{{ 'week.unavailable' | t }}</p>
-          } @else if (myWeekCommunities.length === 0) {
-            <p class="week-muted">{{ 'week.noCommunities' | t }}</p>
-          } @else {
-            @for (community of myWeekCommunities; track community.id) {
-              <a class="week-item" [routerLink]="['/menu/communities', community.id]">
-                <strong>{{ community.name }} <span aria-hidden="true">↗</span></strong>
-                <span>{{ community.sport || (community.sports && community.sports[0]) || ('week.multisport' | t) }}</span>
-                <small>{{ community.memberCount }} {{ 'week.members' | t }}</small>
-              </a>
-            }
-          }
-          <a class="week-card-link" routerLink="/menu/communities">{{ 'week.exploreCommunities' | t }} →</a>
-        </article>
+    <section class="feed-create-entry" aria-label="Partilhar um momento">
+      <button type="button" class="feed-create-prompt" (click)="openPostComposer()">
+        <span class="feed-create-avatar" aria-hidden="true">{{ (currentUsername || 'J').charAt(0).toUpperCase() }}</span>
+        <span>Em que estás a pensar? Partilha um momento desportivo...</span>
+      </button>
+      <div class="feed-create-actions">
+        <button type="button" (click)="openPostComposer()"><span aria-hidden="true">▣</span> Fotografia ou vídeo</button>
+        <button type="button" (click)="openPostComposer()"><span aria-hidden="true">✍</span> Publicação</button>
+        <a routerLink="/menu/createEvent"><span aria-hidden="true">⚽</span> Criar sessão</a>
       </div>
     </section>
 
-    @if (!loading && !errorMessage && items.length === 0) {
-      <div class="state-card feed-empty-state">
-        <h2>{{ 'feed.emptyTitle' | t }}</h2>
-        <p>{{ 'feed.emptyText' | t }}</p>
-        <nav class="feed-empty-actions" [attr.aria-label]="'feed.emptyTitle' | t">
-          <a class="jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary" routerLink="/menu/discover">{{ 'menu.findSessions' | t }}</a>
-          <a class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" routerLink="/menu/perfis">{{ 'feed.findPeople' | t }}</a>
-          <a class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" routerLink="/menu/createEvent">{{ 'menu.createSession' | t }}</a>
-        </nav>
+    <div class="feed-post-dialog-backdrop" [class.feed-post-dialog-visible]="postComposerOpen"
+         [attr.aria-hidden]="postComposerOpen ? null : 'true'"
+         (click)="closePostComposer()"></div>
+    <section class="composer" role="dialog" aria-modal="true" aria-label="Criar publicação"
+      [class.feed-post-dialog-open]="postComposerOpen"
+      [attr.aria-hidden]="postComposerOpen ? null : 'true'"
+      [attr.inert]="postComposerOpen ? null : ''">
+      <div class="feed-post-dialog-header">
+        <strong>Criar publicação</strong>
+        <button type="button" aria-label="Fechar publicação" class="feed-post-dialog-close"
+                [disabled]="posting" (click)="closePostComposer()">×</button>
       </div>
-    }
-
-    <section class="composer">
       <div class="composer-heading">
-        <strong>{{ 'feed.shareTitle' | t }}</strong>
+        <div class="feed-post-author">
+          <span class="feed-post-author-avatar" aria-hidden="true">{{ (currentUsername || 'J').charAt(0).toUpperCase() }}</span>
+          <div><strong>{{ currentUsername }}</strong>
+            <small>Partilhar com a comunidade Jynlo</small>
+          </div>
+        </div>
         <span>{{ postContent.length }}/1000</span>
       </div>
       @if (newSessionForFeed; as newSession) {
@@ -294,8 +220,110 @@
       </div>
     </section>
 
+    <section class="week-hub jynlo-premium-week" [attr.aria-label]="'week.title' | t">
+      <div class="week-hub-heading">
+        <div>
+          <p class="week-hub-eyebrow">{{ 'week.eyebrow' | t }}</p>
+          <h2>{{ 'week.title' | t }}</h2>
+          <p>{{ 'week.subtitle' | t }}</p>
+        </div>
+        <a class="jynlo-action jynlo-action--neutral week-hub-create jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small"
+           routerLink="/menu/my-sessions">{{ 'week.allMyGames' | t }} <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="week-hub-grid">
+        <article class="week-hub-card" aria-label="Os teus próximos jogos">
+          <div class="week-card-heading"><span aria-hidden="true">▦</span><h3>{{ 'week.upcoming' | t }}</h3></div>
+          @if (myWeekGamesLoading) {
+            <p class="week-muted" role="status">{{ 'week.loading' | t }}</p>
+          } @else if (myWeekGamesError) {
+            <p class="week-muted" role="alert">{{ 'week.unavailable' | t }}</p>
+          } @else if (myWeekGames.length === 0 && myWeekWaitlist.length === 0) {
+            <p class="week-muted">{{ 'week.noUpcoming' | t }}</p>
+          } @else {
+            @for (session of myWeekGames; track session.id) {
+              <a class="week-item" [routerLink]="['/menu/events', session.id]">
+                <strong>{{ session.sport }} <span aria-hidden="true">↗</span></strong>
+                <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
+                <small>{{ 'week.confirmed' | t }}</small>
+              </a>
+              @if (canPromoteWeekGame(session)) {
+                <a class="week-share-action jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small"
+                   [routerLink]="['/menu/events', session.id]"
+                   [queryParams]="{ promote: '1' }">
+                  {{ 'week.promoteVacancies' | t:{
+                    count: session.maxParticipants - session.participantCount
+                  } }}
+                  <span aria-hidden="true">↗</span>
+                </a>
+              }
+            }
+            @for (session of myWeekWaitlist; track session.id) {
+              <a class="week-item" [routerLink]="['/menu/events', session.id]">
+                <strong>{{ session.sport }} <span aria-hidden="true">↗</span></strong>
+                <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
+                <small class="week-waitlist">{{ 'week.waitlist' | t }}</small>
+              </a>
+            }
+          }
+          <a class="week-card-link" routerLink="/menu/my-sessions">{{ 'week.allMyGames' | t }} →</a>
+        </article>
+        <article class="week-hub-card" aria-label="Jogos a precisar de jogadores">
+          <div class="week-card-heading"><span aria-hidden="true">✦</span><h3>{{ 'week.openSlots' | t }}</h3></div>
+          @if ((loadingSessions || myWeekGamesLoading) && myWeekOffers.length === 0) {
+            <p class="week-muted" role="status">{{ 'week.loading' | t }}</p>
+          } @else if ((sessionSearchError || myWeekGamesError) && myWeekOffers.length === 0) {
+            <p class="week-muted" role="alert">{{ 'week.unavailable' | t }}</p>
+          } @else if (myWeekOffers.length === 0) {
+            <p class="week-muted">{{ 'week.noOpenSlots' | t }}</p>
+          } @else {
+            @for (session of myWeekOffers; track session.id) {
+              <a class="week-item" [routerLink]="['/menu/events', session.id]"
+                 [queryParams]="{ join: '1' }">
+                <strong>{{ session.sport }} <span aria-hidden="true">↗</span></strong>
+                <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
+                <small>{{ 'week.needs' | t }} {{ session.maxParticipants - session.participantCount }}
+                  {{ (session.maxParticipants - session.participantCount) === 1 ? ('week.player' | t) : ('week.players' | t) }}</small>
+              </a>
+            }
+          }
+          <a class="week-card-link" routerLink="/menu/discover">{{ 'week.discover' | t }} →</a>
+        </article>
+        <article class="week-hub-card" aria-label="As tuas comunidades">
+          <div class="week-card-heading"><span aria-hidden="true">◎</span><h3>{{ 'week.communities' | t }}</h3></div>
+          @if (myWeekCommunitiesLoading) {
+            <p class="week-muted" role="status">{{ 'week.loading' | t }}</p>
+          } @else if (myWeekCommunitiesError) {
+            <p class="week-muted" role="alert">{{ 'week.unavailable' | t }}</p>
+          } @else if (myWeekCommunities.length === 0) {
+            <p class="week-muted">{{ 'week.noCommunities' | t }}</p>
+          } @else {
+            @for (community of myWeekCommunities; track community.id) {
+              <a class="week-item" [routerLink]="['/menu/communities', community.id]">
+                <strong>{{ community.name }} <span aria-hidden="true">↗</span></strong>
+                <span>{{ community.sport || (community.sports && community.sports[0]) || ('week.multisport' | t) }}</span>
+                <small>{{ community.memberCount }} {{ 'week.members' | t }}</small>
+              </a>
+            }
+          }
+          <a class="week-card-link" routerLink="/menu/communities">{{ 'week.exploreCommunities' | t }} →</a>
+        </article>
+      </div>
+    </section>
+
+    @if (!loading && !errorMessage && items.length === 0) {
+      <div class="state-card feed-empty-state">
+        <h2>{{ 'feed.emptyTitle' | t }}</h2>
+        <p>{{ 'feed.emptyText' | t }}</p>
+        <nav class="feed-empty-actions" [attr.aria-label]="'feed.emptyTitle' | t">
+          <a class="jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary" routerLink="/menu/discover">{{ 'menu.findSessions' | t }}</a>
+          <a class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" routerLink="/menu/perfis">{{ 'feed.findPeople' | t }}</a>
+          <a class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" routerLink="/menu/createEvent">{{ 'menu.createSession' | t }}</a>
+        </nav>
+      </div>
+    }
+
     @if (actionError) {
-      <div class="feedback error-feedback">{{ actionError }}</div>
+      <div class="feedback error-feedback" role="alert">{{ actionError }}</div>
     }
 
     <div class="feed-v3-post-heading"><h2>{{ 'feed.v3.latest' | t }}</h2><a class="feed-inline-link" routerLink="/menu/discover">{{ 'nav.discover' | t }} <span aria-hidden="true">↗</span></a></div>
