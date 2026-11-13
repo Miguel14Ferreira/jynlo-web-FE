@@ -356,7 +356,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     };
     feed.createPostAlbum.and.returnValue(of(published));
     component.publish();
-    expect(feed.createPostAlbum).toHaveBeenCalledOnceWith('Grande jogo!', [photo, video], undefined);
+    expect(feed.createPostAlbum).toHaveBeenCalledOnceWith('Grande jogo!', [photo, video], undefined, undefined);
     expect(feed.createPost).not.toHaveBeenCalled();
     expect(component.postGallery.length).toBe(0);
     expect(component.items[0].postId).toBe(123);
@@ -380,7 +380,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
       gameDate:null,likeCount:0,likedByMe:false,commentCount:0
     }));
     component.publish();
-    expect(feed.createPost).toHaveBeenCalledOnceWith('', photo, undefined, undefined);
+    expect(feed.createPost).toHaveBeenCalledOnceWith('', photo, undefined, undefined, undefined);
     expect(component.items[0].content).toBe('');
     expect(component.canPublishPost).toBeFalse();
   }));
@@ -397,7 +397,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
       gameDate:null,likeCount:0,likedByMe:false,commentCount:0
     }));
     component.publish();
-    expect(feed.createPost).toHaveBeenCalledOnceWith('',picture,undefined,undefined);
+    expect(feed.createPost).toHaveBeenCalledOnceWith('',picture,undefined,undefined,undefined);
     expect(feed.createPostAlbum).not.toHaveBeenCalled();
     expect(component.postGallery.length).toBe(0);
   }));
@@ -642,7 +642,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
       city: null, gameDate: null, likeCount: 0, likedByMe: false, commentCount: 0
     }));
     component.publish();
-    expect(feed.createPost).toHaveBeenCalledOnceWith('Hoje foi dia de treino!', undefined, undefined, undefined);
+    expect(feed.createPost).toHaveBeenCalledOnceWith('Hoje foi dia de treino!', undefined, undefined, undefined, undefined);
     expect(component.selectedSessionId).toBeNull();
   }));
 
@@ -665,7 +665,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     component.publish();
     fixture.detectChanges();
 
-    expect(feed.createPost).toHaveBeenCalledOnceWith('Bora jogar?', undefined, 42, undefined);
+    expect(feed.createPost).toHaveBeenCalledOnceWith('Bora jogar?', undefined, 42, undefined, undefined);
     expect(component.postContent).toBe('');
     expect(component.selectedSessionId).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('.composer-session-select')).toBeNull();
