@@ -655,6 +655,10 @@
               </section>
             }
 
+            @if (activeTab === 'feed' && selected?.id) {
+              <app-community-live-panel [communityId]="selected!.id"></app-community-live-panel>
+            }
+
             @if (activeTab === 'feed') {
               <section class="community-tab-panel community-timeline community-feed"
                        [attr.aria-label]="'communities.tab.feed' | t">
