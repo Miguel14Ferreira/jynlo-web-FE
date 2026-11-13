@@ -31,8 +31,9 @@ describe('SocialStoriesComponent', () => {
     api.feed.and.returnValue(of([picture]));
     direct = jasmine.createSpyObj<DirectChatService>('DirectChatService', ['send']);
     direct.send.and.returnValue(of({} as any));
-    profiles = jasmine.createSpyObj<CommunityService>('CommunityService', ['friends', 'discoverProfiles']);
+    profiles = jasmine.createSpyObj<CommunityService>('CommunityService', ['friends', 'discoverProfiles', 'searchProfiles']);
     profiles.friends.and.returnValue(of([]));
+    profiles.searchProfiles.and.returnValue(of([]));
     api.mine.and.returnValue(of([picture]));
     communities = jasmine.createSpyObj<CommunityGroupsService>('CommunityGroupsService', ['mine']);
     communities.mine.and.returnValue(of([
@@ -80,22 +81,23 @@ describe('SocialStoriesComponent', () => {
     expect(root.querySelector('.story-primary.jynlo-premium-btn--primary')).not.toBeNull();
   }));
 
-  it('only loads accepted friends for Story tags, never global discoverable users', fakeAsync(() => {
-    profiles.friends.and.returnValue(of([
-      { username: 'ana', fullName: 'Ana', nickname: null, profilePicUrl: null,
-        blockedByMe: false, chatBlocked: false },
-      { username: 'blocked', fullName: 'Blocked', nickname: null, profilePicUrl: null,
-        blockedByMe: true, chatBlocked: true }
-    ]));
+  it('searches mentionable profiles only after typing 3 characters', fakeAsync(() => {
+    profiles.searchProfiles.and.returnValue(of([
+      {username:'ana',fullName:'Ana',nickname:null,profilePicUrl:null}
+    ] as any));
     fixture.detectChanges();
     tick();
     component.toggleStoryTags();
-    tick();
-    expect(profiles.friends).toHaveBeenCalledTimes(1);
-    expect(profiles.discoverProfiles).not.toHaveBeenCalled();
-    expect(component.storyTagResults.map(p => p.username)).toEqual(['ana']);
-    component.searchStoryTag('no-such-friend');
     expect(component.storyTagResults).toEqual([]);
+    expect(profiles.searchProfiles).not.toHaveBeenCalled();
+    component.searchStoryTag('an');
+    tick(400);
+    expect(profiles.searchProfiles).not.toHaveBeenCalled();
+    component.searchStoryTag('ana');
+    tick(400);
+    expect(profiles.searchProfiles).toHaveBeenCalledOnceWith('ana');
+    expect(component.storyTagResults.map(p=>p.username)).toEqual(['ana']);
+    expect(profiles.discoverProfiles).not.toHaveBeenCalled();
   }));
 
   it('accepts a real place suggestion and rejects unverified typed locations', fakeAsync(() => {
