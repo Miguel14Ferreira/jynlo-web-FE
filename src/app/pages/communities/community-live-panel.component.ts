@@ -89,6 +89,7 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
   `,
   styles: [`
     .live-panel{border:1px solid #2c6c70;border-radius:16px;background:#092632;padding:16px;color:#e8f8f7;display:grid;gap:16px}
+    .live-panel[hidden]{display:none!important}
     .live-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
     .live-panel-heading strong{font-size:1.1rem}
     .live-panel-heading p,.live-event p{font-size:.82rem;color:#b1cbcd;margin:4px 0}
@@ -250,12 +251,17 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
       });
       room.on(RoomEvent.Disconnected, () => { if (this.room === room) this.leave(); });
       await room.connect(access.serverUrl, access.token);
-      if (this.room !== room) { room.disconnect(); return; }
+      if (this.room !== room || origin !== this.communityId) {
+        await room.disconnect();
+        return;
+      }
       if (this.hosting) {
         // A host explicitly chose to enter. Never start capture for spectators.
         await room.localParticipant.setCameraEnabled(true);
+        if (this.room !== room) return;
         this.cameraOn = true;
         await room.localParticipant.setMicrophoneEnabled(true);
+        if (this.room !== room) return;
         this.micOn = true;
         // LocalTrackPublished already attaches the self-preview, including
         // camera changes during a running broadcast.
@@ -274,7 +280,8 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
     }
     const element = track.attach();
     if (track.kind === Track.Kind.Video) {
-      element.muted = this.hosting;
+      // Audio is separate; muted video can autoplay on mobile browsers.
+      element.muted = true;
       element.setAttribute('playsinline','');
       element.setAttribute('aria-label', 'Vídeo em direto');
     } else {
