@@ -296,6 +296,14 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     });
   }
 
+  selectPostPlaceName(): void {
+    // Geographic labels are first-class locations; sports venues are optional.
+    this.postLocation = this.postLocation.trim().slice(0, 160);
+    this.postLocationOpen = false;
+    this.postLocationSuggestions = [];
+    this.postLocationQuerySerial++;
+  }
+
   selectPostLocation(place: Venue): void {
     this.postLocation = [place.name, place.city].filter(Boolean).join(', ').slice(0, 160);
     this.postLocationOpen = false;
