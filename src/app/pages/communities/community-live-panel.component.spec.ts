@@ -138,6 +138,22 @@ describe('Community broadcast panel', () => {
     fixture.destroy();
   }));
 
+  it('clears viewer counts and reconnect flags when leaving a live room', () => {
+    const fixture=TestBed.createComponent(CommunityLivePanelComponent);
+    fixture.componentRef.setInput('communityId',7);
+    fixture.detectChanges();
+    const c=fixture.componentInstance;
+    c.participantCount=4;
+    c.reconnecting=true;
+    const disconnect=jasmine.createSpy('disconnect');
+    c.room={disconnect} as any;
+    c.leave();
+    expect(c.participantCount).toBe(0);
+    expect(c.reconnecting).toBeFalse();
+    expect(disconnect).toHaveBeenCalled();
+    fixture.destroy();
+  });
+
   it('prevents viewers from seeing host scheduling tools', () => {
     live.capabilities.and.returnValue(of({canManage:false,enabled:true}));
     const fixture=TestBed.createComponent(CommunityLivePanelComponent);
