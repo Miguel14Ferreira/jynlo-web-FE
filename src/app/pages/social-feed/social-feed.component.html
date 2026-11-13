@@ -180,24 +180,18 @@
                [(ngModel)]="postLocation" (ngModelChange)="onPostLocationQuery($event)"
                maxlength="160" autocomplete="off" [disabled]="posting"
                aria-controls="post-location-results" [attr.aria-expanded]="postLocationOpen"
-               placeholder="Benfica, Lisboa ou pesquisar um recinto">
+               placeholder="Pesquisa Benfica, Lisboa ou outro local real">
         @if (postLocationOpen) {
           <div id="post-location-results" class="composer-location-results">
-            <button type="button" class="composer-freeform-location" (click)="selectPostPlaceName()">
-              <span aria-hidden="true">📍</span>
-              <span><strong>{{ postLocation.trim() }}</strong><small>Usar este bairro, cidade ou lugar</small></span>
-            </button>
-            @if (postLocationLoading) { <p role="status">A procurar recintos…</p> }
-            @for (place of postLocationSuggestions; track place.id) {
-              <button type="button" (click)="selectPostLocation(place)">
+            @if (postLocationLoading) { <p role="status">A pesquisar locais reais…</p> }
+            @for (place of postRealPlaces; track place.id) {
+              <button type="button" (click)="selectPostRealPlace(place)">
                 <span aria-hidden="true">📍</span>
-                <span><strong>{{ place.name }}</strong><small>{{ place.city }} @if (place.address) { · {{ place.address }} }</small></span>
+                <span><strong>{{ place.label }}</strong><small>{{ place.subtitle }}</small></span>
               </button>
             }
-            @if (!postLocationLoading && !postLocationSuggestions.length) {
-              <p>Sem recintos encontrados. Podes usar o lugar escrito acima.</p>
-            }
             @if (postLocationError) { <p role="alert">{{ postLocationError }}</p> }
+            <small class="place-attribution">Localizações reais · © OpenStreetMap contributors / Photon</small>
           </div>
         }
       </div>
