@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnIn
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { catchError, finalize, of, Subject, takeUntil, timeout, switchMap, timer } from 'rxjs';
+import { catchError, finalize, of, Subject, Subscription, takeUntil, timeout, switchMap, timer } from 'rxjs';
 
 import { environment } from 'src/environment/environment';
 import { TranslatePipe } from '../../i18n/translate.pipe';
@@ -100,6 +100,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   storyLocationSearchOpen = false;
   storyLocationSearching = false;
   private storyLocationSearchSerial = 0;
+  private storyLocationSearchSubscription?: Subscription;
 
   searchStoryLocation(value: string): void {
     const input = value.trim();
@@ -107,9 +108,10 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     this.storyLocationSearchOpen = input.length >= 2;
     this.storyRealPlaces = [];
     const serial = ++this.storyLocationSearchSerial;
+    this.storyLocationSearchSubscription?.unsubscribe();
     this.storyLocationSearching = this.storyLocationSearchOpen;
     if (!this.storyLocationSearchOpen) return;
-    timer(400).pipe(
+    this.storyLocationSearchSubscription = timer(400).pipe(
       switchMap(() => this.realPlaceSearch.search(input).pipe(
         timeout(8000), catchError(() => of([] as RealPlace[])))),
       takeUntil(this.destroyed)
