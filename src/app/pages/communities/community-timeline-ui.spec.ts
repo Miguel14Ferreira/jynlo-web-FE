@@ -40,6 +40,58 @@ describe('Community feed/chat UI state isolation', () => {
     spyOn(component, 'canManage').and.returnValue(true);
   });
 
+  it('shows one community album item at a time with isolated navigation and stable cover', () => {
+    component.communityPostMediaIndex = {};
+    const first = { ...message('POST'), id: 20, imageUrl: '/media/first.jpg',
+      extraMedia: [{ url: '/media/video.mp4', mimeType: 'video/mp4' },
+                   { url: '/media/last.jpg', mimeType: 'image/jpeg' }] };
+    const second = { ...message('POST'), id: 21, imageUrl: '/media/second.jpg',
+      extraMedia: [{ url: '/media/extra.jpg', mimeType: 'image/jpeg' }] };
+    expect(component.communityPostMedia(first)).toHaveSize(3);
+    expect(component.communityPostCurrentIndex(first)).toBe(0);
+    component.changeCommunityPostMedia(first, 1);
+    expect(component.communityPostCurrentIndex(first)).toBe(1);
+    expect(component.communityPostCurrentIndex(second)).toBe(0);
+    expect(component.communityPostMedia(first)[1].mimeType).toBe('video/mp4');
+    component.changeCommunityPostMedia(first, 1);
+    component.changeCommunityPostMedia(first, 1);
+    expect(component.communityPostCurrentIndex(first)).toBe(2);
+    component.selectCommunityPostMedia(first, -1);
+    expect(component.communityPostCurrentIndex(first)).toBe(2);
+    component.startCommunityPostSwipe({
+      changedTouches: [{ clientX: 150, clientY: 20 }]
+    } as unknown as TouchEvent, first);
+    component.endCommunityPostSwipe({
+      changedTouches: [{ clientX: 40, clientY: 30 }]
+    } as unknown as TouchEvent, first);
+    expect(component.communityPostCurrentIndex(first)).toBe(2);
+    component.startCommunityPostSwipe({
+      changedTouches: [{ clientX: 40, clientY: 20 }]
+    } as unknown as TouchEvent, first);
+    component.endCommunityPostSwipe({
+      changedTouches: [{ clientX: 150, clientY: 30 }]
+    } as unknown as TouchEvent, first);
+    expect(component.communityPostCurrentIndex(first)).toBe(1);
+  });
+
+  it('reorders community album cover and preserves exact upload order', () => {
+    const first = new File(['a'], 'first.jpg', { type: 'image/jpeg' });
+    const cover = new File(['b'], 'cover.jpg', { type: 'image/jpeg' });
+    component.feedGallery = [
+      { file: first, url: 'blob:first' },
+      { file: cover, url: 'blob:cover' }
+    ];
+    component.activeTab = 'feed';
+    component.moveCommunityFeedGalleryItem(1, -1);
+    expect(component.feedGallery.map(item => item.file.name)).toEqual(['cover.jpg', 'first.jpg']);
+    component.moveCommunityFeedGalleryItem(0, -1);
+    expect(component.feedGallery[0].file).toBe(cover);
+    component.feedDraft = '';
+    spyOn(URL, 'revokeObjectURL').and.stub();
+    component.sendTimeline();
+    expect(sendPostAlbum).toHaveBeenCalledWith(7, '', [cover, first]);
+  });
+
   it('loads the feed and community chat separately without leaving the page', () => {
     component.setTab('home');
     expect(list).not.toHaveBeenCalled();
