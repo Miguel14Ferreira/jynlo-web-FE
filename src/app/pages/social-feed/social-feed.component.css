@@ -1442,3 +1442,22 @@ h1 {
   .feed-post-carousel-image,.feed-post-carousel-video { min-height: 140px; }
   .feed-post-carousel-prev,.feed-post-carousel-next { width: 32px; height: 38px; font-size: 1.6rem; }
 }
+
+
+/* Explicit album ordering: the first attachment becomes the cover. */
+.composer-media-order { display: flex; gap: .28rem; flex: 0 0 auto; align-items: center; }
+.composer-media-order > button:not(.composer-media-remove) {
+  min-height: 34px; min-width: 34px;
+  border: 1px solid rgba(148,163,184,.32);
+  border-radius: .5rem;
+  background: rgba(11,35,47,.8);
+  color: #e0f2f1;
+  cursor: pointer;
+}
+.composer-media-order > button:disabled { opacity: .35; cursor: not-allowed; }
+.composer-media-order > button:focus-visible { outline: 2px solid #34d399; outline-offset: 2px; }
+.composer-cover-label { color: #35e4aa; font-weight: 800; }
+@media (max-width: 600px) {
+  .composer-media-item-footer { flex-wrap: wrap; }
+  .composer-media-order { width: 100%; justify-content: flex-end; }
+}
