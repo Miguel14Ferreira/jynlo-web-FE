@@ -15,6 +15,9 @@ export interface TextPlacement {
     @if (text.trim()) {
       <div class="movable-text" [style.left.%]="placement.x"
            [style.top.%]="placement.y"
+           [style.color]="color"
+           [style.background]="background"
+           [style.font-family]="fontFamily"
            [style.transform]="'translate(-50%,-50%) rotate(' + placement.rotation + 'deg) scale(' + placement.scale + ')'"
            (pointerdown)="begin($event, 'move')" (pointermove)="move($event)"
            (pointerup)="finish($event)" (pointercancel)="finish($event)"
@@ -36,7 +39,7 @@ export interface TextPlacement {
       cursor:grab;touch-action:none;user-select:none;pointer-events:auto;
       transform-origin:center;line-height:1.25; text-shadow:0 1px 5px #000}
     .movable-text:active{cursor:grabbing}
-    .movable-text.plain{background:transparent}
+    .movable-text.plain{background:transparent!important}
     .handle{position:absolute;width:29px;height:29px;border-radius:50%;
       border:1px solid #5eead4;color:#eaffff;background:#082b34;
       cursor:crosshair;touch-action:none;display:grid;place-items:center;font-size:17px}
@@ -47,6 +50,9 @@ export interface TextPlacement {
 export class MovableTextComponent {
   @Input() text = '';
   @Input() plain = false;
+  @Input() color = '#ffffff';
+  @Input() background = 'rgba(7,25,35,.73)';
+  @Input() fontFamily = 'system-ui, sans-serif';
   @Input() placement: TextPlacement = {x:50,y:50,rotation:0,scale:1};
   @Output() placementChange = new EventEmitter<TextPlacement>();
   private action: 'move' | 'rotate' | 'resize' | null = null;
