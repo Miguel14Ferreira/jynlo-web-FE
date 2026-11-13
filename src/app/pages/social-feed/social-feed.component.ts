@@ -250,6 +250,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   private openedPersonalLiveId: number | null = null;
   private personalLiveLoading = false;
   personalLiveError = '';
+  personalLiveNotice = '';
 
   private openRequestedPersonalLive(): void {
     const id = this.requestedPersonalLiveId;
@@ -288,12 +289,17 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
 
   watchPersonalLive(event: PersonalLiveEvent): void {
     if (event.status !== 'LIVE') return;
+    this.personalLiveNotice = '';
     this.personalLiveRoom = event;
     if (this.requestedPersonalLiveId === event.id) this.openedPersonalLiveId = event.id;
   }
 
-  closePersonalLiveRoom(): void {
+  closePersonalLiveRoom(reason: 'LEFT' | 'ENDED' = 'LEFT'): void {
     const dismissedId = this.personalLiveRoom?.id;
+    const wasHost = this.personalLiveRoom?.canManage ?? false;
+    this.personalLiveNotice = reason === 'ENDED'
+      ? (wasHost ? 'Terminaste o direto para todos.' : 'A transmissão terminou.')
+      : '';
     this.personalLiveRoom = null;
     this.openedPersonalLiveId = null;
     if (dismissedId !== undefined && this.requestedPersonalLiveId === dismissedId) {
