@@ -240,6 +240,68 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     if (this.postComposerOpen) this.closePostComposer();
   }
 
+  liveComposerOpen = false;
+  liveCommunityId: number | null = null;
+  liveTitle = '';
+  liveBusy = false;
+  liveStartError = '';
+
+  openLiveComposer(): void {
+    if (!this.managedLiveCommunities.length || !this.communityLiveService) return;
+    this.liveCommunityId = this.managedLiveCommunities[0].id;
+    this.liveTitle = 'Direto desportivo';
+    this.liveStartError = '';
+    this.liveComposerOpen = true;
+  }
+
+  closeLiveComposer(): void {
+    if (this.liveBusy) return;
+    this.liveComposerOpen = false;
+  }
+
+  startLiveFromFeed(): void {
+    const communityId = this.liveCommunityId;
+    if (!communityId || this.liveBusy || !this.communityLiveService ||
+        !this.managedLiveCommunities.some(group => group.id === communityId)) return;
+    const title = this.liveTitle.trim();
+    if (!title) {
+      this.liveStartError = 'Escreve o título do direto.';
+      return;
+    }
+    this.liveBusy = true;
+    this.liveStartError = '';
+    this.communityLiveService.capabilities(communityId).pipe(
+      timeout(12000),
+      switchMap(capabilities => {
+        if (!capabilities.enabled || !capabilities.canManage)
+          throw new Error('Sem permissão para iniciar diretos nesta comunidade.');
+        return this.communityLiveService!.list(communityId).pipe(timeout(12000));
+      }),
+      switchMap(events => {
+        if (events.some(event => event.status === 'LIVE'))
+          throw new Error('Já existe um direto ativo nesta comunidade.');
+        return this.communityLiveService!.schedule(communityId, title, '', new Date().toISOString())
+          .pipe(timeout(12000));
+      }),
+      switchMap(scheduled => this.communityLiveService!.start(communityId, scheduled.id).pipe(timeout(12000))),
+      finalize(() => this.liveBusy = false),
+      takeUntil(this.destroyed)
+    ).subscribe({
+      next: event => {
+        this.liveComposerOpen = false;
+        // Opening the broadcast does not silently enable microphone/camera.
+        // The presenter enters the active room from the community Live panel.
+        window.location.assign('/menu/communities?community=' + communityId + '&tab=feed');
+      },
+      error: error => {
+        this.liveStartError = error instanceof Error && error.message.startsWith('Sem permissão')
+          ? error.message
+          : error instanceof Error && error.message.startsWith('Já existe')
+            ? error.message : 'Não foi possível iniciar o direto. Tenta novamente.';
+      }
+    });
+  }
+
   publicLiveEvents: { communityName: string; event: CommunityLiveEvent }[] = [];
   liveDiscoveryLoading = false;
 
