@@ -194,7 +194,7 @@
       }
     }
 
-    @if (profileStoryViewerOpen && selectedProfile && profileStories.length && privacyStatus?.canViewContent !== false) {
+    @if (profileStoryViewerOpen && selectedProfile && profileStories.length && privacyStatus?.canViewContent) {
       <app-profile-story-viewer [stories]="profileStories"
         [username]="selectedProfile.username" (closed)="closeProfileStories()"></app-profile-story-viewer>
     }
@@ -209,7 +209,7 @@
           <div class="detail-heading">
             <button type="button" class="avatar large-avatar profile-story-avatar"
               [class.profile-story-avatar--active]="profileStories.length > 0"
-              [disabled]="!profileStories.length || selectedBlocked || blockStatusPending"
+              [disabled]="!profileStories.length || selectedBlocked || blockStatusPending || !privacyStatus?.canViewContent"
               [attr.aria-label]="profileStories.length ? 'Ver stories de ' + selectedProfile.username : 'Sem stories ativas'"
               (click)="openProfileStories()">
               @if (profileImage(selectedProfile); as image) {
@@ -554,7 +554,7 @@
               <button type="button" class="jynlo-action jynlo-action--neutral"
                 (click)="checkProfileBlockStatus(selectedProfile.username)">{{ 'common.retry' | t }}</button>
             </div>
-          } @else if (!selectedBlocked && privacyStatus?.canViewContent !== false) {
+          } @else if (!selectedBlocked && privacyStatus?.canViewContent) {
             <section class="profile-publications" [attr.aria-label]="'profilePosts.title' | t">
               <header class="profile-publications-header">
                 <div>
