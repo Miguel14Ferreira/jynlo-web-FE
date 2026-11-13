@@ -259,7 +259,9 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       this.openedPersonalLiveId = id;
       this.personalLiveError = '';
       this.watchPersonalLive(event);
-    } else if (!this.personalLiveLoading) {
+    } else {
+      // Called with a completed listing (or a known in-memory match).
+      // Do not suppress the unavailable state while finalize() is still pending.
       this.personalLiveError = 'Este direto já terminou ou não está disponível.';
     }
   }
