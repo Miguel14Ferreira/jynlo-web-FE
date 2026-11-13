@@ -77,3 +77,10 @@
   .story-create-stage-label { bottom: .3rem; }
 }
 @media (prefers-reduced-motion: reduce) { .story-create-backdrop { backdrop-filter: none; } }
+
+/* The saved caption layout has the same semantics in editor and viewer. */
+.story-overlay .story-caption--plain { background: transparent; }
+.story-overlay .story-caption--small { font-size: .7rem; }
+.story-overlay .story-caption--large { font-size: 1.25rem; }
+.story-overlay .story-caption--top { bottom: auto; top: 17%; }
+.story-overlay .story-caption--center { bottom: auto; top: 50%; transform: translateY(-50%); }
