@@ -454,6 +454,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   myWeekWaitlist: SessionSummary[] = [];
   myWeekOffers: SessionSummary[] = [];
   myWeekCommunities: CommunityGroup[] = [];
+  managedLiveCommunities: CommunityGroup[] = [];
   myWeekGamesLoading = true;
   myWeekGamesError = false;
   myWeekCommunitiesLoading = true;
@@ -631,6 +632,9 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       }), takeUntil(this.destroyed)
     ).subscribe(groups => {
       this.myWeekCommunities = groups.slice(0, 3);
+      // Only community owners can create live broadcasts. Authorization remains
+      // enforced by the live API after following the deep link.
+      this.managedLiveCommunities = groups.filter(group => group.myRole === 'OWNER');
       this.loadAccessibleLiveEvents(groups);
       this.myWeekCommunitiesLoading = false;
     });
