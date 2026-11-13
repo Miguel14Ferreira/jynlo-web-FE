@@ -112,7 +112,6 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
   styles: [`
     .live-panel{border:1px solid #2c6c70;border-radius:16px;background:#092632;padding:16px;color:#e8f8f7;display:grid;gap:16px}
     .live-panel[hidden]{display:none!important}
-    .live-panel[hidden]{display:none!important}
     .live-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
     .live-panel-heading strong{font-size:1.1rem}
     .live-panel-heading p,.live-event p{font-size:.82rem;color:#b1cbcd;margin:4px 0}
@@ -256,6 +255,9 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
         this.description = '';
         this.date = '';
         this.load();
+        // Release the mutation lock before entering the LiveKit room: join()
+        // deliberately rejects calls while busy, and finalize runs after next.
+        this.busy = false;
         void this.join(started);
       },
       error: () => {
@@ -281,7 +283,12 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
     if (this.busy) return;
     this.busy = true;
     this.api.start(this.communityId, event.id).pipe(finalize(() => this.busy = false)).subscribe({
-      next: () => { this.load(); },
+      next: started => {
+        this.load();
+        // Starting a scheduled event should also take the presenter on air.
+        this.busy = false;
+        void this.join(started);
+      },
       error: () => this.error = 'Não foi possível iniciar. Verifica a ligação e a disponibilidade do vídeo.'
     });
   }
