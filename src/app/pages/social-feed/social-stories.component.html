@@ -76,6 +76,16 @@
                 @if (storyShowTime) {
                   <span class="story-time-overlay">{{ storyEditorTime | date:'HH:mm' }}</span>
                 }
+                @if (storyLocation.trim()) {
+                  <span class="story-place-overlay">📍 {{ storyLocation }}</span>
+                }
+                @if (storyTaggedProfiles.length) {
+                  <div class="story-tag-overlay">
+                    @for (profile of storyTaggedProfiles; track profile.username) {
+                      <span>&#64;{{ profile.username }}</span>
+                    }
+                  </div>
+                }
                 @if (captionPreview) {
                   <p class="story-caption-overlay"
                      [class.story-caption-overlay--plain]="storyTextStyle === 'plain'"
@@ -140,6 +150,58 @@
                 </select>
               </label>
             </div>
+            <section class="story-discovery-options" aria-label="Identificar local e pessoas">
+              <label for="storyLocation">Localização (opcional)</label>
+              <input id="storyLocation" type="search" [(ngModel)]="storyLocation"
+                     (ngModelChange)="searchStoryLocation($event)"
+                     maxlength="160" autocomplete="off" [disabled]="uploading"
+                     placeholder="Pesquisar recinto ou cidade">
+              @if (storyLocationSearchOpen) {
+                <div class="story-discovery-results" aria-label="Sugestões de locais">
+                  @if (storyLocationSearching) { <p>A pesquisar locais…</p> }
+                  @for (venue of storyVenueResults; track venue.id) {
+                    <button type="button" (click)="chooseStoryLocation(venue)">
+                      <strong>{{ venue.name }}</strong> <small>{{ venue.city }}</small>
+                    </button>
+                  }
+                  @if (!storyLocationSearching && !storyVenueResults.length) {
+                    <p>Sem recintos encontrados. Podes escrever livremente.</p>
+                  }
+                </div>
+              }
+              <button type="button" class="story-tag-toggle" (click)="toggleStoryTags()"
+                      [attr.aria-expanded]="storyTagOpen" [disabled]="uploading">
+                @ Identificar pessoas (até 5)
+              </button>
+              @if (storyTagOpen) {
+                <div class="story-tag-search">
+                  <label for="storyTagQuery">Pesquisar perfis</label>
+                  <input id="storyTagQuery" type="search" [(ngModel)]="storyTagQuery"
+                         (ngModelChange)="searchStoryTag($event)"
+                         autocomplete="off" placeholder="Nome ou utilizador">
+                  @if (storyTagLoading) { <p>A procurar perfis…</p> }
+                  <div class="story-discovery-results">
+                    @for (profile of storyTagResults; track profile.username) {
+                      <button type="button" (click)="addStoryTag(profile)"
+                              [disabled]="storyTaggedProfiles.length >= 5">
+                        <strong>{{ profile.fullName || profile.nickname || profile.username }}</strong>
+                        <small>&#64;{{ profile.username }}</small>
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+              @if (storyTaggedProfiles.length) {
+                <div class="story-selected-tags" aria-label="Perfis identificados">
+                  @for (profile of storyTaggedProfiles; track profile.username) {
+                    <button type="button" (click)="removeStoryTag(profile.username)"
+                            [disabled]="uploading" [attr.aria-label]="'Remover ' + profile.username">
+                      &#64;{{ profile.username }} ×
+                    </button>
+                  }
+                </div>
+              }
+            </section>
             <div class="story-extra-options">
               <label class="story-time-toggle">
                 <input type="checkbox" [(ngModel)]="storyShowTime" [disabled]="uploading">
@@ -200,6 +262,17 @@
             [attr.aria-label]="'stories.next' | t" (click)="next()"></button>
           @if (story.showTime) {
             <span class="story-time-overlay story-viewer-time">{{ story.createdAt | date:'HH:mm' }}</span>
+          }
+          @if (story.locationLabel) {
+            <span class="story-place-overlay story-viewer-place">📍 {{ story.locationLabel }}</span>
+          }
+          @if (storyViewerTags(story).length) {
+            <nav class="story-tag-overlay story-viewer-tags" aria-label="Pessoas identificadas">
+              @for (username of storyViewerTags(story); track username) {
+                <a [routerLink]="['/menu/perfis', username]" (click)="$event.stopPropagation()"
+                   [attr.aria-label]="'Abrir perfil de ' + username">&#64;{{ username }}</a>
+              }
+            </nav>
           }
           @if (story.caption) {
             <p class="story-caption"
