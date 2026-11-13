@@ -181,3 +181,11 @@
 }
 .feed-page .composer .feed-post-dialog-header .feed-post-dialog-close:hover { background: #36515c; }
 .feed-page .composer .feed-post-dialog-header .feed-post-dialog-close:disabled { opacity: .55; cursor: not-allowed; }
+
+/* Bare close glyph: no round background behind the X. */
+.feed-page .composer .feed-post-dialog-header .feed-post-dialog-close,
+.feed-page .feed-post-dialog-close {
+  background:transparent!important; border:0!important; border-radius:0!important;
+  box-shadow:none!important; color:#eaf6f6!important;
+}
+.feed-page .composer .feed-post-dialog-header .feed-post-dialog-close:hover {color:#5eead4!important;background:transparent!important;}
