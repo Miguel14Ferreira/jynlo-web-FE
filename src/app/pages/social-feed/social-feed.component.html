@@ -232,10 +232,21 @@
                     }
                   </div>
                   <div class="composer-media-item-footer">
-                    <span class="composer-media-name" [title]="item.file.name">{{ item.file.name }}</span>
-                    <button type="button" class="composer-media-remove"
-                      [disabled]="posting" (click)="removePostGalleryItem(i)"
-                      [attr.aria-label]="'Remover ' + item.file.name">Remover</button>
+                    <span class="composer-media-name" [title]="item.file.name">
+                      @if (i === 0) { <strong class="composer-cover-label">Capa · </strong> }
+                      {{ item.file.name }}
+                    </span>
+                    <div class="composer-media-order">
+                      <button type="button" [disabled]="posting || i === 0"
+                        (click)="movePostGalleryItem(i, -1)"
+                        [attr.aria-label]="'Mover ' + item.file.name + ' para trás'">↑</button>
+                      <button type="button" [disabled]="posting || i === postGallery.length - 1"
+                        (click)="movePostGalleryItem(i, 1)"
+                        [attr.aria-label]="'Mover ' + item.file.name + ' para a frente'">↓</button>
+                      <button type="button" class="composer-media-remove"
+                        [disabled]="posting" (click)="removePostGalleryItem(i)"
+                        [attr.aria-label]="'Remover ' + item.file.name">Remover</button>
+                    </div>
                   </div>
                 </div>
               }
