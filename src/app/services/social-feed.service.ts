@@ -119,6 +119,21 @@ export class SocialFeedService {
     );
   }
 
+  editComment(postId:number,commentId:number,content:string): Observable<SocialComment> {
+    return this.http.put<SocialComment>(this.baseUrl+'/posts/'+postId+
+      '/comments/'+commentId,{content:content.trim()});
+  }
+
+  likeComment(postId:number,commentId:number): Observable<SocialComment> {
+    return this.http.post<SocialComment>(this.baseUrl+'/posts/'+postId+
+      '/comments/'+commentId+'/likes',{});
+  }
+
+  unlikeComment(postId:number,commentId:number): Observable<SocialComment> {
+    return this.http.delete<SocialComment>(this.baseUrl+'/posts/'+postId+
+      '/comments/'+commentId+'/likes');
+  }
+
   deleteComment(postId: number, commentId: number): Observable<void> {
     return this.http.delete<void>(
       this.baseUrl + '/posts/' + postId + '/comments/' + commentId
