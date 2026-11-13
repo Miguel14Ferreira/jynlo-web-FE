@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, Input, OnChanges, OnDestroy, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Room, RoomEvent, Track, RemoteTrack, RemoteParticipant } from 'livekit-client';
@@ -172,9 +173,20 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
         // revalidated on every REST request.
         this.updates.add(interval(15000).pipe(startWith(0), switchMap(() =>
           this.api.list(current).pipe(timeout(10000),
-            catchError(() => of([] as CommunityLiveEvent[])))
+            catchError((error: unknown) => {
+              // Network outages are not an empty event list. A temporary
+              // timeout must not disconnect an active spectator or presenter.
+              // An explicit authorization failure, however, must stop playback.
+              if (error instanceof HttpErrorResponse
+                  && (error.status === 401 || error.status === 403 || error.status === 404)) {
+                this.leave();
+                this.events = [];
+                this.enabled = false;
+              }
+              return of(null as CommunityLiveEvent[] | null);
+            }))
         )).subscribe(events => {
-          if (version !== this.requestVersion) return;
+          if (version !== this.requestVersion || events === null) return;
           this.events = events;
           if (this.active && !events.some(e =>
               e.id === this.active?.id && e.status === 'LIVE')) this.leave();
