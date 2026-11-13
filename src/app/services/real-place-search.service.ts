@@ -1,49 +1,72 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of, timeout } from 'rxjs';
 
-/** Real map features from Photon/OpenStreetMap, not user-invented labels.
- * The public Photon endpoint supports search-as-you-type. The UI debounces
- * requests and limits results; replace with a hosted service as Jynlo scales.
- */
+/** Actual geographic results from GeoNames/Open-Meteo and OpenStreetMap/Photon.
+ * Do not accept arbitrary text as a verified location. */
 export interface RealPlace {
-  id: string;
-  label: string;
-  subtitle: string;
-  longitude: number;
-  latitude: number;
+  id:string; label:string; subtitle:string; latitude:number; longitude:number;
 }
-
+interface GeoResponse {
+  results?: Array<{ id:number; name:string; latitude:number; longitude:number;
+    country?:string; country_code?:string; admin1?:string; admin2?:string; admin3?:string }>;
+}
 interface PhotonResponse {
-  features?: Array<{
-    geometry?: { coordinates?: number[] };
-    properties?: {
-      osm_id?: number; osm_type?: string; name?: string; street?: string;
-      city?: string; district?: string; county?: string; state?: string;
-      country?: string; type?: string;
-    };
-  }>;
+  features?: Array<{ geometry?:{coordinates?:number[]};
+    properties?:{osm_id?:number;osm_type?:string;name?:string;street?:string;
+      city?:string;district?:string;county?:string;state?:string;country?:string} }>;
 }
-
 @Injectable({providedIn:'root'})
 export class RealPlaceSearchService {
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly http:HttpClient) {}
 
-  search(text: string): Observable<RealPlace[]> {
-    const query = text.trim().slice(0,100);
-    const params = new HttpParams().set('q',query).set('limit','8')
-      .set('lang','pt').set('lat','38.7369').set('lon','-9.1609');
-    return this.http.get<PhotonResponse>('https://photon.komoot.io/api/',{params}).pipe(
-      map(response => (response.features || []).flatMap(feature => {
-        const p=feature.properties, xy=feature.geometry?.coordinates;
-        if (!p?.name || !xy || xy.length < 2 ||
-            !Number.isFinite(xy[0]) || !Number.isFinite(xy[1])) return [];
-        const subtitle = [p.street,p.district,p.city,p.county,p.state,p.country]
-          .filter((value,index,parts) => !!value && parts.indexOf(value) === index && value !== p.name)
-          .join(', ');
-        return [{id:(p.osm_type || 'osm')+':'+String(p.osm_id || '')+':'+xy.join(','),
-          label:p.name, subtitle, longitude:xy[0],latitude:xy[1]}];
-      }))
-    );
+  search(text:string):Observable<RealPlace[]> {
+    const query=text.trim().slice(0,100);
+    if(query.length<2)return of([]);
+    // GeoNames indexes cities, towns and neighbourhoods. Photon adds POIs
+    // and sports venues. Each source can fail independently without breaking
+    // suggestions from the other provider.
+    const meteoParams=new HttpParams().set('name',query).set('count','18').set('language','pt');
+    const photonParams=new HttpParams().set('q',query).set('limit','12').set('lang','pt')
+      .set('lat','38.7369').set('lon','-9.1609');
+    const localities=this.http.get<GeoResponse>(
+      'https://geocoding-api.open-meteo.com/v1/search',{params:meteoParams}).pipe(
+      timeout(6500),map(data=>(data.results||[]).flatMap(entry=>{
+        if(!entry.name||!Number.isFinite(entry.latitude)||!Number.isFinite(entry.longitude))return [];
+        const components=[entry.admin3,entry.admin2,entry.admin1,entry.country]
+          .filter((v,i,a):v is string=>!!v&&a.indexOf(v)===i&&v!==entry.name);
+        return [{id:'geonames:'+entry.id,label:entry.name,subtitle:components.join(', '),
+          latitude:entry.latitude,longitude:entry.longitude} as RealPlace];
+      })),catchError(()=>of([] as RealPlace[])));
+    const places=this.http.get<PhotonResponse>('https://photon.komoot.io/api/',
+      {params:photonParams}).pipe(timeout(6500),map(data=>(data.features||[]).flatMap(feature=>{
+      const p=feature.properties,point=feature.geometry?.coordinates;
+      if(!p?.name||!point||point.length<2||!Number.isFinite(point[0])||
+          !Number.isFinite(point[1]))return [];
+      const subtitle=[p.street,p.district,p.city,p.county,p.state,p.country]
+        .filter((v,i,a):v is string=>!!v&&a.indexOf(v)===i&&v!==p.name).join(', ');
+      return [{id:'osm:'+p.osm_type+':'+p.osm_id,label:p.name,subtitle,
+        latitude:point[1],longitude:point[0]} as RealPlace];
+    })),catchError(()=>of([] as RealPlace[])));
+    return forkJoin([localities,places]).pipe(map(([cities,points])=>{
+      const found=new Set<string>();
+      return [...cities,...points]
+        .filter(item=>{
+          const key=(item.label+'|'+item.subtitle).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+            .toLocaleLowerCase();
+          if(found.has(key))return false;
+          found.add(key);
+          return true;
+        })
+        .sort((a,b)=>{
+          const score=(p:RealPlace)=>{
+            const name=p.label.toLocaleLowerCase(),lower=query.toLocaleLowerCase();
+            return (name===lower?0:name.startsWith(lower)?1:2)
+              +(p.subtitle.toLowerCase().includes('portugal')?0:4)
+              +(p.subtitle.toLowerCase().includes('lisboa')?0:1);
+          };
+          return score(a)-score(b);
+        }).slice(0,12);
+    }));
   }
 }
