@@ -242,7 +242,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
 })
 export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   @Input({required:true}) event!:PersonalLiveEvent;
-  @Output() closed=new EventEmitter<void>();
+  @Output() closed=new EventEmitter<'LEFT'|'ENDED'>();
   @ViewChild('stage') stage?:ElementRef<HTMLElement>;
   @ViewChild('chatHistory') chatHistory?:ElementRef<HTMLElement>;
   private readonly service=inject(PersonalLiveService);
@@ -457,6 +457,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     this.reconnecting=false;
     this.heartbeats?.unsubscribe();this.heartbeats=undefined;
     this.cameraOn=false;this.micOn=false;this.screenOn=false;
+    this.deviceBusy=false;
     this.role='VIEWER';
     this.participantCount=0;
     for(const element of [...this.attached])this.detachElement(element);
@@ -526,7 +527,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
             // The broadcast was removed or has ended on the server.
             this.controlsUnavailable=true;
             this.error='Este direto terminou ou já não está disponível.';
-            this.leave();
+            this.leave('ENDED');
           }
           // Do not disconnect on transient network, auth or server failures.
         }
@@ -760,11 +761,11 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     if(!this.event.canManage || !this.confirmingEnd || this.ended || this.ending)return;
     this.ending=true;
     this.service.end(this.event.id).pipe(timeout(10000)).subscribe({
-      next:()=>{this.ended=true;this.confirmingEnd=false;this.leave();},
+      next:()=>{this.ended=true;this.confirmingEnd=false;this.leave('ENDED');},
       error:()=>{this.ending=false;this.error='Não foi possível terminar o direto. Tenta novamente.';}
     });
   }
-  leave():void {
+  leave(reason:'LEFT'|'ENDED'='LEFT'):void {
     if(this.closing)return;
     this.closing=true;
     this.lastMessageId=null;
@@ -774,6 +775,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     this.interactionPoll?.unsubscribe();this.interactionPoll=undefined;
     this.reconnecting=false;
     this.switchingRole=false;
+    this.deviceBusy=false;
     this.screenOn=false;
     this.audioBlocked=false;
     this.destroy$.next();
@@ -783,11 +785,12 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     for(const el of [...this.attached])this.detachElement(el);
     this.attached=[];
     this.trackOwners.clear();
-    this.closed.emit();
+    this.closed.emit(reason);
   }
   ngOnDestroy():void {
     this.destroyed=true;
     this.switchingRole=false;
+    this.deviceBusy=false;
     this.screenOn=false;
     this.audioBlocked=false;
     this.destroy$.next();this.destroy$.complete();
