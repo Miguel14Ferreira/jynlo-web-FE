@@ -391,6 +391,9 @@
               }
 
               @if (item.type === 'POST' && item.authorUsername === currentUsername) {
+                <button type="button" class="jynlo-action jynlo-action--neutral"
+                        [disabled]="savingPostId !== null" (click)="beginEditPost(item)"
+                        aria-label="Editar descrição e localização da publicação">Editar</button>
                 <button
                   type="button"
                   class="delete-post jynlo-action jynlo-action--danger jynlo-premium-btn jynlo-premium-btn--danger jynlo-premium-btn--small"
@@ -402,7 +405,27 @@
             </div>
 
             @if (item.type === 'POST') {
-              <p class="post-content">{{ item.content }}</p>
+              @if (editingPostId === item.postId) {
+                <div class="feed-post-edit" aria-label="Editar publicação">
+                  <label [attr.for]="'edit-post-caption-' + item.postId">Descrição</label>
+                  <textarea [id]="'edit-post-caption-' + item.postId" rows="3" maxlength="1000"
+                            [(ngModel)]="editingPostContent" [disabled]="savingPostId !== null"></textarea>
+                  <label [attr.for]="'edit-post-location-' + item.postId">Localização (opcional)</label>
+                  <input [id]="'edit-post-location-' + item.postId" maxlength="160"
+                         [(ngModel)]="editingPostLocation" [disabled]="savingPostId !== null">
+                  <small>As fotografias e vídeos existentes são mantidos.</small>
+                  <div class="feed-post-edit-actions">
+                    <button type="button" class="jynlo-action jynlo-action--neutral"
+                            [disabled]="savingPostId !== null" (click)="cancelEditPost()">Cancelar</button>
+                    <button type="button" class="jynlo-action jynlo-action--primary"
+                            [disabled]="savingPostId !== null" (click)="savePostEdit(item)">
+                      {{ savingPostId === item.postId ? 'A guardar…' : 'Guardar alterações' }}
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <p class="post-content">{{ item.content }}</p>
+              }
 
               @if (mediaForPost(item); as postMedia) {
                 @if (postMedia.length > 0) {
