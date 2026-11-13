@@ -35,3 +35,13 @@
 .community-feed-lightbox-arrow { flex: 0 0 44px; }
 .community-feed-lightbox button:focus-visible { outline: 3px solid #34d399; outline-offset: 2px; }
 @media(max-width:600px) { .community-feed-lightbox { padding: .35rem; } .community-feed-lightbox-stage { gap: .15rem; } .community-feed-lightbox-arrow { min-width: 36px; flex-basis: 36px; } .community-feed-lightbox-stage img,.community-feed-lightbox-stage video { max-width: calc(100% - 76px); } }
+
+
+/* Community post edits use the same small, explicit author controls. */
+.community-feed-edit { display: grid; gap: .6rem; padding: .85rem; margin: .75rem 0; border: 1px solid rgba(52,211,153,.3); border-radius: .8rem; background: rgba(4,27,35,.6); }
+.community-feed-edit label { color: #c5ece0; font-weight: 700; }
+.community-feed-edit textarea { width: 100%; box-sizing: border-box; padding: .7rem; color: #f0fdfa; background: rgba(4,16,28,.8); border: 1px solid #547477; border-radius: .6rem; font: inherit; }
+.community-feed-edit textarea:focus-visible { outline: 2px solid #34d399; outline-offset: 2px; }
+.community-feed-edit small { color: #b5c9c6; }
+.community-feed-edit-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .55rem; }
+@media(max-width:520px) { .community-feed-edit-actions > button { flex: 1 1 135px; } }
