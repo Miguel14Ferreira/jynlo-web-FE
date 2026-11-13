@@ -21,6 +21,7 @@ import { CommunityProfile } from '../model/community-profile';
 import { VenueService } from '../../services/venue.service';
 import { Venue } from '../model/venue';
 import { addTextToPhoto } from './social-photo-text';
+import { CommunityLiveEvent, CommunityLiveService } from '../../services/community-live.service';
 
 @Component({
   selector: 'app-social-feed',
@@ -235,6 +236,28 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   @HostListener('document:keydown.escape')
   closePostComposerOnEscape(): void {
     if (this.postComposerOpen) this.closePostComposer();
+  }
+
+  publicLiveEvents: { communityName: string; event: CommunityLiveEvent }[] = [];
+  liveDiscoveryLoading = false;
+
+  private loadAccessibleLiveEvents(groups: CommunityGroup[]): void {
+    if (!this.communityLiveService || !groups.length) return;
+    const visible = groups.filter(group => group.visibility === 'PUBLIC').slice(0, 12);
+    if (!visible.length) return;
+    this.liveDiscoveryLoading = true;
+    forkJoin(visible.map(group => this.communityLiveService!.list(group.id).pipe(
+      timeout(7_000),
+      catchError(() => of([] as CommunityLiveEvent[])),
+      switchMap(events => of(events.filter(event => event.status === 'LIVE')
+        .map(event => ({ communityName: group.name, event }))))
+    ))).pipe(takeUntil(this.destroyed)).subscribe({
+      next: grouped => {
+        this.publicLiveEvents = grouped.flat().slice(0, 6);
+        this.liveDiscoveryLoading = false;
+      },
+      error: () => this.liveDiscoveryLoading = false
+    });
   }
 
   postLocationSuggestions: Venue[] = [];
@@ -523,7 +546,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     private communityService: CommunityService,
     @Optional() private communityGroupsService: CommunityGroupsService | null = null,
     @Optional() private realtime: DirectChatRealtimeService | null = null,
-    @Optional() private venueService: VenueService | null = null
+    @Optional() private venueService: VenueService | null = null,
+    @Optional() private communityLiveService: CommunityLiveService | null = null
   ) {
     this.authenticationService.isLoggedIn();
     this.currentUsername = this.authenticationService.loggedInPerfilname || '';
@@ -607,6 +631,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       }), takeUntil(this.destroyed)
     ).subscribe(groups => {
       this.myWeekCommunities = groups.slice(0, 3);
+      this.loadAccessibleLiveEvents(groups);
       this.myWeekCommunitiesLoading = false;
     });
   }
