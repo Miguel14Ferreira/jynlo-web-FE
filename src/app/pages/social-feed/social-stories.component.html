@@ -11,7 +11,7 @@
           {{ 'stories.retry' | t }}
         </button>
       }
-    <button type="button" class="story-add-action jynlo-action jynlo-action--accent jynlo-premium-btn jynlo-premium-btn--primary" (click)="composerOpen = !composerOpen">
+    <button type="button" class="story-add-action jynlo-action jynlo-action--accent jynlo-premium-btn jynlo-premium-btn--primary" (click)="composerOpen ? closeComposer() : openComposer()">
       <span aria-hidden="true">+</span> {{ 'stories.create' | t }}
     </button>
     </div>
@@ -48,47 +48,105 @@
   }
 
   @if (composerOpen) {
-    <div class="story-composer">
-      @if (groups.length > 0) {
-        <div class="story-field">
-          <label for="storyAudience">{{ 'stories.publishAs' | t }}</label>
-          <select id="storyAudience" [(ngModel)]="communityId" [disabled]="uploading">
-            <option value="">{{ 'stories.personal' | t }}</option>
-            @for (group of groups; track group.id) {
-              <option [value]="group.id">{{ group.name }} ({{ 'stories.community' | t }})</option>
+    <div class="story-create-backdrop" role="presentation" (click)="closeComposer()">
+      <section class="story-composer" role="dialog" aria-modal="true" aria-label="Criar Story"
+               (click)="$event.stopPropagation()">
+        <header class="story-create-header">
+          <div>
+            <span class="story-create-kicker">O teu momento</span>
+            <h3>Criar Story</h3>
+          </div>
+          <button type="button" class="story-create-close" [disabled]="uploading"
+                  (click)="closeComposer()" aria-label="Fechar editor">×</button>
+        </header>
+        <div class="story-create-layout">
+          <div class="story-create-stage" [class.story-create-stage--empty]="!filePreview">
+            @if (filePreview) {
+              <div class="story-preview">
+                @if (file?.type?.startsWith('video/')) {
+                  <video [src]="filePreview" controls playsinline preload="metadata"></video>
+                } @else {
+                  <img [src]="filePreview" [alt]="'stories.preview' | t">
+                }
+                @if (captionPreview) {
+                  <p class="story-caption-overlay"
+                     [class.story-caption-overlay--plain]="storyTextStyle === 'plain'"
+                     [class.story-caption-overlay--small]="storyTextScale === 'small'"
+                     [class.story-caption-overlay--large]="storyTextScale === 'large'"
+                     [class.story-caption-overlay--top]="storyTextPosition === 'top'"
+                     [class.story-caption-overlay--center]="storyTextPosition === 'center'">
+                    {{ captionPreview }}
+                  </p>
+                }
+              </div>
+            } @else {
+              <div class="story-create-empty-stage">
+                <span aria-hidden="true">✦</span>
+                <strong>Partilha um momento desportivo</strong>
+                <p>Escolhe uma fotografia ou vídeo para começares.</p>
+              </div>
             }
-          </select>
+            <span class="story-create-stage-label">Pré-visualização 9:16 · 24 horas</span>
+          </div>
+          <div class="story-create-tools">
+            @if (groups.length > 0) {
+              <div class="story-field">
+                <label for="storyAudience">{{ 'stories.publishAs' | t }}</label>
+                <select id="storyAudience" [(ngModel)]="communityId" [disabled]="uploading">
+                  <option value="">{{ 'stories.personal' | t }}</option>
+                  @for (group of groups; track group.id) {
+                    <option [value]="group.id">{{ group.name }} ({{ 'stories.community' | t }})</option>
+                  }
+                </select>
+              </div>
+            }
+            <label class="story-file jynlo-premium-btn jynlo-premium-btn--quiet" [class.story-file-disabled]="uploading">
+              <input type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+                [disabled]="uploading" (change)="pickFile($event)">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <path d="m21 16-5.5-5.5L5 21"></path>
+              </svg>
+              {{ 'stories.selectMedia' | t }}
+            </label>
+            @if (filePreview) {
+              <button class="story-remove-media" type="button" [disabled]="uploading"
+                      (click)="removeFile()">{{ 'stories.remove' | t }}</button>
+            }
+            <label for="storyCaption">{{ 'stories.caption' | t }}</label>
+            <textarea id="storyCaption" [(ngModel)]="caption" maxlength="180" rows="3"
+              [disabled]="uploading" [placeholder]="'stories.captionHint' | t"></textarea>
+            <div class="story-text-options" aria-label="Personalizar a legenda">
+              <button type="button" [disabled]="uploading" (click)="toggleTextStyle()">
+                {{ storyTextStyle === 'pill' ? 'Texto simples' : 'Texto destacado' }}
+              </button>
+              <button type="button" [disabled]="uploading" (click)="changeTextPosition()">
+                Mover legenda
+              </button>
+              <label class="story-text-size">Tamanho
+                <select [(ngModel)]="storyTextScale" [disabled]="uploading">
+                  <option value="small">Pequeno</option>
+                  <option value="medium">Médio</option>
+                  <option value="large">Grande</option>
+                </select>
+              </label>
+            </div>
+            <small class="story-create-hint">A imagem aparece inteira na pré-visualização. A legenda é opcional.</small>
+            @if (publishError) {
+              <p class="story-publish-error" role="alert">{{ publishError }}</p>
+            }
+            <div class="story-composer-footer">
+              <small>{{ caption.length }}/180 · {{ 'stories.expiry' | t }}</small>
+              <button type="button"
+                      class="story-primary jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary"
+                      [disabled]="!file || uploading" (click)="publish()">
+                {{ (uploading ? 'stories.publishing' : 'stories.publish') | t }}
+              </button>
+            </div>
+          </div>
         </div>
-      }
-      <label class="story-file jynlo-premium-btn jynlo-premium-btn--quiet" [class.story-file-disabled]="uploading">
-        <input type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
-          [disabled]="uploading" (change)="pickFile($event)">
-        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-          <circle cx="8.5" cy="8.5" r="1.5"></circle>
-          <path d="m21 16-5.5-5.5L5 21"></path>
-        </svg>
-        {{ 'stories.selectMedia' | t }}
-      </label>
-      @if (filePreview) {
-        <div class="story-preview">
-          @if (file?.type?.startsWith('video/')) {
-            <video [src]="filePreview" controls playsinline preload="metadata"></video>
-          } @else {
-            <img [src]="filePreview" [alt]="'stories.preview' | t">
-          }
-          <button type="button" [disabled]="uploading" (click)="removeFile()">{{ 'stories.remove' | t }}</button>
-        </div>
-      }
-      <label for="storyCaption">{{ 'stories.caption' | t }}</label>
-      <textarea id="storyCaption" [(ngModel)]="caption" maxlength="180" rows="2"
-        [disabled]="uploading" [placeholder]="'stories.captionHint' | t"></textarea>
-      <div class="story-composer-footer">
-        <small>{{ caption.length }}/180 · {{ 'stories.expiry' | t }}</small>
-        <button type="button" class="story-primary jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary" [disabled]="!file || uploading" (click)="publish()">
-          {{ (uploading ? 'stories.publishing' : 'stories.publish') | t }}
-        </button>
-      </div>
+      </section>
     </div>
   }
 
