@@ -87,8 +87,9 @@ describe('PerfisComponent', () => {
     socialGraphService.followers.and.returnValue(of([]));
     socialGraphService.following.and.returnValue(of([]));
 
-    socialFeed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['profilePosts']);
+    socialFeed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['profilePosts', 'comments', 'addComment', 'likePost', 'unlikePost', 'likeComment', 'unlikeComment']);
     socialFeed.profilePosts.and.returnValue(of([]));
+    socialFeed.comments.and.returnValue(of([]));
     stories = jasmine.createSpyObj<SocialStoriesService>('SocialStoriesService',['profile']);
     stories.profile.and.returnValue(of([]));
 
