@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, auditTime, catchError, finalize, forkJoin, of, retry, switchMap, takeUntil, timeout } from 'rxjs';
@@ -590,7 +591,27 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
           this.postGameSessionId = null;
           this.newSessionShareId = null;
         },
-        error: () => this.actionError = t('feedback.feed.publishError')
+        error: (error: unknown) => {
+          if (error instanceof HttpErrorResponse) {
+            if (error.status === 413) {
+              this.actionError = 'Os ficheiros são demasiado grandes para o servidor. Reduz o tamanho e tenta novamente.';
+              return;
+            }
+            if (error.status === 415) {
+              this.actionError = 'Este formato de fotografia ou vídeo não é suportado.';
+              return;
+            }
+            if (error.status === 401 || error.status === 403) {
+              this.actionError = 'A sessão expirou ou não tens permissão para publicar. Inicia sessão novamente.';
+              return;
+            }
+            if (error.status === 0) {
+              this.actionError = 'Não foi possível contactar o servidor. Verifica a ligação e tenta novamente.';
+              return;
+            }
+          }
+          this.actionError = t('feedback.feed.publishError');
+        }
       });
   }
 
