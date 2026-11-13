@@ -36,8 +36,9 @@ describe('SocialFeedComponent discovery sidebar', () => {
     }
     socialChanged = new Subject<void>();
     realtimeConnected = new BehaviorSubject<boolean>(false);
-    feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'createPost', 'createPostAlbum']);
+    feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'createPost', 'createPostAlbum', 'likers']);
     feed.feed.and.returnValue(of([]));
+    feed.likers.and.returnValue(of([]));
     sessions = jasmine.createSpyObj<SessionService>('SessionService', ['discover', 'mine', 'detail']);
     sessions.discover.and.returnValue(of([]));
     sessions.mine.and.returnValue(of({ created: [], joined: [], waitlisted: [] }));
