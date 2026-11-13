@@ -119,6 +119,76 @@ describe('DirectChatComponent', () => {
     expect(readSync.markVisible).not.toHaveBeenCalled();
   });
 
+  it('searches only loaded direct messages including attachment filenames and navigates in order', () => {
+    const message = (id: number, text: string) => ({
+      id, username1: 'ana', username2: 'fixture-user', text,
+      date: '2026-11-13T10:00:00Z', dataDisplay: null
+    });
+    component.messages = [
+      message(11, 'Padel amanhã'),
+      { ...message(12, 'Fotografias'), attachmentName: 'padel-final.jpg' },
+      message(13, 'Partida de futebol'),
+      message(14, 'Padel às nove')
+    ];
+    component.toggleMessageSearch();
+    expect(component.searchOpen).toBeTrue();
+    component.searchQuery = 'PADEL';
+    component.onMessageSearchChange();
+    expect(component.searchMatches.map(item => item.id)).toEqual([11, 12, 14]);
+    expect(component.searchMatchIndex).toBe(0);
+    component.navigateSearch(1);
+    expect(component.searchMatchIndex).toBe(1);
+    expect(component.isActiveSearchMatch(component.messages[1])).toBeTrue();
+    component.navigateSearch(-1);
+    expect(component.searchMatchIndex).toBe(0);
+    component.navigateSearch(-1);
+    expect(component.searchMatchIndex).toBe(2);
+    component.toggleMessageSearch();
+    expect(component.searchQuery).toBe('');
+    expect(component.searchOpen).toBeFalse();
+  });
+
+  it('provides keyboard search navigation without sending a chat message', () => {
+    component.messages = [
+      { id: 41, username1: 'ana', username2: 'fixture-user', text: 'Hoje',
+        date: '2026-11-13T10:00:00Z', dataDisplay: null },
+      { id: 42, username1: 'ana', username2: 'fixture-user', text: 'Hoje à tarde',
+        date: '2026-11-13T10:01:00Z', dataDisplay: null }
+    ];
+    component.toggleMessageSearch();
+    component.searchQuery = 'hoje';
+    component.onMessageSearchChange();
+    const next = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true });
+    component.onMessageSearchKeydown(next);
+    expect(next.defaultPrevented).toBeTrue();
+    expect(component.searchMatchIndex).toBe(1);
+    const previous = new KeyboardEvent('keydown', { key: 'Enter', shiftKey: true, cancelable: true });
+    component.onMessageSearchKeydown(previous);
+    expect(component.searchMatchIndex).toBe(0);
+    const escape = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true });
+    component.onMessageSearchKeydown(escape);
+    expect(component.searchOpen).toBeFalse();
+    expect(service.send).not.toHaveBeenCalled();
+  });
+
+  it('opens reply context, or explains older history when the quoted message is not loaded', () => {
+    const original = { id: 77, username1: 'ana', username2: 'fixture-user',
+      text: 'Vamos jogar', date: '2026-11-13T10:00:00Z', dataDisplay: null };
+    const reply = { ...original, id: 78, text: 'Sim',
+      replyToMessageId: 77, replyToText: 'Vamos jogar', replyToSender: 'ana' };
+    component.messages = [original, reply];
+    component.jumpToQuotedMessage(reply);
+    expect(component.searchOpen).toBeTrue();
+    expect(component.searchMatchIndex).toBe(0);
+    expect(component.isActiveSearchMatch(original)).toBeTrue();
+
+    component.toggleMessageSearch();
+    component.messages = [reply];
+    component.jumpToQuotedMessage(reply);
+    expect(component.searchOpen).toBeTrue();
+    expect(component.searchError).toContain('histórico anterior');
+  });
+
   it('should create and load chat history', () => {
     expect(component).toBeTruthy();
     expect(component.recipientUsername).toBe('ana');
