@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { appTranslate as t } from '../../i18n/i18n.service';
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommunityGroupsService } from '../../services/community-groups.service';
 import { SessionService } from '../../services/session.service';
 import { CommunityGroup } from '../model/community-group';
@@ -20,6 +20,7 @@ import { CommunityService, FriendshipStatus, ProfileSearchFilters } from '../../
 import { AuthenticationService } from '../../services/authethication.service';
 import { ReliabilityService } from '../../services/reliability.service';
 import { SocialGraphService } from '../../services/social-graph.service';
+import { FollowRequestSummary, ProfilePrivacyService, ProfilePrivacyStatus } from '../../services/profile-privacy.service';
 import { SPORTS_CATALOG } from '../../shared/sports-catalog';
 
 @Component({
@@ -125,6 +126,57 @@ export class PerfisComponent implements OnInit, OnDestroy {
   selectedActivity?: ProfileActivity;
   profilePosts: FeedItem[] = [];
   expandedPost: FeedItem | null = null;
+  private readonly privacyService=inject(ProfilePrivacyService);
+  privacyStatus: ProfilePrivacyStatus | null = null;
+  privacyPending: FollowRequestSummary[] = [];
+  privacyLoading = false;
+  privacyBusy = false;
+  privacyError = '';
+
+  loadPrivacy(username:string):void {
+    this.privacyStatus=null;
+    this.privacyPending=[];
+    this.privacyLoading=true;
+    this.privacyError='';
+    this.privacyService.status(username).pipe(timeout(10000),
+      finalize(()=>this.privacyLoading=false)).subscribe({
+      next:state=>{
+        if(this.selectedProfile?.username.toLowerCase()!==username.toLowerCase())return;
+        this.privacyStatus=state;
+        if(this.isOwnProfile(this.selectedProfile))this.loadPendingFollows();
+      },
+      error:()=>this.privacyError='Não foi possível verificar a privacidade deste perfil.'
+    });
+  }
+  loadPendingFollows():void {
+    this.privacyService.requests().pipe(timeout(10000)).subscribe({
+      next:requests=>this.privacyPending=requests,
+      error:()=>this.privacyError='Não foi possível consultar os pedidos para seguir.'
+    });
+  }
+  changeProfilePrivacy(privateProfile:boolean):void {
+    if(this.privacyBusy || !this.privacyStatus?.privateModeAvailable)return;
+    this.privacyBusy=true;
+    this.privacyService.setPrivate(privateProfile).pipe(timeout(10000),
+      finalize(()=>this.privacyBusy=false)).subscribe({
+      next:status=>this.privacyStatus=status,
+      error:()=>this.privacyError='Não foi possível alterar a privacidade.'
+    });
+  }
+  decidePendingFollow(id:number,accept:boolean):void {
+    if(this.privacyBusy)return;
+    this.privacyBusy=true;
+    this.privacyService.decide(id,accept).pipe(timeout(10000),
+      finalize(()=>this.privacyBusy=false)).subscribe({
+      next:()=>{
+        this.privacyPending=this.privacyPending.filter(request=>request.id!==id);
+        if(this.selectedProfile)this.socialGraphService.status(this.selectedProfile.username)
+          .subscribe(status=>this.selectedFollowStatus=status);
+      },
+      error:()=>this.privacyError='Não foi possível responder ao pedido.'
+    });
+  }
+
   profileStories:SocialStory[]=[];
   profileStoriesLoading=false;
   profileStoryViewerOpen=false;
@@ -506,6 +558,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.selectedProfile = profile;
     this.expandedPost = null;
     this.refreshProfileStories(profile.username);
+    this.loadPrivacy(profile.username);
     this.selectedActivity = undefined;
     this.selectedFollowStatus = undefined;
     this.selectedBlocked = false;
@@ -773,9 +826,16 @@ export class PerfisComponent implements OnInit, OnDestroy {
         next: status => {
           if (this.selectedProfile?.username.toLowerCase() !== profile.username.toLowerCase()) return;
           this.selectedFollowStatus = status;
-          this.actionSuccess = status.followedByMe
+          this.actionSuccess = status.requestPending
+            ? 'Pedido para seguir enviado. Aguarda a aprovação.'
+            : status.followedByMe
             ? t('feedback.social.followed', { username: profile.username })
             : t('feedback.social.unfollowed', { username: profile.username });
+          if(status.followedByMe) {
+            this.loadProfilePosts(profile.username);
+            this.refreshProfileStories(profile.username);
+            this.loadPrivacy(profile.username);
+          }
         },
         error: error => {
           if (this.selectedProfile?.username.toLowerCase() !== profile.username.toLowerCase()) return;
