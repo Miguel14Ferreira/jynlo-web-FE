@@ -25,6 +25,10 @@ export class SocialStoriesService {
     textPosition: 'top' | 'center' | 'bottom';
     textScale: 'small' | 'medium' | 'large';
     textStyle: 'plain' | 'pill';
+    textX?: number;
+    textY?: number;
+    textRotation?: number;
+    textZoom?: number;
     altText?: string;
     showTime?: boolean;
     locationLabel?: string;
@@ -38,6 +42,10 @@ export class SocialStoriesService {
       body.append('textPosition', options.textPosition);
       body.append('textScale', options.textScale);
       body.append('textStyle', options.textStyle);
+      if (options.textX !== undefined) body.append('textX', String(options.textX));
+      if (options.textY !== undefined) body.append('textY', String(options.textY));
+      if (options.textRotation !== undefined) body.append('textRotation', String(options.textRotation));
+      if (options.textZoom !== undefined) body.append('textZoom', String(options.textZoom));
       if (options.altText) body.append('altText', options.altText.trim());
       body.append('showTime', String(!!options.showTime));
       if (options.locationLabel?.trim()) body.append('locationLabel', options.locationLabel.trim());
