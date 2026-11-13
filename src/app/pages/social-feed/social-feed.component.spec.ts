@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { SocialFeedComponent } from './social-feed.component';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
@@ -363,6 +364,46 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(revoke).toHaveBeenCalledWith('blob:photo');
     expect(revoke).toHaveBeenCalledWith('blob:video');
     expect(create).toHaveBeenCalledTimes(2);
+  }));
+
+  it('preserves caption, location and attachments when the server rejects an upload', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const photo = new File(['image'], 'jogo.jpg', { type: 'image/jpeg' });
+    component.postContent = 'Treino da equipa';
+    component.postLocation = 'Benfica';
+    component.postImageFile = photo;
+    component.postImagePreview = 'blob:photo';
+    feed.createPost.and.returnValue(throwError(() => new HttpErrorResponse({ status: 413 })));
+
+    component.publish();
+
+    expect(component.posting).toBeFalse();
+    expect(component.actionError).toContain('demasiado grandes');
+    expect(component.postContent).toBe('Treino da equipa');
+    expect(component.postLocation).toBe('Benfica');
+    expect(component.postImageFile).toBe(photo);
+    expect(component.canPublishPost).toBeTrue();
+    expect(component.items.length).toBe(0);
+  }));
+
+  it('reports connectivity failures and permits retry without losing the album', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const photo = new File(['image'], 'campo.jpg', { type: 'image/jpeg' });
+    const video = new File(['video'], 'jogo.mp4', { type: 'video/mp4' });
+    component.postGallery = [
+      { file: photo, url: 'blob:photo' },
+      { file: video, url: 'blob:video' }
+    ];
+    feed.createPostAlbum.and.returnValue(throwError(() => new HttpErrorResponse({ status: 0 })));
+
+    component.publish();
+
+    expect(component.actionError).toContain('ligação');
+    expect(component.postGallery.map(item => item.file)).toEqual([photo, video]);
+    expect(component.canPublishPost).toBeTrue();
+    component.postGallery = [];
   }));
 
   it('publishes a photo without a caption and keeps empty posts disabled', fakeAsync(() => {
