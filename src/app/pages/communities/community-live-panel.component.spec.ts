@@ -1,5 +1,5 @@
-import { TestBed } from '@angular/core/testing';
-import { of, throwError, Subject } from 'rxjs';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Track } from 'livekit-client';
 import { CommunityLivePanelComponent } from './community-live-panel.component';
@@ -92,37 +92,37 @@ describe('Community broadcast panel', () => {
     fixture.destroy();
   });
 
-  it('does not disconnect the presenter on a transient live-event network error', () => {
-    const scheduled: CommunityLiveEvent={
+  it('preserves an active broadcast after a transient polling timeout', fakeAsync(() => {
+    const event: CommunityLiveEvent={
       id:25,communityId:7,title:'Jogo',description:null,status:'LIVE',
       scheduledAt:new Date().toISOString(),startedAt:new Date().toISOString(),
       endedAt:null,canManage:true
     };
-    const responses=new Subject<CommunityLiveEvent[]>();
-    live.list.and.returnValue(responses.asObservable());
+    live.list.and.returnValues(of([event]),
+      throwError(() => new HttpErrorResponse({status:0})));
     const fixture=TestBed.createComponent(CommunityLivePanelComponent);
     fixture.componentRef.setInput('communityId',7);
     fixture.detectChanges();
     const c=fixture.componentInstance;
     const disconnect=jasmine.createSpy('disconnect');
     c.room={disconnect} as any;
-    c.active=scheduled;
-    responses.next([scheduled]);
-    live.list.and.returnValue(throwError(() => new HttpErrorResponse({status:0})));
-    // A direct refresh can fail, too. It must not change the current room.
-    c.load();
+    c.active=event;
+    tick(15001);
+    expect(live.list).toHaveBeenCalledTimes(2);
     expect(c.room).not.toBeNull();
     expect(c.active?.id).toBe(25);
     expect(disconnect).not.toHaveBeenCalled();
     fixture.destroy();
-  });
+  }));
 
-  it('disconnects when the server explicitly revokes community access', () => {
+  it('disconnects an active viewer when community permission is revoked', fakeAsync(() => {
     const event: CommunityLiveEvent={
       id:25,communityId:7,title:'Jogo',description:null,status:'LIVE',
       scheduledAt:new Date().toISOString(),startedAt:new Date().toISOString(),
       endedAt:null,canManage:false
     };
+    live.list.and.returnValues(of([event]),
+      throwError(() => new HttpErrorResponse({status:403})));
     const fixture=TestBed.createComponent(CommunityLivePanelComponent);
     fixture.componentRef.setInput('communityId',7);
     fixture.detectChanges();
@@ -130,19 +130,13 @@ describe('Community broadcast panel', () => {
     const disconnect=jasmine.createSpy('disconnect');
     c.room={disconnect} as any;
     c.active=event;
-    live.list.and.returnValue(throwError(() => new HttpErrorResponse({status:403})));
-    // The periodic subscriber is exercised by a new community selection,
-    // with the room retained as if playback had started.
-    fixture.componentRef.setInput('communityId',8);
-    live.capabilities.and.returnValue(of({canManage:false,enabled:true}));
-    c.active=event;
-    c.room={disconnect} as any;
-    fixture.detectChanges();
+    tick(15001);
+    expect(live.list).toHaveBeenCalledTimes(2);
     expect(c.enabled).toBeFalse();
     expect(c.room).toBeNull();
     expect(disconnect).toHaveBeenCalled();
     fixture.destroy();
-  });
+  }));
 
   it('prevents viewers from seeing host scheduling tools', () => {
     live.capabilities.and.returnValue(of({canManage:false,enabled:true}));
