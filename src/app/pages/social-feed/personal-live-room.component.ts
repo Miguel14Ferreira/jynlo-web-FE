@@ -13,7 +13,7 @@ import { PersonalLiveEvent, PersonalLiveService } from '../../services/personal-
       <header>
         <div><strong><span class="live-dot">●</span> {{event.title}}</strong>
           <small>Direto de @{{event.username}} · {{participantCount}} participantes</small></div>
-        <button type="button" class="close" (click)="leave()" aria-label="Sair do direto">×</button>
+        <button type="button" class="close" (click)="event.canManage ? end() : leave()" aria-label="Sair do direto">×</button>
       </header>
       @if (error) {<p role="alert">{{error}}</p>}
       @if (connecting) {<p>A ligar à transmissão…</p>}
@@ -24,6 +24,9 @@ import { PersonalLiveEvent, PersonalLiveService } from '../../services/personal-
           <button type="button" (click)="toggleCamera()">{{ cameraOn ? 'Desligar câmara' : 'Ligar câmara' }}</button>
           <button type="button" class="end" (click)="end()">Terminar direto</button>
         </footer>
+      }
+      @if (event.canManage && !room && !connecting) {
+        <button type="button" class="end" (click)="end()">Terminar direto</button>
       }
       @if (!room && !connecting && error) {
         <button type="button" (click)="connect()">Tentar novamente</button>
@@ -60,6 +63,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   micOn=false;
   participantCount=0;
   private destroyed=false;
+  private ended=false;
 
   ngOnInit():void {void this.connect();}
 
@@ -139,9 +143,9 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       this.micOn=!this.micOn;}catch{this.error='Não foi possível alterar o microfone.';}
   }
   end():void {
-    if(!this.event.canManage)return;
+    if(!this.event.canManage || this.ended)return;
     this.service.end(this.event.id).pipe(timeout(10000)).subscribe({
-      next:()=>this.leave(),
+      next:()=>{this.ended=true;this.leave();},
       error:()=>this.error='Não foi possível terminar o direto. Tenta novamente.'
     });
   }
@@ -155,6 +159,10 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy():void {
     this.destroyed=true;
+    if(this.event?.canManage && !this.ended) {
+      // A host closing the window must not leave a stream orphaned.
+      this.service.end(this.event.id).pipe(timeout(10000)).subscribe({error:()=>{}});
+    }
     this.heartbeats?.unsubscribe();
     if(this.room)void this.room.disconnect();
     for(const el of this.attached)el.remove();
