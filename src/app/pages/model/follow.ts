@@ -3,6 +3,8 @@ export interface FollowStatus {
   followsMe: boolean;
   followers: number;
   following: number;
+  requestPending?: boolean;
+  privateProfile?: boolean;
 }
 
 export interface FollowProfile {
