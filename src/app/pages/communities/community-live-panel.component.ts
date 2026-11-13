@@ -70,6 +70,12 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
           <div class="live-player-header">
             <strong>{{ active?.title }}</strong>
             <span>{{ hosting ? 'A transmitir' : 'A assistir' }}</span>
+            <span class="live-viewer-count" aria-live="polite">
+              {{ participantCount }} {{ participantCount === 1 ? 'pessoa ligada' : 'pessoas ligadas' }}
+            </span>
+            @if (reconnecting) {
+              <span class="live-reconnect" role="status">A restabelecer ligação…</span>
+            }
             @if (hosting && active) {
               <button type="button" class="live-end-button"
                 [disabled]="busy" (click)="end(active)">Terminar direto para todos</button>
@@ -118,6 +124,8 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
     .live-player-header,.live-host-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
     .live-player-header>button{margin-left:auto}
     .live-end-button{background:#77313d!important;border-color:#d07485!important}
+    .live-viewer-count{font-size:.76rem;color:#b3eadc}
+    .live-reconnect{font-size:.76rem;color:#ffce83}
     .live-media{min-height:220px;background:#020e16;border-radius:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;overflow:hidden}
     .live-media video{display:block;object-fit:contain;max-width:100%;max-height:65vh}
     @media(max-width:680px){.live-event{align-items:stretch;flex-direction:column}.live-schedule{grid-template-columns:minmax(0,1fr)}}
@@ -151,6 +159,8 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
   hosting = false;
   cameraOn = false;
   micOn = false;
+  participantCount = 0;
+  reconnecting = false;
   ngOnChanges(): void {
     this.leave();
     this.events = [];
@@ -268,8 +278,23 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
           element.remove();
         }
       });
+      const updateParticipants = () => {
+        if (this.room === room) this.participantCount = room.remoteParticipants.size + 1;
+      };
+      room.on(RoomEvent.ParticipantConnected, updateParticipants);
+      room.on(RoomEvent.ParticipantDisconnected, updateParticipants);
+      room.on(RoomEvent.Reconnecting, () => {
+        if (this.room === room) this.reconnecting = true;
+      });
+      room.on(RoomEvent.Reconnected, () => {
+        if (this.room === room) {
+          this.reconnecting = false;
+          updateParticipants();
+        }
+      });
       room.on(RoomEvent.Disconnected, () => { if (this.room === room) this.leave(); });
       await room.connect(access.serverUrl, access.token);
+      updateParticipants();
       if (this.room !== room || origin !== this.communityId) {
         await room.disconnect();
         return;
@@ -349,6 +374,8 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
     this.hosting = false;
     this.cameraOn = false;
     this.micOn = false;
+    this.participantCount = 0;
+    this.reconnecting = false;
     room?.disconnect();
     for (const element of this.attached) element.remove();
     this.attached.clear();
