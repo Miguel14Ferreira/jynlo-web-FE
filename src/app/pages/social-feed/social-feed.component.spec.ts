@@ -365,6 +365,42 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(create).toHaveBeenCalledTimes(2);
   }));
 
+  it('publishes a photo without a caption and keeps empty posts disabled', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    expect(component.canPublishPost).toBeFalse();
+    component.postImageFile = new File(['image'], 'jogo.jpg', {type:'image/jpeg'});
+    component.postImagePreview = 'blob:photo-preview';
+    expect(component.canPublishPost).toBeTrue();
+    feed.createPost.and.returnValue(of({
+      type:'POST', postId:202, authorUsername:'miguel', authorDisplayName:'Miguel',
+      authorProfilePicUrl:null, content:'', imageUrl:'/media/jogo.jpg',
+      createdAt:new Date().toISOString(),sessionId:null,sport:null,city:null,
+      gameDate:null,likeCount:0,likedByMe:false,commentCount:0
+    }));
+    component.publish();
+    expect(feed.createPost).toHaveBeenCalledOnceWith('', component.postImageFile ?? jasmine.anything(), undefined, undefined);
+    expect(component.items[0].content).toBe('');
+    expect(component.canPublishPost).toBeFalse();
+  }));
+
+  it('uses one-file multipart upload for a gallery with a single picture', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const picture = new File(['image'], 'unica.png', {type:'image/png'});
+    component.postGallery = [{file: picture, url:'blob:gallery-photo'}];
+    feed.createPost.and.returnValue(of({
+      type:'POST', postId:203,authorUsername:'miguel',authorDisplayName:'Miguel',
+      authorProfilePicUrl:null,content:'',imageUrl:'/media/unica.png',
+      createdAt:new Date().toISOString(),sessionId:null,sport:null,city:null,
+      gameDate:null,likeCount:0,likedByMe:false,commentCount:0
+    }));
+    component.publish();
+    expect(feed.createPost).toHaveBeenCalledOnceWith('',picture,undefined,undefined);
+    expect(feed.createPostAlbum).not.toHaveBeenCalled();
+    expect(component.postGallery.length).toBe(0);
+  }));
+
   it('shows a contained image preview with a separate accessible remove action', fakeAsync(() => {
     fixture.detectChanges();
     tick(351);
