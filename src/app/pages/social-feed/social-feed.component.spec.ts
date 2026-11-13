@@ -127,13 +127,18 @@ describe('SocialFeedComponent discovery sidebar', () => {
     fixture.destroy();
   }));
 
-  it('allows Benfica as a location independently of sports venue search', fakeAsync(() => {
+  it('requires a verified map suggestion rather than arbitrary location text', fakeAsync(() => {
     fixture.detectChanges();
     tick(351);
-    component.postLocation = ' Benfica ';
+    component.postLocation = 'ben';
     component.postLocationOpen = true;
     component.selectPostPlaceName();
-    expect(component.postLocation).toBe('Benfica');
+    expect(component.postLocationVerified).toBeFalse();
+    expect(component.postLocationError).toContain('localização real');
+    component.selectPostRealPlace({id:'osm:1',label:'Benfica',subtitle:'Lisboa, Portugal',
+      latitude:38.75,longitude:-9.17});
+    expect(component.postLocation).toContain('Benfica');
+    expect(component.postLocationVerified).toBeTrue();
     expect(component.postLocationOpen).toBeFalse();
     fixture.destroy();
   }));
@@ -503,6 +508,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     component.openPostComposer();
     component.postContent = 'Treino com amigos';
     component.postLocation = 'Benfica';
+    component.postLocationVerified = true;
     const photo = new File(['photo'], 'treino.jpg', { type: 'image/jpeg' });
     component.postImageFile = photo;
     component.closePostComposer();
@@ -531,7 +537,8 @@ describe('SocialFeedComponent discovery sidebar', () => {
     component.onPostGalleryChange({ target: input } as unknown as Event);
     expect(component.postGallery.map(item => item.file)).toEqual([photo, video]);
     fixture.detectChanges();
-    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.composer-media-grid .composer-media-item').length).toBe(2);
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.composer-album-stage img, .composer-album-stage video').length).toBe(1);
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.composer-album-dots button').length).toBe(2);
     component.postContent = 'Grande jogo!';
     const published: FeedItem = {
       type: 'POST', postId: 123, authorUsername: 'miguel', authorDisplayName: 'Miguel',
@@ -557,6 +564,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     const photo = new File(['image'], 'jogo.jpg', { type: 'image/jpeg' });
     component.postContent = 'Treino da equipa';
     component.postLocation = 'Benfica';
+    component.postLocationVerified = true;
     component.postImageFile = photo;
     component.postImagePreview = 'blob:photo';
     feed.createPost.and.returnValue(throwError(() => new HttpErrorResponse({ status: 413 })));
@@ -876,6 +884,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     component.postImageFile=photo;
     component.postContent='';
     component.postLocation='  Campo Municipal, Lisboa  ';
+    component.postLocationVerified = true;
     feed.createPost.and.returnValue(of({
       type:'POST',postId:213,authorUsername:'miguel',authorDisplayName:'Miguel',
       authorProfilePicUrl:null,content:'',location:'Campo Municipal, Lisboa',
@@ -942,13 +951,16 @@ describe('SocialFeedComponent discovery sidebar', () => {
     component.onPostGalleryChange({target: input} as unknown as Event);
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.querySelectorAll('.composer-media-grid .composer-media-item').length).toBe(2);
+    expect(root.querySelectorAll('.composer-album-stage img').length).toBe(1);
+    expect(root.querySelectorAll('.composer-album-dots button').length).toBe(2);
     expect(root.querySelector('.composer-media-title')?.textContent).toContain('2 ficheiros');
-    const remove = root.querySelector('.composer-media-grid .composer-media-remove') as HTMLButtonElement;
+    component.shiftPostGallery(1);
+    expect(component.postGalleryIndex).toBe(1);
+    const remove = root.querySelector('.composer-album-toolbar > button:last-child') as HTMLButtonElement;
     remove.click();
     fixture.detectChanges();
     expect(component.postGallery.length).toBe(1);
-    expect(root.querySelectorAll('.composer-media-grid .composer-media-item').length).toBe(1);
+    expect(root.querySelectorAll('.composer-album-stage img').length).toBe(1);
   }));
 
   it('allows video selection, limits its size and keeps photo/video mutually exclusive', fakeAsync(() => {
