@@ -692,6 +692,41 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     this.selectCommunityPostMedia(entry, Math.min(length - 1, Math.max(0, next)));
   }
 
+  // Use the same full-size gallery behavior as the main feed without
+  // changing community permissions or the stored media.
+  communityExpandedMedia: { url: string; mimeType: string }[] = [];
+  communityExpandedMediaIndex = 0;
+
+  openCommunityPostMedia(entry: CommunityTimelineEntry): void {
+    const media = this.communityPostMedia(entry);
+    const selected = this.communityPostCurrentIndex(entry);
+    if (!media.length || !media[selected]) return;
+    this.communityExpandedMedia = media;
+    this.communityExpandedMediaIndex = selected;
+  }
+
+  closeCommunityPostMedia(): void {
+    this.communityExpandedMedia = [];
+    this.communityExpandedMediaIndex = 0;
+  }
+
+  shiftCommunityExpandedMedia(direction: -1 | 1): void {
+    if (this.communityExpandedMedia.length < 2) return;
+    this.communityExpandedMediaIndex =
+      (this.communityExpandedMediaIndex + direction + this.communityExpandedMedia.length)
+      % this.communityExpandedMedia.length;
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onCommunityMediaKeyboard(event: KeyboardEvent): void {
+    if (!this.communityExpandedMedia?.length) return;
+    if (event.key === 'Escape') this.closeCommunityPostMedia();
+    else if (event.key === 'ArrowRight') this.shiftCommunityExpandedMedia(1);
+    else if (event.key === 'ArrowLeft') this.shiftCommunityExpandedMedia(-1);
+    else return;
+    event.preventDefault();
+  }
+
   private communityPostTouch: { id: number; x: number; y: number } | null = null;
 
   startCommunityPostSwipe(event: TouchEvent, entry: CommunityTimelineEntry): void {
