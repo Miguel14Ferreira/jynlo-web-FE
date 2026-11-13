@@ -136,7 +136,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           }
         </footer>
       }
-      @if (!room && !connecting && error) {
+      @if (!room && !connecting && error && !ended && !controlsUnavailable && !closing) {
         <button type="button" (click)="connect()">Tentar novamente</button>
       }
       @if (confirmingEnd) {
@@ -432,12 +432,25 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
           if(this.room===activeRoom)this.syncLocalMedia(activeRoom);
         }
       }
-    } catch {
+    } catch(error:unknown) {
       if(next && this.room===next)await this.disconnectForRetry(next);
       else if(next)await next.disconnect().catch(()=>{});
-      if(!this.destroyed&&!this.closing)
+      if(this.destroyed||this.closing)return;
+      if(error instanceof HttpErrorResponse && (error.status===404 || error.status===410)){
+        // A previously shared broadcast may already have ended by the time
+        // the viewer joins. Do not advertise a retry or end it a second time.
+        this.handleBroadcastEnded();
+      } else {
         this.error='Não foi possível entrar no direto. Verifica a ligação e as permissões.';
+      }
     } finally {this.connecting=false;}
+  }
+  private handleBroadcastEnded():void {
+    if(this.destroyed || this.closing || this.ended)return;
+    this.ended=true;
+    this.controlsUnavailable=true;
+    this.error='Este direto terminou ou já não está disponível.';
+    this.leave('ENDED');
   }
   private syncLocalMedia(activeRoom:Room):void {
     if(this.room!==activeRoom||this.destroyed||this.closing)return;
@@ -525,9 +538,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
           if(error instanceof HttpErrorResponse &&
              (error.status===404 || error.status===410)){
             // The broadcast was removed or has ended on the server.
-            this.controlsUnavailable=true;
-            this.error='Este direto terminou ou já não está disponível.';
-            this.leave('ENDED');
+            this.handleBroadcastEnded();
           }
           // Do not disconnect on transient network, auth or server failures.
         }
@@ -762,7 +773,17 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     this.ending=true;
     this.service.end(this.event.id).pipe(timeout(10000)).subscribe({
       next:()=>{this.ended=true;this.confirmingEnd=false;this.leave('ENDED');},
-      error:()=>{this.ending=false;this.error='Não foi possível terminar o direto. Tenta novamente.';}
+      error:(error:unknown)=>{
+        // A repeated end can legitimately report "already ended".
+        if(error instanceof HttpErrorResponse && (error.status===404 || error.status===410)){
+          this.handleBroadcastEnded();
+          return;
+        }
+        if(!this.destroyed&&!this.closing){
+          this.ending=false;
+          this.error='Não foi possível terminar o direto. Tenta novamente.';
+        }
+      }
     });
   }
   leave(reason:'LEFT'|'ENDED'='LEFT'):void {
