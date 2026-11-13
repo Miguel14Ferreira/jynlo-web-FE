@@ -1,4 +1,5 @@
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { CommunitiesComponent } from './communities.component';
 import { CommunityTimelineEntry } from '../../services/community-timeline.service';
 
@@ -7,6 +8,7 @@ describe('Community feed/chat UI state isolation', () => {
   let list: jasmine.Spy;
   let send: jasmine.Spy;
   let sendPostWithMedia: jasmine.Spy;
+  let sendPostAlbum: jasmine.Spy;
   let remove: jasmine.Spy;
 
   const message = (kind: 'POST' | 'CHAT'): CommunityTimelineEntry => ({
@@ -24,14 +26,16 @@ describe('Community feed/chat UI state isolation', () => {
     component.timelineDeletingId = null;
     component.timelineError = '';
     component.feedDraft = '';
+    component.feedGallery = [];
     component.chatDraft = '';
     (component as any).timelineRequestVersion = 0;
     (component as any).chatEventsDuringLoad = new Map();
     list = jasmine.createSpy('list').and.returnValue(of([]));
     send = jasmine.createSpy('send').and.returnValue(of(message('POST')));
     sendPostWithMedia = jasmine.createSpy('sendPostWithMedia').and.returnValue(of(message('POST')));
+    sendPostAlbum = jasmine.createSpy('sendPostAlbum').and.returnValue(of(message('POST')));
     remove = jasmine.createSpy('delete').and.returnValue(of(undefined));
-    (component as any).timelineService = { list, send, sendPostWithMedia, delete: remove };
+    (component as any).timelineService = { list, send, sendPostWithMedia, sendPostAlbum, delete: remove };
     (component as any).router = { navigate: jasmine.createSpy('navigate').and.returnValue(Promise.resolve(true)) };
     spyOn(component, 'canManage').and.returnValue(true);
   });
@@ -109,6 +113,41 @@ describe('Community feed/chat UI state isolation', () => {
     expect(sendPostWithMedia).toHaveBeenCalledOnceWith(7, 'Grande jogo', undefined, video);
     expect(component.feedVideoFile).toBeUndefined();
     expect(component.feedDraft).toBe('');
+  });
+
+  it('uses the compatible single-image endpoint when only one album photo was selected', () => {
+    const photo=new File(['photo'], 'MF.jpg', {type:'image/jpeg'});
+    component.activeTab='feed';
+    component.feedGallery=[{file:photo,url:'blob:test-photo'}];
+    spyOn(component,'loadTimeline');
+    component.sendTimeline();
+    expect(sendPostWithMedia).toHaveBeenCalledOnceWith(7,'',photo,undefined);
+    expect(sendPostAlbum).not.toHaveBeenCalled();
+    expect(component.feedGallery.length).toBe(0);
+  });
+
+  it('keeps the batch endpoint for multiple photos or mixed videos', () => {
+    const photo=new File(['photo'],'1.jpg',{type:'image/jpeg'});
+    const video=new File(['video'],'2.mp4',{type:'video/mp4'});
+    component.activeTab='feed';
+    component.feedGallery=[{file:photo,url:'blob:a'},{file:video,url:'blob:b'}];
+    spyOn(component,'loadTimeline');
+    component.sendTimeline();
+    expect(sendPostAlbum).toHaveBeenCalledOnceWith(7,'',[photo,video]);
+    expect(sendPostWithMedia).not.toHaveBeenCalled();
+  });
+
+  it('preserves a failed photo and gives a useful server error instead of losing the draft', () => {
+    const photo=new File(['photo'],'MF.jpg',{type:'image/jpeg'});
+    component.activeTab='feed';
+    component.feedGallery=[{file:photo,url:'blob:photo'}];
+    component.feedDraft='Foto do jogo';
+    sendPostWithMedia.and.returnValue(throwError(()=>new HttpErrorResponse({status:413})));
+    component.sendTimeline();
+    expect(component.timelineError).toContain('demasiado grande');
+    expect(component.feedDraft).toBe('Foto do jogo');
+    expect(component.feedGallery.length).toBe(1);
+    expect(component.timelineSending).toBeFalse();
   });
 
   it('shows the community member name and picture in a post, with a safe fallback', () => {
