@@ -60,15 +60,16 @@ describe('SocialStoriesComponent', () => {
     expect(component.storyGroups).toHaveSize(1);
     expect(component.storyGroups[0].name).toBe('@joao');
     expect(component.groups.map(c => c.id)).toEqual([3]);
-    expect(fixture.nativeElement.querySelectorAll('.story-bubble:not(.story-add-action)').length).toBe(1);
+    expect(fixture.nativeElement.querySelectorAll('.story-bubble').length).toBe(1);
   }));
 
   it('uses the shared premium hierarchy for Story creation and media controls', fakeAsync(() => {
     fixture.detectChanges();
     tick();
     const root = fixture.nativeElement as HTMLElement;
-    const create = root.querySelector('.story-add-action') as HTMLButtonElement;
-    expect(create.classList.contains('jynlo-premium-btn--primary')).toBeTrue();
+    const create = root.querySelector('.story-header-create') as HTMLButtonElement;
+    expect(create).not.toBeNull();
+    expect(root.querySelector('.story-rail .story-add-action')).toBeNull();
     expect(root.querySelector('.story-retry')).toBeNull();
 
     create.click();
@@ -107,6 +108,18 @@ describe('SocialStoriesComponent', () => {
     expect(component.storyLocationSearchOpen).toBeFalse();
   }));
 
+  it('restores the original Stories layout: create in the heading, circular avatars only in the rail', fakeAsync(() => {
+    fixture.detectChanges();
+    tick();
+    const root = fixture.nativeElement as HTMLElement;
+    const headerCreate = root.querySelector('.stories-heading .story-header-create');
+    expect(headerCreate).not.toBeNull();
+    expect(root.querySelector('.story-rail .story-header-create')).toBeNull();
+    expect(root.querySelector('.story-rail .story-add-action')).toBeNull();
+    expect(root.querySelectorAll('.story-rail .story-bubble')).toHaveSize(1);
+    expect(root.querySelector('.story-rail .story-ring')).not.toBeNull();
+  }));
+
   it('only shows retry after a story request fails', fakeAsync(() => {
     api.feed.and.returnValue(of([]));
     api.mine.and.returnValue(of([]));
@@ -131,7 +144,7 @@ describe('SocialStoriesComponent', () => {
     ] as any));
     fixture.detectChanges();
     tick();
-    (fixture.nativeElement.querySelector('.story-add-action') as HTMLButtonElement).click();
+    (fixture.nativeElement.querySelector('.story-header-create') as HTMLButtonElement).click();
     fixture.detectChanges();
     expect(component.groups).toHaveSize(0);
     expect(fixture.nativeElement.querySelector('#storyAudience')).toBeNull();
@@ -144,7 +157,7 @@ describe('SocialStoriesComponent', () => {
   it('preserves choosing a community when the member can publish community Stories', fakeAsync(() => {
     fixture.detectChanges();
     tick();
-    (fixture.nativeElement.querySelector('.story-add-action') as HTMLButtonElement).click();
+    (fixture.nativeElement.querySelector('.story-header-create') as HTMLButtonElement).click();
     fixture.detectChanges();
     const audience = fixture.nativeElement.querySelector('#storyAudience') as HTMLSelectElement;
     expect(audience).not.toBeNull();
@@ -156,12 +169,12 @@ describe('SocialStoriesComponent', () => {
   }));
 
 
-  it('uses the shared Jynlo accent and primary styles for both Story actions', fakeAsync(() => {
+  it('keeps the circular Story rail separate from its create action', fakeAsync(() => {
     fixture.detectChanges();
     tick();
-    const createButton = fixture.nativeElement.querySelector('.story-add-action') as HTMLButtonElement;
-    expect(createButton.classList.contains('jynlo-action')).toBeTrue();
-    expect(createButton.classList.contains('jynlo-action--accent')).toBeTrue();
+    const createButton = fixture.nativeElement.querySelector('.story-header-create') as HTMLButtonElement;
+    expect(createButton).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.story-rail .story-add-action')).toBeNull();
     createButton.click();
     fixture.detectChanges();
     const publishButton = fixture.nativeElement.querySelector('.story-primary') as HTMLButtonElement;
@@ -186,7 +199,7 @@ describe('SocialStoriesComponent', () => {
     expect(api.mine).toHaveBeenCalled();
     expect(fixture.nativeElement.querySelector('.story-my-status')).toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('Stories publicadas por ti nas últimas 24 horas');
-    expect(fixture.nativeElement.querySelectorAll('.story-bubble:not(.story-add-action)').length).toBe(1);
+    expect(fixture.nativeElement.querySelectorAll('.story-bubble').length).toBe(1);
   }));
 
   it('groups several Stories from the same author and lets viewers move between them', fakeAsync(() => {
@@ -519,10 +532,10 @@ describe('SocialStoriesComponent', () => {
       expect(panel.querySelector('.stories-heading p')?.textContent?.trim())
         .toBe('Your friends’ and communities’ best moments, for 24 hours.');
       expect(panel.querySelector('.story-retry')).toBeNull();
-      expect(panel.querySelector('.story-add-action')?.textContent?.trim()).toContain('Create Story');
+      expect(panel.querySelector('.story-header-create')?.textContent?.trim()).toContain('Create Story');
       expect(panel.querySelector('.stories-empty')?.textContent?.trim())
         .toBe('No Stories yet. Share the first moment!');
-      (panel.querySelector('.story-add-action') as HTMLButtonElement).click();
+      (panel.querySelector('.story-header-create') as HTMLButtonElement).click();
       fixture.detectChanges();
       expect(panel.querySelector('.story-file')?.textContent).toContain('Choose photo or video');
       expect(panel.querySelector('label[for="storyCaption"]')?.textContent?.trim()).toBe('Caption (optional)');
@@ -550,7 +563,7 @@ describe('SocialStoriesComponent', () => {
       const panel: HTMLElement = fixture.nativeElement.querySelector('.stories-panel');
       expect(panel.querySelector('.stories-eyebrow')?.textContent?.trim()).toBe('Sporting moments');
       expect(panel.querySelector('.story-retry')).toBeNull();
-      expect(panel.querySelector('.story-add-action')?.textContent).toContain('Create Story');
+      expect(panel.querySelector('.story-header-create')?.textContent).toContain('Create Story');
       expect(panel.querySelector('.stories-empty')?.textContent?.trim())
         .toBe('No Stories yet. Share the first moment!');
     } finally {
