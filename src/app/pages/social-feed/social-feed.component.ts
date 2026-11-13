@@ -429,11 +429,13 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     if(!this.realPlaceSearch)return;
     this.postLocationResolving=true;
     this.postLocationError='';
+    const requestSerial=this.postLocationQuerySerial;
     this.realPlaceSearch.resolve(place,this.postPlaceSessionToken).pipe(
       timeout(10000),takeUntil(this.destroyed),
       finalize(()=>this.postLocationResolving=false)
     ).subscribe({
       next:verified=>{
+        if(requestSerial!==this.postLocationQuerySerial)return;
         this.postLocation=[verified.label,verified.subtitle].filter(Boolean).join(', ').slice(0,160);
         this.postLocationVerified=true;
         this.postLocationProvider=verified.provider||'open';
