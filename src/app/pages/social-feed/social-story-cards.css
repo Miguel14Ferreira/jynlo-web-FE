@@ -1,0 +1,54 @@
+/* Unified rail: visual Story cards, with create as the first card. */
+.stories-panel { padding: .9rem 1rem .7rem; margin-bottom: .5rem; }
+.stories-heading { align-items: start; }
+.stories-heading h2 { margin: 0; font-size: 1rem; }
+.stories-heading p { display: none; }
+.stories-eyebrow { display: none; }
+.stories-panel .story-rail { display: flex; gap: .75rem; min-height: 0; padding: .7rem 0 .25rem; scroll-snap-type: x proximity; }
+.stories-panel .story-bubble {
+  width: 122px; flex: 0 0 122px; min-width: 122px; min-height: 170px;
+  padding: 0; gap: .2rem; border: 1px solid rgba(148,163,184,.18);
+  border-radius: .8rem; overflow: hidden; background: #112736; color: #f8fafc;
+  scroll-snap-align: start; text-decoration: none; position: relative;
+}
+.stories-panel .story-card-art,.stories-panel .story-create-card-art {
+  width: 100%; height: 140px; display: block; position: relative;
+  background: linear-gradient(150deg, #1a4854, #0a1724); overflow: hidden;
+}
+.stories-panel .story-card-cover { width: 100%; height: 100%; object-fit: cover; display: block; }
+.stories-panel .story-card-video-placeholder { display: grid; place-items: center; height: 100%; font-size: 2rem; color: #5eead4; }
+.stories-panel .story-bubble .story-ring {
+  position: absolute; top: 7px; left: 7px; width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center; padding: 2px;
+  border: 2px solid #5eead4; background: #0a1624; border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,.5);
+}
+.stories-panel .story-bubble .story-ring img,.stories-panel .story-bubble .story-placeholder {
+  width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+}
+.stories-panel .story-bubble .story-placeholder { font-size: .9rem; display: grid; place-items: center; }
+.stories-panel .story-bubble .story-name {
+  display: block; flex: 0 0 auto; width: calc(100% - 12px); padding: .25rem .35rem .1rem;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: center;
+  color: #e2e8f0; font-size: .78rem; font-weight: 700;
+}
+.stories-panel .story-bubble small { font-size: .65rem; margin-top: -.2rem; }
+.stories-panel .story-bubble.story-add-action {
+  padding: 0; border: 1px solid rgba(94,234,212,.36);
+  background: #143646; box-shadow: none; color: #f8fafc;
+}
+.stories-panel .story-create-card-art {
+  display: grid; place-items: end center;
+  background: linear-gradient(135deg, #0e2838 0%, #143e4a 60%, #086d65 100%);
+}
+.stories-panel .story-create-card-plus {
+  position: absolute; bottom: .6rem; left: 50%; transform: translateX(-50%);
+  width: 40px; height: 40px; display: grid; place-items: center;
+  background: #2dd4bf; color: #042f2e; border: 3px solid #0b2532;
+  border-radius: 50%; font-size: 1.8rem; font-weight: 800;
+}
+.stories-panel .story-bubble:hover { border-color: #5eead4; }
+@media(max-width:600px) {
+  .stories-panel .story-bubble { width: 105px; flex-basis: 105px; min-width: 105px; min-height: 155px; }
+  .stories-panel .story-card-art,.stories-panel .story-create-card-art { height: 126px; }
+}
