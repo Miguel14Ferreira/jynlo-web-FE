@@ -229,6 +229,18 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     if (this.uploading) return;
     this.composerOpen = false;
     this.publishError = '';
+    // Keep the draft, but do not let old asynchronous search results
+    // re-open suggestion panels when the editor is opened again.
+    ++this.storyLocationSearchSerial;
+    ++this.storyTagQuerySerial;
+    this.storyLocationSearchSubscription?.unsubscribe();
+    this.storyTagSubscription?.unsubscribe();
+    this.storyLocationSearchOpen = false;
+    this.storyLocationSearching = false;
+    this.storyRealPlaces = [];
+    this.storyTagOpen = false;
+    this.storyTagLoading = false;
+    this.storyTagResults = [];
     this.changeDetector.markForCheck();
   }
 
@@ -650,11 +662,11 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     const image = ['image/jpeg', 'image/png', 'image/webp'].includes(selected.type);
     const video = ['video/mp4', 'video/webm'].includes(selected.type);
     if (!image && !video) {
-      this.error = t('stories.invalidType');
+      this.publishError = t('stories.invalidType');
       return;
     }
     if (!selected.size || selected.size > (video ? 20 : 5) * 1024 * 1024) {
-      this.error = t('stories.invalidSize');
+      this.publishError = t('stories.invalidSize');
       return;
     }
     this.removeFile();
