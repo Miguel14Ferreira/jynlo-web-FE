@@ -43,6 +43,45 @@ describe('Community feed/chat UI state isolation', () => {
     spyOn(component, 'canManage').and.returnValue(true);
   });
 
+  it('searches only current community chat messages and navigates matches', () => {
+    component.activeTab = 'chat';
+    const first = { ...message('CHAT'), id: 41, body: 'Padel amanhã' };
+    const second = { ...message('CHAT'), id: 42, body: 'Fotografias',
+      attachmentName: 'padel-final.jpg' };
+    const third = { ...message('CHAT'), id: 43, body: 'Futebol' };
+    const unrelatedPost = { ...message('POST'), id: 44, body: 'Padel fora do chat' };
+    component.timelineEntries = [first, second, third, unrelatedPost];
+    component.toggleCommunityChatSearch();
+    component.communityChatSearchQuery = 'PADEL';
+    component.updateCommunityChatSearch();
+    expect(component.communityChatSearchMatches.map(entry => entry.id)).toEqual([41, 42]);
+    expect(component.isActiveCommunityChatMatch(first)).toBeTrue();
+    component.navigateCommunityChatSearch(1);
+    expect(component.isActiveCommunityChatMatch(second)).toBeTrue();
+    component.navigateCommunityChatSearch(1);
+    expect(component.communityChatSearchIndex).toBe(0);
+    component.toggleCommunityChatSearch();
+    expect(component.communityChatSearchMatches).toEqual([]);
+  });
+
+  it('jumps to a community reply and supports keyboard search without sending', () => {
+    component.activeTab = 'chat';
+    const original = { ...message('CHAT'), id: 101, body: 'Jogo hoje' };
+    const reply = { ...message('CHAT'), id: 102, body: 'Combinado',
+      replyToMessageId: 101, replyToText: 'Jogo hoje' };
+    component.timelineEntries = [original, reply];
+    component.jumpToCommunityChatReply(reply);
+    expect(component.communityChatSearchOpen).toBeTrue();
+    expect(component.isActiveCommunityChatMatch(original)).toBeTrue();
+    const event = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true });
+    component.onCommunityChatSearchKeydown(event);
+    expect(event.defaultPrevented).toBeTrue();
+    const escape = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true });
+    component.onCommunityChatSearchKeydown(escape);
+    expect(component.communityChatSearchOpen).toBeFalse();
+    expect(send).not.toHaveBeenCalled();
+  });
+
   it('shows one community album item at a time with isolated navigation and stable cover', () => {
     Object.assign(component, { communityPostMediaIndex: {} });
     const first = { ...message('POST'), id: 20, imageUrl: '/media/first.jpg',
