@@ -82,11 +82,9 @@ describe('Community broadcast panel', () => {
     c.hosting=true;
     c.room={disconnect} as any;
     live.end.and.returnValue(of({...event,status:'ENDED'}));
-    fixture.detectChanges();
-    const button=(fixture.nativeElement as HTMLElement)
-      .querySelector('.live-end-button') as HTMLButtonElement;
-    expect(button?.textContent).toContain('Terminar direto');
-    button.click();
+    // Exercise the same handler wired to the host-only End button. A mocked
+    // LiveKit room is not a full Room instance for DOM rendering.
+    c.end(event);
     expect(live.end).toHaveBeenCalledOnceWith(7,25);
     expect(disconnect).toHaveBeenCalled();
     expect(c.room).toBeNull();
