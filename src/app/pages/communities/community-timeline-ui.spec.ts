@@ -35,7 +35,7 @@ describe('Community feed/chat UI state isolation', () => {
     sendPostWithMedia = jasmine.createSpy('sendPostWithMedia').and.returnValue(of(message('POST')));
     sendPostAlbum = jasmine.createSpy('sendPostAlbum').and.returnValue(of(message('POST')));
     remove = jasmine.createSpy('delete').and.returnValue(of(undefined));
-    (component as any).timelineService = { list, send, sendPostWithMedia, sendPostAlbum, delete: remove };
+    (component as any).timelineService = { list, send, sendPostWithMedia, sendPostAlbum, editPost: jasmine.createSpy('editPost'), delete: remove };
     (component as any).router = { navigate: jasmine.createSpy('navigate').and.returnValue(Promise.resolve(true)) };
     spyOn(component, 'canManage').and.returnValue(true);
   });
@@ -96,6 +96,45 @@ describe('Community feed/chat UI state isolation', () => {
     component.onCommunityMediaKeyboard(new KeyboardEvent('keydown', { key: 'Escape' }));
     expect(component.communityExpandedMedia).toEqual([]);
     expect(component.communityPostCurrentIndex(entry)).toBe(2);
+  });
+
+  it('edits only an authored community post while retaining the album and original on error', () => {
+    const entry = { ...message('POST'), id: 301, body: 'Antes',
+      imageUrl: '/media/main.jpg',
+      extraMedia: [{ url: '/media/next.jpg', mimeType: 'image/jpeg' }] };
+    spyOn(component, 'isMyChatEntry').and.returnValue(true);
+    const edit = (component as any).timelineService.editPost as jasmine.Spy;
+    edit.and.returnValue(of({ ...entry, body: 'Depois', editedAt: '2026-11-13T10:00:00Z' }));
+    component.startCommunityPostEdit(entry);
+    component.editingCommunityPostText = ' Depois ';
+    component.saveCommunityPostEdit(entry);
+    expect(edit).toHaveBeenCalledWith(7, 301, 'Depois');
+    expect(entry.body).toBe('Depois');
+    expect(entry.extraMedia.length).toBe(1);
+    expect(component.editingCommunityPostId).toBeNull();
+
+    edit.and.returnValue(throwError(() => new HttpErrorResponse({ status: 503 })));
+    component.startCommunityPostEdit(entry);
+    component.editingCommunityPostText = 'Rascunho';
+    component.saveCommunityPostEdit(entry);
+    expect(entry.body).toBe('Depois');
+    expect(component.editingCommunityPostText).toBe('Rascunho');
+    expect(component.editingCommunityPostId).toBe(301);
+    expect(component.timelineError).toContain('original');
+  });
+
+  it('denies community post edit attempts for other authors and cross-community entries', () => {
+    const entry = { ...message('POST'), id: 302 };
+    spyOn(component, 'isMyChatEntry').and.returnValue(false);
+    const edit = (component as any).timelineService.editPost as jasmine.Spy;
+    component.startCommunityPostEdit(entry);
+    expect(component.editingCommunityPostId).toBeNull();
+    component.editingCommunityPostId = 302;
+    component.saveCommunityPostEdit(entry);
+    expect(edit).not.toHaveBeenCalled();
+    (component.isMyChatEntry as jasmine.Spy).and.returnValue(true);
+    component.saveCommunityPostEdit({ ...entry, communityId: 8 });
+    expect(edit).not.toHaveBeenCalled();
   });
 
   it('reorders community album cover and preserves exact upload order', () => {
