@@ -393,7 +393,9 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
   get photoTextBackdrop(): string {
     return this.photoTextBackground === 'none' ? 'transparent'
-      : this.photoTextBackground === 'light' ? 'rgba(255,255,255,.86)' : 'rgba(1,9,20,.68)';
+      : this.photoTextBackground === 'light'
+        || (this.photoTextBackground === 'dark' && this.photoTextInk === 'black')
+        ? 'rgba(255,255,255,.86)' : 'rgba(1,9,20,.68)';
   }
   get photoTextFontFamily(): string {
     return this.photoTextFont === 'classic' ? 'Georgia,serif'
