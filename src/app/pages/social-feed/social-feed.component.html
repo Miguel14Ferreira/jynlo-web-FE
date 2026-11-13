@@ -171,6 +171,10 @@
                 <img [src]="postImagePreview" [alt]="'feed.imagePreviewAlt' | t">
               </div>
               <div class="composer-media-item-footer">
+                <button type="button" class="composer-photo-edit-btn"
+                        [disabled]="posting" (click)="openPhotoTextEditor(-1)">
+                  <span aria-hidden="true">Aa</span> Escrever na fotografia
+                </button>
                 <span class="composer-media-name" [title]="postImageFile?.name">{{ postImageFile?.name || 'Fotografia' }}</span>
                 <button type="button" class="composer-media-remove"
                   [disabled]="posting" (click)="removePostImage()"
@@ -211,6 +215,12 @@
                     }
                   </div>
                   <div class="composer-media-item-footer">
+                    @if (item.file.type.startsWith('image/')) {
+                      <button type="button" class="composer-photo-edit-btn"
+                              [disabled]="posting" (click)="openPhotoTextEditor(i)">
+                        <span aria-hidden="true">Aa</span> Escrever na fotografia
+                      </button>
+                    }
                     <span class="composer-media-name" [title]="item.file.name">
                       @if (i === 0) { <strong class="composer-cover-label">Capa · </strong> }
                       {{ item.file.name }}
@@ -271,6 +281,43 @@
           {{ posting ? ('feed.publishing' | t) : ('feed.publish' | t) }}
         </button>
       </div>
+      @if (photoTextEditorIndex !== null) {
+        <section class="feed-photo-text-editor" aria-label="Escrever na fotografia">
+          <header>
+            <strong>Escrever na fotografia</strong>
+            <button type="button" [disabled]="photoTextSaving"
+                    (click)="closePhotoTextEditor()" aria-label="Fechar edição">×</button>
+          </header>
+          <label for="feed-photo-overlay-text">Texto a colocar sobre a fotografia</label>
+          <textarea id="feed-photo-overlay-text" [(ngModel)]="photoTextDraft"
+                    maxlength="120" rows="2" [disabled]="photoTextSaving"
+                    placeholder="Ex.: Grande jogo com a equipa!"></textarea>
+          <label for="feed-photo-overlay-position">Posição</label>
+          <select id="feed-photo-overlay-position" [(ngModel)]="photoTextPosition"
+                  [disabled]="photoTextSaving">
+            <option value="top">Topo</option>
+            <option value="center">Centro</option>
+            <option value="bottom">Fundo</option>
+          </select>
+          <label for="feed-photo-overlay-ink">Cor do texto</label>
+          <select id="feed-photo-overlay-ink" [(ngModel)]="photoTextInk"
+                  [disabled]="photoTextSaving">
+            <option value="white">Branco</option>
+            <option value="yellow">Amarelo</option>
+            <option value="black">Preto</option>
+          </select>
+          <p class="feed-photo-overlay-hint">O texto é incorporado na imagem enviada, mantendo-se visível para todos.</p>
+          @if (photoTextError) { <p role="alert">{{ photoTextError }}</p> }
+          <div class="feed-photo-editor-actions">
+            <button type="button" [disabled]="photoTextSaving" (click)="closePhotoTextEditor()">Cancelar</button>
+            <button type="button" class="jynlo-action jynlo-action--primary"
+                    [disabled]="!photoTextDraft.trim() || photoTextSaving"
+                    (click)="savePhotoText()">
+              {{ photoTextSaving ? 'A aplicar…' : 'Aplicar à fotografia' }}
+            </button>
+          </div>
+        </section>
+      }
       @if (actionError) {
         <p class="feedback error-feedback feed-post-error" role="alert">{{ actionError }}</p>
       }
