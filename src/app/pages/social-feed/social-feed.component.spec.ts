@@ -417,6 +417,50 @@ describe('SocialFeedComponent discovery sidebar', () => {
     component.ngOnDestroy();
   }));
 
+  it('places the Story rail and compact post entry together, opening a full post dialog on demand', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const root = fixture.nativeElement as HTMLElement;
+    const storyRail = root.querySelector('app-social-stories') as HTMLElement;
+    const quickEntry = root.querySelector('.feed-create-entry') as HTMLElement;
+    const week = root.querySelector('.week-hub') as HTMLElement;
+    expect(storyRail).not.toBeNull();
+    expect(quickEntry).not.toBeNull();
+    expect(week).not.toBeNull();
+    expect(storyRail.compareDocumentPosition(quickEntry) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(quickEntry.compareDocumentPosition(week) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(component.postComposerOpen).toBeFalse();
+    (root.querySelector('.feed-create-prompt') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(component.postComposerOpen).toBeTrue();
+    const dialog = root.querySelector('.composer[role="dialog"]') as HTMLElement;
+    expect(dialog).not.toBeNull();
+    expect(dialog.getAttribute('aria-hidden')).toBeNull();
+    expect(dialog.querySelector('.composer-media-tools')).not.toBeNull();
+  }));
+
+  it('retains draft and attached media when the post dialog closes or publishing fails', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    component.openPostComposer();
+    component.postContent = 'Treino com amigos';
+    component.postLocation = 'Benfica';
+    const photo = new File(['photo'], 'treino.jpg', { type: 'image/jpeg' });
+    component.postImageFile = photo;
+    component.closePostComposer();
+    expect(component.postComposerOpen).toBeFalse();
+    expect(component.postImageFile).toBe(photo);
+    component.openPostComposer();
+    feed.createPost.and.returnValue(throwError(() => new HttpErrorResponse({ status: 503 })));
+    component.publish();
+    expect(component.postComposerOpen).toBeTrue();
+    expect(component.postImageFile).toBe(photo);
+    expect(component.postContent).toBe('Treino com amigos');
+    expect(component.postLocation).toBe('Benfica');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.feed-post-error')?.textContent).toBeTruthy();
+  }));
+
   it('builds a single mixed album and keeps all files together on publish', fakeAsync(() => {
     fixture.detectChanges();
     tick(351);
