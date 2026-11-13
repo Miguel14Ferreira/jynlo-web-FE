@@ -312,6 +312,79 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   feedImagePreview = '';
   feedVideoPreview = '';
   chatDraft = '';
+  communityChatSearchOpen = false;
+  communityChatSearchQuery = '';
+  communityChatSearchIndex = 0;
+  private communityChatSearchScrollId: number | null = null;
+
+  get communityChatSearchMatches(): CommunityTimelineEntry[] {
+    const term = this.communityChatSearchQuery.trim().toLocaleLowerCase();
+    if (!term || this.activeTab !== 'chat') return [];
+    return this.timelineEntries.filter(entry => entry.kind === 'CHAT'
+      && [entry.body, entry.replyToText, entry.attachmentName,
+          ...(entry.attachments ?? []).map(asset => asset.filename)]
+         .some(text => typeof text === 'string' && text.toLocaleLowerCase().includes(term)));
+  }
+
+  toggleCommunityChatSearch(): void {
+    this.communityChatSearchOpen = !this.communityChatSearchOpen;
+    if (!this.communityChatSearchOpen) {
+      this.communityChatSearchQuery = '';
+      this.communityChatSearchIndex = 0;
+      this.communityChatSearchScrollId = null;
+    }
+  }
+
+  updateCommunityChatSearch(): void {
+    this.communityChatSearchIndex = 0;
+    this.queueCommunityChatSearchScroll();
+  }
+
+  navigateCommunityChatSearch(direction: -1 | 1): void {
+    const matches = this.communityChatSearchMatches;
+    if (!matches.length) return;
+    this.communityChatSearchIndex =
+      (this.communityChatSearchIndex + direction + matches.length) % matches.length;
+    this.queueCommunityChatSearchScroll();
+  }
+
+  onCommunityChatSearchKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.navigateCommunityChatSearch(event.shiftKey ? -1 : 1);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      this.toggleCommunityChatSearch();
+    }
+  }
+
+  private queueCommunityChatSearchScroll(): void {
+    const matches = this.communityChatSearchMatches;
+    this.communityChatSearchScrollId =
+      matches[Math.min(this.communityChatSearchIndex, matches.length - 1)]?.id ?? null;
+  }
+
+  isActiveCommunityChatMatch(entry: CommunityTimelineEntry): boolean {
+    const matches = this.communityChatSearchMatches;
+    return this.communityChatSearchOpen && matches.length > 0
+      && matches[Math.min(this.communityChatSearchIndex, matches.length - 1)]?.id === entry.id;
+  }
+
+  jumpToCommunityChatReply(entry: CommunityTimelineEntry): void {
+    if (!entry.replyToMessageId) return;
+    const source = this.timelineEntries.find(message =>
+      message.kind === 'CHAT' && message.id === entry.replyToMessageId);
+    this.communityChatSearchOpen = true;
+    this.communityChatSearchQuery = entry.replyToText || source?.body || '';
+    this.updateCommunityChatSearch();
+    if (source) {
+      const index = this.communityChatSearchMatches.findIndex(item => item.id === source.id);
+      if (index >= 0) this.communityChatSearchIndex = index;
+      this.communityChatSearchScrollId = source.id;
+    }
+  }
+
+
   replyingToCommunityMessage: CommunityTimelineEntry | null = null;
   chatRealtimeConnected = false;
   chatEverConnected = false;
@@ -359,6 +432,18 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   }
 
   ngAfterViewChecked(): void {
+    if (this.communityChatSearchScrollId !== null && this.activeTab === 'chat'
+        && this.communityChatLog?.nativeElement) {
+      const target = this.communityChatLog.nativeElement.querySelector(
+        '[data-community-chat-entry-id="' + this.communityChatSearchScrollId + '"]') as HTMLElement | null;
+      if (target) {
+        target.scrollIntoView({ block: 'center', behavior: 'auto' });
+        this.communityChatSearchScrollId = null;
+        this.chatScrollRestore = undefined;
+        this.chatScrollRequested = false;
+        return;
+      }
+    }
     if (this.chatScrollRestore && this.communityChatLog?.nativeElement) {
       const el = this.communityChatLog.nativeElement;
       el.scrollTop = this.chatScrollRestore.top + el.scrollHeight - this.chatScrollRestore.height;
@@ -2509,6 +2594,10 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     this.chatHasOlder = false;
     this.chatOlderError = '';
     this.chatScrollRestore = undefined;
+    this.communityChatSearchOpen = false;
+    this.communityChatSearchQuery = '';
+    this.communityChatSearchIndex = 0;
+    this.communityChatSearchScrollId = null;
     this.timelineError = '';
     this.timelineLoading = false;
     this.feedDraft = '';
