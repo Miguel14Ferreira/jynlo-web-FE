@@ -156,6 +156,8 @@
           }
         </div>
       }
+      <div class="composer-create-stage"
+           [class.composer-create-stage--with-media]="postImagePreview || postVideoPreview || postGallery.length">
       <textarea
         [(ngModel)]="postContent"
         maxlength="1000"
@@ -238,6 +240,14 @@
         </div>
       }
 
+      </div>
+      <div class="composer-note" aria-live="polite">
+        @if (postImagePreview || postVideoPreview || postGallery.length) {
+          A imagem é apresentada completa. A descrição não é obrigatória.
+        } @else {
+          Adiciona uma descrição, fotografia ou vídeo para publicar.
+        }
+      </div>
       <div class="composer-actions">
         <div class="composer-media-tools" role="group" aria-label="Adicionar fotografias e vídeos">
           <label class="image-picker jynlo-action jynlo-premium-btn jynlo-premium-btn--quiet" [class.disabled]="posting">
