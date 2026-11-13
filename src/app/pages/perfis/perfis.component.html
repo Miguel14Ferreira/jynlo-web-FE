@@ -199,7 +199,7 @@
         [username]="selectedProfile.username" (closed)="closeProfileStories()"></app-profile-story-viewer>
     }
     @if (expandedPost; as selectedPost) {
-      <app-profile-post-viewer [post]="selectedPost"
+      <app-profile-post-viewer [post]="selectedPost" [viewerUsername]="currentUsername"
         (closed)="closeExpandedPost()"></app-profile-post-viewer>
     }
     @if (profilePage && selectedProfile) {
