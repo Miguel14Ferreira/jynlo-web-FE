@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { firstValueFrom, interval, Subscription, timeout, finalize, Subject, takeUntil } from 'rxjs';
 import { Room, RoomEvent, RemoteTrack, Track } from 'livekit-client';
 import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
@@ -61,7 +61,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           @if (controls?.mutedByHost) {
             <p class="chat-notice" role="status">O apresentador silenciou as tuas mensagens.</p>
           }
-          <div class="live-chat-history" aria-live="polite">
+          <div #chatHistory class="live-chat-history" aria-live="polite" aria-label="Mensagens recentes do direto">
             @for (message of messages; track message.id) {
               <div class="live-chat-message">
                 <strong>@{{message.username}}</strong>
@@ -240,6 +240,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   @Input({required:true}) event!:PersonalLiveEvent;
   @Output() closed=new EventEmitter<void>();
   @ViewChild('stage') stage?:ElementRef<HTMLElement>;
+  @ViewChild('chatHistory') chatHistory?:ElementRef<HTMLElement>;
   private readonly service=inject(PersonalLiveService);
   private readonly destroy$=new Subject<void>();
   closing=false;
@@ -248,6 +249,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   private rejoining=false;
   private attached:HTMLMediaElement[]=[];
   private readonly trackOwners=new Map<HTMLMediaElement,string>();
+  private lastMessageId:number|null=null;
   videoTiles=0;
   audioBlocked=false;
   shareFeedback='';
@@ -273,6 +275,13 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   role:'HOST'|'GUEST'|'VIEWER'='VIEWER';
   sending=false;
   moderationBusy=false;
+
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscape(event:Event):void {
+    if(!this.confirmingEnd || this.ending)return;
+    event.preventDefault();
+    this.confirmingEnd=false;
+  }
 
   ngOnInit():void {
     void this.connect();
@@ -421,7 +430,21 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       this.service.messages(this.event.id).pipe(
         timeout(10000),takeUntil(this.destroy$),finalize(()=>this.messagesLoading=false)
       ).subscribe({
-        next:entries=>{if(!this.destroyed)this.messages=entries;},
+        next:entries=>{
+          if(this.destroyed||this.closing)return;
+          const history=this.chatHistory?.nativeElement;
+          const nearBottom=!history || history.scrollHeight-history.scrollTop-history.clientHeight<80;
+          const newest=entries.length?entries[entries.length-1].id:null;
+          const changed=newest!==this.lastMessageId;
+          this.messages=entries;
+          this.lastMessageId=newest;
+          // Preserve a viewer's scroll position while reading older messages.
+          if(changed && nearBottom && history)
+            requestAnimationFrame(()=>{
+              if(!this.destroyed&&!this.closing && history.isConnected)
+                history.scrollTop=history.scrollHeight;
+            });
+        },
         error:()=>{}
       });
     }
@@ -657,6 +680,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   leave():void {
     if(this.closing)return;
     this.closing=true;
+    this.lastMessageId=null;
     this.confirmingEnd=false;
     this.heartbeats?.unsubscribe();this.heartbeats=undefined;
     this.interactionPoll?.unsubscribe();this.interactionPoll=undefined;
