@@ -98,3 +98,24 @@
   font-size: 1.25rem; font-weight: 850; letter-spacing: .04em;
 }
 .story-overlay .story-viewer-time { top: 17%; right: 9%; }
+
+
+/* Verified place and member overlays remain visible in editor and published Story. */
+.story-discovery-options { display: grid; gap: .55rem; border-top: 1px solid rgba(148,163,184,.22); padding-top: .8rem; }
+.story-discovery-options > input,.story-tag-search input { width: 100%; padding: .65rem; background: #091f2b; border: 1px solid #537481; border-radius: .6rem; color: #f0fdfa; font: inherit; }
+.story-tag-toggle { justify-self: start; padding: .5rem .75rem; color: #c5f9ed; background: #113744; border: 1px solid rgba(94,234,212,.3); border-radius: .6rem; cursor: pointer; }
+.story-tag-search { display: grid; gap: .5rem; }
+.story-discovery-results { display: grid; max-height: 180px; overflow-y: auto; gap: .2rem; background: #0c2c3b; border-radius: .65rem; padding: .4rem; }
+.story-discovery-results > button { display: flex; flex-direction: column; gap: .1rem; align-items: flex-start; text-align: left; padding: .55rem; background: transparent; border: 0; color: #e2e8f0; border-radius: .45rem; cursor: pointer; }
+.story-discovery-results > button:hover { background: rgba(94,234,212,.1); }
+.story-discovery-results small { font-size: .72rem; color: #a8c5cb; }
+.story-discovery-results p { margin: .35rem; font-size: .8rem; color: #b6cbd1; }
+.story-selected-tags { display: flex; flex-wrap: wrap; gap: .35rem; }
+.story-selected-tags button { padding: .4rem .6rem; background: rgba(20,184,166,.22); color: #ccfbf1; border: 1px solid rgba(45,212,191,.44); border-radius: 2rem; cursor: pointer; }
+.story-place-overlay { position: absolute; z-index: 4; top: 8%; left: 7%; max-width: 80%; padding: .3rem .55rem; color: #fff; font-size: .8rem; font-weight: 700; background: rgba(2,6,23,.68); border-radius: .5rem; white-space: normal; overflow-wrap: anywhere; pointer-events: none; }
+.story-tag-overlay { position: absolute; z-index: 5; bottom: 4%; left: 5%; right: 5%; display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem; pointer-events: none; }
+.story-tag-overlay span,.story-tag-overlay a { display: inline-flex; padding: .3rem .5rem; color: #fff; background: rgba(6,28,45,.75); border: 1px solid rgba(255,255,255,.3); border-radius: .5rem; font-size: .76rem; font-weight: 700; text-decoration: none; }
+.story-viewer-tags { pointer-events: auto; }
+.story-viewer-tags a:hover { background: #0f766e; }
+.story-overlay .story-viewer-place { top: 17%; left: 9%; }
+.story-overlay .story-viewer-tags { bottom: 18%; }
