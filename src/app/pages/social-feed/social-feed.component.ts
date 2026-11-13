@@ -316,13 +316,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       return;
     }
     const communityId = this.liveCommunityId;
-    if (!communityId || this.liveBusy || !this.communityLiveService ||
+    if (!communityId || !this.communityLiveService ||
         !this.managedLiveCommunities.some(group => group.id === communityId)) return;
-    const title = this.liveTitle.trim();
-    if (!title) {
-      this.liveStartError = 'Escreve o título do direto.';
-      return;
-    }
     this.liveBusy = true;
     this.liveStartError = '';
     this.communityLiveService.capabilities(communityId).pipe(
