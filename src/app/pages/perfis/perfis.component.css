@@ -1398,3 +1398,29 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
   .my-follow-summary button,.social-summary button { transition: none; }
 }
+
+
+/* Public/private profile controls; full private mode remains gated until protected media. */
+.community-page.profile-page-open .profile-privacy-settings,
+.community-page.profile-page-open .profile-private-notice {
+  display:grid;gap:.65rem;margin:1rem 0;padding:1rem 1.2rem;
+  border:1px solid rgba(80,175,167,.36);border-radius:1rem;
+  background:#092530;color:#eafffb;
+}
+.community-page.profile-page-open .profile-privacy-settings strong,
+.community-page.profile-page-open .profile-private-notice strong{font-size:.95rem}
+.community-page.profile-page-open .profile-privacy-settings p,
+.community-page.profile-page-open .profile-private-notice p{
+  margin:0;font-size:.83rem;line-height:1.5;color:#accbd0
+}
+.community-page.profile-page-open .profile-privacy-settings small{color:#a9d4ce;line-height:1.5}
+.community-page.profile-page-open .profile-privacy-settings button{
+  justify-self:start;border:1px solid #3e9087;border-radius:.65rem;
+  background:#12464d;color:white;padding:.55rem .8rem;cursor:pointer
+}
+.community-page.profile-page-open .profile-follow-request{
+  display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;
+  padding:.55rem 0;border-top:1px solid #ffffff17
+}
+.community-page.profile-page-open .profile-follow-request a{flex:1;color:#d9fff7}
+.community-page.profile-page-open .profile-privacy-settings [role="alert"]{color:#fecaca}
