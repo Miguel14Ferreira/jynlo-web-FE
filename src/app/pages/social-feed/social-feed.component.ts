@@ -291,7 +291,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         this.liveComposerOpen = false;
         // Opening the broadcast does not silently enable microphone/camera.
         // The presenter enters the active room from the community Live panel.
-        window.location.assign('/menu/communities?community=' + communityId + '&tab=feed');
+        window.location.assign('/menu/communities?community=' + communityId +
+          '&tab=feed&liveEvent=' + event.id);
       },
       error: error => {
         this.liveStartError = error instanceof Error && error.message.startsWith('Sem permissão')
