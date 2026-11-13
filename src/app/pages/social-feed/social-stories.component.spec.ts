@@ -300,9 +300,12 @@ describe('SocialStoriesComponent', () => {
     fixture.detectChanges();
     tick();
     component.openComposer();
-    const teammate = { username: 'ana', fullName: 'Ana Silva', nickname: null } as any;
-    (component as any).storyProfileIndex = [teammate];
+    const teammate = { username: 'ana', fullName: 'Ana Silva', nickname: null,
+      profilePicUrl: null, chatBlocked: false, blockedByMe: false };
+    profiles.searchProfiles.and.returnValue(of([teammate] as any));
+    component.toggleStoryTags();
     component.searchStoryTag('Ana');
+    tick(400);
     expect(component.storyTagResults.map(profile => profile.username)).toEqual(['ana']);
     component.addStoryTag(teammate);
     component.storyLocation = 'Campo de Benfica, Lisboa';
