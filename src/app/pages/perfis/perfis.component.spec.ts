@@ -182,6 +182,41 @@ describe('PerfisComponent', () => {
     expect(fixture.nativeElement.querySelector('app-profile-post-viewer video')).not.toBeNull();
   });
 
+  it('allows editing my own comment from the expanded publication viewer', () => {
+    component.profilePage=true;
+    component.currentUsername='ana';
+    (component as any).loadProfile('ana');
+    const post={
+      type:'POST',postId:502,authorUsername:'ana',authorDisplayName:'Ana',
+      authorProfilePicUrl:null,content:'Treino',imageUrl:'/media/posts/photo.jpg',
+      createdAt:new Date().toISOString(),sessionId:null,sport:null,city:null,gameDate:null,
+      likeCount:1,likedByMe:false,commentCount:1
+    } as FeedItem;
+    socialFeed.comments.and.returnValue(of([{
+      id:77,postId:502,authorUsername:'ana',authorDisplayName:'Ana',
+      authorProfilePicUrl:null,content:'Antigo',createdAt:new Date().toISOString(),
+      likedByMe:false,likeCount:0
+    }]));
+    socialFeed.editComment.and.returnValue(of({
+      id:77,postId:502,authorUsername:'ana',authorDisplayName:'Ana',
+      authorProfilePicUrl:null,content:'Novo',createdAt:new Date().toISOString(),
+      editedAt:new Date().toISOString(),likedByMe:false,likeCount:0
+    }));
+    component.profilePosts=[post];
+    fixture.detectChanges();
+    (fixture.nativeElement.querySelector('.profile-publication-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const viewer=fixture.debugElement.query(
+      de=>de.componentInstance instanceof ProfilePostViewerComponent
+    )?.componentInstance as ProfilePostViewerComponent;
+    expect(viewer).toBeTruthy();
+    viewer.startCommentEdit(viewer.comments[0]);
+    viewer.commentEditDraft='Novo';
+    viewer.saveCommentEdit(viewer.comments[0]);
+    expect(socialFeed.editComment).toHaveBeenCalledOnceWith(502,77,'Novo');
+    expect(viewer.comments[0].content).toBe('Novo');
+  });
+
   it('opens a profile publication in a large overlay without navigating away', () => {
     component.profilePage = true;
     (component as any).loadProfile('ana');
