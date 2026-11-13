@@ -416,7 +416,17 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   selectPostRealPlace(place: RealPlace): void {
-    if(this.postLocationResolving || !this.realPlaceSearch) return;
+    if(this.postLocationResolving) return;
+    if(place.provider!=='google') {
+      this.postLocation=[place.label,place.subtitle].filter(Boolean).join(', ').slice(0,160);
+      this.postLocationVerified=true;
+      this.postLocationProvider='open';
+      this.postLocationOpen=false;
+      this.postRealPlaces=[];
+      this.postLocationQuerySerial++;
+      return;
+    }
+    if(!this.realPlaceSearch)return;
     this.postLocationResolving=true;
     this.postLocationError='';
     this.realPlaceSearch.resolve(place,this.postPlaceSessionToken).pipe(
