@@ -109,6 +109,10 @@ export class CommunityTimelineService {
     return this.http.post<CommunityTimelineEntry>(this.url(id, 'POST'), form);
   }
 
+  editPost(id: number, entryId: number, content: string): Observable<CommunityTimelineEntry> {
+    return this.http.put<CommunityTimelineEntry>(this.url(id, 'POST') + '/' + entryId, { content });
+  }
+
   delete(id: number, kind: CommunityTimelineKind, entryId: number): Observable<void> {
     return this.http.delete<void>(this.url(id, kind) + '/' + entryId);
   }
