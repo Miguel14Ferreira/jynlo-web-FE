@@ -30,6 +30,9 @@ export interface SocialComment {
   authorProfilePicUrl: string | null;
   content: string;
   createdAt: string;
+  editedAt?: string | null;
+  likeCount?: number;
+  likedByMe?: boolean;
 }
 
 export interface PostLikeStatus {
