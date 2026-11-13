@@ -17,27 +17,6 @@
 
     <app-social-stories></app-social-stories>
 
-    @if (managedLiveCommunities.length) {
-      <section class="feed-live-create" aria-label="Transmitir em direto nas tuas comunidades">
-        <div class="feed-live-create-heading">
-          <span class="feed-live-create-dot" aria-hidden="true"></span>
-          <div>
-            <strong>Faz um direto na Jynlo</strong>
-            <p>Transmite um jogo, treino ou momento desportivo para a tua comunidade.</p>
-          </div>
-        </div>
-        <div class="feed-live-create-links">
-          @for (community of managedLiveCommunities; track community.id) {
-            <a [routerLink]="['/menu/communities']"
-               [queryParams]="{ community: community.id, tab: 'feed' }"
-               [attr.aria-label]="'Gerir direto da comunidade ' + community.name">
-              <span aria-hidden="true">●</span> {{ community.name }} — abrir diretos
-            </a>
-          }
-        </div>
-      </section>
-    }
-
     @if (publicLiveEvents.length) {
       <section class="feed-live-community" aria-label="Transmissões em direto das comunidades">
         <div class="feed-live-heading"><strong><span aria-hidden="true">●</span> Em direto na Jynlo</strong>
@@ -68,6 +47,15 @@
         </span>
         <span>Em que estás a pensar? Partilha um momento desportivo...</span>
       </button>
+      @if (managedLiveCommunities.length) {
+        <div class="feed-entry-live-action">
+          <a [routerLink]="['/menu/communities']"
+             [queryParams]="{ community: managedLiveCommunities[0].id, tab: 'feed' }">
+            <span aria-hidden="true">●</span> Iniciar direto
+          </a>
+          <small>Disponível nas tuas comunidades</small>
+        </div>
+      }
     </section>
 
     <div class="feed-post-dialog-backdrop" [class.feed-post-dialog-visible]="postComposerOpen"
@@ -78,7 +66,7 @@
       [attr.aria-hidden]="postComposerOpen ? null : 'true'"
       [attr.inert]="postComposerOpen ? null : ''">
       <div class="feed-post-dialog-header">
-        <strong>Criar publicação</strong>
+        <strong class="feed-post-dialog-title">Criar publicação</strong>
         <button type="button" aria-label="Fechar publicação" class="feed-post-dialog-close"
                 [disabled]="posting" (click)="closePostComposer()">
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
