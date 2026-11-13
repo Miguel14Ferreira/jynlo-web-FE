@@ -1180,3 +1180,41 @@ h1 {
   .composer-media-grid { grid-template-columns: minmax(0, 1fr); }
   .composer-media-tools .image-picker { width: 100%; }
 }
+
+/* Instagram-inspired publishing stage: preserve the entire original image.
+   Large media belongs in the composition stage rather than a cropped thumbnail. */
+.composer-caption-optional {
+  margin: -.32rem 0 .2rem;
+  color: #a8c6c8;
+  font-size: .78rem;
+}
+.composer .composer-media--single .composer-media-item--single,
+.composer .composer-media--single .composer-media-grid:has(> :only-child) {
+  width: min(100%, 760px);
+}
+.composer .composer-media--single .composer-media-frame {
+  height: auto;
+  min-height: 220px;
+  max-height: min(74vh, 700px);
+}
+.composer .composer-media--single .composer-media-frame img,
+.composer .composer-media--single .composer-media-frame video {
+  width: 100%;
+  height: auto;
+  max-height: min(74vh, 700px);
+  object-fit: contain;
+  object-position: center;
+}
+.composer .composer-media--single .composer-media-grid:has(> :only-child) {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (max-width: 600px) {
+  .composer .composer-media--single .composer-media-frame {
+    min-height: 130px;
+    max-height: 65dvh;
+  }
+  .composer .composer-media--single .composer-media-frame img,
+  .composer .composer-media--single .composer-media-frame video {
+    max-height: 65dvh;
+  }
+}
