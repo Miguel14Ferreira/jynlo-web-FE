@@ -239,3 +239,27 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .stories-panel .story-bubble.story-add-action .story-create-ring { border: 2px dashed #2dd4bf; background: #103b46; }
 .stories-panel .story-create-circle-plus { display: grid; place-items: center; width: 100%; height: 100%; color: #2dd4bf; font-size: 2.3rem; line-height: 1; font-weight: 700; }
 .stories-panel .story-bubble .story-name { font-size: .76rem; line-height: 1.3; color: #e2e8f0; }
+
+/* Classic compact circular story rail, not a highlighted rectangular tile. */
+.stories-panel .story-rail,
+.stories-panel .story-rail.story-rail--empty {
+  display:flex; align-items:flex-start; gap:.8rem; min-height:0; padding:.55rem 0 .2rem;
+}
+.stories-panel .story-bubble,
+.stories-panel .story-bubble.story-add-action {
+  display:flex; flex:0 0 78px; width:78px; min-height:0; padding:0;
+  align-items:center; flex-direction:column; gap:.35rem;
+  border:0!important; border-radius:0!important; background:transparent!important;
+  box-shadow:none!important; color:#e2e8f0!important;
+}
+.stories-panel .story-bubble .story-ring {
+  display:grid; place-items:center; width:66px; height:66px; flex:0 0 66px;
+  padding:3px; border-radius:50%; border:2px solid #2dd4bf;
+  background:transparent; overflow:hidden;
+}
+.stories-panel .story-bubble.story-add-action .story-create-ring {
+  border:2px dashed #2dd4bf; border-radius:50%; background:#103b46;
+}
+.stories-panel .story-create-circle-plus {font-size:2rem;margin:0;line-height:1;}
+.stories-panel .story-name { width:100%; text-align:center; white-space:normal; overflow-wrap:anywhere; font-size:.73rem; }
+.stories-panel .stories-empty { align-self:center; margin-left:.3rem; }
