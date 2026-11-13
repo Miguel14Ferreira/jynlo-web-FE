@@ -134,6 +134,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   likerPreview: Record<number, string> = {};
   likersPrivacySavingId: number | null = null;
   postContent = '';
+  postLocation = '';
   postImageFile?: File;
   postImagePreview = '';
   postVideoFile?: File;
@@ -557,6 +558,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
 
   publish(): void {
     const content = this.postContent.trim();
+    const location = this.postLocation.trim();
     if (!this.canPublishPost) return;
 
     this.posting = true;
@@ -565,11 +567,12 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     const singleGalleryFile = this.postGallery.length === 1 ? this.postGallery[0].file : undefined;
     const send = this.postGallery.length > 1
       ? this.feedService.createPostAlbum(content, this.postGallery.map(item => item.file),
-          this.selectedSessionId ?? undefined)
+          this.selectedSessionId ?? undefined, location || undefined)
       : this.feedService.createPost(content,
           singleGalleryFile?.type.startsWith('image/') ? singleGalleryFile : this.postImageFile,
           this.selectedSessionId ?? undefined,
-          singleGalleryFile?.type.startsWith('video/') ? singleGalleryFile : this.postVideoFile);
+          singleGalleryFile?.type.startsWith('video/') ? singleGalleryFile : this.postVideoFile,
+          location || undefined);
     send.pipe(
         timeout(this.postGallery.length || this.postVideoFile ? 90_000 : 30_000),
         finalize(() => this.posting = false)
@@ -578,6 +581,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         next: item => {
           this.items = [item, ...this.items];
           this.postContent = '';
+          this.postLocation = '';
           this.postImageFile = undefined;
           this.postImagePreview = '';
           this.removePostVideo();
