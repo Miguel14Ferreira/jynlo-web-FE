@@ -11,6 +11,7 @@ import { SessionService } from '../../services/session.service';
 import { SocialGraphService } from '../../services/social-graph.service';
 import { SocialFeedService } from '../../services/social-feed.service';
 import { SocialStoriesService } from '../../services/social-stories.service';
+import { ProfilePrivacyService } from '../../services/profile-privacy.service';
 import { ProfilePostViewerComponent } from './profile-post-viewer.component';
 import { ProfileStoryViewerComponent } from './profile-story-viewer.component';
 import { FeedItem } from '../model/feed-item';
@@ -24,6 +25,7 @@ describe('PerfisComponent', () => {
   let socialGraphService: jasmine.SpyObj<SocialGraphService>;
   let socialFeed: jasmine.SpyObj<SocialFeedService>;
   let stories: jasmine.SpyObj<SocialStoriesService>;
+  let privacy: jasmine.SpyObj<ProfilePrivacyService>;
   let groups: jasmine.SpyObj<CommunityGroupsService>;
   let sessions: jasmine.SpyObj<SessionService>;
 
@@ -92,6 +94,11 @@ describe('PerfisComponent', () => {
     socialFeed.comments.and.returnValue(of([]));
     stories = jasmine.createSpyObj<SocialStoriesService>('SocialStoriesService',['profile']);
     stories.profile.and.returnValue(of([]));
+    privacy = jasmine.createSpyObj<ProfilePrivacyService>('ProfilePrivacyService',
+      ['status','mine','setPrivate','requests','decide','request','cancel']);
+    privacy.status.and.returnValue(of({privateProfile:false,canViewContent:true,
+      privateModeAvailable:false}));
+    privacy.requests.and.returnValue(of([]));
 
     groups = jasmine.createSpyObj<CommunityGroupsService>('CommunityGroupsService', ['mine','invite']);
     sessions = jasmine.createSpyObj<SessionService>('SessionService', ['mine','invitePlayer']);
@@ -109,6 +116,7 @@ describe('PerfisComponent', () => {
         { provide: SocialGraphService, useValue: socialGraphService },
         { provide: SocialFeedService, useValue: socialFeed },
         { provide: SocialStoriesService, useValue: stories },
+        { provide: ProfilePrivacyService, useValue: privacy },
         { provide: CommunityGroupsService, useValue: groups },
         { provide: SessionService, useValue: sessions },
         { provide: ActivatedRoute, useValue: { paramMap: routeParams, snapshot: { params: {}, queryParams: {}, paramMap: convertToParamMap({}), queryParamMap: convertToParamMap({}) } } }
@@ -118,6 +126,19 @@ describe('PerfisComponent', () => {
     fixture = TestBed.createComponent(PerfisComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  it('does not reveal private profile posts or stories to a non-follower', () => {
+    privacy.status.and.returnValue(of({
+      privateProfile:true,canViewContent:false,privateModeAvailable:false
+    }));
+    component.profilePage=true;
+    (component as any).loadProfile('ana');
+    fixture.detectChanges();
+    expect(component.privacyStatus?.canViewContent).toBeFalse();
+    expect(fixture.nativeElement.querySelector('.profile-private-notice')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.profile-publications')).toBeNull();
+    expect(fixture.nativeElement.querySelector('app-profile-story-viewer')).toBeNull();
   });
 
   it('shows a circular story ring and opens public stories from the profile avatar', () => {
