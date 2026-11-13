@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { NEVER, of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { SocialStoriesComponent } from './social-stories.component';
 import { SocialStoriesService } from '../../services/social-stories.service';
 import { DirectChatService } from '../../services/direct-chat.service';
@@ -243,6 +244,57 @@ describe('SocialStoriesComponent', () => {
     expect(component.deleteConfirmOpen).toBeFalse();
     expect(component.activeStory?.id).toBe(9);
     component.close();
+  }));
+
+  it('opens an immersive Story editor with a vertical media preview and optional caption', fakeAsync(() => {
+    fixture.detectChanges();
+    tick();
+    component.openComposer();
+    component.file = new File(['image'], 'foto.jpg', { type: 'image/jpeg' });
+    component.filePreview = 'blob:fixture-photo';
+    component.caption = 'Golo!';
+    component.storyTextPosition = 'center';
+    component.storyTextScale = 'large';
+    component.storyTextStyle = 'plain';
+    fixture.detectChanges();
+
+    const dialog = fixture.nativeElement.querySelector('.story-composer[role="dialog"]') as HTMLElement;
+    expect(dialog).not.toBeNull();
+    expect(dialog.querySelector('.story-create-stage')).not.toBeNull();
+    expect(dialog.querySelector('.story-caption-overlay')?.textContent).toContain('Golo!');
+    expect(dialog.querySelector('.story-caption-overlay--center')).not.toBeNull();
+    expect(dialog.querySelector('.story-caption-overlay--large')).not.toBeNull();
+    expect(dialog.querySelector('.story-caption-overlay--plain')).not.toBeNull();
+    expect(dialog.querySelector('.story-primary')).not.toBeNull();
+    component.filePreview = null;
+  }));
+
+  it('preserves the image and caption on a failed backend upload with useful explanation', fakeAsync(() => {
+    fixture.detectChanges();
+    tick();
+    component.openComposer();
+    const photo = new File(['image'], 'foto.jpg', { type: 'image/jpeg' });
+    component.file = photo;
+    component.filePreview = 'blob:fixture-photo';
+    component.caption = 'Treino';
+    component.storyTextPosition = 'top';
+    component.storyTextScale = 'small';
+    component.storyTextStyle = 'pill';
+    api.publish.and.returnValue(throwError(() => new HttpErrorResponse({ status: 502 })));
+
+    component.publish();
+    fixture.detectChanges();
+    expect(api.publish).toHaveBeenCalledWith(photo, 'Treino', null, {
+      textPosition: 'top', textScale: 'small', textStyle: 'pill'
+    });
+    expect(component.composerOpen).toBeTrue();
+    expect(component.file).toBe(photo);
+    expect(component.caption).toBe('Treino');
+    expect(component.uploading).toBeFalse();
+    expect(component.publishError).toContain('servidor de imagens');
+    expect(fixture.nativeElement.querySelector('.story-publish-error')?.textContent)
+      .toContain('temporariamente indisponível');
+    component.filePreview = null;
   }));
 
   it('blocks unsupported media and oversized videos in the browser', fakeAsync(() => {
