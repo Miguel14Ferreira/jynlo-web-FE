@@ -128,6 +128,46 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.persistHiddenFeedEntries();
   }
 
+  hiddenPostsPanelOpen = false;
+  hiddenPostsLoading = false;
+  hiddenPostsList: FeedItem[] = [];
+  hiddenPostsError = '';
+  restoringHiddenPostId: number | null = null;
+
+  toggleHiddenPostsPanel(): void {
+    this.hiddenPostsPanelOpen = !this.hiddenPostsPanelOpen;
+    if (!this.hiddenPostsPanelOpen) return;
+    this.hiddenPostsLoading = true;
+    this.hiddenPostsError = '';
+    this.feedService.hiddenPosts()
+      .pipe(timeout(10_000), finalize(() => this.hiddenPostsLoading = false))
+      .subscribe({
+        next: posts => this.hiddenPostsList = posts,
+        error: () => this.hiddenPostsError = 'Não foi possível consultar as publicações ocultas.'
+      });
+  }
+
+  restoreHiddenPostFromPanel(postId: number): void {
+    if (this.restoringHiddenPostId !== null) return;
+    this.restoringHiddenPostId = postId;
+    this.hiddenPostsError = '';
+    this.feedService.restoreHiddenPost(postId)
+      .pipe(timeout(10_000), finalize(() => this.restoringHiddenPostId = null))
+      .subscribe({
+        next: () => {
+          this.hiddenPostsList = this.hiddenPostsList.filter(post => post.postId !== postId);
+          this.hiddenFeedEntries.delete('post:' + postId);
+          if (this.recentlyHiddenFeedEntry === 'post:' + postId) {
+            this.recentlyHiddenFeedEntry = null;
+            this.lastHiddenPostId = null;
+          }
+          this.persistHiddenFeedEntries();
+          this.load();
+        },
+        error: () => this.hiddenPostsError = 'Não foi possível repor a publicação. Tenta novamente.'
+      });
+  }
+
   get visibleFeedItems(): FeedItem[] {
     return this.items.filter(item => {
       const key = this.feedEntryKey(item);
