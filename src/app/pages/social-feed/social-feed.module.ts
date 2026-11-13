@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { SocialFeedComponent } from './social-feed.component';
 import { SocialStoriesComponent } from './social-stories.component';
+import { MovableTextComponent } from './movable-text.component';
 import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/venue-sports-badges.component';
 
 // Load this screen only when its route is opened, not on the public home page.
@@ -17,6 +18,7 @@ import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/ven
     TranslatePipe,
     VenueSportsBadgesComponent,
     SocialStoriesComponent,
+    MovableTextComponent,
     RouterModule.forChild([{ path: '', component: SocialFeedComponent }])
   ]
 })
