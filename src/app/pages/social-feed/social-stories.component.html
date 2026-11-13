@@ -189,14 +189,14 @@
               </button>
               @if (storyTagOpen) {
                 <div class="story-tag-search">
-                  <label for="storyTagQuery">Pesquisar amigos</label>
+                  <label for="storyTagQuery">Pesquisar perfis pelo nome ou @utilizador</label>
                   <input id="storyTagQuery" type="search" [(ngModel)]="storyTagQuery"
                          (ngModelChange)="searchStoryTag($event)"
-                         autocomplete="off" placeholder="Nome ou utilizador de um amigo">
-                  @if (storyTagLoading) { <p>A procurar amigos…</p> }
+                         autocomplete="off" placeholder="Escreve pelo menos 3 caracteres">
+                  @if (storyTagLoading) { <p>A procurar perfis…</p> }
                   <div class="story-discovery-results">
                     @if (!storyTagLoading && storyTagResults.length === 0) {
-                      <p>Não há amigos disponíveis para identificar.</p>
+                      <p>{{ storyTagQuery.trim().replace('@','').length < 3 ? 'Escreve pelo menos 3 caracteres.' : 'Nenhum perfil encontrado.' }}</p>
                     }
                     @for (profile of storyTagResults; track profile.username) {
                       <button type="button" (click)="addStoryTag(profile)"
