@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, Optional } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, auditTime, catchError, finalize, forkJoin, of, retry, switchMap, takeUntil, timeout } from 'rxjs';
 
@@ -772,6 +772,51 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   clearPostGallery(): void {
     for (const item of this.postGallery) URL.revokeObjectURL(item.url);
     this.postGallery = [];
+  }
+
+  // A single lightbox covers the primary photo and every album attachment.
+  // Inline videos remain playable without opening a second player.
+  expandedMedia: { url: string; mimeType: string }[] = [];
+  expandedMediaIndex = 0;
+
+  mediaForPost(item: FeedItem): { url: string; mimeType: string }[] {
+    const media: { url: string; mimeType: string }[] = [];
+    if (item.imageUrl) media.push({ url: item.imageUrl, mimeType: 'image/jpeg' });
+    if (item.videoUrl) media.push({ url: item.videoUrl, mimeType: 'video/mp4' });
+    for (const extra of item.extraMedia ?? []) {
+      if (extra?.url && (extra.mimeType?.startsWith('image/') || extra.mimeType?.startsWith('video/'))) {
+        media.push(extra);
+      }
+    }
+    return media;
+  }
+
+  openPostMedia(item: FeedItem, index: number): void {
+    const media = this.mediaForPost(item);
+    if (index < 0 || index >= media.length) return;
+    this.expandedMedia = media;
+    this.expandedMediaIndex = index;
+  }
+
+  closePostMedia(): void {
+    this.expandedMedia = [];
+    this.expandedMediaIndex = 0;
+  }
+
+  changePostMedia(direction: number): void {
+    if (!this.expandedMedia.length) return;
+    this.expandedMediaIndex = (this.expandedMediaIndex + direction + this.expandedMedia.length)
+      % this.expandedMedia.length;
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handlePostMediaKeys(event: KeyboardEvent): void {
+    if (!this.expandedMedia.length) return;
+    if (event.key === 'Escape') this.closePostMedia();
+    else if (event.key === 'ArrowRight') this.changePostMedia(1);
+    else if (event.key === 'ArrowLeft') this.changePostMedia(-1);
+    else return;
+    event.preventDefault();
   }
 
   postVideo(item: FeedItem): string | null {
