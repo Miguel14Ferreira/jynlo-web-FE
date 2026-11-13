@@ -133,11 +133,13 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
       return;
     }
     this.storyLocationResolving=true;
+    const requestSerial=this.storyLocationSearchSerial;
     this.realPlaceSearch.resolve(place,this.storyPlaceSessionToken).pipe(
       timeout(10000),takeUntil(this.destroyed),
       finalize(()=>{this.storyLocationResolving=false;this.changeDetector.markForCheck();})
     ).subscribe({
       next:verified=>{
+        if(requestSerial!==this.storyLocationSearchSerial)return;
         this.setStoryVerifiedPlace(verified);
         this.storyPlaceSessionToken=crypto.randomUUID();
       },
