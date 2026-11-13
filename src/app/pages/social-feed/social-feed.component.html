@@ -348,6 +348,38 @@
                   (click)="undoHideFromMyFeed()">{{ 'common.undo' | t }}</button>
         </div>
       }
+      <section class="feed-hidden-manager" aria-label="Gerir publicações ocultas">
+        <button type="button" class="jynlo-action jynlo-action--neutral"
+                [attr.aria-expanded]="hiddenPostsPanelOpen"
+                (click)="toggleHiddenPostsPanel()">
+          {{ hiddenPostsPanelOpen ? 'Fechar publicações ocultas' : 'Gerir publicações ocultas' }}
+        </button>
+        @if (hiddenPostsPanelOpen) {
+          <div class="feed-hidden-manager-list">
+            @if (hiddenPostsLoading) {
+              <p role="status">A carregar publicações ocultas…</p>
+            } @else if (hiddenPostsError) {
+              <p role="alert">{{ hiddenPostsError }}</p>
+            } @else if (!hiddenPostsList.length) {
+              <p>Não tens publicações ocultas nesta conta.</p>
+            } @else {
+              @for (hidden of hiddenPostsList; track hidden.postId) {
+                <article class="feed-hidden-manager-row">
+                  <div>
+                    <strong>{{ hidden.authorDisplayName }}</strong>
+                    <p>{{ hidden.content || 'Publicação com fotografia ou vídeo' }}</p>
+                  </div>
+                  <button type="button" class="jynlo-action jynlo-action--neutral"
+                          [disabled]="restoringHiddenPostId !== null"
+                          (click)="restoreHiddenPostFromPanel(hidden.postId!)">
+                    {{ restoringHiddenPostId === hidden.postId ? 'A repor…' : 'Voltar a mostrar' }}
+                  </button>
+                </article>
+              }
+            }
+          </div>
+        }
+      </section>
       <div class="feed-list">
         @for (item of fullFeedItems; track item.type + '-' + (item.postId || item.sessionId) + '-' + item.createdAt) {
           <article class="feed-card">
