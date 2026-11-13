@@ -14,7 +14,7 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <section class="live-panel" aria-label="Transmissões em direto da comunidade">
+    <section class="live-panel" [hidden]="!enabled" aria-label="Transmissões em direto da comunidade">
       <div class="live-panel-heading">
         <div><strong>Diretos da comunidade</strong><p>Jogos, treinos e eventos em direto</p></div>
         <button type="button" class="live-refresh" (click)="load()" [disabled]="busy">Atualizar</button>
@@ -113,10 +113,12 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
   @Input({required:true}) communityId!: number;
   @ViewChild('stage') stage?: ElementRef<HTMLElement>;
   private readonly api = inject(CommunityLiveService);
-  private readonly updates = new Subscription();
+  private updates = new Subscription();
   private readonly attached = new Set<HTMLMediaElement>();
   private requestVersion = 0;
   events: CommunityLiveEvent[] = [];
+  enabled = false;
+  canManage = false;
   title = '';
   description = '';
   date = '';
@@ -127,24 +129,36 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
   hosting = false;
   cameraOn = false;
   micOn = false;
-  get canManage(): boolean { return this.events.some(event => event.canManage); }
-
   ngOnChanges(): void {
     this.leave();
     this.events = [];
+    this.enabled = false;
+    this.canManage = false;
     this.requestVersion++;
     this.updates.unsubscribe();
+    this.updates = new Subscription();
     const current = this.communityId;
     if (!current) return;
-    // The API rechecks membership on each request, including after removal.
-    const sub = interval(15000).pipe(startWith(0), switchMap(() =>
-      this.api.list(current).pipe(timeout(10000), catchError(() => of([] as CommunityLiveEvent[])))
-    )).subscribe(events => {
-      if (this.communityId !== current) return;
-      this.events = events;
-      if (this.active && !events.some(e => e.id === this.active?.id && e.status === 'LIVE')) this.leave();
-    });
-    this.updates.add(sub);
+    const version = this.requestVersion;
+    this.updates.add(this.api.capabilities(current).pipe(timeout(10000),
+      catchError(() => of({enabled:false,canManage:false})))
+      .subscribe(capabilities => {
+        if (version !== this.requestVersion) return;
+        this.enabled = capabilities.enabled;
+        this.canManage = capabilities.canManage;
+        if (!this.enabled) return;
+        // Refresh visible live events without page reload; permission is
+        // revalidated on every REST request.
+        this.updates.add(interval(15000).pipe(startWith(0), switchMap(() =>
+          this.api.list(current).pipe(timeout(10000),
+            catchError(() => of([] as CommunityLiveEvent[])))
+        )).subscribe(events => {
+          if (version !== this.requestVersion) return;
+          this.events = events;
+          if (this.active && !events.some(e =>
+              e.id === this.active?.id && e.status === 'LIVE')) this.leave();
+        }));
+      }));
   }
 
   load(): void {
