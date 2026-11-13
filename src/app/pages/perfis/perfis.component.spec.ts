@@ -143,6 +143,7 @@ describe('PerfisComponent', () => {
   });
 
   it('opens a profile publication in a large overlay without navigating away', () => {
+    component.profilePage = true;
     (component as any).loadProfile('ana');
     const post={
       type:'POST',postId:301,authorUsername:'ana',authorDisplayName:'Ana',
