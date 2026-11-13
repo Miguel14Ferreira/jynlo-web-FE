@@ -164,6 +164,24 @@ describe('PerfisComponent', () => {
     expect(fixture.nativeElement.querySelector('app-profile-story-viewer')).toBeNull();
   });
 
+  it('opens a profile video in the modal instead of embedding controls in its thumbnail', () => {
+    component.profilePage=true;
+    (component as any).loadProfile('ana');
+    component.profilePosts=[{
+      type:'POST',postId:771,authorUsername:'ana',authorDisplayName:'Ana',
+      authorProfilePicUrl:null,content:'Treino',imageUrl:null,videoUrl:'/media/posts/game.mp4',
+      createdAt:new Date().toISOString(),sessionId:null,sport:null,city:null,
+      gameDate:null,likeCount:0,likedByMe:false,commentCount:0
+    }];
+    fixture.detectChanges();
+    const card=fixture.nativeElement.querySelector('.profile-publication-open') as HTMLButtonElement;
+    const video=card?.querySelector('video') as HTMLVideoElement;
+    expect(video).not.toBeNull();
+    expect(video.controls).toBeFalse();
+    card.click();fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-profile-post-viewer video')).not.toBeNull();
+  });
+
   it('opens a profile publication in a large overlay without navigating away', () => {
     component.profilePage = true;
     (component as any).loadProfile('ana');
