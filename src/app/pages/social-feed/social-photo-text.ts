@@ -71,7 +71,8 @@ export async function addTextToPhoto(file: File, text: string,
     const left = -(width - margin) / 2;
     const top = -blockHeight / 2;
     if (background !== 'none') {
-      ctx.fillStyle = background === 'light' ? 'rgba(255,255,255,.86)' : 'rgba(1,9,20,.68)';
+      ctx.fillStyle = background === 'light' || (background === 'dark' && ink === 'black')
+        ? 'rgba(255,255,255,.86)' : 'rgba(1,9,20,.68)';
       ctx.beginPath();
       ctx.roundRect(left, top, width - margin, blockHeight, Math.max(8, fontSize / 3));
       ctx.fill();
