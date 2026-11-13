@@ -331,3 +331,20 @@
   padding:.7rem;border-radius:.65rem;border:1px solid #507480;
   background:#0a2734;color:#f8fafc;font:inherit;}
 .feed-live-dialog p[role="alert"] {color:#fecaca;margin:0;}
+
+/* Editing an existing post keeps the gallery controls grouped and readable. */
+.feed-post-edit .feed-edit-media-block {display:grid;gap:.5rem;min-width:0;
+  margin:.65rem 0;padding:.8rem;border:1px solid rgba(94,234,212,.22);
+  border-radius:.75rem;background:#0b2b37;}
+.feed-post-edit .feed-edit-media-block strong {color:#d7fff5;font-size:.88rem;}
+.feed-post-edit .feed-edit-media-block p,.feed-post-edit .feed-edit-media-block small {
+  margin:0;color:#b6d3d8;font-size:.78rem;line-height:1.4;}
+.feed-post-edit .feed-edit-media-block p[role="alert"] {color:#fecaca;}
+.feed-post-edit .feed-edit-media-block ul {margin:0;padding-left:1.2rem;overflow-wrap:anywhere;}
+.feed-post-edit .feed-edit-media-actions {display:flex;flex-wrap:wrap;gap:.45rem;}
+.feed-post-edit .feed-edit-media-actions button,
+.feed-post-edit .feed-edit-file-picker {display:inline-flex;align-items:center;
+  min-height:38px;padding:.48rem .7rem;border:1px solid #40717b;border-radius:.6rem;
+  background:#17404c;color:#f0fdfa;font-size:.78rem;cursor:pointer;}
+.feed-post-edit .feed-edit-file-picker input {position:absolute;width:1px;height:1px;opacity:0;}
+.feed-post-edit .feed-edit-file-picker:focus-within {outline:2px solid #5eead4;outline-offset:2px;}
