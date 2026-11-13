@@ -406,6 +406,38 @@ describe('SocialFeedComponent discovery sidebar', () => {
     component.postGallery = [];
   }));
 
+  it('opens the full gallery and navigates with keyboard without mutating its post', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const post: FeedItem = {
+      type: 'POST', postId: 555, authorUsername: 'ana', authorDisplayName: 'Ana',
+      authorProfilePicUrl: null, content: 'Fotografias do jogo', imageUrl: '/media/main.jpg',
+      videoUrl: null, extraMedia: [
+        { url: '/media/second.png', mimeType: 'image/png' },
+        { url: '/media/clip.mp4', mimeType: 'video/mp4' }
+      ],
+      createdAt: '2026-11-12T18:00:00Z', sessionId: null, sport: null,
+      city: null, gameDate: null, likeCount: 0, likedByMe: false, commentCount: 0
+    };
+    component.items = [post];
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const photos = root.querySelectorAll('.feed-card .feed-media-open');
+    expect(photos.length).toBe(2);
+    (photos[0] as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(component.expandedMedia.length).toBe(3);
+    expect(root.querySelector('.feed-lightbox-stage img')).not.toBeNull();
+    component.handlePostMediaKeys(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+    fixture.detectChanges();
+    expect(component.expandedMediaIndex).toBe(1);
+    expect(root.querySelector('.feed-lightbox-stage img')?.getAttribute('src')).toContain('second.png');
+    component.handlePostMediaKeys(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(root.querySelector('.feed-lightbox')).toBeNull();
+    expect(post.extraMedia?.length).toBe(2);
+  }));
+
   it('publishes a photo without a caption and keeps empty posts disabled', fakeAsync(() => {
     fixture.detectChanges();
     tick(351);
