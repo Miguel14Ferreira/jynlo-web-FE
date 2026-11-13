@@ -13,6 +13,8 @@ import { CommunityProfile } from '../model/community-profile';
 import { ProfileActivity } from '../model/my-profile';
 import { FeedItem } from '../model/feed-item';
 import { SocialFeedService } from '../../services/social-feed.service';
+import { SocialStoriesService } from '../../services/social-stories.service';
+import { SocialStory } from '../model/social-story';
 import { FollowStatus, FollowProfile } from '../model/follow';
 import { CommunityService, FriendshipStatus, ProfileSearchFilters } from '../../services/community.service';
 import { AuthenticationService } from '../../services/authethication.service';
@@ -123,6 +125,33 @@ export class PerfisComponent implements OnInit, OnDestroy {
   selectedActivity?: ProfileActivity;
   profilePosts: FeedItem[] = [];
   expandedPost: FeedItem | null = null;
+  profileStories:SocialStory[]=[];
+  profileStoriesLoading=false;
+  profileStoryViewerOpen=false;
+  private profileStoriesSubscription?:Subscription;
+  openProfileStories():void {
+    if(!this.profileStories.length||this.selectedBlocked||this.blockStatusPending)return;
+    this.profileStoryViewerOpen=true;
+  }
+  closeProfileStories():void {this.profileStoryViewerOpen=false;}
+  private refreshProfileStories(username:string):void {
+    this.profileStoriesSubscription?.unsubscribe();
+    this.profileStoryViewerOpen=false;
+    this.profileStories=[];
+    this.profileStoriesLoading=true;
+    this.profileStoriesSubscription=this.socialStories.profile(username).pipe(timeout(10000))
+      .subscribe({
+        next:stories=>{
+          if(this.selectedProfile?.username!==username)return;
+          this.profileStories=stories;
+          this.profileStoriesLoading=false;
+        },
+        error:()=>{
+          if(this.selectedProfile?.username===username)this.profileStoriesLoading=false;
+        }
+      });
+  }
+
 
   openExpandedPost(post: FeedItem): void {
     if (post.type !== 'POST' || post.postId == null || this.selectedBlocked || this.blockStatusPending) return;
@@ -322,6 +351,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.blockStatusSubscription?.unsubscribe();
     this.friendshipSubscription?.unsubscribe();
     this.postsSubscription?.unsubscribe();
+    this.profileStoriesSubscription?.unsubscribe();
     this.closeInvitePanel();
   }
 
@@ -474,6 +504,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.sentInvites.clear();
     this.selectedProfile = profile;
     this.expandedPost = null;
+    this.refreshProfileStories(profile.username);
     this.selectedActivity = undefined;
     this.selectedFollowStatus = undefined;
     this.selectedBlocked = false;
@@ -583,6 +614,9 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.closeFollowList();
     this.closeInvitePanel();
     this.expandedPost = null;
+    this.profileStoriesSubscription?.unsubscribe();
+    this.profileStories=[];
+    this.profileStoryViewerOpen=false;
     this.sentInvites.clear();
     this.postsSubscription?.unsubscribe();
     ++this.postsRevision;
