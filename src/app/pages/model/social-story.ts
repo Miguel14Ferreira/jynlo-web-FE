@@ -15,4 +15,6 @@ export interface SocialStory {
   textPosition?: 'top' | 'center' | 'bottom' | null;
   textScale?: 'small' | 'medium' | 'large' | null;
   textStyle?: 'plain' | 'pill' | null;
+  altText?: string | null;
+  showTime?: boolean;
 }
