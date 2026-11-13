@@ -119,3 +119,10 @@
 .story-viewer-tags a:hover { background: #0f766e; }
 .story-overlay .story-viewer-place { top: 17%; left: 9%; }
 .story-overlay .story-viewer-tags { bottom: 18%; }
+
+/* Minimal editor close glyph, matching the post composer. */
+.story-create-backdrop .story-create-close {
+  background:transparent!important; border:0!important; border-radius:0!important;
+  box-shadow:none!important; color:#eaf6f6!important;
+}
+.story-create-backdrop .story-create-close:hover {color:#5eead4!important;}
