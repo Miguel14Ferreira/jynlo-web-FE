@@ -122,6 +122,14 @@ export class PerfisComponent implements OnInit, OnDestroy {
   selectedProfile?: CommunityProfile;
   selectedActivity?: ProfileActivity;
   profilePosts: FeedItem[] = [];
+  expandedPost: FeedItem | null = null;
+
+  openExpandedPost(post: FeedItem): void {
+    if (post.type !== 'POST' || post.postId == null || this.selectedBlocked || this.blockStatusPending) return;
+    this.expandedPost = post;
+  }
+
+  closeExpandedPost(): void { this.expandedPost = null; }
   postsPage = 0;
   postsHasMore = false;
   postsExpanded = false;
@@ -465,6 +473,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.closeInvitePanel();
     this.sentInvites.clear();
     this.selectedProfile = profile;
+    this.expandedPost = null;
     this.selectedActivity = undefined;
     this.selectedFollowStatus = undefined;
     this.selectedBlocked = false;
@@ -573,6 +582,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
   closeProfile(): void {
     this.closeFollowList();
     this.closeInvitePanel();
+    this.expandedPost = null;
     this.sentInvites.clear();
     this.postsSubscription?.unsubscribe();
     ++this.postsRevision;
