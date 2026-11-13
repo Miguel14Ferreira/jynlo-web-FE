@@ -715,8 +715,18 @@
                           } @else {
                             <img [src]="item.url" [alt]="item.file.name">
                           }
-                          <button type="button" [disabled]="timelineSending"
-                            (click)="removeCommunityFeedGalleryItem(i)">Remover</button>
+                          <div class="community-feed-gallery-controls">
+                            @if (i === 0) { <strong>Capa</strong> }
+                            <button type="button" [disabled]="timelineSending || i === 0"
+                              (click)="moveCommunityFeedGalleryItem(i, -1)"
+                              [attr.aria-label]="'Mover ' + item.file.name + ' para trás'">↑</button>
+                            <button type="button" [disabled]="timelineSending || i === feedGallery.length - 1"
+                              (click)="moveCommunityFeedGalleryItem(i, 1)"
+                              [attr.aria-label]="'Mover ' + item.file.name + ' para a frente'">↓</button>
+                            <button type="button" [disabled]="timelineSending"
+                              (click)="removeCommunityFeedGalleryItem(i)"
+                              [attr.aria-label]="'Remover ' + item.file.name">Remover</button>
+                          </div>
                         </div>
                       }
                     </div>
@@ -801,28 +811,50 @@
                         @if (entry.body) {
                           <p class="community-feed-body">{{ entry.body }}</p>
                         }
-                        @if (communityFeedMediaUrl(entry.imageUrl); as image) {
-                          <img class="community-feed-post-media" [src]="image"
-                            [alt]="'feed.postImageAlt' | t:{ user: communityFeedAuthorName(entry.username) }"
-                            loading="lazy">
-                        }
-                        @if (communityFeedMediaUrl(entry.videoUrl); as video) {
-                          <video class="community-feed-post-media community-feed-post-video"
-                            [src]="video" controls playsinline preload="none"
-                            [attr.aria-label]="'feed.postVideoAlt' | t:{ user: communityFeedAuthorName(entry.username) }"></video>
-                        }
-                        @if (entry.extraMedia?.length) {
-                          <div class="community-feed-gallery">
-                            @for (media of entry.extraMedia; track media.url) {
-                              @if (media.mimeType.startsWith('video/')) {
-                                <video class="community-feed-post-media community-feed-post-video"
-                                  [src]="communityFeedMediaUrl(media.url)" controls playsinline preload="none"></video>
-                              } @else {
-                                <img class="community-feed-post-media" [src]="communityFeedMediaUrl(media.url)"
-                                  alt="Fotografia adicional" loading="lazy">
+                        @if (communityPostMedia(entry); as postMedia) {
+                          @if (postMedia.length) {
+                            <div class="community-feed-carousel" [attr.aria-label]="'Álbum de ' + communityFeedAuthorName(entry.username)"
+                                 (touchstart)="startCommunityPostSwipe($event, entry)"
+                                 (touchend)="endCommunityPostSwipe($event, entry)">
+                              <div class="community-feed-carousel-stage">
+                                @if (postMedia[communityPostCurrentIndex(entry)]; as selectedMedia) {
+                                  @if (selectedMedia.mimeType.startsWith('video/')) {
+                                    <video class="community-feed-post-media community-feed-post-video"
+                                      [src]="communityFeedMediaUrl(selectedMedia.url)" controls playsinline preload="metadata"
+                                      [attr.aria-label]="'Vídeo ' + (communityPostCurrentIndex(entry) + 1)"></video>
+                                  } @else {
+                                    <img class="community-feed-post-media"
+                                      [src]="communityFeedMediaUrl(selectedMedia.url)"
+                                      [alt]="'Fotografia ' + (communityPostCurrentIndex(entry) + 1) + ' de ' + communityFeedAuthorName(entry.username)"
+                                      loading="lazy">
+                                  }
+                                }
+                                @if (postMedia.length > 1) {
+                                  <span class="community-feed-carousel-count" aria-live="polite">
+                                    {{ communityPostCurrentIndex(entry) + 1 }} / {{ postMedia.length }}
+                                  </span>
+                                  <button type="button" class="community-feed-carousel-prev"
+                                          [disabled]="communityPostCurrentIndex(entry) === 0"
+                                          (click)="changeCommunityPostMedia(entry, -1)"
+                                          aria-label="Anexo anterior">‹</button>
+                                  <button type="button" class="community-feed-carousel-next"
+                                          [disabled]="communityPostCurrentIndex(entry) === postMedia.length - 1"
+                                          (click)="changeCommunityPostMedia(entry, 1)"
+                                          aria-label="Anexo seguinte">›</button>
+                                }
+                              </div>
+                              @if (postMedia.length > 1) {
+                                <div class="community-feed-carousel-dots" role="group" aria-label="Escolher anexo">
+                                  @for (media of postMedia; track $index; let i = $index) {
+                                    <button type="button" [class.active]="communityPostCurrentIndex(entry) === i"
+                                            [attr.aria-label]="'Mostrar anexo ' + (i + 1)"
+                                            [attr.aria-current]="communityPostCurrentIndex(entry) === i ? 'true' : null"
+                                            (click)="selectCommunityPostMedia(entry, i)"></button>
+                                  }
+                                </div>
                               }
-                            }
-                          </div>
+                            </div>
+                          }
                         }
                       </article>
                     }
