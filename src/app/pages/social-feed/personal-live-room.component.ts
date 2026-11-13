@@ -15,7 +15,8 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       <header>
         <div><strong><span class="live-dot">●</span> {{event.title}}</strong>
           <small>Direto de @{{event.username}} · {{participantCount}} participantes</small></div>
-        <button type="button" class="close" [disabled]="ending" (click)="event.canManage ? end() : leave()"
+        <button type="button" class="close" [disabled]="ending"
+          (click)="event.canManage ? requestEnd() : leave()"
           [attr.aria-label]="event.canManage ? 'Terminar direto' : 'Sair do direto'">×</button>
       </header>
       @if (error) {<p role="alert">{{error}}</p>}
@@ -127,12 +128,26 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           </button>
           @if (event.canManage) {
             <button type="button" class="end" [disabled]="ending"
-              (click)="end()">{{ ending ? 'A terminar…' : 'Terminar direto' }}</button>
+              (click)="requestEnd()">{{ ending ? 'A terminar…' : 'Terminar direto' }}</button>
           }
         </footer>
       }
       @if (!room && !connecting && error) {
         <button type="button" (click)="connect()">Tentar novamente</button>
+      }
+      @if (confirmingEnd) {
+        <div class="live-confirm-backdrop" role="presentation">
+          <section class="live-confirm-dialog" role="alertdialog" aria-modal="true"
+            aria-labelledby="personal-live-end-title" aria-describedby="personal-live-end-desc">
+            <h3 id="personal-live-end-title">Terminar o direto?</h3>
+            <p id="personal-live-end-desc">A transmissão vai terminar para todos os espectadores e convidados.</p>
+            <div class="live-confirm-actions">
+              <button type="button" [disabled]="ending" (click)="confirmingEnd=false">Continuar em direto</button>
+              <button type="button" class="end" [disabled]="ending"
+                (click)="end()">{{ending ? 'A terminar…' : 'Terminar para todos'}}</button>
+            </div>
+          </section>
+        </div>
       }
     </section>
   `,
@@ -206,6 +221,18 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
     .live-guest-row span{flex:1 1 100%;font-size:.78rem}
     .live-moderation,.live-guest-request{display:grid;gap:8px}
     .live-guest-request p{font-size:.78rem;color:#7fe8d7}
+    .live-confirm-backdrop{position:fixed;inset:0;background:rgba(0,5,12,.78);
+      z-index:4000;display:grid;place-items:center;padding:1rem}
+    .live-confirm-dialog{background:#0b2631;border:1px solid #47767e;color:#f2fffc;
+      padding:1.3rem;border-radius:1rem;width:min(420px,100%);
+      box-shadow:0 18px 65px rgba(0,0,0,.6);box-sizing:border-box}
+    .live-confirm-dialog h3{margin:0 0 .75rem;font-size:1.15rem}
+    .live-confirm-dialog p{color:#c4d7dc;line-height:1.5}
+    .live-confirm-actions{display:flex;gap:.6rem;justify-content:flex-end;flex-wrap:wrap}
+    .live-confirm-actions button{background:#184451;color:#fff;border:1px solid #47767e;
+      border-radius:.6rem;padding:.65rem .85rem;cursor:pointer}
+    .live-confirm-actions .end{background:#932d42}
+    .live-confirm-actions button:disabled{opacity:.5}
 
   `]
 })
@@ -230,6 +257,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   deviceBusy=false;
   reconnecting=false;
   ending=false;
+  confirmingEnd=false;
   private heartbeatFailures=0;
   private heartbeatBusy=false;
   error='';
@@ -372,8 +400,10 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         }
       }
     } catch {
-      if (next) await next.disconnect().catch(()=>{});
+      // Invalidate the failed room *before* disconnecting it. Otherwise the
+      // LiveKit Disconnected callback mistakes a failed join for a closed live.
       if (this.room===next) this.room=null;
+      if (next) await next.disconnect().catch(()=>{});
       if(!this.destroyed&&!this.closing)
         this.error='Não foi possível entrar no direto. Verifica a ligação e as permissões.';
     } finally {this.connecting=false;}
@@ -612,17 +642,22 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       if(this.room===activeRoom)this.error='Não foi possível alterar o microfone.';
     }finally{this.deviceBusy=false;}
   }
+  requestEnd():void {
+    if(!this.event.canManage || this.ended || this.ending || this.closing)return;
+    this.confirmingEnd=true;
+  }
   end():void {
-    if(!this.event.canManage || this.ended || this.ending)return;
+    if(!this.event.canManage || !this.confirmingEnd || this.ended || this.ending)return;
     this.ending=true;
     this.service.end(this.event.id).pipe(timeout(10000)).subscribe({
-      next:()=>{this.ended=true;this.leave();},
+      next:()=>{this.ended=true;this.confirmingEnd=false;this.leave();},
       error:()=>{this.ending=false;this.error='Não foi possível terminar o direto. Tenta novamente.';}
     });
   }
   leave():void {
     if(this.closing)return;
     this.closing=true;
+    this.confirmingEnd=false;
     this.heartbeats?.unsubscribe();this.heartbeats=undefined;
     this.interactionPoll?.unsubscribe();this.interactionPoll=undefined;
     this.reconnecting=false;
