@@ -230,7 +230,21 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
         this.attach(track);
       });
       room.on(RoomEvent.TrackUnsubscribed, track => {
-        for (const element of track.detach()) element.remove();
+        for (const element of track.detach()) {
+          this.attached.delete(element);
+          element.remove();
+        }
+      });
+      room.on(RoomEvent.LocalTrackPublished, publication => {
+        if (this.room === room && publication.source === Track.Source.Camera
+            && publication.track) this.attach(publication.track);
+      });
+      room.on(RoomEvent.LocalTrackUnpublished, publication => {
+        if (this.room !== room || !publication.track) return;
+        for (const element of publication.track.detach()) {
+          this.attached.delete(element);
+          element.remove();
+        }
       });
       room.on(RoomEvent.Disconnected, () => { if (this.room === room) this.leave(); });
       await room.connect(access.serverUrl, access.token);
@@ -241,9 +255,8 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
         this.cameraOn = true;
         await room.localParticipant.setMicrophoneEnabled(true);
         this.micOn = true;
-        for (const publication of room.localParticipant.videoTrackPublications.values()) {
-          if (publication.track && !publication.isMuted) this.attach(publication.track);
-        }
+        // LocalTrackPublished already attaches the self-preview, including
+        // camera changes during a running broadcast.
       }
     } catch {
       this.error = 'Não foi possível entrar no direto. Verifica as permissões da câmara e do microfone.';
