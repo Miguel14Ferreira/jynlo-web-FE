@@ -171,6 +171,25 @@ describe('DirectChatComponent', () => {
     expect(service.send).not.toHaveBeenCalled();
   });
 
+  it('searches older authorized history and focuses a first newly discovered match', () => {
+    component.messages = [{ id: 75, username1: 'ana', username2: 'fixture-user',
+      text: 'Texto novo', date: '2026-11-13T10:00:00Z', dataDisplay: null }];
+    component.hasOlderMessages = true;
+    component.toggleMessageSearch();
+    component.searchQuery = 'antigo';
+    component.onMessageSearchChange();
+    expect(component.searchMatches.length).toBe(0);
+    service.recentHistory.and.returnValue(of({ content: [
+      { id: 5, username1: 'ana', username2: 'fixture-user',
+        text: 'Jogo antigo', date: '2026-10-01T10:00:00Z', dataDisplay: null }
+    ], last: true }));
+    component.loadOlderMessages();
+    expect(service.recentHistory).toHaveBeenCalledWith('ana', 1);
+    expect(component.searchMatches.map(message => message.id)).toEqual([5]);
+    expect(component.searchMatchIndex).toBe(0);
+    expect(component.hasOlderMessages).toBeFalse();
+  });
+
   it('opens reply context, or explains older history when the quoted message is not loaded', () => {
     const original = { id: 77, username1: 'ana', username2: 'fixture-user',
       text: 'Vamos jogar', date: '2026-11-13T10:00:00Z', dataDisplay: null };
