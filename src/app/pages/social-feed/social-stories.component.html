@@ -69,7 +69,7 @@
                   <img [src]="filePreview" [alt]="'stories.preview' | t">
                 }
                 @if (storyShowTime) {
-                  <span class="story-time-overlay">{{ storyEditorTime | date:'EEE, d MMM · HH:mm':'':'pt-PT' }}</span>
+                  <span class="story-time-overlay">{{ storyEditorTime | date:'dd/MM/yyyy · HH:mm' }}</span>
                 }
                 @if (storyLocation.trim()) {
                   <a class="story-place-overlay" [href]="storyPlaceUrl(storyLocation)"
@@ -85,7 +85,7 @@
                 }
                 @if (captionPreview) {
                   <app-movable-text [text]="captionPreview"
-                    [plain]="storyTextStyle === 'plain'"
+                    [plain]="storyTextBackground === 'none'"
                     [color]="storyTextColorCss" [background]="storyTextBackgroundCss"
                     [fontFamily]="storyTextFontCss"
                     [placement]="storyTextPlacement"
@@ -281,7 +281,7 @@
           <button class="story-tap-target story-tap-right" type="button"
             [attr.aria-label]="'stories.next' | t" (click)="next()"></button>
           @if (story.showTime) {
-            <span class="story-time-overlay story-viewer-time">{{ story.createdAt | date:'EEE, d MMM · HH:mm':'':'pt-PT' }}</span>
+            <span class="story-time-overlay story-viewer-time">{{ story.createdAt | date:'dd/MM/yyyy · HH:mm' }}</span>
           }
           @if (story.locationLabel) {
             <a class="story-place-overlay story-viewer-place"
