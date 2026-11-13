@@ -64,6 +64,32 @@ describe('Community broadcast panel', () => {
     fixture.destroy();
   });
 
+  it('ends the broadcast for everyone when the host selects the player exit', () => {
+    const fixture=TestBed.createComponent(CommunityLivePanelComponent);
+    fixture.componentRef.setInput('communityId', 7);
+    fixture.detectChanges();
+    const c=fixture.componentInstance;
+    const event: CommunityLiveEvent={
+      id:25,communityId:7,title:'Jogo de sábado',description:null,
+      status:'LIVE',scheduledAt:new Date().toISOString(),
+      startedAt:new Date().toISOString(),endedAt:null,canManage:true
+    };
+    const disconnect=jasmine.createSpy('disconnect');
+    c.active=event;
+    c.hosting=true;
+    c.room={disconnect} as any;
+    live.end.and.returnValue(of({...event,status:'ENDED'}));
+    fixture.detectChanges();
+    const button=(fixture.nativeElement as HTMLElement)
+      .querySelector('.live-end-button') as HTMLButtonElement;
+    expect(button?.textContent).toContain('Terminar direto');
+    button.click();
+    expect(live.end).toHaveBeenCalledOnceWith(7,25);
+    expect(disconnect).toHaveBeenCalled();
+    expect(c.room).toBeNull();
+    fixture.destroy();
+  });
+
   it('prevents viewers from seeing host scheduling tools', () => {
     live.capabilities.and.returnValue(of({canManage:false,enabled:true}));
     const fixture=TestBed.createComponent(CommunityLivePanelComponent);
