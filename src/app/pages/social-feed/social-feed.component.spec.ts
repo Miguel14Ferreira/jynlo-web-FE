@@ -172,6 +172,46 @@ describe('SocialFeedComponent discovery sidebar', () => {
     localStorage.removeItem(storageKey);
   }));
 
+  it('hides authored posts on the server and restores them with undo', fakeAsync(() => {
+    const post: FeedItem = {
+      type: 'POST', postId: 801, sessionId: null,
+      authorUsername: 'ana', authorDisplayName: 'Ana',
+      authorProfilePicUrl: null, content: 'Foto de jogo', imageUrl: '/media/photo.jpg',
+      createdAt: '2026-11-12T18:00:00Z', sport: null, city: null, gameDate: null,
+      likeCount: 1, likedByMe: false, commentCount: 1
+    };
+    fixture.detectChanges();
+    tick(351);
+    component.items = [post];
+    feed.feed.and.returnValue(of([post]));
+    component.hideFromMyFeed(post);
+    expect(feed.hidePost).toHaveBeenCalledOnceWith(801);
+    expect(component.fullFeedItems).toEqual([]);
+    component.undoHideFromMyFeed();
+    expect(feed.restoreHiddenPost).toHaveBeenCalledOnceWith(801);
+    expect(component.recentlyHiddenFeedEntry).toBeNull();
+    expect(component.fullFeedItems.map(item => item.postId)).toContain(801);
+    localStorage.removeItem('jynlo:hidden-feed:v1:miguel');
+  }));
+
+  it('keeps a post visible when persistent hiding fails and offers a retry', fakeAsync(() => {
+    const post: FeedItem = {
+      type: 'POST', postId: 802, sessionId: null,
+      authorUsername: 'ana', authorDisplayName: 'Ana',
+      authorProfilePicUrl: null, content: 'Foto de jogo', imageUrl: null,
+      createdAt: '2026-11-12T18:00:00Z', sport: null, city: null, gameDate: null,
+      likeCount: 0, likedByMe: false, commentCount: 0
+    };
+    fixture.detectChanges();
+    tick(351);
+    component.items = [post];
+    feed.hidePost.and.returnValue(throwError(() => new HttpErrorResponse({ status: 503 })));
+    component.hideFromMyFeed(post);
+    expect(component.fullFeedItems).toContain(post);
+    expect(component.actionError).toContain('Não foi possível');
+    expect(component.recentlyHiddenFeedEntry).toBeNull();
+  }));
+
   it('restores hidden entries from account-scoped storage on feed initialization', fakeAsync(() => {
     const storageKey = 'jynlo:hidden-feed:v1:miguel';
     localStorage.setItem(storageKey, JSON.stringify(['post:42', 'attendance:17']));
