@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnIn
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { catchError, finalize, of, Subject, Subscription, takeUntil, timeout, switchMap, timer } from 'rxjs';
+import { catchError, distinctUntilChanged, EMPTY, finalize, map, of, Subject, Subscription, takeUntil, timeout, switchMap, timer } from 'rxjs';
 
 import { environment } from 'src/environment/environment';
 import { TranslatePipe } from '../../i18n/translate.pipe';
@@ -514,16 +514,29 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     ).subscribe(groups => this.groups = groups.filter(group =>
       group.visibility === 'PUBLIC' && (group.myRole === 'OWNER' || group.myRole === 'ADMIN')
     ));
-    const linkedId = this.route.snapshot.queryParamMap.get('story');
-    if (linkedId && /^[1-9][0-9]*$/.test(linkedId) && Number.isSafeInteger(Number(linkedId))) {
-      this.stories.get(Number(linkedId)).pipe(
-        timeout(10000),
-        takeUntil(this.destroyed)
-      ).subscribe({
-        next: story => this.showStory(story),
-        error: () => this.error = t('stories.unavailable')
-      });
-    }
+    // Route reuse is common when a shared Story is opened from inside the Feed.
+    // Observe link changes and cancel stale requests so a slow response cannot
+    // replace a more recently selected Story.
+    this.route.queryParamMap.pipe(
+      map(params => params.get('story')),
+      distinctUntilChanged(),
+      switchMap(linkedId => {
+        if (!linkedId || !/^[1-9][0-9]*$/.test(linkedId)
+            || !Number.isSafeInteger(Number(linkedId))) return EMPTY;
+        return this.stories.get(Number(linkedId)).pipe(
+          timeout(10000),
+          catchError(() => {
+            this.error = t('stories.unavailable');
+            this.changeDetector.markForCheck();
+            return EMPTY;
+          })
+        );
+      }),
+      takeUntil(this.destroyed)
+    ).subscribe(story => {
+      this.error = '';
+      this.showStory(story);
+    });
   }
 
   get storyGroups(): StoryGroup[] {
