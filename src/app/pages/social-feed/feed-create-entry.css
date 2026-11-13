@@ -234,3 +234,16 @@
 .feed-photo-image-tools label {font-size:.78rem;}
 .feed-photo-image-tools input {width:100%;accent-color:#2dd4bf;}
 @media(max-width:849px) {.feed-photo-text-editor {position:relative;}}
+
+
+.feed-photo-direct-stage > img {pointer-events:auto!important;touch-action:none;cursor:grab;user-select:none;}
+.feed-photo-direct-stage > img:active {cursor:grabbing;}
+.feed-photo-direct-stage .feed-photo-image-rotate,
+.feed-photo-direct-stage .feed-photo-image-resize {
+  position:absolute;z-index:9;display:grid;place-items:center;
+  width:31px;height:31px;padding:0;border:1px solid #5eead4;
+  background:#092b35;color:#f1ffff;border-radius:50%;
+  cursor:grab;touch-action:none;font-size:1.15rem;
+}
+.feed-photo-direct-stage .feed-photo-image-rotate {left:7px;top:7px;}
+.feed-photo-direct-stage .feed-photo-image-resize {right:7px;bottom:7px;}
