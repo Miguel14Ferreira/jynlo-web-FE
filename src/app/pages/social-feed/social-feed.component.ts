@@ -380,6 +380,9 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   postLocationSuggestions: Venue[] = [];
   postRealPlaces: RealPlace[] = [];
   postLocationVerified = false;
+  postLocationResolving = false;
+  postLocationProvider: 'google' | 'open' | null = null;
+  private postPlaceSessionToken = crypto.randomUUID();
   postLocationLoading = false;
   postLocationOpen = false;
   postLocationError = '';
@@ -390,6 +393,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   onPostLocationQuery(value: string): void {
     const query = value.trim();
     this.postLocationVerified = false;
+    this.postLocationProvider = null;
     this.postLocationOpen = query.length >= 2;
     this.postLocationSuggestions = [];
     this.postRealPlaces = [];
@@ -399,7 +403,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.postLocationLoading = this.postLocationOpen;
     if (!this.postLocationOpen || !this.realPlaceSearch) return;
     this.postLocationSearchSubscription = timer(400).pipe(
-      switchMap(() => this.realPlaceSearch!.search(query).pipe(
+      switchMap(() => this.realPlaceSearch!.search(query,this.postPlaceSessionToken).pipe(
         timeout(8000), catchError(() => of([] as RealPlace[])))),
       takeUntil(this.destroyed)
     ).subscribe(places => {
@@ -412,11 +416,24 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   selectPostRealPlace(place: RealPlace): void {
-    this.postLocation = [place.label, place.subtitle].filter(Boolean).join(', ').slice(0,160);
-    this.postLocationVerified = true;
-    this.postLocationOpen = false;
-    this.postRealPlaces = [];
-    this.postLocationQuerySerial++;
+    if(this.postLocationResolving || !this.realPlaceSearch) return;
+    this.postLocationResolving=true;
+    this.postLocationError='';
+    this.realPlaceSearch.resolve(place,this.postPlaceSessionToken).pipe(
+      timeout(10000),takeUntil(this.destroyed),
+      finalize(()=>this.postLocationResolving=false)
+    ).subscribe({
+      next:verified=>{
+        this.postLocation=[verified.label,verified.subtitle].filter(Boolean).join(', ').slice(0,160);
+        this.postLocationVerified=true;
+        this.postLocationProvider=verified.provider||'open';
+        this.postLocationOpen=false;
+        this.postRealPlaces=[];
+        this.postLocationQuerySerial++;
+        this.postPlaceSessionToken=crypto.randomUUID();
+      },
+      error:()=>this.postLocationError='Não foi possível verificar este local. Escolhe outro ou tenta novamente.'
+    });
   }
 
   selectPostPlaceName(): void {
