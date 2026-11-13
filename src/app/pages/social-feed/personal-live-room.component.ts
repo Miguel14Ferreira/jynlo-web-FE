@@ -1,13 +1,15 @@
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
-import { firstValueFrom, interval, Subscription, timeout } from 'rxjs';
+import { firstValueFrom, interval, Subscription, timeout, finalize } from 'rxjs';
 import { Room, RoomEvent, RemoteTrack, Track } from 'livekit-client';
-import { PersonalLiveEvent, PersonalLiveService } from '../../services/personal-live.service';
+import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
+  PersonalLiveControls, PersonalLiveGuestRequest } from '../../services/personal-live.service';
 
 @Component({
   selector:'app-personal-live-room',
   standalone:true,
-  imports:[CommonModule],
+  imports:[CommonModule,FormsModule],
   template:`
     <section class="personal-live" aria-label="Transmissão pessoal">
       <header>
@@ -20,15 +22,82 @@ import { PersonalLiveEvent, PersonalLiveService } from '../../services/personal-
       @if (!connecting && room) {
         <p class="live-connection-status" role="status">● Transmissão ligada</p>
       }
-      <div #stage class="personal-live-stage" aria-label="Vídeo da transmissão"></div>
-      @if (event.canManage) {
+      <div class="personal-live-layout">
+        <div #stage class="personal-live-stage" aria-label="Vídeo da transmissão"></div>
+        <aside class="live-chat" aria-label="Chat da transmissão em direto">
+          <header><strong>Chat em direto</strong>
+            <small>{{messages.length}} mensagens recentes</small></header>
+          @if (controls && !controls.chatEnabled) {
+            <p class="chat-notice" role="status">O apresentador desativou as mensagens dos espectadores.</p>
+          }
+          @if (controls?.mutedByHost) {
+            <p class="chat-notice" role="status">O apresentador silenciou as tuas mensagens.</p>
+          }
+          <div class="live-chat-history" aria-live="polite">
+            @for (message of messages; track message.id) {
+              <div class="live-chat-message">
+                <strong>@{{message.username}}</strong>
+                <span>{{message.message}}</span>
+                @if (event.canManage && message.username.toLowerCase() !== event.username.toLowerCase()) {
+                  <button type="button" [disabled]="moderationBusy"
+                    (click)="toggleViewerMute(message.username,!isViewerMuted(message.username))">
+                    {{isViewerMuted(message.username)?'Permitir':'Silenciar'}}
+                  </button>
+                }
+              </div>
+            }
+            @if (!messages.length) { <p>As mensagens vão aparecer aqui.</p> }
+          </div>
+          <form class="live-chat-input" (ngSubmit)="sendMessage()">
+            <input name="liveMessage" [(ngModel)]="draft" maxlength="500"
+              placeholder="Escrever mensagem…" aria-label="Mensagem para o direto"
+              [disabled]="!room || sending || (!event.canManage && (!controls?.chatEnabled || controls?.mutedByHost))">
+            <button type="submit" [disabled]="!room || sending || !draft.trim() ||
+              (!event.canManage && (!controls?.chatEnabled || controls?.mutedByHost))">Enviar</button>
+          </form>
+          @if (!event.canManage) {
+            <div class="live-guest-request">
+              @if (controls?.requestStatus === 'PENDING') {
+                <p>Pedido para participar enviado. Aguarda a aprovação.</p>
+              } @else if (controls?.isGuest) {
+                <p>Estás a participar com vídeo neste direto.</p>
+              } @else {
+                <button type="button" [disabled]="moderationBusy || !room"
+                  (click)="requestGuest()">Pedir para entrar no direto</button>
+              }
+            </div>
+          }
+          @if (event.canManage && controls) {
+            <div class="live-moderation">
+              <button type="button" [disabled]="moderationBusy"
+                (click)="toggleChat()">{{controls.chatEnabled?'Desativar chat':'Ativar chat'}}</button>
+              @for (request of controls.pendingRequests;track request.id) {
+                <div class="live-guest-row">
+                  <span>@{{request.username}} quer participar</span>
+                  <button type="button" [disabled]="moderationBusy" (click)="decideGuest(request,true)">Aceitar</button>
+                  <button type="button" [disabled]="moderationBusy" (click)="decideGuest(request,false)">Recusar</button>
+                </div>
+              }
+              @if (controls.guestUsername) {
+                <div class="live-guest-row">
+                  <span>Convidado: @{{controls.guestUsername}}</span>
+                  <button type="button" [disabled]="moderationBusy" (click)="removeGuest()">Retirar do direto</button>
+                </div>
+              }
+            </div>
+          }
+        </aside>
+      </div>
+      @if (event.canManage || role==='GUEST') {
         <footer aria-label="Controlos do direto">
           <button type="button" [disabled]="!room || connecting || deviceBusy"
             [attr.aria-pressed]="micOn" (click)="toggleMic()">{{ micOn ? 'Silenciar microfone' : 'Ligar microfone' }}</button>
           <button type="button" [disabled]="!room || connecting || deviceBusy"
             [attr.aria-pressed]="cameraOn" (click)="toggleCamera()">{{ cameraOn ? 'Desligar câmara' : 'Ligar câmara' }}</button>
-          <button type="button" class="end" [disabled]="ending"
-            (click)="end()">{{ ending ? 'A terminar…' : 'Terminar direto' }}</button>
+          @if (event.canManage) {
+            <button type="button" class="end" [disabled]="ending"
+              (click)="end()">{{ ending ? 'A terminar…' : 'Terminar direto' }}</button>
+          }
         </footer>
       }
       @if (!room && !connecting && error) {
@@ -44,6 +113,9 @@ import { PersonalLiveEvent, PersonalLiveService } from '../../services/personal-
     header div{display:grid;gap:.3rem}header small{color:#a7c6ce}
     .live-dot{color:#fb7185}.close{background:transparent;border:0;border-radius:0;
       color:#fff;font-size:1.6rem;cursor:pointer}
+    .personal-live-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,285px);
+      gap:12px;min-width:0}
+    @media(max-width:700px){.personal-live-layout{grid-template-columns:1fr}}
     .personal-live-stage{min-height:260px;background:#021119;border-radius:.8rem;
       display:flex;flex-wrap:wrap;align-items:center;justify-content:center;overflow:hidden}
     .personal-live-stage video{max-width:100%;max-height:56dvh;object-fit:contain}
@@ -51,6 +123,27 @@ import { PersonalLiveEvent, PersonalLiveService } from '../../services/personal-
       padding:.65rem;border:1px solid #47767e;border-radius:.6rem;cursor:pointer}
     footer .end{background:#932d42}footer button:disabled{opacity:.5;cursor:not-allowed}
     p[role="alert"]{color:#fecaca}.live-connection-status{color:#5eead4;margin:0;font-size:.82rem}
+    .live-chat{min-width:0;min-height:260px;display:flex;flex-direction:column;gap:9px;
+      border:1px solid #285c66;border-radius:10px;padding:10px;background:#0b202b}
+    .live-chat header{align-items:center;flex-wrap:wrap}
+    .live-chat-history{display:grid;align-content:start;gap:9px;min-height:120px;
+      max-height:37dvh;overflow:auto;overflow-wrap:anywhere}
+    .live-chat-message{display:flex;flex-wrap:wrap;align-items:baseline;gap:5px;font-size:.79rem}
+    .live-chat-message strong{color:#64dfcb}.live-chat-message button{border:0;
+      color:#ffb9c5;background:transparent;cursor:pointer;font-size:.72rem}
+    .live-chat-input{display:flex;gap:5px}.live-chat-input input{flex:1;min-width:0;
+      border:1px solid #437783;border-radius:7px;padding:8px;background:#092a36;color:#fff}
+    .live-chat-input button,.live-moderation button,.live-guest-request button{
+      border:1px solid #398f88;border-radius:7px;padding:6px 9px;
+      background:#15504d;color:white;cursor:pointer;font-size:.79rem}
+    .live-chat button:disabled{opacity:.55;cursor:not-allowed}
+    .live-chat .chat-notice{font-size:.76rem;color:#ffd9ad;margin:0}
+    .live-guest-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+      border-top:1px solid #41616b;padding-top:7px}
+    .live-guest-row span{flex:1 1 100%;font-size:.78rem}
+    .live-moderation,.live-guest-request{display:grid;gap:8px}
+    .live-guest-request p{font-size:.78rem;color:#7fe8d7}
+
   `]
 })
 export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
@@ -59,6 +152,8 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   @ViewChild('stage') stage?:ElementRef<HTMLElement>;
   private readonly service=inject(PersonalLiveService);
   private heartbeats?:Subscription;
+  private interactionPoll?:Subscription;
+  private rejoining=false;
   private attached:HTMLMediaElement[]=[];
   room:Room|null=null;
   connecting=false;
@@ -71,8 +166,18 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   participantCount=0;
   private destroyed=false;
   private ended=false;
+  messages:PersonalLiveChatMessage[]=[];
+  controls:PersonalLiveControls|null=null;
+  draft='';
+  role:'HOST'|'GUEST'|'VIEWER'='VIEWER';
+  sending=false;
+  moderationBusy=false;
 
-  ngOnInit():void {void this.connect();}
+  ngOnInit():void {
+    void this.connect();
+    this.refreshInteractions();
+    this.interactionPoll=interval(3000).subscribe(()=>this.refreshInteractions());
+  }
 
   async connect():Promise<void> {
     if (this.room || this.connecting || this.destroyed) return;
@@ -98,14 +203,17 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       });
       activeRoom.on(RoomEvent.ParticipantConnected,()=>this.countParticipants());
       activeRoom.on(RoomEvent.ParticipantDisconnected,()=>this.countParticipants());
-      activeRoom.on(RoomEvent.Disconnected,()=>this.leave());
+      activeRoom.on(RoomEvent.Disconnected,()=>{
+        if (!this.rejoining && !this.destroyed) this.leave();
+      });
       this.room=activeRoom;
       await activeRoom.connect(credentials.serverUrl,credentials.token);
       if (this.destroyed) {await activeRoom.disconnect();return;}
       this.countParticipants();
+      this.role=credentials.role;
       this.connecting=false;
-      if (credentials.role==='HOST' && this.event.canManage) {
-        this.heartbeats=interval(20000).subscribe(()=>
+      if (credentials.role==='HOST' || credentials.role==='GUEST') {
+        if (credentials.role==='HOST') this.heartbeats=interval(20000).subscribe(()=>
           this.service.heartbeat(this.event.id).pipe(timeout(10000)).subscribe({
             error:()=>{this.error='O direto terminou ou a ligação ao servidor falhou.';this.leave();}
           }));
@@ -133,6 +241,94 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       this.error='Não foi possível entrar no direto. Verifica a ligação e as permissões.';
     } finally {this.connecting=false;}
   }
+  refreshInteractions():void {
+    if(this.destroyed)return;
+    this.service.messages(this.event.id).pipe(timeout(10000)).subscribe({
+      next:entries=>{if(!this.destroyed)this.messages=entries;},
+      error:()=>{}
+    });
+    this.service.controls(this.event.id).pipe(timeout(10000)).subscribe({
+      next:state=>{
+        if(this.destroyed)return;
+        this.controls=state;
+        if(this.room && !this.connecting && !this.rejoining &&
+            ((state.isGuest && this.role==='VIEWER') ||
+             (!state.isGuest && this.role==='GUEST')))void this.reconnectRole();
+      },
+      error:()=>{}
+    });
+  }
+  private async reconnectRole():Promise<void> {
+    if(this.rejoining)return;
+    this.rejoining=true;
+    const current=this.room;this.room=null;
+    this.cameraOn=false;this.micOn=false;
+    for(const el of this.attached)el.remove();
+    this.attached=[];
+    if(current)await current.disconnect().catch(()=>{});
+    this.rejoining=false;
+    if(!this.destroyed)await this.connect();
+  }
+  isViewerMuted(username:string):boolean {
+    return !!this.controls?.mutedUsernames.some(
+      value=>value.toLowerCase()===username.toLowerCase());
+  }
+  sendMessage():void {
+    const content=this.draft.trim();
+    if(!content||this.sending||!this.room||content.length>500)return;
+    this.sending=true;this.error='';
+    this.service.sendMessage(this.event.id,content).pipe(timeout(10000),
+      finalize(()=>this.sending=false)).subscribe({
+      next:()=>{this.draft='';this.refreshInteractions();},
+      error:()=>{this.error='Não foi possível enviar a mensagem. Verifica se o chat está ativo.';}
+    });
+  }
+  toggleChat():void {
+    if(!this.event.canManage||!this.controls||this.moderationBusy)return;
+    this.moderationBusy=true;
+    this.service.setChatEnabled(this.event.id,!this.controls.chatEnabled).pipe(timeout(10000),
+      finalize(()=>this.moderationBusy=false)).subscribe({
+      next:state=>this.controls=state,
+      error:()=>this.error='Não foi possível alterar a moderação do chat.'
+    });
+  }
+  toggleViewerMute(username:string,muted:boolean):void {
+    if(!this.event.canManage||this.moderationBusy)return;
+    this.moderationBusy=true;
+    this.service.muteViewer(this.event.id,username,muted).pipe(timeout(10000),
+      finalize(()=>this.moderationBusy=false)).subscribe({
+      next:state=>this.controls=state,
+      error:()=>this.error='Não foi possível alterar o silêncio do espectador.'
+    });
+  }
+  requestGuest():void {
+    if(this.event.canManage||this.moderationBusy)return;
+    this.moderationBusy=true;
+    this.service.requestToJoin(this.event.id).pipe(timeout(10000),
+      finalize(()=>this.moderationBusy=false)).subscribe({
+      next:()=>this.refreshInteractions(),
+      error:()=>this.error='Não foi possível enviar o pedido para participar.'
+    });
+  }
+  decideGuest(request:PersonalLiveGuestRequest,approve:boolean):void {
+    if(!this.event.canManage||this.moderationBusy)return;
+    this.moderationBusy=true;
+    this.service.decideGuest(this.event.id,request.id,approve).pipe(timeout(10000),
+      finalize(()=>this.moderationBusy=false)).subscribe({
+      next:()=>this.refreshInteractions(),
+      error:()=>this.error='Não foi possível responder ao pedido.'
+    });
+  }
+  removeGuest():void {
+    if(!this.event.canManage||this.moderationBusy)return;
+    this.moderationBusy=true;
+    this.service.removeGuest(this.event.id).pipe(timeout(10000),
+      finalize(()=>this.moderationBusy=false)).subscribe({
+      next:()=>this.refreshInteractions(),
+      error:()=>this.error='Não foi possível retirar o convidado.'
+    });
+  }
+
   private countParticipants():void {
     if(this.room)this.participantCount=this.room.remoteParticipants.size+1;
   }
@@ -167,6 +363,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   }
   leave():void {
     this.heartbeats?.unsubscribe();this.heartbeats=undefined;
+    this.interactionPoll?.unsubscribe();this.interactionPoll=undefined;
     const active=this.room;this.room=null;
     if(active)void active.disconnect();
     for(const el of this.attached)el.remove();
@@ -180,6 +377,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       this.service.end(this.event.id).pipe(timeout(10000)).subscribe({error:()=>{}});
     }
     this.heartbeats?.unsubscribe();
+    this.interactionPoll?.unsubscribe();
     if(this.room)void this.room.disconnect();
     for(const el of this.attached)el.remove();
     this.attached=[];
