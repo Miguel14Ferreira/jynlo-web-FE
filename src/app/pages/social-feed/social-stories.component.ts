@@ -26,7 +26,7 @@ interface StoryGroup {
   standalone: true,
   imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './social-stories.component.html',
-  styleUrls: ['./social-stories.component.css', './story-create-editor.css']
+  styleUrls: ['./social-stories.component.css', './story-create-editor.css', './social-story-cards.css']
 })
 export class SocialStoriesComponent implements OnInit, OnDestroy {
   entries: SocialStory[] = [];
