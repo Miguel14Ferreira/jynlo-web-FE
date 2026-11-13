@@ -111,7 +111,15 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
 })
 export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
   @Input({required:true}) communityId!: number;
-  @ViewChild('stage') stage?: ElementRef<HTMLElement>;
+  private stageElement?: HTMLElement;
+  private readonly queuedTracks: Array<{kind: Track.Kind; attach: () => HTMLMediaElement}> = [];
+  @ViewChild('stage') set stage(ref: ElementRef<HTMLElement> | undefined) {
+    this.stageElement = ref?.nativeElement;
+    if (this.stageElement) {
+      const tracks = this.queuedTracks.splice(0);
+      for (const track of tracks) this.attach(track);
+    }
+  }
   private readonly api = inject(CommunityLiveService);
   private updates = new Subscription();
   private readonly attached = new Set<HTMLMediaElement>();
@@ -239,8 +247,11 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
   }
 
   private attach(track: {kind: Track.Kind; attach: () => HTMLMediaElement}): void {
-    const stage = this.stage?.nativeElement;
-    if (!stage) return;
+    const stage = this.stageElement;
+    if (!stage) {
+      this.queuedTracks.push(track);
+      return;
+    }
     const element = track.attach();
     if (track.kind === Track.Kind.Video) {
       element.muted = this.hosting;
@@ -279,6 +290,7 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
     room?.disconnect();
     for (const element of this.attached) element.remove();
     this.attached.clear();
+    this.queuedTracks.length = 0;
   }
 
   ngOnDestroy(): void {
