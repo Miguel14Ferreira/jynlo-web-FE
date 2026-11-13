@@ -916,7 +916,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   savingCommunityPostId: number | null = null;
 
   startCommunityPostEdit(entry: CommunityTimelineEntry): void {
-    if (entry.kind !== 'POST' || entry.username.toLowerCase() !== this.currentUsername?.toLowerCase()
+    if (entry.kind !== 'POST' || !this.isMyChatEntry(entry)
         || this.savingCommunityPostId !== null) return;
     this.editingCommunityPostId = entry.id;
     this.editingCommunityPostText = entry.body || '';
@@ -931,7 +931,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   saveCommunityPostEdit(entry: CommunityTimelineEntry): void {
     if (!this.selected || entry.communityId !== this.selected.id
         || this.editingCommunityPostId !== entry.id
-        || entry.username.toLowerCase() !== this.currentUsername?.toLowerCase()
+        || !this.isMyChatEntry(entry)
         || this.savingCommunityPostId !== null) return;
     const content = this.editingCommunityPostText.trim();
     if (content.length > 1000 || (!content && !this.communityPostMedia(entry).length)) {
