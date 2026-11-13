@@ -38,9 +38,10 @@ describe('SocialFeedComponent discovery sidebar', () => {
     }
     socialChanged = new Subject<void>();
     realtimeConnected = new BehaviorSubject<boolean>(false);
-    feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'createPost', 'createPostAlbum', 'editPost', 'hidePost', 'restoreHiddenPost', 'hiddenPosts', 'likers']);
+    feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'postById', 'createPost', 'createPostAlbum', 'editPost', 'deletePost', 'hidePost', 'restoreHiddenPost', 'hiddenPosts', 'likers']);
     feed.feed.and.returnValue(of([]));
     feed.likers.and.returnValue(of([]));
+    feed.deletePost.and.returnValue(of(undefined));
     feed.hidePost.and.returnValue(of(undefined));
     feed.restoreHiddenPost.and.returnValue(of(undefined));
     feed.hiddenPosts.and.returnValue(of([]));
@@ -588,6 +589,45 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(component.postGallery.map(item => item.file)).toEqual([photo, video]);
     expect(component.canPublishPost).toBeTrue();
     component.postGallery = [];
+  }));
+
+  it('asks before deleting a post and keeps it if the dialog is cancelled', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const item: FeedItem = {
+      type:'POST', postId:990, authorUsername:'miguel', authorDisplayName:'Miguel',
+      authorProfilePicUrl:null, content:'Teste', imageUrl:null,
+      createdAt:'2026-11-13T14:00:00Z', sessionId:null, sport:null, city:null,
+      gameDate:null, likeCount:0, likedByMe:false, commentCount:0
+    };
+    component.items = [item];
+    component.requestDeletePost(item);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[role="alertdialog"]')).not.toBeNull();
+    expect(feed.deletePost).not.toHaveBeenCalled();
+    component.cancelDeletePost();
+    expect(component.items).toEqual([item]);
+    component.requestDeletePost(item);
+    component.deletePost(item);
+    expect(feed.deletePost).toHaveBeenCalledOnceWith(990);
+    expect(component.items).toEqual([]);
+    expect(component.pendingDeletePost).toBeNull();
+    fixture.destroy();
+  }));
+
+  it('exposes a real post permalink for native share or manual copying', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const item: FeedItem = {
+      type:'POST',postId:991,authorUsername:'miguel',authorDisplayName:'Miguel',
+      authorProfilePicUrl:null,content:'Partilhar',imageUrl:null,
+      createdAt:'2026-11-13T14:00:00Z',sessionId:null,sport:null,city:null,
+      gameDate:null,likeCount:0,likedByMe:false,commentCount:0
+    };
+    void component.shareFeedPost(item);
+    expect(component.postShareTargetId).toBe(991);
+    expect(component.postShareLink).toContain('/menu/feed?post=991');
+    fixture.destroy();
   }));
 
   it('updates only the authored post caption and location, keeping media and engagement', fakeAsync(() => {
