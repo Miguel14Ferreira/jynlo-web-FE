@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit, Optional, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, Subscription, auditTime, catchError, finalize, forkJoin, of, retry, switchMap, takeUntil, timeout, timer, interval } from 'rxjs';
 
 import { environment } from 'src/environment/environment';
@@ -246,33 +246,63 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   liveMode: 'PERSONAL' | 'COMMUNITY' = 'PERSONAL';
   personalLiveEvents: PersonalLiveEvent[] = [];
   personalLiveRoom: PersonalLiveEvent | null = null;
-  private personalLiveDeepLinkSeen=false;
+  private requestedPersonalLiveId: number | null = null;
+  private openedPersonalLiveId: number | null = null;
+  private personalLiveLoading = false;
   personalLiveError = '';
 
-  refreshPersonalLive(): void {
-    if (!this.personalLiveService) return;
-    this.personalLiveService.active().pipe(timeout(10000),
-      catchError(() => of([] as PersonalLiveEvent[])), takeUntil(this.destroyed))
-      .subscribe(events => {
-        this.personalLiveEvents = events;
-        if (!this.personalLiveDeepLinkSeen) {
-          const raw=this.route.snapshot.queryParamMap.get('personalLive');
-          if (raw && /^[1-9][0-9]{0,12}$/.test(raw)) {
-            const match=events.find(event=>event.id===Number(raw));
-            if(match) {
-              this.personalLiveDeepLinkSeen=true;
-              this.watchPersonalLive(match);
-            }
-          }
-        }
-      });
+  private openRequestedPersonalLive(): void {
+    const id = this.requestedPersonalLiveId;
+    if (id === null || id === this.openedPersonalLiveId) return;
+    const event = this.personalLiveEvents.find(item => item.id === id && item.status === 'LIVE');
+    if (event) {
+      this.openedPersonalLiveId = id;
+      this.personalLiveError = '';
+      this.watchPersonalLive(event);
+    } else if (!this.personalLiveLoading) {
+      this.personalLiveError = 'Este direto já terminou ou não está disponível.';
+    }
   }
+
+  refreshPersonalLive(): void {
+    if (!this.personalLiveService || this.personalLiveLoading) return;
+    this.personalLiveLoading = true;
+    this.personalLiveService.active().pipe(
+      timeout(10000),
+      takeUntil(this.destroyed),
+      finalize(() => this.personalLiveLoading = false)
+    ).subscribe({
+      next: events => {
+        this.personalLiveEvents = events;
+        this.personalLiveError = '';
+        this.openRequestedPersonalLive();
+      },
+      error: () => {
+        if (this.requestedPersonalLiveId !== null)
+          this.personalLiveError = 'Não foi possível carregar este direto. Tenta novamente.';
+      }
+    });
+  }
+
   watchPersonalLive(event: PersonalLiveEvent): void {
     if (event.status !== 'LIVE') return;
-    this.personalLiveRoom=event;
+    this.personalLiveRoom = event;
+    if (this.requestedPersonalLiveId === event.id) this.openedPersonalLiveId = event.id;
   }
+
   closePersonalLiveRoom(): void {
-    this.personalLiveRoom=null;
+    const dismissedId = this.personalLiveRoom?.id;
+    this.personalLiveRoom = null;
+    this.openedPersonalLiveId = null;
+    if (dismissedId !== undefined && this.requestedPersonalLiveId === dismissedId) {
+      this.requestedPersonalLiveId = null;
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { personalLive: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      });
+    }
     this.refreshPersonalLive();
   }
   liveComposerOpen = false;
@@ -889,6 +919,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     private sessionService: SessionService,
     private authenticationService: AuthenticationService,
     private route: ActivatedRoute,
+    private router: Router,
     private communityService: CommunityService,
     @Optional() private communityGroupsService: CommunityGroupsService | null = null,
     @Optional() private realtime: DirectChatRealtimeService | null = null,
@@ -912,6 +943,17 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.prepareNewSessionShare();
     this.loadCompletedSessions();
     this.loadMyWeekCommunities();
+    this.route.queryParamMap.pipe(takeUntil(this.destroyed)).subscribe(params => {
+      const raw = params.get('personalLive');
+      const valid = raw && /^[1-9][0-9]{0,12}$/.test(raw) && Number.isSafeInteger(Number(raw));
+      const id = valid ? Number(raw) : null;
+      if (id !== this.requestedPersonalLiveId) {
+        this.requestedPersonalLiveId = id;
+        this.openedPersonalLiveId = null;
+        if (id !== null && this.personalLiveEvents.length) this.openRequestedPersonalLive();
+        else if (id !== null && !this.personalLiveLoading) this.refreshPersonalLive();
+      }
+    });
     this.refreshPersonalLive();
     interval(20000).pipe(takeUntil(this.destroyed)).subscribe(() => this.refreshPersonalLive());
     // Suggestions and weekly vacancies still need discovery; the composer does not.
