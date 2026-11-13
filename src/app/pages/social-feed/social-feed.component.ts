@@ -769,6 +769,57 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   reportedPostIds = new Set<number>();
   openCommentPosts = new Set<number>();
   commentsByPost: Record<number, SocialComment[]> = {};
+  editingCommentId: number | null = null;
+  editingCommentDraft = '';
+  savingCommentId: number | null = null;
+  likingCommentId: number | null = null;
+
+  beginCommentEdit(comment:SocialComment):void {
+    if (comment.authorUsername !== this.currentUsername || this.savingCommentId!==null) return;
+    this.editingCommentId=comment.id;
+    this.editingCommentDraft=comment.content;
+  }
+  cancelCommentEdit():void {
+    if (this.savingCommentId!==null) return;
+    this.editingCommentId=null;
+    this.editingCommentDraft='';
+  }
+  saveCommentEdit(postId:number,comment:SocialComment):void {
+    if (this.editingCommentId!==comment.id || this.savingCommentId!==null ||
+        comment.authorUsername!==this.currentUsername) return;
+    const value=this.editingCommentDraft.trim();
+    if (!value || value.length>500) {
+      this.actionError='O comentário deve ter entre 1 e 500 caracteres.';
+      return;
+    }
+    if (value===comment.content) {this.cancelCommentEdit();return;}
+    this.savingCommentId=comment.id;
+    this.feedService.editComment(postId,comment.id,value).pipe(timeout(10000),
+      finalize(()=>this.savingCommentId=null),takeUntil(this.destroyed)).subscribe({
+        next:updated=>{
+          Object.assign(comment,updated);
+          this.editingCommentId=null;
+          this.editingCommentDraft='';
+        },
+        error:()=>this.actionError='Não foi possível editar o comentário. Tenta novamente.'
+      });
+  }
+  toggleCommentLike(postId:number,comment:SocialComment):void {
+    if (this.likingCommentId!==null) return;
+    this.likingCommentId=comment.id;
+    const call=comment.likedByMe
+      ? this.feedService.unlikeComment(postId,comment.id)
+      : this.feedService.likeComment(postId,comment.id);
+    call.pipe(timeout(10000),finalize(()=>this.likingCommentId=null),
+      takeUntil(this.destroyed)).subscribe({
+        next:updated=>{
+          comment.likeCount=updated.likeCount;
+          comment.likedByMe=updated.likedByMe;
+        },
+        error:()=>this.actionError='Não foi possível atualizar o gosto no comentário.'
+      });
+  }
+
   commentDrafts: Record<number, string> = {};
   errorMessage = '';
   actionError = '';
