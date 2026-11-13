@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnDestroy, Output } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { SocialStory } from '../model/social-story';
 
@@ -99,6 +99,12 @@ export class ProfileStoryViewerComponent implements OnDestroy {
   @Output() closed=new EventEmitter<void>();
   index=0;
   progress=0;
+  @HostListener('document:keydown.escape')
+  onEscape():void {this.closed.emit();}
+  @HostListener('document:keydown.arrowright')
+  onArrowRight():void {this.next();}
+  @HostListener('document:keydown.arrowleft')
+  onArrowLeft():void {this.previous();}
   muted=true;
   imageReady=false;
   mediaError=false;
