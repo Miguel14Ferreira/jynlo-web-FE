@@ -426,3 +426,39 @@ h1 {
 .error-actions>.error-home-action:hover{border-color:#64e2d0;background:#3182865c;color:#fff}
 .error-actions>:is(button,a):focus-visible{outline:2px solid #83ffe7;outline-offset:3px}
 @media(max-width:500px){.error-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}.error-actions>:is(button,a){width:100%}}
+
+/* Small-screen invitation landing: content-first, no sideways overflow. */
+.public-session-page, .public-session-page * { box-sizing: border-box; }
+.public-session-shell, .session-layout, .session-main, .join-panel,
+.guest-rsvp, .member-rsvp, .guest-reservation-actions { min-width: 0; }
+.public-session-page :is(h1,h2,h3,p,a,button,label,strong,small,span) {
+ overflow-wrap: anywhere;
+}
+@media (max-width: 767px) {
+ .public-session-page { padding: 1.25rem .75rem max(2rem, env(safe-area-inset-bottom)); }
+ .public-header { margin: 0 0 1rem; gap: .65rem; flex-wrap: wrap; }
+ .public-header .brand { font-size: 1.45rem; }
+ .public-header .header-login { max-width: 100%; padding: .55rem .8rem; }
+ .session-layout { display: flex; flex-direction: column; gap: .85rem; }
+ .session-layout > * { width: 100%; max-width: 100%; min-width: 0; }
+ .session-main, .join-panel, .state-card { padding: 1rem; border-radius: 1rem; }
+ .session-main h1 { font-size: clamp(1.5rem, 7vw, 2.1rem); line-height: 1.2; }
+ .session-main .intro { line-height: 1.5; }
+ .session-photo { max-height: 220px; margin: .85rem 0; }
+ .session-facts { grid-template-columns: minmax(0, 1fr); gap: .55rem; margin-top: .95rem; }
+ .session-facts .fact { min-width: 0; padding: .75rem; }
+ .guest-rsvp, .member-rsvp { padding: .85rem; gap: .75rem; }
+ .guest-rsvp :is(input,select,textarea),
+ .invitation-inline-login input { font-size: 16px; max-width: 100%; }
+ .join-panel :is(button,a,.primary-action,.secondary-action) { max-width: 100%; }
+ .jynlo-action, .guest-rsvp-primary, .guest-rsvp-back,
+ .share-session-action, .whatsapp-share-action { width: 100%; min-height: 44px; white-space: normal; }
+ .guest-rsvp-identity { font-size: 1rem; padding: .9rem .6rem; }
+ .guest-confirmed-player { flex-basis: 100%; }
+ .invite-mfa-countdown { gap: .4rem; }
+}
+@media (max-width: 360px) {
+ .public-session-page { padding-inline: .5rem; }
+ .session-main, .join-panel { padding: .75rem; }
+ .guest-rsvp { padding: .7rem; }
+}
