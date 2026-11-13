@@ -218,6 +218,9 @@
           {{ posting ? ('feed.publishing' | t) : ('feed.publish' | t) }}
         </button>
       </div>
+      @if (actionError) {
+        <p class="feedback error-feedback feed-post-error" role="alert">{{ actionError }}</p>
+      }
     </section>
 
     <section class="week-hub jynlo-premium-week" [attr.aria-label]="'week.title' | t">
@@ -322,9 +325,6 @@
       </div>
     }
 
-    @if (actionError) {
-      <div class="feedback error-feedback" role="alert">{{ actionError }}</div>
-    }
 
     <div class="feed-v3-post-heading"><h2>{{ 'feed.v3.latest' | t }}</h2><a class="feed-inline-link" routerLink="/menu/discover">{{ 'nav.discover' | t }} <span aria-hidden="true">↗</span></a></div>
     @if (loading) {
