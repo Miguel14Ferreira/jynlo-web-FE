@@ -764,14 +764,14 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     // endpoint. Only multi-file galleries need the newer batch endpoint.
     // This also preserves compatibility when frontend and backend deploys
     // temporarily run different versions.
-    const onlyGalleryFile = kind === 'POST' && this.feedGallery.length === 1
-      ? this.feedGallery[0].file : undefined;
+    const onlyGalleryFile = kind === 'POST' && (this.feedGallery?.length ?? 0) === 1
+      ? this.feedGallery?.[0]?.file : undefined;
     const send = onlyGalleryFile
       ? this.timelineService.sendPostWithMedia(communityId, text,
           onlyGalleryFile.type.startsWith('image/') ? onlyGalleryFile : undefined,
           onlyGalleryFile.type.startsWith('video/') ? onlyGalleryFile : undefined)
-      : kind === 'POST' && this.feedGallery.length > 1
-      ? this.timelineService.sendPostAlbum(communityId, text, this.feedGallery.map(item => item.file))
+      : kind === 'POST' && (this.feedGallery?.length ?? 0) > 1
+      ? this.timelineService.sendPostAlbum(communityId, text, (this.feedGallery ?? []).map(item => item.file))
       : kind === 'POST' && (this.feedImageFile || this.feedVideoFile)
       ? this.timelineService.sendPostWithMedia(
           communityId, text, this.feedImageFile, this.feedVideoFile)
