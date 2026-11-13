@@ -58,6 +58,25 @@
       }
     </section>
 
+    @if (pendingDeletePost; as postToDelete) {
+      <div class="feed-confirm-backdrop" (click)="cancelDeletePost()">
+        <section class="feed-confirm-dialog" role="alertdialog" aria-modal="true"
+                 aria-labelledby="feed-delete-title" aria-describedby="feed-delete-description"
+                 (click)="$event.stopPropagation()">
+          <h3 id="feed-delete-title">Apagar publicação?</h3>
+          <p id="feed-delete-description">Esta publicação e os seus anexos serão eliminados. Não é possível anular esta ação.</p>
+          <div class="feed-confirm-actions">
+            <button type="button" [disabled]="deletingPostId !== null"
+                    (click)="cancelDeletePost()">Cancelar</button>
+            <button type="button" class="feed-confirm-danger" [disabled]="deletingPostId !== null"
+                    (click)="deletePost(postToDelete)">
+              {{ deletingPostId !== null ? 'A apagar…' : 'Sim, apagar' }}
+            </button>
+          </div>
+        </section>
+      </div>
+    }
+
     <div class="feed-post-dialog-backdrop" [class.feed-post-dialog-visible]="postComposerOpen"
          [attr.aria-hidden]="postComposerOpen ? null : 'true'"
          (click)="closePostComposer()"></div>
@@ -585,7 +604,7 @@
       </section>
       <div class="feed-list">
         @for (item of fullFeedItems; track item.type + '-' + (item.postId || item.sessionId) + '-' + item.createdAt) {
-          <article class="feed-card">
+          <article class="feed-card" [id]="item.type === 'POST' && item.postId != null ? 'jynlo-post-' + item.postId : null">
             <div class="feed-author">
               <a
                 class="feed-author-link"
@@ -630,17 +649,35 @@
               @if (item.type === 'POST' && item.authorUsername === currentUsername) {
                 <button type="button" class="jynlo-action jynlo-action--neutral"
                         [disabled]="savingPostId !== null" (click)="beginEditPost(item)"
-                        aria-label="Editar descrição e localização da publicação">Editar</button>
+                        aria-label="Editar apenas descrição e localização">Editar descrição</button>
                 <button
                   type="button"
                   class="delete-post jynlo-action jynlo-action--danger jynlo-premium-btn jynlo-premium-btn--danger jynlo-premium-btn--small"
                   [disabled]="deletingPostId !== null"
-                  (click)="deletePost(item)">
+                  (click)="requestDeletePost(item)">
                   {{ deletingPostId === item.postId ? ('common.processing' | t) : ('feed.delete' | t) }}
                 </button>
               }
             </div>
 
+            @if (item.type === 'POST' && item.postId != null) {
+              <div class="feed-post-share">
+                <button type="button" class="jynlo-action jynlo-action--neutral"
+                  (click)="shareFeedPost(item)" aria-label="Partilhar publicação">
+                  <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <path d="m22 2-7 20-4-9-9-4zM22 2 11 13"/>
+                  </svg>
+                  Partilhar
+                </button>
+                @if (postShareTargetId === item.postId) {
+                  <div class="feed-share-copy" role="status">
+                    <span>{{ postShareMessage || 'Link da publicação' }}</span>
+                    <input [value]="postShareLink" readonly aria-label="Link para partilhar publicação"
+                       (focus)="$any($event.target).select()" (click)="$any($event.target).select()">
+                  </div>
+                }
+              </div>
+            }
             @if (item.type === 'POST') {
               @if (editingPostId === item.postId) {
                 <div class="feed-post-edit" aria-label="Editar publicação">
