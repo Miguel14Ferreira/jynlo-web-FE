@@ -113,3 +113,17 @@
 .feed-photo-overlay-hint { color: #b7d1d6; font-size: .8rem; }
 .feed-photo-editor-actions { display: flex; justify-content: flex-end; gap: .5rem; flex-wrap: wrap; }
 .feed-photo-editor-actions button { border-radius: .6rem; min-height: 40px; padding: .5rem .8rem; }
+
+
+.feed-live-community { margin: .65rem 0 1rem; padding: .85rem 1rem; display: grid; gap: .65rem; background: linear-gradient(115deg, #102b39, #112431); border: 1px solid rgba(248,113,113,.32); border-radius: .85rem; }
+.feed-live-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .35rem; }
+.feed-live-heading strong { color: #f8fafc; }
+.feed-live-heading strong span { color: #fb7185; }
+.feed-live-heading > span { color: #bed0d5; font-size: .76rem; }
+.feed-live-list { display: grid; gap: .45rem; }
+.feed-live-entry { display: flex; align-items: center; justify-content: space-between; gap: .65rem; flex-wrap: wrap; border: 1px solid rgba(148,163,184,.17); border-radius: .6rem; padding: .55rem .7rem; }
+.feed-live-entry div { flex: 1 1 170px; min-width: 0; display: grid; gap: .15rem; }
+.feed-live-entry strong { overflow-wrap: anywhere; }
+.feed-live-entry small { color: #b8d1d4; }
+.feed-live-entry a { display: inline-flex; padding: .55rem .7rem; min-height: 38px; align-items: center; border-radius: .55rem; text-decoration: none; font-weight: 700; color: #e6fffb; background: #137569; }
+.feed-live-entry a:hover { background: #0f766e; }
