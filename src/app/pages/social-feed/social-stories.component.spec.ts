@@ -246,6 +246,37 @@ describe('SocialStoriesComponent', () => {
     component.close();
   }));
 
+  it('publishes real venue labels and a selected member tag, restoring the viewer overlays', fakeAsync(() => {
+    fixture.detectChanges();
+    tick();
+    component.openComposer();
+    const teammate = { username: 'ana', fullName: 'Ana Silva', nickname: null } as any;
+    (component as any).storyProfileIndex = [teammate];
+    component.searchStoryTag('Ana');
+    expect(component.storyTagResults.map(profile => profile.username)).toEqual(['ana']);
+    component.addStoryTag(teammate);
+    component.storyLocation = 'Campo de Benfica, Lisboa';
+    const photo = new File(['photo'], 'jogo.jpg', { type: 'image/jpeg' });
+    component.file = photo;
+    api.publish.and.returnValue(of({ ...picture, id: 155, locationLabel: component.storyLocation,
+      taggedUsernames: 'ana' }));
+    component.publish();
+    expect(api.publish).toHaveBeenCalledWith(photo, '', null, {
+      textPosition: 'bottom', textScale: 'medium', textStyle: 'pill',
+      altText: '', showTime: false,
+      locationLabel: 'Campo de Benfica, Lisboa', taggedUsernames: 'ana'
+    });
+    expect(component.storyLocation).toBe('');
+    expect(component.storyTaggedProfiles).toEqual([]);
+    component.showStory(component.mineEntries[0]);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.story-viewer-place')?.textContent)
+      .toContain('Campo de Benfica');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.story-viewer-tags a')?.textContent)
+      .toContain('ana');
+    component.close();
+  }));
+
   it('keeps accessibility descriptions and an optional time sticker linked to the published Story', fakeAsync(() => {
     fixture.detectChanges();
     tick();
