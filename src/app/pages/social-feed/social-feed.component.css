@@ -1266,3 +1266,67 @@ h1 {
  .composer-create-stage--with-media .composer-place-label{order:3}
  .composer-create-stage--with-media .composer-place-input{order:4}
 }
+
+
+/* Album photos must be entirely visible, including portrait and panoramic formats. */
+.feed-media-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  margin-top: .85rem;
+  background: transparent;
+  cursor: zoom-in;
+}
+.feed-media-open:focus-visible { outline: 3px solid #34d399; outline-offset: 3px; }
+.feed-media-open .post-image {
+  width: 100%;
+  height: auto;
+  max-height: min(75vh, 750px);
+  margin-top: 0;
+  object-fit: contain;
+}
+.feed-media-open--extra { margin-top: 0; }
+.feed-media-open--extra img { width: 100%; max-height: 280px; object-fit: contain; }
+.feed-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(0, 0, 0, .9);
+  display: grid;
+  place-items: center;
+  padding: clamp(.5rem, 2vw, 2rem);
+}
+.feed-lightbox-dialog { width: min(100%, 1100px); max-height: 100%; min-width: 0; }
+.feed-lightbox-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #fff;
+  padding: .3rem .5rem;
+}
+.feed-lightbox-toolbar button,
+.feed-lightbox-arrow {
+  border: 0;
+  background: rgba(255,255,255,.14);
+  color: #fff;
+  cursor: pointer;
+  border-radius: .75rem;
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 1.8rem;
+}
+.feed-lightbox-stage { display: flex; align-items: center; justify-content: center; gap: .5rem; }
+.feed-lightbox-stage img,
+.feed-lightbox-stage video { display: block; max-width: calc(100% - 104px); max-height: 82vh; width: auto; height: auto; object-fit: contain; }
+.feed-lightbox-stage:not(:has(.feed-lightbox-arrow)) img,
+.feed-lightbox-stage:not(:has(.feed-lightbox-arrow)) video { max-width: 100%; }
+.feed-lightbox-arrow { flex: 0 0 44px; }
+.feed-lightbox-toolbar button:focus-visible,
+.feed-lightbox-arrow:focus-visible { outline: 3px solid #34d399; outline-offset: 2px; }
+@media (max-width: 600px) {
+  .feed-lightbox { padding: .4rem; }
+  .feed-lightbox-stage { gap: .15rem; }
+  .feed-lightbox-arrow { flex-basis: 40px; min-width: 40px; }
+  .feed-lightbox-stage img,.feed-lightbox-stage video { max-width: calc(100% - 82px); }
+}
