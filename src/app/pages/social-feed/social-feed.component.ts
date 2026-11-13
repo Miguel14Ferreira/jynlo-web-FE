@@ -328,6 +328,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   photoTextInk: 'white' | 'yellow' | 'black' = 'white';
   photoTextPlacement: TextPlacement = {x:50,y:50,rotation:0,scale:1};
   photoTextPreview = '';
+  photoTextAspect = '4 / 3';
   photoTextSaving = false;
   photoTextError = '';
 
@@ -339,6 +340,14 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.photoTextPlacement = {x:50,y:50,rotation:0,scale:1};
     if (this.photoTextPreview) URL.revokeObjectURL(this.photoTextPreview);
     this.photoTextPreview = URL.createObjectURL(file);
+    this.photoTextAspect = '4 / 3';
+    const previewUrl = this.photoTextPreview;
+    const image = new Image();
+    image.onload = () => {
+      if (this.photoTextPreview === previewUrl && image.naturalWidth && image.naturalHeight)
+        this.photoTextAspect = image.naturalWidth + ' / ' + image.naturalHeight;
+    };
+    image.src = previewUrl;
     this.photoTextError = '';
   }
 
