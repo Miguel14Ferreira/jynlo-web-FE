@@ -1,14 +1,17 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { Track } from 'livekit-client';
 import { CommunityLivePanelComponent } from './community-live-panel.component';
 import { CommunityLiveService, CommunityLiveEvent } from '../../services/community-live.service';
 
 describe('Community broadcast panel', () => {
   let live: jasmine.SpyObj<CommunityLiveService>;
+  let queryParams = convertToParamMap({});
 
   beforeEach(async () => {
+    queryParams = convertToParamMap({});
     live = jasmine.createSpyObj<CommunityLiveService>(
       'CommunityLiveService', ['capabilities', 'list', 'schedule', 'start', 'end', 'join', 'heartbeat']);
     live.capabilities.and.returnValue(of({canManage:true,enabled:true}));
@@ -17,9 +20,31 @@ describe('Community broadcast panel', () => {
     live.heartbeat.and.returnValue(of(undefined));
     await TestBed.configureTestingModule({
       imports: [CommunityLivePanelComponent],
-      providers: [{provide:CommunityLiveService, useValue:live}]
+      providers: [
+        {provide:CommunityLiveService, useValue:live},
+        {provide:ActivatedRoute, useValue:{snapshot:{queryParamMap:{
+          get: (key: string) => queryParams.get(key)
+        }}}}
+      ]
     }).compileComponents();
   });
+
+  it('joins only the deep-linked active broadcast in the selected community', fakeAsync(() => {
+    queryParams = convertToParamMap({liveEvent:'88'});
+    const now = new Date().toISOString();
+    const liveEvent: CommunityLiveEvent = {
+      id:88, communityId:7, title:'Direto', description:null,
+      status:'LIVE', scheduledAt:now, startedAt:now, endedAt:null, canManage:true
+    };
+    live.list.and.returnValue(of([liveEvent]));
+    const fixture=TestBed.createComponent(CommunityLivePanelComponent);
+    const join=spyOn(fixture.componentInstance,'join').and.resolveTo();
+    fixture.componentRef.setInput('communityId',7);
+    fixture.detectChanges();
+    tick(0);
+    expect(join).toHaveBeenCalledOnceWith(liveEvent);
+    fixture.destroy();
+  }));
 
   it('lets an organizer schedule the first live event even when the community has no events', () => {
     const fixture=TestBed.createComponent(CommunityLivePanelComponent);
