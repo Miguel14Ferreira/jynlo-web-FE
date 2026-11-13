@@ -1,7 +1,9 @@
+import { TextPlacement } from './movable-text.component';
 /** Draw authored overlay text into image bytes so sharing preserves the edit. */
 export async function addTextToPhoto(file: File, text: string,
   position: 'top' | 'center' | 'bottom' = 'center',
-  ink: 'white' | 'yellow' | 'black' = 'white'): Promise<File> {
+  ink: 'white' | 'yellow' | 'black' = 'white',
+  placement?: TextPlacement): Promise<File> {
   const caption = text.trim().slice(0, 120);
   if (!caption) return file;
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type))
@@ -43,20 +45,29 @@ export async function addTextToPhoto(file: File, text: string,
     if (line) lines.push(line);
     if (lines.length > 5) throw new Error('O texto é demasiado longo para caber na fotografia');
     const blockHeight = lines.length * lineHeight + fontSize * .8;
-    const centerY = position === 'top' ? margin + blockHeight / 2
+    const centerY = placement ? height * placement.y / 100
+      : position === 'top' ? margin + blockHeight / 2
       : position === 'bottom' ? height - margin - blockHeight / 2
       : height / 2;
+    const centerX = placement ? width * placement.x / 100 : width / 2;
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    if (placement) {
+      ctx.rotate(placement.rotation * Math.PI / 180);
+      ctx.scale(placement.scale, placement.scale);
+    }
     ctx.fillStyle = ink === 'black' ? 'rgba(255,255,255,.78)' : 'rgba(1,9,20,.68)';
     ctx.beginPath();
-    const left = margin / 2;
-    const top = centerY - blockHeight / 2;
+    const left = -(width - margin) / 2;
+    const top = -blockHeight / 2;
     ctx.roundRect(left, top, width - margin, blockHeight, Math.max(8, fontSize / 3));
     ctx.fill();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = ink === 'yellow' ? '#fef08a' : ink === 'black' ? '#020617' : '#ffffff';
-    lines.forEach((value, i) => ctx.fillText(value, width / 2,
+    lines.forEach((value, i) => ctx.fillText(value, 0,
       top + fontSize * .4 + lineHeight * (i + .55), width - margin * 1.8));
+    ctx.restore();
     const mime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
     const blob = await new Promise<Blob>((resolve, reject) =>
       canvas.toBlob(value => value ? resolve(value) : reject(new Error('Não foi possível guardar a fotografia')), mime, .88));
