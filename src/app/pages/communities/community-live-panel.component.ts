@@ -72,6 +72,11 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
             <button type="button" (click)="leave()">Sair</button>
           </div>
           <div class="live-media" #stage aria-label="Vídeo e áudio da transmissão"></div>
+          @if (!hosting) {
+            <button type="button" class="live-audio-unlock" (click)="unlockAudio()">
+              Ativar som da transmissão
+            </button>
+          }
           @if (hosting) {
             <div class="live-host-tools">
               <button type="button" (click)="toggleCamera()"> {{ cameraOn ? 'Desligar câmara' : 'Ligar câmara' }} </button>
@@ -262,6 +267,22 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
     }
     this.attached.add(element);
     stage.appendChild(element);
+  }
+
+  /** Mobile Safari may block autoplay until the viewer explicitly taps.
+   * This action is always triggered directly by a user gesture.
+   */
+  unlockAudio(): void {
+    if (!this.room) return;
+    for (const element of this.attached) {
+      if (element instanceof HTMLAudioElement) {
+        try { void element.play().catch(() => {
+          this.error = 'Não foi possível iniciar o áudio. Verifica o som do dispositivo.';
+        }); } catch {
+          this.error = 'O navegador bloqueou o áudio. Verifica as permissões.';
+        }
+      }
+    }
   }
 
   async toggleCamera(): Promise<void> {
