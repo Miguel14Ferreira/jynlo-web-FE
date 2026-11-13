@@ -1693,7 +1693,38 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   editingPostId: number | null = null;
   editingPostContent = '';
   editingPostLocation = '';
+  editingPostReplacementFiles: File[] = [];
+  editingPostReplaceMedia = false;
+  editingPostMediaError = '';
   savingPostId: number | null = null;
+
+  selectEditPostMedia(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files || []);
+    input.value = '';
+    if (files.length > 6 || files.some(file =>
+      !['image/jpeg','image/png','image/webp','video/mp4','video/webm'].includes(file.type)
+      || file.size > 20 * 1024 * 1024)
+      || files.reduce((sum, file) => sum + file.size, 0) > 60 * 1024 * 1024) {
+      this.editingPostMediaError = 'Escolhe até 6 fotografias/vídeos (máximo 20 MB por ficheiro e 60 MB no total).';
+      return;
+    }
+    this.editingPostReplacementFiles = files;
+    this.editingPostReplaceMedia = true;
+    this.editingPostMediaError = '';
+  }
+
+  keepEditPostMedia(): void {
+    this.editingPostReplaceMedia = false;
+    this.editingPostReplacementFiles = [];
+    this.editingPostMediaError = '';
+  }
+
+  removeEditPostMedia(): void {
+    this.editingPostReplaceMedia = true;
+    this.editingPostReplacementFiles = [];
+    this.editingPostMediaError = '';
+  }
 
   beginEditPost(item: FeedItem): void {
     if (item.type !== 'POST' || item.postId == null
@@ -1701,12 +1732,14 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.editingPostId = item.postId;
     this.editingPostContent = item.content || '';
     this.editingPostLocation = item.location || '';
+    this.keepEditPostMedia();
     this.actionError = '';
   }
 
   cancelEditPost(): void {
     if (this.savingPostId !== null) return;
     this.editingPostId = null;
+    this.keepEditPostMedia();
   }
 
   savePostEdit(item: FeedItem): void {
@@ -1715,19 +1748,27 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     const content = this.editingPostContent.trim();
     const location = this.editingPostLocation.trim();
     if (content.length > 1000 || location.length > 160
-        || (!content && !this.mediaForPost(item).length)) {
+        || (!content && (this.editingPostReplaceMedia
+          ? !this.editingPostReplacementFiles.length : !this.mediaForPost(item).length))) {
       this.actionError = 'Adiciona uma descrição ou mantém uma fotografia/vídeo. Máximo de 1000 caracteres.';
       return;
     }
     this.savingPostId = item.postId;
     this.actionError = '';
-    this.feedService.editPost(item.postId, content, location)
-      .pipe(timeout(10_000), finalize(() => this.savingPostId = null))
-      .subscribe({
+    const request = this.editingPostReplaceMedia
+      ? this.feedService.editPostWithMedia(item.postId, content, location,
+          this.editingPostReplacementFiles, true)
+      : this.feedService.editPost(item.postId, content, location);
+    request.pipe(timeout(this.editingPostReplaceMedia ? 90000 : 10000),
+      finalize(() => this.savingPostId = null)).subscribe({
         next: updated => {
           item.content = updated.content;
           item.location = updated.location;
+          item.imageUrl = updated.imageUrl;
+          item.videoUrl = updated.videoUrl;
+          item.extraMedia = updated.extraMedia;
           this.editingPostId = null;
+          this.keepEditPostMedia();
         },
         error: () => this.actionError = 'Não foi possível guardar a edição. A publicação original mantém-se.'
       });
