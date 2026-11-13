@@ -652,6 +652,65 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     this.timelineError = '';
   }
 
+  moveCommunityFeedGalleryItem(index: number, direction: -1 | 1): void {
+    if (this.timelineSending || index < 0 || index >= this.feedGallery.length) return;
+    const destination = index + direction;
+    if (destination < 0 || destination >= this.feedGallery.length) return;
+    const [item] = this.feedGallery.splice(index, 1);
+    this.feedGallery.splice(destination, 0, item);
+  }
+
+  readonly communityPostMediaIndex: Record<number, number> = {};
+
+  communityPostMedia(entry: CommunityTimelineEntry): { url: string; mimeType: string }[] {
+    const media: { url: string; mimeType: string }[] = [];
+    if (entry.imageUrl) media.push({ url: entry.imageUrl, mimeType: 'image/jpeg' });
+    if (entry.videoUrl) media.push({ url: entry.videoUrl, mimeType: 'video/mp4' });
+    for (const extra of entry.extraMedia ?? []) {
+      if (extra.url && (extra.mimeType.startsWith('image/') || extra.mimeType.startsWith('video/'))) {
+        media.push(extra);
+      }
+    }
+    return media;
+  }
+
+  communityPostCurrentIndex(entry: CommunityTimelineEntry): number {
+    const index = this.communityPostMediaIndex[entry.id] ?? 0;
+    const length = this.communityPostMedia(entry).length;
+    return index >= 0 && index < length ? index : 0;
+  }
+
+  selectCommunityPostMedia(entry: CommunityTimelineEntry, index: number): void {
+    if (index < 0 || index >= this.communityPostMedia(entry).length) return;
+    this.communityPostMediaIndex[entry.id] = index;
+  }
+
+  changeCommunityPostMedia(entry: CommunityTimelineEntry, direction: -1 | 1): void {
+    const next = this.communityPostCurrentIndex(entry) + direction;
+    const length = this.communityPostMedia(entry).length;
+    if (length < 2) return;
+    this.selectCommunityPostMedia(entry, Math.min(length - 1, Math.max(0, next)));
+  }
+
+  private communityPostTouch: { id: number; x: number; y: number } | null = null;
+
+  startCommunityPostSwipe(event: TouchEvent, entry: CommunityTimelineEntry): void {
+    if (this.communityPostMedia(entry).length < 2) return;
+    const touch = event.changedTouches[0];
+    if (touch) this.communityPostTouch = { id: entry.id, x: touch.clientX, y: touch.clientY };
+  }
+
+  endCommunityPostSwipe(event: TouchEvent, entry: CommunityTimelineEntry): void {
+    const start = this.communityPostTouch;
+    this.communityPostTouch = null;
+    const touch = event.changedTouches[0];
+    if (!start || start.id !== entry.id || !touch) return;
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    if (Math.abs(dx) < 45 || Math.abs(dx) <= Math.abs(dy) * 1.3) return;
+    this.changeCommunityPostMedia(entry, dx < 0 ? 1 : -1);
+  }
+
   removeCommunityFeedGalleryItem(index: number): void {
     if (this.timelineSending || index < 0 || index >= (this.feedGallery?.length ?? 0)) return;
     const [item] = this.feedGallery.splice(index, 1);
