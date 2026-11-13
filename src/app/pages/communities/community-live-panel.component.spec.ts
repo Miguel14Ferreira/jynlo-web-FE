@@ -37,6 +37,53 @@ describe('Community broadcast panel', () => {
     fixture.destroy();
   });
 
+  it('starts a live broadcast immediately only for community owners and joins the presenter room', fakeAsync(() => {
+    const now = new Date().toISOString();
+    const scheduled: CommunityLiveEvent = {
+      id: 57, communityId: 7, title: 'Direto de futebol', description: null,
+      status: 'SCHEDULED', scheduledAt: now, startedAt: null, endedAt: null, canManage: true
+    };
+    const started: CommunityLiveEvent = { ...scheduled, status: 'LIVE', startedAt: now };
+    live.schedule.and.returnValue(of(scheduled));
+    live.start.and.returnValue(of(started));
+    live.list.and.returnValue(of([started]));
+    const fixture = TestBed.createComponent(CommunityLivePanelComponent);
+    fixture.componentRef.setInput('communityId', 7);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    const join = spyOn(component, 'join').and.resolveTo();
+    component.title = ' Direto de futebol ';
+    const button = fixture.nativeElement.querySelector('.live-go-now') as HTMLButtonElement;
+    expect(button).not.toBeNull();
+    expect(button.disabled).toBeFalse();
+    button.click();
+    expect(live.schedule).toHaveBeenCalledWith(7, 'Direto de futebol', '', jasmine.any(String));
+    expect(live.start).toHaveBeenCalledOnceWith(7, 57);
+    expect(join).toHaveBeenCalledOnceWith(started);
+    expect(component.title).toBe('');
+    fixture.destroy();
+  }));
+
+  it('never creates a live event without broadcast permissions or while another is live', () => {
+    const fixture = TestBed.createComponent(CommunityLivePanelComponent);
+    fixture.componentRef.setInput('communityId', 7);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.canManage = false;
+    component.goLiveNow();
+    expect(live.schedule).not.toHaveBeenCalled();
+    component.canManage = true;
+    component.events = [{
+      id: 99, communityId: 7, title: 'Jogo em direto', description: null,
+      status: 'LIVE', scheduledAt: new Date().toISOString(),
+      startedAt: new Date().toISOString(), endedAt: null, canManage: true
+    }];
+    component.goLiveNow();
+    expect(live.schedule).not.toHaveBeenCalled();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.live-go-now')?.hasAttribute('disabled')).toBeTrue();
+    fixture.destroy();
+  });
+
   it('never displays stream controls when the provider is not configured', () => {
     live.capabilities.and.returnValue(of({canManage:true,enabled:false}));
     const fixture=TestBed.createComponent(CommunityLivePanelComponent);
