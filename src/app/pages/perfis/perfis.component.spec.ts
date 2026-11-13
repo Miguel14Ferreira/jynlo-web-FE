@@ -128,6 +128,7 @@ describe('PerfisComponent', () => {
       createdAt:now,expiresAt:new Date(Date.now()+3600000).toISOString(),canDelete:false
     };
     stories.profile.and.returnValue(of([story]));
+    component.profilePage = true;
     (component as any).loadProfile('ana');
     fixture.detectChanges();
     const avatar=fixture.nativeElement.querySelector('.profile-story-avatar--active') as HTMLButtonElement;
