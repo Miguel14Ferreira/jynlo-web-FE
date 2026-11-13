@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit, Optional, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subject, auditTime, catchError, finalize, forkJoin, of, retry, switchMap, takeUntil, timeout, timer, interval } from 'rxjs';
+import { Subject, Subscription, auditTime, catchError, finalize, forkJoin, of, retry, switchMap, takeUntil, timeout, timer, interval } from 'rxjs';
 
 import { environment } from 'src/environment/environment';
 import { appTranslate as t } from '../../i18n/i18n.service';
@@ -383,6 +383,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   postLocationOpen = false;
   postLocationError = '';
   private postLocationQuerySerial = 0;
+  private postLocationSearchSubscription?: Subscription;
 
   /** Debounced real map search; typing alone never creates a location sticker. */
   onPostLocationQuery(value: string): void {
@@ -393,9 +394,10 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.postRealPlaces = [];
     this.postLocationError = '';
     const serial = ++this.postLocationQuerySerial;
+    this.postLocationSearchSubscription?.unsubscribe();
     this.postLocationLoading = this.postLocationOpen;
     if (!this.postLocationOpen) return;
-    timer(400).pipe(
+    this.postLocationSearchSubscription = timer(400).pipe(
       switchMap(() => this.realPlaceSearch.search(query).pipe(
         timeout(8000), catchError(() => of([] as RealPlace[])))),
       takeUntil(this.destroyed)
