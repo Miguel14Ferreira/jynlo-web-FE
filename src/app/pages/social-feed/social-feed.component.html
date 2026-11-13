@@ -162,9 +162,11 @@
         rows="3"
         [disabled]="posting"
         [placeholder]="'feed.sharePlaceholder' | t"></textarea>
+      <p class="composer-caption-optional">Descrição opcional — podes publicar apenas fotografias ou vídeos.</p>
 
       @if (postImagePreview || postVideoPreview || postGallery.length) {
-        <div class="composer-media" aria-label="Pré-visualização dos anexos">
+        <div class="composer-media" [class.composer-media--single]="postImagePreview || postVideoPreview || postGallery.length === 1"
+          aria-label="Pré-visualização dos anexos">
           <div class="composer-media-heading">
             <div class="composer-media-title">
               <strong>Fotografias e vídeos</strong>
@@ -260,7 +262,7 @@
         <button
           class="composer-publish jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary"
           type="button"
-          [disabled]="posting || !postContent.trim()"
+          [disabled]="!canPublishPost"
           (click)="publish()">
           {{ posting ? ('feed.publishing' | t) : ('feed.publish' | t) }}
         </button>
