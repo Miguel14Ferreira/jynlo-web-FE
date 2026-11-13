@@ -10,10 +10,11 @@ describe('Community broadcast panel', () => {
 
   beforeEach(async () => {
     live = jasmine.createSpyObj<CommunityLiveService>(
-      'CommunityLiveService', ['capabilities', 'list', 'schedule', 'start', 'end', 'join']);
+      'CommunityLiveService', ['capabilities', 'list', 'schedule', 'start', 'end', 'join', 'heartbeat']);
     live.capabilities.and.returnValue(of({canManage:true,enabled:true}));
     live.list.and.returnValue(of([]));
     live.schedule.and.returnValue(of({} as CommunityLiveEvent));
+    live.heartbeat.and.returnValue(of(undefined));
     await TestBed.configureTestingModule({
       imports: [CommunityLivePanelComponent],
       providers: [{provide:CommunityLiveService, useValue:live}]
@@ -153,6 +154,42 @@ describe('Community broadcast panel', () => {
     expect(disconnect).toHaveBeenCalled();
     fixture.destroy();
   });
+
+  it('keeps the host active with periodic heartbeats until leaving', fakeAsync(() => {
+    const fixture=TestBed.createComponent(CommunityLivePanelComponent);
+    fixture.componentRef.setInput('communityId',7);
+    fixture.detectChanges();
+    const c=fixture.componentInstance;
+    const room={disconnect:jasmine.createSpy('disconnect')};
+    c.room=room as any;
+    c.hosting=true;
+    (c as any).startPresenterHeartbeat(c.room,7,25);
+    tick(0);
+    expect(live.heartbeat).toHaveBeenCalledOnceWith(7,25);
+    tick(20001);
+    expect(live.heartbeat).toHaveBeenCalledTimes(2);
+    c.leave();
+    tick(40000);
+    expect(live.heartbeat).toHaveBeenCalledTimes(2);
+    fixture.destroy();
+  }));
+
+  it('disconnects when the server rejects a host heartbeat after ending a live', fakeAsync(() => {
+    const fixture=TestBed.createComponent(CommunityLivePanelComponent);
+    fixture.componentRef.setInput('communityId',7);
+    fixture.detectChanges();
+    const c=fixture.componentInstance;
+    const disconnect=jasmine.createSpy('disconnect');
+    c.room={disconnect} as any;
+    c.hosting=true;
+    live.heartbeat.and.returnValue(throwError(() => new HttpErrorResponse({status:409})));
+    (c as any).startPresenterHeartbeat(c.room,7,25);
+    tick(0);
+    expect(disconnect).toHaveBeenCalled();
+    expect(c.room).toBeNull();
+    expect(c.error).toContain('direto terminou');
+    fixture.destroy();
+  }));
 
   it('prevents viewers from seeing host scheduling tools', () => {
     live.capabilities.and.returnValue(of({canManage:false,enabled:true}));
