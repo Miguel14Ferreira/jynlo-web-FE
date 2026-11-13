@@ -61,11 +61,27 @@ import { SocialFeedService } from '../../services/social-feed.service';
                 <a [routerLink]="['/menu/perfis',comment.authorUsername]" (click)="closed.emit()">
                   <strong>{{comment.authorDisplayName}}</strong>
                 </a>
-                <p>{{comment.content}}</p>
+                @if (editingCommentId === comment.id) {
+                  <div class="post-comment-edit">
+                    <textarea [(ngModel)]="commentEditDraft" maxlength="500" rows="2"
+                      [disabled]="busyComment === comment.id" aria-label="Editar comentário"></textarea>
+                    <div class="post-comment-edit-actions">
+                      <button type="button" (click)="saveCommentEdit(comment)"
+                        [disabled]="busyComment === comment.id || !commentEditDraft.trim()">Guardar</button>
+                      <button type="button" (click)="cancelCommentEdit()" [disabled]="busyComment === comment.id">Cancelar</button>
+                    </div>
+                  </div>
+                } @else {
+                  <p>{{comment.content}}</p>
+                }
                 <button type="button" [disabled]="busyComment===comment.id"
                   (click)="toggleCommentLike(comment)" [attr.aria-pressed]="!!comment.likedByMe">
                   {{comment.likedByMe?'♥':'♡'}} {{comment.likeCount||0}}
                 </button>
+                @if (comment.authorUsername.toLowerCase() === viewerUsername.toLowerCase()
+                     && editingCommentId !== comment.id) {
+                  <button type="button" (click)="startCommentEdit(comment)">Editar</button>
+                }
                 @if(comment.editedAt){<small>Editado</small>}
               </div>
             }
@@ -113,6 +129,11 @@ import { SocialFeedService } from '../../services/social-feed.service';
     .post-viewer-comment p{margin:5px 0;overflow-wrap:anywhere}
     .post-viewer-comment button{font-size:12px;padding:3px 8px}
     .post-viewer-comment small{margin-left:8px;color:#a0bec5}
+    .post-comment-edit{display:grid;gap:8px;margin:8px 0}
+    .post-comment-edit textarea{width:100%;box-sizing:border-box;min-height:68px;resize:vertical;
+      border-radius:8px;border:1px solid #477780;background:#0c303c;color:white;padding:9px}
+    .post-comment-edit-actions{display:flex;gap:8px;align-items:center}
+    .post-comment-edit-actions button:disabled{opacity:.5;cursor:not-allowed}
     .post-viewer-comment-form{display:flex;gap:8px}
     .post-viewer-comment-form input{flex:1;min-width:0;border:1px solid #477780;
       background:#0c303c;border-radius:8px;padding:10px;color:white}
@@ -127,6 +148,7 @@ import { SocialFeedService } from '../../services/social-feed.service';
 })
 export class ProfilePostViewerComponent implements OnChanges {
   @Input({required:true}) post!:FeedItem;
+  @Input() viewerUsername='';
   @Output() closed=new EventEmitter<void>();
   private readonly feed=inject(SocialFeedService);
   index=0;
@@ -151,6 +173,8 @@ export class ProfilePostViewerComponent implements OnChanges {
   busy=false;
   sending=false;
   busyComment:number|null=null;
+  editingCommentId:number|null=null;
+  commentEditDraft='';
   shareMessage='';
   get media():{url:string;mimeType:string}[]{
     return [
@@ -159,7 +183,7 @@ export class ProfilePostViewerComponent implements OnChanges {
       ...(this.post.extraMedia||[])
     ];
   }
-  ngOnChanges():void{this.index=0;this.loadComments();}
+  ngOnChanges():void{this.index=0;this.editingCommentId=null;this.commentEditDraft='';this.loadComments();}
   change(step:number):void{if(this.media.length)this.index=(this.index+step+this.media.length)%this.media.length;}
   encode(value:string):string{return encodeURIComponent(value);}
   loadComments():void{
@@ -188,6 +212,28 @@ export class ProfilePostViewerComponent implements OnChanges {
     request.pipe(timeout(10000),finalize(()=>this.busyComment=null)).subscribe({
       next:result=>{comment.likedByMe=result.likedByMe;comment.likeCount=result.likeCount;},
       error:()=>this.error='Não foi possível atualizar o gosto.'
+    });
+  }
+  startCommentEdit(comment:SocialComment):void {
+    if (comment.authorUsername.toLowerCase()!==this.viewerUsername.toLowerCase())return;
+    this.editingCommentId=comment.id;
+    this.commentEditDraft=comment.content;
+  }
+  cancelCommentEdit():void {
+    if(this.busyComment===this.editingCommentId)return;
+    this.editingCommentId=null;this.commentEditDraft='';
+  }
+  saveCommentEdit(comment:SocialComment):void {
+    if(this.post.postId==null||this.busyComment!=null||this.editingCommentId!==comment.id
+      ||comment.authorUsername.toLowerCase()!==this.viewerUsername.toLowerCase())return;
+    const content=this.commentEditDraft.trim();
+    if(!content||content.length>500){this.error='O comentário deve ter entre 1 e 500 caracteres.';return;}
+    if(content===comment.content){this.cancelCommentEdit();return;}
+    this.busyComment=comment.id;
+    this.feed.editComment(this.post.postId,comment.id,content).pipe(timeout(10000),
+      finalize(()=>this.busyComment=null)).subscribe({
+      next:updated=>{Object.assign(comment,updated);this.editingCommentId=null;this.commentEditDraft='';},
+      error:()=>this.error='Não foi possível guardar o comentário.'
     });
   }
   submitComment():void{
