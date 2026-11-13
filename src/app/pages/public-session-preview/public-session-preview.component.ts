@@ -982,6 +982,7 @@ export class PublicSessionPreviewComponent implements OnInit, OnDestroy {
     return this.session && this.sessionId !== null && Number.isSafeInteger(this.sessionId)
       && this.sessionId > 0
       ? 'jynlo://sessions/' + this.sessionId
+        + (this.guestToken ? '?guest=' + encodeURIComponent(this.guestToken) : '')
       : null;
   }
 
