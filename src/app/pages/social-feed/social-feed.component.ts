@@ -950,8 +950,14 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       if (id !== this.requestedPersonalLiveId) {
         this.requestedPersonalLiveId = id;
         this.openedPersonalLiveId = null;
-        if (id !== null && this.personalLiveEvents.length) this.openRequestedPersonalLive();
-        else if (id !== null && !this.personalLiveLoading) this.refreshPersonalLive();
+        this.personalLiveError = '';
+        if (id !== null) {
+          // Changing the permalink must not keep the previous stream visible.
+          if (this.personalLiveRoom && this.personalLiveRoom.id !== id)
+            this.personalLiveRoom = null;
+          if (this.personalLiveEvents.length) this.openRequestedPersonalLive();
+          else if (!this.personalLiveLoading) this.refreshPersonalLive();
+        }
       }
     });
     this.refreshPersonalLive();
