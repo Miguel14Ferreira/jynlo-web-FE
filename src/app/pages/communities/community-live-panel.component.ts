@@ -62,7 +62,17 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
           <label>Data e hora
             <input name="liveDate" type="datetime-local" [(ngModel)]="date" required [disabled]="busy"/>
           </label>
-          <button type="submit" [disabled]="busy || !title.trim() || !date">Agendar transmissão</button>
+          <div class="live-create-actions">
+            <button type="submit" class="secondary" [disabled]="busy || !title.trim() || !date">
+              Agendar transmissão
+            </button>
+            <button type="button" class="live-go-now" [disabled]="busy || !!room || hasActiveBroadcast"
+                    (click)="goLiveNow()">
+              ● Entrar em direto agora
+            </button>
+          </div>
+          <p class="live-create-help">O direto usa a tua câmara e microfone após clicares em iniciar.
+            Podes desligá-los durante a transmissão. Apenas os responsáveis da comunidade podem transmitir.</p>
         </form>
       }
       @if (room) {
@@ -119,6 +129,11 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
     .live-schedule{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
     .live-schedule label{display:grid;gap:5px;font-size:.81rem}
     .live-schedule label:first-child,.live-schedule label:nth-child(2){grid-column:1/-1}
+    .live-create-actions{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap}
+    .live-create-actions button{flex:1 1 190px;min-height:44px}
+    .live-create-actions .live-go-now{background:#0c8b70;border-color:#5eead4;font-weight:750}
+    .live-create-help{grid-column:1/-1;color:#b1cbcd;font-size:.75rem;margin:0}
+
     .live-error{background:#3c2331;color:#ffd1df;padding:9px;border-radius:8px}
     .live-player{display:grid;gap:10px}
     .live-player-header,.live-host-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -213,6 +228,40 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
     this.api.list(this.communityId).pipe(timeout(10000)).subscribe({
       next: events => { if (version === this.requestVersion) { this.events = events; this.error = ''; } },
       error: () => { this.error = 'Não foi possível atualizar as transmissões.'; }
+    });
+  }
+
+  get hasActiveBroadcast(): boolean {
+    return this.events.some(event => event.status === 'LIVE');
+  }
+
+  /** One deliberate click schedules for now, starts the authorized room, then
+   * enters as presenter; browser capture never begins just by opening a page. */
+  goLiveNow(): void {
+    if (this.busy || this.room || !this.communityId || !this.canManage || !this.enabled
+        || this.hasActiveBroadcast) return;
+    const communityId = this.communityId;
+    const title = this.title.trim() || 'Direto da comunidade';
+    const description = this.description.trim();
+    this.busy = true;
+    this.error = '';
+    this.api.schedule(communityId, title, description, new Date().toISOString()).pipe(
+      timeout(12000),
+      switchMap(scheduled => this.api.start(communityId, scheduled.id).pipe(timeout(12000))),
+      finalize(() => this.busy = false)
+    ).subscribe({
+      next: started => {
+        if (this.communityId !== communityId) return;
+        this.title = '';
+        this.description = '';
+        this.date = '';
+        this.load();
+        void this.join(started);
+      },
+      error: () => {
+        this.error = 'Não foi possível iniciar o direto. Verifica as permissões e a disponibilidade do vídeo.';
+        this.load();
+      }
     });
   }
 
