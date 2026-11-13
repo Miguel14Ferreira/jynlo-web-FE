@@ -247,3 +247,16 @@
 }
 .feed-photo-direct-stage .feed-photo-image-rotate {left:7px;top:7px;}
 .feed-photo-direct-stage .feed-photo-image-resize {right:7px;bottom:7px;}
+
+/* Consistent bare-X dismissal and dark photo edit buttons. */
+.feed-page .composer .feed-photo-text-editor header button {
+  background:transparent!important;border:0!important;border-radius:0!important;
+  box-shadow:none!important;width:35px;height:35px;color:#f1f5f9;
+  cursor:pointer;font-size:1.55rem;
+}
+.feed-page .composer .composer-photo-edit-btn {
+  background:#103440!important;color:#d9fff6!important;
+  border:1px solid rgba(45,212,191,.55)!important;
+  border-radius:.55rem!important;box-shadow:none!important;
+  font-weight:750;padding:.45rem .7rem;
+}
