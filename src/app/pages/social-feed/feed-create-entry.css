@@ -1,0 +1,61 @@
+/* Unified Facebook/Instagram-inspired entry and authored Jynlo post dialog. */
+.feed-create-entry {
+  display: grid; gap: .75rem; padding: 1rem; margin: 0 0 1rem;
+  border: 1px solid rgba(148, 163, 184, .25); border-radius: 1rem;
+  background: linear-gradient(130deg, #102b39, #0a202c);
+}
+.feed-create-prompt {
+  width: 100%; display: flex; align-items: center; gap: .85rem; padding: .55rem;
+  border: 0; border-radius: .85rem; background: transparent; color: #cbd5e1;
+  cursor: pointer; text-align: left; font: inherit;
+}
+.feed-create-prompt > span:last-child {
+  flex: 1; background: rgba(148, 163, 184, .13); border-radius: 2rem;
+  min-width: 0; padding: .9rem 1rem; font-size: .94rem;
+}
+.feed-create-avatar,.feed-post-author-avatar {
+  flex: none; display: grid; place-items: center;
+  width: 44px; height: 44px; border-radius: 50%; color: #022c22;
+  background: linear-gradient(140deg, #5eead4, #14b8a6); font-weight: 800;
+}
+.feed-create-actions { display: flex; align-items: stretch; justify-content: space-between; gap: .5rem; border-top: 1px solid rgba(148,163,184,.18); padding-top: .75rem; }
+.feed-create-actions > * { min-width: 0; flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: .4rem; border: 0; border-radius: .6rem; background: transparent; color: #d9e9ed; font: inherit; font-size: .84rem; font-weight: 650; padding: .6rem .25rem; text-align: center; text-decoration: none; cursor: pointer; }
+.feed-create-actions > *:hover,.feed-create-prompt:hover { background: rgba(94,234,212,.08); }
+.feed-create-actions > * span { color: #5eead4; font-size: 1.1rem; }
+.feed-post-dialog-backdrop { display: none; }
+.feed-post-dialog-backdrop.feed-post-dialog-visible { display: block; position: fixed; inset: 0; z-index: 1298; background: rgba(1,8,14,.82); backdrop-filter: blur(8px); }
+.feed-page .composer {
+  display: none; position: fixed; z-index: 1299; left: 50%; top: 50%;
+  transform: translate(-50%, -50%); width: min(590px, calc(100vw - 24px));
+  max-height: min(92dvh, 900px); overflow-y: auto; overscroll-behavior: contain;
+  padding: 0 1.15rem 1.25rem; border: 1px solid rgba(94,234,212,.26);
+  border-radius: 1rem; background: #101d27; color: #f1f5f9;
+  box-shadow: 0 25px 85px rgba(0,0,0,.58);
+}
+.feed-page .composer.feed-post-dialog-open { display: grid; gap: .75rem; }
+.feed-post-dialog-header {
+  position: sticky; top: 0; z-index: 2; display: flex; align-items: center;
+  justify-content: center; padding: 1rem .1rem; background: #101d27;
+  border-bottom: 1px solid rgba(148,163,184,.2);
+}
+.feed-post-dialog-header strong { font-size: 1.05rem; }
+.feed-post-dialog-close {
+  position: absolute; right: 0; top: .56rem; border: 0; background: #293844;
+  color: #f1f5f9; width: 38px; height: 38px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 1.5rem; cursor: pointer;
+}
+.feed-post-author { display: flex; align-items: center; gap: .7rem; }
+.feed-post-author div { display: grid; gap: .15rem; }
+.feed-post-author small { color: #acc2ca; font-size: .76rem; }
+.feed-page .composer .composer-heading { align-items: center; }
+.feed-page .composer textarea { min-height: 96px; }
+.feed-page .composer .composer-media { max-height: 48dvh; overflow-y: auto; }
+.feed-page .composer .composer-media-frame { max-height: min(44dvh,400px); }
+.feed-create-entry button:focus-visible,.feed-create-entry a:focus-visible,
+.feed-page .composer button:focus-visible { outline: 2px solid #5eead4; outline-offset: 3px; }
+@media(max-width:650px) {
+  .feed-create-entry { padding: .8rem; }
+  .feed-create-actions > * { font-size: .75rem; }
+  .feed-page .composer { top: 0; left: 0; transform: none; width: 100vw;
+    height: 100dvh; max-height: 100dvh; border-radius: 0; box-sizing: border-box; }
+}
