@@ -5,6 +5,7 @@ on:
     branches: [develop]
     paths:
       - 'src/app/pages/social-feed/**'
+      - 'src/app/pages/perfis/**'
       - 'src/app/services/social-stories.service.ts'
       - 'src/app/pages/model/social-story.ts'
       - 'src/app/pages/model/friend-summary.ts'
@@ -35,4 +36,4 @@ jobs:
       - name: Story and feed interaction regressions
         env:
           CHROME_BIN: /usr/bin/google-chrome
-        run: npx ng test --watch=false --browsers=ChromeHeadless --include=src/app/pages/social-feed/social-stories.component.spec.ts --include=src/app/pages/social-feed/social-feed.component.spec.ts --include=src/app/pages/social-feed/movable-text.component.spec.ts
+        run: npx ng test --watch=false --browsers=ChromeHeadless --include=src/app/pages/social-feed/social-stories.component.spec.ts --include=src/app/pages/social-feed/social-feed.component.spec.ts --include=src/app/pages/social-feed/movable-text.component.spec.ts --include=src/app/pages/perfis/perfis.component.spec.ts
