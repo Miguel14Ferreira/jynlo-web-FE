@@ -66,6 +66,16 @@ export class SocialFeedService {
     return this.http.post<FeedItem>(this.baseUrl + '/posts', form);
   }
 
+  editPostWithMedia(postId: number, content: string, location: string,
+      replacementFiles: File[], replaceMedia: boolean): Observable<FeedItem> {
+    const form = new FormData();
+    form.append('content', content);
+    form.append('location', location.trim());
+    form.append('replaceMedia', String(replaceMedia));
+    for (const file of replacementFiles) form.append('files', file, file.name);
+    return this.http.put<FeedItem>(this.baseUrl + '/posts/' + postId + '/media', form);
+  }
+
   /** Creates or retrieves a persistent post linked to a public attendance activity. */
   ensureAttendancePost(sessionId: number, attendeeUsername: string): Observable<number> {
     return this.http.post<number>(
