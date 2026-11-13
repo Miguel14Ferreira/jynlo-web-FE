@@ -467,6 +467,18 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   photoTextPlacement: TextPlacement = {x:50,y:50,rotation:0,scale:1};
   photoTextPreview = '';
   photoTextAspect = '4 / 3';
+  resetPhotoEditor(): void {
+    this.photoTextPlacement = {x:50,y:50,rotation:0,scale:1};
+    this.photoImageRotation = 0;
+    this.photoImageZoom = 1;
+    this.photoImageX = 0;
+    this.photoImageY = 0;
+    this.photoTextInk = 'white';
+    this.photoTextBackground = 'dark';
+    this.photoTextFont = 'modern';
+    this.photoTextError = '';
+  }
+
   photoTextSaving = false;
   photoTextError = '';
 
@@ -561,6 +573,25 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   postVideoFile?: File;
   postVideoPreview = '';
   postGallery: { file: File; url: string }[] = [];
+  postGalleryIndex = 0;
+  galleryTouchStartX: number | null = null;
+  showPostGallery(index: number): void {
+    if (index >= 0 && index < this.postGallery.length) this.postGalleryIndex = index;
+  }
+  shiftPostGallery(step: number): void {
+    if (!this.postGallery.length) return;
+    this.postGalleryIndex = (this.postGalleryIndex + step + this.postGallery.length) % this.postGallery.length;
+  }
+  onComposerGalleryTouchStart(event: TouchEvent): void {
+    this.galleryTouchStartX = event.changedTouches[0]?.clientX ?? null;
+  }
+  onComposerGalleryTouchEnd(event: TouchEvent): void {
+    if (this.galleryTouchStartX == null) return;
+    const difference = (event.changedTouches[0]?.clientX ?? this.galleryTouchStartX) - this.galleryTouchStartX;
+    if (Math.abs(difference) > 45) this.shiftPostGallery(difference < 0 ? 1 : -1);
+    this.galleryTouchStartX = null;
+  }
+
   // Populated only by verified deep links from session details.
   availableSessions: SessionSummary[] = [];
   private readonly destroyed = new Subject<void>();
@@ -1227,6 +1258,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.removePostImage();
     this.removePostVideo();
     this.postGallery.push(...files.map(file => ({file, url: URL.createObjectURL(file)})));
+    this.postGalleryIndex = Math.max(0, this.postGallery.length - files.length);
     this.actionError = '';
   }
 
@@ -1236,17 +1268,20 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     if (destination < 0 || destination >= this.postGallery.length) return;
     const [item] = this.postGallery.splice(index, 1);
     this.postGallery.splice(destination, 0, item);
+    this.postGalleryIndex = destination;
   }
 
   removePostGalleryItem(index: number): void {
     if (this.posting || index < 0 || index >= this.postGallery.length) return;
     const [item] = this.postGallery.splice(index, 1);
     URL.revokeObjectURL(item.url);
+    this.postGalleryIndex = Math.min(this.postGalleryIndex, Math.max(0, this.postGallery.length - 1));
   }
 
   clearPostGallery(): void {
     for (const item of this.postGallery) URL.revokeObjectURL(item.url);
     this.postGallery = [];
+    this.postGalleryIndex = 0;
   }
 
   // A single lightbox covers the primary photo and every album attachment.
