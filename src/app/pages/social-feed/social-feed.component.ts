@@ -18,6 +18,8 @@ import { SessionSummary } from '../model/session-summary';
 import { FeedItem, SocialComment } from '../model/feed-item';
 import { FollowProfile } from '../model/follow';
 import { CommunityProfile } from '../model/community-profile';
+import { VenueService } from '../../services/venue.service';
+import { Venue } from '../model/venue';
 
 @Component({
   selector: 'app-social-feed',
@@ -234,6 +236,85 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     if (this.postComposerOpen) this.closePostComposer();
   }
 
+  postLocationSuggestions: Venue[] = [];
+  postLocationLoading = false;
+  postLocationOpen = false;
+  postLocationError = '';
+  private postLocationQuerySerial = 0;
+
+  /** Search Jynlo's actual sports venues instead of inventing places. */
+  onPostLocationQuery(value: string): void {
+    const query = value.trim();
+    this.postLocationOpen = query.length >= 2;
+    this.postLocationSuggestions = [];
+    this.postLocationError = '';
+    const serial = ++this.postLocationQuerySerial;
+    if (!this.postLocationOpen || !this.venueService) return;
+    this.postLocationLoading = true;
+    forkJoin([
+      this.venueService.suggest(query, undefined, undefined, 0).pipe(catchError(() => of({ venues: [], page: 0, hasMore: false }))),
+      this.venueService.suggest(undefined, query, undefined, 0).pipe(catchError(() => of({ venues: [], page: 0, hasMore: false })))
+    ]).pipe(timeout(10_000), takeUntil(this.destroyed)).subscribe({
+      next: pages => {
+        if (serial !== this.postLocationQuerySerial || !this.postLocationOpen) return;
+        const seen = new Set<number>();
+        this.postLocationSuggestions = pages.flatMap(page => page.venues)
+          .filter(place => !seen.has(place.id) && !!seen.add(place.id)).slice(0, 8);
+        this.postLocationLoading = false;
+      },
+      error: () => {
+        if (serial !== this.postLocationQuerySerial) return;
+        this.postLocationLoading = false;
+        this.postLocationError = 'Não foi possível pesquisar recintos. Podes escrever a localização.';
+      }
+    });
+  }
+
+  selectPostLocation(place: Venue): void {
+    this.postLocation = [place.name, place.city].filter(Boolean).join(', ').slice(0, 160);
+    this.postLocationOpen = false;
+    this.postLocationSuggestions = [];
+    this.postLocationQuerySerial++;
+  }
+
+  postTagSearchOpen = false;
+  postTagSuggestions: CommunityProfile[] = [];
+  postTagSearchLoading = false;
+  private postTagProfiles: CommunityProfile[] = [];
+
+  openPostTagSearch(): void {
+    this.postTagSearchOpen = !this.postTagSearchOpen;
+    if (!this.postTagSearchOpen) return;
+    this.postTagSearchLoading = true;
+    this.communityService.discoverProfiles().pipe(
+      timeout(10_000), catchError(() => of([] as CommunityProfile[])),
+      takeUntil(this.destroyed)
+    ).subscribe(profiles => {
+      this.postTagProfiles = profiles.filter(profile =>
+        !!profile.username && profile.username.toLowerCase() !== this.currentUsername.toLowerCase());
+      this.postTagSuggestions = this.postTagProfiles.slice(0, 8);
+      this.postTagSearchLoading = false;
+    });
+  }
+
+  postTagQuery = '';
+
+  searchPostTags(query: string): void {
+    const needle = query.trim().replace(/^@/, '').toLocaleLowerCase();
+    this.postTagSuggestions = this.postTagProfiles.filter(profile =>
+      profile.username.toLocaleLowerCase().includes(needle)
+      || (profile.fullName || '').toLocaleLowerCase().includes(needle)).slice(0, 8);
+  }
+
+  tagPostProfile(profile: CommunityProfile): void {
+    const mention = '@' + profile.username;
+    if (!this.postContent.includes(mention) && this.postContent.length + mention.length + 1 <= 1000) {
+      this.postContent += (this.postContent.trim() ? ' ' : '') + mention + ' ';
+    }
+    this.postTagQuery = '';
+    this.postTagSearchOpen = false;
+  }
+
   postContent = '';
   postLocation = '';
   postImageFile?: File;
@@ -392,7 +473,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private communityService: CommunityService,
     @Optional() private communityGroupsService: CommunityGroupsService | null = null,
-    @Optional() private realtime: DirectChatRealtimeService | null = null
+    @Optional() private realtime: DirectChatRealtimeService | null = null,
+    @Optional() private venueService: VenueService | null = null
   ) {
     this.authenticationService.isLoggedIn();
     this.currentUsername = this.authenticationService.loggedInPerfilname || '';
