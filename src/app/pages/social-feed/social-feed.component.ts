@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit, Optional, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subject, auditTime, catchError, finalize, forkJoin, of, retry, switchMap, takeUntil, timeout, timer } from 'rxjs';
+import { Subject, auditTime, catchError, finalize, forkJoin, of, retry, switchMap, takeUntil, timeout, timer, interval } from 'rxjs';
 
 import { environment } from 'src/environment/environment';
 import { appTranslate as t } from '../../i18n/i18n.service';
@@ -247,12 +247,25 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   liveMode: 'PERSONAL' | 'COMMUNITY' = 'PERSONAL';
   personalLiveEvents: PersonalLiveEvent[] = [];
   personalLiveRoom: PersonalLiveEvent | null = null;
+  private personalLiveDeepLinkSeen=false;
   personalLiveError = '';
 
   refreshPersonalLive(): void {
     this.personalLiveService.active().pipe(timeout(10000),
       catchError(() => of([] as PersonalLiveEvent[])), takeUntil(this.destroyed))
-      .subscribe(events => this.personalLiveEvents = events);
+      .subscribe(events => {
+        this.personalLiveEvents = events;
+        if (!this.personalLiveDeepLinkSeen) {
+          const raw=this.route.snapshot.queryParamMap.get('personalLive');
+          if (raw && /^[1-9][0-9]{0,12}$/.test(raw)) {
+            const match=events.find(event=>event.id===Number(raw));
+            if(match) {
+              this.personalLiveDeepLinkSeen=true;
+              this.watchPersonalLive(match);
+            }
+          }
+        }
+      });
   }
   watchPersonalLive(event: PersonalLiveEvent): void {
     if (event.status !== 'LIVE') return;
@@ -809,6 +822,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.loadCompletedSessions();
     this.loadMyWeekCommunities();
     this.refreshPersonalLive();
+    interval(20000).pipe(takeUntil(this.destroyed)).subscribe(() => this.refreshPersonalLive());
     // Suggestions and weekly vacancies still need discovery; the composer does not.
     this.loadingSessions = true;
     this.sessionService.discover({
