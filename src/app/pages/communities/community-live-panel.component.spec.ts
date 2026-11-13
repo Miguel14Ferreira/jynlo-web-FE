@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError, Subject } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Track } from 'livekit-client';
 import { CommunityLivePanelComponent } from './community-live-panel.component';
 import { CommunityLiveService, CommunityLiveEvent } from '../../services/community-live.service';
@@ -88,6 +89,58 @@ describe('Community broadcast panel', () => {
     expect(live.end).toHaveBeenCalledOnceWith(7,25);
     expect(disconnect).toHaveBeenCalled();
     expect(c.room).toBeNull();
+    fixture.destroy();
+  });
+
+  it('does not disconnect the presenter on a transient live-event network error', () => {
+    const scheduled: CommunityLiveEvent={
+      id:25,communityId:7,title:'Jogo',description:null,status:'LIVE',
+      scheduledAt:new Date().toISOString(),startedAt:new Date().toISOString(),
+      endedAt:null,canManage:true
+    };
+    const responses=new Subject<CommunityLiveEvent[]>();
+    live.list.and.returnValue(responses.asObservable());
+    const fixture=TestBed.createComponent(CommunityLivePanelComponent);
+    fixture.componentRef.setInput('communityId',7);
+    fixture.detectChanges();
+    const c=fixture.componentInstance;
+    const disconnect=jasmine.createSpy('disconnect');
+    c.room={disconnect} as any;
+    c.active=scheduled;
+    responses.next([scheduled]);
+    live.list.and.returnValue(throwError(() => new HttpErrorResponse({status:0})));
+    // A direct refresh can fail, too. It must not change the current room.
+    c.load();
+    expect(c.room).not.toBeNull();
+    expect(c.active?.id).toBe(25);
+    expect(disconnect).not.toHaveBeenCalled();
+    fixture.destroy();
+  });
+
+  it('disconnects when the server explicitly revokes community access', () => {
+    const event: CommunityLiveEvent={
+      id:25,communityId:7,title:'Jogo',description:null,status:'LIVE',
+      scheduledAt:new Date().toISOString(),startedAt:new Date().toISOString(),
+      endedAt:null,canManage:false
+    };
+    const fixture=TestBed.createComponent(CommunityLivePanelComponent);
+    fixture.componentRef.setInput('communityId',7);
+    fixture.detectChanges();
+    const c=fixture.componentInstance;
+    const disconnect=jasmine.createSpy('disconnect');
+    c.room={disconnect} as any;
+    c.active=event;
+    live.list.and.returnValue(throwError(() => new HttpErrorResponse({status:403})));
+    // The periodic subscriber is exercised by a new community selection,
+    // with the room retained as if playback had started.
+    fixture.componentRef.setInput('communityId',8);
+    live.capabilities.and.returnValue(of({canManage:false,enabled:true}));
+    c.active=event;
+    c.room={disconnect} as any;
+    fixture.detectChanges();
+    expect(c.enabled).toBeFalse();
+    expect(c.room).toBeNull();
+    expect(disconnect).toHaveBeenCalled();
     fixture.destroy();
   });
 
