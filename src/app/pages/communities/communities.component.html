@@ -823,10 +823,14 @@
                                       [src]="communityFeedMediaUrl(selectedMedia.url)" controls playsinline preload="metadata"
                                       [attr.aria-label]="'Vídeo ' + (communityPostCurrentIndex(entry) + 1)"></video>
                                   } @else {
-                                    <img class="community-feed-post-media"
-                                      [src]="communityFeedMediaUrl(selectedMedia.url)"
-                                      [alt]="'Fotografia ' + (communityPostCurrentIndex(entry) + 1) + ' de ' + communityFeedAuthorName(entry.username)"
-                                      loading="lazy">
+                                    <button type="button" class="community-feed-expand-photo"
+                                            (click)="openCommunityPostMedia(entry)"
+                                            [attr.aria-label]="'Ampliar fotografia ' + (communityPostCurrentIndex(entry) + 1)">
+                                      <img class="community-feed-post-media"
+                                        [src]="communityFeedMediaUrl(selectedMedia.url)"
+                                        [alt]="'Fotografia ' + (communityPostCurrentIndex(entry) + 1) + ' de ' + communityFeedAuthorName(entry.username)"
+                                        loading="lazy">
+                                    </button>
                                   }
                                 }
                                 @if (postMedia.length > 1) {
@@ -5481,4 +5485,33 @@
       </div>
     }
   </div>
+  @if (communityExpandedMedia.length) {
+    <div class="community-feed-lightbox" (click)="closeCommunityPostMedia()">
+      <section class="community-feed-lightbox-dialog" role="dialog" aria-modal="true"
+               aria-label="Fotografias e vídeos da comunidade" (click)="$event.stopPropagation()">
+        <header>
+          <span>{{ communityExpandedMediaIndex + 1 }} / {{ communityExpandedMedia.length }}</span>
+          <button type="button" (click)="closeCommunityPostMedia()" aria-label="Fechar visualização">×</button>
+        </header>
+        <div class="community-feed-lightbox-stage">
+          @if (communityExpandedMedia.length > 1) {
+            <button type="button" class="community-feed-lightbox-arrow"
+                    (click)="shiftCommunityExpandedMedia(-1)" aria-label="Anterior">‹</button>
+          }
+          @if (communityExpandedMedia[communityExpandedMediaIndex].mimeType.startsWith('video/')) {
+            <video controls playsinline preload="metadata"
+                   [src]="communityFeedMediaUrl(communityExpandedMedia[communityExpandedMediaIndex].url)"
+                   aria-label="Vídeo ampliado"></video>
+          } @else {
+            <img [src]="communityFeedMediaUrl(communityExpandedMedia[communityExpandedMediaIndex].url)"
+                 alt="Fotografia completa da comunidade">
+          }
+          @if (communityExpandedMedia.length > 1) {
+            <button type="button" class="community-feed-lightbox-arrow"
+                    (click)="shiftCommunityExpandedMedia(1)" aria-label="Seguinte">›</button>
+          }
+        </div>
+      </section>
+    </div>
+  }
 </section>
