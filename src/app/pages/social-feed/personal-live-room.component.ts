@@ -243,22 +243,38 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       this.error='Não foi possível entrar no direto. Verifica a ligação e as permissões.';
     } finally {this.connecting=false;}
   }
+  private messagesLoading=false;
+  private controlsLoading=false;
+
   refreshInteractions():void {
     if(this.destroyed)return;
-    this.service.messages(this.event.id).pipe(timeout(10000)).subscribe({
-      next:entries=>{if(!this.destroyed)this.messages=entries;},
-      error:()=>{}
-    });
-    this.service.controls(this.event.id).pipe(timeout(10000)).subscribe({
-      next:state=>{
-        if(this.destroyed)return;
-        this.controls=state;
-        if(this.room && !this.connecting && !this.rejoining &&
-            ((state.isGuest && this.role==='VIEWER') ||
-             (!state.isGuest && this.role==='GUEST')))void this.reconnectRole();
-      },
-      error:()=>{}
-    });
+    // Polling runs every three seconds, while a request may take ten.
+    // Never overlap polls of the same resource: an older response could
+    // otherwise overwrite fresh chat messages or guest permissions.
+    if(!this.messagesLoading){
+      this.messagesLoading=true;
+      this.service.messages(this.event.id).pipe(
+        timeout(10000),finalize(()=>this.messagesLoading=false)
+      ).subscribe({
+        next:entries=>{if(!this.destroyed)this.messages=entries;},
+        error:()=>{}
+      });
+    }
+    if(!this.controlsLoading){
+      this.controlsLoading=true;
+      this.service.controls(this.event.id).pipe(
+        timeout(10000),finalize(()=>this.controlsLoading=false)
+      ).subscribe({
+        next:state=>{
+          if(this.destroyed)return;
+          this.controls=state;
+          if(this.room && !this.connecting && !this.rejoining &&
+              ((state.isGuest && this.role==='VIEWER') ||
+               (!state.isGuest && this.role==='GUEST')))void this.reconnectRole();
+        },
+        error:()=>{}
+      });
+    }
   }
   private async reconnectRole():Promise<void> {
     if(this.rejoining)return;
