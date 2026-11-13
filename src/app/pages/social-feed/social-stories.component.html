@@ -136,13 +136,7 @@
                 {{ storyTextStyle === 'pill' ? 'Texto simples' : 'Texto destacado' }}
               </button>
               <p class="story-drag-hint">Arrasta o texto na fotografia. ↻ roda e ↘ ajusta o tamanho.</p>
-              <label class="story-text-size">Tamanho
-                <select [(ngModel)]="storyTextScale" [disabled]="uploading">
-                  <option value="small">Pequeno</option>
-                  <option value="medium">Médio</option>
-                  <option value="large">Grande</option>
-                </select>
-              </label>
+
             </div>
             <section class="story-discovery-options" aria-label="Identificar local e pessoas">
               <label for="storyLocation">Localização (opcional)</label>
