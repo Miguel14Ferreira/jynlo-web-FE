@@ -496,7 +496,11 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     this.uploading = true;
     this.error = '';
     this.publishError = '';
-    this.stories.publish(this.file, this.caption, group).pipe(
+    this.stories.publish(this.file, this.caption, group, {
+      textPosition: this.storyTextPosition,
+      textScale: this.storyTextScale,
+      textStyle: this.storyTextStyle
+    }).pipe(
       timeout(90000),
       finalize(() => this.uploading = false),
       takeUntil(this.destroyed)
