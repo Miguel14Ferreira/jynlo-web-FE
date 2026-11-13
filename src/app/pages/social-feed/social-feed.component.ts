@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit, Optional } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit, Optional, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subject, auditTime, catchError, finalize, forkJoin, of, retry, switchMap, takeUntil, timeout } from 'rxjs';
+import { Subject, auditTime, catchError, finalize, forkJoin, of, retry, switchMap, takeUntil, timeout, timer } from 'rxjs';
 
 import { environment } from 'src/environment/environment';
 import { appTranslate as t } from '../../i18n/i18n.service';
@@ -21,6 +21,7 @@ import { CommunityProfile } from '../model/community-profile';
 import { FriendSummary } from '../model/friend-summary';
 import { VenueService } from '../../services/venue.service';
 import { Venue } from '../model/venue';
+import { RealPlace, RealPlaceSearchService } from '../../services/real-place-search.service';
 import { addTextToPhoto } from './social-photo-text';
 import { TextPlacement } from './movable-text.component';
 import { CommunityLiveEvent, CommunityLiveService } from '../../services/community-live.service';
@@ -325,50 +326,54 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     });
   }
 
+  private readonly realPlaceSearch = inject(RealPlaceSearchService);
   postLocationSuggestions: Venue[] = [];
+  postRealPlaces: RealPlace[] = [];
+  postLocationVerified = false;
   postLocationLoading = false;
   postLocationOpen = false;
   postLocationError = '';
   private postLocationQuerySerial = 0;
 
-  /** Search Jynlo's actual sports venues instead of inventing places. */
+  /** Debounced real map search; typing alone never creates a location sticker. */
   onPostLocationQuery(value: string): void {
     const query = value.trim();
+    this.postLocationVerified = false;
     this.postLocationOpen = query.length >= 2;
     this.postLocationSuggestions = [];
+    this.postRealPlaces = [];
     this.postLocationError = '';
     const serial = ++this.postLocationQuerySerial;
-    if (!this.postLocationOpen || !this.venueService) return;
-    this.postLocationLoading = true;
-    forkJoin([
-      this.venueService.suggest(query, undefined, undefined, 0).pipe(catchError(() => of({ venues: [], page: 0, hasMore: false }))),
-      this.venueService.suggest(undefined, query, undefined, 0).pipe(catchError(() => of({ venues: [], page: 0, hasMore: false })))
-    ]).pipe(timeout(10_000), takeUntil(this.destroyed)).subscribe({
-      next: pages => {
-        if (serial !== this.postLocationQuerySerial || !this.postLocationOpen) return;
-        const seen = new Set<number>();
-        this.postLocationSuggestions = pages.flatMap(page => page.venues)
-          .filter(place => !seen.has(place.id) && !!seen.add(place.id)).slice(0, 8);
-        this.postLocationLoading = false;
-      },
-      error: () => {
-        if (serial !== this.postLocationQuerySerial) return;
-        this.postLocationLoading = false;
-        this.postLocationError = 'Não foi possível pesquisar recintos. Podes escrever a localização.';
-      }
+    this.postLocationLoading = this.postLocationOpen;
+    if (!this.postLocationOpen) return;
+    timer(400).pipe(
+      switchMap(() => this.realPlaceSearch.search(query).pipe(
+        timeout(8000), catchError(() => of([] as RealPlace[])))),
+      takeUntil(this.destroyed)
+    ).subscribe(places => {
+      if (serial !== this.postLocationQuerySerial || !this.postLocationOpen) return;
+      this.postRealPlaces = places;
+      this.postLocationLoading = false;
+      if (!places.length) this.postLocationError =
+        'Não foram encontrados locais verificados. Experimenta escrever o nome completo.';
     });
   }
 
-  selectPostPlaceName(): void {
-    // Geographic labels are first-class locations; sports venues are optional.
-    this.postLocation = this.postLocation.trim().slice(0, 160);
+  selectPostRealPlace(place: RealPlace): void {
+    this.postLocation = [place.label, place.subtitle].filter(Boolean).join(', ').slice(0,160);
+    this.postLocationVerified = true;
     this.postLocationOpen = false;
-    this.postLocationSuggestions = [];
+    this.postRealPlaces = [];
     this.postLocationQuerySerial++;
   }
 
+  selectPostPlaceName(): void {
+    this.postLocationError = 'Escolhe uma localização real da lista de sugestões.';
+  }
+
   selectPostLocation(place: Venue): void {
-    this.postLocation = [place.name, place.city].filter(Boolean).join(', ').slice(0, 160);
+    this.postLocation = [place.name, place.city].filter(Boolean).join(', ').slice(0,160);
+    this.postLocationVerified = true;
     this.postLocationOpen = false;
     this.postLocationSuggestions = [];
     this.postLocationQuerySerial++;
@@ -1050,6 +1055,10 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     const content = this.postContent.trim();
     const location = this.postLocation.trim();
     if (!this.canPublishPost) return;
+    if (location && !this.postLocationVerified) {
+      this.actionError = 'Escolhe uma localização real da lista antes de publicar.';
+      return;
+    }
 
     this.posting = true;
     this.actionError = '';
@@ -1072,6 +1081,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
           this.items = [item, ...this.items];
           this.postContent = '';
           this.postLocation = '';
+          this.postLocationVerified = false;
           this.postImageFile = undefined;
           this.postImagePreview = '';
           this.removePostVideo();
