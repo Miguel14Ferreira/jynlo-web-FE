@@ -160,7 +160,7 @@ export class ProfilePostViewerComponent implements OnChanges {
   toggleLike():void{
     if(this.busy||this.post.postId==null)return;
     this.busy=true;
-    const request=this.post.likedByMe?this.feed.unlike(this.post.postId):this.feed.like(this.post.postId);
+    const request=this.post.likedByMe?this.feed.unlikePost(this.post.postId):this.feed.likePost(this.post.postId);
     request.pipe(timeout(10000),finalize(()=>this.busy=false)).subscribe({
       next:status=>{this.post.likedByMe=status.likedByMe;this.post.likeCount=status.likeCount;},
       error:()=>this.error='Não foi possível atualizar o gosto.'
