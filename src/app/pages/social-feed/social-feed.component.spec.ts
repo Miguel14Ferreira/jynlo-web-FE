@@ -38,7 +38,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     }
     socialChanged = new Subject<void>();
     realtimeConnected = new BehaviorSubject<boolean>(false);
-    feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'postById', 'createPost', 'createPostAlbum', 'editPost', 'deletePost', 'hidePost', 'restoreHiddenPost', 'hiddenPosts', 'likers']);
+    feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'postById', 'createPost', 'createPostAlbum', 'editPost', 'editPostWithMedia', 'deletePost', 'hidePost', 'restoreHiddenPost', 'hiddenPosts', 'likers']);
     feed.feed.and.returnValue(of([]));
     feed.likers.and.returnValue(of([]));
     feed.deletePost.and.returnValue(of(undefined));
@@ -654,6 +654,50 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(item.extraMedia?.length).toBe(1);
     expect(item.likeCount).toBe(3);
     expect(component.editingPostId).toBeNull();
+  }));
+
+  it('replaces post photos while preserving likes, comments and post identity', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const item: FeedItem = {
+      type:'POST',postId:903,authorUsername:'miguel',authorDisplayName:'Miguel',
+      authorProfilePicUrl:null,content:'Antes',imageUrl:'/media/old.jpg',
+      extraMedia:[],createdAt:'2026-11-12T18:00:00Z',sessionId:null,
+      sport:null,city:null,gameDate:null,likeCount:12,likedByMe:true,commentCount:4
+    };
+    component.items=[item];
+    component.beginEditPost(item);
+    const photo = new File(['foto'], 'nova.jpg', {type:'image/jpeg'});
+    component.editingPostReplacementFiles=[photo];
+    component.editingPostReplaceMedia=true;
+    component.editingPostContent='Depois';
+    feed.editPostWithMedia.and.returnValue(of({...item, content:'Depois',imageUrl:'/media/new.jpg'}));
+    component.savePostEdit(item);
+    expect(feed.editPostWithMedia).toHaveBeenCalledOnceWith(903, 'Depois', '', [photo], true);
+    expect(item.imageUrl).toBe('/media/new.jpg');
+    expect(item.likeCount).toBe(12);
+    expect(item.commentCount).toBe(4);
+    expect(component.editingPostId).toBeNull();
+  }));
+
+  it('does not delete existing post media when an edited upload fails', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const item: FeedItem = {
+      type:'POST',postId:904,authorUsername:'miguel',authorDisplayName:'Miguel',
+      authorProfilePicUrl:null,content:'Antes',imageUrl:'/media/old.jpg',
+      createdAt:'2026-11-12T18:00:00Z',sessionId:null,sport:null,
+      city:null,gameDate:null,likeCount:1,likedByMe:false,commentCount:0
+    };
+    component.items=[item];
+    component.beginEditPost(item);
+    component.editingPostReplacementFiles=[new File(['foto'],'nova.jpg',{type:'image/jpeg'})];
+    component.editingPostReplaceMedia=true;
+    feed.editPostWithMedia.and.returnValue(throwError(() => new HttpErrorResponse({status:503})));
+    component.savePostEdit(item);
+    expect(item.imageUrl).toBe('/media/old.jpg');
+    expect(component.editingPostReplaceMedia).toBeTrue();
+    expect(component.editingPostReplacementFiles).toHaveSize(1);
   }));
 
   it('preserves the authored draft and the original publication when editing fails', fakeAsync(() => {
