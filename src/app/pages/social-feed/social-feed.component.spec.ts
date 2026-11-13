@@ -385,6 +385,27 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(component.canPublishPost).toBeFalse();
   }));
 
+  it('publishes the voluntary location with a picture and clears it only on success', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const photo=new File(['jpeg'],'treino.jpg',{type:'image/jpeg'});
+    component.postImageFile=photo;
+    component.postContent='';
+    component.postLocation='  Campo Municipal, Lisboa  ';
+    feed.createPost.and.returnValue(of({
+      type:'POST',postId:213,authorUsername:'miguel',authorDisplayName:'Miguel',
+      authorProfilePicUrl:null,content:'',location:'Campo Municipal, Lisboa',
+      imageUrl:'/media/treino.jpg',createdAt:new Date().toISOString(),
+      sessionId:null,sport:null,city:null,gameDate:null,likeCount:0,
+      likedByMe:false,commentCount:0
+    }));
+    component.publish();
+    expect(feed.createPost).toHaveBeenCalledOnceWith(
+      '',photo,undefined,undefined,'Campo Municipal, Lisboa');
+    expect(component.postLocation).toBe('');
+    expect(component.items[0].location).toBe('Campo Municipal, Lisboa');
+  }));
+
   it('uses one-file multipart upload for a gallery with a single picture', fakeAsync(() => {
     fixture.detectChanges();
     tick(351);
