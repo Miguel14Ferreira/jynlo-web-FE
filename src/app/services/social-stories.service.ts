@@ -27,6 +27,8 @@ export class SocialStoriesService {
     textStyle: 'plain' | 'pill';
     altText?: string;
     showTime?: boolean;
+    locationLabel?: string;
+    taggedUsernames?: string;
   }): Observable<SocialStory> {
     const body = new FormData();
     body.append('caption', caption.trim());
@@ -38,6 +40,8 @@ export class SocialStoriesService {
       body.append('textStyle', options.textStyle);
       if (options.altText) body.append('altText', options.altText.trim());
       body.append('showTime', String(!!options.showTime));
+      if (options.locationLabel?.trim()) body.append('locationLabel', options.locationLabel.trim());
+      if (options.taggedUsernames?.trim()) body.append('taggedUsernames', options.taggedUsernames.trim());
     }
     return this.http.post<SocialStory>(this.url, body);
   }
