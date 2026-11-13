@@ -8,6 +8,7 @@ import { DirectChatService } from '../../services/direct-chat.service';
 import { CommunityGroupsService } from '../../services/community-groups.service';
 import { SocialStory } from '../model/social-story';
 import { I18nService, preloadEnglishTranslations } from '../../i18n/i18n.service';
+import { CommunityService } from '../../services/community.service';
 
 describe('SocialStoriesComponent', () => {
   let fixture: ComponentFixture<SocialStoriesComponent>;
@@ -15,6 +16,7 @@ describe('SocialStoriesComponent', () => {
   let api: jasmine.SpyObj<SocialStoriesService>;
   let communities: jasmine.SpyObj<CommunityGroupsService>;
   let direct: jasmine.SpyObj<DirectChatService>;
+  let profiles: jasmine.SpyObj<CommunityService>;
 
   const picture: SocialStory = {
     id: 9, authorUsername: 'joao', displayName: 'João', avatarUrl: null,
@@ -29,6 +31,8 @@ describe('SocialStoriesComponent', () => {
     api.feed.and.returnValue(of([picture]));
     direct = jasmine.createSpyObj<DirectChatService>('DirectChatService', ['send']);
     direct.send.and.returnValue(of({} as any));
+    profiles = jasmine.createSpyObj<CommunityService>('CommunityService', ['friends', 'discoverProfiles']);
+    profiles.friends.and.returnValue(of([]));
     api.mine.and.returnValue(of([picture]));
     communities = jasmine.createSpyObj<CommunityGroupsService>('CommunityGroupsService', ['mine']);
     communities.mine.and.returnValue(of([
@@ -41,6 +45,7 @@ describe('SocialStoriesComponent', () => {
       providers: [
         { provide: SocialStoriesService, useValue: api },
         { provide: DirectChatService, useValue: direct },
+        { provide: CommunityService, useValue: profiles },
         { provide: CommunityGroupsService, useValue: communities },
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } }
       ]
@@ -72,6 +77,34 @@ describe('SocialStoriesComponent', () => {
     expect(file.classList.contains('jynlo-premium-btn--quiet')).toBeTrue();
     expect(file.querySelector('input[type="file"]')).not.toBeNull();
     expect(root.querySelector('.story-primary.jynlo-premium-btn--primary')).not.toBeNull();
+  }));
+
+  it('only loads accepted friends for Story tags, never global discoverable users', fakeAsync(() => {
+    profiles.friends.and.returnValue(of([
+      { username: 'ana', fullName: 'Ana', nickname: null, profilePicUrl: null,
+        blockedByMe: false, chatBlocked: false },
+      { username: 'blocked', fullName: 'Blocked', nickname: null, profilePicUrl: null,
+        blockedByMe: true, chatBlocked: true }
+    ]));
+    fixture.detectChanges();
+    tick();
+    component.toggleStoryTags();
+    tick();
+    expect(profiles.friends).toHaveBeenCalledTimes(1);
+    expect(profiles.discoverProfiles).not.toHaveBeenCalled();
+    expect(component.storyTagResults.map(p => p.username)).toEqual(['ana']);
+    component.searchStoryTag('no-such-friend');
+    expect(component.storyTagResults).toEqual([]);
+  }));
+
+  it('permits a neighbourhood label without selecting a sports venue', fakeAsync(() => {
+    fixture.detectChanges();
+    tick();
+    component.storyLocation = ' Benfica ';
+    component.storyLocationSearchOpen = true;
+    component.chooseStoryPlaceName();
+    expect(component.storyLocation).toBe('Benfica');
+    expect(component.storyLocationSearchOpen).toBeFalse();
   }));
 
   it('only shows retry after a story request fails', fakeAsync(() => {
