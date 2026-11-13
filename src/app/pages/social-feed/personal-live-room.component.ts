@@ -116,6 +116,10 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
             [attr.aria-pressed]="micOn" (click)="toggleMic()">{{ micOn ? 'Silenciar microfone' : 'Ligar microfone' }}</button>
           <button type="button" [disabled]="!room || connecting || reconnecting || deviceBusy"
             [attr.aria-pressed]="cameraOn" (click)="toggleCamera()">{{ cameraOn ? 'Desligar câmara' : 'Ligar câmara' }}</button>
+          <button type="button" [disabled]="!room || connecting || reconnecting || deviceBusy"
+            [attr.aria-pressed]="screenOn" (click)="toggleScreenShare()">
+            {{ screenOn ? 'Parar partilha de ecrã' : 'Partilhar ecrã' }}
+          </button>
           @if (event.canManage) {
             <button type="button" class="end" [disabled]="ending"
               (click)="end()">{{ ending ? 'A terminar…' : 'Terminar direto' }}</button>
@@ -216,6 +220,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   error='';
   cameraOn=false;
   micOn=false;
+  screenOn=false;
   participantCount=0;
   private destroyed=false;
   private ended=false;
@@ -248,11 +253,18 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         for (const element of track.detach()) this.detachElement(element);
       });
       activeRoom.on(RoomEvent.LocalTrackPublished,publication=>{
-        if (this.room===activeRoom && publication.track &&
-            publication.source===Track.Source.Camera) this.attach(publication.track,'Tu',true);
+        if (this.room!==activeRoom || !publication.track)return;
+        if(publication.source===Track.Source.Camera)
+          this.attach(publication.track,'Tu',true);
+        if(publication.source===Track.Source.ScreenShare) {
+          this.screenOn=true;
+          this.attach(publication.track,'O teu ecrã',true);
+        }
       });
       activeRoom.on(RoomEvent.LocalTrackUnpublished,publication=>{
         if (publication.track) for (const el of publication.track.detach()) this.detachElement(el);
+        if(this.room===activeRoom && publication.source===Track.Source.ScreenShare)
+          this.screenOn=false;
       });
       activeRoom.on(RoomEvent.Reconnecting,()=>{
         if(this.room===activeRoom&&!this.closing) {
@@ -377,7 +389,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     this.heartbeats?.unsubscribe();this.heartbeats=undefined;
     const current=this.room;this.room=null;
     this.role='VIEWER';
-    this.cameraOn=false;this.micOn=false;
+    this.cameraOn=false;this.micOn=false;this.screenOn=false;
     for(const el of [...this.attached])this.detachElement(el);
     this.attached=[];
     try {
@@ -469,7 +481,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       tile.className='live-video-tile';
       const name=document.createElement('span');
       name.className='live-video-label';
-      name.textContent=isLocal?'Tu':('@'+label.replace(/^@/,''));
+      name.textContent=isLocal?label:('@'+label.replace(/^@/,''));
       tile.append(element,name);
       stage.appendChild(tile);
       this.attached.push(element);
@@ -503,6 +515,20 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       if(document.fullscreenElement)await document.exitFullscreen();
       else await stage.requestFullscreen();
     } catch {this.error='Não foi possível ampliar o vídeo neste dispositivo.';}
+  }
+  async toggleScreenShare():Promise<void> {
+    if(!this.room || this.connecting || this.reconnecting || this.rejoining || this.deviceBusy ||
+       (this.role!=='HOST' && this.role!=='GUEST'))return;
+    const activeRoom=this.room;
+    this.deviceBusy=true;
+    try {
+      const enabled=!this.screenOn;
+      await activeRoom.localParticipant.setScreenShareEnabled(enabled);
+      if(this.room===activeRoom&&!this.destroyed&&!this.closing)this.screenOn=enabled;
+    } catch {
+      if(this.room===activeRoom&&!this.closing)
+        this.error='Não foi possível partilhar o ecrã. Verifica as permissões do navegador.';
+    } finally {this.deviceBusy=false;}
   }
   async toggleCamera():Promise<void> {
     // Guests accepted by the host may publish their own media, just like the host.
@@ -545,6 +571,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     this.heartbeats?.unsubscribe();this.heartbeats=undefined;
     this.interactionPoll?.unsubscribe();this.interactionPoll=undefined;
     this.reconnecting=false;
+    this.screenOn=false;
     this.destroy$.next();
     const active=this.room;this.room=null;
     this.role='VIEWER';
@@ -555,6 +582,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy():void {
     this.destroyed=true;
+    this.screenOn=false;
     this.destroy$.next();this.destroy$.complete();
     if(this.event?.canManage && !this.ended && !this.ending) {
       // A host closing the window must not leave a stream orphaned.
