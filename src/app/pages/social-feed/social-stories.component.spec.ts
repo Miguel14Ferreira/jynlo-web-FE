@@ -259,7 +259,7 @@ describe('SocialStoriesComponent', () => {
     component.publish();
     expect(api.publish).toHaveBeenCalledWith(jasmine.any(File), '', null, {
       textPosition: 'bottom', textScale: 'medium', textStyle: 'pill',
-      altText: 'Jogadores num campo de futebol', showTime: true
+      altText: 'Jogadores num campo de futebol', showTime: true, locationLabel: '', taggedUsernames: ''
     });
     expect(component.mineEntries[0].id).toBe(123);
     expect(component.storyAltText).toBe('');
@@ -312,7 +312,7 @@ describe('SocialStoriesComponent', () => {
     fixture.detectChanges();
     expect(api.publish).toHaveBeenCalledWith(photo, 'Treino', null, {
       textPosition: 'top', textScale: 'small', textStyle: 'pill',
-      altText: '', showTime: false
+      altText: '', showTime: false, locationLabel: '', taggedUsernames: ''
     });
     expect(component.composerOpen).toBeTrue();
     expect(component.file).toBe(photo);
