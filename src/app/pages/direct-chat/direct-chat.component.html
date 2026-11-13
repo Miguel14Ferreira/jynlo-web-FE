@@ -8,6 +8,11 @@
       </div>
 
       <div class="chat-actions">
+        <button type="button" class="chat-search-toggle jynlo-action jynlo-action--neutral"
+                [attr.aria-expanded]="searchOpen" aria-controls="direct-chat-search"
+                (click)="toggleMessageSearch()">
+          <span aria-hidden="true">⌕</span> {{ searchOpen ? 'Fechar pesquisa' : 'Pesquisar mensagens' }}
+        </button>
         @if (!(chatInfo?.chatBlocked === true) || isBlockedByMe()) {
           <button
             type="button"
@@ -70,6 +75,43 @@
         </section>
       }
 
+      @if (searchOpen) {
+        <section class="direct-chat-search" id="direct-chat-search" aria-label="Pesquisar nesta conversa">
+          <div class="direct-chat-search-controls">
+            <label for="direct-chat-search-input">Pesquisar nesta conversa</label>
+            <input id="direct-chat-search-input" type="search"
+                   [(ngModel)]="searchQuery" (ngModelChange)="onMessageSearchChange()"
+                   (keydown)="onMessageSearchKeydown($event)"
+                   placeholder="Mensagem, resposta ou nome de ficheiro"
+                   autocomplete="off" maxlength="120">
+            <button type="button" class="jynlo-action jynlo-action--neutral"
+                    (click)="toggleMessageSearch()" aria-label="Fechar pesquisa">×</button>
+          </div>
+          @if (searchQuery.trim()) {
+            <div class="direct-chat-search-results" role="status" aria-live="polite">
+              <span>
+                @if (searchMatches.length) {
+                  {{ searchMatchIndex + 1 }} de {{ searchMatches.length }} resultados carregados
+                } @else {
+                  Sem resultados nas mensagens carregadas
+                }
+              </span>
+              <button type="button" [disabled]="!searchMatches.length"
+                      (click)="navigateSearch(-1)" aria-label="Resultado anterior">↑</button>
+              <button type="button" [disabled]="!searchMatches.length"
+                      (click)="navigateSearch(1)" aria-label="Resultado seguinte">↓</button>
+              @if (hasOlderMessages) {
+                <button type="button" class="jynlo-action jynlo-action--neutral"
+                        [disabled]="loadingOlder" (click)="loadOlderMessages()">
+                  {{ loadingOlder ? 'A carregar…' : 'Procurar também no histórico anterior' }}
+                </button>
+              }
+            </div>
+          }
+          @if (searchError) { <p class="direct-chat-search-error" role="status">{{ searchError }}</p> }
+        </section>
+      }
+
       <section class="chat-card">
         <div class="message-list" #messageList (scroll)="onMessageLogScroll()" role="log" aria-live="polite" aria-relevant="additions" [attr.aria-label]="'chat.messages' | t">
           @if (hasOlderMessages) {
@@ -88,6 +130,8 @@
               </div>
             }
             <article class="message" [class.own-message]="isOwnMessage(message)"
+              [attr.data-direct-message-id]="message.id"
+              [class.message-search-active]="isActiveSearchMatch(message)"
               [class.thread-continuation]="continuesGroupAt(i)">
               <div class="message-meta">
                 @if (!continuesGroupAt(i)) {
@@ -96,10 +140,12 @@
                 <span>{{ messageDate(message) }}</span>
               </div>
               @if (message.replyToMessageId && message.replyToText) {
-                <div class="message-quote">
+                <button type="button" class="message-quote direct-quote-jump"
+                        (click)="jumpToQuotedMessage(message)" aria-label="Encontrar mensagem original">
                   <strong>{{ message.replyToSender }}</strong>
                   <span>{{ message.replyToText }}</span>
-                </div>
+                  <span class="direct-quote-jump-hint" aria-hidden="true">↗</span>
+                </button>
               }
               @if (message.text) { <p>{{ message.text }}</p> }
               @if (message.attachmentName && message.id) {
