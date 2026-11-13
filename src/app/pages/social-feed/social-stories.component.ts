@@ -54,12 +54,14 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   openComposer(): void {
     this.composerOpen = true;
     this.publishError = '';
+    this.changeDetector.markForCheck();
   }
 
   closeComposer(): void {
     if (this.uploading) return;
     this.composerOpen = false;
     this.publishError = '';
+    this.changeDetector.markForCheck();
   }
 
   get captionPreview(): string {
