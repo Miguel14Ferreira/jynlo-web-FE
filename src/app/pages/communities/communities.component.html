@@ -801,6 +801,11 @@
                               <small>@{{ entry.username }} · <time [attr.datetime]="entry.createdAt">{{ entry.createdAt | date:'dd/MM/yyyy HH:mm' }}</time></small>
                             </span>
                           </a>
+                          @if (entry.kind === 'POST' && isMyChatEntry(entry)) {
+                            <button type="button" class="jynlo-action jynlo-action--neutral"
+                                    [disabled]="savingCommunityPostId !== null"
+                                    (click)="startCommunityPostEdit(entry)">Editar</button>
+                          }
                           @if (canDeleteCommunityPost(entry)) {
                             <button type="button" class="community-feed-delete jynlo-action jynlo-action--danger"
                                     [disabled]="timelineDeletingId !== null" (click)="deleteTimeline(entry)">
@@ -808,7 +813,25 @@
                             </button>
                           }
                         </div>
-                        @if (entry.body) {
+                        @if (editingCommunityPostId === entry.id) {
+                          <div class="community-feed-edit" aria-label="Editar publicação">
+                            <label [attr.for]="'community-edit-' + entry.id">Descrição</label>
+                            <textarea [id]="'community-edit-' + entry.id" maxlength="1000" rows="3"
+                                      [(ngModel)]="editingCommunityPostText"
+                                      [disabled]="savingCommunityPostId !== null"></textarea>
+                            <small>As fotografias e os vídeos são mantidos.</small>
+                            <div class="community-feed-edit-actions">
+                              <button type="button" class="jynlo-action jynlo-action--neutral"
+                                      [disabled]="savingCommunityPostId !== null"
+                                      (click)="cancelCommunityPostEdit()">Cancelar</button>
+                              <button type="button" class="jynlo-action jynlo-action--primary"
+                                      [disabled]="savingCommunityPostId !== null"
+                                      (click)="saveCommunityPostEdit(entry)">
+                                {{ savingCommunityPostId === entry.id ? 'A guardar…' : 'Guardar alterações' }}
+                              </button>
+                            </div>
+                          </div>
+                        } @else if (entry.body) {
                           <p class="community-feed-body">{{ entry.body }}</p>
                         }
                         @if (communityPostMedia(entry); as postMedia) {
