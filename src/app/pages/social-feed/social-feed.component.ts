@@ -1001,6 +1001,15 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       });
   }
 
+  isPostedToday(iso: string): boolean {
+    const published = new Date(iso);
+    const today = new Date();
+    return !Number.isNaN(published.getTime())
+      && published.getFullYear() === today.getFullYear()
+      && published.getMonth() === today.getMonth()
+      && published.getDate() === today.getDate();
+  }
+
   get canPublishPost(): boolean {
     return !this.posting && !!(this.postContent.trim() || this.postImageFile
       || this.postVideoFile || this.postGallery.length);
