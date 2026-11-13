@@ -589,8 +589,9 @@
                           [alt]="'profilePosts.imageAlt' | t" loading="lazy">
                       }
                       @if (post.videoUrl) {
-                        <video class="profile-publication-video" controls preload="none"
-                          [src]="post.videoUrl"></video>
+                        <video class="profile-publication-video" preload="metadata" muted playsinline
+                          [src]="post.videoUrl" tabindex="-1" aria-hidden="true"></video>
+                        <span class="profile-publication-play" aria-hidden="true">▶</span>
                       }
                       @if (post.content) {
                         <p class="profile-publication-copy">{{ post.content }}</p>
