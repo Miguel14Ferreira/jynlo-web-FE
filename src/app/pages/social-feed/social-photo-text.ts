@@ -3,7 +3,10 @@ import { TextPlacement } from './movable-text.component';
 export async function addTextToPhoto(file: File, text: string,
   position: 'top' | 'center' | 'bottom' = 'center',
   ink: 'white' | 'yellow' | 'black' = 'white',
-  placement?: TextPlacement): Promise<File> {
+  placement?: TextPlacement,
+  background: 'dark' | 'light' | 'none' = 'dark',
+  font: 'modern' | 'classic' | 'mono' = 'modern',
+  imageTransform: {rotation: number; zoom: number} = {rotation: 0, zoom: 1}): Promise<File> {
   const caption = text.trim().slice(0, 120);
   if (!caption) return file;
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type))
@@ -25,11 +28,19 @@ export async function addTextToPhoto(file: File, text: string,
     canvas.height = height;
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('O navegador não permite editar esta fotografia');
-    ctx.drawImage(image, 0, 0, width, height);
+    // Keep image preview and exported media in the same transform.
+    ctx.save();
+    ctx.translate(width / 2, height / 2);
+    ctx.rotate(imageTransform.rotation * Math.PI / 180);
+    ctx.scale(imageTransform.zoom, imageTransform.zoom);
+    ctx.drawImage(image, -width / 2, -height / 2, width, height);
+    ctx.restore();
     const fontSize = Math.max(19, Math.round(width * .052));
     const margin = Math.round(width * .08);
     const lineHeight = fontSize * 1.32;
-    ctx.font = 'bold ' + fontSize + 'px system-ui, sans-serif';
+    const family = font === 'classic' ? 'Georgia, serif'
+      : font === 'mono' ? 'monospace' : 'system-ui, sans-serif';
+    ctx.font = 'bold ' + fontSize + 'px ' + family;
     const words = caption.split(/\s+/).filter(Boolean);
     const lines: string[] = [];
     let line = '';
@@ -56,12 +67,14 @@ export async function addTextToPhoto(file: File, text: string,
       ctx.rotate(placement.rotation * Math.PI / 180);
       ctx.scale(placement.scale, placement.scale);
     }
-    ctx.fillStyle = ink === 'black' ? 'rgba(255,255,255,.78)' : 'rgba(1,9,20,.68)';
-    ctx.beginPath();
     const left = -(width - margin) / 2;
     const top = -blockHeight / 2;
-    ctx.roundRect(left, top, width - margin, blockHeight, Math.max(8, fontSize / 3));
-    ctx.fill();
+    if (background !== 'none') {
+      ctx.fillStyle = background === 'light' ? 'rgba(255,255,255,.86)' : 'rgba(1,9,20,.68)';
+      ctx.beginPath();
+      ctx.roundRect(left, top, width - margin, blockHeight, Math.max(8, fontSize / 3));
+      ctx.fill();
+    }
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = ink === 'yellow' ? '#fef08a' : ink === 'black' ? '#020617' : '#ffffff';
