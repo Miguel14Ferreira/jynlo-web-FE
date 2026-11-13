@@ -22,7 +22,7 @@
   @if (true) {
     <div class="story-rail" [class.story-rail--empty]="storyGroups.length === 0"
          [attr.aria-busy]="loading || mineLoading">
-      <button type="button" class="story-bubble story-add-action jynlo-action jynlo-action--accent"
+      <button type="button" class="story-bubble story-add-action jynlo-action jynlo-action--accent jynlo-premium-btn jynlo-premium-btn--primary"
               (click)="composerOpen ? closeComposer() : openComposer()">
         <span class="story-ring story-create-ring" aria-hidden="true">
           <span class="story-create-circle-plus">+</span>
