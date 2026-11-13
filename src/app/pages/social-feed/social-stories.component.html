@@ -44,7 +44,7 @@
         </button>
       }
       @if (!loading && !mineLoading && storyGroups.length === 0) {
-        <p class="stories-empty">{{ 'stories.empty' | t }}</p>
+        <p class="stories-empty">Ainda não há Stories. Cria o teu primeiro momento!</p>
       }
       @if ((loading || mineLoading) && storyGroups.length === 0) {
         <p class="stories-empty" role="status">{{ 'stories.loading' | t }}</p>
@@ -155,17 +155,21 @@
               <input id="storyLocation" type="search" [(ngModel)]="storyLocation"
                      (ngModelChange)="searchStoryLocation($event)"
                      maxlength="160" autocomplete="off" [disabled]="uploading"
-                     placeholder="Pesquisar recinto ou cidade">
+                     placeholder="Benfica, Lisboa, Portugal ou um recinto">
               @if (storyLocationSearchOpen) {
                 <div class="story-discovery-results" aria-label="Sugestões de locais">
-                  @if (storyLocationSearching) { <p>A pesquisar locais…</p> }
+                  <button type="button" class="story-place-freeform" (click)="chooseStoryPlaceName()">
+                    <strong>📍 {{ storyLocation.trim() }}</strong>
+                    <small>Usar esta localização (bairro, cidade ou outro lugar)</small>
+                  </button>
+                  @if (storyLocationSearching) { <p>A pesquisar recintos…</p> }
                   @for (venue of storyVenueResults; track venue.id) {
                     <button type="button" (click)="chooseStoryLocation(venue)">
                       <strong>{{ venue.name }}</strong> <small>{{ venue.city }}</small>
                     </button>
                   }
                   @if (!storyLocationSearching && !storyVenueResults.length) {
-                    <p>Sem recintos encontrados. Podes escrever livremente.</p>
+                    <p>Sem recintos encontrados. Podes escolher o lugar escrito acima.</p>
                   }
                 </div>
               }
@@ -175,12 +179,15 @@
               </button>
               @if (storyTagOpen) {
                 <div class="story-tag-search">
-                  <label for="storyTagQuery">Pesquisar perfis</label>
+                  <label for="storyTagQuery">Pesquisar amigos</label>
                   <input id="storyTagQuery" type="search" [(ngModel)]="storyTagQuery"
                          (ngModelChange)="searchStoryTag($event)"
-                         autocomplete="off" placeholder="Nome ou utilizador">
-                  @if (storyTagLoading) { <p>A procurar perfis…</p> }
+                         autocomplete="off" placeholder="Nome ou utilizador de um amigo">
+                  @if (storyTagLoading) { <p>A procurar amigos…</p> }
                   <div class="story-discovery-results">
+                    @if (!storyTagLoading && storyTagResults.length === 0) {
+                      <p>Não há amigos disponíveis para identificar.</p>
+                    }
                     @for (profile of storyTagResults; track profile.username) {
                       <button type="button" (click)="addStoryTag(profile)"
                               [disabled]="storyTaggedProfiles.length >= 5">
