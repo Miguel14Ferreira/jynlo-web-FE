@@ -1,11 +1,13 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, forkJoin, map, Observable, of, timeout } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of, switchMap, timeout } from 'rxjs';
+import { environment } from 'src/environment/environment';
 
 /** Actual geographic results from GeoNames/Open-Meteo and OpenStreetMap/Photon.
  * Do not accept arbitrary text as a verified location. */
 export interface RealPlace {
   id:string; label:string; subtitle:string; latitude:number; longitude:number;
+  provider?:'google'|'open';
 }
 interface GeoResponse {
   results?: Array<{ id:number; name:string; latitude:number; longitude:number;
@@ -20,9 +22,41 @@ interface PhotonResponse {
 export class RealPlaceSearchService {
   constructor(private readonly http:HttpClient) {}
 
-  search(text:string):Observable<RealPlace[]> {
+  /** One token per editor session; never reuse across unrelated selections. */
+  newSessionToken():string {
+    return crypto.randomUUID();
+  }
+
+  resolve(place:RealPlace,sessionToken?:string):Observable<RealPlace> {
+    if(place.provider!=='google' || !place.id.startsWith('google:')) return of(place);
+    const params=sessionToken?new HttpParams().set('sessionToken',sessionToken):new HttpParams();
+    const placeId=encodeURIComponent(place.id.substring(7));
+    return this.http.get<RealPlace>(environment.apiUrl+'/api/places/google/'+placeId,{params}).pipe(
+      timeout(10000),map(location=>({...location,provider:'google' as const}))
+    );
+  }
+
+  search(text:string,sessionToken?:string):Observable<RealPlace[]> {
     const query=text.trim().slice(0,100);
     if(query.length<2)return of([]);
+    // Google is primary when configured on the backend; no browser key.
+    // Older deployments and API outages fall back to the worldwide providers.
+    if(query.length>=3) {
+      let params=new HttpParams().set('q',query);
+      if(sessionToken) params=params.set('sessionToken',sessionToken);
+      return this.http.get<{provider:string;places:Array<{id:string;label:string;subtitle:string}>}>(
+        environment.apiUrl+'/api/places/suggestions',{params}).pipe(
+        timeout(8000),
+        map(data=>(data.places||[]).map(place=>({...place,latitude:0,longitude:0,
+          provider:'google' as const}))),
+        switchMap(places=>places.length?of(places):this.fallback(query)),
+        catchError(()=>this.fallback(query))
+      );
+    }
+    return this.fallback(query);
+  }
+
+  private fallback(query:string):Observable<RealPlace[]> {
     // A small, verified geographic seed for locations the search API
     // does not reliably index as cities (e.g. Lisbon administrative parishes).
     // Benfica: OpenStreetMap node 1493246250, place=suburb.
