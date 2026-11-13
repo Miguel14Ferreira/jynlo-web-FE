@@ -65,15 +65,18 @@ describe('Community broadcast panel', () => {
   });
 
   it('ends the broadcast for everyone when the host selects the player exit', () => {
-    const fixture=TestBed.createComponent(CommunityLivePanelComponent);
-    fixture.componentRef.setInput('communityId', 7);
-    fixture.detectChanges();
-    const c=fixture.componentInstance;
     const event: CommunityLiveEvent={
       id:25,communityId:7,title:'Jogo de sábado',description:null,
       status:'LIVE',scheduledAt:new Date().toISOString(),
       startedAt:new Date().toISOString(),endedAt:null,canManage:true
     };
+    // Keep the current live event in the first poll: an empty list means
+    // the remote server has already ended it, and correctly calls leave().
+    live.list.and.returnValue(of([event]));
+    const fixture=TestBed.createComponent(CommunityLivePanelComponent);
+    fixture.componentRef.setInput('communityId', 7);
+    fixture.detectChanges();
+    const c=fixture.componentInstance;
     const disconnect=jasmine.createSpy('disconnect');
     c.active=event;
     c.hosting=true;
