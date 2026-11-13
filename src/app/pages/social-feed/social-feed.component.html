@@ -17,6 +17,17 @@
 
     <app-social-stories></app-social-stories>
 
+    @if (personalLiveError && !personalLiveRoom) {
+      <section class="feed-live-community" aria-label="Estado do direto partilhado" role="status">
+        <div class="feed-live-heading">
+          <strong>Não foi possível abrir o direto</strong>
+          <span>{{ personalLiveError }}</span>
+        </div>
+        <button type="button" class="jynlo-premium-btn jynlo-premium-btn--quiet"
+          (click)="refreshPersonalLive()">Voltar a procurar diretos</button>
+      </section>
+    }
+
     @if (personalLiveEvents.length) {
       <section class="feed-live-community" aria-label="Diretos pessoais na Jynlo">
         <div class="feed-live-heading"><strong>● Diretos das pessoas</strong>
