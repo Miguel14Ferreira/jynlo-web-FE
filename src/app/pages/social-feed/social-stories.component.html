@@ -22,30 +22,22 @@
   @if (true) {
     <div class="story-rail" [class.story-rail--empty]="storyGroups.length === 0"
          [attr.aria-busy]="loading || mineLoading">
-      <button type="button" class="story-bubble story-add-action jynlo-action jynlo-action--accent jynlo-premium-btn jynlo-premium-btn--primary"
+      <button type="button" class="story-bubble story-add-action jynlo-action jynlo-action--accent"
               (click)="composerOpen ? closeComposer() : openComposer()">
-        <span class="story-create-card-art" aria-hidden="true">
-          <span class="story-create-card-plus">+</span>
+        <span class="story-ring story-create-ring" aria-hidden="true">
+          <span class="story-create-circle-plus">+</span>
         </span>
         <span class="story-name">{{ 'stories.create' | t }}</span>
       </button>
       @for (group of storyGroups; track group.key) {
         <button type="button" class="story-bubble" (click)="openGroup(group)"
             [attr.aria-label]="('stories.view' | t) + ' ' + group.name">
-          <span class="story-card-art">
-            @if (group.stories[0] && !group.stories[0].video) {
-              <img class="story-card-cover" [src]="media(group.stories[0].mediaUrl)"
-                   alt="" loading="lazy">
+          <span class="story-ring">
+            @if (group.avatar) {
+              <img [src]="group.avatar" alt="" loading="lazy">
             } @else {
-              <span class="story-card-video-placeholder" aria-hidden="true">▶</span>
+              <span class="story-placeholder">{{ group.name.charAt(0).toUpperCase() }}</span>
             }
-            <span class="story-ring">
-              @if (group.avatar) {
-                <img [src]="group.avatar" alt="" loading="lazy">
-              } @else {
-                <span class="story-placeholder">{{ group.name.charAt(0).toUpperCase() }}</span>
-              }
-            </span>
           </span>
           <span class="story-name">{{ group.name }}</span>
           @if (group.stories.length > 1) { <small>{{ group.stories.length }} {{ 'stories.items' | t }}</small> }
