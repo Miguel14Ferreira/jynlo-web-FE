@@ -641,7 +641,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('document:keydown.escape', ['$event'])
-  escape(event: KeyboardEvent): void {
+  escape(event: Event): void {
     // Escape must respect the same upload guard as the editor's close button.
     // Only handle a key when this component actually owns an open overlay.
     if (this.composerOpen) {
