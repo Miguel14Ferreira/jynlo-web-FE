@@ -337,13 +337,12 @@
           <textarea id="feed-photo-overlay-text" [(ngModel)]="photoTextDraft"
                     maxlength="120" rows="2" [disabled]="photoTextSaving"
                     placeholder="Ex.: Grande jogo com a equipa!"></textarea>
-          <label for="feed-photo-overlay-position">Posição</label>
-          <select id="feed-photo-overlay-position" [(ngModel)]="photoTextPosition"
-                  [disabled]="photoTextSaving">
-            <option value="top">Topo</option>
-            <option value="center">Centro</option>
-            <option value="bottom">Fundo</option>
-          </select>
+          <div class="feed-photo-direct-stage" aria-label="Arrasta o texto para mover, roda pela pega superior e altera o tamanho pela pega inferior">
+            <img [src]="photoTextPreview" alt="Pré-visualização da fotografia">
+            <app-movable-text [text]="photoTextDraft" [placement]="photoTextPlacement"
+              (placementChange)="photoTextPlacement = $event"></app-movable-text>
+          </div>
+          <p class="feed-photo-overlay-hint">Arrasta o texto com o rato ou dedo. Usa ↻ para rodar e ↘ para aumentar ou diminuir.</p>
           <label for="feed-photo-overlay-ink">Cor do texto</label>
           <select id="feed-photo-overlay-ink" [(ngModel)]="photoTextInk"
                   [disabled]="photoTextSaving">
