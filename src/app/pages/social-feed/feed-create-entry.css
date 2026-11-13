@@ -189,3 +189,8 @@
   box-shadow:none!important; color:#eaf6f6!important;
 }
 .feed-page .composer .feed-post-dialog-header .feed-post-dialog-close:hover {color:#5eead4!important;background:transparent!important;}
+
+.feed-photo-direct-stage { position:relative; margin:.5rem auto; width:min(100%,460px);
+ aspect-ratio:4/3; overflow:hidden; background:#071923; border:1px solid #2b6770; border-radius:12px; }
+.feed-photo-direct-stage > img {width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}
+.feed-photo-direct-stage app-movable-text {position:absolute;inset:0;}
