@@ -908,11 +908,33 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         next: items => {
           this.items = items;
           this.loadLikerPreviews();
+          this.loadSharedPost();
         },
         error: () => {
           this.items = [];
           this.errorMessage = t('feedback.feed.loadError');
         }
+      });
+  }
+
+  private loadSharedPost(): void {
+    const raw = this.route.snapshot.queryParamMap.get('post');
+    if (!raw || !/^[1-9][0-9]{0,12}$/.test(raw)) return;
+    const id = Number(raw);
+    const focus = () => setTimeout(() =>
+      document.getElementById('jynlo-post-' + id)?.scrollIntoView({behavior:'smooth',block:'start'}), 0);
+    if (this.items.some(item => item.type === 'POST' && item.postId === id)) {
+      focus();
+      return;
+    }
+    this.feedService.postById(id).pipe(timeout(10000), takeUntil(this.destroyed))
+      .subscribe({
+        next: item => {
+          if (!this.items.some(existing => existing.type === 'POST' && existing.postId === id))
+            this.items = [item, ...this.items];
+          focus();
+        },
+        error: () => this.actionError = 'Esta publicação não está disponível ou não tens permissão para a ver.'
       });
   }
 
