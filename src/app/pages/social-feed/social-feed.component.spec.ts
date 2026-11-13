@@ -37,7 +37,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     }
     socialChanged = new Subject<void>();
     realtimeConnected = new BehaviorSubject<boolean>(false);
-    feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'createPost', 'createPostAlbum', 'likers']);
+    feed = jasmine.createSpyObj<SocialFeedService>('SocialFeedService', ['feed', 'createPost', 'createPostAlbum', 'editPost', 'likers']);
     feed.feed.and.returnValue(of([]));
     feed.likers.and.returnValue(of([]));
     sessions = jasmine.createSpyObj<SessionService>('SessionService', ['discover', 'mine', 'detail']);
@@ -404,6 +404,51 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(component.postGallery.map(item => item.file)).toEqual([photo, video]);
     expect(component.canPublishPost).toBeTrue();
     component.postGallery = [];
+  }));
+
+  it('updates only the authored post caption and location, keeping media and engagement', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const item: FeedItem = {
+      type: 'POST', postId: 901, authorUsername: 'miguel', authorDisplayName: 'Miguel',
+      authorProfilePicUrl: null, content: 'Antes', imageUrl: '/media/photo.jpg',
+      extraMedia: [{ url: '/media/second.jpg', mimeType: 'image/jpeg' }],
+      location: 'Lisboa', createdAt: '2026-11-12T18:00:00Z',
+      sessionId: null, sport: null, city: null, gameDate: null,
+      likeCount: 3, likedByMe: true, commentCount: 2
+    };
+    component.items = [item];
+    component.beginEditPost(item);
+    expect(component.editingPostId).toBe(901);
+    component.editingPostContent = 'Depois';
+    component.editingPostLocation = '  Campo Novo ';
+    feed.editPost.and.returnValue(of({ ...item, content: 'Depois', location: 'Campo Novo' }));
+    component.savePostEdit(item);
+    expect(feed.editPost).toHaveBeenCalledOnceWith(901, 'Depois', 'Campo Novo');
+    expect(item.content).toBe('Depois');
+    expect(item.location).toBe('Campo Novo');
+    expect(item.extraMedia?.length).toBe(1);
+    expect(item.likeCount).toBe(3);
+    expect(component.editingPostId).toBeNull();
+  }));
+
+  it('preserves the authored draft and the original publication when editing fails', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const item: FeedItem = {
+      type: 'POST', postId: 902, authorUsername: 'miguel', authorDisplayName: 'Miguel',
+      authorProfilePicUrl: null, content: 'Texto original', imageUrl: null,
+      createdAt: '2026-11-12T18:00:00Z', sessionId: null, sport: null, city: null,
+      gameDate: null, likeCount: 0, likedByMe: false, commentCount: 0
+    };
+    component.beginEditPost(item);
+    component.editingPostContent = 'Texto novo';
+    feed.editPost.and.returnValue(throwError(() => new HttpErrorResponse({ status: 503 })));
+    component.savePostEdit(item);
+    expect(item.content).toBe('Texto original');
+    expect(component.editingPostContent).toBe('Texto novo');
+    expect(component.editingPostId).toBe(902);
+    expect(component.actionError).toContain('original');
   }));
 
   it('opens the full gallery and navigates with keyboard without mutating its post', fakeAsync(() => {
