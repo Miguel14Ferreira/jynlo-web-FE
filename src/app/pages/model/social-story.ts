@@ -17,4 +17,6 @@ export interface SocialStory {
   textStyle?: 'plain' | 'pill' | null;
   altText?: string | null;
   showTime?: boolean;
+  locationLabel?: string | null;
+  taggedUsernames?: string | null;
 }
