@@ -180,7 +180,14 @@
             (click)="previous()"></button>
           <button class="story-tap-target story-tap-right" type="button"
             [attr.aria-label]="'stories.next' | t" (click)="next()"></button>
-          @if (story.caption) { <p class="story-caption">{{ story.caption }}</p> }
+          @if (story.caption) {
+            <p class="story-caption"
+               [class.story-caption--plain]="story.textStyle === 'plain'"
+               [class.story-caption--small]="story.textScale === 'small'"
+               [class.story-caption--large]="story.textScale === 'large'"
+               [class.story-caption--top]="story.textPosition === 'top'"
+               [class.story-caption--center]="story.textPosition === 'center'">{{ story.caption }}</p>
+          }
         </div>
 
         <div class="story-top">
