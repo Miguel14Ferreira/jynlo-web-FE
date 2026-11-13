@@ -180,7 +180,14 @@
                   @if (!storyLocationSearching && !storyRealPlaces.length) {
                     <p>Não foram encontrados locais. Experimenta escrever o nome completo.</p>
                   }
-                  <small>Dados de <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo / GeoNames</a> e <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a></small>
+                  @if (storyRealPlaces.length && storyRealPlaces[0].provider === 'google') {
+                    <div class="place-google-attribution">
+                      <img src="https://maps.gstatic.com/mapfiles/api-3/images/powered-by-google-on-white3.png"
+                        alt="Powered by Google" width="120" height="16">
+                    </div>
+                  } @else {
+                    <small>Dados de <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo / GeoNames</a> e <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a></small>
+                  }
                 </div>
               }
               <button type="button" class="story-tag-toggle" (click)="toggleStoryTags()"
