@@ -329,8 +329,11 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
           if(this.room===activeRoom)this.detachElement(el);
           else el.remove();
         }
-        if(this.room===activeRoom && publication.source===Track.Source.ScreenShare)
-          this.screenOn=false;
+        if(this.room===activeRoom){
+          if(publication.source===Track.Source.ScreenShare)this.screenOn=false;
+          if(publication.source===Track.Source.Camera)this.cameraOn=false;
+          if(publication.source===Track.Source.Microphone)this.micOn=false;
+        }
       });
       activeRoom.on(RoomEvent.Reconnecting,()=>{
         if(this.room===activeRoom&&!this.closing) {
@@ -342,6 +345,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         if(this.room===activeRoom&&!this.closing) {
           this.reconnecting=false;
           this.countParticipants();
+          this.syncLocalMedia(activeRoom);
           this.refreshInteractions();
         }
       });
@@ -388,16 +392,19 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
               timeout(10000),takeUntil(this.destroy$),
               finalize(()=>this.heartbeatBusy=false)
             ).subscribe({
-              next:()=>{this.heartbeatFailures=0;},
+              next:()=>{
+                if(this.heartbeatFailures>0 && this.error.includes('servidor instável'))
+                  this.error='';
+                this.heartbeatFailures=0;
+              },
               error:()=>{
-                if(this.destroyed||this.closing)return;
-                // Preserve a healthy stream after one transient HTTP failure.
-                if(++this.heartbeatFailures>=3) {
-                  this.error='Não foi possível manter o direto ativo. Verifica a ligação.';
-                  this.leave();
-                } else {
-                  this.error='Ligação ao servidor instável. Vamos tentar novamente.';
-                }
+                if(this.destroyed||this.closing||this.room!==activeRoom)return;
+                this.heartbeatFailures++;
+                // A failed HTTP heartbeat is not proof that the LiveKit stream
+                // ended. Keep the host's media active and retry on the next tick.
+                this.error=this.heartbeatFailures>=3
+                  ? 'A ligação ao servidor continua instável. O direto mantém-se aberto enquanto recuperamos.'
+                  : 'Ligação ao servidor instável. Vamos tentar novamente.';
               }
             });
           });
@@ -420,8 +427,9 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
           } catch {
             this.error='Não foi possível ativar o microfone. Podes tentar novamente nos controlos.';
           } finally {
-            this.deviceBusy=false;
+            if(this.room===activeRoom)this.deviceBusy=false;
           }
+          if(this.room===activeRoom)this.syncLocalMedia(activeRoom);
         }
       }
     } catch {
@@ -430,6 +438,16 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       if(!this.destroyed&&!this.closing)
         this.error='Não foi possível entrar no direto. Verifica a ligação e as permissões.';
     } finally {this.connecting=false;}
+  }
+  private syncLocalMedia(activeRoom:Room):void {
+    if(this.room!==activeRoom||this.destroyed||this.closing)return;
+    const local=activeRoom.localParticipant;
+    const camera=local.getTrackPublication(Track.Source.Camera);
+    const microphone=local.getTrackPublication(Track.Source.Microphone);
+    const screen=local.getTrackPublication(Track.Source.ScreenShare);
+    this.cameraOn=!!camera && !camera.isMuted;
+    this.micOn=!!microphone && !microphone.isMuted;
+    this.screenOn=!!screen && !screen.isMuted;
   }
   private async disconnectForRetry(activeRoom:Room):Promise<void> {
     if(this.room!==activeRoom || this.destroyed || this.closing)return;
@@ -701,11 +719,11 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     try {
       const enabled=!this.screenOn;
       await activeRoom.localParticipant.setScreenShareEnabled(enabled);
-      if(this.room===activeRoom&&!this.destroyed&&!this.closing)this.screenOn=enabled;
+      if(this.room===activeRoom&&!this.destroyed&&!this.closing)this.syncLocalMedia(activeRoom);
     } catch {
       if(this.room===activeRoom&&!this.closing)
         this.error='Não foi possível partilhar o ecrã. Verifica as permissões do navegador.';
-    } finally {this.deviceBusy=false;}
+    } finally {if(this.room===activeRoom)this.deviceBusy=false;}
   }
   async toggleCamera():Promise<void> {
     // Guests accepted by the host may publish their own media, just like the host.
@@ -716,10 +734,10 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     try{
       const enabled=!this.cameraOn;
       await activeRoom.localParticipant.setCameraEnabled(enabled);
-      if(this.room===activeRoom && !this.destroyed)this.cameraOn=enabled;
+      if(this.room===activeRoom && !this.destroyed && !this.closing)this.syncLocalMedia(activeRoom);
     }catch{
       if(this.room===activeRoom)this.error='Não foi possível alterar a câmara.';
-    }finally{this.deviceBusy=false;}
+    }finally{if(this.room===activeRoom)this.deviceBusy=false;}
   }
   async toggleMic():Promise<void> {
     if(!this.room || this.connecting || this.reconnecting || this.rejoining || this.deviceBusy ||
@@ -729,10 +747,10 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     try{
       const enabled=!this.micOn;
       await activeRoom.localParticipant.setMicrophoneEnabled(enabled);
-      if(this.room===activeRoom && !this.destroyed)this.micOn=enabled;
+      if(this.room===activeRoom && !this.destroyed && !this.closing)this.syncLocalMedia(activeRoom);
     }catch{
       if(this.room===activeRoom)this.error='Não foi possível alterar o microfone.';
-    }finally{this.deviceBusy=false;}
+    }finally{if(this.room===activeRoom)this.deviceBusy=false;}
   }
   requestEnd():void {
     if(!this.event.canManage || this.ended || this.ending || this.closing)return;
