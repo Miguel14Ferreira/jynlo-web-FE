@@ -377,7 +377,6 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   encodeLocation(value:string):string { return encodeURIComponent(value); }
-  private readonly realPlaceSearch = inject(RealPlaceSearchService);
   postLocationSuggestions: Venue[] = [];
   postRealPlaces: RealPlace[] = [];
   postLocationVerified = false;
@@ -398,9 +397,9 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     const serial = ++this.postLocationQuerySerial;
     this.postLocationSearchSubscription?.unsubscribe();
     this.postLocationLoading = this.postLocationOpen;
-    if (!this.postLocationOpen) return;
+    if (!this.postLocationOpen || !this.realPlaceSearch) return;
     this.postLocationSearchSubscription = timer(400).pipe(
-      switchMap(() => this.realPlaceSearch.search(query).pipe(
+      switchMap(() => this.realPlaceSearch!.search(query).pipe(
         timeout(8000), catchError(() => of([] as RealPlace[])))),
       takeUntil(this.destroyed)
     ).subscribe(places => {
@@ -866,7 +865,9 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     @Optional() private realtime: DirectChatRealtimeService | null = null,
     @Optional() private venueService: VenueService | null = null,
     @Optional() private communityLiveService: CommunityLiveService | null = null,
-    @Optional() private personalLiveService: PersonalLiveService | null = null
+    @Optional() private personalLiveService: PersonalLiveService | null = null,
+    @Optional() private realPlaceSearch: RealPlaceSearchService | null = null,
+    @Optional() private postShareChat: DirectChatService | null = null
   ) {
     this.authenticationService.isLoggedIn();
     this.currentUsername = this.authenticationService.loggedInPerfilname || '';
@@ -1937,7 +1938,6 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   pendingDeletePost: FeedItem | null = null;
-  private readonly postShareChat = inject(DirectChatService);
   postShareFriends: FriendSummary[] = [];
   postShareLoadingFriends = false;
   postShareSendingTo: string | null = null;
@@ -1980,7 +1980,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   sendPostToFriend(friend: FriendSummary): void {
-    if (!this.postShareFriendsOpen || this.postShareSendingTo ||
+    if (!this.postShareFriendsOpen || !this.postShareChat || this.postShareSendingTo ||
         !this.postShareFriends.some(user => user.username === friend.username)) return;
     this.postShareSendingTo = friend.username;
     this.postShareFriendsError = '';
