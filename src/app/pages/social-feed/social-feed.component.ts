@@ -20,6 +20,7 @@ import { FollowProfile } from '../model/follow';
 import { CommunityProfile } from '../model/community-profile';
 import { VenueService } from '../../services/venue.service';
 import { Venue } from '../model/venue';
+import { addTextToPhoto } from './social-photo-text';
 
 @Component({
   selector: 'app-social-feed',
@@ -295,6 +296,54 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       this.postTagSuggestions = this.postTagProfiles.slice(0, 8);
       this.postTagSearchLoading = false;
     });
+  }
+
+  photoTextEditorIndex: number | null = null;
+  photoTextDraft = '';
+  photoTextPosition: 'top' | 'center' | 'bottom' = 'center';
+  photoTextInk: 'white' | 'yellow' | 'black' = 'white';
+  photoTextSaving = false;
+  photoTextError = '';
+
+  openPhotoTextEditor(index: number): void {
+    const file = index === -1 ? this.postImageFile : this.postGallery[index]?.file;
+    if (!file || !file.type.startsWith('image/') || this.posting) return;
+    this.photoTextEditorIndex = index;
+    this.photoTextDraft = '';
+    this.photoTextError = '';
+  }
+
+  closePhotoTextEditor(): void {
+    if (this.photoTextSaving) return;
+    this.photoTextEditorIndex = null;
+    this.photoTextError = '';
+  }
+
+  async savePhotoText(): Promise<void> {
+    const index = this.photoTextEditorIndex;
+    if (index === null || this.posting || this.photoTextSaving) return;
+    const input = index === -1 ? this.postImageFile : this.postGallery[index]?.file;
+    if (!input || !this.photoTextDraft.trim()) return;
+    this.photoTextSaving = true;
+    this.photoTextError = '';
+    try {
+      const image = await addTextToPhoto(input, this.photoTextDraft,
+        this.photoTextPosition, this.photoTextInk);
+      if (index === -1) {
+        this.postImageFile = image;
+        const reader = new FileReader();
+        reader.onload = () => this.postImagePreview = typeof reader.result === 'string' ? reader.result : '';
+        reader.readAsDataURL(image);
+      } else if (this.postGallery[index]) {
+        URL.revokeObjectURL(this.postGallery[index].url);
+        this.postGallery[index] = { file: image, url: URL.createObjectURL(image) };
+      }
+      this.photoTextEditorIndex = null;
+    } catch (error) {
+      this.photoTextError = error instanceof Error ? error.message : 'Não foi possível editar a fotografia.';
+    } finally {
+      this.photoTextSaving = false;
+    }
   }
 
   postTagQuery = '';
