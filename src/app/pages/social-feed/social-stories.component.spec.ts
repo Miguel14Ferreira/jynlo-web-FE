@@ -338,6 +338,7 @@ describe('SocialStoriesComponent', () => {
     tick();
     component.openComposer();
     component.file = new File(['photo'], 'jogo.jpg', {type:'image/jpeg'});
+    component.filePreview = 'blob:fixture-photo';
     component.caption = 'Vamos jogar!';
     component.storyTextColor = 'black';
     component.storyTextBackground = 'light';
@@ -396,6 +397,7 @@ describe('SocialStoriesComponent', () => {
     component.storyTextPosition = 'center';
     component.storyTextScale = 'large';
     component.storyTextStyle = 'plain';
+    component.storyTextBackground = 'none';
     fixture.detectChanges();
 
     const dialog = fixture.nativeElement.querySelector('.story-composer[role="dialog"]') as HTMLElement;
