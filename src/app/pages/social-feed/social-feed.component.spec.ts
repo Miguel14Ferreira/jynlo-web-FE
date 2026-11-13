@@ -423,7 +423,8 @@ describe('SocialFeedComponent discovery sidebar', () => {
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
     const photos = root.querySelectorAll('.feed-card .feed-media-open');
-    expect(photos.length).toBe(2);
+    expect(photos.length).toBe(1);
+    expect(root.querySelector('.feed-post-carousel-counter')?.textContent?.trim()).toBe('1 / 3');
     (photos[0] as HTMLButtonElement).click();
     fixture.detectChanges();
     expect(component.expandedMedia.length).toBe(3);
@@ -436,6 +437,69 @@ describe('SocialFeedComponent discovery sidebar', () => {
     fixture.detectChanges();
     expect(root.querySelector('.feed-lightbox')).toBeNull();
     expect(post.extraMedia?.length).toBe(2);
+  }));
+
+  it('cycles photo, video and another photo without changing other publications', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const first: FeedItem = {
+      type: 'POST', postId: 811, authorUsername: 'ana', authorDisplayName: 'Ana',
+      authorProfilePicUrl: null, content: 'Equipa', imageUrl: '/media/team.jpg',
+      extraMedia: [
+        { url: '/media/moment.mp4', mimeType: 'video/mp4' },
+        { url: '/media/end.jpg', mimeType: 'image/jpeg' }
+      ], createdAt: '2026-11-12T18:00:00Z', sessionId: null, sport: null,
+      city: null, gameDate: null, likeCount: 1, likedByMe: false, commentCount: 0
+    };
+    const second: FeedItem = {
+      ...first, postId: 812, imageUrl: '/media/other.jpg', extraMedia: [
+        { url: '/media/other-next.jpg', mimeType: 'image/jpeg' }
+      ]
+    };
+    component.items = [first, second];
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const cards = root.querySelectorAll('.feed-list .feed-card');
+    expect(cards.length).toBe(2);
+    const firstCard = cards[0] as HTMLElement;
+    const secondCard = cards[1] as HTMLElement;
+    expect(firstCard.querySelectorAll('.feed-post-carousel-video').length).toBe(0);
+    (firstCard.querySelector('.feed-post-carousel-next') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(component.selectedPostMediaIndex(first)).toBe(1);
+    expect(firstCard.querySelector('.feed-post-carousel-video')?.getAttribute('src')).toContain('moment.mp4');
+    expect(component.selectedPostMediaIndex(second)).toBe(0);
+    expect(secondCard.querySelector('.feed-post-carousel-counter')?.textContent?.trim()).toBe('1 / 2');
+    (firstCard.querySelectorAll('.feed-post-carousel-dots button')[2] as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(firstCard.querySelector('.feed-post-carousel-image img')?.getAttribute('src')).toContain('end.jpg');
+    expect((firstCard.querySelector('.feed-post-carousel-next') as HTMLButtonElement).disabled).toBeTrue();
+    expect(first.likeCount).toBe(1);
+  }));
+
+  it('handles keyboard arrows and horizontal swipes without wrapping or swallowing vertical scroll', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const item: FeedItem = {
+      type: 'POST', postId: 851, authorUsername: 'joao', authorDisplayName: 'João',
+      authorProfilePicUrl: null, content: '', imageUrl: '/media/a.jpg',
+      extraMedia: [{ url: '/media/b.jpg', mimeType: 'image/jpeg' }],
+      createdAt: '2026-11-12T18:00:00Z', sessionId: null, sport: null,
+      city: null, gameDate: null, likeCount: 0, likedByMe: false, commentCount: 0
+    };
+    component.items = [item];
+    fixture.detectChanges();
+    const stage = (fixture.nativeElement as HTMLElement).querySelector('.feed-post-carousel') as HTMLElement;
+    stage.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
+    expect(component.selectedPostMediaIndex(item)).toBe(1);
+    component.shiftPostMedia(item, 1);
+    expect(component.selectedPostMediaIndex(item)).toBe(1);
+    component.onPostMediaTouchStart({ changedTouches: [{ clientX: 20, clientY: 20 }] } as unknown as TouchEvent, item);
+    component.onPostMediaTouchEnd({ changedTouches: [{ clientX: 120, clientY: 30 }] } as unknown as TouchEvent, item);
+    expect(component.selectedPostMediaIndex(item)).toBe(0);
+    component.onPostMediaTouchStart({ changedTouches: [{ clientX: 20, clientY: 20 }] } as unknown as TouchEvent, item);
+    component.onPostMediaTouchEnd({ changedTouches: [{ clientX: 150, clientY: 250 }] } as unknown as TouchEvent, item);
+    expect(component.selectedPostMediaIndex(item)).toBe(0);
   }));
 
   it('publishes a photo without a caption and keeps empty posts disabled', fakeAsync(() => {
