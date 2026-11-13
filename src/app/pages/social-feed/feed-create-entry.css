@@ -379,3 +379,24 @@
 .feed-page .composer .composer-album small {color:#a8c8ce;text-align:center;}
 .feed-page .composer .feed-photo-reset {align-self:flex-start;min-height:38px;padding:.45rem .75rem;
   border:1px solid #3c8f91;border-radius:.65rem;background:#0c3741;color:#e9fffc;cursor:pointer;}
+
+
+.feed-page .feed-share-friends-trigger {border:1px solid #386f77;background:#113743;
+  border-radius:.65rem;color:#edfffb;padding:.48rem .7rem;cursor:pointer;font-weight:650;}
+.feed-friends-share-dialog {display:grid;gap:.7rem;max-height:80dvh;overflow:hidden;}
+.feed-friends-share-header {display:flex;align-items:center;justify-content:space-between;gap:.5rem;}
+.feed-friends-share-header h3 {margin:0;}
+.feed-friends-share-header button {border:0!important;background:transparent!important;
+ border-radius:0!important;color:#fff;font-size:1.6rem;cursor:pointer;}
+.feed-friends-share-dialog > input {width:100%;min-width:0;padding:.65rem;
+ background:#092934;color:#fff;border:1px solid #487c82;border-radius:.6rem;}
+.feed-friends-share-results {display:grid;gap:.35rem;min-height:0;overflow:auto;
+  max-height:46dvh;}
+.feed-friend-share-row {display:flex;justify-content:space-between;align-items:center;
+  gap:.6rem;padding:.6rem;border-radius:.6rem;background:#0b2d39;}
+.feed-friend-share-row span {min-width:0;display:grid;gap:.15rem;overflow-wrap:anywhere;}
+.feed-friend-share-row small {color:#9fc6ca;}
+.feed-friend-share-row button {border:1px solid #37ac9d;border-radius:.55rem;
+  background:#124a49;color:#edfffa;padding:.5rem .75rem;cursor:pointer;}
+.feed-friend-share-row button:disabled {opacity:.6;}
+.place-attribution {display:block;color:#9eb9bd;font-size:.7rem;padding:.3rem .65rem;}
