@@ -13,6 +13,7 @@ import { CommunityPerformanceInsightsComponent } from './community-performance-i
 import { CommunityTabsComponent } from './community-tabs.component';
 import { CommunitySessionCardComponent } from './community-session-card.component';
 import { CommunityOverviewStatsComponent } from './community-overview-stats.component';
+import { CommunityLivePanelComponent } from './community-live-panel.component';
 import { CommunityLeaderHighlightComponent } from './community-leader-highlight.component';
 import { CommunityFeatureSettingsComponent } from './community-feature-settings.component';
 import { CommunityDisciplinePanelComponent } from './community-discipline-panel.component';
@@ -56,7 +57,7 @@ const routes: Routes = [
     CommunityTournamentsComponent
   ],
   imports: [CommonModule, FormsModule, RouterModule.forChild(routes), TranslatePipe, ChatReactionsComponent, KartingPodiumComponent, KartingPalmaresComponent, KartingRaceTableComponent,
-    CompetitionGuideComponent, CompetitionFormatChooserComponent, CommunityDiscoveryPitchComponent, CommunityPerformanceInsightsComponent, CommunityTabsComponent, CommunitySessionCardComponent, CommunityOverviewStatsComponent, CommunityLeaderHighlightComponent, CommunityFeatureSettingsComponent, CommunityDisciplinePanelComponent, CommunityTournamentSuspensionsComponent, CommunityTournamentEligibilityPanelComponent, CommunityWhatsAppShareComponent, CommunitySportManagementComponent, CommunityActiveSeasonCardComponent, CommunitySeasonTrophiesComponent, CommunityStatLeadersComponent, CommunitySpecializedStatsComponent, CommunityStatsTableComponent, CommunityRankingTableComponent, CommunityPendingInvitesComponent, CommunitySwitchComponent, CommunityCompetitionSettingsComponent, CommunityRankingVisibilityComponent, CommunitySeasonCreateFormComponent, CommunitySeasonFilterComponent, CommunityPhotoCoverComponent,
+    CompetitionGuideComponent, CompetitionFormatChooserComponent, CommunityLivePanelComponent, CommunityDiscoveryPitchComponent, CommunityPerformanceInsightsComponent, CommunityTabsComponent, CommunitySessionCardComponent, CommunityOverviewStatsComponent, CommunityLeaderHighlightComponent, CommunityFeatureSettingsComponent, CommunityDisciplinePanelComponent, CommunityTournamentSuspensionsComponent, CommunityTournamentEligibilityPanelComponent, CommunityWhatsAppShareComponent, CommunitySportManagementComponent, CommunityActiveSeasonCardComponent, CommunitySeasonTrophiesComponent, CommunityStatLeadersComponent, CommunitySpecializedStatsComponent, CommunityStatsTableComponent, CommunityRankingTableComponent, CommunityPendingInvitesComponent, CommunitySwitchComponent, CommunityCompetitionSettingsComponent, CommunityRankingVisibilityComponent, CommunitySeasonCreateFormComponent, CommunitySeasonFilterComponent, CommunityPhotoCoverComponent,
     TournamentClassificationNoteComponent, RaceStandingsCardComponent,
     CommunityHabitualVenuePickerComponent]
 })
