@@ -204,7 +204,9 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       activeRoom.on(RoomEvent.ParticipantConnected,()=>this.countParticipants());
       activeRoom.on(RoomEvent.ParticipantDisconnected,()=>this.countParticipants());
       activeRoom.on(RoomEvent.Disconnected,()=>{
-        if (!this.rejoining && !this.destroyed) this.leave();
+        // Ignore a late event from the previous connection when upgrading a
+        // viewer to a host-approved guest or revoking guest permissions.
+        if (this.room===activeRoom && !this.rejoining && !this.destroyed) this.leave();
       });
       this.room=activeRoom;
       await activeRoom.connect(credentials.serverUrl,credentials.token);
