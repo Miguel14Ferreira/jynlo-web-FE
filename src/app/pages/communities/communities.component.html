@@ -561,6 +561,11 @@
                   </div>
                   <div class="row-actions">
                     <button type="button" class="jynlo-action jynlo-action--neutral"
+                      [attr.aria-expanded]="communityChatSearchOpen"
+                      (click)="toggleCommunityChatSearch()">
+                      {{ communityChatSearchOpen ? 'Fechar pesquisa' : 'Pesquisar mensagens' }}
+                    </button>
+                    <button type="button" class="jynlo-action jynlo-action--neutral"
                       (click)="setTab('sessions')">{{ 'communities.chatViewSessions' | t }}</button>
                     <button type="button" class="jynlo-action jynlo-action--neutral"
                       [disabled]="timelineLoading" (click)="loadTimeline()">
@@ -570,6 +575,39 @@
                 </header>
                 @if (timelineError) {
                   <p class="feedback error-feedback" role="alert">{{ timelineError }}</p>
+                }
+                @if (communityChatSearchOpen) {
+                  <section class="community-chat-search" aria-label="Pesquisar mensagens da comunidade">
+                    <label for="community-chat-search-input">Pesquisar neste chat</label>
+                    <div class="community-chat-search-input-row">
+                      <input id="community-chat-search-input" type="search"
+                             [(ngModel)]="communityChatSearchQuery"
+                             (ngModelChange)="updateCommunityChatSearch()"
+                             (keydown)="onCommunityChatSearchKeydown($event)"
+                             maxlength="120" autocomplete="off"
+                             placeholder="Pesquisar texto, respostas ou ficheiros">
+                      <button type="button" (click)="toggleCommunityChatSearch()" aria-label="Fechar pesquisa">×</button>
+                    </div>
+                    @if (communityChatSearchQuery.trim()) {
+                      <div class="community-chat-search-navigation" role="status" aria-live="polite">
+                        <span>
+                          @if (communityChatSearchMatches.length) {
+                            {{ communityChatSearchIndex + 1 }} de {{ communityChatSearchMatches.length }} resultados carregados
+                          } @else { Sem resultados nas mensagens carregadas }
+                        </span>
+                        <button type="button" [disabled]="!communityChatSearchMatches.length"
+                                (click)="navigateCommunityChatSearch(-1)" aria-label="Resultado anterior">↑</button>
+                        <button type="button" [disabled]="!communityChatSearchMatches.length"
+                                (click)="navigateCommunityChatSearch(1)" aria-label="Resultado seguinte">↓</button>
+                        @if (chatHasOlder) {
+                          <button type="button" class="jynlo-action jynlo-action--neutral"
+                                  [disabled]="chatOlderLoading" (click)="loadOlderCommunityMessages()">
+                            {{ chatOlderLoading ? 'A carregar…' : 'Procurar no histórico anterior' }}
+                          </button>
+                        }
+                      </div>
+                    }
+                  </section>
                 }
                 <div #communityChatLog class="community-chat-log" role="log"
                   aria-live="polite" (scroll)="onCommunityChatScroll()">
@@ -591,12 +629,18 @@
                         <div class="community-chat-day">{{ chatDayLabelAt(index) }}</div>
                       }
                       <article class="community-chat-bubble"
+                        [attr.data-community-chat-entry-id]="entry.id"
+                        [class.community-chat-search-active]="isActiveCommunityChatMatch(entry)"
                         [class.community-chat-bubble--own]="isMyChatEntry(entry)">
                         @if (!chatContinuesGroupAt(index)) {
                           <strong>{{ communityFeedAuthorName(entry.username) }}</strong>
                         }
                         @if (entry.replyToText) {
-                          <blockquote>{{ entry.replyToSender }}: {{ entry.replyToText }}</blockquote>
+                          <button type="button" class="community-chat-reply-jump"
+                                  (click)="jumpToCommunityChatReply(entry)"
+                                  aria-label="Encontrar a mensagem original">
+                            {{ entry.replyToSender }}: {{ entry.replyToText }} ↗
+                          </button>
                         }
                         <p>{{ entry.body }}</p>
                         <footer>
