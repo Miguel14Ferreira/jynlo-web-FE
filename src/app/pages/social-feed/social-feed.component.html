@@ -149,9 +149,13 @@
                [(ngModel)]="postLocation" (ngModelChange)="onPostLocationQuery($event)"
                maxlength="160" autocomplete="off" [disabled]="posting"
                aria-controls="post-location-results" [attr.aria-expanded]="postLocationOpen"
-               placeholder="Pesquisar recinto ou cidade (ex.: Benfica)">
+               placeholder="Benfica, Lisboa ou pesquisar um recinto">
         @if (postLocationOpen) {
           <div id="post-location-results" class="composer-location-results">
+            <button type="button" class="composer-freeform-location" (click)="selectPostPlaceName()">
+              <span aria-hidden="true">📍</span>
+              <span><strong>{{ postLocation.trim() }}</strong><small>Usar este bairro, cidade ou lugar</small></span>
+            </button>
             @if (postLocationLoading) { <p role="status">A procurar recintos…</p> }
             @for (place of postLocationSuggestions; track place.id) {
               <button type="button" (click)="selectPostLocation(place)">
@@ -160,7 +164,7 @@
               </button>
             }
             @if (!postLocationLoading && !postLocationSuggestions.length) {
-              <p>Sem recintos encontrados. Podes escrever uma localização livre.</p>
+              <p>Sem recintos encontrados. Podes usar o lugar escrito acima.</p>
             }
             @if (postLocationError) { <p role="alert">{{ postLocationError }}</p> }
           </div>
@@ -173,11 +177,11 @@
       </button>
       @if (postTagSearchOpen) {
         <div class="composer-tag-picker">
-          <label for="post-tag-query">Pesquisar perfil da Jynlo</label>
+          <label for="post-tag-query">Pesquisar amigos</label>
           <input id="post-tag-query" type="search" [(ngModel)]="postTagQuery"
                  (ngModelChange)="searchPostTags($event)" autocomplete="off"
                  placeholder="Nome ou utilizador">
-          @if (postTagSearchLoading) { <p>A procurar perfis…</p> }
+          @if (postTagSearchLoading) { <p>A procurar amigos…</p> }
           @for (profile of postTagSuggestions; track profile.username) {
             <button type="button" (click)="tagPostProfile(profile)">
               @if (suggestedProfileImage(profile); as avatar) {
@@ -189,7 +193,7 @@
             </button>
           }
           @if (!postTagSearchLoading && !postTagSuggestions.length) {
-            <p>Não foram encontrados perfis.</p>
+            <p>Não foram encontrados amigos para identificar.</p>
           }
         </div>
       }
