@@ -13,6 +13,10 @@ export interface SocialStory {
   expiresAt: string;
   canDelete: boolean;
   textPosition?: 'top' | 'center' | 'bottom' | null;
+  textX?: number | null;
+  textY?: number | null;
+  textRotation?: number | null;
+  textZoom?: number | null;
   textScale?: 'small' | 'medium' | 'large' | null;
   textStyle?: 'plain' | 'pill' | null;
   altText?: string | null;
