@@ -406,3 +406,21 @@
     width:100%;
   }
 }
+
+
+/* Full-width interactive profile post thumbnails, never nested media controls. */
+:host .community-page.profile-page-open .profile-publication-open{
+  display:flex;flex-direction:column;align-items:stretch;text-align:left;
+  flex:1;width:100%;min-width:0;padding:0;border:0;border-radius:inherit;
+  color:inherit;background:transparent;cursor:zoom-in;font:inherit;
+}
+:host .community-page.profile-page-open .profile-publication-open:hover,
+:host .community-page.profile-page-open .profile-publication-open:focus-visible{
+  outline:2px solid #42e0ca;outline-offset:-2px;
+}
+:host .community-page.profile-page-open .profile-publication-open video{
+  pointer-events:none;
+}
+:host .community-page.profile-page-open .profile-publication-open .profile-publication-meta{
+  width:100%;
+}
