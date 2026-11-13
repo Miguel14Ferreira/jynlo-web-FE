@@ -375,6 +375,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     });
   }
 
+  encodeLocation(value:string):string { return encodeURIComponent(value); }
   private readonly realPlaceSearch = inject(RealPlaceSearchService);
   postLocationSuggestions: Venue[] = [];
   postRealPlaces: RealPlace[] = [];
