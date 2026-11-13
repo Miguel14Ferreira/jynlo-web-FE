@@ -19,8 +19,11 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       </header>
       @if (error) {<p role="alert">{{error}}</p>}
       @if (connecting) {<p role="status">{{ connectionStatus }}</p>}
-      @if (!connecting && room) {
+      @if (!connecting && room && !reconnecting) {
         <p class="live-connection-status" role="status">● Transmissão ligada</p>
+      }
+      @if (reconnecting) {
+        <p class="live-reconnection-status" role="status">A recuperar a ligação ao direto… Os controlos ficam temporariamente indisponíveis.</p>
       }
       <div class="personal-live-layout">
         <div #stage class="personal-live-stage" aria-label="Vídeo da transmissão"></div>
@@ -51,8 +54,8 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           <form class="live-chat-input" (ngSubmit)="sendMessage()">
             <input name="liveMessage" [(ngModel)]="draft" maxlength="500"
               placeholder="Escrever mensagem…" aria-label="Mensagem para o direto"
-              [disabled]="!room || sending || (!event.canManage && (!controls?.chatEnabled || controls?.mutedByHost))">
-            <button type="submit" [disabled]="!room || sending || !draft.trim() ||
+              [disabled]="!room || connecting || reconnecting || sending || (!event.canManage && (!controls?.chatEnabled || controls?.mutedByHost))">
+            <button type="submit" [disabled]="!room || connecting || reconnecting || sending || !draft.trim() ||
               (!event.canManage && (!controls?.chatEnabled || controls?.mutedByHost))">Enviar</button>
           </form>
           @if (!event.canManage) {
@@ -62,7 +65,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
               } @else if (controls?.isGuest) {
                 <p>Estás a participar com vídeo neste direto.</p>
               } @else {
-                <button type="button" [disabled]="moderationBusy || !room"
+                <button type="button" [disabled]="moderationBusy || !room || connecting || reconnecting"
                   (click)="requestGuest()">Pedir para entrar no direto</button>
               }
             </div>
@@ -90,9 +93,9 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       </div>
       @if (event.canManage || role==='GUEST') {
         <footer aria-label="Controlos do direto">
-          <button type="button" [disabled]="!room || connecting || deviceBusy"
+          <button type="button" [disabled]="!room || connecting || reconnecting || deviceBusy"
             [attr.aria-pressed]="micOn" (click)="toggleMic()">{{ micOn ? 'Silenciar microfone' : 'Ligar microfone' }}</button>
-          <button type="button" [disabled]="!room || connecting || deviceBusy"
+          <button type="button" [disabled]="!room || connecting || reconnecting || deviceBusy"
             [attr.aria-pressed]="cameraOn" (click)="toggleCamera()">{{ cameraOn ? 'Desligar câmara' : 'Ligar câmara' }}</button>
           @if (event.canManage) {
             <button type="button" class="end" [disabled]="ending"
@@ -123,6 +126,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       padding:.65rem;border:1px solid #47767e;border-radius:.6rem;cursor:pointer}
     footer .end{background:#932d42}footer button:disabled{opacity:.5;cursor:not-allowed}
     p[role="alert"]{color:#fecaca}.live-connection-status{color:#5eead4;margin:0;font-size:.82rem}
+    .live-reconnection-status{color:#fde68a;margin:0;font-size:.85rem}
     .live-chat{min-width:0;min-height:260px;display:flex;flex-direction:column;gap:9px;
       border:1px solid #285c66;border-radius:10px;padding:10px;background:#0b202b}
     .live-chat header{align-items:center;flex-wrap:wrap}
@@ -161,7 +165,10 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   connecting=false;
   connectionStatus='A ligar à transmissão…';
   deviceBusy=false;
+  reconnecting=false;
   ending=false;
+  private heartbeatFailures=0;
+  private heartbeatBusy=false;
   error='';
   cameraOn=false;
   micOn=false;
@@ -203,6 +210,19 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       activeRoom.on(RoomEvent.LocalTrackUnpublished,publication=>{
         if (publication.track) for (const el of publication.track.detach()) el.remove();
       });
+      activeRoom.on(RoomEvent.Reconnecting,()=>{
+        if(this.room===activeRoom&&!this.closing) {
+          this.reconnecting=true;
+          this.connectionStatus='A recuperar a ligação…';
+        }
+      });
+      activeRoom.on(RoomEvent.Reconnected,()=>{
+        if(this.room===activeRoom&&!this.closing) {
+          this.reconnecting=false;
+          this.countParticipants();
+          this.refreshInteractions();
+        }
+      });
       activeRoom.on(RoomEvent.ParticipantConnected,()=>this.countParticipants());
       activeRoom.on(RoomEvent.ParticipantDisconnected,()=>this.countParticipants());
       activeRoom.on(RoomEvent.Disconnected,()=>{
@@ -217,19 +237,33 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       }
       this.countParticipants();
       this.role=credentials.role;
+      this.reconnecting=false;
       this.connecting=false;
       if (credentials.role==='HOST' || credentials.role==='GUEST') {
         if (credentials.role==='HOST') {
           this.heartbeats?.unsubscribe();
-          this.heartbeats=interval(20000).pipe(takeUntil(this.destroy$)).subscribe(()=>
+          this.heartbeatFailures=0;
+          this.heartbeatBusy=false;
+          this.heartbeats=interval(20000).pipe(takeUntil(this.destroy$)).subscribe(()=>{
+            if(this.heartbeatBusy||this.closing||this.destroyed||this.reconnecting)return;
+            this.heartbeatBusy=true;
             this.service.heartbeat(this.event.id).pipe(
-              timeout(10000),takeUntil(this.destroy$)
+              timeout(10000),takeUntil(this.destroy$),
+              finalize(()=>this.heartbeatBusy=false)
             ).subscribe({
-              error:()=>{if(!this.destroyed&&!this.closing) {
-                this.error='O direto terminou ou a ligação ao servidor falhou.';
-                this.leave();
-              }}
-            }));
+              next:()=>{this.heartbeatFailures=0;},
+              error:()=>{
+                if(this.destroyed||this.closing)return;
+                // Preserve a healthy stream after one transient HTTP failure.
+                if(++this.heartbeatFailures>=3) {
+                  this.error='Não foi possível manter o direto ativo. Verifica a ligação.';
+                  this.leave();
+                } else {
+                  this.error='Ligação ao servidor instável. Vamos tentar novamente.';
+                }
+              }
+            });
+          });
         }
         // A newly admitted guest must choose when to activate their devices.
         // Hosts retain the existing auto-start behaviour for their broadcasts.
@@ -313,7 +347,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   }
   sendMessage():void {
     const content=this.draft.trim();
-    if(!content||this.sending||!this.room||content.length>500||
+    if(!content||this.sending||!this.room||this.connecting||this.reconnecting||content.length>500||
        (!this.event.canManage && (!this.controls?.chatEnabled || this.controls.mutedByHost)))return;
     this.sending=true;this.error='';
     this.service.sendMessage(this.event.id,content).pipe(timeout(10000),takeUntil(this.destroy$),
@@ -341,7 +375,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     });
   }
   requestGuest():void {
-    if(this.event.canManage||this.moderationBusy||!this.room||
+    if(this.event.canManage||this.moderationBusy||!this.room||this.connecting||this.reconnecting||
        this.controls?.isGuest||this.controls?.requestStatus==='PENDING')return;
     this.moderationBusy=true;
     this.service.requestToJoin(this.event.id).pipe(timeout(10000),takeUntil(this.destroy$),
@@ -385,7 +419,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   }
   async toggleCamera():Promise<void> {
     // Guests accepted by the host may publish their own media, just like the host.
-    if(!this.room || this.connecting || this.rejoining || this.deviceBusy ||
+    if(!this.room || this.connecting || this.reconnecting || this.rejoining || this.deviceBusy ||
        (this.role!=='HOST' && this.role!=='GUEST'))return;
     const activeRoom=this.room;
     this.deviceBusy=true;
@@ -398,7 +432,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     }finally{this.deviceBusy=false;}
   }
   async toggleMic():Promise<void> {
-    if(!this.room || this.connecting || this.rejoining || this.deviceBusy ||
+    if(!this.room || this.connecting || this.reconnecting || this.rejoining || this.deviceBusy ||
        (this.role!=='HOST' && this.role!=='GUEST'))return;
     const activeRoom=this.room;
     this.deviceBusy=true;
@@ -423,6 +457,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     this.closing=true;
     this.heartbeats?.unsubscribe();this.heartbeats=undefined;
     this.interactionPoll?.unsubscribe();this.interactionPoll=undefined;
+    this.reconnecting=false;
     this.destroy$.next();
     const active=this.room;this.room=null;
     this.role='VIEWER';
