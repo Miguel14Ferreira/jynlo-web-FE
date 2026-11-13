@@ -255,10 +255,11 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
         this.description = '';
         this.date = '';
         this.load();
-        // Release the mutation lock before entering the LiveKit room: join()
-        // deliberately rejects calls while busy, and finalize runs after next.
-        this.busy = false;
-        void this.join(started);
+        // finalize runs after next; let it release the scheduling lock first
+        // so join() can safely acquire its own lock for LiveKit connection.
+        queueMicrotask(() => {
+          if (this.communityId === communityId) void this.join(started);
+        });
       },
       error: () => {
         this.error = 'Não foi possível iniciar o direto. Verifica as permissões e a disponibilidade do vídeo.';
@@ -282,12 +283,15 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
   start(event: CommunityLiveEvent): void {
     if (this.busy) return;
     this.busy = true;
-    this.api.start(this.communityId, event.id).pipe(finalize(() => this.busy = false)).subscribe({
+    const communityId = this.communityId;
+    this.api.start(communityId, event.id).pipe(finalize(() => this.busy = false)).subscribe({
       next: started => {
+        if (this.communityId !== communityId) return;
         this.load();
-        // Starting a scheduled event should also take the presenter on air.
-        this.busy = false;
-        void this.join(started);
+        // Start and join are distinct operations with separate busy locks.
+        queueMicrotask(() => {
+          if (this.communityId === communityId) void this.join(started);
+        });
       },
       error: () => this.error = 'Não foi possível iniciar. Verifica a ligação e a disponibilidade do vídeo.'
     });
