@@ -300,7 +300,8 @@ export class PerfisComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private communityGroups: CommunityGroupsService,
     private sessionService: SessionService,
-    private socialFeed: SocialFeedService
+    private socialFeed: SocialFeedService,
+    private socialStories: SocialStoriesService
   ) {
     this.authenticationService.isLoggedIn();
     this.currentUsername = this.authenticationService.loggedInPerfilname || '';
