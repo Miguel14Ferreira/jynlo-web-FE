@@ -90,6 +90,7 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
   styles: [`
     .live-panel{border:1px solid #2c6c70;border-radius:16px;background:#092632;padding:16px;color:#e8f8f7;display:grid;gap:16px}
     .live-panel[hidden]{display:none!important}
+    .live-panel[hidden]{display:none!important}
     .live-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
     .live-panel-heading strong{font-size:1.1rem}
     .live-panel-heading p,.live-event p{font-size:.82rem;color:#b1cbcd;margin:4px 0}
