@@ -165,6 +165,10 @@
         [disabled]="posting"
         [placeholder]="'feed.sharePlaceholder' | t"></textarea>
       <p class="composer-caption-optional">Descrição opcional — podes publicar apenas fotografias ou vídeos.</p>
+      <label class="composer-place-label" for="feed-post-location">Localização (opcional)</label>
+      <input id="feed-post-location" class="composer-place-input" type="text"
+        [(ngModel)]="postLocation" maxlength="160" autocomplete="off"
+        [disabled]="posting" placeholder="Ex.: Campo de futebol de Benfica, Lisboa">
 
       @if (postImagePreview || postVideoPreview || postGallery.length) {
         <div class="composer-media" [class.composer-media--single]="postImagePreview || postVideoPreview || postGallery.length === 1"
@@ -352,6 +356,7 @@
                 <div class="author-copy">
                   <strong>{{ item.authorDisplayName }}</strong>
                   <span>@{{ item.authorUsername }} · {{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                  @if (item.location) { <span class="feed-post-place">📍 {{ item.location }}</span> }
                 </div>
               </a>
 
