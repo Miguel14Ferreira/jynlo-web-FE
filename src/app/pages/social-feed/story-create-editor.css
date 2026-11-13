@@ -126,3 +126,11 @@
   box-shadow:none!important; color:#eaf6f6!important;
 }
 .story-create-backdrop .story-create-close:hover {color:#5eead4!important;}
+
+/* Media-aware direct text manipulation for Stories. */
+.story-create-stage app-movable-text { position:absolute;inset:0;z-index:12; }
+.story-text-options .story-drag-hint {font-size:.77rem;color:#aaf2e6;margin:0;line-height:1.45;}
+.story-overlay .story-caption.story-caption--free {
+  width:max-content; max-width:76%; right:auto;
+  transform-origin:center; padding:8px 12px;
+}
