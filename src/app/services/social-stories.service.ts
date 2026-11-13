@@ -21,11 +21,20 @@ export class SocialStoriesService {
     return this.http.get<SocialStory>(this.url + '/' + id);
   }
 
-  publish(file: File, caption: string, communityId: number | null): Observable<SocialStory> {
+  publish(file: File, caption: string, communityId: number | null, options?: {
+    textPosition: 'top' | 'center' | 'bottom';
+    textScale: 'small' | 'medium' | 'large';
+    textStyle: 'plain' | 'pill';
+  }): Observable<SocialStory> {
     const body = new FormData();
     body.append('caption', caption.trim());
     body.append(file.type.startsWith('video/') ? 'video' : 'image', file);
     if (communityId !== null) body.append('communityId', String(communityId));
+    if (options) {
+      body.append('textPosition', options.textPosition);
+      body.append('textScale', options.textScale);
+      body.append('textStyle', options.textStyle);
+    }
     return this.http.post<SocialStory>(this.url, body);
   }
 
