@@ -71,17 +71,58 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     return null;
   }
 
+  hidingFeedPostId: number | null = null;
+  private lastHiddenPostId: number | null = null;
+
   hideFromMyFeed(item: FeedItem): void {
     const key = this.feedEntryKey(item);
-    if (!this.currentUsername || !key) return;
+    if (!this.currentUsername || !key || this.hidingFeedPostId !== null) return;
+    if (item.type === 'POST' && item.postId !== null) {
+      const postId = item.postId;
+      this.hidingFeedPostId = postId;
+      this.actionError = '';
+      this.feedService.hidePost(postId)
+        .pipe(timeout(10_000), finalize(() => this.hidingFeedPostId = null))
+        .subscribe({
+          next: () => {
+            this.hiddenFeedEntries.add(key);
+            this.lastHiddenPostId = postId;
+            this.recentlyHiddenFeedEntry = key;
+            this.persistHiddenFeedEntries();
+          },
+          error: () => this.actionError = 'Não foi possível ocultar esta publicação. Tenta novamente.'
+        });
+      return;
+    }
     this.hiddenFeedEntries.add(key);
+    this.lastHiddenPostId = null;
     this.recentlyHiddenFeedEntry = key;
     this.persistHiddenFeedEntries();
   }
 
   undoHideFromMyFeed(): void {
     const key = this.recentlyHiddenFeedEntry;
-    if (!key) return;
+    if (!key || this.hidingFeedPostId !== null) return;
+    if (this.lastHiddenPostId !== null) {
+      const postId = this.lastHiddenPostId;
+      this.hidingFeedPostId = postId;
+      this.actionError = '';
+      this.feedService.restoreHiddenPost(postId)
+        .pipe(timeout(10_000), finalize(() => this.hidingFeedPostId = null))
+        .subscribe({
+          next: () => {
+            this.hiddenFeedEntries.delete(key);
+            this.recentlyHiddenFeedEntry = null;
+            this.lastHiddenPostId = null;
+            this.persistHiddenFeedEntries();
+            // A server-side hide removes the post from subsequent feed responses.
+            // Reload the authorized feed to retrieve it when undoing.
+            this.load();
+          },
+          error: () => this.actionError = 'Não foi possível repor a publicação. Tenta novamente.'
+        });
+      return;
+    }
     this.hiddenFeedEntries.delete(key);
     this.recentlyHiddenFeedEntry = null;
     this.persistHiddenFeedEntries();
