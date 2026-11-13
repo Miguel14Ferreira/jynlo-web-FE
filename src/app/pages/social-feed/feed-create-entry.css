@@ -142,3 +142,25 @@
 .feed-page .composer.feed-post-dialog-open .composer-media-frame img {
   max-width: 100%; max-height: min(46dvh,440px); object-fit: contain;
 }
+
+
+/* Public stream entry belongs next to the Story rail, not among redundant
+   publishing shortcuts. A creator still manages a stream in their community. */
+.feed-live-create { display: grid; gap: .7rem; margin: .7rem 0;
+  padding: .9rem 1rem; border: 1px solid rgba(94,234,212,.32);
+  border-radius: .9rem; background: linear-gradient(110deg,#0b2934,#091b28);
+  color: #e6fffa; }
+.feed-live-create-heading { display: flex; gap: .7rem; align-items: center; }
+.feed-live-create-heading strong { font-size: .95rem; }
+.feed-live-create-heading p { font-size: .78rem; color: #b7cecf; margin: .2rem 0 0; }
+.feed-live-create-dot { flex: none; width: 11px; height: 11px;
+  border-radius: 50%; background: #fb7185; box-shadow: 0 0 0 5px rgba(251,113,133,.12); }
+.feed-live-create-links { display: flex; flex-wrap: wrap; gap: .5rem; }
+.feed-live-create-links a { display: inline-flex; align-items: center; gap: .4rem;
+  border: 1px solid rgba(94,234,212,.35); padding: .55rem .75rem;
+  border-radius: .65rem; font-size: .79rem; font-weight: 700;
+  text-decoration: none; color: #caffee; background: rgba(94,234,212,.08); }
+.feed-live-create-links a:hover { background: rgba(94,234,212,.2); }
+.feed-live-create-links a span { color: #fb7185; }
+.feed-live-create-links a:focus-visible { outline: 2px solid #5eead4; outline-offset: 3px; }
+@media(max-width:540px) { .feed-live-create-links a { flex: 1 1 100%; } }
