@@ -46,7 +46,8 @@ describe('Community broadcast panel', () => {
     const started: CommunityLiveEvent = { ...scheduled, status: 'LIVE', startedAt: now };
     live.schedule.and.returnValue(of(scheduled));
     live.start.and.returnValue(of(started));
-    live.list.and.returnValue(of([started]));
+    // The stream must not appear as active until this click actually starts it.
+    live.list.and.returnValue(of([]));
     const fixture = TestBed.createComponent(CommunityLivePanelComponent);
     fixture.componentRef.setInput('communityId', 7);
     fixture.detectChanges();
@@ -80,6 +81,7 @@ describe('Community broadcast panel', () => {
     }];
     component.goLiveNow();
     expect(live.schedule).not.toHaveBeenCalled();
+    fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('.live-go-now')?.hasAttribute('disabled')).toBeTrue();
     fixture.destroy();
   });
