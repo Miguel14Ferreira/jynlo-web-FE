@@ -645,7 +645,7 @@
 
                 <div class="author-copy">
                   <strong>{{ item.authorDisplayName }}</strong>
-                  <span>@{{ item.authorUsername }} · {{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                  <span>@{{ item.authorUsername }} · {{ isPostedToday(item.createdAt) ? 'Hoje' : (item.createdAt | date:'dd/MM/yyyy') }} {{ item.createdAt | date:'HH:mm' }}</span>
                   @if (item.location) { <span class="feed-post-place">📍 {{ item.location }}</span> }
                 </div>
               </a>
