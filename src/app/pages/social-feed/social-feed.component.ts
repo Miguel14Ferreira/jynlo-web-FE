@@ -763,6 +763,14 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.actionError = '';
   }
 
+  movePostGalleryItem(index: number, direction: -1 | 1): void {
+    if (this.posting || index < 0 || index >= this.postGallery.length) return;
+    const destination = index + direction;
+    if (destination < 0 || destination >= this.postGallery.length) return;
+    const [item] = this.postGallery.splice(index, 1);
+    this.postGallery.splice(destination, 0, item);
+  }
+
   removePostGalleryItem(index: number): void {
     if (this.posting || index < 0 || index >= this.postGallery.length) return;
     const [item] = this.postGallery.splice(index, 1);
