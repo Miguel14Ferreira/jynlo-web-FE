@@ -15,7 +15,8 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       <header>
         <div><strong><span class="live-dot">●</span> {{event.title}}</strong>
           <small>Direto de @{{event.username}} · {{participantCount}} participantes</small></div>
-        <button type="button" class="close" (click)="event.canManage ? end() : leave()" aria-label="Sair do direto">×</button>
+        <button type="button" class="close" [disabled]="ending" (click)="event.canManage ? end() : leave()"
+          [attr.aria-label]="event.canManage ? 'Terminar direto' : 'Sair do direto'">×</button>
       </header>
       @if (error) {<p role="alert">{{error}}</p>}
       @if (connecting) {<p role="status">{{ connectionStatus }}</p>}
@@ -25,8 +26,26 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       @if (reconnecting) {
         <p class="live-reconnection-status" role="status">A recuperar a ligação ao direto… Os controlos ficam temporariamente indisponíveis.</p>
       }
+      <div class="live-toolbar" aria-label="Ações da transmissão">
+        <button type="button" (click)="shareLive()" [disabled]="closing || ending">Partilhar direto</button>
+        <button type="button" (click)="toggleFullscreen()" [disabled]="!room">Ampliar vídeo</button>
+        @if (shareFeedback) { <span role="status">{{shareFeedback}}</span> }
+      </div>
       <div class="personal-live-layout">
-        <div #stage class="personal-live-stage" aria-label="Vídeo da transmissão"></div>
+        <div class="live-stage-container">
+          <div #stage class="personal-live-stage" aria-label="Vídeo da transmissão">
+            @if (!videoTiles) {
+              <div class="live-stage-empty" role="status">
+                <strong>À espera da imagem…</strong>
+                <span>{{role === 'VIEWER' ? 'O vídeo aparece quando o apresentador ligar a câmara.' : 'Liga a câmara para começares a transmitir vídeo.'}}</span>
+              </div>
+            }
+          </div>
+          <div class="live-stage-info">
+            <span>● {{participantCount}} {{participantCount === 1 ? 'pessoa na sala' : 'pessoas na sala'}}</span>
+            @if (role==='GUEST') { <strong>Estás como convidado</strong> }
+          </div>
+        </div>
         <aside class="live-chat" aria-label="Chat da transmissão em direto">
           <header><strong>Chat em direto</strong>
             <small>{{messages.length}} mensagens recentes</small></header>
@@ -63,7 +82,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
               @if (controls?.requestStatus === 'PENDING') {
                 <p>Pedido para participar enviado. Aguarda a aprovação.</p>
               } @else if (controls?.isGuest) {
-                <p>Estás a participar com vídeo neste direto.</p>
+                <p>Pedido aprovado! Liga a câmara e/ou o microfone quando estiveres preparado.</p>
               } @else {
                 <button type="button" [disabled]="moderationBusy || !room || connecting || reconnecting"
                   (click)="requestGuest()">Pedir para entrar no direto</button>
@@ -109,19 +128,42 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
     </section>
   `,
   styles:[`
-    .personal-live{display:grid;gap:.8rem;width:min(760px,calc(100vw - 32px));max-height:88dvh;
-      padding:1rem;border-radius:1rem;background:#0b2631;border:1px solid #368a83;color:#f2fffc;
-      overflow:auto;box-sizing:border-box}
+    .personal-live{display:grid;gap:.8rem;width:min(1120px,calc(100vw - 24px));max-height:94dvh;
+      padding:clamp(.7rem,1.6vw,1.25rem);border-radius:1rem;background:#0b1925;
+      border:1px solid #2d5862;color:#f2fffc;overflow:auto;box-sizing:border-box}
     header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
     header div{display:grid;gap:.3rem}header small{color:#a7c6ce}
     .live-dot{color:#fb7185}.close{background:transparent;border:0;border-radius:0;
       color:#fff;font-size:1.6rem;cursor:pointer}
-    .personal-live-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,285px);
-      gap:12px;min-width:0}
-    @media(max-width:700px){.personal-live-layout{grid-template-columns:1fr}}
-    .personal-live-stage{min-height:260px;background:#021119;border-radius:.8rem;
-      display:flex;flex-wrap:wrap;align-items:center;justify-content:center;overflow:hidden}
-    .personal-live-stage video{max-width:100%;max-height:56dvh;object-fit:contain}
+    .personal-live-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,320px);
+      gap:12px;min-width:0;min-height:0}
+    .live-stage-container{display:flex;flex-direction:column;gap:.5rem;min-width:0}
+    .personal-live-stage{min-height:320px;background:#020b14;border-radius:.8rem;
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));
+      gap:8px;align-content:center;overflow:hidden;padding:8px;box-sizing:border-box}
+    .personal-live-stage:fullscreen{align-content:center;padding:20px;background:#020b14}
+    .personal-live-stage .live-video-tile{min-width:0;position:relative;display:grid;
+      place-items:center;overflow:hidden;background:#0a2531;border-radius:10px;min-height:180px}
+    .personal-live-stage .live-video-tile video{width:100%;height:100%;max-height:64dvh;
+      object-fit:contain;display:block}
+    .personal-live-stage .live-video-label{position:absolute;left:9px;bottom:9px;
+      padding:5px 9px;border-radius:20px;background:#051b27d9;color:white;font-size:.76rem}
+    .live-stage-empty{display:grid;gap:.5rem;text-align:center;justify-items:center;
+      padding:2rem;color:#adc9cf}
+    .live-stage-empty strong{color:#fff}
+    .live-stage-info{display:flex;gap:.7rem;flex-wrap:wrap;align-items:center;
+      font-size:.78rem;color:#9ecbd0}
+    .live-stage-info strong{color:#5eead4}
+    .live-toolbar{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+    .live-toolbar button{border:1px solid #376c73;background:#163943;color:#effffd;
+      padding:.48rem .75rem;border-radius:.6rem;cursor:pointer;font:inherit;font-size:.82rem}
+    .live-toolbar button:disabled{opacity:.5;cursor:not-allowed}
+    .live-toolbar span{font-size:.79rem;color:#5eead4}
+    @media(max-width:760px){
+      .personal-live-layout{grid-template-columns:1fr}
+      .personal-live-stage{min-height:250px}
+      .live-chat-history{max-height:25dvh}
+    }
     footer{display:flex;flex-wrap:wrap;gap:.6rem}footer button{background:#184451;color:#fff;
       padding:.65rem;border:1px solid #47767e;border-radius:.6rem;cursor:pointer}
     footer .end{background:#932d42}footer button:disabled{opacity:.5;cursor:not-allowed}
@@ -161,6 +203,8 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   private interactionPoll?:Subscription;
   private rejoining=false;
   private attached:HTMLMediaElement[]=[];
+  videoTiles=0;
+  shareFeedback='';
   room:Room|null=null;
   connecting=false;
   connectionStatus='A ligar à transmissão…';
@@ -197,18 +241,18 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       if (this.destroyed || this.closing) return;
       next=new Room({adaptiveStream:true,dynacast:true});
       const activeRoom=next;
-      activeRoom.on(RoomEvent.TrackSubscribed,(track:RemoteTrack)=>{
-        if (this.room===activeRoom) this.attach(track);
+      activeRoom.on(RoomEvent.TrackSubscribed,(track:RemoteTrack,_publication,participant)=>{
+        if (this.room===activeRoom) this.attach(track,participant.name || participant.identity,false);
       });
       activeRoom.on(RoomEvent.TrackUnsubscribed,track=>{
-        for (const element of track.detach()) {element.remove();this.attached=this.attached.filter(el=>el!==element);}
+        for (const element of track.detach()) this.detachElement(element);
       });
       activeRoom.on(RoomEvent.LocalTrackPublished,publication=>{
         if (this.room===activeRoom && publication.track &&
-            publication.source===Track.Source.Camera) this.attach(publication.track);
+            publication.source===Track.Source.Camera) this.attach(publication.track,'Tu',true);
       });
       activeRoom.on(RoomEvent.LocalTrackUnpublished,publication=>{
-        if (publication.track) for (const el of publication.track.detach()) el.remove();
+        if (publication.track) for (const el of publication.track.detach()) this.detachElement(el);
       });
       activeRoom.on(RoomEvent.Reconnecting,()=>{
         if(this.room===activeRoom&&!this.closing) {
@@ -334,7 +378,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     const current=this.room;this.room=null;
     this.role='VIEWER';
     this.cameraOn=false;this.micOn=false;
-    for(const el of this.attached)el.remove();
+    for(const el of [...this.attached])this.detachElement(el);
     this.attached=[];
     try {
       if(current)await current.disconnect().catch(()=>{});
@@ -406,16 +450,58 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   private countParticipants():void {
     if(this.room)this.participantCount=this.room.remoteParticipants.size+1;
   }
-  private attach(track:{attach:()=>HTMLMediaElement}):void {
+  private detachElement(element:HTMLMediaElement):void {
+    if(element instanceof HTMLVideoElement && element.parentElement?.classList.contains('live-video-tile')){
+      element.parentElement.remove();
+      this.videoTiles=Math.max(0,this.videoTiles-1);
+    } else element.remove();
+    this.attached=this.attached.filter(item=>item!==element);
+  }
+  private attach(track:{attach:()=>HTMLMediaElement},label:string,isLocal:boolean):void {
+    const stage=this.stage?.nativeElement;
+    if(!stage || this.destroyed || this.closing)return;
     const element=track.attach();
     element.autoplay=true;
-    if(element instanceof HTMLVideoElement && this.stage?.nativeElement) {
-      this.stage.nativeElement.appendChild(element);
+    if(element instanceof HTMLVideoElement) {
+      element.playsInline=true;
+      if(isLocal)element.muted=true; // Never play our microphone back locally.
+      const tile=document.createElement('div');
+      tile.className='live-video-tile';
+      const name=document.createElement('span');
+      name.className='live-video-label';
+      name.textContent=isLocal?'Tu':('@'+label.replace(/^@/,''));
+      tile.append(element,name);
+      stage.appendChild(tile);
       this.attached.push(element);
-    } else if (element instanceof HTMLAudioElement && this.stage?.nativeElement) {
-      this.stage.nativeElement.appendChild(element);
+      this.videoTiles++;
+    } else if(element instanceof HTMLAudioElement && !isLocal) {
+      stage.appendChild(element);
       this.attached.push(element);
+    } else element.remove();
+  }
+  async shareLive():Promise<void> {
+    const url=new URL('/menu/feed',window.location.origin);
+    url.searchParams.set('personalLive',String(this.event.id));
+    try {
+      if(typeof navigator.share==='function') {
+        await navigator.share({title:this.event.title,url:url.href});
+        this.shareFeedback='Direto partilhado.';
+      } else {
+        await navigator.clipboard.writeText(url.href);
+        this.shareFeedback='Link do direto copiado.';
+      }
+    } catch(error) {
+      if(error instanceof DOMException && error.name==='AbortError')return;
+      this.shareFeedback='Não foi possível partilhar. Copia o endereço do direto.';
     }
+  }
+  async toggleFullscreen():Promise<void> {
+    const stage=this.stage?.nativeElement;
+    if(!stage)return;
+    try {
+      if(document.fullscreenElement)await document.exitFullscreen();
+      else await stage.requestFullscreen();
+    } catch {this.error='Não foi possível ampliar o vídeo neste dispositivo.';}
   }
   async toggleCamera():Promise<void> {
     // Guests accepted by the host may publish their own media, just like the host.
@@ -462,7 +548,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     const active=this.room;this.room=null;
     this.role='VIEWER';
     if(active)void active.disconnect();
-    for(const el of this.attached)el.remove();
+    for(const el of [...this.attached])this.detachElement(el);
     this.attached=[];
     this.closed.emit();
   }
@@ -476,7 +562,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     this.heartbeats?.unsubscribe();
     this.interactionPoll?.unsubscribe();
     if(this.room)void this.room.disconnect();
-    for(const el of this.attached)el.remove();
+    for(const el of [...this.attached])this.detachElement(el);
     this.attached=[];
   }
 }
