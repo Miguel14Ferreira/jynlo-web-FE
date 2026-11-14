@@ -1414,6 +1414,36 @@ describe('PerfisComponent', () => {
     expect(component.selectedProfile?.username).toBe('ana');
   });
 
+  it('shows only three favorite sports until the visitor expands them', () => {
+    component.profilePage = true;
+    component.selectedProfile = {
+      ...profile,
+      favoriteSports: 'Futebol;Karting;Ténis;Ténis de mesa;Futsal;Padel'
+    };
+    fixture.detectChanges();
+
+    const favorite = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('.profile-meta-card')
+    ).find(card => !!card.querySelector('app-venue-sports-badges'));
+    expect(favorite).toBeTruthy();
+    expect(favorite!.querySelectorAll('.venue-sports-chip').length).toBe(3);
+    const expand = favorite!.querySelector('.venue-sports-more') as HTMLButtonElement;
+    expect(expand).toBeTruthy();
+    expand.click();
+    fixture.detectChanges();
+    expect(favorite!.querySelectorAll('.venue-sports-chip').length).toBe(6);
+  });
+
+  it('offers a share control on profiles other than the signed-in account', () => {
+    component.profilePage = true;
+    component.selectedProfile = {...profile, username: 'ana'};
+    fixture.detectChanges();
+    const share = (fixture.nativeElement as HTMLElement).querySelector('.profile-share-action') as HTMLButtonElement;
+    expect(share).toBeTruthy();
+    expect(share.textContent).toContain('Partilhar perfil');
+    expect(share.disabled).toBeFalse();
+  });
+
   it('keeps premium profile hero actions, iconic details and activity accessible', () => {
     component.profilePage = true;
     component.selectedProfile = { ...profile, username: 'ana', bio: 'Gosto de jogar' };
