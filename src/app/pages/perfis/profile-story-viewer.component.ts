@@ -24,13 +24,13 @@ import { SocialStory } from '../model/social-story';
         @if(active;as story){
           <div class="profile-story-media">
             @if(story.video){
-              <video [src]="story.mediaUrl" autoplay playsinline [muted]="muted" #video
+              <video [jynloProtectedSrc]="story.mediaUrl" autoplay playsinline [muted]="muted" #video
                 (loadedmetadata)="videoDuration($event)" (ended)="next()"></video>
               <button type="button" class="profile-story-mute" (click)="muted=!muted">
                 {{muted?'Ativar som':'Silenciar'}}
               </button>
             } @else {
-              <img [src]="story.mediaUrl" [alt]="story.altText || 'Story de '+username"
+              <img [jynloProtectedSrc]="story.mediaUrl" [alt]="story.altText || 'Story de '+username"
                 (load)="imageReady=true" (error)="mediaError=true">
             }
             @if(story.caption){
