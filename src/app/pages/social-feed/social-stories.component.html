@@ -38,7 +38,7 @@
           @if (group.stories.length > 1) { <small>{{ group.stories.length }} {{ 'stories.items' | t }}</small> }
         </button>
       }
-      @if (!loading && !mineLoading && storyGroups.length === 0) {
+      @if (!loading && !mineLoading && !error && !mineError && storyGroups.length === 0) {
         <p class="stories-empty">{{ 'stories.empty' | t }}</p>
       }
       @if ((loading || mineLoading) && storyGroups.length === 0) {
