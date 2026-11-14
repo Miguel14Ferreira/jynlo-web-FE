@@ -14,18 +14,18 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
   standalone:true,
   imports:[CommonModule,FormsModule],
   template:`
-    <section class="personal-live" aria-label="Transmissão pessoal">
+    <section class="personal-live" [attr.aria-label]="tr('Transmissão pessoal','Personal broadcast')">
       <header>
         <div><strong><span class="live-dot">●</span> {{event.title}}</strong>
-          <small>Direto de @{{event.username}} · {{participantCount}} {{tr('participantes','participants')}}</small></div>
+          <small>{{tr('Direto de','Live by')}} @{{event.username}} · {{participantCount}} {{tr('participantes','participants')}}</small></div>
         <button type="button" class="close" [disabled]="ending"
           (click)="event.canManage ? requestEnd() : leave()"
-          [attr.aria-label]="event.canManage ? 'Terminar direto' : 'Sair do direto'">×</button>
+          [attr.aria-label]="event.canManage ? tr('Terminar direto','End live') : tr('Sair do direto','Leave live')">×</button>
       </header>
       @if (error) {<p role="alert">{{error}}</p>}
       @if (connecting) {<p role="status">{{ tr(connectionStatus, 'Connecting to the stream…') }}</p>}
       @if (!connecting && room && !reconnecting) {
-        <p class="live-connection-status" role="status">● Transmissão ligada</p>
+        <p class="live-connection-status" role="status">● {{tr('Transmissão ligada','Stream connected')}}</p>
       }
       @if (reconnecting) {
         <p class="live-reconnection-status" role="status">{{tr('A recuperar a ligação ao direto… Os controlos ficam temporariamente indisponíveis.','Reconnecting to the stream… Controls are temporarily unavailable.')}}</p>
@@ -33,7 +33,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       @if (switchingRole) {
         <p class="live-reconnection-status" role="status">{{tr('A atualizar a participação no direto…','Updating your live role…')}}</p>
       }
-      <div class="live-toolbar" aria-label="Ações da transmissão">
+      <div class="live-toolbar" [attr.aria-label]="tr('Ações da transmissão','Broadcast actions')">
         <button type="button" class="live-tool-icon" [title]="tr('Partilhar direto','Share live')" [attr.aria-label]="tr('Partilhar direto','Share live')"  (click)="shareLive()" [disabled]="closing || ending">⇧</button>
         <button type="button" class="live-tool-icon" [title]="tr('Ampliar vídeo','Fullscreen video')" [attr.aria-label]="tr('Ampliar vídeo','Fullscreen video')"  (click)="toggleFullscreen()" [disabled]="!room">⛶</button>
         <button type="button" class="live-tool-icon" [title]="tr('Ocupar tela','Theater mode')" [attr.aria-label]="tr('Ocupar tela','Theater mode')"  [attr.aria-pressed]="theaterMode"
@@ -50,7 +50,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       <div class="personal-live-layout" [class.live-layout-theater]="theaterMode"
            [class.live-layout-no-chat]="!chatVisible">
         <div class="live-stage-container">
-          <div #stage class="personal-live-stage" aria-label="Vídeo da transmissão">
+          <div #stage class="personal-live-stage" [attr.aria-label]="tr('Vídeo da transmissão','Broadcast video')">
             @if (!videoTiles) {
               <div class="live-stage-empty" role="status">
                 <strong>{{tr('À espera da imagem…','Waiting for video…')}}</strong>
@@ -64,7 +64,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           </div>
         </div>
         @if (chatVisible) {
-        <aside id="personal-live-chat" class="live-chat" aria-label="Chat da transmissão em direto">
+        <aside id="personal-live-chat" class="live-chat" [attr.aria-label]="tr('Chat da transmissão em direto','Live stream chat')">
           <header><strong>{{tr('Chat em direto','Live chat')}}</strong>
             <small>{{messages.length}} {{tr('mensagens recentes','recent messages')}}</small></header>
           @if (controls && !controls.chatEnabled) {
@@ -95,9 +95,9 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
             @if (!messages.length) { <p>{{tr('As mensagens vão aparecer aqui.','Messages will appear here.')}}</p> }
           </div>
           @if (emojiPickerOpen) {
-            <div class="live-emoji-picker" aria-label="Emojis para o chat">
+            <div class="live-emoji-picker" [attr.aria-label]="tr('Emojis para o chat','Chat emojis')">
               @for (emoji of chatEmojis; track emoji) {
-                <button type="button" (click)="appendEmoji(emoji)" [attr.aria-label]="'Inserir ' + emoji">
+                <button type="button" (click)="appendEmoji(emoji)" [attr.aria-label]="tr('Inserir','Insert') + ' ' + emoji">
                   {{emoji}}
                 </button>
               }
@@ -133,15 +133,15 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
                 (click)="toggleChat()">{{controls.chatEnabled?tr('Desativar chat','Disable chat'):tr('Ativar chat','Enable chat')}}</button>
               @for (request of controls.pendingRequests;track request.id) {
                 <div class="live-guest-row">
-                  <span>@{{request.username}} quer participar</span>
-                  <button type="button" [disabled]="moderationBusy" (click)="decideGuest(request,true)">Aceitar</button>
-                  <button type="button" [disabled]="moderationBusy" (click)="decideGuest(request,false)">Recusar</button>
+                  <span>@{{request.username}} {{tr('quer participar','wants to join')}}</span>
+                  <button type="button" [disabled]="moderationBusy" (click)="decideGuest(request,true)">{{tr('Aceitar','Accept')}}</button>
+                  <button type="button" [disabled]="moderationBusy" (click)="decideGuest(request,false)">{{tr('Recusar','Decline')}}</button>
                 </div>
               }
               @if (controls.guestUsername) {
                 <div class="live-guest-row">
-                  <span>Convidado: @{{controls.guestUsername}}</span>
-                  <button type="button" [disabled]="moderationBusy" (click)="removeGuest()">Retirar do direto</button>
+                  <span>{{tr('Convidado','Guest')}}: @{{controls.guestUsername}}</span>
+                  <button type="button" [disabled]="moderationBusy" (click)="removeGuest()">{{tr('Retirar do direto','Remove guest')}}</button>
                 </div>
               }
             </div>
@@ -271,7 +271,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
     .live-emoji-picker button{font-size:1.25rem;border:0;border-radius:7px;
       background:transparent;cursor:pointer;padding:6px}
     .live-emoji-picker button:hover,.live-emoji-picker button:focus-visible{background:#24616a}
-    .live-chat-input textarea{flex:1;min-width:0;max-height:140px;resize:vertical;line-height:1.4;box-sizing:border-box;max-height:140px;resize:vertical;line-height:1.4;
+    .live-chat-input textarea{flex:1;min-width:0;max-height:140px;resize:vertical;line-height:1.4;box-sizing:border-box;
       border:1px solid #437783;border-radius:7px;padding:8px;background:#092a36;color:#fff}
     .live-chat-input .live-send-icon{min-width:44px;font-size:1.2rem}
      .live-chat-input button,.live-moderation button,.live-guest-request button{
