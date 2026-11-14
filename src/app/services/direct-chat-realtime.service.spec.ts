@@ -123,6 +123,20 @@ describe('Chat WebSocket identity and reconnection', () => {
     RealtimeFakeSocket.sockets = [];
   });
 
+  it('signals personal-live updates only after WebSocket authentication', () => {
+    const received = jasmine.createSpy('liveUpdated');
+    service.personalLiveInvalidated$.subscribe(received);
+    service.connect();
+    const socket = RealtimeFakeSocket.sockets[0];
+    socket.open();
+    socket.receive({type:'PERSONAL_LIVE_INVALIDATED'});
+    expect(received).not.toHaveBeenCalled();
+    socket.receive({type:'AUTHENTICATED'});
+    socket.receive({type:'PERSONAL_LIVE_INVALIDATED'});
+    expect(received).toHaveBeenCalledTimes(1);
+    expect(received.calls.mostRecent().args).toEqual([]);
+  });
+
   it('normalizes authenticated community and session messages before emitting them', () => {
     const sessionSeen = jasmine.createSpy('session');
     const communitySeen = jasmine.createSpy('community');
