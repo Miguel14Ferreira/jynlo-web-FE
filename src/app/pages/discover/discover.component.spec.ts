@@ -722,6 +722,25 @@ describe('DiscoverComponent', () => {
     expect(link?.getAttribute('href')).toBe('/menu/createEvent');
   });
 
+  it('suggests custom sports from public sessions without making them official catalog entries', () => {
+    sessionService.discover.and.returnValue(of([{
+      id: 96, sport: 'Bossaball', city: 'Lisboa',
+      gameDate: new Date(Date.now() + 86_400_000).toISOString(), distanceKm: null,
+      participantCount: 2, maxParticipants: 8,
+      priceAmount: 0, privateGame: false, status: 'OPEN'
+    }]));
+    component.clear();
+    fixture.detectChanges();
+
+    expect(component.sportsCatalog).not.toContain('Bossaball');
+    expect(component.searchableSports).toContain('Bossaball');
+    expect(Array.from(fixture.nativeElement.querySelectorAll('#discover-sports option'))
+      .some((option: Element) => option.getAttribute('value') === 'Bossaball')).toBeTrue();
+    component.onSportChange('Bossaball');
+    component.search();
+    expect(sessionService.discover.calls.mostRecent().args[0]?.sport).toBe('Bossaball');
+  });
+
   it('hides the create-session empty action when activities are available', () => {
     sessionService.discover.and.returnValue(of([{
       id: 34, sport: 'Padel', city: 'Lisboa',
