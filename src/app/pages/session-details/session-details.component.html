@@ -591,6 +591,21 @@
             <section class="session-details-editor" [attr.aria-label]="'sessionDetail.editSession' | t">
               <h2>{{ 'sessionDetail.editSession' | t }}</h2>
               <p>{{ 'sessionDetail.detailsHelp' | t }}</p>
+              <div class="session-details-preset">
+                <label for="session-details-preset-select">{{ 'createSession.presets.select' | t }}</label>
+                <select id="session-details-preset-select" [ngModel]="detailsPresetId === null ? '' : '' + detailsPresetId"
+                        (ngModelChange)="applyDetailsPreset($event)"
+                        [disabled]="detailsSaving || detailsPresetsLoading">
+                  <option value="">{{ 'createSession.presets.noSelection' | t }}</option>
+                  @for (preset of detailsPresets; track preset.id) {
+                    <option [value]="preset.id">{{ preset.name }}</option>
+                  }
+                </select>
+                <small>{{ 'sessionDetail.detailsHelp' | t }}</small>
+                @if (detailsPresetNotice) {
+                  <p role="status">{{ detailsPresetNotice }}</p>
+                }
+              </div>
               <div class="session-details-editor-fields">
                 <label>{{ 'communities.sportLabel' | t }}
                   @if (canChangeSessionSport()) {
