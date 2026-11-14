@@ -338,6 +338,7 @@ describe('NavbarComponent', () => {
   }));
 
   it('keeps the essential actions in the main nav and secondary actions in the menu', () => {
+    (authService as any).loggedInPerfilname = 'bea';
     component.authenticated = true;
     fixture.detectChanges();
 
@@ -356,7 +357,7 @@ describe('NavbarComponent', () => {
     expect(menu?.querySelector('a[href="/menu/my-sessions"]')).toBeTruthy();
     expect(menu?.querySelector('a[href="/menu/communities"]')).toBeFalsy();
     expect(menu?.querySelector('a[href="/menu/messages"]')).toBeTruthy();
-    expect(menu?.querySelector('a[href="/menu/perfis/bea"]')).toBeTruthy();
+    expect(menu?.querySelector('.account-menu__panel a[href="/menu/perfis/bea"]')).toBeTruthy();
     expect(menu?.querySelector('.language-switch')).toBeTruthy();
     expect(menu?.querySelector('.logout-action')).toBeTruthy();
   });
@@ -661,7 +662,7 @@ describe('NavbarComponent', () => {
     fixture.detectChanges();
     expect(details.textContent).not.toContain('Trocar de conta');
     expect(details.querySelectorAll('.logout-action').length).toBe(1);
-    expect(details.querySelector('a[href="/menu/perfis/bea"]')?.textContent).toContain('Ver o meu perfil');
+    expect(details.querySelector('.account-menu__panel a[href="/menu/perfis/bea"]')?.textContent).toContain('Ver o meu perfil');
     expect(details.querySelector('.language-switch')).not.toBeNull();
   });
 
