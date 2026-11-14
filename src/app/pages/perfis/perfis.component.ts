@@ -50,6 +50,36 @@ export class PerfisComponent implements OnInit, OnDestroy {
   private friendshipSubscription?: Subscription;
   private followListSubscription?: Subscription;
   profilePage = false;
+  profileShareBusy = false;
+  profileShareMessage = '';
+
+  async shareProfile(profile: CommunityProfile): Promise<void> {
+    if (this.profileShareBusy || !profile.username?.trim()) return;
+    const url = window.location.origin + '/menu/perfis/' + encodeURIComponent(profile.username.trim());
+    const text = 'Vê o perfil de @' + profile.username + ' na Jynlo';
+    this.profileShareBusy = true;
+    this.profileShareMessage = '';
+    try {
+      if (typeof navigator.share === 'function') {
+        try {
+          await navigator.share({ title: 'Perfil Jynlo · @' + profile.username, text, url });
+          this.profileShareMessage = 'Perfil partilhado.';
+          return;
+        } catch (error) {
+          if (error instanceof DOMException && error.name === 'AbortError') return;
+          // If the device cannot share the URL, offer a usable copied link instead.
+        }
+      }
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(url);
+      this.profileShareMessage = 'Ligação do perfil copiada.';
+    } catch {
+      this.profileShareMessage = 'Não foi possível partilhar. Copia o endereço desta página.';
+    } finally {
+      this.profileShareBusy = false;
+    }
+  }
+
   backToFriends = false;
   get backToFeed(): boolean {
     return this.route.snapshot.queryParamMap.get('from') === 'feed';
