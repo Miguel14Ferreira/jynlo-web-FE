@@ -381,3 +381,29 @@
 @media (max-width: 540px) {
   .feed-hide-post { padding: 6px 8px; font-size: .73rem; }
 }
+
+/* Organiser's cancellation receipt: readable, selectable notice for external
+   WhatsApp guests, not an automatic notification or a second cancel action. */
+.feed-hide-feedback.feed-cancelled-notice {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  align-items:end;
+  gap:12px;
+  background:rgba(13,67,70,.55);
+}
+.feed-cancelled-notice > div { min-width:0;display:grid;gap:7px; }
+.feed-cancelled-notice strong { font-size:.94rem;color:#effffb; }
+.feed-cancelled-notice p { margin:0;line-height:1.45;overflow-wrap:anywhere; }
+.feed-cancelled-notice label { font-size:.76rem;font-weight:700;color:#b1dcd6; }
+.feed-cancelled-notice textarea {
+  box-sizing:border-box;width:100%;min-height:82px;padding:10px 12px;
+  border:1px solid rgba(121,215,201,.35);border-radius:10px;
+  background:rgba(1,25,35,.58);color:#f0fffc;font:inherit;
+  line-height:1.5;resize:vertical;overflow-wrap:anywhere;
+}
+.feed-cancelled-notice textarea:focus-visible { outline:2px solid #9af8e1;outline-offset:2px; }
+@media (max-width:740px) {
+  .feed-hide-feedback.feed-cancelled-notice { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .feed-cancelled-notice > div { grid-column:1/-1; }
+  .feed-cancelled-notice > button { min-height:42px; }
+}
