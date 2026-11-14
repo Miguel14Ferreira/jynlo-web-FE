@@ -2039,6 +2039,9 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   pendingDeletePost: FeedItem | null = null;
+  recentlyCancelledSession: FeedItem | null = null;
+  cancellationShareText = '';
+  cancellationShareNotice = '';
   pendingCancelSession: FeedItem | null = null;
   checkingCancelSessionId: number | null = null;
   cancellingSessionId: number | null = null;
@@ -2103,6 +2106,42 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   postShareLink = '';
   postShareTargetId: number | null = null;
 
+  /** Optional manual communication for guests who joined without a Jynlo account.
+   * Only public sport/city/time are included; never reveal arrival instructions. */
+  private cancelledSessionMessage(item: FeedItem): string {
+    const when = item.gameDate && Number.isFinite(Date.parse(item.gameDate))
+      ? new Date(item.gameDate).toLocaleString('pt-PT', {
+          timeZone: 'Europe/Lisbon', day: '2-digit', month: '2-digit',
+          year: 'numeric', hour: '2-digit', minute: '2-digit'
+        })
+      : '';
+    const description = [item.sport || 'desporto', when, item.city || ''].filter(Boolean).join(' · ');
+    return '⚠️ Sessão cancelada — ' + description +
+      '. O organizador cancelou esta sessão e o jogo não se vai realizar. ' +
+      'Por favor, não te desloques ao recinto.';
+  }
+
+  async shareCancelledSessionNotice(): Promise<void> {
+    const item = this.recentlyCancelledSession;
+    if (!item || !this.cancellationShareText) return;
+    this.cancellationShareNotice = '';
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ text: this.cancellationShareText });
+        this.cancellationShareNotice = 'Aviso partilhado.';
+        return;
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') return;
+      }
+    }
+    try {
+      await this.copyShareUrl(this.cancellationShareText);
+      this.cancellationShareNotice = 'Aviso copiado. Envia-o aos participantes externos.';
+    } catch {
+      this.cancellationShareNotice = 'Seleciona e copia o texto para o grupo dos participantes.';
+    }
+  }
+
   /** The feed card is only a shortcut. Fetch current session details before
    * showing a destructive confirmation; the server still enforces ownership. */
   requestCancelSession(item: FeedItem): void {
@@ -2144,6 +2183,9 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         this.cancelledFeedSessionIds.add(id);
         this.items = this.items.filter(entry => !(entry.type === 'SESSION_CREATED' && entry.sessionId === id));
         this.pendingCancelSession = null;
+        this.recentlyCancelledSession = item;
+        this.cancellationShareText = this.cancelledSessionMessage(item);
+        this.cancellationShareNotice = 'Cancelamento confirmado. Os jogadores com conta Jynlo recebem a notificação interna; partilha este aviso com convidados externos.';
         this.loadCompletedSessions();
         this.load();
       },
