@@ -734,7 +734,8 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         || username.toLowerCase() === this.currentUsername.toLowerCase()
         || !['OPEN', 'FULL'].includes(this.session.status)) return false;
     const kickoff = Date.parse(this.session.gameDate ?? '');
-    if (!Number.isFinite(kickoff) || Date.now() >= kickoff + 4 * 60 * 60 * 1000) return false;
+    if (!Number.isFinite(kickoff) || Date.now() < kickoff - 7 * 24 * 60 * 60 * 1000
+        || Date.now() >= kickoff + 4 * 60 * 60 * 1000) return false;
     // Creating the session alone does not grant contact rights: the backend
     // requires two ACTIVE participation rows in the same session.
     const confirmed = (name: string) => this.sessionParticipants.some(
