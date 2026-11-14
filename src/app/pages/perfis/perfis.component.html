@@ -296,6 +296,20 @@
                 </span>
               }
             </div>
+            <button type="button" class="profile-share-action jynlo-action jynlo-action--neutral"
+                    [disabled]="profileShareBusy"
+                    (click)="shareProfile(selectedProfile)">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
+                   stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                   stroke-linejoin="round" aria-hidden="true">
+                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                <path d="m8.7 10.7 6.6-4.4m-6.6 8 6.6 4.4"/>
+              </svg>
+              {{ profileShareBusy ? 'A partilhar…' : 'Partilhar perfil' }}
+            </button>
+            @if (profileShareMessage) {
+              <span class="profile-share-feedback" role="status" aria-live="polite">{{ profileShareMessage }}</span>
+            }
             <div class="profile-primary-actions">
               @if (!isOwnProfile(selectedProfile) && !selectedBlocked) {
                 @if (friendshipLoading || friendshipError) {
@@ -441,7 +455,7 @@
                 <span class="profile-stat-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"></path></svg></span>
                 <div class="profile-meta-copy"><span>{{ 'profileData.favoriteSports' | t }}</span>
                   <app-venue-sports-badges [sports]="selectedProfile.favoriteSports"
-                    [limit]="6" [expandable]="true"></app-venue-sports-badges></div>
+                    [limit]="3" [compact]="true" [expandable]="true"></app-venue-sports-badges></div>
               </div>
             }
             @if (selectedProfile.skillLevel) {
