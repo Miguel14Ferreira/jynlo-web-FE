@@ -157,6 +157,37 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(component.items).toEqual([]);
   });
 
+  it('offers an optional WhatsApp/SMS notice only after cancellation is confirmed', () => {
+    sessions.detail.and.returnValue(of({
+      id:515,creatorUsername:'miguel',status:'OPEN'
+    } as SessionDetail));
+    const result=new Subject<void>();
+    sessions.cancel.and.returnValue(result.asObservable());
+    component.items=[ownedSessionActivity];
+    component.requestCancelSession(ownedSessionActivity);
+    component.confirmCancelSession(ownedSessionActivity);
+    expect(component.recentlyCancelledSession).toBeNull();
+    expect(component.cancellationShareText).toBe('');
+    result.next();
+    result.complete();
+    expect(component.recentlyCancelledSession?.sessionId).toBe(515);
+    expect(component.cancellationShareText).toContain('Futsal');
+    expect(component.cancellationShareText).toContain('Campo Grande');
+    expect(component.cancellationShareText).toContain('não se vai realizar');
+    expect(component.cancellationShareText).not.toContain('Entrada');
+  });
+
+  it('does not offer guest cancellation sharing after a failed cancel', () => {
+    sessions.detail.and.returnValue(of({
+      id:515,creatorUsername:'miguel',status:'OPEN'
+    } as SessionDetail));
+    sessions.cancel.and.returnValue(throwError(() => new Error('offline')));
+    component.requestCancelSession(ownedSessionActivity);
+    component.confirmCancelSession(ownedSessionActivity);
+    expect(component.recentlyCancelledSession).toBeNull();
+    expect(component.cancellationShareText).toBe('');
+  });
+
   it('keeps the session card visible on a rejected cancellation', () => {
     sessions.detail.and.returnValue(of({
       id: 515, creatorUsername: 'miguel', status: 'OPEN'
