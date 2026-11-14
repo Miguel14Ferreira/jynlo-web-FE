@@ -739,9 +739,30 @@ export class Events2Component implements OnInit, OnDestroy {
   }
 
   readonly sportsCatalog = SPORTS_CATALOG;
-  readonly sportChoices: JynloSelectOption[] = SPORTS_CATALOG.map(sport => ({
-    value: sport, label: sport
-  }));
+  readonly sportChoices: JynloSelectOption[] = [
+    ...SPORTS_CATALOG.map(sport => ({ value: sport, label: sport })),
+    { value: '__CUSTOM_SPORT__', label: 'Outro — sugerir modalidade' }
+  ];
+  customSportMode = false;
+  customSportName = '';
+  get customSportMatches(): string[] {
+    const query = this.normalizeVenueSearch(this.customSportName.trim());
+    return query.length < 2 ? [] : this.sportsCatalog.filter(sport =>
+      this.normalizeVenueSearch(sport).includes(query) || query.includes(this.normalizeVenueSearch(sport))
+    ).slice(0, 5);
+  }
+  onCustomSportName(value: string): void {
+    this.customSportName = value;
+    this.sport = value.trim().replace(/\\s+/g, ' ');
+    this.clearAirsoftDefaultsOnSportChange(this.sport);
+    this.selectVenue(null);
+  }
+  get customSportValid(): boolean {
+    return this.customSportMode && this.sport.length >= 2 && this.sport.length <= 60
+      && /^[\\p{L}\\p{M}][\\p{L}\\p{M}\\p{N} .&'’()/-]*$/u.test(this.sport)
+      && !this.customSportMatches.some(sport =>
+        this.normalizeVenueSearch(sport) === this.normalizeVenueSearch(this.sport));
+  }
 
   /** Server IDs are the only permitted selection values; names are not unique. */
   get venueSearchChoices(): JynloSelectOption[] {
@@ -769,8 +790,21 @@ export class Events2Component implements OnInit, OnDestroy {
   }
 
   onSportChoice(value: string): void {
-    if (this.sport === value) return;
+    if (value === '__CUSTOM_SPORT__') {
+      ++this.communityPrefillRevision;
+      this.customSportMode = true;
+      this.customSportName = '';
+      this.sport = '';
+      this.playFormat = 'INDIVIDUAL';
+      this.seasonGame = false;
+      this.selectVenue(null);
+      this.locationMethod = 'maps';
+      return;
+    }
+    if (this.sport === value && !this.customSportMode) return;
     ++this.communityPrefillRevision;
+    this.customSportMode = false;
+    this.customSportName = '';
     this.clearAirsoftDefaultsOnSportChange(value);
     this.sport = value;
     this.confirmSportSelection();
@@ -1147,7 +1181,7 @@ export class Events2Component implements OnInit, OnDestroy {
   }
 
   get sportSelected(): boolean {
-    return this.sportsCatalog.some(
+    return this.customSportValid || this.sportsCatalog.some(
       option => option.toLocaleLowerCase('pt') === this.sport.trim().toLocaleLowerCase('pt')
     );
   }
@@ -1842,7 +1876,13 @@ export class Events2Component implements OnInit, OnDestroy {
       return t('createSession.meetingPointInvalid');
     }
     if (!this.sportSelected) {
-      return 'Seleciona um desporto da lista.';
+      return this.customSportMode
+        ? 'Escreve um nome de modalidade válido (2–60 caracteres), ou escolhe uma sugestão do catálogo.'
+        : 'Seleciona um desporto da lista.';
+    }
+    if (this.customSportMode && (this.communityId !== null || this.shareCommunityIds.length
+        || this.seasonGame || this.selectedVenueId !== null)) {
+      return 'As modalidades sugeridas só estão disponíveis em sessões independentes, sem recinto oficial ou classificações.';
     }
     if (this.gpsAddressLoading) {
       return t('createSession.gpsAddressLoading');
