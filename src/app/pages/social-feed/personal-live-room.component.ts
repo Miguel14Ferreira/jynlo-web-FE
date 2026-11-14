@@ -34,12 +34,12 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
         <p class="live-reconnection-status" role="status">{{tr('A atualizar a participação no direto…','Updating your live role…')}}</p>
       }
       <div class="live-toolbar" [attr.aria-label]="tr('Ações da transmissão','Broadcast actions')">
-        <button type="button" class="live-tool-icon" [title]="tr('Partilhar direto','Share live')" [attr.aria-label]="tr('Partilhar direto','Share live')"  (click)="shareLive()" [disabled]="closing || ending">⇧</button>
-        <button type="button" class="live-tool-icon" [title]="tr('Ampliar vídeo','Fullscreen video')" [attr.aria-label]="tr('Ampliar vídeo','Fullscreen video')"  (click)="toggleFullscreen()" [disabled]="!room">⛶</button>
+        <button type="button" class="live-tool-icon" [title]="tr('Partilhar direto','Share live')" [attr.aria-label]="tr('Partilhar direto','Share live')"  (click)="shareLive()" [disabled]="closing || ending"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5"/><path d="M5 13v7h14v-7"/></svg></button>
+        <button type="button" class="live-tool-icon" [title]="tr('Ampliar vídeo','Fullscreen video')" [attr.aria-label]="tr('Ampliar vídeo','Fullscreen video')"  (click)="toggleFullscreen()" [disabled]="!room"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button>
         <button type="button" class="live-tool-icon" [title]="tr('Ocupar tela','Theater mode')" [attr.aria-label]="tr('Ocupar tela','Theater mode')"  [attr.aria-pressed]="theaterMode"
-          (click)="theaterMode=!theaterMode">▣</button>
+          (click)="theaterMode=!theaterMode"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 8h8v8H8z"/></svg></button>
         <button type="button" class="live-tool-icon" [title]="tr('Mostrar ou esconder chat','Toggle chat')" [attr.aria-label]="tr('Mostrar ou esconder chat','Toggle chat')"  [attr.aria-expanded]="chatVisible" aria-controls="personal-live-chat"
-          (click)="chatVisible=!chatVisible">▤</button>
+          (click)="chatVisible=!chatVisible"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M14 4v16M6 8h5m-5 4h5"/></svg></button>
         @if (audioBlocked) {
           <button type="button" (click)="enableAudio()" [disabled]="!room">
             Ativar som da transmissão
@@ -149,7 +149,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       @if (event.canManage || role==='GUEST') {
         <footer aria-label="Controlos do direto">
           <button type="button" [disabled]="!room || connecting || reconnecting || deviceBusy"
-            [attr.aria-pressed]="micOn" (click)="toggleMic()" class="live-device-icon" [title]="micOn ? tr('Silenciar microfone','Mute microphone') : tr('Ligar microfone','Enable microphone')" [attr.aria-label]="micOn ? tr('Silenciar microfone','Mute microphone') : tr('Ligar microfone','Enable microphone')">♩</button>
+            [attr.aria-pressed]="micOn" (click)="toggleMic()" class="live-device-icon" [title]="micOn ? tr('Silenciar microfone','Mute microphone') : tr('Ligar microfone','Enable microphone')" [attr.aria-label]="micOn ? tr('Silenciar microfone','Mute microphone') : tr('Ligar microfone','Enable microphone')"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5m-4 0h8"/></svg></button>
           <button type="button" [disabled]="!room || connecting || reconnecting || deviceBusy"
             [attr.aria-pressed]="cameraOn" (click)="toggleCamera()" class="live-device-icon" [title]="cameraOn ? tr('Desligar câmara','Turn off camera') : tr('Ligar câmara','Enable camera')" [attr.aria-label]="cameraOn ? tr('Desligar câmara','Turn off camera') : tr('Ligar câmara','Enable camera')">▣</button>
           <button type="button" [disabled]="!room || connecting || reconnecting || deviceBusy"
