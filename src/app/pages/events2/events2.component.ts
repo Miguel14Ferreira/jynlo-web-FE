@@ -753,9 +753,36 @@ export class Events2Component implements OnInit, OnDestroy {
   }
   onCustomSportName(value: string): void {
     this.customSportName = value;
-    this.sport = value.trim().replace(/\s+/g, ' ');
-    this.clearAirsoftDefaultsOnSportChange(this.sport);
-    this.selectVenue(null);
+    const nextSport = value.trim().replace(/\s+/g, ' ');
+    this.clearAirsoftDefaultsOnSportChange(nextSport);
+    this.sport = nextSport;
+    if (this.selectedVenueId !== null) this.selectVenue(null);
+  }
+
+  /** Never silently remove a community or rankings from an existing session draft. */
+  detachCommunityForCustomSport(): void {
+    if (!this.customSportMode || this.loading) return;
+    ++this.communityPrefillRevision;
+    ++this.seasonInfoRevision;
+    this.communityId = null;
+    this.directCommunity = null;
+    this.communityName = '';
+    this.communitySports = [];
+    this.communitySportLoaded = false;
+    this.shareCommunityIds = [];
+    this.autoCommunitySport = '';
+    this.autoCommunityVenueId = null;
+    this.autoCommunityPoint = null;
+    this.seasonGame = false;
+    this.seasonGameCommunityId = null;
+    this.confirmActivateRankings = false;
+    this.seasonOverview = null;
+    this.seasonOverviewLoading = false;
+    this.recurrence = 'NONE';
+    this.recurrenceOccurrences = 4;
+    this.setWeeklySessionsPerWeek(1);
+    this.registrationOpeningMode = 'IMMEDIATE';
+    this.registrationOpensAt = '';
   }
   get customSportValid(): boolean {
     return this.customSportMode && this.sport.length >= 2 && this.sport.length <= 60
@@ -794,9 +821,9 @@ export class Events2Component implements OnInit, OnDestroy {
       ++this.communityPrefillRevision;
       this.customSportMode = true;
       this.customSportName = '';
+      this.clearAirsoftDefaultsOnSportChange('');
       this.sport = '';
       this.playFormat = 'INDIVIDUAL';
-      this.seasonGame = false;
       this.selectVenue(null);
       this.locationMethod = 'maps';
       return;
