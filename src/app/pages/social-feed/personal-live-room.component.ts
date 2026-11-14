@@ -110,7 +110,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
             <textarea name="liveMessage" [(ngModel)]="draft" maxlength="500" rows="2"
               [placeholder]="tr('Escrever mensagem…','Write a message…')" [attr.aria-label]="tr('Mensagem para o direto','Live chat message')"
               (focus)="onChatFocus()" (keydown.enter)="$event.shiftKey ? null : ($event.preventDefault(), sendMessage())" [disabled]="!room || connecting || reconnecting || switchingRole ||
-                (!event.canManage && (controls?.chatEnabled === false || !!controls?.mutedByHost))">
+                (!event.canManage && (controls?.chatEnabled === false || !!controls?.mutedByHost))"></textarea>
             <button type="submit" [disabled]="!room || connecting || reconnecting || switchingRole ||
               sending || !draft.trim() ||
               (!event.canManage && (controls?.chatEnabled === false || !!controls?.mutedByHost))" class="live-send-icon" [title]="tr('Enviar mensagem','Send message')" [attr.aria-label]="tr('Enviar mensagem','Send message')">➤</button>
