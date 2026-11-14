@@ -101,6 +101,10 @@ export class DiscoverComponent implements OnInit {
   }
 
   readonly sportsCatalog = SPORTS_CATALOG;
+  discoveredCustomSports: string[] = [];
+  get searchableSports(): string[] {
+    return [...this.sportsCatalog, ...this.discoveredCustomSports];
+  }
   readonly venueEnvironmentTranslationKey = venueEnvironmentTranslationKey;
 
   sport = '';
@@ -394,6 +398,11 @@ export class DiscoverComponent implements OnInit {
         this.venuesHasMore = venues.hasMore;
         this.topVenueResults = venues.venues.slice(0, 4);
         this.sessions = sessions;
+        this.discoveredCustomSports = [...new Set([
+          ...this.discoveredCustomSports,
+          ...sessions.map(session => session.sport).filter(name =>
+            !!name && !this.sportsCatalog.includes(name))
+        ])].slice(-40);
         this.topSessionResults = sessions.slice(0, 4);
         if (peopleRequestId === this.peopleRequestId) {
           this.people = people;
