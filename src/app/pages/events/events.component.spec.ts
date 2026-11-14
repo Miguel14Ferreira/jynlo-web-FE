@@ -31,6 +31,26 @@ describe('EventsComponent', () => {
   });
 
 
+  it('offers a discovered custom sport in filters while preserving catalog membership', () => {
+    sessionService.discover.and.returnValue(of([{
+      id: 97, sport: 'Bossaball', city: 'Lisboa',
+      gameDate: new Date(Date.now() + 86_400_000).toISOString(), distanceKm: null,
+      participantCount: 2, maxParticipants: 8,
+      priceAmount: 0, privateGame: false, status: 'OPEN'
+    }]));
+    component.loadSessions();
+    fixture.detectChanges();
+
+    expect(component.sportsCatalog).not.toContain('Bossaball');
+    expect(component.searchableSports).toContain('Bossaball');
+    expect(Array.from(fixture.nativeElement.querySelectorAll('#sport-options option'))
+      .some((option: Element) => option.getAttribute('value') === 'Bossaball')).toBeTrue();
+
+    component.sport = 'Bossaball';
+    component.loadSessions();
+    expect(sessionService.discover.calls.mostRecent().args[0]?.sport).toBe('Bossaball');
+  });
+
   it('keeps action semantics and search bindings while adopting Neon Glass controls', () => {
     const root = fixture.nativeElement as HTMLElement;
     const header = root.querySelector('.sessions-page .page-header')!;
