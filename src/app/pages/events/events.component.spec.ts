@@ -43,8 +43,8 @@ describe('EventsComponent', () => {
 
     expect(component.sportsCatalog).not.toContain('Bossaball');
     expect(component.searchableSports).toContain('Bossaball');
-    expect(Array.from(fixture.nativeElement.querySelectorAll('#sport-options option'))
-      .some((option: Element) => option.getAttribute('value') === 'Bossaball')).toBeTrue();
+    expect(Array.from(fixture.nativeElement.querySelectorAll('#sport-options option') as NodeListOf<HTMLOptionElement>)
+      .some(option => option.value === 'Bossaball')).toBeTrue();
 
     component.sport = 'Bossaball';
     component.loadSessions();
