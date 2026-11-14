@@ -526,18 +526,39 @@
 
           @if (isOwnProfile(selectedProfile)) {
             <section class="profile-privacy-settings" aria-label="Privacidade do perfil">
-              <div>
-                <strong>Privacidade do perfil</strong>
-                <p>{{ privacyStatus?.privateProfile ? 'O teu conteúdo está visível apenas para seguidores aprovados.' :
-                  'O teu perfil está público: qualquer utilizador pode ver as tuas publicações e stories.' }}</p>
+              <div class="profile-privacy-heading">
+                <div>
+                  <strong>Privacidade do perfil</strong>
+                  @if (privacyLoading || !privacyStatus) {
+                    <p role="status">A verificar as opções de privacidade…</p>
+                  } @else {
+                    <p>O teu perfil está <strong>{{ privacyStatus.privateProfile ? 'privado' : 'público' }}</strong>.</p>
+                  }
+                </div>
+                @if (privacyStatus) {
+                  <span class="profile-privacy-state">{{ privacyStatus.privateProfile ? 'Privado' : 'Público' }}</span>
+                }
               </div>
-              @if (privacyStatus?.privateModeAvailable) {
-                <button type="button" [disabled]="privacyBusy"
-                  (click)="changeProfilePrivacy(!privacyStatus!.privateProfile)">
-                  {{ privacyStatus?.privateProfile ? 'Tornar público' : 'Tornar privado' }}
-                </button>
-              } @else {
-                <small>Perfis privados em preparação: estamos a proteger também o acesso às fotografias e vídeos.</small>
+              @if (privacyStatus) {
+                <p class="profile-privacy-description">
+                  {{ privacyStatus.privateProfile
+                    ? 'As publicações e stories destinam-se a seguidores aprovados.'
+                    : 'As tuas publicações e stories estão visíveis para os utilizadores da Jynlo.' }}
+                </p>
+                @if (privacyStatus.privateModeAvailable) {
+                  <button type="button" class="profile-privacy-action" [disabled]="privacyBusy"
+                    (click)="changeProfilePrivacy(!privacyStatus.privateProfile)">
+                    {{ privacyBusy ? 'A guardar…' : (privacyStatus.privateProfile ? 'Tornar público' : 'Tornar privado') }}
+                  </button>
+                } @else {
+                  <button type="button" class="profile-privacy-action" disabled
+                    aria-describedby="profile-privacy-unavailable">Tornar privado — indisponível</button>
+                  <p id="profile-privacy-unavailable" class="profile-privacy-explanation" role="status">
+                    Ainda não podes ativar um perfil privado. A Jynlo já tem pedidos de seguimento e
+                    restrições de visualização, mas os ficheiros de fotografias e vídeos ainda precisam
+                    de acesso protegido. O botão só será desbloqueado quando essa proteção estiver concluída.
+                  </p>
+                }
               }
               @if (privacyPending.length) {
                 <h3>Pedidos para seguir ({{ privacyPending.length }})</h3>
