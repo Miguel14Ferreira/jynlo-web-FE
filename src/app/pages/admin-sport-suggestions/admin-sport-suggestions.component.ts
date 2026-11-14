@@ -99,10 +99,12 @@ export class AdminSportSuggestionsComponent implements OnInit {
   loading = false;
   busyId: number | null = null;
   error = '';
+  private requestRevision = 0;
 
   ngOnInit(): void { this.load(); }
 
   load(status: (typeof this.statuses)[number] = this.status): void {
+    const revision = ++this.requestRevision;
     this.status = status;
     this.error = '';
     this.loading = true;
@@ -110,8 +112,14 @@ export class AdminSportSuggestionsComponent implements OnInit {
       {params: new HttpParams().set('status', status)})
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: items => {this.items = items; this.loading = false;},
-        error: () => {this.error='Não foi possível carregar as sugestões.'; this.loading=false;}
+        next: items => {
+          if(revision !== this.requestRevision)return;
+          this.items = items; this.loading = false;
+        },
+        error: () => {
+          if(revision !== this.requestRevision)return;
+          this.error='Não foi possível carregar as sugestões.'; this.loading=false;
+        }
       });
   }
 
