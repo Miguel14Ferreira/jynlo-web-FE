@@ -36,7 +36,7 @@
         }
 
         <div class="detail-content">
-          @if (session.status === 'CANCELLED' && isCreator() && cancellationNotice) {
+          @if (session.status === 'CANCELLED' && isCreator() && cancellationNotice && cancellationNoticeSessionId === session.id) {
             <section class="session-cancelled-share" aria-label="Aviso para participantes externos">
               <strong>Informar participantes externos</strong>
               <p>Os jogadores com conta Jynlo recebem um aviso interno, de acordo com as suas preferências.
