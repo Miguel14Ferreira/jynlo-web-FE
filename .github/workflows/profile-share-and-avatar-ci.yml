@@ -1,0 +1,34 @@
+name: Jynlo profile share and account avatar CI
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'src/app/pages/perfis/perfis.component.*'
+      - 'src/app/pages/perfis/perfis-v3-finish.css'
+      - 'src/app/sharepage/navbar/navbar.component.*'
+      - '.github/workflows/profile-share-and-avatar-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: profile-share-avatar-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  profile-and-navbar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Test profile and navbar components
+        run: npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/pages/perfis/perfis.component.spec.ts --include=src/app/sharepage/navbar/navbar.component.spec.ts
+      - name: Production build
+        run: npm run build
