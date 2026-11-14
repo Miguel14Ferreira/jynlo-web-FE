@@ -49,20 +49,20 @@ describe('PersonalLiveRoomComponent', () => {
   it('allows spectators to hide chat, grow the video, then restore chat', () => {
     const root=fixture.nativeElement as HTMLElement;
     const buttons=()=>Array.from(root.querySelectorAll<HTMLButtonElement>('.live-toolbar button'));
-    const hide=buttons().find(button=>button.textContent?.includes('Esconder chat'))!;
+    const hide=buttons().find(button=>button.getAttribute('aria-label')?.includes('Mostrar ou esconder chat'))!;
     hide.click();fixture.detectChanges();
     expect(root.querySelector('.live-layout-no-chat')).toBeTruthy();
     expect(root.querySelector('#personal-live-chat')).toBeNull();
-    const show=buttons().find(button=>button.textContent?.includes('Mostrar chat'))!;
+    const show=buttons().find(button=>button.getAttribute('aria-label')?.includes('Mostrar ou esconder chat'))!;
     show.click();fixture.detectChanges();
     expect(root.querySelector('#personal-live-chat')).toBeTruthy();
-    const theater=buttons().find(button=>button.textContent?.includes('Ocupar tela'))!;
+    const theater=buttons().find(button=>button.getAttribute('aria-label')?.includes('Ocupar tela'))!;
     theater.click();fixture.detectChanges();
     expect(root.querySelector('.live-layout-theater')).toBeTruthy();
     expect(root.querySelector('#personal-live-chat')).toBeTruthy();
   });
 
-  it('allows the presenter to enable slow mode for all spectators', () => {
+  it('keeps legacy slow-mode moderation out of the visible live UI', () => {
     component.event={...component.event,canManage:true};
     component.controls={
       chatEnabled:true,mutedByHost:false,guestUsername:null,isGuest:false,
@@ -72,7 +72,7 @@ describe('PersonalLiveRoomComponent', () => {
     service.controls.and.returnValue(of({...component.controls,slowModeSeconds:10}));
     service.end.and.returnValue(of({...component.event,status:'ENDED'}));
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('#live-slow-mode')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('#live-slow-mode')).toBeNull();
     component.changeSlowMode(10);
     expect(service.setSlowMode).toHaveBeenCalledOnceWith(42,10);
     expect(component.controls.slowModeSeconds).toBe(10);
