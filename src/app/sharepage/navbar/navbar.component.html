@@ -29,8 +29,8 @@
                (click)="$event.stopPropagation(); closeAccountMenu()"
                (keydown.enter)="$event.stopPropagation()"
                (keydown.space)="$event.stopPropagation()">
-              @if (accountImage(); as picture) {
-                <img [src]="picture" alt="" loading="lazy">
+              @if (!accountImageUnavailable && accountImage(); as picture) {
+                <img [src]="picture" alt="" loading="lazy" (error)="markAccountImageUnavailable()">
               } @else {
                 <span>{{ accountInitials }}</span>
               }
@@ -43,8 +43,8 @@
           <div class="account-menu__panel">
             <div class="account-menu__identity">
               <span class="account-identity-avatar account-identity-avatar--large" aria-hidden="true">
-                @if (accountImage(); as picture) {
-                  <img [src]="picture" alt="" loading="lazy">
+                @if (!accountImageUnavailable && accountImage(); as picture) {
+                  <img [src]="picture" alt="" loading="lazy" (error)="markAccountImageUnavailable()">
                 } @else {
                   <span>{{ accountInitials }}</span>
                 }
