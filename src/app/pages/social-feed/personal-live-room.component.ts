@@ -80,6 +80,9 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
               <div class="live-chat-message">
                 <strong>@{{message.username}}</strong>
                 <span>{{message.message}}</span>
+                <time [attr.datetime]="message.createdAt" [title]="message.createdAt | date:'medium'">
+                  {{message.createdAt | date:'HH:mm'}}
+                </time>
                 @if (event.canManage && message.username.toLowerCase() !== event.username.toLowerCase()) {
                   <button type="button" [disabled]="moderationBusy"
                     (click)="toggleViewerMute(message.username,!isViewerMuted(message.username))">
@@ -90,8 +93,19 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
             }
             @if (!messages.length) { <p>As mensagens vão aparecer aqui.</p> }
           </div>
+          @if (emojiPickerOpen) {
+            <div class="live-emoji-picker" aria-label="Emojis para o chat">
+              @for (emoji of chatEmojis; track emoji) {
+                <button type="button" (click)="appendEmoji(emoji)" [attr.aria-label]="'Inserir ' + emoji">
+                  {{emoji}}
+                </button>
+              }
+            </div>
+          }
           @if (chatSendError) { <p class="chat-notice" role="alert">{{chatSendError}}</p> }
           <form class="live-chat-input" (ngSubmit)="sendMessage()">
+            <button type="button" class="live-emoji-toggle" aria-label="Escolher emoji"
+              [attr.aria-expanded]="emojiPickerOpen" (click)="emojiPickerOpen=!emojiPickerOpen">☺</button>
             <input name="liveMessage" [(ngModel)]="draft" maxlength="500" autocomplete="off"
               placeholder="Escrever mensagem…" aria-label="Mensagem para o direto"
               (focus)="onChatFocus()" [disabled]="!room || connecting || reconnecting || switchingRole ||
@@ -253,11 +267,20 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
     .live-chat-history{display:grid;align-content:start;gap:9px;min-height:0;flex:1 1 auto;
       max-height:37dvh;overflow:auto;overflow-wrap:anywhere}
     .live-chat-message{display:flex;flex-wrap:wrap;align-items:baseline;gap:5px;font-size:.79rem}
-    .live-chat-message strong{color:#64dfcb}.live-chat-message button{border:0;
+    .live-chat-message strong{color:#64dfcb}
+    .live-chat-message time{color:#8caeb6;font-size:.68rem;margin-left:auto}
+    .live-chat-message button{border:0;
       color:#ffb9c5;background:transparent;cursor:pointer;font-size:.72rem}
     .live-chat-input{display:flex;gap:8px;scroll-margin-bottom:24px;margin-top:auto;align-items:stretch}
     .live-chat-input input{min-height:44px;font-size:16px}
     .live-chat-input button{min-width:66px;min-height:44px}
+    .live-chat-input .live-emoji-toggle{min-width:42px;min-height:44px;font-size:1.3rem;
+      background:#123842;border:1px solid #398f88;border-radius:8px;color:#f0fffc}
+    .live-emoji-picker{display:flex;flex-wrap:wrap;gap:5px;padding:8px;
+      background:#0b303b;border:1px solid #398f88;border-radius:10px}
+    .live-emoji-picker button{font-size:1.25rem;border:0;border-radius:7px;
+      background:transparent;cursor:pointer;padding:6px}
+    .live-emoji-picker button:hover,.live-emoji-picker button:focus-visible{background:#24616a}
     .live-chat-input input{flex:1;min-width:0;
       border:1px solid #437783;border-radius:7px;padding:8px;background:#092a36;color:#fff}
     .live-chat-input button,.live-moderation button,.live-guest-request button{
@@ -329,6 +352,13 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   chatVisible=true;
   theaterMode=false;
   chatSendError='';
+  emojiPickerOpen=false;
+  readonly chatEmojis=['⚽','🔥','👏','❤️','😂','💪','🏆','😍','🙌','🎾','🏀','🎮'];
+  appendEmoji(emoji:string):void {
+    if(!this.chatEmojis.includes(emoji) || this.draft.length+emoji.length>500)return;
+    this.draft+=emoji;
+    this.emojiPickerOpen=false;
+  }
   role:'HOST'|'GUEST'|'VIEWER'='VIEWER';
   sending=false;
   moderationBusy=false;
