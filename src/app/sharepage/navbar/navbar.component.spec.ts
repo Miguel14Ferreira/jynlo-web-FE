@@ -683,6 +683,26 @@ describe('NavbarComponent', () => {
       .toContain('Beatriz Martins');
   });
 
+  it('renders round initials if a profile picture fails while offline', () => {
+    myProfileService.get.and.returnValue(of({
+      username:'bea',nickname:'Beatriz',fullName:null,
+      profilePicUrl:'/media/profiles/unavailable.png'
+    } as any));
+    (authService as any).loggedInPerfilname='bea';
+    authService.hasSessionCandidate.and.returnValue(true);
+    (component as any).syncAuthenticatedState();
+    fixture.detectChanges();
+    const root=fixture.nativeElement as HTMLElement;
+    const photo=root.querySelector('.account-avatar-profile-link img') as HTMLImageElement;
+    expect(photo).toBeTruthy();
+    photo.dispatchEvent(new Event('error'));
+    fixture.detectChanges();
+    expect(root.querySelector('.account-avatar-profile-link img')).toBeNull();
+    expect(root.querySelector('.account-avatar-profile-link')?.textContent?.trim()).toBe('B');
+    expect(root.querySelector('.account-menu__identity img')).toBeNull();
+    expect(component.accountImageUnavailable).toBeTrue();
+  });
+
   it('clears the previous account immediately and rejects stale profile responses', () => {
     const old = new Subject<any>();
     myProfileService.get.and.returnValues(old.asObservable(), of({
