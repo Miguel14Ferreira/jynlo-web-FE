@@ -106,7 +106,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
               [attr.aria-expanded]="emojiPickerOpen" (click)="emojiPickerOpen=!emojiPickerOpen">☺</button>
             <textarea name="liveMessage" [(ngModel)]="draft" maxlength="500" rows="2"
               [placeholder]="tr('Escrever mensagem…','Write a message…')" [attr.aria-label]="tr('Mensagem para o direto','Live chat message')"
-              (focus)="onChatFocus()" (keydown.enter)="$event.shiftKey ? null : ($event.preventDefault(), sendMessage())" [disabled]="!room || connecting || reconnecting || switchingRole ||
+              (focus)="onChatFocus()" (keydown.enter)="onChatEnter($event)" [disabled]="!room || connecting || reconnecting || switchingRole ||
                 (!event.canManage && (controls?.chatEnabled === false || !!controls?.mutedByHost))"></textarea>
             <button type="submit" [disabled]="!room || connecting || reconnecting || switchingRole ||
               sending || !draft.trim() ||
@@ -344,6 +344,11 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   chatSendError='';
   emojiPickerOpen=false;
   readonly chatEmojis=['⚽','🔥','👏','❤️','😂','💪','🏆','😍','🙌','🎾','🏀','🎮','🥳','😀','😎','🤩','😊','😭','😮','😡','👍','👎','💚','💙','💯','🎉','⭐','🏅','🥇','🏐','🏓','🏸','🏃','🚴','🏊','🎯','👀','🤝','💥','🙏','🫶','🧡','💜'];
+  onChatEnter(event: KeyboardEvent):void {
+    if(event.shiftKey || event.isComposing)return;
+    event.preventDefault();
+    this.sendMessage();
+  }
   appendEmoji(emoji:string):void {
     if(!this.chatEmojis.includes(emoji) || this.draft.length+emoji.length>500)return;
     this.draft+=emoji;
