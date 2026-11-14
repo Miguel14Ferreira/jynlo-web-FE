@@ -286,6 +286,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   cancelSessionConfirmOpen = false;
   cancelSessionWorking = false;
   cancellationNotice = '';
+  cancellationNoticeSessionId: number | null = null;
   cancellationNoticeFeedback = '';
   cancellationNoticeSharing = false;
   readonly editableSports = SPORTS_CATALOG;
@@ -601,6 +602,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     if (!this.canCancelOwnSession() || this.cancelSessionWorking) return;
     this.cancelSessionConfirmOpen = true;
     this.cancellationNotice = '';
+    this.cancellationNoticeSessionId = null;
     this.cancellationNoticeFeedback = '';
     this.actionError = '';
   }
@@ -624,6 +626,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         this.promotionOpen = false;
         this.creationShareDismissed = true;
         this.actionSuccess = t('feedback.sessions.cancelled');
+        this.cancellationNoticeSessionId = this.sessionId;
         this.cancellationNotice = this.buildCancelledSessionNotice();
         this.cancellationNoticeFeedback = 'Se também convidaste jogadores pelo WhatsApp, partilha este aviso com eles.';
       },
@@ -651,6 +654,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
 
   async shareCancelledSessionNotice(): Promise<void> {
     if (!this.cancellationNotice || this.cancellationNoticeSharing ||
+        this.cancellationNoticeSessionId !== this.sessionId ||
         !this.isCreator() || this.session?.status !== 'CANCELLED') return;
     this.cancellationNoticeSharing = true;
     this.cancellationNoticeFeedback = '';
