@@ -734,8 +734,8 @@ describe('DiscoverComponent', () => {
 
     expect(component.sportsCatalog).not.toContain('Bossaball');
     expect(component.searchableSports).toContain('Bossaball');
-    expect(Array.from(fixture.nativeElement.querySelectorAll('#discover-sports option'))
-      .some((option: Element) => option.getAttribute('value') === 'Bossaball')).toBeTrue();
+    expect(Array.from(fixture.nativeElement.querySelectorAll('#discover-sports option') as NodeListOf<HTMLOptionElement>)
+      .some(option => option.value === 'Bossaball')).toBeTrue();
     component.onSportChange('Bossaball');
     component.search();
     expect(sessionService.discover.calls.mostRecent().args[0]?.sport).toBe('Bossaball');
