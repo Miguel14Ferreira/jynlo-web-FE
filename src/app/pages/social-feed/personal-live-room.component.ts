@@ -631,7 +631,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     // Optimistic rendering makes the message visible immediately, without waiting
     // for the three-second polling cycle or the HTTP response.
     const temporaryId=this.optimisticMessageId--;
-    this.messages=[...this.messages,{id:temporaryId,username:this.event.username,
+    this.messages=[...this.messages,{id:temporaryId,username:'Tu',
       message:content,createdAt:new Date().toISOString()}];
     this.draft='';
     this.service.sendMessage(this.event.id,content).pipe(timeout(10000),takeUntil(this.destroy$),
