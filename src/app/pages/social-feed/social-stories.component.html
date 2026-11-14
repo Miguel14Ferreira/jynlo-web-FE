@@ -263,11 +263,11 @@
         (click)="$event.stopPropagation()">
         <div class="story-dialog-media">
           @if (story.video) {
-            <video #storyVideo [src]="media(story.mediaUrl)" autoplay muted playsinline preload="metadata"
+            <video #storyVideo [jynloProtectedSrc]="media(story.mediaUrl)" autoplay muted playsinline preload="metadata"
               [muted]="muted" (loadedmetadata)="onVideoReady($event)"
               (timeupdate)="onVideoTime($event)" (ended)="next()" (error)="onMediaError()"></video>
           } @else {
-            <img [src]="media(story.mediaUrl)" [alt]="story.altText || story.caption || ('stories.photo' | t)"
+            <img [jynloProtectedSrc]="media(story.mediaUrl)" [alt]="story.altText || story.caption || ('stories.photo' | t)"
               (load)="onImageLoaded()" (error)="onMediaError()">
           }
           @if (mediaFailed) {
