@@ -212,8 +212,14 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
     .live-toolbar span{font-size:.79rem;color:#5eead4}
     @media(max-width:760px){
       .personal-live{max-height:calc(100dvh - 12px);overflow-y:auto;overscroll-behavior:contain}
-      .personal-live-layout{grid-template-columns:1fr}
+      .personal-live-layout,.personal-live-layout.live-layout-theater,.personal-live-layout.live-layout-no-chat{
+        grid-template-columns:minmax(0,1fr)
+      }
       .personal-live-stage{min-height:220px}
+      .live-layout-theater .personal-live-stage,
+      .live-layout-no-chat .personal-live-stage{min-height:min(52dvh,480px)}
+      .live-chat{max-height:40dvh}
+      .live-chat-history{max-height:22dvh}
       .live-chat{min-height:0}
       .live-chat-history{max-height:min(25dvh,220px)}
       .live-chat-input{position:sticky;bottom:0;z-index:2;padding:8px 0;
