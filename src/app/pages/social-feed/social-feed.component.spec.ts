@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SocialFeedComponent } from './social-feed.component';
+import { ProtectedMediaDirective } from '../../shared/protected-media.directive';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
@@ -63,7 +64,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
 
     await TestBed.configureTestingModule({
       declarations: [SocialFeedComponent],
-      imports: [...TEST_IMPORTS, StubStoriesComponent, VenueSportsBadgesComponent, MovableTextComponent],
+      imports: [...TEST_IMPORTS, StubStoriesComponent, VenueSportsBadgesComponent, MovableTextComponent, ProtectedMediaDirective],
       providers: [
         ...TEST_PROVIDERS,
         { provide: AuthenticationService, useValue: auth },
