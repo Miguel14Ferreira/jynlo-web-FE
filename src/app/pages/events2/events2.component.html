@@ -243,7 +243,7 @@
         <label>
           <span>{{ 'events.sport' | t }} *</span>
           <app-jynlo-select name="sport" class="create-premium-select"
-            [options]="sportChoices" [ngModel]="sport"
+            [options]="sportChoices" [ngModel]="customSportMode ? '__CUSTOM_SPORT__' : sport"
             (ngModelChange)="onSportChoice($event)"
             [searchable]="true" [required]="true"
             [placeholder]="'events.sportPlaceholder' | t"
@@ -251,6 +251,31 @@
             [blocked]="loading" [disabled]="loading">
           </app-jynlo-select>
         </label>
+        @if (customSportMode) {
+          <div class="custom-sport-field" role="group" aria-label="Sugerir nova modalidade">
+            <label for="jynlo-custom-sport">Como se chama o desporto?</label>
+            <input id="jynlo-custom-sport" name="customSportName" type="text"
+              [ngModel]="customSportName" (ngModelChange)="onCustomSportName($event)"
+              maxlength="60" autocomplete="off" [disabled]="loading"
+              placeholder="Ex.: Bossaball" aria-describedby="custom-sport-help">
+            <small id="custom-sport-help">
+              Podes criar já uma sessão independente. A modalidade será enviada para revisão;
+              torneios, classificações e recintos oficiais ainda não estão disponíveis.
+            </small>
+            @if (customSportMatches.length) {
+              <div class="community-sport-options" aria-label="Modalidades semelhantes no catálogo">
+                <small>Já temos algo parecido?</small>
+                @for (similar of customSportMatches; track similar) {
+                  <button type="button" class="community-sport-option"
+                    [disabled]="loading" (click)="onSportChoice(similar)">{{similar}}</button>
+                }
+              </div>
+            }
+            @if (customSportName.trim() && !customSportValid) {
+              <small role="alert">Verifica o nome ou escolhe uma modalidade existente.</small>
+            }
+          </div>
+        }
 
         @if (canChoosePlayFormat) {
           <label class="session-play-format-field">
