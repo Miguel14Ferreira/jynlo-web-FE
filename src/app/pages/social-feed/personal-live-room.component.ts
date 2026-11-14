@@ -34,6 +34,10 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       <div class="live-toolbar" aria-label="Ações da transmissão">
         <button type="button" (click)="shareLive()" [disabled]="closing || ending">Partilhar direto</button>
         <button type="button" (click)="toggleFullscreen()" [disabled]="!room">Ampliar vídeo</button>
+        <button type="button" [attr.aria-pressed]="theaterMode"
+          (click)="theaterMode=!theaterMode">{{theaterMode?'Sair de ocupar tela':'Ocupar tela'}}</button>
+        <button type="button" [attr.aria-expanded]="chatVisible" aria-controls="personal-live-chat"
+          (click)="chatVisible=!chatVisible">{{chatVisible?'Esconder chat':'Mostrar chat'}}</button>
         @if (audioBlocked) {
           <button type="button" (click)="enableAudio()" [disabled]="!room">
             Ativar som da transmissão
@@ -41,7 +45,8 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
         }
         @if (shareFeedback) { <span role="status">{{shareFeedback}}</span> }
       </div>
-      <div class="personal-live-layout">
+      <div class="personal-live-layout" [class.live-layout-theater]="theaterMode"
+           [class.live-layout-no-chat]="!chatVisible">
         <div class="live-stage-container">
           <div #stage class="personal-live-stage" aria-label="Vídeo da transmissão">
             @if (!videoTiles) {
@@ -56,7 +61,8 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
             @if (role==='GUEST') { <strong>Estás como convidado</strong> }
           </div>
         </div>
-        <aside class="live-chat" aria-label="Chat da transmissão em direto">
+        @if (chatVisible) {
+        <aside id="personal-live-chat" class="live-chat" aria-label="Chat da transmissão em direto">
           <header><strong>Chat em direto</strong>
             <small>{{messages.length}} mensagens recentes</small></header>
           @if (controls && !controls.chatEnabled) {
@@ -80,14 +86,15 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
             }
             @if (!messages.length) { <p>As mensagens vão aparecer aqui.</p> }
           </div>
+          @if (chatSendError) { <p class="chat-notice" role="alert">{{chatSendError}}</p> }
           <form class="live-chat-input" (ngSubmit)="sendMessage()">
-            <input name="liveMessage" [(ngModel)]="draft" maxlength="500"
+            <input name="liveMessage" [(ngModel)]="draft" maxlength="500" autocomplete="off"
               placeholder="Escrever mensagem…" aria-label="Mensagem para o direto"
               (focus)="onChatFocus()" [disabled]="!room || connecting || reconnecting || switchingRole ||
-                (!event.canManage && (!controls?.chatEnabled || controls?.mutedByHost))">
+                (!event.canManage && (controls?.chatEnabled === false || controls?.mutedByHost))">
             <button type="submit" [disabled]="!room || connecting || reconnecting || switchingRole ||
               sending || !draft.trim() ||
-              (!event.canManage && (!controls?.chatEnabled || controls?.mutedByHost))">Enviar</button>
+              (!event.canManage && (controls?.chatEnabled === false || controls?.mutedByHost))">Enviar</button>
           </form>
           @if (!event.canManage) {
             <div class="live-guest-request">
@@ -121,6 +128,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
             </div>
           }
         </aside>
+        }
       </div>
       @if (event.canManage || role==='GUEST') {
         <footer aria-label="Controlos do direto">
@@ -167,6 +175,11 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       color:#fff;font-size:1.6rem;cursor:pointer}
     .personal-live-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,320px);
       gap:12px;min-width:0;min-height:0}
+    .personal-live-layout.live-layout-theater{grid-template-columns:minmax(0,1fr) minmax(225px,25%)}
+    .personal-live-layout.live-layout-no-chat{grid-template-columns:minmax(0,1fr)}
+    .live-layout-theater .personal-live-stage{min-height:min(68dvh,720px)}
+    .live-layout-no-chat .personal-live-stage{min-height:min(72dvh,760px)}
+    .live-layout-theater .live-chat{min-width:0}
     .live-stage-container{display:flex;flex-direction:column;gap:.5rem;min-width:0}
     .personal-live-stage{min-height:320px;background:#020b14;border-radius:.8rem;
       display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));
@@ -212,15 +225,17 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
     footer .end{background:#932d42}footer button:disabled{opacity:.5;cursor:not-allowed}
     p[role="alert"]{color:#fecaca}.live-connection-status{color:#5eead4;margin:0;font-size:.82rem}
     .live-reconnection-status{color:#fde68a;margin:0;font-size:.85rem}
-    .live-chat{min-width:0;min-height:260px;display:flex;flex-direction:column;gap:9px;
+    .live-chat{min-width:0;min-height:220px;display:flex;flex-direction:column;gap:9px;
       border:1px solid #285c66;border-radius:10px;padding:10px;background:#0b202b}
     .live-chat header{align-items:center;flex-wrap:wrap}
-    .live-chat-history{display:grid;align-content:start;gap:9px;min-height:120px;
+    .live-chat-history{display:grid;align-content:start;gap:9px;min-height:0;flex:1 1 auto;
       max-height:37dvh;overflow:auto;overflow-wrap:anywhere}
     .live-chat-message{display:flex;flex-wrap:wrap;align-items:baseline;gap:5px;font-size:.79rem}
     .live-chat-message strong{color:#64dfcb}.live-chat-message button{border:0;
       color:#ffb9c5;background:transparent;cursor:pointer;font-size:.72rem}
-    .live-chat-input{display:flex;gap:5px;scroll-margin-bottom:24px}
+    .live-chat-input{display:flex;gap:8px;scroll-margin-bottom:24px;margin-top:auto;align-items:stretch}
+    .live-chat-input input{min-height:44px;font-size:16px}
+    .live-chat-input button{min-width:66px;min-height:44px}
     .live-chat-input input{flex:1;min-width:0;
       border:1px solid #437783;border-radius:7px;padding:8px;background:#092a36;color:#fff}
     .live-chat-input button,.live-moderation button,.live-guest-request button{
@@ -285,6 +300,9 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   messages:PersonalLiveChatMessage[]=[];
   controls:PersonalLiveControls|null=null;
   draft='';
+  chatVisible=true;
+  theaterMode=false;
+  chatSendError='';
   role:'HOST'|'GUEST'|'VIEWER'='VIEWER';
   sending=false;
   moderationBusy=false;
