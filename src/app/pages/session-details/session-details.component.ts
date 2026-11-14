@@ -285,6 +285,9 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   sharingSession = false;
   cancelSessionConfirmOpen = false;
   cancelSessionWorking = false;
+  cancellationNotice = '';
+  cancellationNoticeFeedback = '';
+  cancellationNoticeSharing = false;
   readonly editableSports = SPORTS_CATALOG;
   private readonly sessionPresetService = inject(SessionPresetService);
   detailsPresets: SessionPreset[] = [];
@@ -597,6 +600,8 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   requestCancelOwnSession(): void {
     if (!this.canCancelOwnSession() || this.cancelSessionWorking) return;
     this.cancelSessionConfirmOpen = true;
+    this.cancellationNotice = '';
+    this.cancellationNoticeFeedback = '';
     this.actionError = '';
   }
 
@@ -619,12 +624,55 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         this.promotionOpen = false;
         this.creationShareDismissed = true;
         this.actionSuccess = t('feedback.sessions.cancelled');
+        this.cancellationNotice = this.buildCancelledSessionNotice();
+        this.cancellationNoticeFeedback = 'Se também convidaste jogadores pelo WhatsApp, partilha este aviso com eles.';
       },
       error: error => {
         this.actionError = this.errorFrom(error, t('feedback.sessions.cancelError'));
       }
     });
   }
+  /** Public event summary only: the message may be forwarded outside Jynlo.
+   * No precise address, passwords or private meeting instructions. */
+  private buildCancelledSessionNotice(): string {
+    const item = this.session;
+    if (!item) return '';
+    const date = item.gameDate && Number.isFinite(Date.parse(item.gameDate))
+      ? new Date(item.gameDate).toLocaleString('pt-PT', {
+          timeZone: 'Europe/Lisbon', day: '2-digit', month: '2-digit',
+          year: 'numeric', hour: '2-digit', minute: '2-digit'
+        })
+      : '';
+    const summary = [item.sport || 'desporto', date, item.city || ''].filter(Boolean).join(' · ');
+    return '⚠️ Sessão cancelada — ' + summary +
+      '. O organizador cancelou esta sessão e o jogo não se vai realizar. ' +
+      'Por favor, não te desloques ao recinto.';
+  }
+
+  async shareCancelledSessionNotice(): Promise<void> {
+    if (!this.cancellationNotice || this.cancellationNoticeSharing ||
+        !this.isCreator() || this.session?.status !== 'CANCELLED') return;
+    this.cancellationNoticeSharing = true;
+    this.cancellationNoticeFeedback = '';
+    try {
+      if (typeof navigator.share === 'function') {
+        try {
+          await navigator.share({text: this.cancellationNotice});
+          this.cancellationNoticeFeedback = 'Aviso partilhado.';
+          return;
+        } catch (error) {
+          if (error instanceof Error && error.name === 'AbortError') return;
+        }
+      }
+      await this.copyShareUrl(this.cancellationNotice);
+      this.cancellationNoticeFeedback = 'Aviso copiado. Envia-o aos convidados externos.';
+    } catch {
+      this.cancellationNoticeFeedback = 'Seleciona e copia a mensagem abaixo para o grupo.';
+    } finally {
+      this.cancellationNoticeSharing = false;
+    }
+  }
+
   creationShareDismissed = false;
   promotionOpen = false;
   shareFeedback = '';
