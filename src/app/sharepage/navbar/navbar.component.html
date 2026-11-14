@@ -23,13 +23,18 @@
         <details class="account-menu">
           <summary class="jynlo-action jynlo-action--neutral account-identity-trigger"
             [attr.aria-label]="accountDisplayName || activeAccountUsername || ('nav.account.profile' | t)">
-            <span class="account-identity-avatar" aria-hidden="true">
+            <a class="account-identity-avatar account-avatar-profile-link"
+               [routerLink]="['/menu/perfis', activeAccountUsername]"
+               [attr.aria-label]="'Ver o meu perfil: ' + activeAccountUsername"
+               (click)="$event.stopPropagation(); closeAccountMenu()"
+               (keydown.enter)="$event.stopPropagation()"
+               (keydown.space)="$event.stopPropagation()">
               @if (accountImage(); as picture) {
                 <img [src]="picture" alt="" loading="lazy">
               } @else {
                 <span>{{ accountInitials }}</span>
               }
-            </span>
+            </a>
             <span class="account-identity-copy">
               <strong>{{ accountDisplayName || activeAccountUsername || ('nav.account.profile' | t) }}</strong>
             </span>
@@ -53,7 +58,7 @@
             <a class="mobile-only-link" routerLink="/menu/feed" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'nav.feed' | t }}</a>
             <a class="desktop-primary-link" routerLink="/menu/my-sessions" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'mySessions.title' | t }}</a>
             <a class="desktop-primary-link" routerLink="/menu/messages" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'nav.messages' | t }}</a>
-            <a routerLink="/menu/dadosPerfil" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'nav.account.viewProfile' | t }}</a>
+            <a [routerLink]="['/menu/perfis', activeAccountUsername]" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'nav.account.viewProfile' | t }}</a>
             @if (admin) {
               <a routerLink="/menu/admin" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'admin.eyebrow' | t }}</a>
             }
