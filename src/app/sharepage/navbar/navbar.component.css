@@ -550,3 +550,18 @@
 .account-menu > summary .account-avatar-profile-link:focus-visible{
   outline:2px solid #7cffe0;outline-offset:3px;
 }
+
+/* An offline profile photo falls back to a true circle, never a rounded square. */
+.account-menu .account-identity-avatar,
+.account-menu .account-avatar-profile-link{
+  width:34px!important;height:34px!important;min-width:34px;min-height:34px;
+  flex:0 0 34px;aspect-ratio:1 / 1;border-radius:50%!important;
+  padding:0!important;overflow:hidden;box-sizing:border-box;
+  display:grid!important;place-items:center!important;line-height:1!important;
+  white-space:nowrap;
+}
+.account-menu .account-identity-avatar--large{
+  width:49px!important;height:49px!important;min-width:49px;min-height:49px;
+  flex-basis:49px;
+}
+.account-menu .account-identity-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
