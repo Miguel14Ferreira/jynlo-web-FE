@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, HostListener, Input, OnDestroy, Output } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { ProtectedMediaDirective } from '../../shared/protected-media.directive';
 import { SocialStory } from '../model/social-story';
 
 @Component({
   selector:'app-profile-story-viewer',
   standalone:true,
-  imports:[CommonModule,RouterModule],
+  imports:[CommonModule,RouterModule,ProtectedMediaDirective],
   template:`
     <div class="profile-story-backdrop" (click)="closed.emit()">
       <section role="dialog" aria-modal="true" class="profile-story-dialog"
