@@ -22,9 +22,9 @@ import { SocialFeedService } from '../../services/social-feed.service';
             @for (asset of media; track asset.url; let i=$index) {
               @if (i === index) {
                 @if (asset.mimeType.startsWith('video/')) {
-                  <video [src]="asset.url" controls playsinline preload="metadata" aria-label="Vídeo da publicação"></video>
+                  <video [jynloProtectedSrc]="asset.url" controls playsinline preload="metadata" aria-label="Vídeo da publicação"></video>
                 } @else {
-                  <img [src]="asset.url" [alt]="'Fotografia ' + (i+1) + ' de ' + media.length">
+                  <img [jynloProtectedSrc]="asset.url" [alt]="'Fotografia ' + (i+1) + ' de ' + media.length">
                 }
               }
             }
