@@ -72,6 +72,9 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           @if (controls?.mutedByHost) {
             <p class="chat-notice" role="status">O apresentador silenciou as tuas mensagens.</p>
           }
+          @if ((controls?.slowModeSeconds ?? 0)>0 && !event.canManage) {
+            <p class="chat-notice" role="status">Modo lento: uma mensagem a cada {{controls?.slowModeSeconds}} segundos.</p>
+          }
           <div #chatHistory class="live-chat-history" aria-live="polite" aria-label="Mensagens recentes do direto">
             @for (message of messages; track message.id) {
               <div class="live-chat-message">
@@ -111,6 +114,18 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           }
           @if (event.canManage && controls) {
             <div class="live-moderation">
+              <label class="slow-mode-control" for="live-slow-mode">
+                Modo lento
+                <select id="live-slow-mode" [ngModel]="controls.slowModeSeconds ?? 0"
+                  [ngModelOptions]="{standalone:true}" [disabled]="moderationBusy"
+                  (ngModelChange)="changeSlowMode($event)">
+                  <option [ngValue]="0">Desligado</option>
+                  <option [ngValue]="5">5 segundos</option>
+                  <option [ngValue]="10">10 segundos</option>
+                  <option [ngValue]="30">30 segundos</option>
+                  <option [ngValue]="60">60 segundos</option>
+                </select>
+              </label>
               <button type="button" [disabled]="moderationBusy"
                 (click)="toggleChat()">{{controls.chatEnabled?'Desativar chat':'Ativar chat'}}</button>
               @for (request of controls.pendingRequests;track request.id) {
@@ -254,6 +269,9 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       border-top:1px solid #41616b;padding-top:7px}
     .live-guest-row span{flex:1 1 100%;font-size:.78rem}
     .live-moderation,.live-guest-request{display:grid;gap:8px}
+    .slow-mode-control{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.8rem}
+    .slow-mode-control select{min-width:120px;color:#eefefa;background:#123842;border:1px solid #398f88;
+      border-radius:7px;padding:8px;cursor:pointer}
     .live-guest-request p{font-size:.78rem;color:#7fe8d7}
     .live-confirm-backdrop{position:fixed;inset:0;background:rgba(0,5,12,.78);
       z-index:4000;display:grid;place-items:center;padding:1rem}
@@ -684,11 +702,25 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
           .filter((message,index,all)=>all.findIndex(item=>item.id===message.id)===index);
         this.refreshInteractions();
       },
-      error:()=>{
+      error:(error:unknown)=>{
         this.messages=this.messages.filter(message=>message.id!==temporaryId);
         if(!this.draft.trim())this.draft=content;
-        this.chatSendError='Não foi possível enviar. A mensagem foi mantida para tentares novamente.';
+        this.chatSendError=error instanceof HttpErrorResponse && error.status===429
+          ? 'Modo lento ativo. Aguarda antes de enviares outra mensagem.'
+          : 'Não foi possível enviar. A mensagem foi mantida para tentares novamente.';
       }
+    });
+  }
+  changeSlowMode(seconds:number):void {
+    if(!this.event.canManage||!this.controls||this.moderationBusy)return;
+    if(![0,5,10,30,60].includes(seconds))return;
+    this.moderationBusy=true;this.controlsMutation=true;this.controlsRevision++;
+    this.service.setSlowMode(this.event.id,seconds).pipe(timeout(10000),takeUntil(this.destroy$),
+      finalize(()=>{
+        this.moderationBusy=false;this.controlsMutation=false;this.refreshInteractions();
+      })).subscribe({
+      next:state=>this.controls=state,
+      error:()=>this.error='Não foi possível alterar o modo lento do chat.'
     });
   }
   toggleChat():void {
