@@ -12,8 +12,16 @@
       </div>
     </header>
 
-    @if (errorMessage) {
-      <div class="feedback error-feedback">{{ errorMessage }}</div>
+    @if (errorMessage || presetError) {
+      <div class="jynlo-form-alert-overlay">
+        <section class="jynlo-form-alert-dialog" role="alertdialog" aria-modal="true"
+                 aria-labelledby="create-session-alert-title" aria-describedby="create-session-alert-description">
+          <h2 id="create-session-alert-title">{{ 'sessionAlerts.attention' | t }}</h2>
+          <p id="create-session-alert-description">{{ errorMessage || presetError }}</p>
+          <button type="button" class="jynlo-action jynlo-action--primary"
+                  (click)="errorMessage = ''; presetError = ''">{{ 'sessionAlerts.dismiss' | t }}</button>
+        </section>
+      </div>
     }
 
     @if (communityId && communityName) {
@@ -1175,7 +1183,7 @@
           </div>
         </section>
       }
-      @if (presetError) { <p class="create-preset-error" role="alert">{{ presetError }}</p> }
+
       <div class="form-actions">
         <a class="secondary-action jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" routerLink="/menu/events">{{ 'common.cancel' | t }}</a>
         <button type="button" class="secondary-action jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet"
