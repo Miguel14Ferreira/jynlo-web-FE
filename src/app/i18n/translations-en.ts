@@ -1,5 +1,7 @@
 // Loaded only for users who choose English. Keep the original key/value table intact.
 export const EN: Record<string, string> = {
+  'sessionAlerts.attention': 'Attention',
+  'sessionAlerts.dismiss': 'Got it',
   'live.startBroadcast': 'Start live broadcast',
   'live.startTitle': 'Go live on Jynlo',
   'live.startDescription': 'Broadcast from your profile or choose a community.',
