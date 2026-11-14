@@ -11,6 +11,8 @@ import { DirectCallClientService } from '../../services/direct-call-client.servi
 import { Injector } from '@angular/core';
 import { FriendSummary } from '../model/friend-summary';
 import { SessionDetail } from '../model/session-detail';
+import { SessionPreset } from '../model/session-preset';
+import { SessionPresetService } from '../../services/session-preset.service';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { compactSessionShareMessage } from '../../shared/session-share-message';
 import { venueHasPortugueseCoordinates, venueDirectionsUrl, VenueTravelMode } from '../../shared/venue-public-contact';
@@ -284,6 +286,56 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   cancelSessionConfirmOpen = false;
   cancelSessionWorking = false;
   readonly editableSports = SPORTS_CATALOG;
+  private readonly sessionPresetService = inject(SessionPresetService);
+  detailsPresets: SessionPreset[] = [];
+  detailsPresetsLoading = false;
+  detailsPresetId: number | null = null;
+  detailsPresetNotice = '';
+  private detailsOriginalDraft: typeof this.detailsDraft | null = null;
+
+  private loadDetailsPresets(): void {
+    this.detailsPresetsLoading = true;
+    this.sessionPresetService.mine().pipe(timeout(10000),
+      finalize(() => this.detailsPresetsLoading = false)).subscribe({
+      next: presets => { if(this.detailsEditing) this.detailsPresets = presets; },
+      error: () => { if(this.detailsEditing) this.detailsPresetNotice = t('createSession.presets.loadError'); }
+    });
+  }
+
+  /** Apply only editable values. Never copy dates, participants or private credentials. */
+  applyDetailsPreset(value: string): void {
+    if(!this.detailsEditing || this.detailsSaving || !this.session)return;
+    const id = value ? Number(value) : null;
+    this.detailsPresetId = id;
+    this.detailsError = '';
+    this.detailsPresetNotice = '';
+    if(id === null) {
+      if(this.detailsOriginalDraft) this.detailsDraft = {...this.detailsOriginalDraft};
+      return;
+    }
+    const preset=this.detailsPresets.find(item=>item.id===id);
+    if(!preset)return;
+    const settings=preset.settings;
+    const max=Math.max(this.session.participantCount,Number(settings.maxParticipants));
+    if(!Number.isSafeInteger(max) || max<2 || max>100) {
+      this.detailsPresetNotice=t('sessionDetail.detailsInvalid');return;
+    }
+    const canChangeSport=this.canChangeSessionSport();
+    this.detailsDraft={
+      ...this.detailsDraft,
+      sport:canChangeSport && this.editableSports.includes(settings.sport)
+        ? settings.sport : this.session.sport,
+      maxParticipants:max,
+      minParticipants:Math.max(2,Math.min(max,suggestedMinimumPlayers(settings.sport,max))),
+      priceAmount:settings.hasPrice ? Number(settings.priceAmount) || 0 : 0,
+      city:this.session.venue ? this.session.city : settings.city || '',
+      address:this.session.venue ? this.session.address || '' : settings.address || '',
+      description:(settings.description || '').slice(0,1000)
+    };
+    // Date, linked venue and arrival instructions belong to this specific game.
+    this.detailsPresetNotice=t('createSession.presets.applied');
+  }
+
 
   detailsEditing = false;
   detailsSaving = false;
@@ -324,6 +376,10 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     };
     this.detailsError = '';
     this.detailsSuccess = '';
+    this.detailsPresetId = null;
+    this.detailsPresetNotice = '';
+    this.detailsOriginalDraft = {...this.detailsDraft};
+    this.loadDetailsPresets();
     this.capacityEditing = false;
     this.meetingPointEditing = false;
     this.detailsEditing = true;
@@ -333,6 +389,9 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     if (this.detailsSaving) return;
     this.detailsEditing = false;
     this.detailsError = '';
+    this.detailsPresetId = null;
+    this.detailsPresetNotice = '';
+    this.detailsOriginalDraft = null;
   }
 
   saveDetailsEdit(): void {
