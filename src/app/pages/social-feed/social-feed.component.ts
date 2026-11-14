@@ -1223,7 +1223,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: items => {
-          this.items = items;
+          this.items = items.filter(item => item.type !== 'SESSION_CREATED' ||
+            item.sessionId === null || !this.cancelledFeedSessionIds.has(item.sessionId));
           this.loadLikerPreviews();
           this.loadSharedPost();
         },
@@ -2038,6 +2039,10 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   pendingDeletePost: FeedItem | null = null;
+  pendingCancelSession: FeedItem | null = null;
+  checkingCancelSessionId: number | null = null;
+  cancellingSessionId: number | null = null;
+  private readonly cancelledFeedSessionIds = new Set<number>();
   postShareFriends: FriendSummary[] = [];
   postShareLoadingFriends = false;
   postShareSendingTo: string | null = null;
@@ -2097,6 +2102,55 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   postShareMessage = '';
   postShareLink = '';
   postShareTargetId: number | null = null;
+
+  /** The feed card is only a shortcut. Fetch current session details before
+   * showing a destructive confirmation; the server still enforces ownership. */
+  requestCancelSession(item: FeedItem): void {
+    const id = item.sessionId;
+    if (item.type !== 'SESSION_CREATED' || !Number.isSafeInteger(id) || id === null || id <= 0
+      || !this.currentUsername || item.authorUsername.toLowerCase() !== this.currentUsername.toLowerCase()
+      || this.checkingCancelSessionId !== null || this.cancellingSessionId !== null) return;
+    this.checkingCancelSessionId = id;
+    this.actionError = '';
+    this.sessionService.detail(id).pipe(timeout(10_000), takeUntil(this.destroyed),
+      finalize(() => this.checkingCancelSessionId = null)).subscribe({
+      next: detail => {
+        if (detail.creatorUsername?.toLowerCase() !== this.currentUsername.toLowerCase()
+          || (detail.status !== 'OPEN' && detail.status !== 'FULL')) {
+          this.actionError = 'Esta sessão já não pode ser cancelada ou não és o organizador.';
+          return;
+        }
+        this.pendingCancelSession = item;
+      },
+      error: () => this.actionError = 'Não foi possível verificar a sessão. Abre o detalhe antes de tentar novamente.'
+    });
+  }
+
+  dismissCancelSession(): void {
+    if (this.cancellingSessionId !== null) return;
+    this.pendingCancelSession = null;
+  }
+
+  confirmCancelSession(item: FeedItem): void {
+    const id = item.sessionId;
+    if (id === null || item.type !== 'SESSION_CREATED' || this.pendingCancelSession?.sessionId !== id
+      || !this.currentUsername || item.authorUsername.toLowerCase() !== this.currentUsername.toLowerCase()
+      || this.cancellingSessionId !== null) return;
+    this.cancellingSessionId = id;
+    this.actionError = '';
+    this.sessionService.cancel(id).pipe(timeout(12_000), takeUntil(this.destroyed),
+      finalize(() => this.cancellingSessionId = null)).subscribe({
+      next: () => {
+        this.cancelledFeedSessionIds.add(id);
+        this.items = this.items.filter(entry => !(entry.type === 'SESSION_CREATED' && entry.sessionId === id));
+        this.pendingCancelSession = null;
+        this.loadCompletedSessions();
+        this.load();
+      },
+      error: () => this.actionError =
+        'Não foi possível confirmar o cancelamento. Verifica o estado da sessão antes de repetir.'
+    });
+  }
 
   requestDeletePost(item: FeedItem): void {
     if (item.type !== 'POST' || item.postId == null ||
