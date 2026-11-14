@@ -83,8 +83,10 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           <form class="live-chat-input" (ngSubmit)="sendMessage()">
             <input name="liveMessage" [(ngModel)]="draft" maxlength="500"
               placeholder="Escrever mensagem…" aria-label="Mensagem para o direto"
-              [disabled]="!room || connecting || reconnecting || sending || (!event.canManage && (!controls?.chatEnabled || controls?.mutedByHost))">
-            <button type="submit" [disabled]="!room || connecting || reconnecting || sending || !draft.trim() ||
+              (focus)="onChatFocus()" [disabled]="!room || connecting || reconnecting || switchingRole ||
+                (!event.canManage && (!controls?.chatEnabled || controls?.mutedByHost))">
+            <button type="submit" [disabled]="!room || connecting || reconnecting || switchingRole ||
+              sending || !draft.trim() ||
               (!event.canManage && (!controls?.chatEnabled || controls?.mutedByHost))">Enviar</button>
           </form>
           @if (!event.canManage) {
@@ -196,9 +198,14 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
     .live-toolbar button:disabled{opacity:.5;cursor:not-allowed}
     .live-toolbar span{font-size:.79rem;color:#5eead4}
     @media(max-width:760px){
+      .personal-live{max-height:calc(100dvh - 12px);overflow-y:auto;overscroll-behavior:contain}
       .personal-live-layout{grid-template-columns:1fr}
-      .personal-live-stage{min-height:250px}
-      .live-chat-history{max-height:25dvh}
+      .personal-live-stage{min-height:220px}
+      .live-chat{min-height:0}
+      .live-chat-history{max-height:min(25dvh,220px)}
+      .live-chat-input{position:sticky;bottom:0;z-index:2;padding:8px 0;
+        background:#0b202b;scroll-margin-bottom:32px}
+      .live-chat-input input{min-height:40px;font-size:16px}
     }
     footer{display:flex;flex-wrap:wrap;gap:.6rem}footer button{background:#184451;color:#fff;
       padding:.65rem;border:1px solid #47767e;border-radius:.6rem;cursor:pointer}
@@ -213,7 +220,8 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
     .live-chat-message{display:flex;flex-wrap:wrap;align-items:baseline;gap:5px;font-size:.79rem}
     .live-chat-message strong{color:#64dfcb}.live-chat-message button{border:0;
       color:#ffb9c5;background:transparent;cursor:pointer;font-size:.72rem}
-    .live-chat-input{display:flex;gap:5px}.live-chat-input input{flex:1;min-width:0;
+    .live-chat-input{display:flex;gap:5px;scroll-margin-bottom:24px}
+    .live-chat-input input{flex:1;min-width:0;
       border:1px solid #437783;border-radius:7px;padding:8px;background:#092a36;color:#fff}
     .live-chat-input button,.live-moderation button,.live-guest-request button{
       border:1px solid #398f88;border-radius:7px;padding:6px 9px;
@@ -583,6 +591,15 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   isViewerMuted(username:string):boolean {
     return !!this.controls?.mutedUsernames.some(
       value=>value.toLowerCase()===username.toLowerCase());
+  }
+  onChatFocus():void {
+    // Mobile virtual keyboards reduce the visual viewport. Keep the composer
+    // in sight after focus without resetting the viewer's message history.
+    requestAnimationFrame(()=>{
+      if(this.destroyed||this.closing)return;
+      const input=this.chatHistory?.nativeElement.parentElement?.querySelector('input[name="liveMessage"]');
+      input?.scrollIntoView({block:'nearest',behavior:'smooth'});
+    });
   }
   sendMessage():void {
     const content=this.draft.trim();
