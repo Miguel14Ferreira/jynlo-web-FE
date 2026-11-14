@@ -753,13 +753,13 @@ export class Events2Component implements OnInit, OnDestroy {
   }
   onCustomSportName(value: string): void {
     this.customSportName = value;
-    this.sport = value.trim().replace(/\\s+/g, ' ');
+    this.sport = value.trim().replace(/\s+/g, ' ');
     this.clearAirsoftDefaultsOnSportChange(this.sport);
     this.selectVenue(null);
   }
   get customSportValid(): boolean {
     return this.customSportMode && this.sport.length >= 2 && this.sport.length <= 60
-      && /^[\\p{L}\\p{M}][\\p{L}\\p{M}\\p{N} .&'’()/-]*$/u.test(this.sport)
+      && /^[\p{L}\p{M}][\p{L}\p{M}\p{N} .&'’()/-]*$/u.test(this.sport)
       && !this.customSportMatches.some(sport =>
         this.normalizeVenueSearch(sport) === this.normalizeVenueSearch(this.sport));
   }
