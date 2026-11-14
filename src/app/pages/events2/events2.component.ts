@@ -991,6 +991,8 @@ export class Events2Component implements OnInit, OnDestroy {
         )
         .subscribe({
         next: community => {
+          // Ignore a late community response after switching to an independent sport.
+          if (this.communityId !== communityId) return;
           this.communityName = community.name;
           this.directCommunity = community;
           const list = community.sports?.length ? community.sports
@@ -1002,6 +1004,7 @@ export class Events2Component implements OnInit, OnDestroy {
           this.reconcileCommunityDefaults();
         },
         error: () => {
+          if (this.communityId !== communityId) return;
           this.errorMessage = t('feedback.communities.openError');
           this.communityName = '';
           this.communitySports = [];
