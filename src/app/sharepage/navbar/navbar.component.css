@@ -514,3 +514,28 @@
   color: #ffffff;
 }
 .account-menu__identity { padding: .55rem .45rem .65rem; }
+
+/* Consistent rounded stroke icons across desktop and mobile navigation. */
+.site-nav__links a .jynlo-nav-icon {
+  flex: 0 0 auto;
+  display: inline-block;
+  vertical-align: -0.24em;
+  width: 1.15em;
+  height: 1.15em;
+  margin-right: .32rem;
+  stroke: currentColor;
+}
+.site-nav__links a:focus-visible {
+  outline: 2px solid #25e6cf;
+  outline-offset: 2px;
+}
+.jynlo-chat-toast__icon .jynlo-nav-icon {
+  width: 21px;
+  height: 21px;
+  stroke: currentColor;
+}
+.account-identity-chevron .jynlo-nav-icon {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
