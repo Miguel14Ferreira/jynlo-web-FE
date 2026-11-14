@@ -1609,6 +1609,21 @@ describe('SessionDetailsComponent', () => {
     expect(component.session?.status).toBe('CANCELLED');
   });
 
+  it('never reuses a cancellation notice for a different session or account', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = {...session,status:'CANCELLED'};
+    component.cancellationNotice = 'Antigo aviso de cancelamento';
+    component.cancellationNoticeSessionId = 999;
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.session-cancelled-share')).toBeNull();
+    component.cancellationNoticeSessionId = component.session.id;
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.session-cancelled-share')).not.toBeNull();
+    (component as any).currentUsername = 'another-player';
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.session-cancelled-share')).toBeNull();
+  });
+
   it('does not offer guest sharing on failed cancellation or to other viewers', () => {
     (component as any).currentUsername = 'creator-user';
     component.session = {...session, gameDate:'2099-10-01T18:00:00Z'};
