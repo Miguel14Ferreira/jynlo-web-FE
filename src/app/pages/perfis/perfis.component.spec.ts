@@ -17,6 +17,7 @@ import { ProfileStoryViewerComponent } from './profile-story-viewer.component';
 import { FeedItem } from '../model/feed-item';
 import { TEST_IMPORTS, TEST_PROVIDERS } from '../../testing/test-providers';
 import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/venue-sports-badges.component';
+import { ProtectedMediaDirective } from '../../shared/protected-media.directive';
 
 describe('PerfisComponent', () => {
   let component: PerfisComponent;
@@ -109,7 +110,7 @@ describe('PerfisComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [PerfisComponent],
-      imports: [...TEST_IMPORTS, VenueSportsBadgesComponent, ProfilePostViewerComponent, ProfileStoryViewerComponent],
+      imports: [...TEST_IMPORTS, VenueSportsBadgesComponent, ProtectedMediaDirective, ProfilePostViewerComponent, ProfileStoryViewerComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: CommunityService, useValue: service },
@@ -137,10 +138,10 @@ describe('PerfisComponent', () => {
       .querySelector('.profile-privacy-settings') as HTMLElement;
     expect(section).toBeTruthy();
     expect(section.textContent).toContain('Público');
-    expect(section.textContent).toContain('ficheiros de fotografias e vídeos');
+    expect(section.textContent).toContain('fotografias e vídeos');
     const action=section.querySelector('.profile-privacy-action') as HTMLButtonElement;
     expect(action.disabled).toBeTrue();
-    expect(action.textContent).toContain('indisponível');
+    expect(action.textContent).toContain('a preparar proteção');
     expect(privacy.setPrivate).not.toHaveBeenCalled();
   });
 
