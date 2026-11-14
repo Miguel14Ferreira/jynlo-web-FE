@@ -509,6 +509,32 @@ describe('Events2Component', () => {
     expect(component.meetingPointInstructions).toBe('');
   });
 
+  it('restores the untemplated form when Create without profile is selected', () => {
+    component.sport = 'Padel';
+    component.city = 'Lisboa';
+    component.address = 'Morada original';
+    component.maxParticipants = 4;
+    component.description = '';
+    const original = (component as any).currentPresetSettings();
+    component.presets = [{
+      id: 204, name: 'Futsal habitual',
+      settings: {
+        ...original, sport: 'Futsal', city: 'Cacém', address: 'Campo habitual',
+        maxParticipants: 10, description: 'Descrição do perfil'
+      }, createdAt: '', updatedAt: ''
+    }];
+    component.applyPresetById(204);
+    expect(component.sport).toBe('Futsal');
+    expect(component.city).toBe('Cacém');
+    component.applyPresetById(null);
+    expect(component.selectedPresetId).toBeNull();
+    expect(component.sport).toBe('Padel');
+    expect(component.city).toBe('Lisboa');
+    expect(component.address).toBe('Morada original');
+    expect(component.maxParticipants).toBe(4);
+    expect(component.description).toBe('');
+  });
+
   it('restores the Airsoft game type saved in a session preset', () => {
     component.sport = 'Airsoft';
     component.airsoftGameType = 'MILSIM';
