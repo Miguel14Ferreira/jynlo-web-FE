@@ -19,6 +19,7 @@ export interface PersonalLiveGuestRequest {
 export interface PersonalLiveControls {
   chatEnabled:boolean;mutedByHost:boolean;guestUsername:string|null;isGuest:boolean;mutedUsernames:string[];
   requestStatus:string|null;pendingRequests:PersonalLiveGuestRequest[];
+  slowModeSeconds?:number;
 }
 @Injectable({providedIn:'root'})
 export class PersonalLiveService {
@@ -47,6 +48,9 @@ export class PersonalLiveService {
   }
   setChatEnabled(id:number,enabled:boolean):Observable<PersonalLiveControls> {
     return this.http.put<PersonalLiveControls>(this.url+'/'+id+'/chat',{enabled});
+  }
+  setSlowMode(id:number,seconds:number):Observable<PersonalLiveControls> {
+    return this.http.put<PersonalLiveControls>(this.url+'/'+id+'/slow-mode',{seconds});
   }
   muteViewer(id:number,username:string,muted:boolean):Observable<PersonalLiveControls> {
     return this.http.put<PersonalLiveControls>(
