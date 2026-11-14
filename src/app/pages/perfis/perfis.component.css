@@ -1447,3 +1447,16 @@ h1 {
  border:1px solid rgba(92,224,207,.62);background:#11535a;color:#edfffb;font-weight:700;cursor:pointer}
 .profile-privacy-action:disabled{cursor:not-allowed;opacity:.67}
 .profile-privacy-explanation{max-width:78ch;line-height:1.55;color:#b9d8df;font-size:.87rem;margin:4px 0}
+
+/* Clear, compact privacy rules that explain exactly who can view content. */
+.profile-privacy-rules {
+  display: grid;
+  gap: .35rem;
+  margin: .75rem 0;
+  padding: .8rem 1rem;
+  border-radius: .8rem;
+  border: 1px solid rgba(45, 212, 191, .25);
+  background: rgba(1, 26, 37, .32);
+}
+.profile-privacy-rules p { margin: 0; line-height: 1.5; }
+.profile-privacy-rules strong { color: #d9fffa; }
