@@ -95,6 +95,20 @@ describe('NavbarComponent', () => {
     document.title = originalTabTitle;
   });
   
+  it('opens the signed-in public profile from the circular avatar without requiring the dropdown', () => {
+    (authService as any).loggedInPerfilname = 'bea';
+    authService.hasSessionCandidate.and.returnValue(true);
+    (component as any).syncAuthenticatedState();
+    fixture.detectChanges();
+    const portrait = (fixture.nativeElement as HTMLElement)
+      .querySelector('.account-avatar-profile-link') as HTMLAnchorElement;
+    expect(portrait).toBeTruthy();
+    expect(portrait.getAttribute('href')).toBe('/menu/perfis/bea');
+    const menuProfile = (fixture.nativeElement as HTMLElement)
+      .querySelector('.account-menu__panel a[href="/menu/perfis/bea"]') as HTMLAnchorElement;
+    expect(menuProfile).toBeTruthy();
+  });
+
   it('uses the approved Jynlo artwork in the navbar, not the old SVG reconstruction', () => {
     const root = fixture.nativeElement as HTMLElement;
     const logo = root.querySelector('.brand__mark') as HTMLImageElement;
