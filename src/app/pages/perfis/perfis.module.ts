@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { ProtectedMediaDirective } from '../../shared/protected-media.directive';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { PerfisComponent } from './perfis.component';
 import { ProfilePostViewerComponent } from './profile-post-viewer.component';
@@ -13,6 +14,7 @@ import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/ven
   declarations: [PerfisComponent],
   imports: [
     CommonModule,
+    ProtectedMediaDirective,
     FormsModule,
     ReactiveFormsModule,
     TranslatePipe,
