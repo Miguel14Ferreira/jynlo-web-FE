@@ -978,7 +978,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.refreshPersonalLive();
     if(this.realtime){
       this.realtime.connect();
-      this.realtime.personalLiveInvalidated$.pipe(takeUntil(this.destroyed))
+      // Older realtime mocks/providers may not expose the optional live signal.
+      this.realtime.personalLiveInvalidated$?.pipe(takeUntil(this.destroyed))
         .subscribe(()=>this.refreshPersonalLive());
     }
     // Reconcile after connection loss; regular updates arrive via WebSocket.
