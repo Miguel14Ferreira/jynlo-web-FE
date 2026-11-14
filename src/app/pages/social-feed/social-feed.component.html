@@ -166,6 +166,30 @@
       </div>
     }
 
+    @if (pendingCancelSession; as sessionToCancel) {
+      <div class="feed-confirm-backdrop" (click)="dismissCancelSession()">
+        <section class="feed-confirm-dialog" role="alertdialog" aria-modal="true"
+                 aria-labelledby="feed-cancel-session-title" aria-describedby="feed-cancel-session-description"
+                 (click)="$event.stopPropagation()">
+          <h3 id="feed-cancel-session-title">Cancelar sessão?</h3>
+          <p id="feed-cancel-session-description">
+            Vais cancelar a tua sessão de {{ sessionToCancel.sport || 'desporto' }}
+            @if (sessionToCancel.gameDate) { de {{ sessionToCancel.gameDate | date:'dd/MM/yyyy' }} }.
+            Os participantes deixarão de poder inscrever-se. Esta ação não pode ser anulada.
+          </p>
+          @if (actionError) { <p class="feedback error-feedback" role="alert">{{ actionError }}</p> }
+          <div class="feed-confirm-actions">
+            <button type="button" [disabled]="cancellingSessionId !== null"
+                    (click)="dismissCancelSession()">Manter sessão</button>
+            <button type="button" class="feed-confirm-danger" [disabled]="cancellingSessionId !== null"
+                    (click)="confirmCancelSession(sessionToCancel)">
+              {{ cancellingSessionId !== null ? 'A cancelar…' : 'Sim, cancelar sessão' }}
+            </button>
+          </div>
+        </section>
+      </div>
+    }
+
     @if (pendingDeletePost; as postToDelete) {
       <div class="feed-confirm-backdrop" (click)="cancelDeletePost()">
         <section class="feed-confirm-dialog" role="alertdialog" aria-modal="true"
@@ -1271,6 +1295,15 @@
                     <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
                     {{ shareFeedbackSessionId === item.sessionId ? shareFeedbackMessage : ('publicSession.share' | t) }}
                   </button>
+                  @if (item.authorUsername.toLowerCase() === currentUsername.toLowerCase()) {
+                    <button type="button"
+                      class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small"
+                      [disabled]="checkingCancelSessionId !== null || cancellingSessionId !== null"
+                      (click)="requestCancelSession(item)"
+                      [attr.aria-label]="'Cancelar a minha sessão de ' + (item.sport || 'desporto')">
+                      {{ checkingCancelSessionId === item.sessionId ? 'A verificar…' : 'Cancelar sessão' }}
+                    </button>
+                  }
                 </div>
               }
             }
