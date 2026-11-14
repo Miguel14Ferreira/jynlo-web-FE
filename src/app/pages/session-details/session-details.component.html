@@ -1,4 +1,15 @@
 <section class="detail-page jynlo-c1 jynlo-games jynlo-session-detail-premium">
+  @if (detailsError) {
+    <div class="jynlo-form-alert-overlay">
+      <section class="jynlo-form-alert-dialog" role="alertdialog" aria-modal="true"
+               aria-labelledby="edit-session-alert-title" aria-describedby="edit-session-alert-description">
+        <h2 id="edit-session-alert-title">{{ 'sessionAlerts.attention' | t }}</h2>
+        <p id="edit-session-alert-description">{{ detailsError }}</p>
+        <button type="button" class="jynlo-action jynlo-action--primary"
+                (click)="detailsError = ''">{{ 'sessionAlerts.dismiss' | t }}</button>
+      </section>
+    </div>
+  }
   <div class="detail-shell">
     <a class="back-link" [routerLink]="backToPath" [queryParams]="backQueryParams">← {{ backLabelKey | t }}</a>
 
@@ -661,7 +672,7 @@
               @if (session.recurrenceSeriesId) {
                 <p>{{ 'sessionDetail.recurrenceEditRestriction' | t }}</p>
               }
-              @if (detailsError) { <p class="session-capacity-error" role="alert">{{ detailsError }}</p> }
+
               <div class="session-capacity-editor-actions">
                 <button type="button" class="jynlo-action jynlo-action--primary"
                   [disabled]="detailsSaving" (click)="saveDetailsEdit()">
