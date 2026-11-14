@@ -344,8 +344,9 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   chatSendError='';
   emojiPickerOpen=false;
   readonly chatEmojis=['⚽','🔥','👏','❤️','😂','💪','🏆','😍','🙌','🎾','🏀','🎮','🥳','😀','😎','🤩','😊','😭','😮','😡','👍','👎','💚','💙','💯','🎉','⭐','🏅','🥇','🏐','🏓','🏸','🏃','🚴','🏊','🎯','👀','🤝','💥','🙏','🫶','🧡','💜'];
-  onChatEnter(event: KeyboardEvent):void {
-    if(event.shiftKey || event.isComposing)return;
+  onChatEnter(event: Event):void {
+    const keyboard = event as KeyboardEvent;
+    if(keyboard.shiftKey || keyboard.isComposing)return;
     event.preventDefault();
     this.sendMessage();
   }
