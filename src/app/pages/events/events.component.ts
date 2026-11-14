@@ -23,6 +23,10 @@ export class EventsComponent implements OnInit, OnDestroy {
   locationError = '';
 
   readonly sportsCatalog = SPORTS_CATALOG;
+  discoveredCustomSports: string[] = [];
+  get searchableSports(): string[] {
+    return [...this.sportsCatalog, ...this.discoveredCustomSports];
+  }
 
   sport = '';
   city = '';
@@ -129,6 +133,11 @@ export class EventsComponent implements OnInit, OnDestroy {
       next: sessions => {
         if (requestId !== this.searchRequestId || this.destroyed) return;
         this.sessions = sessions;
+        this.discoveredCustomSports = [...new Set([
+          ...this.discoveredCustomSports,
+          ...sessions.map(session => session.sport).filter(name =>
+            !!name && !this.sportsCatalog.includes(name))
+        ])].slice(-40);
         this.updateCitySuggestions();
       },
       error: () => {
