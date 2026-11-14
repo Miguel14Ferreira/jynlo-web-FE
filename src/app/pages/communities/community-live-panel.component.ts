@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { Room, RoomEvent, Track, RemoteTrack, RemoteParticipant } from 'livekit-client';
 import { Subscription, EMPTY, finalize, firstValueFrom, interval, startWith, switchMap, catchError, of, timeout } from 'rxjs';
 import { CommunityLiveEvent, CommunityLiveService } from '../../services/community-live.service';
+import { I18nService } from '../../i18n/i18n.service';
 
 /**
  * Community-scoped live video. The host publishes; viewers always subscribe
@@ -18,8 +19,8 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
   template: `
     <section class="live-panel" [hidden]="!enabled" aria-label="Transmissões em direto da comunidade">
       <div class="live-panel-heading">
-        <div><strong>Diretos da comunidade</strong><p>Jogos, treinos e eventos em direto</p></div>
-        <button type="button" class="live-refresh" (click)="load()" [disabled]="busy">Atualizar</button>
+        <div><strong>{{tr('Diretos da comunidade','Community live streams')}}</strong><p>{{tr('Jogos, treinos e eventos em direto','Live games, training and events')}}</p></div>
+        <button type="button" class="live-refresh" (click)="load()" [disabled]="busy">{{tr('Atualizar','Refresh')}}</button>
       </div>
       @if (error) { <p role="alert" class="live-error">{{ error }}</p> }
       @if (events.length) {
@@ -28,7 +29,7 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
             <article class="live-event">
               <div>
                 <span class="live-status" [class.is-live]="event.status === 'LIVE'">
-                  {{ event.status === 'LIVE' ? '● Em direto' : event.status === 'SCHEDULED' ? 'Agendado' : 'Terminado' }}
+                  {{ event.status === 'LIVE' ? tr('● Em direto','● LIVE') : event.status === 'SCHEDULED' ? tr('Agendado','Scheduled') : tr('Terminado','Ended') }}
                 </span>
                 <strong>{{ event.title }}</strong>
                 <small>{{ event.scheduledAt | date:'dd/MM/yyyy HH:mm' }}</small>
@@ -37,13 +38,13 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
               <div class="live-event-actions">
                 @if (event.status === 'LIVE') {
                   <button type="button" (click)="join(event)" [disabled]="busy || !!room">
-                    {{ event.canManage ? 'Entrar como apresentador' : 'Assistir' }}
+                    {{ event.canManage ? tr('Entrar como apresentador','Join as host') : tr('Assistir','Watch') }}
                   </button>
                   @if (event.canManage) {
-                    <button type="button" class="secondary" (click)="end(event)" [disabled]="busy">Terminar</button>
+                    <button type="button" class="secondary" (click)="end(event)" [disabled]="busy">{{tr('Terminar','End')}}</button>
                   }
                 } @else if (event.status === 'SCHEDULED' && event.canManage) {
-                  <button type="button" (click)="start(event)" [disabled]="busy">Iniciar direto</button>
+                  <button type="button" (click)="start(event)" [disabled]="busy">{{tr('Iniciar direto','Go live')}}</button>
                 }
               </div>
             </article>
@@ -54,7 +55,7 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
         <form class="live-schedule" (ngSubmit)="schedule()">
           <label>Título do direto
             <input name="liveTitle" [(ngModel)]="title" maxlength="120" required [disabled]="busy"
-              placeholder="Ex.: Jogo de futebol de sábado"/>
+              [placeholder]="tr('Ex.: Jogo de futebol de sábado','e.g. Saturday football match')"/>
           </label>
           <label>Descrição (opcional)
             <textarea name="liveDescription" [(ngModel)]="description" maxlength="1000" rows="2"
@@ -80,18 +81,18 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
         <div class="live-player" role="region" aria-label="Transmissão em direto">
           <div class="live-player-header">
             <strong>{{ active?.title }}</strong>
-            <span>{{ hosting ? 'A transmitir' : 'A assistir' }}</span>
+            <span>{{ hosting ? tr('A transmitir','Broadcasting') : tr('A assistir','Watching') }}</span>
             <span class="live-viewer-count" aria-live="polite">
-              {{ participantCount }} {{ participantCount === 1 ? 'pessoa ligada' : 'pessoas ligadas' }}
+              {{ participantCount }} {{ participantCount === 1 ? tr('pessoa ligada','viewer') : tr('pessoas ligadas','viewers') }}
             </span>
             @if (reconnecting) {
-              <span class="live-reconnect" role="status">A restabelecer ligação…</span>
+              <span class="live-reconnect" role="status">{{tr('A restabelecer ligação…','Reconnecting…')}}</span>
             }
             @if (hosting && active) {
               <button type="button" class="live-end-button"
-                [disabled]="busy" (click)="end(active)">Terminar direto para todos</button>
+                [disabled]="busy" (click)="end(active)">{{tr('Terminar direto para todos','End live for everyone')}}</button>
             } @else {
-              <button type="button" (click)="leave()">Sair da transmissão</button>
+              <button type="button" (click)="leave()">{{tr('Sair da transmissão','Leave broadcast')}}</button>
             }
           </div>
           <div class="live-media" #stage aria-label="Vídeo e áudio da transmissão"></div>
@@ -102,8 +103,8 @@ import { CommunityLiveEvent, CommunityLiveService } from '../../services/communi
           }
           @if (hosting) {
             <div class="live-host-tools">
-              <button type="button" (click)="toggleCamera()"> {{ cameraOn ? 'Desligar câmara' : 'Ligar câmara' }} </button>
-              <button type="button" (click)="toggleMic()"> {{ micOn ? 'Silenciar microfone' : 'Ligar microfone' }} </button>
+              <button type="button" (click)="toggleCamera()"> {{ cameraOn ? tr('Desligar câmara','Turn off camera') : tr('Ligar câmara','Enable camera') }} </button>
+              <button type="button" (click)="toggleMic()"> {{ micOn ? tr('Silenciar microfone','Mute microphone') : tr('Ligar microfone','Enable microphone') }} </button>
             </div>
           }
         </div>
@@ -158,6 +159,8 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
     }
   }
   private readonly api = inject(CommunityLiveService);
+  private readonly i18n = inject(I18nService);
+  tr(pt: string, en: string): string { return this.i18n.currentLanguage === 'en' ? en : pt; }
   private readonly route = inject(ActivatedRoute);
   private attemptedDeepLinkedLiveId: number | null = null;
 
