@@ -438,3 +438,32 @@
   outline:3px solid white;outline-offset:4px;
 }
 :host .community-page.profile-page-open .profile-story-avatar:disabled{opacity:1}
+
+/* Profile actions: sharing is available on every visible public profile. */
+:host .community-page.profile-page-open .profile-share-action{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  justify-self:end;min-height:40px;padding:9px 15px;border:1px solid rgba(77,220,199,.45);
+  border-radius:999px;background:rgba(15,72,82,.75);color:#e7fffb;cursor:pointer;
+  font-size:.82rem;font-weight:750;
+}
+:host .community-page.profile-page-open .profile-share-action:hover{
+  background:rgba(32,118,116,.8);border-color:#48dfc9;
+}
+:host .community-page.profile-page-open .profile-share-action:focus-visible{
+  outline:2px solid #82ffe4;outline-offset:3px;
+}
+:host .community-page.profile-page-open .profile-share-action:disabled{opacity:.6;cursor:wait}
+:host .community-page.profile-page-open .profile-share-feedback{
+  justify-self:end;color:#9cfff0;font-size:.78rem;
+}
+/* Default favorite cards show at most three sports; others appear only on demand. */
+:host .community-page.profile-page-open .profile-meta-card:has(app-venue-sports-badges){
+  min-width:0;
+}
+:host .community-page.profile-page-open .profile-meta-card app-venue-sports-badges{
+  width:100%;max-width:100%;min-width:0;
+}
+@media(max-width:650px){
+  :host .community-page.profile-page-open .profile-share-action{justify-self:stretch}
+  :host .community-page.profile-page-open .profile-share-feedback{justify-self:stretch}
+}
