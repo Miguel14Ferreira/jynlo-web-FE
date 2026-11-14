@@ -1103,6 +1103,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     if (!path) {
       return null;
     }
+    if (path.startsWith('/api/profile-media/')) return path;
 
     if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
       return path;
