@@ -6,6 +6,18 @@ export type AppLanguage = 'pt' | 'en';
 type Dictionary = Record<string, string>;
 
 const PT: Dictionary = {
+  'live.startBroadcast': 'Iniciar transmissão em direto',
+  'live.startTitle': 'Iniciar direto na Jynlo',
+  'live.startDescription': 'Podes transmitir diretamente no teu perfil ou escolher uma comunidade.',
+  'live.destination': 'Onde queres transmitir?',
+  'live.personal': 'No meu perfil · direto pessoal',
+  'live.community': 'Numa comunidade',
+  'live.communityLabel': 'Comunidade',
+  'live.titleLabel': 'Título do direto',
+  'live.titleExample': 'Ex.: Treino de futebol',
+  'live.cancel': 'Cancelar',
+  'live.starting': 'A iniciar…',
+  'live.startAction': 'Iniciar transmissão',
   'championshipRounds.progressLeague': 'Progresso da liga',
   'championshipRounds.progressCup': 'Progresso da taça',
   'championshipRounds.progressCount': '{{completed}} de {{total}} jogos concluídos',
