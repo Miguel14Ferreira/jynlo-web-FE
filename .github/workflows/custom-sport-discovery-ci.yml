@@ -1,0 +1,41 @@
+name: Jynlo custom sports discovery CI
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'src/app/pages/discover/discover.component.ts'
+      - 'src/app/pages/discover/discover.component.html'
+      - 'src/app/pages/discover/discover.component.spec.ts'
+      - 'src/app/pages/events/events.component.ts'
+      - 'src/app/pages/events/events.component.html'
+      - 'src/app/pages/events/events.component.spec.ts'
+      - 'src/app/pages/events2/events2.component.ts'
+      - 'src/app/pages/events2/events2.component.html'
+      - 'src/app/pages/events2/events2.component.spec.ts'
+      - 'src/app/shared/sports-catalog.ts'
+      - '.github/workflows/custom-sport-discovery-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: custom-sports-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  custom-sports-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Check custom sports and discovery contracts
+        run: npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/pages/events2/events2.component.spec.ts --include=src/app/pages/events/events.component.spec.ts --include=src/app/pages/discover/discover.component.spec.ts
+      - name: Build production UI
+        run: npm run build
