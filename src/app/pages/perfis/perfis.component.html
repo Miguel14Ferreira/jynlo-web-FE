@@ -629,12 +629,12 @@
                         (click)="openExpandedPost(post)"
                         [attr.aria-label]="'Abrir publicação de ' + post.authorDisplayName + ' em tamanho maior'">
                       @if (post.imageUrl) {
-                        <img class="profile-publication-image" [src]="post.imageUrl"
+                        <img class="profile-publication-image" [jynloProtectedSrc]="post.imageUrl"
                           [alt]="'profilePosts.imageAlt' | t" loading="lazy">
                       }
                       @if (post.videoUrl) {
                         <video class="profile-publication-video" preload="metadata" muted playsinline
-                          [src]="post.videoUrl" tabindex="-1" aria-hidden="true"></video>
+                          [jynloProtectedSrc]="post.videoUrl" tabindex="-1" aria-hidden="true"></video>
                         <span class="profile-publication-play" aria-hidden="true">▶</span>
                       }
                       @if (post.content) {
