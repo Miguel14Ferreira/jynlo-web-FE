@@ -6,6 +6,8 @@ export type AppLanguage = 'pt' | 'en';
 type Dictionary = Record<string, string>;
 
 const PT: Dictionary = {
+  'sessionAlerts.attention': 'Atenção',
+  'sessionAlerts.dismiss': 'Percebi',
   'live.startBroadcast': 'Iniciar transmissão em direto',
   'live.startTitle': 'Iniciar direto na Jynlo',
   'live.startDescription': 'Podes transmitir diretamente no teu perfil ou escolher uma comunidade.',
