@@ -1,0 +1,33 @@
+name: Jynlo live room UI CI
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'src/app/pages/social-feed/personal-live-room.component.*'
+      - 'src/app/pages/social-feed/social-feed.component.ts'
+      - '.github/workflows/personal-live-ui-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: personal-live-ui-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  live-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Run spectator live UI regression tests
+        run: npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/pages/social-feed/personal-live-room.component.spec.ts
+      - name: Build Angular production bundles
+        run: npm run build
