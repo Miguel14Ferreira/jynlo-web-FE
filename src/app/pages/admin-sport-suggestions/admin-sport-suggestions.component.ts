@@ -92,7 +92,7 @@ interface SportSuggestion {
 export class AdminSportSuggestionsComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly endpoint = environment.apiUrl.replace(/\\/+$/, '') + '/api/admin/sport-suggestions';
+  private readonly endpoint = environment.apiUrl.replace(/\/+$/, '') + '/api/admin/sport-suggestions';
   readonly statuses = ['PENDING','REVIEWED','REJECTED','ALL'] as const;
   status: (typeof this.statuses)[number] = 'PENDING';
   items: SportSuggestion[] = [];
