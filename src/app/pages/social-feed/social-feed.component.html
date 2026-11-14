@@ -702,6 +702,21 @@
           }
         </section>
       }
+      @if (recentlyCancelledSession) {
+        <section class="feed-hide-feedback" role="status" aria-label="Cancelamento da sessão confirmado">
+          <div>
+            <strong>Sessão cancelada com sucesso.</strong>
+            <p>{{ cancellationShareNotice }}</p>
+            <label for="feed-cancelled-session-message">Aviso para participantes externos (WhatsApp ou SMS)</label>
+            <textarea id="feed-cancelled-session-message" readonly rows="3"
+                      [value]="cancellationShareText" (focus)="$any($event.target).select()"
+                      (click)="$any($event.target).select()"></textarea>
+          </div>
+          <button type="button" (click)="shareCancelledSessionNotice()">Partilhar aviso</button>
+          <button type="button" (click)="recentlyCancelledSession = null; cancellationShareNotice = ''"
+                  aria-label="Fechar aviso de cancelamento">Fechar</button>
+        </section>
+      }
       @if (recentlyHiddenFeedEntry) {
         <div class="feed-hide-feedback" role="status">
           <span>{{ 'feed.hiddenOnlyForYou' | t }}</span>
