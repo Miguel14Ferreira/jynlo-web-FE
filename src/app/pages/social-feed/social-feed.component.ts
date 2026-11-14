@@ -347,6 +347,9 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         finalize(()=>this.liveBusy=false),takeUntil(this.destroyed)).subscribe({
         next:event=>{
           this.liveComposerOpen=false;
+          // The backend has already created an active broadcast. Show it in
+          // the feed immediately; sharing its URL is entirely optional.
+          this.personalLiveEvents=[event,...this.personalLiveEvents.filter(item=>item.id!==event.id)];
           this.personalLiveRoom=event;
           this.refreshPersonalLive();
         },
@@ -971,7 +974,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       }
     });
     this.refreshPersonalLive();
-    interval(20000).pipe(takeUntil(this.destroyed)).subscribe(() => this.refreshPersonalLive());
+    interval(8000).pipe(takeUntil(this.destroyed)).subscribe(() => this.refreshPersonalLive());
     // Suggestions and weekly vacancies still need discovery; the composer does not.
     this.loadingSessions = true;
     this.sessionService.discover({
