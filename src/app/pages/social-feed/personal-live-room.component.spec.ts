@@ -25,7 +25,7 @@ describe('PersonalLiveRoomComponent', () => {
       avatarUrl:null,status:'LIVE',startedAt:new Date().toISOString(),canManage:false};
     spyOn(component,'connect').and.stub();
     fixture.detectChanges();
-    component.room={} as any;
+    component.room={disconnect:()=>Promise.resolve()} as any;
     fixture.detectChanges();
   });
   afterEach(() => fixture.destroy());
