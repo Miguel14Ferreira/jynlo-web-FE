@@ -22,6 +22,7 @@ const routes: Routes = [
   { path: 'attendance-disputes', component: AdminDisputesComponent },
   { path: 'ideas', component: AdminIdeasComponent },
   { path: 'venue-suggestions', component: AdminVenueSuggestionsComponent },
+  { path: 'sport-suggestions', loadComponent: () => import('../admin-sport-suggestions/admin-sport-suggestions.component').then(m => m.AdminSportSuggestionsComponent) },
   { path: 'venue-edits', loadComponent: () => import('../admin-venue-edits/admin-venue-edits.component').then(m => m.AdminVenueEditsComponent) },
   { path: 'reports', component: AdminUserReportsComponent }
 ];
