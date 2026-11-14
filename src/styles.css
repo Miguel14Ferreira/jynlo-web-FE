@@ -500,3 +500,24 @@ select.jynlo-native-select--open:focus-visible {
   .reset-page .password-field{grid-template-columns:minmax(0,1fr);}
   .reset-page .password-field button{min-height:44px;}
 }
+
+/* Jynlo close controls: show only the X, never a circular badge.
+   Keep the existing button dimensions so touch targets remain accessible. */
+button[class*="close-button" i]:has(svg),
+button[class*="close-btn" i]:has(svg),
+button[class*="close-icon" i]:has(svg),
+button[aria-label^="Fechar" i]:has(svg),
+button[aria-label^="Close" i]:has(svg) {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+button[class*="close-button" i]:has(svg):hover,
+button[class*="close-btn" i]:has(svg):hover,
+button[class*="close-icon" i]:has(svg):hover,
+button[aria-label^="Fechar" i]:has(svg):hover,
+button[aria-label^="Close" i]:has(svg):hover {
+  background: transparent !important;
+  box-shadow: none !important;
+}
