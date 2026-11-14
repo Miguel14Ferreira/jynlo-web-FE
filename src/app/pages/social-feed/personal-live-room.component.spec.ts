@@ -76,6 +76,21 @@ describe('PersonalLiveRoomComponent', () => {
     expect(component.controls.slowModeSeconds).toBe(10);
   });
 
+  it('inserts a selected emoji in the chat without submitting the message', () => {
+    component.draft='Bora ';
+    fixture.detectChanges();
+    const root=fixture.nativeElement as HTMLElement;
+    (root.querySelector('.live-emoji-toggle') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const picker=root.querySelector('.live-emoji-picker');
+    expect(picker).toBeTruthy();
+    (picker!.querySelector('button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(component.draft).toContain('⚽');
+    expect(component.emojiPickerOpen).toBeFalse();
+    expect(service.sendMessage).not.toHaveBeenCalled();
+  });
+
   it('shows a sent message immediately while the HTTP response is pending', () => {
     const response=new Subject<PersonalLiveChatMessage>();
     service.sendMessage.and.returnValue(response);
