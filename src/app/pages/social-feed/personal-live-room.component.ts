@@ -306,6 +306,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   role:'HOST'|'GUEST'|'VIEWER'='VIEWER';
   sending=false;
   moderationBusy=false;
+  private optimisticMessageId=-1;
 
   @HostListener('document:keydown.escape', ['$event'])
   onEscape(event:Event):void {
@@ -544,7 +545,9 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
           const nearBottom=!history || history.scrollHeight-history.scrollTop-history.clientHeight<80;
           const newest=entries.length?entries[entries.length-1].id:null;
           const changed=newest!==this.lastMessageId;
-          this.messages=entries;
+          // Retain pending local messages while the server is processing them.
+          const pending=this.messages.filter(message=>message.id<0);
+          this.messages=[...entries,...pending];
           this.lastMessageId=newest;
           // Preserve a viewer's scroll position while reading older messages.
           if(changed && nearBottom && history)
@@ -624,15 +627,25 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     if(!content||this.sending||!this.room||this.connecting||this.reconnecting||
        this.switchingRole||content.length>500||
        (!this.event.canManage && (!this.controls?.chatEnabled || this.controls.mutedByHost)))return;
-    this.sending=true;this.error='';
+    this.sending=true;this.chatSendError='';
+    // Optimistic rendering makes the message visible immediately, without waiting
+    // for the three-second polling cycle or the HTTP response.
+    const temporaryId=this.optimisticMessageId--;
+    this.messages=[...this.messages,{id:temporaryId,username:this.event.username,
+      message:content,createdAt:new Date().toISOString()}];
+    this.draft='';
     this.service.sendMessage(this.event.id,content).pipe(timeout(10000),takeUntil(this.destroy$),
       finalize(()=>this.sending=false)).subscribe({
-      next:()=>{
-        // Keep any new draft typed while the previous message was in flight.
-        if(this.draft.trim()===content)this.draft='';
+      next:confirmed=>{
+        this.messages=this.messages.map(message=>message.id===temporaryId?confirmed:message)
+          .filter((message,index,all)=>all.findIndex(item=>item.id===message.id)===index);
         this.refreshInteractions();
       },
-      error:()=>{this.error='Não foi possível enviar a mensagem. Verifica se o chat está ativo.';}
+      error:()=>{
+        this.messages=this.messages.filter(message=>message.id!==temporaryId);
+        if(!this.draft.trim())this.draft=content;
+        this.chatSendError='Não foi possível enviar. A mensagem foi mantida para tentares novamente.';
+      }
     });
   }
   toggleChat():void {
