@@ -521,3 +521,27 @@ button[aria-label^="Close" i]:has(svg):hover {
   background: transparent !important;
   box-shadow: none !important;
 }
+
+/* Shared, centered session form alerts. Keep the form behind the modal so
+   validation errors cannot be overlooked at the top of a long page. */
+.jynlo-form-alert-overlay {
+  position: fixed; inset: 0; z-index: 12000;
+  display: grid; place-items: center;
+  padding: 20px; box-sizing: border-box;
+  background: rgba(1, 11, 20, .82);
+  backdrop-filter: blur(5px);
+}
+.jynlo-form-alert-dialog {
+  width: min(440px, 100%); box-sizing: border-box;
+  padding: clamp(20px, 4vw, 30px);
+  display: grid; gap: 18px;
+  border: 1px solid #25baa9; border-radius: 18px;
+  background: #092633; color: #e8fffc;
+  box-shadow: 0 24px 75px rgba(0, 0, 0, .5);
+}
+.jynlo-form-alert-dialog h2 { margin: 0; font-size: 1.3rem; }
+.jynlo-form-alert-dialog p { margin: 0; line-height: 1.55; overflow-wrap: anywhere; }
+.jynlo-form-alert-dialog button {
+  justify-self: end; min-height: 44px; min-width: 110px;
+  border-radius: 10px; cursor: pointer;
+}
