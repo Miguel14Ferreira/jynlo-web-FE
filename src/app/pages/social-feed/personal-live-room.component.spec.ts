@@ -15,7 +15,7 @@ describe('PersonalLiveRoomComponent', () => {
     socket=jasmine.createSpyObj<DirectChatRealtimeService>('DirectChatRealtimeService',['connect']);
     Object.defineProperty(socket,'personalLiveInvalidated$',{value:liveUpdates.asObservable()});
     service=jasmine.createSpyObj<PersonalLiveService>('PersonalLiveService',
-      ['join','messages','controls','sendMessage','end']);
+      ['join','messages','controls','sendMessage','setSlowMode','end']);
     service.messages.and.returnValue(of([]));
     service.controls.and.returnValue(of({
       chatEnabled:true,mutedByHost:false,guestUsername:null,isGuest:false,
@@ -60,6 +60,20 @@ describe('PersonalLiveRoomComponent', () => {
     theater.click();fixture.detectChanges();
     expect(root.querySelector('.live-layout-theater')).toBeTruthy();
     expect(root.querySelector('#personal-live-chat')).toBeTruthy();
+  });
+
+  it('allows the presenter to enable slow mode for all spectators', () => {
+    component.event={...component.event,canManage:true};
+    component.controls={
+      chatEnabled:true,mutedByHost:false,guestUsername:null,isGuest:false,
+      mutedUsernames:[],requestStatus:null,pendingRequests:[],slowModeSeconds:0
+    };
+    service.setSlowMode.and.returnValue(of({...component.controls,slowModeSeconds:10}));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('#live-slow-mode')).toBeTruthy();
+    component.changeSlowMode(10);
+    expect(service.setSlowMode).toHaveBeenCalledOnceWith(42,10);
+    expect(component.controls.slowModeSeconds).toBe(10);
   });
 
   it('shows a sent message immediately while the HTTP response is pending', () => {
