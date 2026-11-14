@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, HostListener, Input, OnChanges, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { ProtectedMediaDirective } from '../../shared/protected-media.directive';
 import { catchError, finalize, of, timeout } from 'rxjs';
 import { FeedItem, SocialComment } from '../model/feed-item';
 import { SocialFeedService } from '../../services/social-feed.service';
@@ -10,7 +11,7 @@ import { SocialFeedService } from '../../services/social-feed.service';
 @Component({
   selector: 'app-profile-post-viewer',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, ProtectedMediaDirective],
   template: `
     <div class="post-viewer-backdrop" (click)="closed.emit()">
       <section class="post-viewer" role="dialog" aria-modal="true"
