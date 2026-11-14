@@ -15,6 +15,7 @@ describe('PersonalLiveRoomComponent', () => {
     socket=jasmine.createSpyObj<DirectChatRealtimeService>('DirectChatRealtimeService',['connect']);
     Object.defineProperty(socket,'personalLiveInvalidated$',{value:liveUpdates.asObservable()});
     service=jasmine.createSpyObj<PersonalLiveService>('PersonalLiveService',
+      ['join','messages','controls','sendMessage','end']);
     service.messages.and.returnValue(of([]));
     service.controls.and.returnValue(of({
       chatEnabled:true,mutedByHost:false,guestUsername:null,isGuest:false,
