@@ -313,6 +313,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   sending=false;
   moderationBusy=false;
   private optimisticMessageId=-1;
+  private readonly confirmedWaitingForPoll=new Map<number,{message:PersonalLiveChatMessage,at:number}>();
 
   @HostListener('document:keydown.escape', ['$event'])
   onEscape(event:Event):void {
@@ -553,7 +554,17 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
           const changed=newest!==this.lastMessageId;
           // Retain pending local messages while the server is processing them.
           const pending=this.messages.filter(message=>message.id<0);
-          this.messages=[...entries,...pending];
+          const serverIds=new Set(entries.map(message=>message.id));
+          const now=Date.now();
+          // An eventually consistent GET may lag behind a successful POST.
+          for(const [id,waiting] of this.confirmedWaitingForPoll){
+            if(serverIds.has(id)||now-waiting.at>15000)this.confirmedWaitingForPoll.delete(id);
+          }
+          this.messages=[
+            ...entries,
+            ...Array.from(this.confirmedWaitingForPoll.values(),item=>item.message),
+            ...pending
+          ];
           this.lastMessageId=newest;
           // Preserve a viewer's scroll position while reading older messages.
           if(changed && nearBottom && history)
@@ -643,6 +654,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     this.service.sendMessage(this.event.id,content).pipe(timeout(10000),takeUntil(this.destroy$),
       finalize(()=>this.sending=false)).subscribe({
       next:confirmed=>{
+        this.confirmedWaitingForPoll.set(confirmed.id,{message:confirmed,at:Date.now()});
         this.messages=this.messages.map(message=>message.id===temporaryId?confirmed:message)
           .filter((message,index,all)=>all.findIndex(item=>item.id===message.id)===index);
         this.refreshInteractions();
@@ -862,6 +874,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     if(this.closing)return;
     this.closing=true;
     this.lastMessageId=null;
+    this.confirmedWaitingForPoll.clear();
     this.controlsUnavailable=true;
     this.confirmingEnd=false;
     this.heartbeats?.unsubscribe();this.heartbeats=undefined;
