@@ -2803,6 +2803,44 @@ describe('SessionDetailsComponent', () => {
     expect(component.session?.maxParticipants).toBe(6);
   });
 
+  it('offers saved profiles in the edit form without changing date or protected sport', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.sessionId = session.id;
+    component.session = {
+      ...session, communityId: 20, address: 'Rua original',
+      gameDate: new Date(Date.now() + 3_600_000).toISOString()
+    };
+    component.beginDetailsEdit();
+    const oldDate = component.detailsDraft.gameDate;
+    const oldInstructions = component.detailsDraft.meetingPointInstructions;
+    component.detailsPresets = [{
+      id: 901, name: 'Futsal habitual',
+      settings: {
+        sport: 'Futsal', playFormat: 'INDIVIDUAL',
+        city: 'Campo Grande', address: 'Avenida do campo',
+        description: 'Jogo habitual', maxParticipants: 10,
+        creationMode: 'START', confirmedPlayers: 1,
+        hasPrice: true, priceAmount: 3,
+        privateGame: false, communityShareIds: [], communityId: null,
+        seasonGame: false, selectedVenueId: null,
+        locationMethod: 'venue', latitude: null, longitude: null,
+        venueMapLink: '', recurrence: 'NONE',
+        recurrenceOccurrences: 4, weeklySessionsPerWeek: 1,
+        registrationOpeningMode: 'IMMEDIATE'
+      }, createdAt: '', updatedAt: ''
+    }];
+    component.applyDetailsPreset('901');
+    expect(component.detailsDraft.sport).toBe('Padel');
+    expect(component.detailsDraft.maxParticipants).toBe(10);
+    expect(component.detailsDraft.city).toBe('Campo Grande');
+    expect(component.detailsDraft.description).toBe('Jogo habitual');
+    expect(component.detailsDraft.gameDate).toBe(oldDate);
+    expect(component.detailsDraft.meetingPointInstructions).toBe(oldInstructions);
+    component.applyDetailsPreset('');
+    expect(component.detailsDraft.city).toBe('Lisboa');
+    expect(component.detailsDraft.gameDate).toBe(oldDate);
+  });
+
   it('keeps community sports locked but allows updating the other details', () => {
     (component as any).currentUsername = 'creator-user';
     component.sessionId = session.id;
