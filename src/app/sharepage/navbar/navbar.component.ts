@@ -37,6 +37,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   admin = false;
   loggingOut = false;
   accountProfile: MyProfile | null = null;
+  accountImageUnavailable = false;
+  markAccountImageUnavailable(): void { this.accountImageUnavailable = true; }
   private profileAccount: string | null = null;
   private accountProfileRequest?: Subscription;
   private notificationTimer?: ReturnType<typeof setInterval>;
@@ -142,6 +144,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.profileAccount = account;
         this.accountProfileRequest?.unsubscribe();
         this.accountProfile = null;
+        this.accountImageUnavailable = false;
         if (account) this.loadAccountProfile(account);
         this.closeAccountMenu();
       }
