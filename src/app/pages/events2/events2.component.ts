@@ -381,6 +381,50 @@ export class Events2Component implements OnInit, OnDestroy {
   presetMessage = '';
   presetError = '';
   private presetApplyRevision = 0;
+  /** Snapshot of the organiser's untemplated draft, so "Create without preset"
+   * restores their choices instead of leaving values from the last template. */
+  private untemplatedDraft: {
+    sport:string; playFormat:'INDIVIDUAL'|'PAIRS'; city:string; address:string;
+    description:string; maxParticipants:number; creationMode:'START'|'COMPLETE';
+    confirmedPlayers:number|null; hasPrice:boolean; priceAmount:number|null;
+    privateGame:boolean; shareCommunityIds:number[]; locationMethod:'venue'|'maps'|'gps';
+    selectedVenueId:number|null; venueSearch:string; recurrence:'NONE'|'WEEKLY'|'BIWEEKLY';
+    recurrenceOccurrences:number; weeklySessionsPerWeek:number; registrationOpeningMode:'IMMEDIATE'|'SCHEDULED'|'MANUAL';
+  } | null = null;
+  private captureUntemplatedDraft(): void {
+    this.untemplatedDraft = {
+      sport:this.sport,playFormat:this.playFormat,city:this.city,address:this.address,
+      description:this.description,maxParticipants:this.maxParticipants,creationMode:this.creationMode,
+      confirmedPlayers:this.confirmedPlayers,hasPrice:this.hasPrice,priceAmount:this.priceAmount,
+      privateGame:this.privateGame,shareCommunityIds:[...this.shareCommunityIds],
+      locationMethod:this.locationMethod,selectedVenueId:this.selectedVenueId,venueSearch:this.venueSearch,
+      recurrence:this.recurrence,recurrenceOccurrences:this.recurrenceOccurrences,
+      weeklySessionsPerWeek:this.weeklySessionsPerWeek,registrationOpeningMode:this.registrationOpeningMode
+    };
+  }
+  private restoreUntemplatedDraft(): void {
+    ++this.presetApplyRevision;
+    ++this.communityPrefillRevision;
+    const d=this.untemplatedDraft;
+    if(!d)return;
+    this.sport=d.sport;this.confirmSportSelection();this.playFormat=d.playFormat;
+    this.city=d.city;this.address=d.address;this.description=d.description;
+    this.maxParticipants=d.maxParticipants;this.creationMode=d.creationMode;
+    this.confirmedPlayers=d.confirmedPlayers;this.capacityIsMinimum=false;this.selectedMinimumPlayers=null;
+    this.hasPrice=d.hasPrice;this.priceAmount=d.priceAmount;
+    this.privateGame=d.privateGame;this.password='';this.airsoftGameType='';
+    this.shareCommunityIds=[...d.shareCommunityIds];
+    this.recurrence=d.recurrence;this.recurrenceOccurrences=d.recurrenceOccurrences;
+    this.setWeeklySessionsPerWeek(d.weeklySessionsPerWeek);
+    this.registrationOpeningMode=d.registrationOpeningMode;this.registrationOpensAt='';
+    this.selectedVenueId=d.selectedVenueId;this.venueSearch=d.venueSearch;
+    this.clearLocation();this.locationMethod=d.locationMethod;
+    this.venueMapLink='';this.selectedVenueMapUrl=null;
+    this.toggleSeasonGame(false);
+    this.presetName='';this.untemplatedDraft=null;
+  }
+
+
 
   loadPresets(): void {
     this.presetsLoading = true;
@@ -475,7 +519,9 @@ export class Events2Component implements OnInit, OnDestroy {
     this.presetConfirmDelete = false;
     this.presetError = '';
     this.presetMessage = '';
-    if (id === null || this.loading) return;
+    if (this.loading) return;
+    if (id === null) { this.restoreUntemplatedDraft(); return; }
+    if (this.untemplatedDraft === null) this.captureUntemplatedDraft();
     const preset = this.presets.find(item => item.id === id);
     if (!preset) return;
     const s = preset.settings;
