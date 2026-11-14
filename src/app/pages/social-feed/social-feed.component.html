@@ -135,32 +135,32 @@
     @if (liveComposerOpen) {
       <div class="feed-confirm-backdrop" (click)="closeLiveComposer()">
         <section class="feed-confirm-dialog feed-live-dialog" role="dialog" aria-modal="true"
-          aria-label="Iniciar transmissão em direto" (click)="$event.stopPropagation()">
-          <h3>Iniciar direto na Jynlo</h3>
-          <p>Podes transmitir diretamente no teu perfil ou escolher uma comunidade.</p>
-          <label for="feed-live-mode">Onde queres transmitir?</label>
+          [attr.aria-label]="t('live.startBroadcast')" (click)="$event.stopPropagation()">
+          <h3>{{ t('live.startTitle') }}</h3>
+          <p>{{ t('live.startDescription') }}</p>
+          <label for="feed-live-mode">{{ t('live.destination') }}</label>
           <select id="feed-live-mode" [(ngModel)]="liveMode" [disabled]="liveBusy">
-            <option value="PERSONAL">No meu perfil · direto pessoal</option>
+            <option value="PERSONAL">{{ t('live.personal') }}</option>
             @if (managedLiveCommunities.length) {
-              <option value="COMMUNITY">Numa comunidade</option>
+              <option value="COMMUNITY">{{ t('live.community') }}</option>
             }
           </select>
           @if (liveMode === 'COMMUNITY') {
-            <label for="feed-live-community">Comunidade</label>
+            <label for="feed-live-community">{{ t('live.communityLabel') }}</label>
             <select id="feed-live-community" [(ngModel)]="liveCommunityId" [disabled]="liveBusy">
               @for (community of managedLiveCommunities; track community.id) {
                 <option [ngValue]="community.id">{{ community.name }}</option>
               }
             </select>
           }
-          <label for="feed-live-title">Título do direto</label>
+          <label for="feed-live-title">{{ t('live.titleLabel') }}</label>
           <input id="feed-live-title" [(ngModel)]="liveTitle" maxlength="90" [disabled]="liveBusy"
-                 placeholder="Ex.: Treino de futebol">
+                 [placeholder]="t('live.titleExample')">
           @if (liveStartError) { <p role="alert">{{ liveStartError }}</p> }
           <div class="feed-confirm-actions">
-            <button type="button" [disabled]="liveBusy" (click)="closeLiveComposer()">Cancelar</button>
+            <button type="button" [disabled]="liveBusy" (click)="closeLiveComposer()">{{ t('live.cancel') }}</button>
             <button type="button" [disabled]="liveBusy || !liveTitle.trim()"
-              (click)="startLiveFromFeed()">{{ liveBusy ? 'A iniciar…' : 'Iniciar transmissão' }}</button>
+              (click)="startLiveFromFeed()">{{ liveBusy ? t('live.starting') : t('live.startAction') }}</button>
           </div>
         </section>
       </div>
