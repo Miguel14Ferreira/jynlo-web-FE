@@ -253,6 +253,14 @@
         </label>
         @if (customSportMode) {
           <div class="custom-sport-field" role="group" aria-label="Sugerir nova modalidade">
+            @if (communitySessionSelected) {
+              <p role="status">As modalidades novas ainda não têm classificações nem regras oficiais para comunidades.</p>
+              <button type="button" class="community-sport-option" [disabled]="loading"
+                (click)="detachCommunityForCustomSport()">
+                Continuar como sessão independente
+              </button>
+              <small>A comunidade e as opções de convocatórias serão retiradas deste formulário.</small>
+            }
             <label for="jynlo-custom-sport">Como se chama o desporto?</label>
             <input id="jynlo-custom-sport" name="customSportName" type="text"
               [ngModel]="customSportName" (ngModelChange)="onCustomSportName($event)"
