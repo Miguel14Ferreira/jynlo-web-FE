@@ -1435,3 +1435,15 @@ h1 {
 .community-page.profile-page-open .profile-publication-open{
   position:relative;
 }
+
+/* Explicit privacy status: do not imply content is private before media URLs are protected. */
+.profile-privacy-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.profile-privacy-state{display:inline-flex;align-items:center;padding:5px 10px;
+ border-radius:999px;border:1px solid rgba(92,224,207,.44);background:rgba(28,116,118,.20);
+ font-weight:750;font-size:.78rem;line-height:1.25}
+.profile-privacy-description{margin:8px 0;color:inherit}
+.profile-privacy-action{display:inline-flex;align-items:center;justify-content:center;
+ min-height:38px;margin:8px 0;padding:8px 14px;border-radius:9px;
+ border:1px solid rgba(92,224,207,.62);background:#11535a;color:#edfffb;font-weight:700;cursor:pointer}
+.profile-privacy-action:disabled{cursor:not-allowed;opacity:.67}
+.profile-privacy-explanation{max-width:78ch;line-height:1.55;color:#b9d8df;font-size:.87rem;margin:4px 0}
