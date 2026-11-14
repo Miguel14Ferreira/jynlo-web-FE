@@ -1,5 +1,17 @@
 // Loaded only for users who choose English. Keep the original key/value table intact.
 export const EN: Record<string, string> = {
+  'live.startBroadcast': 'Start live broadcast',
+  'live.startTitle': 'Go live on Jynlo',
+  'live.startDescription': 'Broadcast from your profile or choose a community.',
+  'live.destination': 'Where do you want to go live?',
+  'live.personal': 'On my profile · personal live',
+  'live.community': 'In a community',
+  'live.communityLabel': 'Community',
+  'live.titleLabel': 'Live title',
+  'live.titleExample': 'e.g. Football training',
+  'live.cancel': 'Cancel',
+  'live.starting': 'Starting…',
+  'live.startAction': 'Go live',
   'championshipRounds.progressLeague': 'League progress',
   'championshipRounds.progressCup': 'Cup progress',
   'championshipRounds.progressCount': '{{completed}} of {{total}} matches completed',
