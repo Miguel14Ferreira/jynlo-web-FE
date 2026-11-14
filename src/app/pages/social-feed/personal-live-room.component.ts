@@ -17,7 +17,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
     <section class="personal-live" aria-label="Transmissão pessoal">
       <header>
         <div><strong><span class="live-dot">●</span> {{event.title}}</strong>
-          <small>Direto de @{{event.username}} · {{participantCount}} participantes</small></div>
+          <small>Direto de @{{event.username}} · {{participantCount}} {{tr('participantes','participants')}}</small></div>
         <button type="button" class="close" [disabled]="ending"
           (click)="event.canManage ? requestEnd() : leave()"
           [attr.aria-label]="event.canManage ? 'Terminar direto' : 'Sair do direto'">×</button>
@@ -28,18 +28,18 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
         <p class="live-connection-status" role="status">● Transmissão ligada</p>
       }
       @if (reconnecting) {
-        <p class="live-reconnection-status" role="status">A recuperar a ligação ao direto… Os controlos ficam temporariamente indisponíveis.</p>
+        <p class="live-reconnection-status" role="status">{{tr('A recuperar a ligação ao direto… Os controlos ficam temporariamente indisponíveis.','Reconnecting to the stream… Controls are temporarily unavailable.')}}</p>
       }
       @if (switchingRole) {
-        <p class="live-reconnection-status" role="status">A atualizar a participação no direto…</p>
+        <p class="live-reconnection-status" role="status">{{tr('A atualizar a participação no direto…','Updating your live role…')}}</p>
       }
       <div class="live-toolbar" aria-label="Ações da transmissão">
-        <button type="button" (click)="shareLive()" [disabled]="closing || ending">Partilhar direto</button>
-        <button type="button" (click)="toggleFullscreen()" [disabled]="!room">Ampliar vídeo</button>
+        <button type="button" (click)="shareLive()" [disabled]="closing || ending">{{tr('Partilhar direto','Share live')}}</button>
+        <button type="button" (click)="toggleFullscreen()" [disabled]="!room">{{tr('Ampliar vídeo','Fullscreen video')}}</button>
         <button type="button" [attr.aria-pressed]="theaterMode"
-          (click)="theaterMode=!theaterMode">{{theaterMode?'Sair de ocupar tela':'Ocupar tela'}}</button>
+          (click)="theaterMode=!theaterMode">{{theaterMode?tr('Sair de ocupar tela','Exit theater mode'):tr('Ocupar tela','Theater mode')}}</button>
         <button type="button" [attr.aria-expanded]="chatVisible" aria-controls="personal-live-chat"
-          (click)="chatVisible=!chatVisible">{{chatVisible?'Esconder chat':'Mostrar chat'}}</button>
+          (click)="chatVisible=!chatVisible">{{chatVisible?tr('Esconder chat','Hide chat'):tr('Mostrar chat','Show chat')}}</button>
         @if (audioBlocked) {
           <button type="button" (click)="enableAudio()" [disabled]="!room">
             Ativar som da transmissão
@@ -53,25 +53,25 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           <div #stage class="personal-live-stage" aria-label="Vídeo da transmissão">
             @if (!videoTiles) {
               <div class="live-stage-empty" role="status">
-                <strong>À espera da imagem…</strong>
-                <span>{{role === 'VIEWER' ? 'O vídeo aparece quando o apresentador ligar a câmara.' : 'Liga a câmara para começares a transmitir vídeo.'}}</span>
+                <strong>{{tr('À espera da imagem…','Waiting for video…')}}</strong>
+                <span>{{role === 'VIEWER' ? tr('O vídeo aparece quando o apresentador ligar a câmara.','Video appears when the host enables their camera.') : tr('Liga a câmara para começares a transmitir vídeo.','Enable your camera to start broadcasting video.')}}</span>
               </div>
             }
           </div>
           <div class="live-stage-info">
-            <span>● {{participantCount}} {{participantCount === 1 ? 'pessoa na sala' : 'pessoas na sala'}}</span>
+            <span>● {{participantCount}} {{participantCount === 1 ? tr('pessoa na sala','person in room') : tr('pessoas na sala','people in room')}}</span>
             @if (role==='GUEST') { <strong>Estás como convidado</strong> }
           </div>
         </div>
         @if (chatVisible) {
         <aside id="personal-live-chat" class="live-chat" aria-label="Chat da transmissão em direto">
-          <header><strong>Chat em direto</strong>
-            <small>{{messages.length}} mensagens recentes</small></header>
+          <header><strong>{{tr('Chat em direto','Live chat')}}</strong>
+            <small>{{messages.length}} {{tr('mensagens recentes','recent messages')}}</small></header>
           @if (controls && !controls.chatEnabled) {
-            <p class="chat-notice" role="status">O apresentador desativou as mensagens dos espectadores.</p>
+            <p class="chat-notice" role="status">{{tr('O apresentador desativou as mensagens dos espectadores.','The host has disabled viewer messages.')}}</p>
           }
           @if (controls?.mutedByHost) {
-            <p class="chat-notice" role="status">O apresentador silenciou as tuas mensagens.</p>
+            <p class="chat-notice" role="status">{{tr('O apresentador silenciou as tuas mensagens.','The host has muted your messages.')}}</p>
           }
           @if ((controls?.slowModeSeconds ?? 0)>0 && !event.canManage) {
             <p class="chat-notice" role="status">Modo lento: uma mensagem a cada {{controls?.slowModeSeconds}} segundos.</p>
@@ -87,12 +87,12 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
                 @if (event.canManage && message.username.toLowerCase() !== event.username.toLowerCase()) {
                   <button type="button" [disabled]="moderationBusy"
                     (click)="toggleViewerMute(message.username,!isViewerMuted(message.username))">
-                    {{isViewerMuted(message.username)?'Permitir':'Silenciar'}}
+                    {{isViewerMuted(message.username)?tr('Permitir','Unmute'):tr('Silenciar','Mute')}}
                   </button>
                 }
               </div>
             }
-            @if (!messages.length) { <p>As mensagens vão aparecer aqui.</p> }
+            @if (!messages.length) { <p>{{tr('As mensagens vão aparecer aqui.','Messages will appear here.')}}</p> }
           </div>
           @if (emojiPickerOpen) {
             <div class="live-emoji-picker" aria-label="Emojis para o chat">
@@ -118,12 +118,12 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           @if (!event.canManage) {
             <div class="live-guest-request">
               @if (controls?.requestStatus === 'PENDING') {
-                <p>Pedido para participar enviado. Aguarda a aprovação.</p>
+                <p>{{tr('Pedido para participar enviado. Aguarda a aprovação.','Your request was sent. Await host approval.')}}</p>
               } @else if (controls?.isGuest) {
-                <p>Pedido aprovado! Liga a câmara e/ou o microfone quando estiveres preparado.</p>
+                <p>{{tr('Pedido aprovado! Liga a câmara e/ou o microfone quando estiveres preparado.','Request approved! Enable your camera or microphone when ready.')}}</p>
               } @else {
                 <button type="button" [disabled]="moderationBusy || !room || connecting || reconnecting"
-                  (click)="requestGuest()">Pedir para entrar no direto</button>
+                  (click)="requestGuest()">{{tr('Pedir para entrar no direto','Request to join live')}}</button>
               }
             </div>
           }
@@ -142,7 +142,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
                 </select>
               </label>
               <button type="button" [disabled]="moderationBusy"
-                (click)="toggleChat()">{{controls.chatEnabled?'Desativar chat':'Ativar chat'}}</button>
+                (click)="toggleChat()">{{controls.chatEnabled?tr('Desativar chat','Disable chat'):tr('Ativar chat','Enable chat')}}</button>
               @for (request of controls.pendingRequests;track request.id) {
                 <div class="live-guest-row">
                   <span>@{{request.username}} quer participar</span>
@@ -164,28 +164,28 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       @if (event.canManage || role==='GUEST') {
         <footer aria-label="Controlos do direto">
           <button type="button" [disabled]="!room || connecting || reconnecting || deviceBusy"
-            [attr.aria-pressed]="micOn" (click)="toggleMic()">{{ micOn ? 'Silenciar microfone' : 'Ligar microfone' }}</button>
+            [attr.aria-pressed]="micOn" (click)="toggleMic()">{{micOn ? tr('Silenciar microfone','Mute microphone') : tr('Ligar microfone','Enable microphone')}}</button>
           <button type="button" [disabled]="!room || connecting || reconnecting || deviceBusy"
-            [attr.aria-pressed]="cameraOn" (click)="toggleCamera()">{{ cameraOn ? 'Desligar câmara' : 'Ligar câmara' }}</button>
+            [attr.aria-pressed]="cameraOn" (click)="toggleCamera()">{{cameraOn ? tr('Desligar câmara','Turn off camera') : tr('Ligar câmara','Enable camera')}}</button>
           <button type="button" [disabled]="!room || connecting || reconnecting || deviceBusy"
             [attr.aria-pressed]="screenOn" (click)="toggleScreenShare()">
-            {{ screenOn ? 'Parar partilha de ecrã' : 'Partilhar ecrã' }}
+            {{screenOn ? tr('Parar partilha de ecrã','Stop screen share') : tr('Partilhar ecrã','Share screen')}}
           </button>
           @if (event.canManage) {
             <button type="button" class="end" [disabled]="ending"
-              (click)="requestEnd()">{{ ending ? 'A terminar…' : 'Terminar direto' }}</button>
+              (click)="requestEnd()">{{ending ? tr('A terminar…','Ending…') : tr('Terminar direto','End live')}}</button>
           }
         </footer>
       }
       @if (!room && !connecting && error && !ended && !controlsUnavailable && !closing) {
-        <button type="button" (click)="connect()">Tentar novamente</button>
+        <button type="button" (click)="connect()">{{tr('Tentar novamente','Try again')}}</button>
       }
       @if (confirmingEnd) {
         <div class="live-confirm-backdrop" role="presentation">
           <section class="live-confirm-dialog" role="alertdialog" aria-modal="true"
             aria-labelledby="personal-live-end-title" aria-describedby="personal-live-end-desc">
-            <h3 id="personal-live-end-title">Terminar o direto?</h3>
-            <p id="personal-live-end-desc">A transmissão vai terminar para todos os espectadores e convidados.</p>
+            <h3 id="personal-live-end-title">{{tr('Terminar o direto?','End this live?')}}</h3>
+            <p id="personal-live-end-desc">{{tr('A transmissão vai terminar para todos os espectadores e convidados.','This broadcast will end for all viewers and guests.')}}</p>
             <div class="live-confirm-actions">
               <button type="button" [disabled]="ending" (click)="confirmingEnd=false">Continuar em direto</button>
               <button type="button" class="end" [disabled]="ending"
