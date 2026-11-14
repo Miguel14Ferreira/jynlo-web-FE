@@ -46,9 +46,10 @@ describe('SocialFeedComponent discovery sidebar', () => {
     feed.hidePost.and.returnValue(of(undefined));
     feed.restoreHiddenPost.and.returnValue(of(undefined));
     feed.hiddenPosts.and.returnValue(of([]));
-    sessions = jasmine.createSpyObj<SessionService>('SessionService', ['discover', 'mine', 'detail']);
+    sessions = jasmine.createSpyObj<SessionService>('SessionService', ['discover', 'mine', 'detail', 'cancel']);
     sessions.discover.and.returnValue(of([]));
     sessions.mine.and.returnValue(of({ created: [], joined: [], waitlisted: [] }));
+    sessions.cancel.and.returnValue(of(undefined));
     community = jasmine.createSpyObj<CommunityService>(
       'CommunityService', ['discoverProfiles', 'publicProfile', 'friends', 'searchProfiles']
     );
@@ -82,6 +83,91 @@ describe('SocialFeedComponent discovery sidebar', () => {
 
     fixture = TestBed.createComponent(SocialFeedComponent);
     component = fixture.componentInstance;
+  });
+
+  const ownedSessionActivity: FeedItem = {
+    type: 'SESSION_CREATED', postId: null, authorUsername: 'miguel',
+    authorDisplayName: 'Miguel', authorProfilePicUrl: null, content: null, imageUrl: null,
+    createdAt: '2026-11-14T18:00:00Z', sessionId: 515, sport: 'Futsal',
+    city: 'Campo Grande', gameDate: '2026-11-20T21:00:00Z',
+    likeCount: 0, likedByMe: false, commentCount: 0
+  };
+
+  it('shows cancellation only on owned session activity and requires confirmation', fakeAsync(() => {
+    feed.feed.and.returnValue(of([ownedSessionActivity]));
+    sessions.detail.and.returnValue(of({
+      id: 515, creatorUsername: 'miguel', status: 'OPEN'
+    } as SessionDetail));
+    fixture.detectChanges();
+    tick(351);
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('[aria-label="Cancelar a minha sessão de Futsal"]')).not.toBeNull();
+    expect(sessions.cancel).not.toHaveBeenCalled();
+    component.requestCancelSession(ownedSessionActivity);
+    fixture.detectChanges();
+    expect(root.querySelector('#feed-cancel-session-title')?.textContent).toContain('Cancelar sessão');
+    component.dismissCancelSession();
+    expect(sessions.cancel).not.toHaveBeenCalled();
+    fixture.destroy();
+  }));
+
+  it('does not offer a cancellation button on someone else\'s session', fakeAsync(() => {
+    const other = { ...ownedSessionActivity, authorUsername: 'rita' };
+    feed.feed.and.returnValue(of([other]));
+    fixture.detectChanges();
+    tick(351);
+    expect((fixture.nativeElement as HTMLElement).querySelector('[aria-label^="Cancelar a minha sessão"]')).toBeNull();
+    component.requestCancelSession(other);
+    expect(sessions.detail).not.toHaveBeenCalled();
+    expect(sessions.cancel).not.toHaveBeenCalled();
+    fixture.destroy();
+  }));
+
+  it('refuses cancellation when ownership or active status is no longer valid', () => {
+    sessions.detail.and.returnValues(
+      of({ id: 515, creatorUsername: 'rita', status: 'OPEN' } as SessionDetail),
+      of({ id: 515, creatorUsername: 'miguel', status: 'CANCELLED' } as SessionDetail),
+      of({ id: 515, creatorUsername: 'miguel', status: 'COMPLETED' } as SessionDetail)
+    );
+    component.requestCancelSession(ownedSessionActivity);
+    component.requestCancelSession(ownedSessionActivity);
+    component.requestCancelSession(ownedSessionActivity);
+    expect(component.pendingCancelSession).toBeNull();
+    expect(sessions.cancel).not.toHaveBeenCalled();
+  });
+
+  it('removes the cancelled activity only after the backend confirms cancellation', () => {
+    sessions.detail.and.returnValue(of({
+      id: 515, creatorUsername: 'miguel', status: 'FULL'
+    } as SessionDetail));
+    const result = new Subject<void>();
+    sessions.cancel.and.returnValue(result.asObservable());
+    feed.feed.and.returnValue(of([ownedSessionActivity]));
+    component.items = [ownedSessionActivity];
+    component.requestCancelSession(ownedSessionActivity);
+    component.confirmCancelSession(ownedSessionActivity);
+    expect(component.items).toEqual([ownedSessionActivity]);
+    expect(component.cancellingSessionId).toBe(515);
+    result.next();
+    result.complete();
+    expect(sessions.cancel).toHaveBeenCalledOnceWith(515);
+    expect(component.items).toEqual([]);
+    expect(component.pendingCancelSession).toBeNull();
+    // A stale feed response cannot reintroduce the cancelled card.
+    expect(component.items).toEqual([]);
+  });
+
+  it('keeps the session card visible on a rejected cancellation', () => {
+    sessions.detail.and.returnValue(of({
+      id: 515, creatorUsername: 'miguel', status: 'OPEN'
+    } as SessionDetail));
+    sessions.cancel.and.returnValue(throwError(() => new Error('offline')));
+    component.items = [ownedSessionActivity];
+    component.requestCancelSession(ownedSessionActivity);
+    component.confirmCancelSession(ownedSessionActivity);
+    expect(component.items).toEqual([ownedSessionActivity]);
+    expect(component.actionError).toContain('Não foi possível confirmar');
+    expect(component.pendingCancelSession).toEqual(ownedSessionActivity);
   });
 
   it('renders black photo text in black and keeps photo rotation and zoom visible', fakeAsync(() => {
