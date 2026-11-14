@@ -91,10 +91,10 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
             <input name="liveMessage" [(ngModel)]="draft" maxlength="500" autocomplete="off"
               placeholder="Escrever mensagem…" aria-label="Mensagem para o direto"
               (focus)="onChatFocus()" [disabled]="!room || connecting || reconnecting || switchingRole ||
-                (!event.canManage && (controls?.chatEnabled === false || controls?.mutedByHost))">
+                (!event.canManage && (controls?.chatEnabled === false || !!controls?.mutedByHost))">
             <button type="submit" [disabled]="!room || connecting || reconnecting || switchingRole ||
               sending || !draft.trim() ||
-              (!event.canManage && (controls?.chatEnabled === false || controls?.mutedByHost))">Enviar</button>
+              (!event.canManage && (controls?.chatEnabled === false || !!controls?.mutedByHost))">Enviar</button>
           </form>
           @if (!event.canManage) {
             <div class="live-guest-request">
