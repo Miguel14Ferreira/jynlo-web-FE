@@ -73,9 +73,6 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           @if (controls?.mutedByHost) {
             <p class="chat-notice" role="status">{{tr('O apresentador silenciou as tuas mensagens.','The host has muted your messages.')}}</p>
           }
-          @if ((controls?.slowModeSeconds ?? 0)>0 && !event.canManage) {
-            <p class="chat-notice" role="status">Modo lento: uma mensagem a cada {{controls?.slowModeSeconds}} segundos.</p>
-          }
           <div #chatHistory class="live-chat-history" aria-live="polite" aria-label="Mensagens recentes do direto">
             @for (message of messages; track message.id) {
               <div class="live-chat-message">
@@ -152,12 +149,11 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       @if (event.canManage || role==='GUEST') {
         <footer aria-label="Controlos do direto">
           <button type="button" [disabled]="!room || connecting || reconnecting || deviceBusy"
-            [attr.aria-pressed]="micOn" (click)="toggleMic()">{{micOn ? tr('Silenciar microfone','Mute microphone') : tr('Ligar microfone','Enable microphone')}}</button>
+            [attr.aria-pressed]="micOn" (click)="toggleMic()" class="live-device-icon" [title]="micOn ? tr('Silenciar microfone','Mute microphone') : tr('Ligar microfone','Enable microphone')" [attr.aria-label]="micOn ? tr('Silenciar microfone','Mute microphone') : tr('Ligar microfone','Enable microphone')">♩</button>
           <button type="button" [disabled]="!room || connecting || reconnecting || deviceBusy"
-            [attr.aria-pressed]="cameraOn" (click)="toggleCamera()">{{cameraOn ? tr('Desligar câmara','Turn off camera') : tr('Ligar câmara','Enable camera')}}</button>
+            [attr.aria-pressed]="cameraOn" (click)="toggleCamera()" class="live-device-icon" [title]="cameraOn ? tr('Desligar câmara','Turn off camera') : tr('Ligar câmara','Enable camera')" [attr.aria-label]="cameraOn ? tr('Desligar câmara','Turn off camera') : tr('Ligar câmara','Enable camera')">▣</button>
           <button type="button" [disabled]="!room || connecting || reconnecting || deviceBusy"
-            [attr.aria-pressed]="screenOn" (click)="toggleScreenShare()">
-            {{screenOn ? tr('Parar partilha de ecrã','Stop screen share') : tr('Partilhar ecrã','Share screen')}}
+            [attr.aria-pressed]="screenOn" (click)="toggleScreenShare()" class="live-device-icon" [title]="screenOn ? tr('Parar partilha de ecrã','Stop screen share') : tr('Partilhar ecrã','Share screen')" [attr.aria-label]="screenOn ? tr('Parar partilha de ecrã','Stop screen share') : tr('Partilhar ecrã','Share screen')">▤
           </button>
           @if (event.canManage) {
             <button type="button" class="end" [disabled]="ending"
@@ -251,7 +247,8 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
     footer .end{background:#932d42}footer button:disabled{opacity:.5;cursor:not-allowed}
     p[role="alert"]{color:#fecaca}.live-connection-status{color:#5eead4;margin:0;font-size:.82rem}
     .live-reconnection-status{color:#fde68a;margin:0;font-size:.85rem}
-    .live-chat{min-width:0;min-height:300px;display:flex;flex-direction:column;gap:9px;
+    footer .live-device-icon{width:46px;height:46px;display:grid;place-items:center;font-size:1.3rem;padding:.4rem}
+     .live-chat{min-width:0;min-height:300px;display:flex;flex-direction:column;gap:9px;
       border:1px solid #285c66;border-radius:10px;padding:10px;background:#0b202b}
     .live-chat header{align-items:center;flex-wrap:wrap}
     .live-chat-history{display:grid;align-content:start;gap:9px;min-height:0;flex:1 1 auto;
