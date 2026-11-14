@@ -8,6 +8,7 @@ import { CommunityService } from '../../services/community.service';
 import { DirectChatService } from '../../services/direct-chat.service';
 import { DirectCallClientService } from '../../services/direct-call-client.service';
 import { SessionService } from '../../services/session.service';
+import { SessionPresetService } from '../../services/session-preset.service';
 import { ReliabilityService } from '../../services/reliability.service';
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
 import { ChatReadSyncService } from '../../services/chat-read-sync.service';
@@ -20,6 +21,7 @@ describe('SessionDetailsComponent', () => {
   let component: SessionDetailsComponent;
   let fixture: ComponentFixture<SessionDetailsComponent>;
   let sessionService: jasmine.SpyObj<SessionService>;
+  let presetService: jasmine.SpyObj<SessionPresetService>;
   let communityService: jasmine.SpyObj<CommunityService>;
   let directChatService: jasmine.SpyObj<DirectChatService>;
   let callClient: jasmine.SpyObj<DirectCallClientService>;
@@ -64,6 +66,8 @@ describe('SessionDetailsComponent', () => {
   }
 
   beforeEach(async () => {
+    presetService = jasmine.createSpyObj<SessionPresetService>('SessionPresetService',['mine']);
+    presetService.mine.and.returnValue(of([]));
     callsReady = new BehaviorSubject<boolean>(false);
     activeCall = new BehaviorSubject<any>(null);
     callClient = jasmine.createSpyObj<DirectCallClientService>('DirectCallClientService', ['start'], {
@@ -200,6 +204,7 @@ describe('SessionDetailsComponent', () => {
       providers: [
         ...TEST_PROVIDERS,
         { provide: ChatReadSyncService, useValue: readSync },
+        { provide: SessionPresetService, useValue: presetService },
         {
           provide: ActivatedRoute,
           useValue: {
