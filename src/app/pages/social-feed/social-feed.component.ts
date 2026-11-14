@@ -36,6 +36,7 @@ import { PersonalLiveEvent, PersonalLiveService } from '../../services/personal-
   standalone: false
 })
 export class SocialFeedComponent implements OnInit, OnDestroy {
+  readonly t = t;
   items: FeedItem[] = [];
 
   // A viewer may hide any feed entry without deleting the author's content.
