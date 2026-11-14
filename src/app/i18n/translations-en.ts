@@ -1,5 +1,16 @@
 // Loaded only for users who choose English. Keep the original key/value table intact.
 export const EN: Record<string, string> = {
+  'profilePrivacy.privateDescription': 'Only approved followers can view your posts and stories.',
+  'profilePrivacy.publicDescription': 'Anyone on Jynlo can view your posts and stories, even without following you.',
+  'profilePrivacy.postsAndStories': 'Posts and stories:',
+  'profilePrivacy.approvedFollowers': 'approved followers only.',
+  'profilePrivacy.everyone': 'everyone.',
+  'profilePrivacy.newFollowers': 'New followers:',
+  'profilePrivacy.approvalRequired': 'must be approved by you.',
+  'profilePrivacy.followDirectly': 'can follow you immediately.',
+  'profilePrivacy.existingFollowers': 'Existing followers remain approved when you switch to private.',
+  'profilePrivacy.unavailableAction': 'Make private — protection in progress',
+  'profilePrivacy.mediaProtectionPending': 'This option will be available once photos and videos have protected delivery. Until then, the profile remains public so that privacy is not misleading.',
   'sessionAlerts.attention': 'Attention',
   'sessionAlerts.dismiss': 'Got it',
   'live.startBroadcast': 'Start live broadcast',
