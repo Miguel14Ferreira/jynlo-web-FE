@@ -69,6 +69,8 @@ describe('PersonalLiveRoomComponent', () => {
       mutedUsernames:[],requestStatus:null,pendingRequests:[],slowModeSeconds:0
     };
     service.setSlowMode.and.returnValue(of({...component.controls,slowModeSeconds:10}));
+    service.controls.and.returnValue(of({...component.controls,slowModeSeconds:10}));
+    service.end.and.returnValue(of({...component.event,status:'ENDED'}));
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('#live-slow-mode')).toBeTruthy();
     component.changeSlowMode(10);
