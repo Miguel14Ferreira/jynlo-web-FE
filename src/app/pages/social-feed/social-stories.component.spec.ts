@@ -290,7 +290,7 @@ describe('SocialStoriesComponent', () => {
     component.requestDeleteStory();
     component.next();
     expect(component.activeStory?.id).toBe(9);
-    component.escape();
+    component.escape(new KeyboardEvent('keydown', { key: 'Escape' }));
     expect(component.deleteConfirmOpen).toBeFalse();
     expect(component.activeStory?.id).toBe(9);
     component.close();
