@@ -6,6 +6,17 @@ export type AppLanguage = 'pt' | 'en';
 type Dictionary = Record<string, string>;
 
 const PT: Dictionary = {
+  'profilePrivacy.privateDescription': 'As tuas publicações e stories só podem ser vistas por seguidores aprovados.',
+  'profilePrivacy.publicDescription': 'Qualquer utilizador da Jynlo pode ver as tuas publicações e stories, mesmo sem te seguir.',
+  'profilePrivacy.postsAndStories': 'Publicações e stories:',
+  'profilePrivacy.approvedFollowers': 'apenas seguidores aprovados.',
+  'profilePrivacy.everyone': 'todos os utilizadores.',
+  'profilePrivacy.newFollowers': 'Novos seguidores:',
+  'profilePrivacy.approvalRequired': 'precisam da tua aprovação.',
+  'profilePrivacy.followDirectly': 'podem seguir-te diretamente.',
+  'profilePrivacy.existingFollowers': 'Ao tornar o perfil privado, os seguidores atuais continuam aprovados.',
+  'profilePrivacy.unavailableAction': 'Tornar privado — a preparar proteção',
+  'profilePrivacy.mediaProtectionPending': 'A opção será ativada quando as fotografias e vídeos tiverem acesso protegido. Até lá, o perfil continua público para evitar uma falsa sensação de privacidade.',
   'sessionAlerts.attention': 'Atenção',
   'sessionAlerts.dismiss': 'Percebi',
   'live.startBroadcast': 'Iniciar transmissão em direto',
