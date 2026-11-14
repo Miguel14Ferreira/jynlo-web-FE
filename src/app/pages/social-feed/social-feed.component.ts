@@ -974,7 +974,13 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       }
     });
     this.refreshPersonalLive();
-    interval(8000).pipe(takeUntil(this.destroyed)).subscribe(() => this.refreshPersonalLive());
+    if(this.realtime){
+      this.realtime.connect();
+      this.realtime.personalLiveInvalidated$.pipe(takeUntil(this.destroyed))
+        .subscribe(()=>this.refreshPersonalLive());
+    }
+    // Reconcile after connection loss; regular updates arrive via WebSocket.
+    interval(20000).pipe(takeUntil(this.destroyed)).subscribe(() => this.refreshPersonalLive());
     // Suggestions and weekly vacancies still need discovery; the composer does not.
     this.loadingSessions = true;
     this.sessionService.discover({
