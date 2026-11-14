@@ -842,7 +842,7 @@
                       @if (postMedia[selectedPostMediaIndex(item)]; as selectedMedia) {
                         @if (selectedMedia.mimeType.startsWith('video/')) {
                           <video class="feed-post-carousel-video"
-                                 [src]="resolvePostMedia(selectedMedia.url)"
+                                 [jynloProtectedSrc]="resolvePostMedia(selectedMedia.url)"
                                  controls playsinline preload="metadata"
                                  [attr.aria-label]="'Vídeo ' + (selectedPostMediaIndex(item) + 1) + ' de ' + postMedia.length">
                           </video>
@@ -850,7 +850,7 @@
                           <button type="button" class="feed-media-open feed-post-carousel-image"
                                   (click)="openPostMedia(item, selectedPostMediaIndex(item))"
                                   [attr.aria-label]="'Ampliar fotografia ' + (selectedPostMediaIndex(item) + 1) + ' de ' + postMedia.length">
-                            <img class="post-image" [src]="resolvePostMedia(selectedMedia.url)"
+                            <img class="post-image" [jynloProtectedSrc]="resolvePostMedia(selectedMedia.url)"
                                  [alt]="'Fotografia ' + (selectedPostMediaIndex(item) + 1) + ' de ' + item.authorDisplayName"
                                  loading="lazy">
                           </button>
@@ -1392,10 +1392,10 @@
                     aria-label="Anterior">‹</button>
           }
           @if (expandedMedia[expandedMediaIndex].mimeType.startsWith('video/')) {
-            <video [src]="resolvePostMedia(expandedMedia[expandedMediaIndex].url)"
+            <video [jynloProtectedSrc]="resolvePostMedia(expandedMedia[expandedMediaIndex].url)"
                    controls playsinline preload="metadata" aria-label="Vídeo ampliado"></video>
           } @else {
-            <img [src]="resolvePostMedia(expandedMedia[expandedMediaIndex].url)"
+            <img [jynloProtectedSrc]="resolvePostMedia(expandedMedia[expandedMediaIndex].url)"
                  alt="Fotografia completa da publicação">
           }
           @if (expandedMedia.length > 1) {
