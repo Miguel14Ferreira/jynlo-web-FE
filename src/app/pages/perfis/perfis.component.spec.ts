@@ -128,6 +128,43 @@ describe('PerfisComponent', () => {
     fixture.detectChanges();
   });
 
+  it('explains why a public profile cannot yet be made private', () => {
+    component.currentUsername='ana';
+    component.profilePage=true;
+    (component as any).loadProfile('ana');
+    fixture.detectChanges();
+    const section=(fixture.nativeElement as HTMLElement)
+      .querySelector('.profile-privacy-settings') as HTMLElement;
+    expect(section).toBeTruthy();
+    expect(section.textContent).toContain('Público');
+    expect(section.textContent).toContain('ficheiros de fotografias e vídeos');
+    const action=section.querySelector('.profile-privacy-action') as HTMLButtonElement;
+    expect(action.disabled).toBeTrue();
+    expect(action.textContent).toContain('indisponível');
+    expect(privacy.setPrivate).not.toHaveBeenCalled();
+  });
+
+  it('allows the owner to enable private mode when the backend reports safe availability', () => {
+    privacy.status.and.returnValue(of({
+      privateProfile:false,canViewContent:true,privateModeAvailable:true
+    }));
+    privacy.setPrivate.and.returnValue(of({
+      privateProfile:true,canViewContent:true,privateModeAvailable:true
+    }));
+    component.currentUsername='ana';
+    component.profilePage=true;
+    (component as any).loadProfile('ana');
+    fixture.detectChanges();
+    const action=(fixture.nativeElement as HTMLElement)
+      .querySelector('.profile-privacy-action') as HTMLButtonElement;
+    expect(action.disabled).toBeFalse();
+    action.click();
+    fixture.detectChanges();
+    expect(privacy.setPrivate).toHaveBeenCalledOnceWith(true);
+    expect(component.privacyStatus?.privateProfile).toBeTrue();
+    expect(action.textContent).toContain('Tornar público');
+  });
+
   it('does not reveal private profile posts or stories to a non-follower', () => {
     privacy.status.and.returnValue(of({
       privateProfile:true,canViewContent:false,privateModeAvailable:false
