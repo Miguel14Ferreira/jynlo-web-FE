@@ -831,6 +831,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
 
   media(url: string | null | undefined): string | null {
     if (!url) return null;
+    if (url.startsWith('/api/profile-media/')) return url;
     if (/^https?:\/\//i.test(url) || url.startsWith('data:')) return url;
     return environment.apiUrl + (url.startsWith('/') ? url : '/' + url);
   }
