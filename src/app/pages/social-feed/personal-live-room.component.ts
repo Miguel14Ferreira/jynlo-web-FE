@@ -23,7 +23,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           [attr.aria-label]="event.canManage ? 'Terminar direto' : 'Sair do direto'">×</button>
       </header>
       @if (error) {<p role="alert">{{error}}</p>}
-      @if (connecting) {<p role="status">{{ connectionStatus }}</p>}
+      @if (connecting) {<p role="status">{{ tr(connectionStatus, 'Connecting to the stream…') }}</p>}
       @if (!connecting && room && !reconnecting) {
         <p class="live-connection-status" role="status">● Transmissão ligada</p>
       }
@@ -34,12 +34,12 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
         <p class="live-reconnection-status" role="status">{{tr('A atualizar a participação no direto…','Updating your live role…')}}</p>
       }
       <div class="live-toolbar" aria-label="Ações da transmissão">
-        <button type="button" (click)="shareLive()" [disabled]="closing || ending">{{tr('Partilhar direto','Share live')}}</button>
-        <button type="button" (click)="toggleFullscreen()" [disabled]="!room">{{tr('Ampliar vídeo','Fullscreen video')}}</button>
-        <button type="button" [attr.aria-pressed]="theaterMode"
-          (click)="theaterMode=!theaterMode">{{theaterMode?tr('Sair de ocupar tela','Exit theater mode'):tr('Ocupar tela','Theater mode')}}</button>
-        <button type="button" [attr.aria-expanded]="chatVisible" aria-controls="personal-live-chat"
-          (click)="chatVisible=!chatVisible">{{chatVisible?tr('Esconder chat','Hide chat'):tr('Mostrar chat','Show chat')}}</button>
+        <button type="button" class="live-tool-icon" [title]="tr('Partilhar direto','Share live')" [attr.aria-label]="tr('Partilhar direto','Share live')"  (click)="shareLive()" [disabled]="closing || ending">⇧</button>
+        <button type="button" class="live-tool-icon" [title]="tr('Ampliar vídeo','Fullscreen video')" [attr.aria-label]="tr('Ampliar vídeo','Fullscreen video')"  (click)="toggleFullscreen()" [disabled]="!room">⛶</button>
+        <button type="button" class="live-tool-icon" [title]="tr('Ocupar tela','Theater mode')" [attr.aria-label]="tr('Ocupar tela','Theater mode')"  [attr.aria-pressed]="theaterMode"
+          (click)="theaterMode=!theaterMode">▣</button>
+        <button type="button" class="live-tool-icon" [title]="tr('Mostrar ou esconder chat','Toggle chat')" [attr.aria-label]="tr('Mostrar ou esconder chat','Toggle chat')"  [attr.aria-expanded]="chatVisible" aria-controls="personal-live-chat"
+          (click)="chatVisible=!chatVisible">▤</button>
         @if (audioBlocked) {
           <button type="button" (click)="enableAudio()" [disabled]="!room">
             Ativar som da transmissão
@@ -129,18 +129,6 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           }
           @if (event.canManage && controls) {
             <div class="live-moderation">
-              <label class="slow-mode-control" for="live-slow-mode" hidden>
-                Modo lento
-                <select id="live-slow-mode" [ngModel]="controls.slowModeSeconds ?? 0"
-                  [ngModelOptions]="{standalone:true}" [disabled]="moderationBusy"
-                  (ngModelChange)="changeSlowMode($event)">
-                  <option [ngValue]="0">Desligado</option>
-                  <option [ngValue]="5">5 segundos</option>
-                  <option [ngValue]="10">10 segundos</option>
-                  <option [ngValue]="30">30 segundos</option>
-                  <option [ngValue]="60">60 segundos</option>
-                </select>
-              </label>
               <button type="button" [disabled]="moderationBusy"
                 (click)="toggleChat()">{{controls.chatEnabled?tr('Desativar chat','Disable chat'):tr('Ativar chat','Enable chat')}}</button>
               @for (request of controls.pendingRequests;track request.id) {
@@ -241,6 +229,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       padding:.48rem .75rem;border-radius:.6rem;cursor:pointer;font:inherit;font-size:.82rem}
     .live-toolbar button:disabled{opacity:.5;cursor:not-allowed}
     .live-toolbar span{font-size:.79rem;color:#5eead4}
+     .live-toolbar .live-tool-icon{min-width:44px;min-height:44px;font-size:1.3rem;padding:.35rem;display:grid;place-items:center}
     @media(max-width:760px){
       .personal-live{max-height:calc(100dvh - 12px);overflow-y:auto;overscroll-behavior:contain}
       .personal-live-layout,.personal-live-layout.live-layout-theater,.personal-live-layout.live-layout-no-chat{
@@ -274,15 +263,15 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       color:#ffb9c5;background:transparent;cursor:pointer;font-size:.72rem}
     .live-chat-input{display:flex;gap:8px;scroll-margin-bottom:24px;margin-top:auto;align-items:stretch}
     .live-chat-input textarea{min-height:44px;font-size:16px}
-    .live-chat-input button{min-width:66px;min-height:44px}
+    .live-chat-input button{min-width:44px;min-height:44px}
     .live-chat-input .live-emoji-toggle{min-width:42px;min-height:44px;font-size:1.3rem;
       background:#123842;border:1px solid #398f88;border-radius:8px;color:#f0fffc}
-    .live-emoji-picker{display:flex;flex-wrap:wrap;gap:5px;padding:8px;
+    .live-emoji-picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));max-height:180px;overflow-y:auto;gap:5px;padding:8px;
       background:#0b303b;border:1px solid #398f88;border-radius:10px}
     .live-emoji-picker button{font-size:1.25rem;border:0;border-radius:7px;
       background:transparent;cursor:pointer;padding:6px}
     .live-emoji-picker button:hover,.live-emoji-picker button:focus-visible{background:#24616a}
-    .live-chat-input textarea{flex:1;min-width:0;max-height:140px;resize:vertical;line-height:1.4;
+    .live-chat-input textarea{flex:1;min-width:0;max-height:140px;resize:vertical;line-height:1.4;box-sizing:border-box;max-height:140px;resize:vertical;line-height:1.4;
       border:1px solid #437783;border-radius:7px;padding:8px;background:#092a36;color:#fff}
     .live-chat-input .live-send-icon{min-width:44px;font-size:1.2rem}
      .live-chat-input button,.live-moderation button,.live-guest-request button{
