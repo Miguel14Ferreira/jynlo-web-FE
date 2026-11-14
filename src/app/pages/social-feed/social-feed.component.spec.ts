@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SocialFeedComponent } from './social-feed.component';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
 import { SessionDetail } from '../model/session-detail';
 import { SessionSummary } from '../model/session-summary';
@@ -1296,7 +1296,7 @@ describe('SocialFeedComponent session sharing fallback', () => {
     component = new SocialFeedComponent(
       {} as SocialFeedService, {} as SessionService, auth,
       { snapshot: { queryParamMap: convertToParamMap({}) } } as unknown as ActivatedRoute,
-      {} as CommunityService
+      {} as Router, {} as CommunityService
     );
     item = {
       type: 'POST',
@@ -1412,6 +1412,7 @@ describe('SocialFeedComponent new session promotion', () => {
     const route = { snapshot: { queryParamMap: convertToParamMap({ shareSession: rawId }) } } as unknown as ActivatedRoute;
     const target = new SocialFeedComponent(
       feed, sessions, auth, route,
+      {} as Router,
       { discoverProfiles: () => of([]), publicProfile: () => of(null), friends: () => of([]) } as unknown as CommunityService
     );
     target.ngOnInit();
@@ -1471,6 +1472,7 @@ describe('SocialFeedComponent post-game entry', () => {
     } as unknown as ActivatedRoute);
     const target = new SocialFeedComponent(
       feed, sessions, auth, route,
+      {} as Router,
       { discoverProfiles: () => of([]), publicProfile: () => of(null),
         friends: () => of([]) } as unknown as CommunityService
     );
@@ -1649,6 +1651,7 @@ describe('SocialFeedComponent empty-feed session suggestions', () => {
     const route = { snapshot: { queryParamMap: convertToParamMap({}) } } as unknown as ActivatedRoute;
     const target = new SocialFeedComponent(
       feed, sessions, auth, route,
+      {} as Router,
       { discoverProfiles: () => of([]) } as unknown as CommunityService
     );
 
@@ -1679,6 +1682,7 @@ describe('SocialFeedComponent session association restrictions', () => {
     const route = { snapshot: { queryParamMap: convertToParamMap({}) } } as unknown as ActivatedRoute;
     const component = new SocialFeedComponent(
       feed, sessions, auth, route,
+      {} as Router,
       { discoverProfiles: () => of([]) } as unknown as CommunityService
     );
     component.ngOnInit();
@@ -1710,7 +1714,7 @@ describe('SocialFeedComponent attendance activity visibility', () => {
     component = new SocialFeedComponent(
       feed, {} as SessionService, auth,
       { snapshot: { queryParamMap: convertToParamMap({}) } } as unknown as ActivatedRoute,
-      {} as CommunityService
+      {} as Router, {} as CommunityService
     );
     activity = {
       type: 'SESSION_ATTENDED', postId: null,
