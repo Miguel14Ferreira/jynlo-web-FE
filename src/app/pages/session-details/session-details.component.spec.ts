@@ -1588,6 +1588,44 @@ describe('SessionDetailsComponent', () => {
     expect(fixture.nativeElement.querySelector('.session-cancel-button')).toBeNull();
   });
 
+  it('offers the WhatsApp guest cancellation notice only after the server confirms', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = { ...session, gameDate:'2099-10-01T18:00:00Z',
+      sport:'Futsal', city:'Lisboa', address:'PRIVATE-773' };
+    const cancellation = new Subject<void>();
+    sessionService.cancel.and.returnValue(cancellation.asObservable());
+    component.requestCancelOwnSession();
+    component.confirmCancelOwnSession();
+    expect(component.cancellationNotice).toBe('');
+    cancellation.next();
+    cancellation.complete();
+    fixture.detectChanges();
+    const notice = fixture.nativeElement.querySelector('.session-cancelled-share') as HTMLElement;
+    expect(notice).not.toBeNull();
+    expect(notice.textContent).toContain('Informar participantes externos');
+    expect(component.cancellationNotice).toContain('Futsal');
+    expect(component.cancellationNotice).toContain('Lisboa');
+    expect(component.cancellationNotice).not.toContain('PRIVATE-773');
+    expect(component.session?.status).toBe('CANCELLED');
+  });
+
+  it('does not offer guest sharing on failed cancellation or to other viewers', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = {...session, gameDate:'2099-10-01T18:00:00Z'};
+    sessionService.cancel.and.returnValue(throwError(() => new HttpErrorResponse({status:503})));
+    component.requestCancelOwnSession();
+    component.confirmCancelOwnSession();
+    fixture.detectChanges();
+    expect(component.cancellationNotice).toBe('');
+    expect(fixture.nativeElement.querySelector('.session-cancelled-share')).toBeNull();
+
+    (component as any).currentUsername = 'someone-else';
+    component.session = {...session, status:'CANCELLED'};
+    component.cancellationNotice = 'Notícia externa';
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.session-cancelled-share')).toBeNull();
+  });
+
   it('retains the confirmation and shows an error if cancel fails', () => {
     (component as any).currentUsername = 'creator-user';
     component.session = { ...session, gameDate: '2099-10-01T18:00:00Z' };
