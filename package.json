@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "node scripts/configure-giphy.mjs && ng build --configuration production && node scripts/publish-assetlinks.mjs",
+    "build": "node scripts/configure-giphy.mjs && ng build --configuration production && node scripts/publish-assetlinks.mjs && node scripts/publish-app-download.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
