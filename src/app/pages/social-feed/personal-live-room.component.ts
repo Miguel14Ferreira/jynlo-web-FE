@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { firstValueFrom, interval, Subscription, timeout, finalize, Subject, takeUntil } from 'rxjs';
 import { Room, RoomEvent, RemoteTrack, Track } from 'livekit-client';
+import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
 import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
   PersonalLiveControls, PersonalLiveGuestRequest } from '../../services/personal-live.service';
 
@@ -275,6 +276,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   @ViewChild('stage') stage?:ElementRef<HTMLElement>;
   @ViewChild('chatHistory') chatHistory?:ElementRef<HTMLElement>;
   private readonly service=inject(PersonalLiveService);
+  private readonly realtime=inject(DirectChatRealtimeService);
   private readonly destroy$=new Subject<void>();
   closing=false;
   private heartbeats?:Subscription;
@@ -325,7 +327,13 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   ngOnInit():void {
     void this.connect();
     this.refreshInteractions();
-    this.interactionPoll=interval(3000).subscribe(()=>this.refreshInteractions());
+    // The authenticated chat socket signals newly committed changes.
+    // Keep a slow HTTP recovery poll for reconnects or WebSocket outages.
+    this.realtime.connect();
+    this.realtime.personalLiveInvalidated$.pipe(takeUntil(this.destroy$))
+      .subscribe(()=>this.refreshInteractions(true));
+    this.interactionPoll=interval(15000).pipe(takeUntil(this.destroy$))
+      .subscribe(()=>this.refreshInteractions());
   }
 
   async connect(roleChange=false):Promise<void> {
@@ -531,20 +539,28 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   }
   private messagesLoading=false;
   private controlsLoading=false;
+  private refreshQueued=false;
   private controlsRevision=0;
   private controlsMutation=false;
   private lastRoleChangeAt=0;
   controlsUnavailable=false;
 
-  refreshInteractions():void {
+  refreshInteractions(fromSocket=false):void {
     if(this.destroyed||this.closing||this.controlsUnavailable)return;
+    if(fromSocket && (this.messagesLoading || this.controlsLoading || this.controlsMutation)) {
+      this.refreshQueued=true;
+      return;
+    }
     // Polling runs every three seconds, while a request may take ten.
     // Never overlap polls of the same resource: an older response could
     // otherwise overwrite fresh chat messages or guest permissions.
     if(!this.messagesLoading){
       this.messagesLoading=true;
       this.service.messages(this.event.id).pipe(
-        timeout(10000),takeUntil(this.destroy$),finalize(()=>this.messagesLoading=false)
+        timeout(10000),takeUntil(this.destroy$),finalize(()=>{
+          this.messagesLoading=false;
+          this.flushQueuedRefresh();
+        })
       ).subscribe({
         next:entries=>{
           if(this.destroyed||this.closing)return;
@@ -580,7 +596,10 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       const revision=this.controlsRevision;
       this.controlsLoading=true;
       this.service.controls(this.event.id).pipe(
-        timeout(10000),takeUntil(this.destroy$),finalize(()=>this.controlsLoading=false)
+        timeout(10000),takeUntil(this.destroy$),finalize(()=>{
+          this.controlsLoading=false;
+          this.flushQueuedRefresh();
+        })
       ).subscribe({
         next:state=>{
           if(this.destroyed||this.closing||revision!==this.controlsRevision)return;
@@ -608,6 +627,12 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+  private flushQueuedRefresh():void {
+    if (!this.refreshQueued || this.messagesLoading || this.controlsLoading ||
+        this.controlsMutation || this.closing || this.destroyed) return;
+    this.refreshQueued=false;
+    this.refreshInteractions();
   }
   private async reconnectRole():Promise<void> {
     if(this.rejoining||this.destroyed||this.closing)return;
@@ -643,7 +668,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     const content=this.draft.trim();
     if(!content||this.sending||!this.room||this.connecting||this.reconnecting||
        this.switchingRole||content.length>500||
-       (!this.event.canManage && (!this.controls?.chatEnabled || this.controls.mutedByHost)))return;
+       (!this.event.canManage && (this.controls?.chatEnabled === false || !!this.controls?.mutedByHost)))return;
     this.sending=true;this.chatSendError='';
     // Optimistic rendering makes the message visible immediately, without waiting
     // for the three-second polling cycle or the HTTP response.
