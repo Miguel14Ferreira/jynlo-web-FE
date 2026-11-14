@@ -83,6 +83,48 @@ describe('Events2Component', () => {
   });
 
 
+  it('accepts a proposed independent sport and rejects equivalent official names', () => {
+    component.onSportChoice('__CUSTOM_SPORT__');
+    component.onCustomSportName('  Bossaball  ');
+    expect(component.customSportMode).toBeTrue();
+    expect(component.sport).toBe('Bossaball');
+    expect(component.sportSelected).toBeTrue();
+
+    component.onCustomSportName('FUTEBOL');
+    expect(component.customSportValid).toBeFalse();
+    component.onCustomSportName('<script>');
+    expect(component.customSportValid).toBeFalse();
+
+    component.onSportChoice('Futebol');
+    expect(component.customSportMode).toBeFalse();
+    expect(component.sport).toBe('Futebol');
+    expect(component.sportSelected).toBeTrue();
+  });
+
+  it('requires an explicit choice before detaching a proposed sport from a community', () => {
+    component.communityId = 12;
+    component.communityName = 'Grupo de teste';
+    component.shareCommunityIds = [13];
+    component.recurrence = 'WEEKLY';
+    component.registrationOpeningMode = 'MANUAL';
+    component.seasonGame = true;
+    component.confirmActivateRankings = true;
+
+    component.onSportChoice('__CUSTOM_SPORT__');
+    component.onCustomSportName('Bossaball');
+    expect(component.communitySessionSelected).toBeTrue();
+    expect(component.communityId).toBe(12);
+
+    component.detachCommunityForCustomSport();
+    expect(component.communityId).toBeNull();
+    expect(component.shareCommunityIds).toEqual([]);
+    expect(component.seasonGame).toBeFalse();
+    expect(component.confirmActivateRankings).toBeFalse();
+    expect(component.recurrence).toBe('NONE');
+    expect(component.registrationOpeningMode).toBe('IMMEDIATE');
+    expect(component.sport).toBe('Bossaball');
+  });
+
   it('clears the generated Airsoft checklist after an invalid sport selection', () => {
     component.sport = 'Airsoft';
     component.applyAirsoftInstructionsTemplate();
