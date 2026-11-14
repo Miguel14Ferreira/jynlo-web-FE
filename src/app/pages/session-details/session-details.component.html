@@ -36,6 +36,25 @@
         }
 
         <div class="detail-content">
+          @if (session.status === 'CANCELLED' && isCreator() && cancellationNotice) {
+            <section class="session-cancelled-share" aria-label="Aviso para participantes externos">
+              <strong>Informar participantes externos</strong>
+              <p>Os jogadores com conta Jynlo recebem um aviso interno, de acordo com as suas preferências.
+                 Se convidaste pessoas pelo WhatsApp, envia-lhes também esta mensagem.</p>
+              <label for="session-cancelled-share-message">Mensagem de cancelamento</label>
+              <textarea id="session-cancelled-share-message" readonly rows="3"
+                        [value]="cancellationNotice"
+                        (focus)="$any($event.target).select()" (click)="$any($event.target).select()"></textarea>
+              <button type="button" class="jynlo-action jynlo-action--neutral"
+                      [disabled]="cancellationNoticeSharing"
+                      (click)="shareCancelledSessionNotice()">
+                {{ cancellationNoticeSharing ? 'A partilhar…' : 'Partilhar aviso de cancelamento' }}
+              </button>
+              @if (cancellationNoticeFeedback) {
+                <p role="status">{{ cancellationNoticeFeedback }}</p>
+              }
+            </section>
+          }
           @if (session.status === 'CANCELLED') {
             <section class="session-cancelled-banner" role="status" aria-label="Sessão cancelada">
               <div class="session-cancelled-banner__icon" aria-hidden="true">×</div>
