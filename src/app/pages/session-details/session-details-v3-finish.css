@@ -125,3 +125,24 @@
 :host .session-details-editor textarea:focus-visible{
   outline:2px solid #3de9d3;outline-offset:2px;
 }
+
+/* Cancellation notice for external participants, visible only to the organizer. */
+:host .session-cancelled-share{
+  display:grid;gap:10px;margin:12px 0 18px;padding:16px;
+  border:1px solid rgba(248,143,143,.4);border-radius:14px;
+  background:rgba(101,35,48,.25);color:#ffe6e6;
+}
+:host .session-cancelled-share strong{font-size:1.05rem;color:#ffebeb;}
+:host .session-cancelled-share p{margin:0;line-height:1.55;overflow-wrap:anywhere;}
+:host .session-cancelled-share label{font-size:.83rem;font-weight:700;}
+:host .session-cancelled-share textarea{
+  width:100%;box-sizing:border-box;min-height:88px;padding:11px;
+  border:1px solid rgba(248,163,163,.45);border-radius:10px;
+  background:rgba(19,28,42,.85);color:#fff4f4;line-height:1.5;
+  font:inherit;resize:vertical;overflow-wrap:anywhere;
+}
+:host .session-cancelled-share button{justify-self:start;min-height:42px;}
+@media(max-width:580px){
+  :host .session-cancelled-share{padding:12px;}
+  :host .session-cancelled-share button{width:100%;}
+}
