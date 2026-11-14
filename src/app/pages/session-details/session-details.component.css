@@ -1756,3 +1756,22 @@ h1 {
 :host .jynlo-session-detail-premium .title-row .badges>span{border:1px solid #33d6c34d;background:#16767c3d;color:#b3ffeb;border-radius:10px}
 }
 
+
+/* Saved configuration picker in the session edit form. */
+.session-details-preset {
+  display: grid; gap: .45rem;
+  padding: .9rem 1rem; margin: .75rem 0 1.1rem;
+  border: 1px solid rgba(45, 212, 191, .35);
+  border-radius: 12px;
+  background: rgba(2, 25, 35, .45);
+}
+.session-details-preset label { font-weight: 750; font-size: .88rem; }
+.session-details-preset select {
+  width: 100%; min-height: 44px; box-sizing: border-box;
+  padding: .65rem .8rem; border-radius: 9px;
+  background: #0b3740; color: #ecfffc;
+  border: 1px solid #258e87;
+  font: inherit;
+}
+.session-details-preset small { color: #afced2; line-height: 1.45; }
+.session-details-preset p { margin: 0; color: #5eead4; font-size: .82rem; }
