@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { firstValueFrom, interval, Subscription, timeout, finalize, Subject, takeUntil } from 'rxjs';
 import { Room, RoomEvent, RemoteTrack, Track } from 'livekit-client';
+import { I18nService } from '../../i18n/i18n.service';
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
 import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
   PersonalLiveControls, PersonalLiveGuestRequest } from '../../services/personal-live.service';
@@ -104,15 +105,15 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           }
           @if (chatSendError) { <p class="chat-notice" role="alert">{{chatSendError}}</p> }
           <form class="live-chat-input" (ngSubmit)="sendMessage()">
-            <button type="button" class="live-emoji-toggle" aria-label="Escolher emoji"
+            <button type="button" class="live-emoji-toggle" [attr.aria-label]="tr('Escolher emoji','Choose emoji')"
               [attr.aria-expanded]="emojiPickerOpen" (click)="emojiPickerOpen=!emojiPickerOpen">☺</button>
-            <input name="liveMessage" [(ngModel)]="draft" maxlength="500" autocomplete="off"
-              placeholder="Escrever mensagem…" aria-label="Mensagem para o direto"
-              (focus)="onChatFocus()" [disabled]="!room || connecting || reconnecting || switchingRole ||
+            <textarea name="liveMessage" [(ngModel)]="draft" maxlength="500" rows="2"
+              [placeholder]="tr('Escrever mensagem…','Write a message…')" [attr.aria-label]="tr('Mensagem para o direto','Live chat message')"
+              (focus)="onChatFocus()" (keydown.enter)="$event.shiftKey ? null : ($event.preventDefault(), sendMessage())" [disabled]="!room || connecting || reconnecting || switchingRole ||
                 (!event.canManage && (controls?.chatEnabled === false || !!controls?.mutedByHost))">
             <button type="submit" [disabled]="!room || connecting || reconnecting || switchingRole ||
               sending || !draft.trim() ||
-              (!event.canManage && (controls?.chatEnabled === false || !!controls?.mutedByHost))">Enviar</button>
+              (!event.canManage && (controls?.chatEnabled === false || !!controls?.mutedByHost))" class="live-send-icon" [title]="tr('Enviar mensagem','Send message')" [attr.aria-label]="tr('Enviar mensagem','Send message')">➤</button>
           </form>
           @if (!event.canManage) {
             <div class="live-guest-request">
@@ -128,7 +129,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           }
           @if (event.canManage && controls) {
             <div class="live-moderation">
-              <label class="slow-mode-control" for="live-slow-mode">
+              <label class="slow-mode-control" for="live-slow-mode" hidden>
                 Modo lento
                 <select id="live-slow-mode" [ngModel]="controls.slowModeSeconds ?? 0"
                   [ngModelOptions]="{standalone:true}" [disabled]="moderationBusy"
@@ -203,7 +204,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
     header div{display:grid;gap:.3rem}header small{color:#a7c6ce}
     .live-dot{color:#fb7185}.close{background:transparent;border:0;border-radius:0;
       color:#fff;font-size:1.6rem;cursor:pointer}
-    .personal-live-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,320px);
+    .personal-live-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(310px,360px);
       gap:12px;min-width:0;min-height:0}
     .personal-live-layout.live-layout-theater{grid-template-columns:minmax(0,1fr) minmax(225px,25%)}
     .personal-live-layout.live-layout-no-chat{grid-template-columns:minmax(0,1fr)}
@@ -254,14 +255,14 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
       .live-chat-history{max-height:min(25dvh,220px)}
       .live-chat-input{position:sticky;bottom:0;z-index:2;padding:8px 0;
         background:#0b202b;scroll-margin-bottom:32px}
-      .live-chat-input input{min-height:40px;font-size:16px}
+      .live-chat-input textarea{min-height:40px;font-size:16px}
     }
     footer{display:flex;flex-wrap:wrap;gap:.6rem}footer button{background:#184451;color:#fff;
       padding:.65rem;border:1px solid #47767e;border-radius:.6rem;cursor:pointer}
     footer .end{background:#932d42}footer button:disabled{opacity:.5;cursor:not-allowed}
     p[role="alert"]{color:#fecaca}.live-connection-status{color:#5eead4;margin:0;font-size:.82rem}
     .live-reconnection-status{color:#fde68a;margin:0;font-size:.85rem}
-    .live-chat{min-width:0;min-height:220px;display:flex;flex-direction:column;gap:9px;
+    .live-chat{min-width:0;min-height:300px;display:flex;flex-direction:column;gap:9px;
       border:1px solid #285c66;border-radius:10px;padding:10px;background:#0b202b}
     .live-chat header{align-items:center;flex-wrap:wrap}
     .live-chat-history{display:grid;align-content:start;gap:9px;min-height:0;flex:1 1 auto;
@@ -272,7 +273,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
     .live-chat-message button{border:0;
       color:#ffb9c5;background:transparent;cursor:pointer;font-size:.72rem}
     .live-chat-input{display:flex;gap:8px;scroll-margin-bottom:24px;margin-top:auto;align-items:stretch}
-    .live-chat-input input{min-height:44px;font-size:16px}
+    .live-chat-input textarea{min-height:44px;font-size:16px}
     .live-chat-input button{min-width:66px;min-height:44px}
     .live-chat-input .live-emoji-toggle{min-width:42px;min-height:44px;font-size:1.3rem;
       background:#123842;border:1px solid #398f88;border-radius:8px;color:#f0fffc}
@@ -281,9 +282,10 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
     .live-emoji-picker button{font-size:1.25rem;border:0;border-radius:7px;
       background:transparent;cursor:pointer;padding:6px}
     .live-emoji-picker button:hover,.live-emoji-picker button:focus-visible{background:#24616a}
-    .live-chat-input input{flex:1;min-width:0;
+    .live-chat-input textarea{flex:1;min-width:0;max-height:140px;resize:vertical;line-height:1.4;
       border:1px solid #437783;border-radius:7px;padding:8px;background:#092a36;color:#fff}
-    .live-chat-input button,.live-moderation button,.live-guest-request button{
+    .live-chat-input .live-send-icon{min-width:44px;font-size:1.2rem}
+     .live-chat-input button,.live-moderation button,.live-guest-request button{
       border:1px solid #398f88;border-radius:7px;padding:6px 9px;
       background:#15504d;color:white;cursor:pointer;font-size:.79rem}
     .live-chat button:disabled{opacity:.55;cursor:not-allowed}
@@ -317,6 +319,9 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   @ViewChild('stage') stage?:ElementRef<HTMLElement>;
   @ViewChild('chatHistory') chatHistory?:ElementRef<HTMLElement>;
   private readonly service=inject(PersonalLiveService);
+  private readonly i18n=inject(I18nService);
+  private readonly cdr=inject(ChangeDetectorRef);
+  tr(pt:string,en:string):string{return this.i18n.currentLanguage==='en'?en:pt;}
   private readonly realtime=inject(DirectChatRealtimeService);
   private readonly destroy$=new Subject<void>();
   closing=false;
@@ -353,7 +358,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   theaterMode=false;
   chatSendError='';
   emojiPickerOpen=false;
-  readonly chatEmojis=['⚽','🔥','👏','❤️','😂','💪','🏆','😍','🙌','🎾','🏀','🎮'];
+  readonly chatEmojis=['⚽','🔥','👏','❤️','😂','💪','🏆','😍','🙌','🎾','🏀','🎮','🥳','😀','😎','🤩','😊','😭','😮','😡','👍','👎','💚','💙','💯','🎉','⭐','🏅','🥇','🏐','🏓','🏸','🏃','🚴','🏊','🎯','👀','🤝','💥','🙏','🫶','🧡','💜'];
   appendEmoji(emoji:string):void {
     if(!this.chatEmojis.includes(emoji) || this.draft.length+emoji.length>500)return;
     this.draft+=emoji;
@@ -440,7 +445,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         }
       });
       activeRoom.on(RoomEvent.ParticipantConnected,()=>{
-        if(this.room===activeRoom)this.countParticipants();
+        if(this.room===activeRoom){this.countParticipants();this.cdr.markForCheck();}
       });
       activeRoom.on(RoomEvent.ParticipantDisconnected,participant=>{
         if(this.room!==activeRoom)return;
@@ -461,6 +466,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       }
       this.countParticipants();
       this.role=credentials.role;
+       this.cdr.markForCheck();
       this.reconnecting=false;
       this.connecting=false;
       if (credentials.role==='HOST' || credentials.role==='GUEST') {
@@ -526,7 +532,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       } else {
         this.error='Não foi possível entrar no direto. Verifica a ligação e as permissões.';
       }
-    } finally {this.connecting=false;}
+    } finally {this.connecting=false;this.cdr.markForCheck();}
   }
   private async recoverDisconnectedRoom(activeRoom:Room):Promise<void> {
     if(this.room!==activeRoom || this.destroyed || this.closing)return;
