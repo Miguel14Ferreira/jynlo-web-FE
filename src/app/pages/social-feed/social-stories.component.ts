@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { ProtectedMediaDirective } from '../../shared/protected-media.directive';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, Optional, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -31,7 +32,7 @@ interface StoryGroup {
 @Component({
   selector: 'app-social-stories',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, TranslatePipe, MovableTextComponent],
+  imports: [CommonModule, FormsModule, RouterModule, TranslatePipe, MovableTextComponent, ProtectedMediaDirective],
   templateUrl: './social-stories.component.html',
   styleUrls: ['./social-stories.component.css', './story-create-editor.css']
 })
