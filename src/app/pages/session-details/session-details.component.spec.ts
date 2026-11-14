@@ -4628,6 +4628,10 @@ describe('SessionDetailsComponent', () => {
       {id: 2, username: 'player-two', attendanceStatus: 'PENDING', joinedAt: ''}
     ];
     expect(component.canContactSessionMember('player-two')).toBeTrue();
+    component.session = {...component.session, gameDate: new Date(now + 8 * 24 * 60 * 60_000).toISOString()};
+    expect(component.canContactSessionMember('player-two')).toBeFalse();
+    component.session = {...component.session, gameDate: new Date(now + 7 * 24 * 60 * 60_000 - 60_000).toISOString()};
+    expect(component.canContactSessionMember('player-two')).toBeTrue();
     expect(component.canContactSessionMember('outsider')).toBeFalse();
     expect(component.canContactSessionMember('creator-user')).toBeFalse();
 
