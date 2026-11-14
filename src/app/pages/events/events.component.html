@@ -72,7 +72,7 @@
           autocomplete="off"
           [placeholder]="'events.sportPlaceholder' | t">
         <datalist id="sport-options">
-          @for (sportOption of sportsCatalog; track sportOption) {
+          @for (sportOption of searchableSports; track sportOption) {
             <option [value]="sportOption"></option>
           }
         </datalist>
