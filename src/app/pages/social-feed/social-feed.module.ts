@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { ProtectedMediaDirective } from '../../shared/protected-media.directive';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { SocialFeedComponent } from './social-feed.component';
 import { SocialStoriesComponent } from './social-stories.component';
@@ -14,6 +15,7 @@ import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/ven
   declarations: [SocialFeedComponent],
   imports: [
     CommonModule,
+    ProtectedMediaDirective,
     FormsModule,
     ReactiveFormsModule,
     TranslatePipe,
