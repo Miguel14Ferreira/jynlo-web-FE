@@ -1094,36 +1094,11 @@
                              : 'sessionDetail.openMapsHint') | t }}</small>
                 </div>
               </div>
-              @if (canEditCapacity()) {
-                <div class="session-maps-editor">
-                  @if (!googleMapsEditorOpen) {
-                    <button type="button" class="jynlo-action jynlo-action--neutral"
-                            (click)="beginGoogleMapsEdit()">Corrigir localização no Google Maps</button>
-                  } @else {
-                    <label for="session-google-maps-url">Link exato Google Maps da sessão</label>
-                    <input id="session-google-maps-url" type="url"
-                           [ngModel]="googleMapsDraft" (ngModelChange)="googleMapsDraft = $event"
-                           [disabled]="googleMapsSaving" maxlength="512"
-                           placeholder="https://maps.app.goo.gl/..." autocomplete="off">
-                    <small>Cola o link partilhado pelo Google Maps para que os participantes abram esse mesmo ponto. Deixa vazio para voltar à localização do recinto.</small>
-                    @if (googleMapsError) { <p role="alert">{{ googleMapsError }}</p> }
-                    <div class="session-maps-editor-actions">
-                      <button type="button" class="jynlo-action jynlo-action--primary"
-                              [disabled]="googleMapsSaving" (click)="saveGoogleMapsLink()">
-                        {{ googleMapsSaving ? 'A guardar…' : 'Guardar localização' }}
-                      </button>
-                      <button type="button" class="jynlo-action jynlo-action--neutral"
-                              [disabled]="googleMapsSaving" (click)="googleMapsEditorOpen = false">Cancelar</button>
-                    </div>
-                  }
-                  @if (googleMapsNotice) { <small role="status">{{googleMapsNotice}}</small> }
-                </div>
-              }
               @if (exactEmbeddedMapUrl(); as embeddedMap) {
                 <div class="session-embedded-map">
                   <iframe [src]="embeddedMap" title="Mapa com a localização do recinto desta sessão"
                           loading="lazy" referrerpolicy="no-referrer"
-                          aria-label="Mapa do local exato da sessão"></iframe>
+                          aria-label="Mapa de referência para a localização da sessão"></iframe>
                   <small>{{ hasVenueMapCoordinates()
                     ? 'O mapa mostra o ponto GPS registado para o recinto. Confirma o ponto de encontro com o organizador.'
                     : 'Mapa aproximado pela morada. Para o ponto exato, usa o link Google Maps escolhido pelo organizador.' }}</small>
@@ -1153,6 +1128,31 @@
             } @else {
               <p>{{ 'sessionDetail.addressLocked' | t }}</p>
             }
+              @if (canEditCapacity()) {
+                <div class="session-maps-editor">
+                  @if (!googleMapsEditorOpen) {
+                    <button type="button" class="jynlo-action jynlo-action--neutral"
+                            (click)="beginGoogleMapsEdit()">Corrigir localização no Google Maps</button>
+                  } @else {
+                    <label for="session-google-maps-url">Link exato Google Maps da sessão</label>
+                    <input id="session-google-maps-url" type="url"
+                           [ngModel]="googleMapsDraft" (ngModelChange)="googleMapsDraft = $event"
+                           [disabled]="googleMapsSaving" maxlength="512"
+                           placeholder="https://maps.app.goo.gl/..." autocomplete="off">
+                    <small>Cola o link partilhado pelo Google Maps para que os participantes abram esse mesmo ponto. Deixa vazio para voltar à localização do recinto.</small>
+                    @if (googleMapsError) { <p role="alert">{{ googleMapsError }}</p> }
+                    <div class="session-maps-editor-actions">
+                      <button type="button" class="jynlo-action jynlo-action--primary"
+                              [disabled]="googleMapsSaving" (click)="saveGoogleMapsLink()">
+                        {{ googleMapsSaving ? 'A guardar…' : 'Guardar localização' }}
+                      </button>
+                      <button type="button" class="jynlo-action jynlo-action--neutral"
+                              [disabled]="googleMapsSaving" (click)="googleMapsEditorOpen = false">Cancelar</button>
+                    </div>
+                  }
+                  @if (googleMapsNotice) { <small role="status">{{googleMapsNotice}}</small> }
+                </div>
+              }
           </section>
 
           @if (actionSuccess) {
