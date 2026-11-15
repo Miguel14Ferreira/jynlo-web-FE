@@ -11,6 +11,8 @@ export interface CreateSessionRequest {
   description?: string | null;
   /** Private arrival instructions for confirmed players and organiser. */
   meetingPointInstructions?: string | null;
+  /** Preserve the organizer-selected Google Maps destination exactly. */
+  googleMapsUrl?: string | null;
   maxParticipants: number;
   minParticipants?: number;
   externalConfirmedParticipants?: number;
