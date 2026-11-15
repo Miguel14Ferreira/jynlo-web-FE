@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PublicTeamCommunity,TeamCommunityMembership,TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
-import { SportsTeam, SportsTeamMember, SportsTeamsService, TeamCompetitionHistory } from '../../services/sports-teams.service';
+import { SportsTeam, SportsTeamMember, SportsTeamsService, TeamCompetitionHistory, TeamChampionshipHonour } from '../../services/sports-teams.service';
 
 @Component({
   standalone: true,
@@ -23,10 +23,17 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService, TeamCompetitionHistor
         <p *ngFor="let player of members">{{ player.username }} · {{ player.role === 'OWNER' ? 'Responsável' : 'Jogador' }}</p>
         <p *ngIf="members.length === 0">A carregar plantel ou sem jogadores disponíveis.</p>
       </section>
-      <section class="team-trophies"><h2>🏆 Troféus ({{trophies.length}})</h2>
-        <p *ngIf="historyLoading">A carregar conquistas oficiais…</p>
+      <section class="team-trophies"><h2>🏆 Troféus ({{trophies.length + championshipHonours.length}})</h2>
+        <p *ngIf="historyLoading || honoursLoading">A carregar conquistas oficiais…</p>
         <p *ngIf="historyError" role="alert">{{historyError}}</p>
-        <p *ngIf="!historyLoading && !historyError && !trophies.length">Ainda não existem troféus oficiais nesta equipa.</p>
+        <p *ngIf="honoursError" role="alert">{{honoursError}}</p>
+        <p *ngIf="!historyLoading && !honoursLoading && !historyError && !honoursError && !trophies.length && !championshipHonours.length">Ainda não existem troféus oficiais nesta equipa.</p>
+        <article *ngFor="let honour of championshipHonours" class="trophy">
+          <strong>🏆 {{honour.competitionName}}</strong>
+          <p>{{honour.championshipName}} · {{honour.seasonLabel}} · {{honour.communityName}}</p>
+          <p>{{honour.format === 'LEAGUE' ? 'Liga' : honour.format === 'KNOCKOUT' ? 'Taça' : honour.format}} · {{honour.sport}}</p>
+          <small>{{honour.awardedAt | date:'dd/MM/yyyy'}}</small>
+        </article>
         <article *ngFor="let trophy of trophies" class="trophy">
           <strong>🏆 {{trophy.tournamentName}}</strong>
           <p>{{trophy.communityName}} · {{trophy.sport || 'Modalidade não indicada'}}</p>
@@ -97,7 +104,15 @@ export class SportsTeamDetailComponent implements OnInit {
   history: TeamCompetitionHistory[] = [];
   historyLoading = false;
   historyError = '';
-  get trophies(): TeamCompetitionHistory[] { return this.history.filter(item => item.champion); }
+  championshipHonours: TeamChampionshipHonour[] = [];
+  honoursLoading = false;
+  honoursError = '';
+  /** A tournament linked to a closed season is one trophy, not two. */
+  get trophies(): TeamCompetitionHistory[] {
+    const awardedInSeason = new Set(this.championshipHonours
+      .filter(item => item.tournamentId !== null).map(item => item.tournamentId));
+    return this.history.filter(item => item.champion && !awardedInSeason.has(item.tournamentId));
+  }
   communities:TeamCommunityMembership[]=[];
   communityQuery='';communityResults:PublicTeamCommunity[]=[];
   isOwner=false;busy=false;feedback='';
@@ -146,6 +161,11 @@ export class SportsTeamDetailComponent implements OnInit {
         this.api.mine().subscribe({next:owned=>this.isOwner=owned.some(x=>x.id===team.id),error:()=>this.isOwner=false});
         this.loadCommunities();
         this.historyLoading = true;
+        this.honoursLoading = true;
+        this.api.honours(team.id).subscribe({
+          next: awards => {this.championshipHonours = awards; this.honoursLoading = false;},
+          error: () => {this.honoursError = 'Não foi possível carregar os títulos dos campeonatos.'; this.honoursLoading = false;}
+        });
         this.api.history(team.id).subscribe({
           next: entries => {this.history = entries; this.historyLoading = false;},
           error: () => {this.historyError = 'Não foi possível carregar o histórico de troféus.'; this.historyLoading = false;}
