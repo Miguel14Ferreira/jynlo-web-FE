@@ -1166,6 +1166,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(root.querySelectorAll('.composer-album-dots button').length).toBe(2);
     expect(root.querySelector('.composer-media-title')?.textContent).toContain('2 ficheiros');
     component.shiftPostGallery(1);
+    fixture.detectChanges(); // Render the newly selected attachment before clicking its removal control.
     expect(component.postGalleryIndex).toBe(1);
     const remove = root.querySelector('.composer-album-toolbar > button:last-child') as HTMLButtonElement;
     remove.click();
