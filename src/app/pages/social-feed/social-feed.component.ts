@@ -39,6 +39,21 @@ import { PersonalLiveEvent, PersonalLiveService } from '../../services/personal-
 export class SocialFeedComponent implements OnInit, OnDestroy {
   readonly t = t;
   items: FeedItem[] = [];
+  // An eventual feed refresh must not erase a newly confirmed publication.
+  private feedLoadGeneration = 0;
+  private readonly confirmedPosts = new Map<number, { item: FeedItem; expiresAt: number }>();
+
+  private preserveConfirmedPosts(received: FeedItem[]): FeedItem[] {
+    const now = Date.now();
+    for (const [id, pending] of this.confirmedPosts) {
+      if (pending.expiresAt <= now || received.some(item => item.type === 'POST' && item.postId === id)) {
+        this.confirmedPosts.delete(id);
+      }
+    }
+    const merged = [...this.confirmedPosts.values()].map(entry => entry.item);
+    const ids = new Set(merged.map(item => item.postId));
+    return [...merged, ...received.filter(item => item.type !== 'POST' || !ids.has(item.postId))];
+  }
 
   // A viewer may hide any feed entry without deleting the author's content.
   // These browser-local preferences are isolated by the logged-in username.
@@ -1213,6 +1228,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   load(): void {
+    const generation = ++this.feedLoadGeneration;
     this.loading = true;
     this.errorMessage = '';
 
@@ -1220,17 +1236,21 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       .pipe(
         timeout(10_000),
         retry({ count: 1 }),
-        finalize(() => this.loading = false)
+        takeUntil(this.destroyed),
+        finalize(() => { if (generation === this.feedLoadGeneration) this.loading = false; })
       )
       .subscribe({
         next: items => {
-          this.items = items.filter(item => item.type !== 'SESSION_CREATED' ||
+          if (generation !== this.feedLoadGeneration) return;
+          const visible = items.filter(item => item.type !== 'SESSION_CREATED' ||
             item.sessionId === null || !this.cancelledFeedSessionIds.has(item.sessionId));
+          this.items = this.preserveConfirmedPosts(visible);
           this.loadLikerPreviews();
           this.loadSharedPost();
         },
         error: () => {
-          this.items = [];
+          if (generation !== this.feedLoadGeneration) return;
+          // Keep previously loaded posts and confirmed uploads visible offline.
           this.errorMessage = t('feedback.feed.loadError');
         }
       });
@@ -1298,7 +1318,12 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: item => {
-          this.items = [item, ...this.items];
+          if (item?.type !== 'POST' || !Number.isSafeInteger(item.postId) || (item.postId ?? 0) <= 0) {
+            this.actionError = 'O servidor não confirmou a publicação. Verifica o teu perfil antes de repetir.';
+            return;
+          }
+          this.confirmedPosts.set(item.postId!, { item, expiresAt: Date.now() + 120_000 });
+          this.items = this.preserveConfirmedPosts([item, ...this.items.filter(current => current.postId !== item.postId)]);
           this.postContent = '';
           this.postLocation = '';
           this.postLocationVerified = false;
