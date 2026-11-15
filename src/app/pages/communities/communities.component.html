@@ -5402,7 +5402,9 @@
 
                     <div class="inline-form invite-search-form">
                       <input
-                        [(ngModel)]="inviteUsername"
+                        [ngModel]="inviteUsername"
+                        (ngModelChange)="onInviteUsernameChange($event)"
+                        autocomplete="off"
                         [placeholder]="'communities.usernamePlaceholder' | t"
                         (keyup.enter)="searchInviteUsers()">
                       <button
@@ -5427,6 +5429,9 @@
                       <p class="invite-success" role="status">{{ inviteMessage }}</p>
                     }
 
+                    @if (inviteSearchLoading) {
+                      <p class="invite-search-empty" role="status">A procurar perfis semelhantes…</p>
+                    }
                     @if (inviteSearchResults.length > 0) {
                       <div class="invite-search-results">
                         @for (profile of inviteSearchResults; track profile.username) {
@@ -5502,11 +5507,29 @@
                     <h3>{{ 'communities.transferOwnership' | t }}</h3>
                     <p>{{ 'communities.transferOwnershipHint' | t }}</p>
                     <div class="inline-form">
-                      <input [(ngModel)]="ownershipUsername" [placeholder]="'communities.newOwnerPlaceholder' | t">
-                      <button type="button" class="secondary-action small jynlo-action jynlo-action--neutral jynlo-action--compact" (click)="transferOwnership()">
+                      <input [ngModel]="ownershipUsername"
+                             (ngModelChange)="ownershipUsername = $event; ownershipSuggestionsOpen = true"
+                             (focus)="ownershipSuggestionsOpen = true"
+                             autocomplete="off"
+                             [placeholder]="'communities.newOwnerPlaceholder' | t">
+                      <button type="button" class="secondary-action small jynlo-action jynlo-action--neutral jynlo-action--compact"
+                              [disabled]="!selected.members.some(member => member.role !== 'OWNER' && member.username === ownershipUsername.trim())"
+                              (click)="transferOwnership()">
                         {{ 'communities.transfer' | t }}
                       </button>
                     </div>
+                    @if (ownershipSuggestionsOpen && ownershipSuggestions.length > 0) {
+                      <div class="invite-search-results" role="listbox" aria-label="Membros elegíveis para ownership">
+                        @for (member of ownershipSuggestions; track member.profileId) {
+                          <button type="button" class="invite-profile-result" role="option"
+                                  [attr.aria-selected]="ownershipUsername === member.username"
+                                  (click)="selectOwnershipMember(member.username)">
+                            <span class="invite-profile-avatar">{{ (member.fullName || member.username).charAt(0).toUpperCase() }}</span>
+                            <span><strong>{{ member.fullName || member.username }}</strong><small>@{{ member.username }}</small></span>
+                          </button>
+                        }
+                      </div>
+                    }
                   </section>
                   <section class="management-block community-delete-block" aria-labelledby="community-delete-title">
                     <h3 id="community-delete-title">{{ 'communities.deleteTitle' | t }}</h3>
