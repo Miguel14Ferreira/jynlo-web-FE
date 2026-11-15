@@ -18,12 +18,20 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService, TeamCompetitionHistor
       <p>{{ t.sport || 'Modalidade não indicada' }} · {{ t.location || 'Localização não indicada' }}</p>
       <p *ngIf="t.description">{{ t.description }}</p>
     </div>
-    <div class="team-grid">
-      <section><h2>Plantel ({{ members.length }})</h2>
+    <nav class="team-tabs" role="tablist" aria-label="Secções da equipa">
+      <button type="button" role="tab" [attr.aria-selected]="activeTab === 'OVERVIEW'"
+        [class.selected]="activeTab === 'OVERVIEW'" (click)="activeTab = 'OVERVIEW'">Visão geral</button>
+      <button type="button" role="tab" [attr.aria-selected]="activeTab === 'TROPHIES'"
+        [class.selected]="activeTab === 'TROPHIES'" (click)="activeTab = 'TROPHIES'">
+        🏆 Troféus ({{trophies.length + championshipHonours.length}})
+      </button>
+    </nav>
+    <div class="team-grid" role="tabpanel">
+      <section *ngIf="activeTab === 'OVERVIEW'"><h2>Plantel ({{ members.length }})</h2>
         <p *ngFor="let player of members">{{ player.username }} · {{ player.role === 'OWNER' ? 'Responsável' : 'Jogador' }}</p>
         <p *ngIf="members.length === 0">A carregar plantel ou sem jogadores disponíveis.</p>
       </section>
-      <section class="team-trophies"><h2>🏆 Troféus ({{trophies.length + championshipHonours.length}})</h2>
+      <section *ngIf="activeTab === 'TROPHIES'" class="team-trophies"><h2>🏆 Troféus ({{trophies.length + championshipHonours.length}})</h2>
         <p *ngIf="historyLoading || honoursLoading">A carregar conquistas oficiais…</p>
         <p *ngIf="historyError" role="alert">{{historyError}}</p>
         <p *ngIf="honoursError" role="alert">{{honoursError}}</p>
@@ -40,18 +48,18 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService, TeamCompetitionHistor
           <small *ngIf="trophy.completedAt">{{trophy.completedAt | date:'dd/MM/yyyy'}}</small>
         </article>
       </section>
-      <section><h2>Histórico de competições ({{history.length}})</h2>
+      <section *ngIf="activeTab === 'TROPHIES'"><h2>Histórico de competições ({{history.length}})</h2>
         <p *ngIf="!historyLoading && !historyError && !history.length">Ainda não participou em torneios associados à equipa.</p>
         <p *ngFor="let entry of history">
           {{entry.tournamentName}} · {{entry.communityName}} —
           {{entry.champion ? '🏆 Campeão' : entry.archived ? 'Concluído' : 'Em curso'}}
         </p>
       </section>
-      <section><h2>Competições</h2>
+      <section *ngIf="activeTab === 'OVERVIEW'"><h2>Competições</h2>
         <p>Encontra torneios e campeonatos com candidaturas abertas para esta equipa.</p>
         <a routerLink="/menu/teams/competitions" [queryParams]="{teamId: t.id}">Encontrar torneios e campeonatos</a>
       </section>
-      <section><h2>Comunidades ({{activeCommunities.length}})</h2>
+      <section *ngIf="activeTab === 'OVERVIEW'"><h2>Comunidades ({{activeCommunities.length}})</h2>
         <p *ngFor="let item of activeCommunities">{{item.communityName}}</p>
         <p *ngIf="!activeCommunities.length">Esta equipa ainda não está associada a comunidades.</p>
         <ng-container *ngIf="isOwner">
@@ -77,8 +85,8 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService, TeamCompetitionHistor
           </div>
         </ng-container>
       </section>
-      <section><h2>Feed</h2><p>{{ t.feedEnabled ? 'Feed ativado. A publicação para equipas está em desenvolvimento.' : 'Desativado pelo responsável da equipa.' }}</p></section>
-      <section><h2>Chat</h2><p>{{ t.chatEnabled ? 'Chat ativado. O acesso ficará disponível após a ligação aos membros da equipa.' : 'Desativado pelo responsável da equipa.' }}</p></section>
+      <section *ngIf="activeTab === 'OVERVIEW'"><h2>Feed</h2><p>{{ t.feedEnabled ? 'Feed ativado. A publicação para equipas está em desenvolvimento.' : 'Desativado pelo responsável da equipa.' }}</p></section>
+      <section *ngIf="activeTab === 'OVERVIEW'"><h2>Chat</h2><p>{{ t.chatEnabled ? 'Chat ativado. O acesso ficará disponível após a ligação aos membros da equipa.' : 'Desativado pelo responsável da equipa.' }}</p></section>
     </div>
   </main>
   <ng-template #state><main class="team-detail"><p role="alert">{{ error || 'A carregar equipa…' }}</p></main></ng-template>
@@ -88,6 +96,9 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService, TeamCompetitionHistor
     .team-hero{padding:2rem;background:linear-gradient(130deg,#1e4034,#11201d);border-radius:18px;color:white;margin:1rem 0}
     .team-hero>p:first-child{color:#96fa89;font-size:.8rem;letter-spacing:.15em}
     .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}
+    .team-tabs{display:flex;gap:.5rem;margin:1rem 0;flex-wrap:wrap}
+    .team-tabs button{padding:.65rem 1rem;border-radius:12px;font-weight:600}
+    .team-tabs button.selected{background:#246844;color:#fff;border-color:#5fd99e}
     .team-grid section{padding:1.25rem;border:1px solid #6c968044;border-radius:14px}
     h2{font-size:1.1rem}
     .trophy{padding:.75rem;margin:.5rem 0;border:1px solid #a68f554d;border-radius:10px}
@@ -100,6 +111,7 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService, TeamCompetitionHistor
 })
 export class SportsTeamDetailComponent implements OnInit {
   team: SportsTeam | null = null;
+  activeTab: 'OVERVIEW' | 'TROPHIES' = 'OVERVIEW';
   members: SportsTeamMember[] = [];
   history: TeamCompetitionHistory[] = [];
   historyLoading = false;
