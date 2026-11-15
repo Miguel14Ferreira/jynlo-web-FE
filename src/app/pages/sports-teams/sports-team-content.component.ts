@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subscription, interval, fromEvent, merge } from 'rxjs';
-import { SportsTeamsService, TeamContentEntry, TeamContentKind } from '../../services/sports-teams.service';
+import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionState } from '../../services/sports-teams.service';
 
 @Component({
   selector: 'app-sports-team-content',
@@ -35,6 +35,14 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind } from '../../ser
           <p *ngIf="item.replyToId" class="team-content-reply">↳ Resposta à mensagem #{{item.replyToId}}</p>
           <p>{{item.deleted ? 'Mensagem eliminada' : item.body}}</p>
           <small *ngIf="item.editedAt && !item.deleted">Editada</small>
+          <div class="team-reactions" *ngIf="!item.deleted" aria-label="Reações à mensagem">
+            <button type="button" *ngFor="let emoji of emojis" [disabled]="reactionBusyId === item.id"
+              [class.selected]="reactionsById[item.id]?.mine === emoji"
+              [attr.aria-pressed]="reactionsById[item.id]?.mine === emoji"
+              (click)="react(item, emoji)">{{emoji}}
+              <small *ngIf="(reactionsById[item.id]?.counts?.[emoji] || 0) > 0">{{reactionsById[item.id].counts[emoji]}}</small>
+            </button>
+          </div>
           <div class="team-content-actions" *ngIf="!item.deleted">
             <button type="button" (click)="reply(item)" [disabled]="sending">Responder</button>
             <button type="button" *ngIf="item.canEdit" [disabled]="sending" (click)="beginEdit(item)">Editar</button>
@@ -79,6 +87,11 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind } from '../../ser
     .team-content-actions {display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.55rem}
     .team-content-actions button, .team-content-note button {background:#123e4b;border:1px solid #30788b;border-radius:8px;color:#b3fff0;padding:.3rem .6rem;cursor:pointer}
     .team-content-reply {font-size:.8rem;color:#a8d6db}
+    .team-reactions {display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.65rem}
+    .team-reactions button {border:1px solid #296777;background:#0c3242;border-radius:50px;padding:.3rem .55rem;cursor:pointer}
+    .team-reactions button.selected {border-color:#48ecd1;background:#17565a}
+    .team-reactions button:disabled {opacity:.55;cursor:not-allowed}
+    .team-reactions small {color:#cffff5;margin-left:.2rem}
     .team-content-search {display:grid;gap:.4rem}
     .team-content-search label {font-size:.82rem;color:#b9d0d9}
     .team-content-search-controls {display:flex;flex-wrap:wrap;gap:.5rem}
@@ -100,6 +113,10 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   searchActive = false;
   searching = false;
   private searchVersion = 0;
+  readonly emojis = ['👍','❤️','😂','🔥','👏'];
+  reactionsById: Record<number,TeamReactionState> = {};
+  reactionBusyId: number | null = null;
+  private reactionVersion = 0;
   items: TeamContentEntry[] = [];
   draft = '';
   error = '';
@@ -129,6 +146,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.items = [];this.error = '';this.syncError = '';this.draft = '';
       this.replyTargetId = null;this.editingId = null;
       this.clearSearch();this.searchTerm = '';
+      this.reactionVersion++;this.reactionsById={};
       if (!changes['teamId']?.firstChange && !changes['kind']?.firstChange) this.read(false);
     }
   }
@@ -143,7 +161,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.api.content(this.teamId,this.kind).subscribe({
       next:items => {
         if(version!==this.generation)return;
-        this.items=items;this.syncError='';
+        this.items=items;this.syncError='';this.loadReactions(items);
       },
       error:() => {
         if(version!==this.generation)return;
@@ -177,6 +195,30 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
 
 
+  private loadReactions(items:TeamContentEntry[]):void {
+    const ids=items.filter(item=>!item.deleted).slice(-100).map(item=>item.id);
+    if(!ids.length)return;
+    const version=++this.reactionVersion;
+    const generation=this.generation;
+    this.api.reactions(this.teamId,this.kind,ids).subscribe({
+      next:reactions=>{
+        if(version===this.reactionVersion && generation===this.generation)
+          this.reactionsById={...this.reactionsById,...reactions};
+      }
+    });
+  }
+  react(item:TeamContentEntry,emoji:string):void {
+    if(item.deleted || this.reactionBusyId!==null || !this.emojis.includes(emoji))return;
+    this.reactionBusyId=item.id;
+    const same=this.reactionsById[item.id]?.mine===emoji;
+    const request=same
+      ? this.api.removeReaction(this.teamId,this.kind,item.id)
+      : this.api.setReaction(this.teamId,this.kind,item.id,emoji);
+    request.subscribe({
+      error:()=>{this.error='Não foi possível confirmar a reação. Consulta o histórico antes de repetir.';}
+    }).add(()=>{this.reactionBusyId=null;this.loadReactions([item]);});
+  }
+
   search():void {
     const query=this.searchTerm.trim();
     if(query.length<2 || query.length>80 || this.searching)return;
@@ -185,7 +227,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.searching=true;this.searchActive=true;this.error='';
     this.api.searchContent(this.teamId,this.kind,query).subscribe({
       next:results=>{
-        if(version===this.searchVersion && generation===this.generation)this.searchResults=results;
+        if(version===this.searchVersion && generation===this.generation){this.searchResults=results;this.loadReactions(results);}
       },
       error:()=>{
         if(version===this.searchVersion && generation===this.generation)
