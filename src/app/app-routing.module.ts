@@ -80,6 +80,8 @@ const routes: Routes = [
   {path:'menu/friendList/chat/:username1/:username2',canActivate:[AuthenticationGuard,legacyPrivateChatRedirect],children:[]},
   {path:'menu/notifications',loadChildren:() => import('./pages/notifications/notifications.module').then(m => m.NotificationsModule),canActivate:[AuthenticationGuard]},
   {path:'menu/notifications/:id',loadChildren:() => import('./pages/notifications/notifications.module').then(m => m.NotificationsModule),canActivate:[AuthenticationGuard]},
+  {path:'menu/teams',loadComponent:() => import('./pages/sports-teams/sports-teams.component').then(m => m.SportsTeamsComponent),canActivate:[AuthenticationGuard]},
+  {path:'menu/teams/:id',loadComponent:() => import('./pages/sports-teams/sports-team-detail.component').then(m => m.SportsTeamDetailComponent),canActivate:[AuthenticationGuard]},
   {path:'menu/communities',loadChildren:() => import('./pages/communities/communities.module').then(m => m.CommunitiesModule),canActivate:[AuthenticationGuard]},
   {path:'menu/admin',loadChildren:() => import('./pages/admin/admin.module').then(m => m.AdminModule),canActivate:[AuthenticationGuard,AdminGuard]},
   {path:'menu/terminarSessao',redirectTo:'menu',pathMatch:'full'},
