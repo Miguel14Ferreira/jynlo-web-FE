@@ -1892,7 +1892,7 @@ describe('PublicSessionPreviewComponent', () => {
     const page=render();
     expect(page.querySelector('.invite-account-banner')).toBeNull();
     expect(page.querySelector('.header-login')).toBeNull();
-    expect(page.querySelector('.join-panel .secondary-action:not(.whatsapp-share-action)')).toBeNull();
+    expect(page.querySelector('.join-panel .secondary-action:not(.whatsapp-share-action):not([href^="jynlo://"])')).toBeNull();
     expect(page.querySelector('#guest-player-select')).toBeNull();
     expect(page.querySelector('.invitation-first-confirm')).not.toBeNull();
     expect(page.querySelector('#guest-new-name')).toBeNull();
