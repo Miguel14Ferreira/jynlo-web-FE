@@ -1,0 +1,35 @@
+name: Jynlo QA - Global teams read-only two-account checks
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - '.github/workflows/qa-global-teams-readonly.yml'
+      - 'scripts/qa/jynlo-global-teams-live-readonly.cjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jynlo-qa-global-teams-readonly
+  cancel-in-progress: true
+
+jobs:
+  live-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      JYNLO_QA_TEAM_INVENTORY: READ_ONLY
+      JYNLO_QA_USERNAME_1: ${{ secrets.JYNLO_QA1_USERNAME }}
+      JYNLO_QA_USERNAME_2: ${{ secrets.JYNLO_QA2_USERNAME }}
+      JYNLO_QA_PASSWORD_1: ${{ secrets.JYNLO_QA1_PASSWORD }}
+      JYNLO_QA_PASSWORD_2: ${{ secrets.JYNLO_QA2_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check scripts/qa/jynlo-global-teams-live-readonly.cjs
+      - name: Inspect team and competition state without writes
+        run: node scripts/qa/jynlo-global-teams-live-readonly.cjs
