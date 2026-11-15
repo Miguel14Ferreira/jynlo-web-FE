@@ -827,6 +827,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
       takeUntil(this.destroyed)
     ).subscribe({
       next: () => {
+        this.confirmedStories.delete(story.id);
         this.entries = this.entries.filter(entry => entry.id !== story.id);
         this.mineEntries = this.mineEntries.filter(entry => entry.id !== story.id);
         this.deleteConfirmOpen = false;
