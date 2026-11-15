@@ -26,7 +26,7 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind } from '../../ser
           <small *ngIf="item.editedAt && !item.deleted">Editada</small>
           <div class="team-content-actions" *ngIf="!item.deleted">
             <button type="button" (click)="reply(item)" [disabled]="sending">Responder</button>
-            <button type="button" *ngIf="item.username === username" [disabled]="sending" (click)="beginEdit(item)">Editar</button>
+            <button type="button" *ngIf="item.canEdit" [disabled]="sending" (click)="beginEdit(item)">Editar</button>
             <button type="button" *ngIf="item.canManage" [disabled]="sending" (click)="remove(item)">Eliminar</button>
           </div>
           <form *ngIf="editingId === item.id" (ngSubmit)="saveEdit(item)">
@@ -75,7 +75,6 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind } from '../../ser
 export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy {
   @Input({required:true}) teamId = 0;
   @Input({required:true}) kind: TeamContentKind = 'chat';
-  @Input() username = '';
   replyTargetId: number | null = null;
   editingId: number | null = null;
   editingDraft = '';
@@ -159,7 +158,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     if(!entry.deleted)this.replyTargetId=entry.id;
   }
   beginEdit(entry:TeamContentEntry):void {
-    if(entry.deleted || entry.username !== this.username)return;
+    if(entry.deleted || !entry.canEdit)return;
     this.editingId=entry.id;this.editingDraft=entry.body;this.error='';
   }
   saveEdit(entry:TeamContentEntry):void {
