@@ -21,7 +21,10 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService } from '../../services
         <p *ngFor="let player of members">{{ player.username }} · {{ player.role === 'OWNER' ? 'Responsável' : 'Jogador' }}</p>
         <p *ngIf="members.length === 0">A carregar plantel ou sem jogadores disponíveis.</p>
       </section>
-      <section><h2>Competições</h2><p>Esta identidade poderá participar em várias comunidades, torneios e campeonatos.</p></section>
+      <section><h2>Competições</h2>
+        <p>Encontra torneios e campeonatos com candidaturas abertas para esta equipa.</p>
+        <a routerLink="/menu/teams/competitions" [queryParams]="{teamId: t.id}">Encontrar torneios e campeonatos</a>
+      </section>
       <section><h2>Feed</h2><p>{{ t.feedEnabled ? 'Feed ativado. A publicação para equipas está em desenvolvimento.' : 'Desativado pelo responsável da equipa.' }}</p></section>
       <section><h2>Chat</h2><p>{{ t.chatEnabled ? 'Chat ativado. O acesso ficará disponível após a ligação aos membros da equipa.' : 'Desativado pelo responsável da equipa.' }}</p></section>
     </div>
