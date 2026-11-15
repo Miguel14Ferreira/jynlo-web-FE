@@ -2708,7 +2708,7 @@ export class CommunityTournamentsComponent implements OnChanges {
   inviteCopyFeedback: Record<number, string> = {};
   teams: TournamentTeam[] = [];
   tournamentTeamAdministrators: Record<number, TournamentTeamAdministrationState> = {};
-  tournamentTeamPromotion: Record<number, {globalTeamId: number|null; canPromote: boolean}> = {};
+  tournamentTeamPromotion: Record<number, {globalTeamId: number|null; canPromote: boolean; archived: boolean}> = {};
   tournamentTeamPromotionBusy: Record<number, boolean> = {};
   tournamentTeamPromotionError: Record<number, string> = {};
   tournamentTeamInvitations: Record<number, boolean> = {};
@@ -2755,7 +2755,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         communityId, tournamentId, team.id).pipe(timeout(15_000)));
       if (revision !== this.detailRevision || communityId !== this.community.id
           || this.selected?.id !== tournamentId) return;
-      this.tournamentTeamPromotion[team.id] = {globalTeamId: permanent.id, canPromote: false};
+      this.tournamentTeamPromotion[team.id] = {globalTeamId: permanent.id, canPromote: false, archived: false};
     } catch {
       if (revision === this.detailRevision && communityId === this.community.id
           && this.selected?.id === tournamentId)
