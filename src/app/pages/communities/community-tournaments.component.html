@@ -2498,6 +2498,30 @@
             </a>
           }
         </header>
+        @if (tournamentTeamPromotion[team.id]; as promotion) {
+          @if (promotion.canPromote) {
+            <section class="team-page-identity-choice" aria-label="Decidir futuro da equipa">
+              <strong>Queres guardar esta equipa na Jynlo?</strong>
+              <p>Podes mantê-la apenas neste torneio ou transformá-la numa equipa permanente. A decisão é tua enquanto capitão.</p>
+              <button type="button" class="t-btn t-btn-primary"
+                [disabled]="tournamentTeamPromotionBusy[team.id]"
+                (click)="promoteTournamentTeam(team)">
+                {{ tournamentTeamPromotionBusy[team.id] ? 'A guardar…' : 'Tornar equipa permanente' }}
+              </button>
+              <small>Se não converteres, a equipa fica apenas associada ao torneio. O histórico é preservado.</small>
+              @if (tournamentTeamPromotionError[team.id]) {
+                <p role="alert">{{ tournamentTeamPromotionError[team.id] }}</p>
+              }
+            </section>
+          } @else if (promotion.globalTeamId) {
+            <section class="team-page-identity-choice" aria-label="Equipa permanente">
+              <strong>Esta equipa já tem identidade permanente na Jynlo.</strong>
+              <a class="t-btn t-btn-secondary" [routerLink]="['/menu/teams', promotion.globalTeamId]">
+                Abrir equipa na Jynlo
+              </a>
+            </section>
+          }
+        }
         <nav class="team-page-quick-nav" [attr.aria-label]="'communities.tournaments.teamPage.gridLabel' | t">
           @if (selected?.status !== 'DRAFT') {
             <button type="button" (click)="showTeamProfileSection('results')">
