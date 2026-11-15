@@ -1651,7 +1651,7 @@ describe('SessionDetailsComponent', () => {
     expect(fixture.nativeElement.querySelector('.session-cancel-button')).toBeNull();
   });
 
-  it('offers the WhatsApp guest cancellation notice only after the server confirms', () => {
+  it('shows a simple cancelled status only after the server confirms cancellation', () => {
     (component as any).currentUsername = 'creator-user';
     component.session = { ...session, gameDate:'2099-10-01T18:00:00Z',
       sport:'Futsal', city:'Lisboa', address:'PRIVATE-773' };
@@ -1659,73 +1659,49 @@ describe('SessionDetailsComponent', () => {
     sessionService.cancel.and.returnValue(cancellation.asObservable());
     component.requestCancelOwnSession();
     component.confirmCancelOwnSession();
-    expect(component.cancellationNotice).toBe('');
+    fixture.detectChanges();
+    expect(component.session?.status).not.toBe('CANCELLED');
     cancellation.next();
     cancellation.complete();
     fixture.detectChanges();
-    const notice = fixture.nativeElement.querySelector('.session-cancelled-share') as HTMLElement;
-    expect(notice).not.toBeNull();
-    expect(notice.textContent).toContain('Informar participantes externos');
-    expect(component.cancellationNotice).toContain('Futsal');
-    expect(component.cancellationNotice).toContain('Lisboa');
-    expect(component.cancellationNotice).not.toContain('PRIVATE-773');
-    expect(component.session?.status).toBe('CANCELLED');
-  });
-
-  it('never reuses a cancellation notice for a different session or account', () => {
-    (component as any).currentUsername = 'creator-user';
-    component.session = {...session,status:'CANCELLED'};
-    component.cancellationNotice = 'Antigo aviso de cancelamento';
-    component.cancellationNoticeSessionId = 999;
-    fixture.detectChanges();
-    // A cancelled session opened later still offers the organizer a new,
-    // server-derived message instead of leaking the old session's notice.
-    expect(fixture.nativeElement.querySelector('.session-cancelled-share')).not.toBeNull();
-    expect(component.cancelledSessionShareMessage()).toContain('Sessão cancelada');
-    expect(component.cancelledSessionShareMessage()).not.toContain('Antigo aviso');
-    component.cancellationNoticeSessionId = component.session.id;
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.session-cancelled-share')).not.toBeNull();
-    (component as any).currentUsername = 'another-player';
-    fixture.detectChanges();
+    const banner = fixture.nativeElement.querySelector('.session-cancelled-banner') as HTMLElement;
+    expect(banner).not.toBeNull();
+    expect(banner.textContent).toContain('avisados automaticamente');
+    expect(banner.textContent).not.toContain('PRIVATE-773');
+    expect(banner.querySelector('.session-cancelled-cross')?.textContent?.trim()).toBe('×');
+    expect(banner.querySelector('.session-cancelled-banner__icon')).toBeNull();
     expect(fixture.nativeElement.querySelector('.session-cancelled-share')).toBeNull();
+    expect(sessionService.cancel).toHaveBeenCalledTimes(1);
   });
 
-  it('recovers a shareable message after reopening an already cancelled session', () => {
+  it('never offers manual cancellation sharing when reopening an already cancelled session', () => {
     (component as any).currentUsername = 'creator-user';
     component.session = {
-      ...session, status:'CANCELLED', sport:'Futsal', city:'Lisboa',
-      gameDate:'2099-10-01T18:00:00Z',
-      address:'PRIVATE-773', meetingPointInstructions:'SECRETO'
+      ...session, status:'CANCELLED', address:'PRIVATE-773',
+      meetingPointInstructions:'SECRETO'
     };
-    component.cancellationNotice = '';
-    component.cancellationNoticeSessionId = null;
     fixture.detectChanges();
-    const panel = fixture.nativeElement.querySelector('.session-cancelled-share') as HTMLElement;
-    expect(panel).not.toBeNull();
-    expect(component.cancelledSessionShareMessage()).toContain('Futsal');
-    expect(component.cancelledSessionShareMessage()).toContain('Lisboa');
-    expect(component.cancelledSessionShareMessage()).not.toContain('PRIVATE-773');
-    expect(component.cancelledSessionShareMessage()).not.toContain('SECRETO');
-    expect(sessionService.cancel).not.toHaveBeenCalled();
-    expect((panel.querySelector('textarea') as HTMLTextAreaElement).value)
-      .toContain('Sessão cancelada');
+    const banner = fixture.nativeElement.querySelector('.session-cancelled-banner') as HTMLElement;
+    expect(banner).not.toBeNull();
+    expect(banner.textContent).toContain('avisados automaticamente');
+    expect(banner.textContent).not.toContain('SECRETO');
+    expect(fixture.nativeElement.querySelector('.session-cancelled-share')).toBeNull();
+    expect(fixture.nativeElement.querySelector('#session-cancelled-share-message')).toBeNull();
+    (component as any).currentUsername = 'someone-else';
+    fixture.detectChanges();
+    expect((fixture.nativeElement.querySelector('.session-cancelled-banner') as HTMLElement).textContent)
+      .not.toContain('Os participantes inscritos');
   });
 
-  it('does not offer guest sharing on failed cancellation or to other viewers', () => {
+  it('does not claim cancellation or automatic notices when cancellation fails', () => {
     (component as any).currentUsername = 'creator-user';
     component.session = {...session, gameDate:'2099-10-01T18:00:00Z'};
     sessionService.cancel.and.returnValue(throwError(() => new HttpErrorResponse({status:503})));
     component.requestCancelOwnSession();
     component.confirmCancelOwnSession();
     fixture.detectChanges();
-    expect(component.cancellationNotice).toBe('');
-    expect(fixture.nativeElement.querySelector('.session-cancelled-share')).toBeNull();
-
-    (component as any).currentUsername = 'someone-else';
-    component.session = {...session, status:'CANCELLED'};
-    component.cancellationNotice = 'Notícia externa';
-    fixture.detectChanges();
+    expect(component.session?.status).toBe('OPEN');
+    expect(fixture.nativeElement.querySelector('.session-cancelled-banner')).toBeNull();
     expect(fixture.nativeElement.querySelector('.session-cancelled-share')).toBeNull();
   });
 
