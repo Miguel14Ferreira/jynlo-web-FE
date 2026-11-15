@@ -567,10 +567,6 @@
                     </button>
                     <button type="button" class="jynlo-action jynlo-action--neutral"
                       (click)="setTab('sessions')">{{ 'communities.chatViewSessions' | t }}</button>
-                    <button type="button" class="jynlo-action jynlo-action--neutral"
-                      [disabled]="timelineLoading" (click)="loadTimeline()">
-                      {{ 'communities.chatRefresh' | t }}
-                    </button>
                   </div>
                 </header>
                 @if (timelineError) {
