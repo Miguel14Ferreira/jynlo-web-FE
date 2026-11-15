@@ -11,12 +11,23 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService, TeamCompetitionHistor
   imports: [CommonModule, RouterLink, FormsModule],
   template: `
   <main class="team-detail" *ngIf="team as t; else state">
-    <a routerLink="/menu/teams">← Equipas</a>
+    <a class="team-back" routerLink="/menu/teams">← Voltar às equipas</a>
     <div class="team-hero">
-      <p>JYNLO · EQUIPA</p>
-      <h1>{{ t.name }}</h1>
-      <p>{{ t.sport || 'Modalidade não indicada' }} · {{ t.location || 'Localização não indicada' }}</p>
-      <p *ngIf="t.description">{{ t.description }}</p>
+      <p class="team-eyebrow">JYNLO · EQUIPA DESPORTIVA</p>
+      <div class="team-hero-main">
+        <span class="team-hero-crest" aria-hidden="true">{{ (t.name || 'E').charAt(0).toUpperCase() }}</span>
+        <div>
+          <h1>{{ t.name }}</h1>
+          <p class="team-hero-meta">{{ t.sport || 'Várias modalidades' }} · {{ t.location || 'Localização por definir' }}</p>
+          <p *ngIf="t.description">{{ t.description }}</p>
+        </div>
+      </div>
+      <div class="team-hero-stats">
+        <span><strong>{{members.length}}</strong> Jogadores</span>
+        <span><strong>{{activeCommunities.length}}</strong> Comunidades</span>
+        <span><strong>{{trophies.length + championshipHonours.length}}</strong> Troféus</span>
+        <a routerLink="/menu/teams/competitions" [queryParams]="{teamId:t.id}">Explorar competições →</a>
+      </div>
     </div>
     <nav class="team-tabs" role="tablist" aria-label="Secções da equipa">
       <button type="button" role="tab" [attr.aria-selected]="activeTab === 'OVERVIEW'"
@@ -28,7 +39,12 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService, TeamCompetitionHistor
     </nav>
     <div class="team-grid" role="tabpanel">
       <section *ngIf="activeTab === 'OVERVIEW'"><h2>Plantel ({{ members.length }})</h2>
-        <p *ngFor="let player of members">{{ player.username }} · {{ player.role === 'OWNER' ? 'Responsável' : 'Jogador' }}</p>
+        <div class="team-roster" *ngIf="members.length">
+          <div class="team-member" *ngFor="let player of members">
+            <span class="team-member-avatar" aria-hidden="true">{{ (player.username || 'J').charAt(0).toUpperCase() }}</span>
+            <div><strong>@{{player.username}}</strong><small>{{player.role === 'OWNER' ? 'Responsável' : 'Jogador'}}</small></div>
+          </div>
+        </div>
         <p *ngIf="members.length === 0">A carregar plantel ou sem jogadores disponíveis.</p>
       </section>
       <section *ngIf="activeTab === 'TROPHIES'" class="team-trophies"><h2>🏆 Troféus ({{trophies.length + championshipHonours.length}})</h2>
@@ -85,29 +101,13 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService, TeamCompetitionHistor
           </div>
         </ng-container>
       </section>
-      <section *ngIf="activeTab === 'OVERVIEW'"><h2>Feed</h2><p>{{ t.feedEnabled ? 'Feed ativado. A publicação para equipas está em desenvolvimento.' : 'Desativado pelo responsável da equipa.' }}</p></section>
-      <section *ngIf="activeTab === 'OVERVIEW'"><h2>Chat</h2><p>{{ t.chatEnabled ? 'Chat ativado. O acesso ficará disponível após a ligação aos membros da equipa.' : 'Desativado pelo responsável da equipa.' }}</p></section>
+      <section *ngIf="activeTab === 'OVERVIEW'" class="team-feature"><h2>Feed</h2><p>{{ t.feedEnabled ? 'Feed ativado. A publicação para equipas está em desenvolvimento.' : 'Desativado pelo responsável da equipa.' }}</p></section>
+      <section *ngIf="activeTab === 'OVERVIEW'" class="team-feature"><h2>Chat</h2><p>{{ t.chatEnabled ? 'Chat ativado. O acesso ficará disponível após a ligação aos membros da equipa.' : 'Desativado pelo responsável da equipa.' }}</p></section>
     </div>
   </main>
   <ng-template #state><main class="team-detail"><p role="alert">{{ error || 'A carregar equipa…' }}</p></main></ng-template>
   `,
-  styles: [`
-    .team-detail{max-width:980px;margin:2rem auto;padding:0 1rem;color:inherit}
-    .team-hero{padding:2rem;background:linear-gradient(130deg,#1e4034,#11201d);border-radius:18px;color:white;margin:1rem 0}
-    .team-hero>p:first-child{color:#96fa89;font-size:.8rem;letter-spacing:.15em}
-    .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}
-    .team-tabs{display:flex;gap:.5rem;margin:1rem 0;flex-wrap:wrap}
-    .team-tabs button{padding:.65rem 1rem;border-radius:12px;font-weight:600}
-    .team-tabs button.selected{background:#246844;color:#fff;border-color:#5fd99e}
-    .team-grid section{padding:1.25rem;border:1px solid #6c968044;border-radius:14px}
-    h2{font-size:1.1rem}
-    .trophy{padding:.75rem;margin:.5rem 0;border:1px solid #a68f554d;border-radius:10px}
-    .trophy p{margin:.4rem 0}
-    .search-community{display:flex;gap:.5rem;flex-wrap:wrap}
-    .search-community input{min-width:150px;flex:1;padding:.65rem;border:1px solid #6d8e7b;border-radius:8px;background:transparent;color:inherit}
-    button{padding:.45rem .7rem;margin:.25rem;border:1px solid #6d9e7b;border-radius:8px;background:transparent;color:inherit;cursor:pointer}
-    button:disabled{opacity:.5}
-  `]
+  styleUrls: ['./sports-team-detail.component.css']
 })
 export class SportsTeamDetailComponent implements OnInit {
   team: SportsTeam | null = null;
