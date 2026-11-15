@@ -31,7 +31,7 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService, TeamCompetitionHistor
         <article *ngFor="let honour of championshipHonours" class="trophy">
           <strong>🏆 {{honour.competitionName}}</strong>
           <p>{{honour.championshipName}} · {{honour.seasonLabel}} · {{honour.communityName}}</p>
-          <p>{{honour.format === 'LEAGUE' ? 'Liga' : honour.format === 'KNOCKOUT' ? 'Taça' : honour.format}} · {{honour.sport}}</p>
+          <p>{{honour.format === 'LEAGUE' ? 'Liga' : honour.format === 'KNOCKOUT' ? 'Taça' : honour.format === 'CHAMPIONSHIP' ? 'Campeonato' : honour.format}} · {{honour.sport}}</p>
           <small>{{honour.awardedAt | date:'dd/MM/yyyy'}}</small>
         </article>
         <article *ngFor="let trophy of trophies" class="trophy">
