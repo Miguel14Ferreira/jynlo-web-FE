@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subscription, interval, fromEvent, merge, EMPTY } from 'rxjs';
+import { Subscription, interval, fromEvent, merge } from 'rxjs';
 import { SportsTeamsService, TeamContentEntry, TeamContentKind } from '../../services/sports-teams.service';
 
 @Component({
@@ -13,12 +13,23 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind } from '../../ser
       <p class="team-content-note">Exclusivo do responsável e dos membros confirmados.</p>
       <p role="alert" class="team-content-error" *ngIf="error">{{error}}</p>
       <p role="status" class="team-content-note" *ngIf="syncError">{{syncError}}</p>
+      <form (ngSubmit)="search()" class="team-content-search">
+        <label [for]="'team-search-' + kind + '-' + teamId">Pesquisar nesta {{kind === 'chat' ? 'conversa' : 'equipa'}}</label>
+        <div class="team-content-search-controls">
+          <input [id]="'team-search-' + kind + '-' + teamId" name="search" [(ngModel)]="searchTerm"
+            placeholder="Escreve pelo menos 2 caracteres" maxlength="80"
+            [disabled]="searching" />
+          <button type="submit" [disabled]="searching || searchTerm.trim().length < 2">Pesquisar</button>
+          <button type="button" *ngIf="searchActive" (click)="clearSearch()">Voltar ao chat</button>
+        </div>
+      </form>
+      <p class="team-content-note" *ngIf="searchActive">{{searching ? 'A pesquisar…' : ('Resultados encontrados: ' + searchResults.length)}}</p>
       <p *ngIf="loading" class="team-content-note">A carregar…</p>
-      <p *ngIf="!loading && !items.length && !error" class="team-content-note">
+      <p *ngIf="!loading && !searchActive && !items.length && !error" class="team-content-note">
         {{kind === 'chat' ? 'Ainda não existem mensagens nesta equipa.' : 'Ainda não há publicações.'}}
       </p>
       <div class="team-content-history" aria-live="polite">
-        <article *ngFor="let item of items; trackBy: trackMessage" class="team-content-entry">
+        <article *ngFor="let item of (searchActive ? searchResults : items); trackBy: trackMessage" class="team-content-entry">
           <strong>@{{item.username}}</strong>
           <time>{{item.createdAt | date:'dd/MM/yyyy HH:mm'}}</time>
           <p *ngIf="item.replyToId" class="team-content-reply">↳ Resposta à mensagem #{{item.replyToId}}</p>
@@ -68,6 +79,12 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind } from '../../ser
     .team-content-actions {display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.55rem}
     .team-content-actions button, .team-content-note button {background:#123e4b;border:1px solid #30788b;border-radius:8px;color:#b3fff0;padding:.3rem .6rem;cursor:pointer}
     .team-content-reply {font-size:.8rem;color:#a8d6db}
+    .team-content-search {display:grid;gap:.4rem}
+    .team-content-search label {font-size:.82rem;color:#b9d0d9}
+    .team-content-search-controls {display:flex;flex-wrap:wrap;gap:.5rem}
+    .team-content-search input {flex:1 1 190px;min-width:0;padding:.65rem;border:1px solid #367f8a;border-radius:9px;color:#fff;background:#0d3441}
+    .team-content-search button {padding:.55rem .7rem;border:1px solid #398b8a;border-radius:9px;color:#cefff4;background:#113b4b;cursor:pointer}
+    .team-content-search button:disabled {opacity:.5;cursor:not-allowed}
     .team-content-entry form {display:grid;gap:.4rem;margin-top:.6rem}
     .team-content-entry textarea {min-height:65px;background:#072b38;color:white;border:1px solid #448b90;border-radius:8px;padding:.6rem}
   `]
@@ -78,6 +95,11 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   replyTargetId: number | null = null;
   editingId: number | null = null;
   editingDraft = '';
+  searchTerm = '';
+  searchResults: TeamContentEntry[] = [];
+  searchActive = false;
+  searching = false;
+  private searchVersion = 0;
   items: TeamContentEntry[] = [];
   draft = '';
   error = '';
@@ -106,6 +128,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.generation++;
       this.items = [];this.error = '';this.syncError = '';this.draft = '';
       this.replyTargetId = null;this.editingId = null;
+      this.clearSearch();this.searchTerm = '';
       if (!changes['teamId']?.firstChange && !changes['kind']?.firstChange) this.read(false);
     }
   }
@@ -153,6 +176,26 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     }).add(() => {this.sending=false;this.read(true);});
   }
 
+
+  search():void {
+    const query=this.searchTerm.trim();
+    if(query.length<2 || query.length>80 || this.searching)return;
+    const version=++this.searchVersion;
+    const generation=this.generation;
+    this.searching=true;this.searchActive=true;this.error='';
+    this.api.searchContent(this.teamId,this.kind,query).subscribe({
+      next:results=>{
+        if(version===this.searchVersion && generation===this.generation)this.searchResults=results;
+      },
+      error:()=>{
+        if(version===this.searchVersion && generation===this.generation)
+          this.error='Não foi possível pesquisar as mensagens.';
+      }
+    }).add(()=>{if(version===this.searchVersion)this.searching=false;});
+  }
+  clearSearch():void {
+    this.searchVersion++;this.searchActive=false;this.searching=false;this.searchResults=[];
+  }
 
   reply(entry:TeamContentEntry):void {
     if(!entry.deleted)this.replyTargetId=entry.id;
