@@ -72,7 +72,7 @@ export interface SessionOverallRating {
   updatedAt: string;
 }
 
-export type SessionTeamScoreSource = 'FORM' | 'EXCEL_POINTS' | 'RANDOM' | 'MANUAL';
+export type SessionTeamScoreSource = 'AUTO' | 'FORM' | 'EXCEL_POINTS' | 'RANDOM' | 'MANUAL';
 
 export interface SessionTeamPlayer {
   username: string;
@@ -408,7 +408,7 @@ export class SessionService {
     return this.http.get<SessionParticipant[]>(this.baseUrl + '/' + id + '/participants');
   }
 
-  teamSuggestion(id: number, source: SessionTeamScoreSource = 'FORM'): Observable<SessionTeamSuggestion> {
+  teamSuggestion(id: number, source: SessionTeamScoreSource = 'AUTO'): Observable<SessionTeamSuggestion> {
     return this.http.get<SessionTeamSuggestion>(
       this.baseUrl + '/' + id + '/teams/suggestion',
       { params: new HttpParams().set('source', source) }
