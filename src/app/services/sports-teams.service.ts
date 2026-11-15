@@ -74,6 +74,7 @@ export interface TeamContentEntry {
   canManage: boolean;
   canEdit: boolean;
 }
+export interface TeamReactionState { counts: Record<string, number>; mine: string | null; }
 export type TeamContentKind = 'chat' | 'feed';
 
 @Injectable({ providedIn: 'root' })
@@ -119,6 +120,17 @@ export class SportsTeamsService {
   }
   content(id: number, kind: TeamContentKind): Observable<TeamContentEntry[]> {
     return this.http.get<TeamContentEntry[]>(this.url + '/' + id + '/' + kind);
+  }
+  reactions(id: number, kind: TeamContentKind, ids: number[]): Observable<Record<number,TeamReactionState>> {
+    return this.http.get<Record<number,TeamReactionState>>(this.url+'/'+id+'/'+kind+'/reactions', {
+      params: new HttpParams().set('ids', ids.join(','))
+    });
+  }
+  setReaction(id:number, kind:TeamContentKind, contentId:number, emoji:string): Observable<void> {
+    return this.http.put<void>(this.url+'/'+id+'/'+kind+'/'+contentId+'/reaction',{emoji});
+  }
+  removeReaction(id:number, kind:TeamContentKind, contentId:number): Observable<void> {
+    return this.http.delete<void>(this.url+'/'+id+'/'+kind+'/'+contentId+'/reaction');
   }
   searchContent(id: number, kind: TeamContentKind, query: string): Observable<TeamContentEntry[]> {
     return this.http.get<TeamContentEntry[]>(this.url + '/' + id + '/' + kind + '/search', {
