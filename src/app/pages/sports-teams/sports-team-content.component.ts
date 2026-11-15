@@ -40,7 +40,7 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionStat
               [class.selected]="reactionsById[item.id]?.mine === emoji"
               [attr.aria-pressed]="reactionsById[item.id]?.mine === emoji"
               (click)="react(item, emoji)">{{emoji}}
-              <small *ngIf="(reactionsById[item.id]?.counts?.[emoji] || 0) > 0">{{reactionsById[item.id].counts[emoji]}}</small>
+              <small *ngIf="(reactionsById[item.id]?.counts?.[emoji] || 0) > 0">{{reactionsById[item.id]?.counts?.[emoji] || 0}}</small>
             </button>
           </div>
           <div class="team-content-actions" *ngIf="!item.deleted">
