@@ -2116,6 +2116,27 @@ describe('Events2Component', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/menu/events', 42], { queryParams: { created: 1 } });
   });
 
+  it('preserves the original Google Maps link when a resolved pin becomes a session', () => {
+    const mapsLink = 'https://maps.app.goo.gl/2Qy87Din3ZYJz8VZA';
+    component.sport = 'Padel';
+    component.gameDate = '2099-10-15T18:00';
+    component.city = 'Lisboa';
+    component.address = 'Avenida Professor Aníbal de Bettencourt';
+    component.maxParticipants = 4;
+    component.locationMethod = 'maps';
+    component.venueMapLink = mapsLink;
+    component.locationSource = 'map';
+    component.latitude = 38.754;
+    component.longitude = -9.15;
+    component.locationCaptured = true;
+    component.venueMapCandidateResolvedUrl = 'https://www.google.com/maps/place/confirmed';
+
+    component.createSession();
+    expect(sessionService.create).toHaveBeenCalledWith(
+      jasmine.objectContaining({ googleMapsUrl: mapsLink }), undefined
+    );
+  });
+
   it('does not advertise private sessions after creation', () => {
     sessionService.create.and.returnValue(of({
       id: 42, sport: 'Padel', city: 'Lisboa', gameDate: '2099-10-15T18:00:00Z',
