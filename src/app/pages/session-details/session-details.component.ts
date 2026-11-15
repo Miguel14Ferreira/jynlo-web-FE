@@ -1,4 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AfterViewChecked, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, NgZone, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
@@ -725,7 +726,8 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     private communityService: CommunityService,
     private directChatService: DirectChatService,
     private reliabilityService: ReliabilityService,
-    private realtimeService: DirectChatRealtimeService
+    private realtimeService: DirectChatRealtimeService,
+    private mapSanitizer: DomSanitizer
   ) {
     this.typing = new ChatTypingTracker(realtimeService);
   }
@@ -3245,6 +3247,31 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     return !!this.session?.canSeeExactAddress
       && venueHasPortugueseCoordinates(this.session.venue?.latitude,
                                       this.session.venue?.longitude);
+  }
+
+  private embeddedMapKey = '';
+  private embeddedMapValue: SafeResourceUrl | null = null;
+
+  /** Only show the real venue pin, never a guessed address search marker.
+   * Sanitize only our hard-coded OSM embed URL assembled from validated GPS. */
+  exactEmbeddedMapUrl(): SafeResourceUrl | null {
+    if (!this.hasVenueMapCoordinates()) {
+      this.embeddedMapKey = '';
+      this.embeddedMapValue = null;
+      return null;
+    }
+    const lat = Number(this.session!.venue!.latitude);
+    const lon = Number(this.session!.venue!.longitude);
+    const key = lat + ',' + lon;
+    if (this.embeddedMapValue && this.embeddedMapKey === key) return this.embeddedMapValue;
+    const delta = 0.0025;
+    const box = [lon-delta, lat-delta, lon+delta, lat+delta].join(',');
+    const url = 'https://www.openstreetmap.org/export/embed.html?bbox='
+      + encodeURIComponent(box) + '&layer=mapnik&marker='
+      + encodeURIComponent(lat + ',' + lon);
+    this.embeddedMapKey = key;
+    this.embeddedMapValue = this.mapSanitizer.bypassSecurityTrustResourceUrl(url);
+    return this.embeddedMapValue;
   }
 
   /** No route link for viewers without exact-location permission. Even when
