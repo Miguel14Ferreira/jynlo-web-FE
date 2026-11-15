@@ -29,6 +29,9 @@ import { TeamCompetitionApplicationsService, TeamCompetitionApplication, TeamCom
             <button type="button" [disabled]="busy" (click)="decide(application.id,true)">Aprovar pedido</button>
             <button type="button" [disabled]="busy" (click)="decide(application.id,false)">Recusar pedido</button>
           </div>
+          <app-global-team-enrollment *ngIf="application.status==='APPROVED'"
+            [communityId]="communityId" [competitionId]="competitionId" [type]="type"
+            [globalTeamId]="application.teamId"></app-global-team-enrollment>
         </article>
         <p class="fine">A aprovação confirma a candidatura. A inscrição e os jogadores continuam sujeitos às regras da competição.</p>
       </ng-container>
