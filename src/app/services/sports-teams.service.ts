@@ -72,6 +72,7 @@ export interface TeamContentEntry {
   editedAt: string | null;
   deleted: boolean;
   canManage: boolean;
+  canEdit: boolean;
 }
 export type TeamContentKind = 'chat' | 'feed';
 
