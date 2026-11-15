@@ -36,6 +36,7 @@ import { CommunitySeasonFilterComponent } from './community-season-filter.compon
 import { CommunityPhotoCoverComponent } from './community-photo-cover.component';
 import { ChatReactionsComponent } from '../../shared/chat-reactions/chat-reactions.component';
 import { CommunityTournamentsComponent } from './community-tournaments.component';
+import { CommunityTeamsPanelComponent } from './community-teams-panel.component';
 import { CompetitionTeamSearchComponent } from './competition-team-search.component';
 import { TeamCompetitionApplicationsComponent } from './team-competition-applications.component';
 import { KartingPodiumComponent } from './karting-podium.component';
@@ -61,6 +62,6 @@ const routes: Routes = [
   imports: [CommonModule, FormsModule, RouterModule.forChild(routes), TranslatePipe, ChatReactionsComponent, KartingPodiumComponent, KartingPalmaresComponent, KartingRaceTableComponent,
     CompetitionGuideComponent, CompetitionFormatChooserComponent, CommunityLivePanelComponent, CommunityDiscoveryPitchComponent, CommunityPerformanceInsightsComponent, CommunityTabsComponent, CommunitySessionCardComponent, CommunityOverviewStatsComponent, CommunityLeaderHighlightComponent, CommunityFeatureSettingsComponent, CommunityDisciplinePanelComponent, CommunityTournamentSuspensionsComponent, CommunityTournamentEligibilityPanelComponent, CommunityWhatsAppShareComponent, CommunitySportManagementComponent, CommunityActiveSeasonCardComponent, CommunitySeasonTrophiesComponent, CommunityStatLeadersComponent, CommunitySpecializedStatsComponent, CommunityStatsTableComponent, CommunityRankingTableComponent, CommunityPendingInvitesComponent, CommunitySwitchComponent, CommunityCompetitionSettingsComponent, CommunityRankingVisibilityComponent, CommunitySeasonCreateFormComponent, CommunitySeasonFilterComponent, CommunityPhotoCoverComponent,
     TournamentClassificationNoteComponent, RaceStandingsCardComponent,
-    CommunityHabitualVenuePickerComponent, CompetitionTeamSearchComponent, TeamCompetitionApplicationsComponent]
+    CommunityHabitualVenuePickerComponent, CompetitionTeamSearchComponent, TeamCompetitionApplicationsComponent, CommunityTeamsPanelComponent]
 })
 export class CommunitiesModule {}
