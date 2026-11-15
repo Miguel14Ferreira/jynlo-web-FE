@@ -23,10 +23,38 @@ export interface CreateSportsTeam {
   description?: string | null;
 }
 
+
+export interface SportsTeamMember {
+  profileId: number;
+  username: string;
+  role: 'OWNER' | 'PLAYER';
+}
+export interface SportsTeamInvitation {
+  teamId: number;
+  teamName: string;
+  status: 'INVITED';
+}
+
 @Injectable({ providedIn: 'root' })
 export class SportsTeamsService {
   private readonly url = environment.apiUrl + '/api/teams';
   constructor(private readonly http: HttpClient) {}
+
+  members(id: number): Observable<SportsTeamMember[]> {
+    return this.http.get<SportsTeamMember[]>(this.url + '/' + id + '/members');
+  }
+  pendingInvitations(): Observable<SportsTeamInvitation[]> {
+    return this.http.get<SportsTeamInvitation[]>(this.url + '/invitations/mine');
+  }
+  invite(teamId: number, profileId: number): Observable<void> {
+    return this.http.post<void>(this.url + '/' + teamId + '/invitations', {profileId});
+  }
+  respond(teamId: number, accept: boolean): Observable<void> {
+    return this.http.post<void>(this.url + '/' + teamId + '/invitations/' + (accept ? 'accept' : 'decline'), {});
+  }
+  remove(teamId: number, profileId: number): Observable<void> {
+    return this.http.delete<void>(this.url + '/' + teamId + '/members/' + profileId);
+  }
 
   discover(query = ''): Observable<SportsTeam[]> {
     return this.http.get<SportsTeam[]>(this.url, {
