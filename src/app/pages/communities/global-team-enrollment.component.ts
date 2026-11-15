@@ -53,8 +53,13 @@ export class GlobalTeamEnrollmentComponent implements OnChanges {
   private generation=0;
   constructor(private readonly api:TeamCompetitionEnrollmentsService){}
   ngOnChanges():void{
-    this.generation++;
+    const generation=++this.generation;
     this.entry=null;this.roster=[];this.selected.clear();this.error='';this.notice='';
+    if(!this.communityId||!this.competitionId||!this.globalTeamId)return;
+    this.api.existing(this.communityId,this.type,this.competitionId,this.globalTeamId).subscribe({
+      next:entry=>{if(generation===this.generation)this.entry=entry;},
+      error:()=>{ /* No enrollment yet: keep the create action visible. */ }
+    });
   }
   finalize():void{
     if(this.busy||this.entry||!this.globalTeamId)return;
