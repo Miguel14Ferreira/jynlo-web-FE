@@ -249,6 +249,10 @@ export class SessionService {
     return this.http.patch<SessionDetail>(this.baseUrl + '/' + id + '/details', fields);
   }
 
+  updateGoogleMapsUrl(id: number, url: string | null): Observable<SessionDetail> {
+    return this.http.patch<SessionDetail>(this.baseUrl + '/' + id + '/maps-link', { url });
+  }
+
   updateCapacity(id: number, maxParticipants: number): Observable<SessionDetail> {
     return this.http.patch<SessionDetail>(
       this.baseUrl + '/' + id + '/capacity', null,
