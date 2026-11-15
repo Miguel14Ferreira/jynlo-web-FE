@@ -1124,7 +1124,9 @@
                   <iframe [src]="embeddedMap" title="Mapa com a localização do recinto desta sessão"
                           loading="lazy" referrerpolicy="no-referrer"
                           aria-label="Mapa do local exato da sessão"></iframe>
-                  <small>O marcador mostra as coordenadas registadas para o recinto. Confirma o ponto de encontro com o organizador.</small>
+                  <small>{{ hasVenueMapCoordinates()
+                    ? 'O mapa mostra o ponto GPS registado para o recinto. Confirma o ponto de encontro com o organizador.'
+                    : 'Mapa aproximado pela morada. Para o ponto exato, usa o link Google Maps escolhido pelo organizador.' }}</small>
                 </div>
               }
               @if (hasVenueMapCoordinates()) {
