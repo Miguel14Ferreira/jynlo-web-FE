@@ -62,6 +62,15 @@ export interface TeamCompetitionHistory {
   archived: boolean;
 }
 
+export interface TeamContentEntry {
+  id: number;
+  teamId: number;
+  username: string;
+  body: string;
+  createdAt: string;
+}
+export type TeamContentKind = 'chat' | 'feed';
+
 @Injectable({ providedIn: 'root' })
 export class SportsTeamsService {
   private readonly url = environment.apiUrl + '/api/teams';
@@ -102,6 +111,12 @@ export class SportsTeamsService {
   }
   create(input: CreateSportsTeam): Observable<SportsTeam> {
     return this.http.post<SportsTeam>(this.url, input);
+  }
+  content(id: number, kind: TeamContentKind): Observable<TeamContentEntry[]> {
+    return this.http.get<TeamContentEntry[]>(this.url + '/' + id + '/' + kind);
+  }
+  sendContent(id: number, kind: TeamContentKind, body: string): Observable<TeamContentEntry> {
+    return this.http.post<TeamContentEntry>(this.url + '/' + id + '/' + kind, {body});
   }
   setFeatures(id: number, input: {feedEnabled?: boolean; chatEnabled?: boolean}): Observable<SportsTeam> {
     return this.http.patch<SportsTeam>(this.url + '/' + id + '/features', input);
