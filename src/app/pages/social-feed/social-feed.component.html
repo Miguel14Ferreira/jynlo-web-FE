@@ -702,6 +702,13 @@
           }
         </section>
       }
+      @if (recentlyPublishedPostId) {
+        <section class="feed-hide-feedback" role="status" aria-label="Publicação confirmada">
+          <span>Publicação confirmada! Já está no teu feed.</span>
+          <button type="button" (click)="focusPublishedPost()">Ver publicação</button>
+          <button type="button" (click)="recentlyPublishedPostId = null" aria-label="Fechar confirmação">Fechar</button>
+        </section>
+      }
       @if (recentlyCancelledSession) {
         <section class="feed-hide-feedback feed-cancelled-notice" role="status" aria-label="Cancelamento da sessão confirmado">
           <div>
