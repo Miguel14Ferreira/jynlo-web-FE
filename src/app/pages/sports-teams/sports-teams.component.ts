@@ -16,6 +16,7 @@ import { CompetitionTeamInvitation, TeamCompetitionInvitationsService } from '..
         <h1>Encontra a tua equipa</h1>
         <p>Cria uma identidade para a tua equipa e participa em diferentes comunidades e competições.</p>
         <a class="create-team-cta" href="#criar-equipa">+ Criar equipa</a>
+        <a class="create-team-cta" routerLink="/menu/teams/competitions" style="margin-left:.6rem">Encontrar torneios</a>
       </header>
 
       <section class="team-panel" *ngIf="invitations.length" aria-label="Convites para competições">
