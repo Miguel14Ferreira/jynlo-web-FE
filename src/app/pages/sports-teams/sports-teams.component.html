@@ -1,0 +1,89 @@
+<main class="teams-page">
+  <div class="teams-shell">
+    <header class="teams-hero">
+      <div class="teams-hero-copy">
+        <p class="eyebrow">DO GRUPO DE AMIGOS À EQUIPA QUE COMPETE</p>
+        <h1>A tua equipa começa aqui. <span>Joguem juntos. Vão mais longe.</span></h1>
+        <p class="hero-description">Cria uma identidade para a tua equipa, reúne o plantel, junta-te a comunidades e participa em torneios e campeonatos.</p>
+        <div class="hero-actions">
+          <button type="button" class="action action-primary" (click)="toggleCreate()" [attr.aria-expanded]="createExpanded" aria-controls="team-create-panel">{{ createExpanded ? 'Fechar criação' : '+ Criar a minha equipa' }}</button>
+          <a class="action action-secondary" href="#explorar-equipas">Explorar equipas</a>
+          <a class="action action-secondary" routerLink="/menu/teams/competitions">Encontrar competições</a>
+        </div>
+      </div>
+      <div class="hero-benefits" aria-label="O que podes fazer com uma equipa">
+        <div><span aria-hidden="true">⚽</span><strong>Um plantel, uma identidade</strong><small>Reúne os jogadores e gere os convites.</small></div>
+        <div><span aria-hidden="true">🏆</span><strong>Torneios e campeonatos</strong><small>Participa e acompanha as competições.</small></div>
+        <div><span aria-hidden="true">📊</span><strong>Histórico e troféus</strong><small>Guarda o percurso e as conquistas.</small></div>
+        <div><span aria-hidden="true">🤝</span><strong>Comunidades desportivas</strong><small>Liga a tua equipa a comunidades.</small></div>
+      </div>
+    </header>
+
+    <section id="team-create-panel" class="teams-section create-panel" *ngIf="createExpanded" aria-label="Criar equipa">
+      <div class="section-heading"><div><p class="eyebrow">COMEÇA A JOGAR</p><h2>Criar nova equipa</h2><p>Escolhe o nome, a modalidade e a localização. Podes completar a identidade da equipa mais tarde.</p></div><button type="button" class="icon-close" (click)="toggleCreate()" aria-label="Fechar criação">×</button></div>
+      <form (ngSubmit)="create()" #teamForm="ngForm" class="create-form">
+        <label>Nome da equipa <input name="name" [(ngModel)]="draft.name" placeholder="Ex.: Amigos da Bola" required maxlength="100"></label>
+        <label>Modalidade <input name="sport" [(ngModel)]="draft.sport" placeholder="Ex.: Futebol" maxlength="100"></label>
+        <label>Localização <input name="location" [(ngModel)]="draft.location" placeholder="Ex.: Lisboa" maxlength="100"></label>
+        <label class="full">Descrição <textarea name="description" [(ngModel)]="draft.description" placeholder="Conta um pouco sobre a tua equipa..." maxlength="500"></textarea></label>
+        <div class="form-footer"><small>O feed e o chat começam desativados e podem ser configurados pelo responsável.</small><button type="submit" class="action action-primary" [disabled]="saving || teamForm.invalid">{{ saving ? 'A criar…' : 'Criar equipa' }}</button></div>
+      </form>
+    </section>
+
+    <p class="teams-error" role="alert" *ngIf="error">{{ error }}</p>
+
+    <section class="teams-section" aria-label="As minhas equipas">
+      <div class="section-heading">
+        <div><p class="eyebrow">O TEU BALNEÁRIO</p><h2>As minhas equipas</h2><p>Continua a gerir os teus jogadores e as tuas competições.</p></div>
+        <button type="button" class="action action-quiet" (click)="loadMine()" [disabled]="mineLoading">Atualizar</button>
+      </div>
+      <p *ngIf="mineLoading" role="status" class="loading-message">A carregar as tuas equipas…</p>
+      <p *ngIf="mineError" role="alert" class="teams-error">{{ mineError }}</p>
+      <div class="teams-grid" *ngIf="!mineLoading && mine.length">
+        <a class="team-card" *ngFor="let team of mine" [routerLink]="['/menu/teams',team.id]">
+          <div class="team-card-top"><span class="team-emblem" aria-hidden="true">{{ (team.name || 'E').charAt(0).toUpperCase() }}</span><span class="team-role">A tua equipa</span></div>
+          <h3>{{team.name}}</h3>
+          <p>{{team.sport || 'Várias modalidades'}} <span *ngIf="team.location">· {{team.location}}</span></p>
+          <span class="card-link">Ver equipa <span aria-hidden="true">→</span></span>
+        </a>
+      </div>
+      <div class="empty-state" *ngIf="!mineLoading && !mineError && !mine.length">
+        <span class="empty-icon" aria-hidden="true">⚽</span>
+        <h3>Ainda não criaste nenhuma equipa</h3>
+        <p>O teu primeiro plantel começa com um nome. Cria a equipa e convida a malta a juntar-se.</p>
+        <button type="button" class="action action-primary" (click)="createExpanded = true">Criar a primeira equipa</button>
+      </div>
+    </section>
+
+    <section class="teams-section" *ngIf="invitations.length" aria-label="Convites para competições">
+      <div class="section-heading"><div><p class="eyebrow">CONVITES</p><h2>Convites para as tuas equipas</h2><p>Aceitar um convite não inscreve automaticamente os jogadores.</p></div></div>
+      <article class="invite-card" *ngFor="let invitation of invitations">
+        <div><strong>{{invitation.teamName}}</strong><p>{{invitation.competitionType === 'TOURNAMENT' ? 'Torneio' : 'Campeonato'}} · {{invitation.status === 'PENDING' ? 'Pendente' : invitation.status === 'ACCEPTED' ? 'Aceite' : 'Recusado'}}</p></div>
+        <div class="invite-actions" *ngIf="invitation.status === 'PENDING'">
+          <button class="action action-primary" type="button" (click)="respond(invitation.id, true)" [disabled]="responding">Aceitar</button>
+          <button class="action action-secondary" type="button" (click)="respond(invitation.id, false)" [disabled]="responding">Recusar</button>
+        </div>
+      </article>
+    </section>
+
+    <section id="explorar-equipas" class="teams-section" aria-label="Explorar equipas">
+      <div class="section-heading"><div><p class="eyebrow">ENCONTRA O TEU PRÓXIMO JOGO</p><h2>Explorar equipas</h2><p>Descobre equipas desportivas, conhece os plantéis e encontra adversários.</p></div></div>
+      <form class="search-row" (ngSubmit)="search()">
+        <label for="team-search" class="visually-hidden">Nome da equipa</label>
+        <input id="team-search" type="search" [(ngModel)]="query" name="query" maxlength="100" placeholder="Pesquisar pelo nome da equipa…" autocomplete="off">
+        <button type="submit" class="action action-primary" [disabled]="loading">{{loading ? 'A procurar…' : 'Pesquisar'}}</button>
+      </form>
+      <p class="loading-message" *ngIf="loading" role="status">A procurar equipas…</p>
+      <div class="teams-grid" *ngIf="!loading && teams.length">
+        <a class="team-card" *ngFor="let team of teams" [routerLink]="['/menu/teams',team.id]">
+          <div class="team-card-top"><span class="team-emblem" aria-hidden="true">{{ (team.name || 'E').charAt(0).toUpperCase() }}</span><span class="team-role">Equipa</span></div>
+          <h3>{{team.name}}</h3>
+          <p>{{team.sport || 'Várias modalidades'}} <span *ngIf="team.location">· {{team.location}}</span></p>
+          <small *ngIf="team.description">{{team.description}}</small>
+          <span class="card-link">Conhecer equipa <span aria-hidden="true">→</span></span>
+        </a>
+      </div>
+      <div *ngIf="!loading && !error && searched && teams.length === 0" class="empty-state"><span class="empty-icon" aria-hidden="true">⌕</span><h3>Nenhuma equipa encontrada</h3><p>Experimenta pesquisar por outro nome.</p></div>
+    </section>
+  </div>
+</main>
