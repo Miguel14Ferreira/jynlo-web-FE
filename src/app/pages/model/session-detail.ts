@@ -6,6 +6,8 @@ export interface SessionDetail extends SessionSummary {
   /** API-controlled minimum to be ready; capacity may be greater. */
   minParticipants?: number;
   address: string | null;
+  /** Organiser-selected Google Maps URL, hidden by API until exact-location access is allowed. */
+  googleMapsUrl?: string | null;
   /** Public optional description of the session. */
   description?: string | null;
   canSeeExactAddress: boolean;
