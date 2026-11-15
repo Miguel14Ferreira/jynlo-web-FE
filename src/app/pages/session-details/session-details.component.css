@@ -1757,3 +1757,8 @@ h1 {
 }
 
 
+
+/* Exact map is shown only when the session API authorises the venue GPS. */
+.session-embedded-map { margin-top: .85rem; display: grid; gap: .5rem; }
+.session-embedded-map iframe { width: 100%; height: clamp(220px, 34vw, 340px); border: 1px solid rgba(125,211,252,.27); border-radius: 14px; background: #082531; }
+.session-embedded-map small { color: #a5b9c4; font-size: .78rem; line-height: 1.5; }
