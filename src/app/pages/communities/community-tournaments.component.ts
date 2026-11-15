@@ -2722,6 +2722,9 @@ export class CommunityTournamentsComponent implements OnChanges {
   tournamentTeamCreatedNotice = false;
 
   loadTournamentTeamPromotion(teamId: number, tournamentId: number, revision: number): void {
+    // Older embedded tournament views and test doubles may not expose the
+    // optional promotion contract; their regular team UI must remain usable.
+    if (typeof this.api.teamPromotionStatus !== 'function') return;
     const communityId = this.community.id;
     this.api.teamPromotionStatus(communityId, tournamentId, teamId).pipe(timeout(10_000)).subscribe({
       next: status => {
