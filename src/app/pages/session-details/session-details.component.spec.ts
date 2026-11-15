@@ -672,6 +672,31 @@ describe('SessionDetailsComponent', () => {
       .not.toContain('Rua Machado dos Santos');
   });
 
+  it('uses the organiser-supplied Google Maps short link exactly and shows the map only with GPS permission', () => {
+    const exactUrl = 'https://maps.app.goo.gl/2Qy87Din3ZYJz8VZA';
+    component.session = { ...session, canSeeExactAddress: true,
+      googleMapsUrl: exactUrl, address: 'Avenida Professor Aníbal de Bettencourt',
+      venue: { latitude: 38.755, longitude: -9.155 } as any };
+    fixture.detectChanges();
+    const link = fixture.nativeElement.querySelector('.session-location-map') as HTMLAnchorElement;
+    expect(link.href).toBe(exactUrl);
+    expect(fixture.nativeElement.querySelector('.session-embedded-map iframe')).not.toBeNull();
+    component.session = { ...component.session, canSeeExactAddress: false };
+    fixture.detectChanges();
+    expect(component.exactGoogleMapsUrl()).toBeNull();
+    expect(component.exactEmbeddedMapUrl()).toBeNull();
+    expect(fixture.nativeElement.querySelector('.session-embedded-map iframe')).toBeNull();
+  });
+
+  it('rejects untrusted Maps lookalike domains before rendering a saved destination', () => {
+    component.session = { ...session, canSeeExactAddress: true, venue: null,
+      address: 'Avenida Professor Aníbal de Bettencourt', city: 'Lisboa',
+      googleMapsUrl: 'https://maps.app.goo.gl.evil.example/steal' };
+    expect(new URL(component.exactGoogleMapsUrl()!).hostname).toBe('www.google.com');
+    component.session = { ...component.session, googleMapsUrl: 'javascript:alert(1)' };
+    expect(new URL(component.exactGoogleMapsUrl()!).hostname).toBe('www.google.com');
+  });
+
   it('lets an authorised player navigate to a GPS-only venue with no postal address', () => {
     component.session = {
       ...session,
