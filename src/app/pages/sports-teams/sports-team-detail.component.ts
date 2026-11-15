@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { TeamCommunityMembership,TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
 import { SportsTeam, SportsTeamMember, SportsTeamsService } from '../../services/sports-teams.service';
 
 @Component({
@@ -25,6 +26,19 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService } from '../../services
         <p>Encontra torneios e campeonatos com candidaturas abertas para esta equipa.</p>
         <a routerLink="/menu/teams/competitions" [queryParams]="{teamId: t.id}">Encontrar torneios e campeonatos</a>
       </section>
+      <section><h2>Comunidades ({{activeCommunities.length}})</h2>
+        <p *ngFor="let item of activeCommunities">{{item.communityName}}</p>
+        <p *ngIf="!activeCommunities.length">Esta equipa ainda não está associada a comunidades.</p>
+        <ng-container *ngIf="isOwner">
+          <h3>Convites para comunidades</h3>
+          <div *ngFor="let item of invitations">
+            <p>{{item.communityName}}</p>
+            <button type="button" [disabled]="busy" (click)="respond(item.id,true)">Aceitar</button>
+            <button type="button" [disabled]="busy" (click)="respond(item.id,false)">Recusar</button>
+          </div>
+          <p *ngIf="feedback" role="status">{{feedback}}</p>
+        </ng-container>
+      </section>
       <section><h2>Feed</h2><p>{{ t.feedEnabled ? 'Feed ativado. A publicação para equipas está em desenvolvimento.' : 'Desativado pelo responsável da equipa.' }}</p></section>
       <section><h2>Chat</h2><p>{{ t.chatEnabled ? 'Chat ativado. O acesso ficará disponível após a ligação aos membros da equipa.' : 'Desativado pelo responsável da equipa.' }}</p></section>
     </div>
@@ -43,14 +57,35 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService } from '../../services
 export class SportsTeamDetailComponent implements OnInit {
   team: SportsTeam | null = null;
   members: SportsTeamMember[] = [];
+  communities:TeamCommunityMembership[]=[];
+  isOwner=false;busy=false;feedback='';
+  get activeCommunities(){return this.communities.filter(item=>item.status==='ACTIVE');}
+  get invitations(){return this.communities.filter(item=>item.status==='PENDING_TEAM');}
   error = '';
-  constructor(private readonly route: ActivatedRoute, private readonly api: SportsTeamsService) {}
+  constructor(private readonly route: ActivatedRoute, private readonly api: SportsTeamsService,
+    private readonly communityMemberships:TeamCommunityMembershipsService) {}
+  respond(id:number,accept:boolean):void{
+    if(this.busy||!this.isOwner)return;
+    this.busy=true;this.feedback='';
+    this.communityMemberships.respond(id,accept).subscribe({
+      next:()=>{this.busy=false;this.feedback=accept?'Convite aceite.':'Convite recusado.';this.loadCommunities();},
+      error:()=>{this.busy=false;this.feedback='Não foi possível responder ao convite.';}
+    });
+  }
+  loadCommunities():void{
+    if(!this.team)return;
+    this.communityMemberships.teamCommunities(this.team.id).subscribe({
+      next:rows=>this.communities=rows,error:()=>this.communities=[]
+    });
+  }
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isSafeInteger(id) || id <= 0) {this.error = 'Equipa inválida.'; return;}
     this.api.detail(id).subscribe({
       next: team => {
         this.team = team;
+        this.api.mine().subscribe({next:owned=>this.isOwner=owned.some(x=>x.id===team.id),error:()=>this.isOwner=false});
+        this.loadCommunities();
         this.api.members(team.id).subscribe({next: players => this.members = players, error: () => this.members = []});
       },
       error: () => this.error = 'Não foi possível encontrar esta equipa.'
