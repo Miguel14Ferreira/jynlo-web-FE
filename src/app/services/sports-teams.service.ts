@@ -36,6 +36,20 @@ export interface SportsTeamInvitation {
 }
 
 /** A trophy is earned only when the server has finalized an undisputed winner. */
+export interface TeamChampionshipHonour {
+  championshipId: number;
+  championshipName: string;
+  seasonLabel: string;
+  communityId: number;
+  communityName: string;
+  tournamentId: number | null;
+  ownedEventId: number | null;
+  competitionName: string;
+  format: string;
+  sport: string;
+  awardedAt: string;
+}
+
 export interface TeamCompetitionHistory {
   tournamentId: number;
   tournamentName: string;
@@ -76,6 +90,9 @@ export class SportsTeamsService {
   }
   mine(): Observable<SportsTeam[]> {
     return this.http.get<SportsTeam[]>(this.url + '/mine');
+  }
+  honours(id: number): Observable<TeamChampionshipHonour[]> {
+    return this.http.get<TeamChampionshipHonour[]>(this.url + '/' + id + '/honours');
   }
   history(id: number): Observable<TeamCompetitionHistory[]> {
     return this.http.get<TeamCompetitionHistory[]>(this.url + '/' + id + '/history');
