@@ -206,10 +206,10 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
 
     fixture.detectChanges();
-    // Presence starts synchronously; optional analytics is loaded in a
-    // separate chunk so it does not inflate the initial Angular bundle.
-    expect(onlinePresenceService.start).toHaveBeenCalledTimes(1);
+    // Optional telemetry services are lazy-loaded in independent chunks;
+    // login and route rendering must not wait for their network requests.
     await fixture.whenStable();
+    expect(onlinePresenceService.start).toHaveBeenCalledTimes(1);
     expect(pilotAnalyticsService.recordFirstAccess).toHaveBeenCalledTimes(1);
   });
 
