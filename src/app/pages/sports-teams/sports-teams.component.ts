@@ -40,7 +40,7 @@ import { CompetitionTeamInvitation, TeamCompetitionInvitationsService } from '..
         </div>
       </section>
 
-      <section class="team-panel" aria-label="Criar equipa">
+      <section id="criar-equipa" class="team-panel" aria-label="Criar equipa">
         <h2>Criar uma equipa</h2>
         <p>O feed e o chat ficam desligados até o responsável decidir ativá-los.</p>
         <form (ngSubmit)="create()" #teamForm="ngForm">
@@ -52,6 +52,15 @@ import { CompetitionTeamInvitation, TeamCompetitionInvitationsService } from '..
           <label>Descrição <textarea name="description" [(ngModel)]="draft.description" maxlength="500"></textarea></label>
           <button type="submit" [disabled]="saving || teamForm.invalid">Criar equipa</button>
         </form>
+      </section>
+
+      <section class="team-panel" aria-label="As minhas equipas">
+        <h2>As minhas equipas</h2>
+        <p *ngIf="mineLoading">A carregar as tuas equipas…</p>
+        <p *ngIf="!mineLoading && !mine.length">Ainda não administras nenhuma equipa.</p>
+        <ul *ngIf="mine.length">
+          <li *ngFor="let team of mine"><a [routerLink]="['/menu/teams', team.id]">{{team.name}}</a></li>
+        </ul>
       </section>
 
       <p class="error" role="alert" *ngIf="error">{{ error }}</p>
@@ -90,6 +99,8 @@ import { CompetitionTeamInvitation, TeamCompetitionInvitationsService } from '..
 export class SportsTeamsComponent implements OnInit {
   query = '';
   teams: SportsTeam[] = [];
+  mine: SportsTeam[] = [];
+  mineLoading = false;
   invitations: CompetitionTeamInvitation[] = [];
   responding = false;
   draft = {name: '', sport: '', location: '', description: ''};
@@ -99,7 +110,15 @@ export class SportsTeamsComponent implements OnInit {
 
   constructor(private readonly api: SportsTeamsService,
               private readonly competitionInvites: TeamCompetitionInvitationsService) {}
-  ngOnInit(): void { this.search(); this.loadInvitations(); }
+  ngOnInit(): void { this.search(); this.loadInvitations(); this.loadMine(); }
+
+  loadMine(): void {
+    this.mineLoading = true;
+    this.api.mine().subscribe({
+      next: teams => {this.mine = teams; this.mineLoading = false;},
+      error: () => {this.mine = []; this.mineLoading = false;}
+    });
+  }
 
   loadInvitations(): void {
     this.competitionInvites.mine().subscribe({
@@ -136,6 +155,7 @@ export class SportsTeamsComponent implements OnInit {
         this.saving = false;
         this.draft = {name: '', sport: '', location: '', description: ''};
         this.search();
+        this.loadMine();
       },
       error: () => { this.saving = false; this.error = 'Não foi possível criar a equipa. Confirma que tens sessão iniciada.'; }
     });
