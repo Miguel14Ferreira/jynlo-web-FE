@@ -145,7 +145,8 @@ export class SportsTeamDetailComponent implements OnInit {
     if(!this.isOwner||!this.team||this.featureSaving)return;
     const previous=this.team;
     this.featureSaving=true;this.feedback='';
-    this.api.setFeatures(previous.id,{[field]:!previous[field]}).subscribe({
+    this.api.setFeatures(previous.id,field==='chatEnabled'
+      ? {chatEnabled:!previous.chatEnabled} : {feedEnabled:!previous.feedEnabled}).subscribe({
       next:updated=>{this.team=updated;this.featureSaving=false;},
       error:()=>{this.feedback='Não foi possível confirmar a configuração. Atualiza antes de repetir.';this.featureSaving=false;}
     });
