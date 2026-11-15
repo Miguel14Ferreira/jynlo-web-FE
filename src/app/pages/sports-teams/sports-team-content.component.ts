@@ -270,7 +270,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     if(combined.length>4 || combined.some(file=>!allowed.has(file.type)||!file.size
       || file.size>(file.type.startsWith('video/')?20:5)*1024*1024)
       || combined.reduce((sum,file)=>sum+file.size,0)>40*1024*1024){
-      this.error='Seleciona até 4 ficheiros permitidos, com 20 MB por ficheiro e 40 MB no total.';
+      this.error='Até 4 anexos e 40 MB no total: fotos/PDF até 5 MB e vídeos até 20 MB.';
       return;
     }
     this.files=combined;this.error='';
