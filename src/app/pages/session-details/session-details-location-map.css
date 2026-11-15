@@ -1,0 +1,10 @@
+/* Exact map is shown only when the session API authorises the venue GPS. */
+.session-embedded-map { margin-top: .85rem; display: grid; gap: .5rem; }
+.session-embedded-map iframe { width: 100%; height: clamp(220px, 34vw, 340px); border: 1px solid rgba(125,211,252,.27); border-radius: 14px; background: #082531; }
+.session-embedded-map small { color: #a5b9c4; font-size: .78rem; line-height: 1.5; }
+
+.session-maps-editor { display:grid; gap:.5rem; margin-top:.7rem; }
+.session-maps-editor label { font-weight:700; font-size:.85rem; }
+.session-maps-editor input { width:100%; min-width:0; padding:.7rem; border-radius:10px; border:1px solid rgba(125,211,252,.45); color:inherit; background:rgba(3,31,43,.35); }
+.session-maps-editor-actions { display:flex; flex-wrap:wrap; gap:.5rem; }
+.session-maps-editor [role="alert"] { color:#fda4af; margin:0; }
