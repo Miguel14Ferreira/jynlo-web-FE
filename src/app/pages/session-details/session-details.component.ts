@@ -598,9 +598,6 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   requestCancelOwnSession(): void {
     if (!this.canCancelOwnSession() || this.cancelSessionWorking) return;
     this.cancelSessionConfirmOpen = true;
-    this.cancellationNotice = '';
-    this.cancellationNoticeSessionId = null;
-    this.cancellationNoticeFeedback = '';
     this.actionError = '';
   }
 
