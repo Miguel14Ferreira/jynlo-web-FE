@@ -506,15 +506,6 @@
             <p>{{ 'venue.chooseHint' | t }}</p>
           </div>
 
-          @if (locationMethod === 'venue') {
-            <button
-              type="button"
-              class="secondary-action jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet"
-              [disabled]="loading || venueSaving"
-              (click)="toggleVenueCreator()">
-              {{ showVenueCreator ? ('common.cancel' | t) : ('venue.saveNew' | t) }}
-            </button>
-          }
         </div>
 
         <app-location-method-selector
