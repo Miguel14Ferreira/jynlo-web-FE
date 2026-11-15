@@ -120,6 +120,11 @@ export class SportsTeamsService {
   content(id: number, kind: TeamContentKind): Observable<TeamContentEntry[]> {
     return this.http.get<TeamContentEntry[]>(this.url + '/' + id + '/' + kind);
   }
+  searchContent(id: number, kind: TeamContentKind, query: string): Observable<TeamContentEntry[]> {
+    return this.http.get<TeamContentEntry[]>(this.url + '/' + id + '/' + kind + '/search', {
+      params: new HttpParams().set('q', query.trim())
+    });
+  }
   sendContent(id: number, kind: TeamContentKind, body: string, replyToId: number | null = null): Observable<TeamContentEntry> {
     return this.http.post<TeamContentEntry>(this.url + '/' + id + '/' + kind, {body, replyToId});
   }
