@@ -23,7 +23,11 @@ import { CompetitionTeamInvitation, CompetitionTeamInvitationType,
         <p *ngIf="!associated.length">Ainda não há equipas associadas.</p>
         <ul><li *ngFor="let team of associated">
           <strong>{{team.teamName}}</strong>
-          <span *ngIf="invitationFor(team.teamId) as invitation">Convite: {{invitation.status}}</span>
+          <span *ngIf="invitationFor(team.teamId) as invitation">Convite: {{invitation.status}}
+            <app-global-team-enrollment *ngIf="invitation.status==='ACCEPTED'"
+              [communityId]="communityId" [competitionId]="competitionId" [type]="type"
+              [globalTeamId]="team.teamId"></app-global-team-enrollment>
+          </span>
           <button type="button" *ngIf="!invitationFor(team.teamId)" [disabled]="busy"
             (click)="invite(team.teamId)">Convidar para a competição</button>
         </li></ul>
@@ -43,7 +47,11 @@ import { CompetitionTeamInvitation, CompetitionTeamInvitationType,
             <div><strong>{{ team.name }}</strong>
               <small>{{ team.sport || 'Várias modalidades' }} · {{ team.location || 'Sem localização' }}</small>
             </div>
-            <span *ngIf="invitationFor(team.id) as invited">Convite: {{ invited.status === 'PENDING' ? 'pendente' : invited.status === 'ACCEPTED' ? 'aceite' : 'recusado' }}</span>
+            <span *ngIf="invitationFor(team.id) as invited">Convite: {{ invited.status === 'PENDING' ? 'pendente' : invited.status === 'ACCEPTED' ? 'aceite' : 'recusado' }}
+              <app-global-team-enrollment *ngIf="invited.status==='ACCEPTED'"
+                [communityId]="communityId" [competitionId]="competitionId" [type]="type"
+                [globalTeamId]="team.id"></app-global-team-enrollment>
+            </span>
             <button *ngIf="!invitationFor(team.id)" type="button" (click)="invite(team.id)">Convidar equipa</button>
           </li>
         </ul>
