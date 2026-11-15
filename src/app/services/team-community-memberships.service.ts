@@ -8,10 +8,14 @@ export interface TeamCommunityMembership {
   id:number; teamId:number; teamName:string; communityId:number; communityName:string;
   status:TeamCommunityStatus;
 }
+export interface PublicTeamCommunity {id:number;name:string;sport:string|null;}
 @Injectable({providedIn:'root'})
 export class TeamCommunityMembershipsService {
   private readonly base=environment.apiUrl+'/api/team-community-memberships';
   constructor(private readonly http:HttpClient){}
+  discover(q=''):Observable<PublicTeamCommunity[]>{
+    return this.http.get<PublicTeamCommunity[]>(this.base+'/discover?q='+encodeURIComponent(q.trim()));
+  }
   communityTeams(id:number):Observable<TeamCommunityMembership[]>{
     return this.http.get<TeamCommunityMembership[]>(this.base+'/communities/'+id);
   }
