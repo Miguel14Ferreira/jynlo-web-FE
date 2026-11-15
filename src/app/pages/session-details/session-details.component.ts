@@ -3385,6 +3385,8 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
 
   /** Never present an OSM GPS-only location as a confirmed postal address. */
   exactLocationLabel(): string {
+    if (this.session?.canSeeExactAddress && this.verifiedGoogleMapsUrl(this.session.googleMapsUrl))
+      return 'Ver ponto escolhido no Google Maps';
     const address = venueUsableAddress(this.session?.address);
     return address && this.session?.venue?.locationStatus !== 'GPS_ONLY_ADDRESS_UNKNOWN'
       ? address : t('sessionDetail.openMaps');
