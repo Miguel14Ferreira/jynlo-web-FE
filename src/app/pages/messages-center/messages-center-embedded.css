@@ -1,0 +1,12 @@
+/* The Messages composer, attachments, read receipts and websocket stay unchanged.
+   When opened inside a community, show only the authenticated conversation. */
+.inbox-page.inbox-embedded { min-height:0; padding:0; background:transparent; }
+.inbox-embedded .inbox-shell { max-width:none; width:100%; }
+.inbox-embedded .inbox-layout { display:block; height:min(76vh,790px); min-height:470px; }
+.inbox-embedded .inbox-sidebar { display:none; }
+.inbox-embedded .inbox-detail { display:flex; flex-direction:column; height:100%; min-width:0; border-radius:17px; }
+.inbox-embedded .inbox-preview { min-height:0; }
+@media(max-width:700px) {
+ .inbox-embedded .inbox-layout { height:min(75dvh,740px); min-height:420px; }
+ .inbox-embedded .inbox-detail { border-radius:13px; }
+}
