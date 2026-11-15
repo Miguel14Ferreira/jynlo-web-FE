@@ -2044,6 +2044,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   cancellationShareText = '';
   cancellationShareNotice = '';
   pendingCancelSession: FeedItem | null = null;
+  private pendingCancelSessionSnapshot: { id: number; sport: string | null; city: string | null; gameDate: string | null } | null = null;
   checkingCancelSessionId: number | null = null;
   cancellingSessionId: number | null = null;
   private readonly cancelledFeedSessionIds = new Set<number>();
@@ -2151,6 +2152,9 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
           this.actionError = 'Esta sessão já não pode ser cancelada ou não és o organizador.';
           return;
         }
+        this.pendingCancelSessionSnapshot = {
+          id, sport: detail.sport, city: detail.city, gameDate: detail.gameDate
+        };
         this.pendingCancelSession = item;
       },
       error: () => this.actionError = 'Não foi possível verificar a sessão. Abre o detalhe antes de tentar novamente.'
@@ -2160,6 +2164,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   dismissCancelSession(): void {
     if (this.cancellingSessionId !== null) return;
     this.pendingCancelSession = null;
+    this.pendingCancelSessionSnapshot = null;
   }
 
   confirmCancelSession(item: FeedItem): void {
@@ -2176,7 +2181,12 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         this.items = this.items.filter(entry => !(entry.type === 'SESSION_CREATED' && entry.sessionId === id));
         this.pendingCancelSession = null;
         this.recentlyCancelledSession = item;
-        this.cancellationShareText = this.cancelledSessionMessage(item);
+        // The feed card may have an older sport/date/city. The snapshot was
+        // fetched from the server immediately before the user confirmed.
+        const confirmedDetails = this.pendingCancelSessionSnapshot?.id === id
+          ? this.pendingCancelSessionSnapshot : item;
+        this.cancellationShareText = sessionCancellationNotice(confirmedDetails);
+        this.pendingCancelSessionSnapshot = null;
         this.cancellationShareNotice = 'Cancelamento confirmado. Os jogadores com conta Jynlo recebem a notificação interna; partilha este aviso com convidados externos.';
         this.loadCompletedSessions();
         this.load();
