@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PublicTeamCommunity,TeamCommunityMembership,TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
-import { SportsTeam, SportsTeamMember, SportsTeamsService } from '../../services/sports-teams.service';
+import { SportsTeam, SportsTeamMember, SportsTeamsService, TeamCompetitionHistory } from '../../services/sports-teams.service';
 
 @Component({
   standalone: true,
@@ -22,6 +22,23 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService } from '../../services
       <section><h2>Plantel ({{ members.length }})</h2>
         <p *ngFor="let player of members">{{ player.username }} · {{ player.role === 'OWNER' ? 'Responsável' : 'Jogador' }}</p>
         <p *ngIf="members.length === 0">A carregar plantel ou sem jogadores disponíveis.</p>
+      </section>
+      <section class="team-trophies"><h2>🏆 Troféus ({{trophies.length}})</h2>
+        <p *ngIf="historyLoading">A carregar conquistas oficiais…</p>
+        <p *ngIf="historyError" role="alert">{{historyError}}</p>
+        <p *ngIf="!historyLoading && !historyError && !trophies.length">Ainda não existem troféus oficiais nesta equipa.</p>
+        <article *ngFor="let trophy of trophies" class="trophy">
+          <strong>🏆 {{trophy.tournamentName}}</strong>
+          <p>{{trophy.communityName}} · {{trophy.sport || 'Modalidade não indicada'}}</p>
+          <small *ngIf="trophy.completedAt">{{trophy.completedAt | date:'dd/MM/yyyy'}}</small>
+        </article>
+      </section>
+      <section><h2>Histórico de competições ({{history.length}})</h2>
+        <p *ngIf="!historyLoading && !historyError && !history.length">Ainda não participou em torneios associados à equipa.</p>
+        <p *ngFor="let entry of history">
+          {{entry.tournamentName}} · {{entry.communityName}} —
+          {{entry.champion ? '🏆 Campeão' : entry.archived ? 'Concluído' : 'Em curso'}}
+        </p>
       </section>
       <section><h2>Competições</h2>
         <p>Encontra torneios e campeonatos com candidaturas abertas para esta equipa.</p>
@@ -66,6 +83,8 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService } from '../../services
     .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}
     .team-grid section{padding:1.25rem;border:1px solid #6c968044;border-radius:14px}
     h2{font-size:1.1rem}
+    .trophy{padding:.75rem;margin:.5rem 0;border:1px solid #a68f554d;border-radius:10px}
+    .trophy p{margin:.4rem 0}
     .search-community{display:flex;gap:.5rem;flex-wrap:wrap}
     .search-community input{min-width:150px;flex:1;padding:.65rem;border:1px solid #6d8e7b;border-radius:8px;background:transparent;color:inherit}
     button{padding:.45rem .7rem;margin:.25rem;border:1px solid #6d9e7b;border-radius:8px;background:transparent;color:inherit;cursor:pointer}
@@ -75,6 +94,10 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService } from '../../services
 export class SportsTeamDetailComponent implements OnInit {
   team: SportsTeam | null = null;
   members: SportsTeamMember[] = [];
+  history: TeamCompetitionHistory[] = [];
+  historyLoading = false;
+  historyError = '';
+  get trophies(): TeamCompetitionHistory[] { return this.history.filter(item => item.champion); }
   communities:TeamCommunityMembership[]=[];
   communityQuery='';communityResults:PublicTeamCommunity[]=[];
   isOwner=false;busy=false;feedback='';
@@ -122,6 +145,11 @@ export class SportsTeamDetailComponent implements OnInit {
         this.team = team;
         this.api.mine().subscribe({next:owned=>this.isOwner=owned.some(x=>x.id===team.id),error:()=>this.isOwner=false});
         this.loadCommunities();
+        this.historyLoading = true;
+        this.api.history(team.id).subscribe({
+          next: entries => {this.history = entries; this.historyLoading = false;},
+          error: () => {this.historyError = 'Não foi possível carregar o histórico de troféus.'; this.historyLoading = false;}
+        });
         this.api.members(team.id).subscribe({next: players => this.members = players, error: () => this.members = []});
       },
       error: () => this.error = 'Não foi possível encontrar esta equipa.'
