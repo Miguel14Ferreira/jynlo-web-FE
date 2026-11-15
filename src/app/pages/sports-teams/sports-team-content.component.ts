@@ -163,7 +163,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
   saveEdit(entry:TeamContentEntry):void {
     const body=this.editingDraft.trim();
-    if(this.sending || entry.username!==this.username || !body)return;
+    if(this.sending || !entry.canEdit || !body)return;
     this.sending=true;this.error='';
     const version=this.generation;
     this.api.editContent(this.teamId,this.kind,entry.id,body).subscribe({
