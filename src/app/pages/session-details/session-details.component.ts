@@ -652,23 +652,32 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       'Por favor, não te desloques ao recinto.';
   }
 
+  /** Also available after reopening a previously cancelled session.
+   * Recompute from the currently authorized detail, never from a prior route. */
+  cancelledSessionShareMessage(): string {
+    if (!this.session || this.session.status !== 'CANCELLED' ||
+        !this.isCreator() || this.session.id !== this.sessionId) return '';
+    return this.cancellationNoticeSessionId === this.sessionId && this.cancellationNotice
+      ? this.cancellationNotice
+      : this.buildCancelledSessionNotice();
+  }
+
   async shareCancelledSessionNotice(): Promise<void> {
-    if (!this.cancellationNotice || this.cancellationNoticeSharing ||
-        this.cancellationNoticeSessionId !== this.sessionId ||
-        !this.isCreator() || this.session?.status !== 'CANCELLED') return;
+    const message = this.cancelledSessionShareMessage();
+    if (!message || this.cancellationNoticeSharing) return;
     this.cancellationNoticeSharing = true;
     this.cancellationNoticeFeedback = '';
     try {
       if (typeof navigator.share === 'function') {
         try {
-          await navigator.share({text: this.cancellationNotice});
+          await navigator.share({text: message});
           this.cancellationNoticeFeedback = 'Aviso partilhado.';
           return;
         } catch (error) {
           if (error instanceof Error && error.name === 'AbortError') return;
         }
       }
-      await this.copyShareUrl(this.cancellationNotice);
+      await this.copyShareUrl(message);
       this.cancellationNoticeFeedback = 'Aviso copiado. Envia-o aos convidados externos.';
     } catch {
       this.cancellationNoticeFeedback = 'Seleciona e copia a mensagem abaixo para o grupo.';
