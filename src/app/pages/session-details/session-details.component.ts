@@ -204,7 +204,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   problemDetails = '';
   showAttendanceManager = false;
   teamSuggestion?: SessionTeamSuggestion;
-  teamsScoreSource: SessionTeamScoreSource = 'FORM';
+  teamsScoreSource: SessionTeamScoreSource = 'AUTO';
   teamsLoading = false;
   teamsConfirming = false;
   teamSuggestionPendingConfirmation = false;
@@ -2617,7 +2617,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     );
   }
 
-  generateTeams(source: SessionTeamScoreSource = 'FORM'): void {
+  generateTeams(source: SessionTeamScoreSource = 'AUTO'): void {
     if (!this.sessionId || !this.canGenerateTeams() || this.teamsLoading || this.teamsConfirming) {
       return;
     }
