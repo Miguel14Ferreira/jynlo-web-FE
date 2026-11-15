@@ -21,13 +21,24 @@ import { CommunityDisciplineService, CommunityTournamentSuspension } from '../..
       @if (canManage) {
         <form (ngSubmit)="issue()" class="suspension-form">
           <label for="suspension-member">Membro a suspender</label>
-          <select id="suspension-member" name="suspension-member" [(ngModel)]="targetProfileId"
-                  [disabled]="saving" required>
-            <option [ngValue]="null">Selecionar membro</option>
-            @for (member of eligibleMembers; track member.profileId) {
-              <option [ngValue]="member.profileId">{{ member.fullName || member.username }}</option>
+          <div class="discipline-member-picker">
+            <input id="suspension-member" name="suspension-member" type="search" autocomplete="off"
+                   [ngModel]="memberQuery" (ngModelChange)="onMemberQueryChange($event)"
+                   (focus)="memberSearchOpen = true" [disabled]="saving"
+                   placeholder="Escreve o nome ou @username" aria-autocomplete="list"
+                   [attr.aria-expanded]="memberSearchOpen && suggestedMembers.length > 0" required>
+            @if (memberSearchOpen && suggestedMembers.length > 0) {
+              <div class="discipline-member-suggestions" role="listbox">
+                @for (member of suggestedMembers; track member.profileId) {
+                  <button type="button" role="option" class="discipline-member-option"
+                          [attr.aria-selected]="targetProfileId === member.profileId"
+                          (click)="selectMember(member.profileId)">
+                    {{ member.fullName || member.username }} <small>@{{ member.username }}</small>
+                  </button>
+                }
+              </div>
             }
-          </select>
+          </div>
           <label for="suspension-days">Duração (dias)</label>
           <input id="suspension-days" name="suspension-days" type="number"
                  min="1" max="30" step="1" [(ngModel)]="days" [disabled]="saving" required>
@@ -35,7 +46,7 @@ import { CommunityDisciplineService, CommunityTournamentSuspension } from '../..
           <textarea id="suspension-reason" name="suspension-reason" rows="3" maxlength="1000"
                     [(ngModel)]="reason" [disabled]="saving" required
                     placeholder="Explica a infração e as circunstâncias"></textarea>
-          <button type="submit" [disabled]="saving || !canIssue()">
+          <button type="submit" class="jynlo-action jynlo-action--primary" [disabled]="saving || !canIssue()">
             {{ saving ? 'A registar…' : 'Aplicar suspensão' }}
           </button>
         </form>
@@ -80,8 +91,14 @@ import { CommunityDisciplineService, CommunityTournamentSuspension } from '../..
     .suspension-panel h3,.suspension-panel h4 { margin: 0 0 .75rem; }
     .suspension-help { opacity: .8; margin: 0 0 1rem; }
     .suspension-form { display: grid; gap: .6rem; max-width: 640px; margin-bottom: 1rem; }
-    .suspension-form select,.suspension-form input,.suspension-form textarea { padding: .7rem; width: 100%; border-radius: 8px; }
+    .suspension-form input,.suspension-form textarea { padding: .7rem; width: 100%; border-radius: 8px; }
     .suspension-form button { justify-self: start; padding: .65rem 1rem; border-radius: 8px; }
+    .discipline-member-picker { position: relative; width: 100%; }
+    .discipline-member-picker input { width: 100%; }
+    .discipline-member-suggestions { position: relative; z-index: 3; max-height: 210px; overflow-y: auto; border: 1px solid var(--border-color,#77889955); border-radius: 10px; background: var(--surface,#0b2d36); margin-top: 4px; }
+    .discipline-member-suggestions .discipline-member-option { display: flex; gap: .55rem; align-items: baseline; justify-content: space-between; width: 100%; padding: .65rem .75rem; background: transparent; border: 0; border-radius: 0; color: inherit; text-align: left; cursor: pointer; }
+    .discipline-member-suggestions .discipline-member-option:hover, .discipline-member-suggestions .discipline-member-option:focus-visible { background: rgba(34,197,154,.16); outline: 2px solid transparent; }
+    .discipline-member-option small { opacity: .72; }
     .suspension-history { padding-left: 1.3rem; }
     .suspension-history li { margin-bottom: 1rem; }
     .suspension-history p { margin: .35rem 0; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -93,6 +110,8 @@ export class CommunityTournamentSuspensionsComponent implements OnChanges {
 
   suspensions: CommunityTournamentSuspension[] = [];
   targetProfileId: number | null = null;
+  memberQuery = '';
+  memberSearchOpen = false;
   days = 1;
   reason = '';
   liftReasons: Record<number, string> = {};
@@ -105,9 +124,35 @@ export class CommunityTournamentSuspensionsComponent implements OnChanges {
   constructor(private readonly api: CommunityDisciplineService,
               private readonly changeDetector: ChangeDetectorRef) {}
 
+  get suggestedMembers() {
+    const q = this.memberQuery.trim().replace(/^@/, '').toLocaleLowerCase();
+    if (q.length < 1) return [];
+    return this.eligibleMembers
+      .filter(member => member.username.toLocaleLowerCase().includes(q)
+        || (member.fullName || '').toLocaleLowerCase().includes(q))
+      .sort((a,b) => Number(!a.username.toLocaleLowerCase().startsWith(q)) - Number(!b.username.toLocaleLowerCase().startsWith(q)))
+      .slice(0, 8);
+  }
+
+  onMemberQueryChange(query: string): void {
+    this.memberQuery = query;
+    this.targetProfileId = null;
+    this.memberSearchOpen = true;
+  }
+
+  selectMember(profileId: number): void {
+    const member = this.eligibleMembers.find(item => item.profileId === profileId);
+    if (!member) return;
+    this.targetProfileId = member.profileId;
+    this.memberQuery = (member.fullName || member.username) + ' (@' + member.username + ')';
+    this.memberSearchOpen = false;
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['community'] || changes['canManage']) {
       this.targetProfileId = null;
+      this.memberQuery = '';
+      this.memberSearchOpen = false;
       this.days = 1;
       this.reason = '';
       this.liftReasons = {};
@@ -175,6 +220,8 @@ export class CommunityTournamentSuspensionsComponent implements OnChanges {
         this.saving = false;
         this.suspensions = [entry, ...this.suspensions];
         this.targetProfileId = null;
+        this.memberQuery = '';
+        this.memberSearchOpen = false;
         this.reason = '';
         this.feedback = 'Suspensão registada para os torneios desta comunidade.';
         this.changeDetector.markForCheck();
