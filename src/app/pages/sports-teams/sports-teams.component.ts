@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.service';
+import { CompetitionTeamInvitation, TeamCompetitionInvitationsService } from '../../services/team-competition-invitations.service';
 
 @Component({
   selector: 'app-sports-teams',
@@ -15,6 +16,20 @@ import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.serv
         <h1>Encontra a tua equipa</h1>
         <p>Cria uma identidade para a tua equipa e participa em diferentes comunidades e competições.</p>
       </header>
+
+      <section class="team-panel" *ngIf="invitations.length" aria-label="Convites para competições">
+        <h2>Convites para as tuas equipas</h2>
+        <p>O responsável pode aceitar ou recusar. Aceitar não inscreve automaticamente os jogadores.</p>
+        <article *ngFor="let invitation of invitations" class="team-invitation">
+          <strong>{{ invitation.teamName }}</strong>
+          <p>{{ invitation.competitionType === 'TOURNAMENT' ? 'Torneio' : 'Campeonato' }} ·
+             {{ invitation.status === 'PENDING' ? 'Pendente' : invitation.status === 'ACCEPTED' ? 'Aceite' : 'Recusado' }}</p>
+          <div *ngIf="invitation.status === 'PENDING'" class="inline-fields">
+            <button type="button" (click)="respond(invitation.id, true)" [disabled]="responding">Aceitar convite</button>
+            <button type="button" (click)="respond(invitation.id, false)" [disabled]="responding">Recusar convite</button>
+          </div>
+        </article>
+      </section>
 
       <section class="team-panel" aria-label="Pesquisar equipas">
         <label for="team-search">Procurar equipas</label>
@@ -67,6 +82,7 @@ import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.serv
     button:disabled {opacity:.55;cursor:not-allowed}
     .team-cards article {display:flex;gap:1rem;align-items:center}
     .team-icon {font-size:2rem}
+    .team-invitation{border-bottom:1px solid #839a8355;padding:1rem 0}
     a {color:inherit}
     .error {color:#e88b8b}
   `]
@@ -74,13 +90,33 @@ import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.serv
 export class SportsTeamsComponent implements OnInit {
   query = '';
   teams: SportsTeam[] = [];
+  invitations: CompetitionTeamInvitation[] = [];
+  responding = false;
   draft = {name: '', sport: '', location: '', description: ''};
   saving = false;
   loading = false;
   error = '';
 
-  constructor(private readonly api: SportsTeamsService) {}
-  ngOnInit(): void { this.search(); }
+  constructor(private readonly api: SportsTeamsService,
+              private readonly competitionInvites: TeamCompetitionInvitationsService) {}
+  ngOnInit(): void { this.search(); this.loadInvitations(); }
+
+  loadInvitations(): void {
+    this.competitionInvites.mine().subscribe({
+      next: rows => this.invitations = rows,
+      error: () => this.invitations = []
+    });
+  }
+
+  respond(id: number, accept: boolean): void {
+    if (this.responding) return;
+    this.responding = true;
+    this.error = '';
+    this.competitionInvites.respond(id, accept).subscribe({
+      next: () => {this.responding = false; this.loadInvitations();},
+      error: () => {this.responding = false; this.error = 'Não foi possível responder ao convite. Confirma o estado antes de repetir.';}
+    });
+  }
 
   search(): void {
     this.loading = true;
