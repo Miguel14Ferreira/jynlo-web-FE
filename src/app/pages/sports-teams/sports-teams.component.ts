@@ -15,6 +15,7 @@ import { CompetitionTeamInvitation, TeamCompetitionInvitationsService } from '..
         <p class="eyebrow">JYNLO · EQUIPAS</p>
         <h1>Encontra a tua equipa</h1>
         <p>Cria uma identidade para a tua equipa e participa em diferentes comunidades e competições.</p>
+        <a class="create-team-cta" href="#criar-equipa">+ Criar equipa</a>
       </header>
 
       <section class="team-panel" *ngIf="invitations.length" aria-label="Convites para competições">
@@ -90,6 +91,7 @@ import { CompetitionTeamInvitation, TeamCompetitionInvitationsService } from '..
     button {background:#76eb70;color:#08120b;font-weight:700;border:0;border-radius:9px;padding:.75rem 1rem;cursor:pointer}
     button:disabled {opacity:.55;cursor:not-allowed}
     .team-cards article {display:flex;gap:1rem;align-items:center}
+    .create-team-cta {display:inline-block;margin-top:.75rem;padding:.75rem 1.1rem;border-radius:10px;background:#76eb70;color:#08120b;font-weight:800;text-decoration:none}
     .team-icon {font-size:2rem}
     .team-invitation{border-bottom:1px solid #839a8355;padding:1rem 0}
     a {color:inherit}
