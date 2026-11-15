@@ -2608,7 +2608,6 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     return Boolean(
       this.session
       && this.isCreator()
-      && this.session.communityId
       && sport && eligibleTeamSports.has(sport)
       && validFormat
       && this.isFull()
