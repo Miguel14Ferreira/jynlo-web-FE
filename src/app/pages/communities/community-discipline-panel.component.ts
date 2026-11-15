@@ -18,19 +18,30 @@ import { CommunityDisciplineService, CommunityDisciplinaryWarning, CommunityWarn
       @if (canManage) {
         <form (ngSubmit)="issueWarning()" class="discipline-form">
           <label for="discipline-member">Membro</label>
-          <select id="discipline-member" name="disciplineMember"
-                  [(ngModel)]="targetProfileId" [disabled]="saving" required>
-            <option [ngValue]="null">Selecionar membro</option>
-            @for (member of eligibleMembers; track member.profileId) {
-              <option [ngValue]="member.profileId">{{ member.fullName || member.username }}</option>
+          <div class="discipline-member-picker">
+            <input id="discipline-member" name="discipline-member" type="search" autocomplete="off"
+                   [ngModel]="memberQuery" (ngModelChange)="onMemberQueryChange($event)"
+                   (focus)="memberSearchOpen = true" [disabled]="saving"
+                   placeholder="Escreve o nome ou @username" aria-autocomplete="list"
+                   [attr.aria-expanded]="memberSearchOpen && suggestedMembers.length > 0" required>
+            @if (memberSearchOpen && suggestedMembers.length > 0) {
+              <div class="discipline-member-suggestions" role="listbox">
+                @for (member of suggestedMembers; track member.profileId) {
+                  <button type="button" role="option" class="discipline-member-option"
+                          [attr.aria-selected]="targetProfileId === member.profileId"
+                          (click)="selectMember(member.profileId)">
+                    {{ member.fullName || member.username }} <small>@{{ member.username }}</small>
+                  </button>
+                }
+              </div>
             }
-          </select>
+          </div>
           <label for="discipline-reason">Motivo da advertência</label>
           <textarea id="discipline-reason" name="disciplineReason"
                     [(ngModel)]="reason" maxlength="1000" rows="3"
                     [disabled]="saving" required
                     placeholder="Descreve objetivamente a ocorrência"></textarea>
-          <button type="submit" [disabled]="saving || targetProfileId === null || !reason.trim()">
+          <button type="submit" class="jynlo-action jynlo-action--primary" [disabled]="saving || targetProfileId === null || !reason.trim()">
             {{ saving ? 'A registar…' : 'Registar advertência' }}
           </button>
         </form>
@@ -105,8 +116,14 @@ import { CommunityDisciplineService, CommunityDisciplinaryWarning, CommunityWarn
     .discipline-panel h3, .discipline-panel h4 { margin: 0 0 .75rem; }
     .discipline-description { opacity: .8; margin: 0 0 1rem; }
     .discipline-form { display: grid; gap: .6rem; max-width: 640px; margin-bottom: 1.3rem; }
-    .discipline-form select, .discipline-form textarea { width: 100%; padding: .7rem; border-radius: 8px; }
+    .discipline-form input, .discipline-form textarea { width: 100%; padding: .7rem; border-radius: 8px; }
     .discipline-form button { justify-self: start; padding: .65rem 1rem; border-radius: 8px; }
+    .discipline-member-picker { position: relative; width: 100%; }
+    .discipline-member-picker input { width: 100%; }
+    .discipline-member-suggestions { position: relative; z-index: 3; max-height: 210px; overflow-y: auto; border: 1px solid var(--border-color,#77889955); border-radius: 10px; background: var(--surface,#0b2d36); margin-top: 4px; }
+    .discipline-member-suggestions .discipline-member-option { display: flex; gap: .55rem; align-items: baseline; justify-content: space-between; width: 100%; padding: .65rem .75rem; background: transparent; border: 0; border-radius: 0; color: inherit; text-align: left; cursor: pointer; }
+    .discipline-member-suggestions .discipline-member-option:hover, .discipline-member-suggestions .discipline-member-option:focus-visible { background: rgba(34,197,154,.16); outline: 2px solid transparent; }
+    .discipline-member-option small { opacity: .72; }
     .discipline-history { margin: .5rem 0 0; padding-left: 1.3rem; }
     .discipline-history li { margin-bottom: .8rem; }
     .discipline-history p { margin: .3rem 0; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -118,6 +135,8 @@ export class CommunityDisciplinePanelComponent implements OnChanges {
   @Input() canManage = false;
 
   targetProfileId: number | null = null;
+  memberQuery = '';
+  memberSearchOpen = false;
   reason = '';
   warnings: CommunityDisciplinaryWarning[] = [];
   appeals: CommunityWarningAppeal[] = [];
@@ -140,9 +159,35 @@ export class CommunityDisciplinePanelComponent implements OnChanges {
     return this.community?.members?.filter(member => member.role === 'MEMBER') ?? [];
   }
 
+  get suggestedMembers() {
+    const q = this.memberQuery.trim().replace(/^@/, '').toLocaleLowerCase();
+    if (q.length < 1) return [];
+    return this.eligibleMembers
+      .filter(member => member.username.toLocaleLowerCase().includes(q)
+        || (member.fullName || '').toLocaleLowerCase().includes(q))
+      .sort((a,b) => Number(!a.username.toLocaleLowerCase().startsWith(q)) - Number(!b.username.toLocaleLowerCase().startsWith(q)))
+      .slice(0, 8);
+  }
+
+  onMemberQueryChange(query: string): void {
+    this.memberQuery = query;
+    this.targetProfileId = null;
+    this.memberSearchOpen = true;
+  }
+
+  selectMember(profileId: number): void {
+    const member = this.eligibleMembers.find(item => item.profileId === profileId);
+    if (!member) return;
+    this.targetProfileId = member.profileId;
+    this.memberQuery = (member.fullName || member.username) + ' (@' + member.username + ')';
+    this.memberSearchOpen = false;
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['community'] || changes['canManage']) {
       this.targetProfileId = null;
+      this.memberQuery = '';
+      this.memberSearchOpen = false;
       this.reason = '';
       this.appealDrafts = {};
       this.decisionReasons = {};
@@ -234,6 +279,8 @@ export class CommunityDisciplinePanelComponent implements OnChanges {
         if (revision !== this.revision) return;
         this.saving = false;
         this.targetProfileId = null;
+        this.memberQuery = '';
+        this.memberSearchOpen = false;
         this.reason = '';
         this.feedback = 'Advertência registada na comunidade.';
         this.load();
