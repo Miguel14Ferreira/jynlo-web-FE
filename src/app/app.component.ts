@@ -4,7 +4,7 @@ import { filter, Subscription, take } from 'rxjs';
 
 import { AuthenticationService } from './services/authethication.service';
 import type { NativeSelectEnhancementService } from './shared/jynlo-select/native-select-enhancement.service';
-import { PilotAnalyticsService } from './services/pilot-analytics.service';
+
 import { OnlinePresenceService } from './services/online-presence.service';
 import { appTranslate as t } from './i18n/i18n.service';
 import { registrationSessionReturnUrl, registrationCommunityReturnUrl, takeRegistrationDestination } from './shared/registration-return-url';
@@ -29,7 +29,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private router: Router,
     private authenticationService: AuthenticationService,
-    private pilotAnalyticsService: PilotAnalyticsService,
     private onlinePresence: OnlinePresenceService,
     private injector: Injector
   ) {}
@@ -50,7 +49,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       this.splashSafetyTimeout = window.setTimeout(() => this.finishStartupSplash(), 12000);
     }
     const params = new URLSearchParams(window.location.search);
-    this.pilotAnalyticsService.recordFirstAccess(params.get('cohort'));
+    // Pilot analytics is optional and must not increase the first-load bundle
+    // or block login and session navigation. Import it after app bootstrap.
+    void import('./services/pilot-analytics.service')
+      .then(({PilotAnalyticsService}) => {
+        if (!this.disposed) this.injector.get(PilotAnalyticsService).recordFirstAccess(params.get('cohort'));
+      })
+      .catch(() => { /* Analytics is best-effort; never break navigation. */ });
     this.onlinePresence.start();
 
     const token = params.get('confirmRegistration');
