@@ -73,6 +73,7 @@ export interface TeamContentEntry {
   deleted: boolean;
   canManage: boolean;
   canEdit: boolean;
+  attachments: Array<{index:number;filename:string;mimeType:string;size:number}>;
 }
 export interface TeamReactionState { counts: Record<string, number>; mine: string | null; }
 export type TeamContentKind = 'chat' | 'feed';
@@ -136,6 +137,19 @@ export class SportsTeamsService {
     return this.http.get<TeamContentEntry[]>(this.url + '/' + id + '/' + kind + '/search', {
       params: new HttpParams().set('q', query.trim())
     });
+  }
+  attachmentsAvailable(id:number, kind:TeamContentKind): Observable<{available:boolean}> {
+    return this.http.get<{available:boolean}>(this.url+'/'+id+'/'+kind+'/attachments/availability');
+  }
+  uploadContentFiles(id:number, kind:TeamContentKind, files:File[], caption:string, replyToId:number|null): Observable<TeamContentEntry> {
+    const form=new FormData();
+    for(const file of files)form.append('files',file,file.name);
+    if(caption.trim())form.append('caption',caption.trim());
+    if(replyToId!==null)form.append('replyToMessageId',String(replyToId));
+    return this.http.post<TeamContentEntry>(this.url+'/'+id+'/'+kind+'/attachments/batch',form);
+  }
+  downloadContentFile(id:number, kind:TeamContentKind, contentId:number, index:number): Observable<Blob> {
+    return this.http.get(this.url+'/'+id+'/'+kind+'/attachments/'+contentId+'/'+index,{responseType:'blob'});
   }
   sendContent(id: number, kind: TeamContentKind, body: string, replyToId: number | null = null): Observable<TeamContentEntry> {
     return this.http.post<TeamContentEntry>(this.url + '/' + id + '/' + kind, {body, replyToId});
