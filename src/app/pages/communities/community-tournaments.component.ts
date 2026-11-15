@@ -2708,6 +2708,9 @@ export class CommunityTournamentsComponent implements OnChanges {
   inviteCopyFeedback: Record<number, string> = {};
   teams: TournamentTeam[] = [];
   tournamentTeamAdministrators: Record<number, TournamentTeamAdministrationState> = {};
+  tournamentTeamPromotion: Record<number, {globalTeamId: number|null; canPromote: boolean}> = {};
+  tournamentTeamPromotionBusy: Record<number, boolean> = {};
+  tournamentTeamPromotionError: Record<number, string> = {};
   tournamentTeamInvitations: Record<number, boolean> = {};
   tournamentTeamInviteFeedback = '';
   tournamentPendingInvites: Record<number, {profileId:number; username:string; displayName:string; invitedAt:string}[]> = {};
@@ -2717,6 +2720,48 @@ export class CommunityTournamentsComponent implements OnChanges {
   tournamentPendingInviteRevoking: Record<number, boolean> = {};
   tournamentAdminTransferDraft: Record<number, number | null> = {};
   tournamentTeamCreatedNotice = false;
+
+  loadTournamentTeamPromotion(teamId: number, tournamentId: number, revision: number): void {
+    const communityId = this.community.id;
+    this.api.teamPromotionStatus(communityId, tournamentId, teamId).pipe(timeout(10_000)).subscribe({
+      next: status => {
+        if (revision !== this.detailRevision || communityId !== this.community.id
+            || this.selected?.id !== tournamentId) return;
+        this.tournamentTeamPromotion[teamId] = status;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (revision !== this.detailRevision || communityId !== this.community.id
+            || this.selected?.id !== tournamentId) return;
+        delete this.tournamentTeamPromotion[teamId];
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  async promoteTournamentTeam(team: TournamentTeam): Promise<void> {
+    const current = this.tournamentTeamPromotion[team.id];
+    if (!this.selected || !current?.canPromote || this.tournamentTeamPromotionBusy[team.id]) return;
+    if (!window.confirm('Guardar esta equipa permanentemente na Jynlo? O torneio e os resultados mantêm-se.')) return;
+    const communityId = this.community.id, tournamentId = this.selected.id;
+    const revision = this.detailRevision;
+    this.tournamentTeamPromotionBusy[team.id] = true;
+    this.tournamentTeamPromotionError[team.id] = '';
+    try {
+      const permanent = await firstValueFrom(this.api.promoteTournamentTeam(
+        communityId, tournamentId, team.id).pipe(timeout(15_000)));
+      if (revision !== this.detailRevision || communityId !== this.community.id
+          || this.selected?.id !== tournamentId) return;
+      this.tournamentTeamPromotion[team.id] = {globalTeamId: permanent.id, canPromote: false};
+    } catch {
+      if (revision === this.detailRevision && communityId === this.community.id
+          && this.selected?.id === tournamentId)
+        this.tournamentTeamPromotionError[team.id] = 'Não foi possível guardar a equipa. Verifica antes de repetir.';
+    } finally {
+      this.tournamentTeamPromotionBusy[team.id] = false;
+      this.changeDetector.markForCheck();
+    }
+  }
 
   canManageTournamentTeam(team: TournamentTeam): boolean {
     return this.selected?.status === 'DRAFT' && !this.busy
@@ -5749,6 +5794,7 @@ export class CommunityTournamentsComponent implements OnChanges {
             || this.selected?.id !== tournament.id) return;
         this.teams = teams;
         this.tournamentTeamAdministrators = {};
+        this.tournamentTeamPromotion = {};
         this.tournamentTeamInvitations = {};
         this.tournamentPendingInvites = {};
         this.tournamentPendingInvitesLoading = {};
@@ -5757,6 +5803,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         this.tournamentPendingInviteRevoking = {};
         teams.forEach(team => {
           this.loadTournamentTeamAdministrator(team.id, tournament.id, revision);
+          this.loadTournamentTeamPromotion(team.id, tournament.id, revision);
           this.loadTournamentTeamInvitation(team.id, tournament.id, revision);
         });
         this.resetTeamProfileMatches();
