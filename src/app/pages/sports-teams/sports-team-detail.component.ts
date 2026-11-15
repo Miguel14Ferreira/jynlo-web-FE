@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.service';
+import { SportsTeam, SportsTeamMember, SportsTeamsService } from '../../services/sports-teams.service';
 
 @Component({
   standalone: true,
@@ -17,7 +17,10 @@ import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.serv
       <p *ngIf="t.description">{{ t.description }}</p>
     </div>
     <div class="team-grid">
-      <section><h2>Plantel</h2><p>Os jogadores aparecerão aqui quando a gestão de plantéis estiver disponível.</p></section>
+      <section><h2>Plantel ({{ members.length }})</h2>
+        <p *ngFor="let player of members">{{ player.username }} · {{ player.role === 'OWNER' ? 'Responsável' : 'Jogador' }}</p>
+        <p *ngIf="members.length === 0">A carregar plantel ou sem jogadores disponíveis.</p>
+      </section>
       <section><h2>Competições</h2><p>Esta identidade poderá participar em várias comunidades, torneios e campeonatos.</p></section>
       <section><h2>Feed</h2><p>{{ t.feedEnabled ? 'Feed ativado. A publicação para equipas está em desenvolvimento.' : 'Desativado pelo responsável da equipa.' }}</p></section>
       <section><h2>Chat</h2><p>{{ t.chatEnabled ? 'Chat ativado. O acesso ficará disponível após a ligação aos membros da equipa.' : 'Desativado pelo responsável da equipa.' }}</p></section>
@@ -36,13 +39,17 @@ import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.serv
 })
 export class SportsTeamDetailComponent implements OnInit {
   team: SportsTeam | null = null;
+  members: SportsTeamMember[] = [];
   error = '';
   constructor(private readonly route: ActivatedRoute, private readonly api: SportsTeamsService) {}
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isSafeInteger(id) || id <= 0) {this.error = 'Equipa inválida.'; return;}
     this.api.detail(id).subscribe({
-      next: team => this.team = team,
+      next: team => {
+        this.team = team;
+        this.api.members(team.id).subscribe({next: players => this.members = players, error: () => this.members = []});
+      },
       error: () => this.error = 'Não foi possível encontrar esta equipa.'
     });
   }
