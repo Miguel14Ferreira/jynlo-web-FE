@@ -134,7 +134,8 @@ describe('Chat WebSocket identity and reconnection', () => {
     socket.receive({type:'AUTHENTICATED'});
     socket.receive({type:'PERSONAL_LIVE_INVALIDATED'});
     expect(received).toHaveBeenCalledTimes(1);
-    expect(received.calls.mostRecent().args).toEqual([]);
+    // RxJS emits a void notification as undefined; the subscriber is called once.
+    expect(received.calls.mostRecent().args).toEqual([undefined]);
   });
 
   it('normalizes authenticated community and session messages before emitting them', () => {
