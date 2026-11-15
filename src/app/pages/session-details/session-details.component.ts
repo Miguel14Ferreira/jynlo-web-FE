@@ -15,6 +15,7 @@ import { SessionPreset } from '../model/session-preset';
 import { SessionPresetService } from '../../services/session-preset.service';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { compactSessionShareMessage } from '../../shared/session-share-message';
+import { sessionCancellationNotice } from '../../shared/session-cancellation-notice';
 import { venueHasPortugueseCoordinates, venueDirectionsUrl, VenueTravelMode } from '../../shared/venue-public-contact';
 import { venueUsableAddress } from '../../shared/venue-location';
 import { playerAvatarInitials, playerAvatarUrl } from '../../shared/player-avatar';
@@ -638,18 +639,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   /** Public event summary only: the message may be forwarded outside Jynlo.
    * No precise address, passwords or private meeting instructions. */
   private buildCancelledSessionNotice(): string {
-    const item = this.session;
-    if (!item) return '';
-    const date = item.gameDate && Number.isFinite(Date.parse(item.gameDate))
-      ? new Date(item.gameDate).toLocaleString('pt-PT', {
-          timeZone: 'Europe/Lisbon', day: '2-digit', month: '2-digit',
-          year: 'numeric', hour: '2-digit', minute: '2-digit'
-        })
-      : '';
-    const summary = [item.sport || 'desporto', date, item.city || ''].filter(Boolean).join(' · ');
-    return '⚠️ Sessão cancelada — ' + summary +
-      '. O organizador cancelou esta sessão e o jogo não se vai realizar. ' +
-      'Por favor, não te desloques ao recinto.';
+    return this.session ? sessionCancellationNotice(this.session) : '';
   }
 
   /** Also available after reopening a previously cancelled session.
