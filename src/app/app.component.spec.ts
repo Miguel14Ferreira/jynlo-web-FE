@@ -202,13 +202,15 @@ describe('AppComponent', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should record the first access when the app starts', () => {
+  it('should record the first access when the app starts', async () => {
     const fixture = TestBed.createComponent(AppComponent);
 
     fixture.detectChanges();
-
-    expect(pilotAnalyticsService.recordFirstAccess).toHaveBeenCalledTimes(1);
+    // Presence starts synchronously; optional analytics is loaded in a
+    // separate chunk so it does not inflate the initial Angular bundle.
     expect(onlinePresenceService.start).toHaveBeenCalledTimes(1);
+    await fixture.whenStable();
+    expect(pilotAnalyticsService.recordFirstAccess).toHaveBeenCalledTimes(1);
   });
 
   it('should expose the Desporto24 title', () => {
