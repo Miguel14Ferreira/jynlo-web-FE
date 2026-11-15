@@ -473,7 +473,8 @@ describe('SocialStoriesComponent', () => {
       Object.defineProperty(input, 'files', { value: [file], configurable: true });
       component.pickFile({ target: input } as unknown as Event);
       expect(component.file).toBeNull();
-      expect(component.error).toBeTruthy();
+      // Upload validation is displayed inside the story composer, not in the feed error banner.
+      expect(component.publishError).toBeTruthy();
     }
   }));
 
