@@ -494,16 +494,17 @@
   background: linear-gradient(120deg, rgba(116, 29, 47, .3), rgba(32, 21, 37, .7));
   color: #ffe1e5;
 }
-:host .detail-page.jynlo-session-detail-premium .session-cancelled-banner__icon {
-  display: grid;
-  place-items: center;
-  flex: 0 0 32px;
-  height: 32px;
-  border: 1px solid rgba(251, 113, 133, .48);
-  border-radius: 50%;
-  background: rgba(251, 113, 133, .15);
-  font-size: 1.2rem;
-  font-weight: 850;
+:host .detail-page.jynlo-session-detail-premium .session-cancelled-cross {
+  display: inline-block;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #ffb1bf;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
 }
 :host .detail-page.jynlo-session-detail-premium .session-cancelled-banner strong {
   display: block;
