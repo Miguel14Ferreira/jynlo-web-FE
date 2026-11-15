@@ -3696,7 +3696,7 @@ describe('SessionDetailsComponent', () => {
 
     component.generateTeams();
 
-    expect(sessionService.teamSuggestion).toHaveBeenCalledWith(7, 'FORM');
+    expect(sessionService.teamSuggestion).toHaveBeenCalledWith(7, 'AUTO');
     expect(component.teamSuggestion?.teamA[0].username).toBe('creator-user');
     expect(component.teamSuggestion?.playersWithStats).toBe(2);
     expect(component.teamSuggestionPendingConfirmation).toBeTrue();
@@ -3745,7 +3745,7 @@ describe('SessionDetailsComponent', () => {
 
     component.confirmTeams();
 
-    expect(sessionService.confirmTeams).toHaveBeenCalledWith(7, 'FORM', component.teamSuggestion);
+    expect(sessionService.confirmTeams).toHaveBeenCalledWith(7, 'AUTO', component.teamSuggestion);
     expect(component.teamsSuccess).toContain('confirmadas');
     expect(component.teamSuggestionPendingConfirmation).toBeFalse();
     expect(component.hasConfirmedTeams()).toBeTrue();
