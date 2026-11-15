@@ -177,6 +177,26 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(component.cancellationShareText).not.toContain('Entrada');
   });
 
+  it('shares the current verified sport, date and city after editing a session', () => {
+    sessions.detail.and.returnValue(of({
+      id: 515, creatorUsername: 'miguel', status: 'OPEN',
+      sport: 'Padel', city: 'Benfica', gameDate: '2026-11-25T19:30:00Z'
+    } as SessionDetail));
+    const pending = new Subject<void>();
+    sessions.cancel.and.returnValue(pending.asObservable());
+    component.items = [ownedSessionActivity];
+    component.requestCancelSession(ownedSessionActivity);
+    component.confirmCancelSession(ownedSessionActivity);
+    expect(component.cancellationShareText).toBe('');
+    pending.next();
+    pending.complete();
+    expect(component.cancellationShareText).toContain('Padel');
+    expect(component.cancellationShareText).toContain('Benfica');
+    expect(component.cancellationShareText).toContain('25/11/2026');
+    expect(component.cancellationShareText).not.toContain('Futsal');
+    expect(component.cancellationShareText).not.toContain('Campo Grande');
+  });
+
   it('does not offer guest cancellation sharing after a failed cancel', () => {
     sessions.detail.and.returnValue(of({
       id:515,creatorUsername:'miguel',status:'OPEN'
