@@ -2110,7 +2110,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
 
   /** Optional manual communication for guests who joined without a Jynlo account.
    * Only public sport/city/time are included; never reveal arrival instructions. */
-  private cancelledSessionMessage(item: FeedItem): string {
+  private cancelledSessionMessage(item: Pick<FeedItem, 'sport' | 'city' | 'gameDate'>): string {
     return sessionCancellationNotice(item);
   }
 
@@ -2153,7 +2153,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
           return;
         }
         this.pendingCancelSessionSnapshot = {
-          id, sport: detail.sport, city: detail.city, gameDate: detail.gameDate
+          id, sport: detail.sport ?? item.sport, city: detail.city ?? item.city,
+          gameDate: detail.gameDate ?? item.gameDate
         };
         this.pendingCancelSession = item;
       },
@@ -2185,7 +2186,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         // fetched from the server immediately before the user confirmed.
         const confirmedDetails = this.pendingCancelSessionSnapshot?.id === id
           ? this.pendingCancelSessionSnapshot : item;
-        this.cancellationShareText = sessionCancellationNotice(confirmedDetails);
+        this.cancellationShareText = this.cancelledSessionMessage(confirmedDetails);
         this.pendingCancelSessionSnapshot = null;
         this.cancellationShareNotice = 'Cancelamento confirmado. Os jogadores com conta Jynlo recebem a notificação interna; partilha este aviso com convidados externos.';
         this.loadCompletedSessions();
