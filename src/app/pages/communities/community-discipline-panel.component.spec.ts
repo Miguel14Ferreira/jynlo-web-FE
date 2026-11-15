@@ -197,4 +197,16 @@ describe('Community discipline panel', () => {
     expect(component.decisionSavingId).toBeNull();
   });
 
+  it('suggests matching member usernames and requires an explicit selection for warning', () => {
+    component.onMemberQueryChange('mem');
+    expect(component.targetProfileId).toBeNull();
+    expect(component.suggestedMembers.map(member => member.username)).toEqual(['member']);
+    component.selectMember(11);
+    expect(component.targetProfileId).toBe(11);
+    expect(component.memberQuery).toContain('@member');
+    component.onMemberQueryChange('owner');
+    expect(component.targetProfileId).toBeNull();
+    expect(component.suggestedMembers).toEqual([]);
+  });
+
 });
