@@ -39,6 +39,19 @@ interface StoryGroup {
 export class SocialStoriesComponent implements OnInit, OnDestroy {
   entries: SocialStory[] = [];
   mineEntries: SocialStory[] = [];
+  private feedRequestVersion = 0;
+  private mineRequestVersion = 0;
+  private readonly confirmedStories = new Map<number, { story: SocialStory; until: number }>();
+
+  private retainConfirmedStories(received: SocialStory[]): SocialStory[] {
+    const now = Date.now();
+    for (const [id, value] of this.confirmedStories) {
+      if (value.until <= now || received.some(story => story.id === id)) this.confirmedStories.delete(id);
+    }
+    const pending = [...this.confirmedStories.values()].map(item => item.story);
+    const pendingIds = new Set(pending.map(item => item.id));
+    return [...pending, ...received.filter(story => !pendingIds.has(story.id))];
+  }
   mineLoading = true;
   mineError = '';
   groups: CommunityGroup[] = [];
@@ -570,6 +583,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   }
 
   reload(): void {
+    const requestVersion = ++this.feedRequestVersion;
     this.loading = true;
     this.error = '';
     this.stories.feed().pipe(
@@ -577,11 +591,13 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
       takeUntil(this.destroyed)
     ).subscribe({
       next: stories => {
-        this.entries = stories;
+        if (requestVersion !== this.feedRequestVersion) return;
+        this.entries = this.retainConfirmedStories(stories);
         this.loading = false;
         this.changeDetector.markForCheck();
       },
       error: () => {
+        if (requestVersion !== this.feedRequestVersion) return;
         this.loading = false;
         this.error = t('stories.loadFailed');
         this.changeDetector.markForCheck();
@@ -590,6 +606,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   }
 
   loadMine(): void {
+    const requestVersion = ++this.mineRequestVersion;
     this.mineLoading = true;
     this.mineError = '';
     this.stories.mine().pipe(
@@ -597,11 +614,13 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
       takeUntil(this.destroyed)
     ).subscribe({
       next: stories => {
-        this.mineEntries = stories;
+        if (requestVersion !== this.mineRequestVersion) return;
+        this.mineEntries = this.retainConfirmedStories(stories);
         this.mineLoading = false;
         this.changeDetector.markForCheck();
       },
       error: () => {
+        if (requestVersion !== this.mineRequestVersion) return;
         this.mineLoading = false;
         this.mineError = t('stories.mineFailed');
         this.changeDetector.markForCheck();
@@ -742,6 +761,12 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
       takeUntil(this.destroyed)
     ).subscribe({
       next: story => {
+        if (!Number.isSafeInteger(story?.id) || story.id <= 0) {
+          this.publishError = 'O servidor não confirmou a Story. Verifica o perfil antes de repetir.';
+          this.changeDetector.markForCheck();
+          return;
+        }
+        this.confirmedStories.set(story.id, {story, until: Date.now() + 120_000});
         this.entries = [story, ...this.entries.filter(item => item.id !== story.id)];
         this.mineEntries = [story, ...this.mineEntries.filter(item => item.id !== story.id)];
         this.mineError = '';
