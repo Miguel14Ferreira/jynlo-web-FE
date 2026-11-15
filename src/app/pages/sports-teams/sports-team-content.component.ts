@@ -36,7 +36,7 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionStat
           <p>{{item.deleted ? 'Mensagem eliminada' : item.body}}</p>
           <small *ngIf="item.editedAt && !item.deleted">Editada</small>
           <div class="team-reactions" *ngIf="!item.deleted" aria-label="Reações à mensagem">
-            <button type="button" *ngFor="let emoji of emojis" [disabled]="reactionBusyId === item.id"
+            <button type="button" *ngFor="let emoji of emojis" [disabled]="reactionBusyId !== null"
               [class.selected]="reactionsById[item.id]?.mine === emoji"
               [attr.aria-pressed]="reactionsById[item.id]?.mine === emoji"
               (click)="react(item, emoji)">{{emoji}}
