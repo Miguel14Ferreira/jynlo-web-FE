@@ -35,10 +35,18 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionStat
           <p *ngIf="item.replyToId" class="team-content-reply">↳ {{replyPreview(item.replyToId)}}</p>
           <p>{{item.deleted ? 'Mensagem eliminada' : item.body}}</p>
           <div class="team-private-files" *ngIf="!item.deleted && item.attachments?.length">
-            <button type="button" *ngFor="let file of item.attachments" [disabled]="downloading"
-              (click)="download(item,file.index,file.filename)">
-              <span aria-hidden="true">📎</span> {{file.filename}} ({{(file.size/1024/1024) | number:'1.1-1'}} MB)
-            </button>
+            <div *ngFor="let file of item.attachments" class="team-file-card">
+              <p>📎 {{file.filename}} ({{(file.size/1024/1024) | number:'1.1-1'}} MB)</p>
+              <button type="button" *ngIf="canPreview(file.mimeType)"
+                [disabled]="downloading" (click)="preview(item,file)">Ver anexo</button>
+              <button type="button" [disabled]="downloading"
+                (click)="download(item,file.index,file.filename)">Descarregar</button>
+              <img *ngIf="previews[previewKey(item.id,file.index)]?.type === 'image'"
+                [src]="previews[previewKey(item.id,file.index)].url"
+                [alt]="'Anexo de ' + item.username" loading="lazy" />
+              <video *ngIf="previews[previewKey(item.id,file.index)]?.type === 'video'"
+                [src]="previews[previewKey(item.id,file.index)].url" controls preload="none"></video>
+            </div>
           </div>
           <small *ngIf="item.editedAt && !item.deleted">Editada</small>
           <div class="team-reactions" *ngIf="!item.deleted" aria-label="Reações à mensagem">
@@ -115,7 +123,10 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionStat
     .team-content-entry form {display:grid;gap:.4rem;margin-top:.6rem}
     .team-content-entry textarea {min-height:65px;background:#072b38;color:white;border:1px solid #448b90;border-radius:8px;padding:.6rem}
     .team-private-files {display:flex;flex-wrap:wrap;gap:.5rem;margin:.6rem 0}
-    .team-private-files button {padding:.5rem .7rem;max-width:100%;overflow-wrap:anywhere;border-radius:10px;border:1px solid #34777e;background:#144552;color:#c9fff3;cursor:pointer}
+    .team-file-card {display:grid;gap:.5rem;max-width:100%;padding:.65rem;border-radius:11px;border:1px solid #34777e;background:#10404d}
+    .team-file-card p {margin:0;font-size:.8rem;overflow-wrap:anywhere}
+    .team-file-card button {padding:.5rem .7rem;border-radius:10px;border:1px solid #34777e;background:#144552;color:#c9fff3;cursor:pointer}
+    .team-file-card img,.team-file-card video {max-width:min(100%,550px);max-height:360px;border-radius:10px}
     .team-upload-selector {display:grid;gap:.3rem}
     .team-upload-selector input {color:#d5faf4;max-width:100%}
     .team-upload-selector p {overflow-wrap:anywhere}
@@ -139,6 +150,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   attachmentsEnabled = false;
   files: File[] = [];
   downloading = false;
+  previews: Record<string,{url:string;type:'image'|'video'}> = {};
+  private readonly previewOrder:string[] = [];
   private attachmentProbeVersion = 0;
   items: TeamContentEntry[] = [];
   draft = '';
@@ -171,7 +184,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.replyTargetId = null;this.editingId = null;
       this.clearSearch();this.searchTerm = '';
       this.reactionVersion++;this.reactionsById={};
-      this.clearFiles();this.attachmentsEnabled=false;
+      this.clearFiles();this.clearPreviews();this.attachmentsEnabled=false;
       this.checkAttachmentsAvailable();
       if (!changes['teamId']?.firstChange && !changes['kind']?.firstChange) this.read(false);
     }
@@ -264,6 +277,47 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
   clearFiles():void {this.files=[];}
   filesLabel():string {return this.files.map(file=>file.name).join(', ');}
+  previewKey(messageId:number,index:number):string{return messageId+':'+index;}
+  canPreview(mime:string):boolean {
+    return ['image/jpeg','image/png','image/webp','image/gif','video/mp4','video/webm'].includes(mime);
+  }
+  preview(entry:TeamContentEntry,file:{index:number;mimeType:string;filename:string}):void {
+    if(this.downloading||entry.deleted||!this.canPreview(file.mimeType)
+      ||file.index<0||file.index>=4)return;
+    const key=this.previewKey(entry.id,file.index);
+    if(this.previews[key]){
+      URL.revokeObjectURL(this.previews[key].url);
+      delete this.previews[key];
+      return;
+    }
+    this.downloading=true;this.error='';
+    const generation=this.generation;
+    this.api.downloadContentFile(this.teamId,this.kind,entry.id,file.index).subscribe({
+      next:blob=>{
+        if(generation!==this.generation)return;
+        if(blob.type!==file.mimeType){
+          this.error='O tipo do ficheiro recebido não corresponde ao anexo.';
+          return;
+        }
+        if(this.previewOrder.length>=8){
+          const first=this.previewOrder.shift();
+          if(first && this.previews[first]){
+            URL.revokeObjectURL(this.previews[first].url);
+            delete this.previews[first];
+          }
+        }
+        const url=URL.createObjectURL(blob);
+        this.previews[key]={url,type:file.mimeType.startsWith('image/')?'image':'video'};
+        this.previewOrder.push(key);
+      },
+      error:()=>{if(generation===this.generation)
+        this.error='Não foi possível abrir o anexo. Confirma a tua participação.';}
+    }).add(()=>{this.downloading=false;});
+  }
+  private clearPreviews():void {
+    for(const preview of Object.values(this.previews))URL.revokeObjectURL(preview.url);
+    this.previews={};this.previewOrder.length=0;
+  }
   download(entry:TeamContentEntry,index:number,filename:string):void {
     if(this.downloading||entry.deleted||!Number.isSafeInteger(index)||index<0||index>=4)return;
     this.downloading=true;this.error='';
@@ -360,5 +414,5 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     }).add(()=>{this.sending=false;this.read(true);});
   }
 
-  ngOnDestroy():void {this.generation++;this.subscriptions.unsubscribe();}
+  ngOnDestroy():void {this.generation++;this.clearPreviews();this.subscriptions.unsubscribe();}
 }
