@@ -30,7 +30,7 @@ async function main(){
      const label='QA'+(i+1)+' '+paths[index].split('?')[0];
      if(outcome.status==='rejected'){
        failures++;
-       console.log('[FAIL] '+label+': '+String(outcome.reason?.message||outcome.reason).replace(/https?:\\/\\/\\S+/g,'[redacted]').slice(0,100));
+       console.log('[FAIL] '+label+': '+String(outcome.reason?.message||outcome.reason).replace(/https?:\/\/\S+/g,'[redacted]').slice(0,100));
      }else{
        console.log('[PASS] '+label+': '+outcome.value.length+' records');
      }
