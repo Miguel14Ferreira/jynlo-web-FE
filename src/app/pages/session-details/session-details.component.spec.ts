@@ -794,6 +794,20 @@ describe('SessionDetailsComponent', () => {
     expect(fixture.nativeElement.querySelector('.session-location-map')).toBeNull();
   });
 
+  it('shows a clearly approximate embedded map for address-only sessions', () => {
+    component.session = { ...session, canSeeExactAddress: true,
+      address: 'Avenida Professor Aníbal de Bettencourt', city: 'Campo Grande',
+      venue: null };
+    fixture.detectChanges();
+    const embed = fixture.nativeElement.querySelector('.session-embedded-map iframe') as HTMLIFrameElement;
+    expect(embed).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.session-embedded-map').textContent)
+      .toContain('Mapa aproximado pela morada');
+    component.session = { ...component.session, canSeeExactAddress: false };
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.session-embedded-map')).toBeNull();
+  });
+
   it('rejects (0,0) GPS pins and distinguishes missing from locked locations', () => {
     component.session = {
       ...session, canSeeExactAddress: true, address: null,
