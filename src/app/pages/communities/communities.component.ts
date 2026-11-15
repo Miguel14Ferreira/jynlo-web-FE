@@ -487,6 +487,8 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   }
 
   ngOnDestroy(): void {
+    if (this.inviteSuggestTimer) clearTimeout(this.inviteSuggestTimer);
+    this.inviteSuggestRevision++;
     this.clearCommunityFeedImage();
     this.clearCommunityFeedVideo();
     this.clearCommunityFeedGallery();
@@ -1688,6 +1690,8 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     return this.historicalPlayers.filter(candidate => candidate.linkStatus === 'UNLINKED');
   }
   inviteUsername = '';
+  private inviteSuggestTimer?: ReturnType<typeof setTimeout>;
+  private inviteSuggestRevision = 0;
   inviteSearchResults: CommunityProfile[] = [];
   inviteSearchLoading = false;
   inviteSearchPerformed = false;
@@ -1703,6 +1707,25 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   batchJoinTotal = 0;
   batchJoinFeedback = '';
   ownershipUsername = '';
+  ownershipSuggestionsOpen = false;
+
+  get ownershipSuggestions() {
+    const query = this.ownershipUsername.trim().replace(/^@/, '').toLocaleLowerCase();
+    if (!query || !this.selected) return [];
+    return this.selected.members
+      .filter(member => member.role !== 'OWNER' &&
+        (member.username.toLocaleLowerCase().includes(query) ||
+         (member.fullName || '').toLocaleLowerCase().includes(query)))
+      .sort((a,b) => Number(!a.username.toLocaleLowerCase().startsWith(query)) - Number(!b.username.toLocaleLowerCase().startsWith(query)))
+      .slice(0, 8);
+  }
+
+  selectOwnershipMember(username: string): void {
+    if (!this.selected?.members.some(member => member.username === username && member.role !== 'OWNER')) return;
+    this.ownershipUsername = username;
+    this.ownershipSuggestionsOpen = false;
+  }
+
   communityDeleteConfirming = false;
   communityDeleteName = '';
   communityDeleteLoading = false;
@@ -5846,36 +5869,48 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       });
   }
 
-  searchInviteUsers(): void {
-    const query = this.inviteUsername.trim();
-    if (!this.selected || !query || this.inviteSearchLoading) {
+  onInviteUsernameChange(value: string): void {
+    this.inviteUsername = value;
+    this.inviteSearchResults = [];
+    this.inviteSearchPerformed = false;
+    this.inviteSuggestRevision++;
+    if (this.inviteSuggestTimer) clearTimeout(this.inviteSuggestTimer);
+    if (value.trim().length < 2) {
+      this.inviteSearchLoading = false;
       return;
     }
+    const revision = this.inviteSuggestRevision;
+    this.inviteSuggestTimer = setTimeout(() => {
+      if (revision === this.inviteSuggestRevision) this.searchInviteUsers();
+    }, 300);
+  }
 
+  searchInviteUsers(): void {
+    const query = this.inviteUsername.trim();
+    const communityId = this.selected?.id;
+    if (!communityId || query.length < 2) return;
+    if (this.inviteSuggestTimer) clearTimeout(this.inviteSuggestTimer);
+    const revision = ++this.inviteSuggestRevision;
     this.inviteSearchLoading = true;
     this.inviteSearchPerformed = false;
     this.inviteSearchResults = [];
     this.inviteMessage = '';
-    this.errorMessage = '';
 
     this.profileService.findProfiles({ name: query })
-      .pipe(
-        timeout(10_000),
-        retry({ count: 1 }),
-        finalize(() => this.inviteSearchLoading = false)
-      )
+      .pipe(timeout(10_000))
       .subscribe({
         next: profiles => {
-          const existingMembers = new Set(
-            this.selected?.members.map(member => member.username.toLowerCase()) || []
-          );
-
+          if (revision !== this.inviteSuggestRevision || this.selected?.id !== communityId) return;
+          const existingMembers = new Set(this.selected.members.map(member => member.username.toLowerCase()));
           this.inviteSearchResults = profiles
             .filter(profile => !existingMembers.has(profile.username.toLowerCase()))
             .slice(0, 8);
+          this.inviteSearchLoading = false;
           this.inviteSearchPerformed = true;
         },
         error: () => {
+          if (revision !== this.inviteSuggestRevision || this.selected?.id !== communityId) return;
+          this.inviteSearchLoading = false;
           this.inviteSearchPerformed = true;
           this.errorMessage = t('feedback.communities.inviteSearchError');
         }
@@ -5883,6 +5918,9 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   }
 
   selectInviteUser(profile: CommunityProfile): void {
+    this.inviteSuggestRevision++;
+    if (this.inviteSuggestTimer) clearTimeout(this.inviteSuggestTimer);
+    this.inviteSearchLoading = false;
     this.inviteUsername = profile.username;
     this.inviteSearchResults = [];
     this.inviteSearchPerformed = false;
@@ -5940,6 +5978,8 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       )
       .subscribe({
         next: () => {
+          this.inviteSuggestRevision++;
+          if (this.inviteSuggestTimer) clearTimeout(this.inviteSuggestTimer);
           this.inviteUsername = '';
           this.inviteSearchResults = [];
           this.inviteSearchPerformed = false;
@@ -6106,7 +6146,8 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   }
 
   transferOwnership(): void {
-    if (!this.selected || !this.ownershipUsername.trim()) {
+    if (!this.selected || !this.isOwner() ||
+        !this.selected.members.some(member => member.role !== 'OWNER' && member.username === this.ownershipUsername.trim())) {
       return;
     }
 
@@ -6120,6 +6161,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
         this.selected = community;
         this.replaceCommunity(community);
         this.ownershipUsername = '';
+        this.ownershipSuggestionsOpen = false;
       },
       error: error => this.errorMessage = error.error?.message || t('feedback.communities.transferError')
     });
