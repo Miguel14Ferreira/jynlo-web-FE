@@ -626,7 +626,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         this.promotionOpen = false;
         this.creationShareDismissed = true;
         this.actionSuccess = t('feedback.sessions.cancelled');
-        this.cancellationNoticeSessionId = this.sessionId;
+        this.cancellationNoticeSessionId = this.sessionId ?? null;
         this.cancellationNotice = this.buildCancelledSessionNotice();
         this.cancellationNoticeFeedback = 'Se também convidaste jogadores pelo WhatsApp, partilha este aviso com eles.';
       },
