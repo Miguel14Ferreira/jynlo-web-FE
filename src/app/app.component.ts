@@ -5,7 +5,7 @@ import { filter, Subscription, take } from 'rxjs';
 import { AuthenticationService } from './services/authethication.service';
 import type { NativeSelectEnhancementService } from './shared/jynlo-select/native-select-enhancement.service';
 
-import { OnlinePresenceService } from './services/online-presence.service';
+import type { OnlinePresenceService } from './services/online-presence.service';
 import { appTranslate as t } from './i18n/i18n.service';
 import { registrationSessionReturnUrl, registrationCommunityReturnUrl, takeRegistrationDestination } from './shared/registration-return-url';
 import { dismissStartupSplash } from './shared/startup-splash';
@@ -22,6 +22,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   private callOverlayOutlet?: ViewContainerRef;
   private disposed=false;
   private nativeSelectEnhancement?: NativeSelectEnhancementService;
+  private onlinePresence?: OnlinePresenceService;
   private splashNavigationSubscription?: Subscription;
   private splashSafetyTimeout?: number;
   title = 'desporto24';
@@ -29,7 +30,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private router: Router,
     private authenticationService: AuthenticationService,
-    private onlinePresence: OnlinePresenceService,
     private injector: Injector
   ) {}
 
@@ -56,7 +56,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!this.disposed) this.injector.get(PilotAnalyticsService).recordFirstAccess(params.get('cohort'));
       })
       .catch(() => { /* Analytics is best-effort; never break navigation. */ });
-    this.onlinePresence.start();
+    // Presence is best-effort; keep its HTTP and router dependencies out of
+    // the initial bundle without losing authenticated heartbeat behaviour.
+    void import('./services/online-presence.service')
+      .then(({OnlinePresenceService}) => {
+        if (this.disposed) return;
+        this.onlinePresence = this.injector.get(OnlinePresenceService);
+        this.onlinePresence.start();
+      }).catch(() => { /* App navigation must work without presence telemetry. */ });
 
     const token = params.get('confirmRegistration');
 
@@ -116,7 +123,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.splashSafetyTimeout !== undefined) {
       window.clearTimeout(this.splashSafetyTimeout);
     }
-    this.onlinePresence.stop();
+    this.onlinePresence?.stop();
     this.nativeSelectEnhancement?.stop();
   }
 
