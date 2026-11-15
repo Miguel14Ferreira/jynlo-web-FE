@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.service';
 import { OpenTeamCompetition, TeamCompetitionApplication,
   TeamCompetitionApplicationsService } from '../../services/team-competition-applications.service';
@@ -67,10 +67,14 @@ export class TeamCompetitionDiscoveryComponent implements OnInit {
   query='';sport='';selectedTeam:number|null=null;mine:SportsTeam[]=[];
   competitions:OpenTeamCompetition[]=[];applications:TeamCompetitionApplication[]=[];
   error='';notice='';loading=false;saving=false;
-  constructor(private readonly teams:SportsTeamsService,
+  constructor(private readonly route:ActivatedRoute,private readonly teams:SportsTeamsService,
               private readonly api:TeamCompetitionApplicationsService){}
   ngOnInit():void{
-    this.teams.mine().subscribe({next:teams=>this.mine=teams,error:()=>this.mine=[]});
+    this.teams.mine().subscribe({next:teams=>{
+      this.mine=teams;
+      const requested=Number(this.route.snapshot.queryParamMap.get('teamId'));
+      if(Number.isSafeInteger(requested)&&teams.some(team=>team.id===requested))this.selectedTeam=requested;
+    },error:()=>this.mine=[]});
     this.api.mine().subscribe({next:apps=>this.applications=apps,error:()=>this.applications=[]});
     this.search();
   }
