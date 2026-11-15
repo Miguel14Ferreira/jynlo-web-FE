@@ -683,6 +683,22 @@ describe('SocialFeedComponent discovery sidebar', () => {
     component.clearPostGallery();
   }));
 
+  it('keeps a previously selected video when adding photos to an album', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    spyOn(URL, 'createObjectURL').and.returnValues('blob:old-video', 'blob:photo');
+    const clip = new File(['video'], 'clip.mp4', { type: 'video/mp4' });
+    const photo = new File(['image'], 'group.png', { type: 'image/png' });
+    component.postVideoFile = clip;
+    component.postVideoPreview = '';
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', { value: [photo], configurable: true });
+    component.onPostGalleryChange({ target: input } as unknown as Event);
+    expect(component.postGallery.map(item => item.file)).toEqual([clip, photo]);
+    expect(component.postVideoFile).toBeUndefined();
+    component.clearPostGallery();
+  }));
+
   it('does not silently remove an existing image when album selection is invalid', fakeAsync(() => {
     fixture.detectChanges();
     tick(351);
