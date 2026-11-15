@@ -48,7 +48,7 @@ describe('SocialStoriesComponent', () => {
         { provide: DirectChatService, useValue: direct },
         { provide: CommunityService, useValue: profiles },
         { provide: CommunityGroupsService, useValue: communities },
-        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } }
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) }, queryParamMap: of(convertToParamMap({})) } }
       ]
     }).compileComponents();
     fixture = TestBed.createComponent(SocialStoriesComponent);
