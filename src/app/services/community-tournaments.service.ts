@@ -250,6 +250,18 @@ export class CommunityTournamentsService {
     return this.http.get<CommunityTournament>(this.url(communityId, tournamentId));
   }
 
+  teamPromotionStatus(communityId: number, tournamentId: number, teamId: number):
+    Observable<{globalTeamId: number | null; canPromote: boolean}> {
+    return this.http.get<{globalTeamId: number | null; canPromote: boolean}>(
+      this.url(communityId, tournamentId) + '/teams/' + teamId + '/promotion');
+  }
+
+  promoteTournamentTeam(communityId: number, tournamentId: number, teamId: number):
+    Observable<{id: number; name: string; slug: string}> {
+    return this.http.post<{id: number; name: string; slug: string}>(
+      this.url(communityId, tournamentId) + '/teams/' + teamId + '/promote', null);
+  }
+
   teamAdministration(communityId: number, tournamentId: number, teamId: number):
     Observable<{ teamId: number; adminProfileId: number | null; pendingProfileId: number | null; canManage: boolean; canAccept: boolean }> {
     return this.http.get<{ teamId: number; adminProfileId: number | null; pendingProfileId: number | null; canManage: boolean; canAccept: boolean }>(
