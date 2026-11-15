@@ -1092,6 +1092,9 @@ export class Events2Component implements OnInit, OnDestroy {
         : ''),
       description: this.description.trim() || null,
       meetingPointInstructions: this.sessionMeetingInstructions,
+      googleMapsUrl: this.locationMethod === 'maps' && this.locationSource === 'map'
+        && this.venueMapCandidateResolvedUrl && this.venueMapLink.trim()
+        ? this.venueMapLink.trim() : null,
       maxParticipants: Number(this.maxParticipants),
       minParticipants: this.minimumPlayers,
       ...(this.findPlayersMode
