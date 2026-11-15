@@ -1,0 +1,38 @@
+name: Jynlo startup and bundle budget
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'src/app/app.component.ts'
+      - 'src/app/app.component.spec.ts'
+      - 'src/app/services/pilot-analytics.service.ts'
+      - 'src/app/services/online-presence.service.ts'
+      - 'angular.json'
+      - '.github/workflows/startup-bundle-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Do not cancel this short validation when another contributor updates team
+# or tournament pages. Each run validates the exact triggering commit.
+jobs:
+  startup-build:
+    name: Test app boot and enforce production initial-bundle budget
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.3'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Test splash, optional telemetry and login navigation
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
+        run: npx ng test --watch=false --browsers=ChromeHeadless --include=src/app/app.component.spec.ts
+      - name: Production build with existing strict bundle budgets
+        run: npm run build
