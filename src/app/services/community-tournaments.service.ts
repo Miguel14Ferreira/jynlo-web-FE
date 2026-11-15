@@ -252,7 +252,7 @@ export class CommunityTournamentsService {
 
   teamPromotionStatus(communityId: number, tournamentId: number, teamId: number):
     Observable<{globalTeamId: number | null; canPromote: boolean; archived: boolean}> {
-    return this.http.get<{globalTeamId: number | null; canPromote: boolean}>(
+    return this.http.get<{globalTeamId: number | null; canPromote: boolean; archived: boolean}>(
       this.url(communityId, tournamentId) + '/teams/' + teamId + '/promotion');
   }
 
