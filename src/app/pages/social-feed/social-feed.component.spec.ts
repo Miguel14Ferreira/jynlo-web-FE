@@ -93,6 +93,13 @@ describe('SocialFeedComponent discovery sidebar', () => {
     likeCount: 0, likedByMe: false, commentCount: 0
   };
 
+  it('shows relative creation times for sessions without changing scheduled game dates', () => {
+    expect(component.feedCreatedWhen('2026-11-15T10:00:00Z', new Date(2026, 10, 15, 20))).toBe('Hoje');
+    expect(component.feedCreatedWhen('2026-11-14T10:00:00Z', new Date(2026, 10, 15, 20))).toBe('Ontem');
+    expect(component.feedCreatedWhen('2026-11-13T10:00:00Z', new Date(2026, 10, 15, 20))).toBe('Há 2 dias');
+    expect(component.feedCreatedWhen('invalid', new Date(2026, 10, 15, 20))).toBe('');
+  });
+
   it('shows cancellation only on owned session activity and requires confirmation', fakeAsync(() => {
     feed.feed.and.returnValue(of([ownedSessionActivity]));
     sessions.detail.and.returnValue(of({
