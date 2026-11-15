@@ -17,6 +17,7 @@ import { nextWeekGames, nextWeekWaitlist, weekOffers } from './my-sports-week';
 import { SessionService } from '../../services/session.service';
 import { SessionSummary } from '../model/session-summary';
 import { FeedItem, SocialComment } from '../model/feed-item';
+import { sessionCancellationNotice } from '../../shared/session-cancellation-notice';
 import { FollowProfile } from '../model/follow';
 import { CommunityProfile } from '../model/community-profile';
 import { FriendSummary } from '../model/friend-summary';
@@ -2109,16 +2110,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   /** Optional manual communication for guests who joined without a Jynlo account.
    * Only public sport/city/time are included; never reveal arrival instructions. */
   private cancelledSessionMessage(item: FeedItem): string {
-    const when = item.gameDate && Number.isFinite(Date.parse(item.gameDate))
-      ? new Date(item.gameDate).toLocaleString('pt-PT', {
-          timeZone: 'Europe/Lisbon', day: '2-digit', month: '2-digit',
-          year: 'numeric', hour: '2-digit', minute: '2-digit'
-        })
-      : '';
-    const description = [item.sport || 'desporto', when, item.city || ''].filter(Boolean).join(' · ');
-    return '⚠️ Sessão cancelada — ' + description +
-      '. O organizador cancelou esta sessão e o jogo não se vai realizar. ' +
-      'Por favor, não te desloques ao recinto.';
+    return sessionCancellationNotice(item);
   }
 
   async shareCancelledSessionNotice(): Promise<void> {
