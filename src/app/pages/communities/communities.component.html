@@ -5497,10 +5497,12 @@
                   [canManage]="canManage()">
                 </app-community-discipline-panel>
 
-                <app-community-tournament-suspensions
-                  [community]="selected"
-                  [canManage]="canManage()">
-                </app-community-tournament-suspensions>
+                @if (selected.individualTournamentsEnabled === true || selected.teamTournamentsEnabled === true) {
+                  <app-community-tournament-suspensions
+                    [community]="selected"
+                    [canManage]="canManage()">
+                  </app-community-tournament-suspensions>
+                }
 
                 @if (isOwner()) {
                   <section class="management-block">
