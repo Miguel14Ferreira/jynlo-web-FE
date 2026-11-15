@@ -1213,6 +1213,14 @@
                       (click)="generateTeams('AUTO')">
                       Equipas equilibradas · classificação da comunidade
                     </button>
+                    <button
+                      type="button"
+                      class="secondary-action jynlo-action jynlo-action--neutral team-generator-excel-action"
+                      [disabled]="teamsLoading || teamsConfirming"
+                      [attr.aria-pressed]="teamsScoreSource === 'EXCEL_POINTS'"
+                      (click)="generateTeams('EXCEL_POINTS')">
+                      Equipas equilibradas · pontuação Excel
+                    </button>
                     }
                     <button
                       type="button"
