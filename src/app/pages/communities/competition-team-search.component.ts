@@ -3,6 +3,7 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.service';
+import { TeamCommunityMembership,TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
 import { CompetitionTeamInvitation, CompetitionTeamInvitationType,
   TeamCompetitionInvitationsService } from '../../services/team-competition-invitations.service';
 
@@ -18,6 +19,15 @@ import { CompetitionTeamInvitation, CompetitionTeamInvitationType,
       </button>
       <div *ngIf="open" class="search-content">
         <p>Encontra uma equipa existente na Jynlo e convida o seu responsável.</p>
+        <h4>Equipas da comunidade</h4>
+        <p *ngIf="!associated.length">Ainda não há equipas associadas.</p>
+        <ul><li *ngFor="let team of associated">
+          <strong>{{team.teamName}}</strong>
+          <span *ngIf="invitationFor(team.teamId) as invitation">Convite: {{invitation.status}}</span>
+          <button type="button" *ngIf="!invitationFor(team.teamId)" [disabled]="busy"
+            (click)="invite(team.teamId)">Convidar para a competição</button>
+        </li></ul>
+        <h4>Outras equipas da Jynlo</h4>
         <label [for]="'team-query-' + type + '-' + competitionId">Nome da equipa</label>
         <div class="search-row">
           <input [id]="'team-query-' + type + '-' + competitionId"
@@ -67,21 +77,28 @@ export class CompetitionTeamSearchComponent implements OnChanges {
   error = '';
   notice = '';
   results: SportsTeam[] = [];
+  associated:TeamCommunityMembership[]=[];
   invitations: CompetitionTeamInvitation[] = [];
   private revision = 0;
 
   constructor(private readonly teams: SportsTeamsService,
-              private readonly invites: TeamCompetitionInvitationsService) {}
+              private readonly invites: TeamCompetitionInvitationsService,
+              private readonly communityMemberships:TeamCommunityMembershipsService) {}
 
   ngOnChanges(): void {
     ++this.revision;
     this.open = false;
     this.query = '';
     this.results = [];
+    this.associated=[];
     this.invitations = [];
     this.searched = false;
     const rev = this.revision;
     if (this.communityId > 0 && this.competitionId > 0) {
+      this.communityMemberships.communityTeams(this.communityId).subscribe({
+        next:rows=>{if(this.revision===rev)this.associated=rows.filter(m=>m.status==='ACTIVE');},
+        error:()=>{if(this.revision===rev)this.associated=[];}
+      });
       this.invites.list(this.communityId, this.type, this.competitionId).subscribe({
         next: rows => {if (this.revision === rev) this.invitations = rows;},
         error: () => { /* Search can still be used even if invitation history is unavailable. */ }
