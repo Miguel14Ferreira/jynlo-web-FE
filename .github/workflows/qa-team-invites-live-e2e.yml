@@ -1,4 +1,5 @@
 name: Jynlo QA - LIVE two-account team invite acceptance (cleanup)
+# Re-run on explicit QA request: existing private QA community only, cleanup in finally.
 
 on:
   push:
