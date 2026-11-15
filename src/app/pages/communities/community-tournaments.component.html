@@ -763,6 +763,9 @@
               <button type="button" class="t-btn t-btn-secondary"
                 [disabled]="championshipBusy || !championshipTeamDrafts[championship.id]"
                 (click)="createChampionshipTeam(championship.id)">Criar equipa</button>
+              <app-competition-team-search
+                [communityId]="community.id" [competitionId]="championship.id" type="CHAMPIONSHIP">
+              </app-competition-team-search>
             }
             @if (registry.teams.length) {
               <h6>Equipas inscritas nesta época</h6>
@@ -3706,6 +3709,9 @@
                       {{ 'communities.tournaments.teamUi.createTeam' | t }}
                     </button>
                   </div>
+                  <app-competition-team-search
+                    [communityId]="community.id" [competitionId]="selected.id" type="TOURNAMENT">
+                  </app-competition-team-search>
                 </div>
               }
               @if (teams.length === 0 && !teamsLoadError) {
