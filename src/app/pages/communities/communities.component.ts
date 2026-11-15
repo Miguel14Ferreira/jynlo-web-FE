@@ -1720,6 +1720,12 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       .slice(0, 8);
   }
 
+  canTransferOwnershipToSelectedMember(): boolean {
+    return !!this.selected && this.isOwner() &&
+      this.selected.members.some(member => member.role !== 'OWNER' &&
+        member.username === this.ownershipUsername.trim());
+  }
+
   selectOwnershipMember(username: string): void {
     if (!this.selected?.members.some(member => member.username === username && member.role !== 'OWNER')) return;
     this.ownershipUsername = username;
