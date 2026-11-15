@@ -1456,6 +1456,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
 
     const reader = new FileReader();
     reader.onload = () => {
+      // An older FileReader may finish after another image or album is selected.
+      if (this.postImageFile !== file) return;
       this.postImagePreview = typeof reader.result === 'string'
         ? reader.result
         : '';
@@ -1501,19 +1503,43 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files ?? []);
     input.value = '';
-    if (!files.length) return;
-    const valid = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm'];
-    const combined = [...this.postGallery.map(item => item.file), ...files];
-    if (combined.length > 6 || combined.some(file => !valid.includes(file.type)
+    if (this.posting || !files.length) return;
+
+    // A photo/video selected through the dedicated picker must remain in the
+    // draft when the organiser later adds more files through the album picker.
+    const existing = this.postGallery.map(item => item.file);
+    if (!existing.length) {
+      if (this.postImageFile) existing.push(this.postImageFile);
+      if (this.postVideoFile) existing.push(this.postVideoFile);
+    }
+    const unique = [...existing];
+    for (const file of files) {
+      if (!unique.some(previous => previous === file ||
+          (previous.name === file.name && previous.size === file.size &&
+            previous.lastModified === file.lastModified && previous.type === file.type))) {
+        unique.push(file);
+      }
+    }
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm'];
+    if (unique.length > 6 || unique.some(file => !allowed.includes(file.type)
         || file.size === 0 || file.size > (file.type.startsWith('video/') ? 20 : 5) * 1024 * 1024)
-        || combined.reduce((sum, file) => sum + file.size, 0) > 60 * 1024 * 1024) {
+        || unique.reduce((sum, file) => sum + file.size, 0) > 60 * 1024 * 1024) {
       this.actionError = 'Até 6 fotografias ou vídeos, máximo de 60 MB no total (5 MB por foto e 20 MB por vídeo).';
       return;
     }
+
+    // Create object URLs before clearing the old standalone preview. Reuse URLs
+    // for existing album entries to avoid unnecessary allocations and flicker.
+    const gallery = unique.map(file => {
+      const previous = this.postGallery.find(entry => entry.file === file);
+      return previous ?? { file, url: URL.createObjectURL(file) };
+    });
+    const removed = this.postGallery.filter(entry => !gallery.some(item => item.url === entry.url));
+    for (const entry of removed) URL.revokeObjectURL(entry.url);
+    this.postGallery = gallery;
+    this.postGalleryIndex = Math.max(0, gallery.length - 1);
     this.removePostImage();
     this.removePostVideo();
-    this.postGallery.push(...files.map(file => ({file, url: URL.createObjectURL(file)})));
-    this.postGalleryIndex = Math.max(0, this.postGallery.length - files.length);
     this.actionError = '';
   }
 
