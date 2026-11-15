@@ -35,6 +35,19 @@ export interface SportsTeamInvitation {
   status: 'INVITED';
 }
 
+/** A trophy is earned only when the server has finalized an undisputed winner. */
+export interface TeamCompetitionHistory {
+  tournamentId: number;
+  tournamentName: string;
+  communityId: number;
+  communityName: string;
+  sport: string | null;
+  status: string;
+  completedAt: string | null;
+  champion: boolean;
+  archived: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class SportsTeamsService {
   private readonly url = environment.apiUrl + '/api/teams';
@@ -63,6 +76,9 @@ export class SportsTeamsService {
   }
   mine(): Observable<SportsTeam[]> {
     return this.http.get<SportsTeam[]>(this.url + '/mine');
+  }
+  history(id: number): Observable<TeamCompetitionHistory[]> {
+    return this.http.get<TeamCompetitionHistory[]>(this.url + '/' + id + '/history');
   }
   detail(id: number): Observable<SportsTeam> {
     return this.http.get<SportsTeam>(this.url + '/' + id);
