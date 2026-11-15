@@ -16,7 +16,6 @@ import { SessionPreset } from '../model/session-preset';
 import { SessionPresetService } from '../../services/session-preset.service';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { compactSessionShareMessage } from '../../shared/session-share-message';
-import { sessionCancellationNotice } from '../../shared/session-cancellation-notice';
 import { venueHasPortugueseCoordinates, venueDirectionsUrl, VenueTravelMode } from '../../shared/venue-public-contact';
 import { venueUsableAddress } from '../../shared/venue-location';
 import { playerAvatarInitials, playerAvatarUrl } from '../../shared/player-avatar';
@@ -287,10 +286,6 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   sharingSession = false;
   cancelSessionConfirmOpen = false;
   cancelSessionWorking = false;
-  cancellationNotice = '';
-  cancellationNoticeSessionId: number | null = null;
-  cancellationNoticeFeedback = '';
-  cancellationNoticeSharing = false;
   readonly editableSports = SPORTS_CATALOG;
   private readonly sessionPresetService = inject(SessionPresetService);
   detailsPresets: SessionPreset[] = [];
@@ -628,55 +623,12 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         this.promotionOpen = false;
         this.creationShareDismissed = true;
         this.actionSuccess = t('feedback.sessions.cancelled');
-        this.cancellationNoticeSessionId = this.sessionId ?? null;
-        this.cancellationNotice = this.buildCancelledSessionNotice();
-        this.cancellationNoticeFeedback = 'Se também convidaste jogadores pelo WhatsApp, partilha este aviso com eles.';
       },
       error: error => {
         this.actionError = this.errorFrom(error, t('feedback.sessions.cancelError'));
       }
     });
   }
-  /** Public event summary only: the message may be forwarded outside Jynlo.
-   * No precise address, passwords or private meeting instructions. */
-  private buildCancelledSessionNotice(): string {
-    return this.session ? sessionCancellationNotice(this.session) : '';
-  }
-
-  /** Also available after reopening a previously cancelled session.
-   * Recompute from the currently authorized detail, never from a prior route. */
-  cancelledSessionShareMessage(): string {
-    if (!this.session || this.session.status !== 'CANCELLED' ||
-        !this.isCreator() || this.session.id !== this.sessionId) return '';
-    return this.cancellationNoticeSessionId === this.sessionId && this.cancellationNotice
-      ? this.cancellationNotice
-      : this.buildCancelledSessionNotice();
-  }
-
-  async shareCancelledSessionNotice(): Promise<void> {
-    const message = this.cancelledSessionShareMessage();
-    if (!message || this.cancellationNoticeSharing) return;
-    this.cancellationNoticeSharing = true;
-    this.cancellationNoticeFeedback = '';
-    try {
-      if (typeof navigator.share === 'function') {
-        try {
-          await navigator.share({text: message});
-          this.cancellationNoticeFeedback = 'Aviso partilhado.';
-          return;
-        } catch (error) {
-          if (error instanceof Error && error.name === 'AbortError') return;
-        }
-      }
-      await this.copyShareUrl(message);
-      this.cancellationNoticeFeedback = 'Aviso copiado. Envia-o aos convidados externos.';
-    } catch {
-      this.cancellationNoticeFeedback = 'Seleciona e copia a mensagem abaixo para o grupo.';
-    } finally {
-      this.cancellationNoticeSharing = false;
-    }
-  }
-
   creationShareDismissed = false;
   promotionOpen = false;
   shareFeedback = '';
