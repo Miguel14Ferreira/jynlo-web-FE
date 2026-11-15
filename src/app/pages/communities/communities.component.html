@@ -948,6 +948,10 @@
               ></app-community-feature-settings>
             }
 
+            @if (activeTab === 'members') {
+              <app-community-teams-panel [communityId]="selected.id" [canManage]="canManage()"></app-community-teams-panel>
+            }
+
             @if (canManage() && activeTab === 'members') {
               <app-community-whatsapp-share
                 [visibility]="selected.visibility"
