@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { TeamCommunityMembership,TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
+import { PublicTeamCommunity,TeamCommunityMembership,TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
 import { SportsTeam, SportsTeamMember, SportsTeamsService } from '../../services/sports-teams.service';
 
 @Component({
   standalone: true,
   selector: 'app-sports-team-detail',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   template: `
   <main class="team-detail" *ngIf="team as t; else state">
     <a routerLink="/menu/teams">← Equipas</a>
@@ -37,6 +38,19 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService } from '../../services
             <button type="button" [disabled]="busy" (click)="respond(item.id,false)">Recusar</button>
           </div>
           <p *ngIf="feedback" role="status">{{feedback}}</p>
+          <h3>Encontrar comunidades</h3>
+          <p>Pesquisa comunidades públicas e pede adesão em nome desta equipa.</p>
+          <div class="search-community">
+            <input [(ngModel)]="communityQuery" maxlength="100" placeholder="Pesquisar comunidade"/>
+            <button type="button" [disabled]="busy" (click)="searchCommunities()">Pesquisar</button>
+          </div>
+          <div *ngFor="let candidate of communityResults">
+            <strong>{{candidate.name}}</strong> · {{candidate.sport||'Várias modalidades'}}
+            <button type="button" [disabled]="busy || hasCommunity(candidate.id)"
+              (click)="requestCommunity(candidate.id)">
+              {{hasCommunity(candidate.id)?'Pedido existente':'Pedir adesão'}}
+            </button>
+          </div>
         </ng-container>
       </section>
       <section><h2>Feed</h2><p>{{ t.feedEnabled ? 'Feed ativado. A publicação para equipas está em desenvolvimento.' : 'Desativado pelo responsável da equipa.' }}</p></section>
@@ -52,15 +66,37 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService } from '../../services
     .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}
     .team-grid section{padding:1.25rem;border:1px solid #6c968044;border-radius:14px}
     h2{font-size:1.1rem}
+    .search-community{display:flex;gap:.5rem;flex-wrap:wrap}
+    .search-community input{min-width:150px;flex:1;padding:.65rem;border:1px solid #6d8e7b;border-radius:8px;background:transparent;color:inherit}
+    button{padding:.45rem .7rem;margin:.25rem;border:1px solid #6d9e7b;border-radius:8px;background:transparent;color:inherit;cursor:pointer}
+    button:disabled{opacity:.5}
   `]
 })
 export class SportsTeamDetailComponent implements OnInit {
   team: SportsTeam | null = null;
   members: SportsTeamMember[] = [];
   communities:TeamCommunityMembership[]=[];
+  communityQuery='';communityResults:PublicTeamCommunity[]=[];
   isOwner=false;busy=false;feedback='';
   get activeCommunities(){return this.communities.filter(item=>item.status==='ACTIVE');}
   get invitations(){return this.communities.filter(item=>item.status==='PENDING_TEAM');}
+  hasCommunity(id:number):boolean{return this.communities.some(item=>item.communityId===id&&item.status!=='DECLINED');}
+  searchCommunities():void{
+    if(!this.isOwner||this.busy)return;
+    this.busy=true;this.feedback='';
+    this.communityMemberships.discover(this.communityQuery).subscribe({
+      next:items=>{this.communityResults=items;this.busy=false;},
+      error:()=>{this.feedback='Não foi possível pesquisar comunidades.';this.busy=false;}
+    });
+  }
+  requestCommunity(communityId:number):void{
+    if(!this.team||!this.isOwner||this.busy||this.hasCommunity(communityId))return;
+    this.busy=true;this.feedback='';
+    this.communityMemberships.request(this.team.id,communityId).subscribe({
+      next:()=>{this.busy=false;this.feedback='Pedido enviado aos responsáveis da comunidade.';this.loadCommunities();},
+      error:()=>{this.busy=false;this.feedback='Não foi possível pedir adesão. Confirma o estado do pedido.';}
+    });
+  }
   error = '';
   constructor(private readonly route: ActivatedRoute, private readonly api: SportsTeamsService,
     private readonly communityMemberships:TeamCommunityMembershipsService) {}
