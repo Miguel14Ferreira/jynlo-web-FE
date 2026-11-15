@@ -676,6 +676,7 @@ describe('SessionDetailsComponent', () => {
     const exactUrl = 'https://maps.app.goo.gl/2Qy87Din3ZYJz8VZA';
     component.session = { ...session, canSeeExactAddress: true,
       googleMapsUrl: exactUrl, address: 'Avenida Professor Aníbal de Bettencourt',
+      pinLatitude: 38.7542, pinLongitude: -9.1563,
       venue: { latitude: 38.755, longitude: -9.155 } as any };
     fixture.detectChanges();
     const link = fixture.nativeElement.querySelector('.session-location-map') as HTMLAnchorElement;
@@ -686,6 +687,29 @@ describe('SessionDetailsComponent', () => {
     expect(component.exactGoogleMapsUrl()).toBeNull();
     expect(component.exactEmbeddedMapUrl()).toBeNull();
     expect(fixture.nativeElement.querySelector('.session-embedded-map iframe')).toBeNull();
+  });
+
+  it('uses the resolved session pin instead of an unrelated catalogue venue pin', () => {
+    component.session = { ...session, canSeeExactAddress: true,
+      googleMapsUrl: 'https://maps.app.goo.gl/2Qy87Din3ZYJz8VZA',
+      pinLatitude: 38.7542, pinLongitude: -9.1563,
+      venue: {latitude: 38.7600, longitude: -9.1400} as any };
+    const embedded = component.exactEmbeddedMapUrl();
+    expect(embedded).not.toBeNull();
+    const actual = (embedded as any).changingThisBreaksApplicationSecurity as string;
+    expect(actual).toContain(encodeURIComponent('38.7542,-9.1563'));
+    expect(actual).not.toContain(encodeURIComponent('38.76,-9.14'));
+    expect(component.exactGoogleMapsUrl()).toBe('https://maps.app.goo.gl/2Qy87Din3ZYJz8VZA');
+  });
+
+  it('does not invent a map marker when saved Maps link lacks verified pin coordinates', () => {
+    component.session = { ...session, canSeeExactAddress: true,
+      googleMapsUrl: 'https://maps.app.goo.gl/2Qy87Din3ZYJz8VZA',
+      pinLatitude: null, pinLongitude: null,
+      venue: {latitude: 38.7600, longitude: -9.1400} as any };
+    expect(component.exactEmbeddedMapUrl()).toBeNull();
+    expect(component.exactDirectionsUrl('driving')).toBe('https://maps.app.goo.gl/2Qy87Din3ZYJz8VZA');
+    expect(component.exactLocationLabel()).toContain('ponto escolhido');
   });
 
   it('rejects untrusted Maps lookalike domains before rendering a saved destination', () => {
