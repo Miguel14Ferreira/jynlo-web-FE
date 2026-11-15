@@ -665,6 +665,38 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('.feed-post-error')?.textContent).toBeTruthy();
   }));
 
+  it('keeps an already selected photo when extending the draft into a mixed album', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const create = spyOn(URL, 'createObjectURL').and.returnValues('blob:first', 'blob:video');
+    const photo = new File(['photo'], 'first.jpg', { type: 'image/jpeg' });
+    const video = new File(['video'], 'goal.mp4', { type: 'video/mp4' });
+    component.postImageFile = photo;
+    component.postImagePreview = 'data:image/jpeg;base64,abc';
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', { value: [video], configurable: true });
+    component.onPostGalleryChange({ target: input } as unknown as Event);
+    expect(component.postGallery.map(item => item.file)).toEqual([photo, video]);
+    expect(component.postImageFile).toBeUndefined();
+    expect(create).toHaveBeenCalledTimes(2);
+    expect(component.actionError).toBe('');
+    component.clearPostGallery();
+  }));
+
+  it('does not silently remove an existing image when album selection is invalid', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const original = new File(['photo'], 'original.png', { type: 'image/png' });
+    const invalid = new File(['file'], 'invalid.gif', { type: 'image/gif' });
+    component.postImageFile = original;
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', { value: [invalid], configurable: true });
+    component.onPostGalleryChange({ target: input } as unknown as Event);
+    expect(component.postImageFile).toBe(original);
+    expect(component.postGallery).toEqual([]);
+    expect(component.actionError).toContain('Até 6');
+  }));
+
   it('builds a single mixed album and keeps all files together on publish', fakeAsync(() => {
     fixture.detectChanges();
     tick(351);
