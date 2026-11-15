@@ -32,7 +32,7 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionStat
         <article *ngFor="let item of (searchActive ? searchResults : items); trackBy: trackMessage" class="team-content-entry">
           <strong>@{{item.username}}</strong>
           <time>{{item.createdAt | date:'dd/MM/yyyy HH:mm'}}</time>
-          <p *ngIf="item.replyToId" class="team-content-reply">↳ Resposta à mensagem #{{item.replyToId}}</p>
+          <p *ngIf="item.replyToId" class="team-content-reply">↳ {{replyPreview(item.replyToId)}}</p>
           <p>{{item.deleted ? 'Mensagem eliminada' : item.body}}</p>
           <small *ngIf="item.editedAt && !item.deleted">Editada</small>
           <div class="team-reactions" *ngIf="!item.deleted" aria-label="Reações à mensagem">
@@ -56,7 +56,7 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionStat
         </article>
       </div>
       <div *ngIf="replyTargetId" class="team-content-note">
-        A responder à mensagem #{{replyTargetId}}
+        A responder a {{replyPreview(replyTargetId)}}
         <button type="button" (click)="replyTargetId = null">Cancelar resposta</button>
       </div>
       <form (ngSubmit)="send()" class="team-content-editor">
@@ -152,6 +152,14 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   trackMessage(_:number, entry:TeamContentEntry):number { return entry.id; }
+  replyPreview(id:number|null):string {
+    const original=(this.searchActive?this.searchResults:[]).find(item=>item.id===id)
+      || this.items.find(item=>item.id===id);
+    if(!original)return 'uma mensagem anterior';
+    if(original.deleted)return 'uma mensagem eliminada';
+    return '@'+original.username+': '+original.body.slice(0,110);
+  }
+
 
   read(silent:boolean):void {
     if (this.reading || this.sending || !Number.isSafeInteger(this.teamId) || this.teamId<=0) return;
