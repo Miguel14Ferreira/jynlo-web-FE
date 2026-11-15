@@ -1094,6 +1094,14 @@
                              : 'sessionDetail.openMapsHint') | t }}</small>
                 </div>
               </div>
+              @if (exactEmbeddedMapUrl(); as embeddedMap) {
+                <div class="session-embedded-map">
+                  <iframe [src]="embeddedMap" title="Mapa com a localização do recinto desta sessão"
+                          loading="lazy" referrerpolicy="no-referrer"
+                          aria-label="Mapa do local exato da sessão"></iframe>
+                  <small>O marcador mostra as coordenadas registadas para o recinto. Confirma o ponto de encontro com o organizador.</small>
+                </div>
+              }
               @if (hasVenueMapCoordinates()) {
                 <div class="session-route-planner" aria-label="{{ 'venue.visit.directionsTitle' | t }}">
                   <strong>{{ 'venue.visit.directionsTitle' | t }}</strong>
