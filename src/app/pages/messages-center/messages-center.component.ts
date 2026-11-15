@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ElementRef, OnDestroy, OnInit, AfterViewChecked, ViewChild, ChangeDetectionStrategy, Optional, HostListener } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, AfterViewChecked, ViewChild, ChangeDetectionStrategy, Optional, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
@@ -54,7 +54,15 @@ const VOICE_NOTE_AUDIO_BITRATE = 48_000;
   styleUrls: ['./messages-center.component.css', './messages-center-premium.component.css', './messages-center-v3-finish.css'],
   changeDetection: ChangeDetectionStrategy.Eager
 })
-export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChecked, OnChanges {
+  /** Reuse the exact Messages conversation in the community detail, without a second chat client. */
+  @Input() embeddedCommunityId: number | null = null;
+  private embeddedReady = false;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['embeddedCommunityId'] && this.embeddedReady && this.embeddedCommunityId) {
+      this.queueDeepLink('community', String(this.embeddedCommunityId));
+    }
+  }
   /** Stable wrappers preserve the existing date, preview and unread formatting rules. */
   readonly conversationListFormatters: InboxListFormatters = {
     date: value => this.formatDate(value),
@@ -489,7 +497,11 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   ngOnInit(): void {
     this.loadConversationMutes();
     // Angular reuses the component when only the query changes.
-    if (this.route?.queryParamMap) {
+    this.embeddedReady = true;
+    if (this.embeddedCommunityId) {
+      this.filter = 'community';
+      this.queueDeepLink('community', String(this.embeddedCommunityId));
+    } else if (this.route?.queryParamMap) {
       this.subscriptions.add(this.route.queryParamMap.subscribe(params =>
         this.queueDeepLink(params.get('kind'), params.get('id'))));
     } else {
