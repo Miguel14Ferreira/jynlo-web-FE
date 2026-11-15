@@ -57,8 +57,6 @@
             </div>
             <div class="account-menu__divider" aria-hidden="true"></div>
             <a class="mobile-only-link" routerLink="/menu/feed" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'nav.feed' | t }}</a>
-            <a routerLink="/menu/teams" routerLinkActive="active-link" (click)="closeAccountMenu()">As minhas equipas</a>
-            <a routerLink="/menu/teams" fragment="criar-equipa" (click)="closeAccountMenu()">Criar equipa</a>
             <a class="desktop-primary-link" routerLink="/menu/my-sessions" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'mySessions.title' | t }}</a>
             <a class="desktop-primary-link" routerLink="/menu/messages" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'nav.messages' | t }}</a>
             <a [routerLink]="['/menu/perfis', activeAccountUsername]" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'nav.account.viewProfile' | t }}</a>
