@@ -2513,6 +2513,11 @@
                 <p role="alert">{{ tournamentTeamPromotionError[team.id] }}</p>
               }
             </section>
+          } @else if (promotion.archived && !promotion.globalTeamId) {
+            <section class="team-page-identity-choice" aria-label="Equipa temporária arquivada">
+              <strong>Equipa temporária arquivada</strong>
+              <p>O torneio terminou. Os resultados ficam no histórico, mas esta equipa não foi criada como equipa permanente na Jynlo.</p>
+            </section>
           } @else if (promotion.globalTeamId) {
             <section class="team-page-identity-choice" aria-label="Equipa permanente">
               <strong>Esta equipa já tem identidade permanente na Jynlo.</strong>
