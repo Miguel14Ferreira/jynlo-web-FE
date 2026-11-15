@@ -79,7 +79,7 @@ export class CommunityTeamsPanelComponent implements OnChanges {
     this.rows=[];this.matches=[];this.mine=[];this.query='';this.reload();
     if(!this.canManage)this.teams.mine().subscribe({next:rows=>this.mine=rows,error:()=>this.mine=[]});
   }
-  hasRelation(id:number){return this.rows.some(r=>r.teamId===id);}
+  hasRelation(id:number){return this.rows.some(r=>r.teamId===id&&r.status!=='DECLINED');}
   reload():void{
     if(!this.communityId)return;
     const revision=++this.revision;this.loading=true;this.error='';
