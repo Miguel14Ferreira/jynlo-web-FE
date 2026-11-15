@@ -1283,6 +1283,20 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       });
   }
 
+  feedCreatedWhen(iso: string, now: Date = new Date()): string {
+    const date = new Date(iso);
+    if (!Number.isFinite(date.getTime())) return '';
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const day = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    const days = Math.round((today - day) / 86_400_000);
+    if (days === 0) return 'Hoje';
+    if (days === 1) return 'Ontem';
+    if (days > 1 && days < 7) return 'Há ' + days + ' dias';
+    if (days >= 7 && days < 14) return 'Há 1 semana';
+    if (days >= 14 && days < 30) return 'Há ' + Math.floor(days / 7) + ' semanas';
+    return date.toLocaleDateString('pt-PT');
+  }
+
   isPostedToday(iso: string): boolean {
     const published = new Date(iso);
     const today = new Date();
