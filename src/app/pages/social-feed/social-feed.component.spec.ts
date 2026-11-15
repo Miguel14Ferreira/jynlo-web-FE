@@ -1165,6 +1165,10 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(root.querySelectorAll('.composer-album-stage img').length).toBe(1);
     expect(root.querySelectorAll('.composer-album-dots button').length).toBe(2);
     expect(root.querySelector('.composer-media-title')?.textContent).toContain('2 ficheiros');
+    // Adding files selects the last attachment by default; start from the first
+    // before advancing so this assertion exercises the second attachment.
+    component.showPostGallery(0);
+    fixture.detectChanges();
     component.shiftPostGallery(1);
     fixture.detectChanges(); // Render the newly selected attachment before clicking its removal control.
     expect(component.postGalleryIndex).toBe(1);
