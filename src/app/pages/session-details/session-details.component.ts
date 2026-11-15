@@ -3243,10 +3243,23 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   /** GPS can identify a venue site without certifying its public entrance. */
+  /** Use the session's resolved pin, not an unrelated catalogue venue pin. */
+  private sessionMapPin(): {latitude: number; longitude: number} | null {
+    if (!this.session?.canSeeExactAddress) return null;
+    const lat = this.session.pinLatitude;
+    const lon = this.session.pinLongitude;
+    if (venueHasPortugueseCoordinates(lat, lon))
+      return {latitude: Number(lat), longitude: Number(lon)};
+    // A manually saved link may point elsewhere. Never present a different
+    // venue pin as the location selected by the organiser.
+    if (this.verifiedGoogleMapsUrl(this.session.googleMapsUrl)) return null;
+    if (venueHasPortugueseCoordinates(this.session.venue?.latitude, this.session.venue?.longitude))
+      return {latitude: Number(this.session.venue!.latitude), longitude: Number(this.session.venue!.longitude)};
+    return null;
+  }
+
   hasVenueMapCoordinates(): boolean {
-    return !!this.session?.canSeeExactAddress
-      && venueHasPortugueseCoordinates(this.session.venue?.latitude,
-                                      this.session.venue?.longitude);
+    return this.sessionMapPin() !== null;
   }
 
   private embeddedMapKey = '';
@@ -3261,15 +3274,22 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       return null;
     }
     let url: string;
-    if (this.hasVenueMapCoordinates()) {
-      const lat = Number(this.session.venue!.latitude);
-      const lon = Number(this.session.venue!.longitude);
+    const pin = this.sessionMapPin();
+    if (pin) {
+      const {latitude:lat,longitude:lon} = pin;
       const delta = 0.0025;
       const box = [lon-delta, lat-delta, lon+delta, lat+delta].join(',');
       url = 'https://www.openstreetmap.org/export/embed.html?bbox='
         + encodeURIComponent(box) + '&layer=mapnik&marker='
         + encodeURIComponent(lat + ',' + lon);
     } else {
+      // A saved Maps link takes precedence. An address search would show
+      // a misleading, often different marker from the exact selected place.
+      if (this.verifiedGoogleMapsUrl(this.session.googleMapsUrl)) {
+        this.embeddedMapKey = '';
+        this.embeddedMapValue = null;
+        return null;
+      }
       const address = venueUsableAddress(this.session.address);
       if (!address) {
         this.embeddedMapKey = '';
@@ -3289,8 +3309,11 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
    * authorised, a venue GPS point is not a certified building entrance.
    */
   exactDirectionsUrl(mode: VenueTravelMode): string | null {
-    if (!this.hasVenueMapCoordinates()) return null;
-    return venueDirectionsUrl(this.session?.venue?.latitude, this.session?.venue?.longitude, mode);
+    if (!this.session?.canSeeExactAddress) return null;
+    const saved = this.verifiedGoogleMapsUrl(this.session.googleMapsUrl);
+    if (saved) return saved;
+    const pin = this.sessionMapPin();
+    return pin ? venueDirectionsUrl(pin.latitude,pin.longitude,mode) : null;
   }
 
   googleMapsEditorOpen = false;
@@ -3352,12 +3375,11 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     if (!this.session?.canSeeExactAddress) return null;
     const saved = this.verifiedGoogleMapsUrl(this.session.googleMapsUrl);
     if (saved) return saved;
-    const lat = this.session.venue?.latitude;
-    const lon = this.session.venue?.longitude;
-    const hasGps = this.hasVenueMapCoordinates();
+    const pin = this.sessionMapPin();
+    const hasGps = pin !== null;
     const address = venueUsableAddress(this.session.address);
     if (!hasGps && !address) return null;
-    const query = hasGps ? lat + ',' + lon : address + ', ' + this.session.city;
+    const query = pin ? pin.latitude + ',' + pin.longitude : address + ', ' + this.session.city;
     return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query);
   }
 
