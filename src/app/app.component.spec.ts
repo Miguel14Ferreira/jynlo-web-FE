@@ -208,7 +208,13 @@ describe('AppComponent', () => {
     fixture.detectChanges();
     // Optional telemetry services are lazy-loaded in independent chunks;
     // login and route rendering must not wait for their network requests.
-    await fixture.whenStable();
+    // fixture.whenStable() also waits for the independent 12-second splash
+    // fallback timer. Poll just the lazy chunks to avoid that unrelated delay.
+    for (let attempt = 0; attempt < 80; attempt++) {
+      if (onlinePresenceService.start.calls.count() === 1 &&
+          pilotAnalyticsService.recordFirstAccess.calls.count() === 1) break;
+      await new Promise<void>(resolve => setTimeout(resolve, 20));
+    }
     expect(onlinePresenceService.start).toHaveBeenCalledTimes(1);
     expect(pilotAnalyticsService.recordFirstAccess).toHaveBeenCalledTimes(1);
   });
