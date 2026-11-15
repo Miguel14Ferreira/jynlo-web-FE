@@ -1209,17 +1209,9 @@
                       type="button"
                       class="secondary-action jynlo-action jynlo-action--neutral"
                       [disabled]="teamsLoading || teamsConfirming"
-                      [attr.aria-pressed]="teamsScoreSource === 'FORM'"
-                      (click)="generateTeams('FORM')">
-                      {{ 'sessionDetail.teamsFromForm' | t }}
-                    </button>
-                    <button
-                      type="button"
-                      class="secondary-action jynlo-action jynlo-action--neutral team-generator-excel-action"
-                      [disabled]="teamsLoading || teamsConfirming"
-                      [attr.aria-pressed]="teamsScoreSource === 'EXCEL_POINTS'"
-                      (click)="generateTeams('EXCEL_POINTS')">
-                      {{ 'guestAdmin.teamsFromExcel' | t }}
+                      [attr.aria-pressed]="teamsScoreSource === 'AUTO'"
+                      (click)="generateTeams('AUTO')">
+                      Equipas equilibradas · classificação da comunidade
                     </button>
                     }
                     <button
