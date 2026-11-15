@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { GlobalTeamEnrollmentComponent } from './global-team-enrollment.component';
 import { Component, Input, OnChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
@@ -10,7 +11,7 @@ import { CompetitionTeamInvitation, CompetitionTeamInvitationType,
 @Component({
   standalone: true,
   selector: 'app-competition-team-search',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, GlobalTeamEnrollmentComponent],
   template: `
     <div class="search-teams">
       <button type="button" class="search-toggle" (click)="open = !open"
