@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { GlobalTeamEnrollmentComponent } from './global-team-enrollment.component';
 import { Component, Input, OnChanges } from '@angular/core';
 import { TeamCompetitionApplicationsService, TeamCompetitionApplication, TeamCompetitionKind } from '../../services/team-competition-applications.service';
 
@@ -6,7 +7,7 @@ import { TeamCompetitionApplicationsService, TeamCompetitionApplication, TeamCom
 @Component({
   standalone:true,
   selector:'app-team-competition-applications',
-  imports:[CommonModule],
+  imports:[CommonModule,GlobalTeamEnrollmentComponent],
   template:`
     <section class="team-applications">
       <h6>Candidaturas de equipas</h6>
