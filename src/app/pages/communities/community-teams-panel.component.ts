@@ -23,6 +23,15 @@ import { TeamCommunityMembership,TeamCommunityMembershipsService } from '../../s
         <a [routerLink]="['/menu/teams',membership.teamId]">{{membership.teamName}}</a>
         <button type="button" *ngIf="canManage" [disabled]="busy" (click)="remove(membership.id)">Remover equipa</button>
       </li></ul>
+      <ng-container *ngIf="!canManage && mine.length">
+        <h4>Pedir entrada com uma das minhas equipas</h4>
+        <div *ngFor="let team of mine" class="form-row">
+          <span>{{team.name}}</span>
+          <button type="button" [disabled]="busy||hasRelation(team.id)" (click)="request(team.id)">
+            {{hasRelation(team.id)?'Pedido existente':'Pedir adesão'}}
+          </button>
+        </div>
+      </ng-container>
       <ng-container *ngIf="canManage">
         <h4>Convidar equipa existente</h4>
         <div class="form-row">
@@ -60,13 +69,16 @@ import { TeamCommunityMembership,TeamCommunityMembershipsService } from '../../s
 export class CommunityTeamsPanelComponent implements OnChanges {
   @Input({required:true}) communityId!:number;
   @Input() canManage=false;
-  rows:TeamCommunityMembership[]=[];matches:SportsTeam[]=[];query='';
+  rows:TeamCommunityMembership[]=[];matches:SportsTeam[]=[];mine:SportsTeam[]=[];query='';
   loading=false;busy=false;error='';notice='';private revision=0;
   get active(){return this.rows.filter(r=>r.status==='ACTIVE');}
   get pending(){return this.rows.filter(r=>r.status==='PENDING_COMMUNITY'||r.status==='PENDING_TEAM');}
   constructor(private readonly service:TeamCommunityMembershipsService,
       private readonly teams:SportsTeamsService){}
-  ngOnChanges():void{this.rows=[];this.matches=[];this.query='';this.reload();}
+  ngOnChanges():void{
+    this.rows=[];this.matches=[];this.mine=[];this.query='';this.reload();
+    if(!this.canManage)this.teams.mine().subscribe({next:rows=>this.mine=rows,error:()=>this.mine=[]});
+  }
   hasRelation(id:number){return this.rows.some(r=>r.teamId===id);}
   reload():void{
     if(!this.communityId)return;
@@ -82,6 +94,14 @@ export class CommunityTeamsPanelComponent implements OnChanges {
     this.teams.discover(this.query).subscribe({
       next:rows=>{if(revision===this.revision){this.matches=rows;this.busy=false;}},
       error:()=>{if(revision===this.revision){this.error='Pesquisa indisponível.';this.busy=false;}}
+    });
+  }
+  request(teamId:number):void{
+    if(this.canManage||this.busy||this.hasRelation(teamId)||!this.mine.some(t=>t.id===teamId))return;
+    this.busy=true;this.error='';this.notice='';
+    this.service.request(teamId,this.communityId).subscribe({
+      next:()=>{this.busy=false;this.notice='Pedido enviado aos responsáveis da comunidade.';this.reload();},
+      error:()=>{this.busy=false;this.error='Não foi possível pedir adesão. Confirma se a comunidade é pública.';}
     });
   }
   invite(teamId:number):void{
