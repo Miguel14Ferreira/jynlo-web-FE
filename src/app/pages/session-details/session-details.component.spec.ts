@@ -1615,13 +1615,38 @@ describe('SessionDetailsComponent', () => {
     component.cancellationNotice = 'Antigo aviso de cancelamento';
     component.cancellationNoticeSessionId = 999;
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.session-cancelled-share')).toBeNull();
+    // A cancelled session opened later still offers the organizer a new,
+    // server-derived message instead of leaking the old session's notice.
+    expect(fixture.nativeElement.querySelector('.session-cancelled-share')).not.toBeNull();
+    expect(component.cancelledSessionShareMessage()).toContain('Sessão cancelada');
+    expect(component.cancelledSessionShareMessage()).not.toContain('Antigo aviso');
     component.cancellationNoticeSessionId = component.session.id;
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.session-cancelled-share')).not.toBeNull();
     (component as any).currentUsername = 'another-player';
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.session-cancelled-share')).toBeNull();
+  });
+
+  it('recovers a shareable message after reopening an already cancelled session', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = {
+      ...session, status:'CANCELLED', sport:'Futsal', city:'Lisboa',
+      gameDate:'2099-10-01T18:00:00Z',
+      address:'PRIVATE-773', meetingPointInstructions:'SECRETO'
+    };
+    component.cancellationNotice = '';
+    component.cancellationNoticeSessionId = null;
+    fixture.detectChanges();
+    const panel = fixture.nativeElement.querySelector('.session-cancelled-share') as HTMLElement;
+    expect(panel).not.toBeNull();
+    expect(component.cancelledSessionShareMessage()).toContain('Futsal');
+    expect(component.cancelledSessionShareMessage()).toContain('Lisboa');
+    expect(component.cancelledSessionShareMessage()).not.toContain('PRIVATE-773');
+    expect(component.cancelledSessionShareMessage()).not.toContain('SECRETO');
+    expect(sessionService.cancel).not.toHaveBeenCalled();
+    expect((panel.querySelector('textarea') as HTMLTextAreaElement).value)
+      .toContain('Sessão cancelada');
   });
 
   it('does not offer guest sharing on failed cancellation or to other viewers', () => {
