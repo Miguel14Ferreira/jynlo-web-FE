@@ -38,6 +38,10 @@ export class TeamCompetitionApplicationsService {
     return this.http.get<TeamCompetitionApplication[]>(
       this.base+'/communities/'+communityId+'/'+type+'/'+competitionId);
   }
+  settings(communityId:number,type:TeamCompetitionKind,competitionId:number):Observable<OpenTeamCompetition>{
+    return this.http.get<OpenTeamCompetition>(this.base+'/communities/'+communityId+
+      '/'+type+'/'+competitionId+'/settings');
+  }
   configure(communityId:number,type:TeamCompetitionKind,competitionId:number,open:boolean):
        Observable<OpenTeamCompetition>{
     return this.http.put<OpenTeamCompetition>(this.base+'/communities/'+communityId+'/'+type+
