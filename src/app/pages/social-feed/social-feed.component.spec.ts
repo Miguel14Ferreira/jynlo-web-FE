@@ -713,6 +713,29 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(component.actionError).toContain('Até 6');
   }));
 
+  it('shows a publication receipt and provides a direct way to find the new post', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(351);
+    const published: FeedItem = {
+      type: 'POST', postId: 975, authorUsername: 'miguel', authorDisplayName: 'Miguel',
+      authorProfilePicUrl: null, content: 'Treino de hoje', imageUrl: null,
+      createdAt: '2026-11-15T12:00:00Z', sessionId: null, sport: null,
+      city: null, gameDate: null, likeCount: 0, likedByMe: false, commentCount: 0
+    };
+    feed.createPost.and.returnValue(of(published));
+    component.postContent = 'Treino de hoje';
+    component.publish();
+    expect(component.recentlyPublishedPostId).toBe(975);
+    fixture.detectChanges();
+    const notice = (fixture.nativeElement as HTMLElement).querySelector('[aria-label="Publicação confirmada"]');
+    expect(notice?.textContent).toContain('Publicação confirmada');
+    const scroll = jasmine.createSpy('scrollIntoView');
+    spyOn(document, 'getElementById').and.returnValue({ scrollIntoView: scroll } as unknown as HTMLElement);
+    component.focusPublishedPost();
+    expect(document.getElementById).toHaveBeenCalledWith('jynlo-post-975');
+    expect(scroll).toHaveBeenCalled();
+  }));
+
   it('builds a single mixed album and keeps all files together on publish', fakeAsync(() => {
     fixture.detectChanges();
     tick(351);
