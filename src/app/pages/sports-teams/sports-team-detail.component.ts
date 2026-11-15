@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PublicTeamCommunity,TeamCommunityMembership,TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
 import { SportsTeam, SportsTeamMember, SportsTeamsService, TeamCompetitionHistory, TeamChampionshipHonour } from '../../services/sports-teams.service';
+import { SportsTeamContentComponent } from './sports-team-content.component';
 
 @Component({
   standalone: true,
   selector: 'app-sports-team-detail',
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, SportsTeamContentComponent],
   template: `
   <main class="team-detail" *ngIf="team as t; else state">
     <a class="team-back" routerLink="/menu/teams">← Voltar às equipas</a>
@@ -101,8 +102,20 @@ import { SportsTeam, SportsTeamMember, SportsTeamsService, TeamCompetitionHistor
           </div>
         </ng-container>
       </section>
-      <section *ngIf="activeTab === 'OVERVIEW'" class="team-feature"><h2>Feed</h2><p>{{ t.feedEnabled ? 'Feed ativado. A publicação para equipas está em desenvolvimento.' : 'Desativado pelo responsável da equipa.' }}</p></section>
-      <section *ngIf="activeTab === 'OVERVIEW'" class="team-feature"><h2>Chat</h2><p>{{ t.chatEnabled ? 'Chat ativado. O acesso ficará disponível após a ligação aos membros da equipa.' : 'Desativado pelo responsável da equipa.' }}</p></section>
+      <section *ngIf="activeTab === 'OVERVIEW'" class="team-feature">
+        <h2>Feed</h2>
+        <button *ngIf="isOwner" type="button" [disabled]="featureSaving"
+          (click)="toggleFeature('feedEnabled')">{{ t.feedEnabled ? 'Desativar feed' : 'Ativar feed' }}</button>
+        <p *ngIf="!t.feedEnabled">Desativado pelo responsável da equipa.</p>
+        <app-sports-team-content *ngIf="t.feedEnabled" [teamId]="t.id" kind="feed"></app-sports-team-content>
+      </section>
+      <section *ngIf="activeTab === 'OVERVIEW'" class="team-feature">
+        <h2>Chat</h2>
+        <button *ngIf="isOwner" type="button" [disabled]="featureSaving"
+          (click)="toggleFeature('chatEnabled')">{{ t.chatEnabled ? 'Desativar chat' : 'Ativar chat' }}</button>
+        <p *ngIf="!t.chatEnabled">Desativado pelo responsável da equipa.</p>
+        <app-sports-team-content *ngIf="t.chatEnabled" [teamId]="t.id" kind="chat"></app-sports-team-content>
+      </section>
     </div>
   </main>
   <ng-template #state><main class="team-detail"><p role="alert">{{ error || 'A carregar equipa…' }}</p></main></ng-template>
@@ -127,7 +140,16 @@ export class SportsTeamDetailComponent implements OnInit {
   }
   communities:TeamCommunityMembership[]=[];
   communityQuery='';communityResults:PublicTeamCommunity[]=[];
-  isOwner=false;busy=false;feedback='';
+  isOwner=false;busy=false;featureSaving=false;feedback='';
+  toggleFeature(field:'chatEnabled'|'feedEnabled'):void {
+    if(!this.isOwner||!this.team||this.featureSaving)return;
+    const previous=this.team;
+    this.featureSaving=true;this.feedback='';
+    this.api.setFeatures(previous.id,{[field]:!previous[field]}).subscribe({
+      next:updated=>{this.team=updated;this.featureSaving=false;},
+      error:()=>{this.feedback='Não foi possível confirmar a configuração. Atualiza antes de repetir.';this.featureSaving=false;}
+    });
+  }
   get activeCommunities(){return this.communities.filter(item=>item.status==='ACTIVE');}
   get invitations(){return this.communities.filter(item=>item.status==='PENDING_TEAM');}
   hasCommunity(id:number):boolean{return this.communities.some(item=>item.communityId===id&&item.status!=='DECLINED');}
