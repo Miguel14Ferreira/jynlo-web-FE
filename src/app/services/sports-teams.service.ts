@@ -68,6 +68,10 @@ export interface TeamContentEntry {
   username: string;
   body: string;
   createdAt: string;
+  replyToId: number | null;
+  editedAt: string | null;
+  deleted: boolean;
+  canManage: boolean;
 }
 export type TeamContentKind = 'chat' | 'feed';
 
@@ -115,8 +119,14 @@ export class SportsTeamsService {
   content(id: number, kind: TeamContentKind): Observable<TeamContentEntry[]> {
     return this.http.get<TeamContentEntry[]>(this.url + '/' + id + '/' + kind);
   }
-  sendContent(id: number, kind: TeamContentKind, body: string): Observable<TeamContentEntry> {
-    return this.http.post<TeamContentEntry>(this.url + '/' + id + '/' + kind, {body});
+  sendContent(id: number, kind: TeamContentKind, body: string, replyToId: number | null = null): Observable<TeamContentEntry> {
+    return this.http.post<TeamContentEntry>(this.url + '/' + id + '/' + kind, {body, replyToId});
+  }
+  editContent(id:number, kind:TeamContentKind, contentId:number, body:string): Observable<TeamContentEntry> {
+    return this.http.patch<TeamContentEntry>(this.url+'/'+id+'/'+kind+'/'+contentId,{body});
+  }
+  deleteContent(id:number, kind:TeamContentKind, contentId:number): Observable<void> {
+    return this.http.delete<void>(this.url+'/'+id+'/'+kind+'/'+contentId);
   }
   setFeatures(id: number, input: {feedEnabled?: boolean; chatEnabled?: boolean}): Observable<SportsTeam> {
     return this.http.patch<SportsTeam>(this.url + '/' + id + '/features', input);
