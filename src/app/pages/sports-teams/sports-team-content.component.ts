@@ -42,10 +42,10 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionStat
               <button type="button" [disabled]="downloading"
                 (click)="download(item,file.index,file.filename)">Descarregar</button>
               <img *ngIf="previews[previewKey(item.id,file.index)]?.type === 'image'"
-                [src]="previews[previewKey(item.id,file.index)].url"
+                [src]="previews[previewKey(item.id,file.index)]?.url || ''"
                 [alt]="'Anexo de ' + item.username" loading="lazy" />
               <video *ngIf="previews[previewKey(item.id,file.index)]?.type === 'video'"
-                [src]="previews[previewKey(item.id,file.index)].url" controls preload="none"></video>
+                [src]="previews[previewKey(item.id,file.index)]?.url || ''" controls preload="none"></video>
             </div>
           </div>
           <small *ngIf="item.editedAt && !item.deleted">Editada</small>
