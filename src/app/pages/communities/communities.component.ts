@@ -125,6 +125,13 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   private readonly readSync = inject(ChatReadSyncService);
   private readonly tournamentCatalog = inject(CommunityTournamentsService);
   private readonly chatSubscriptions = new Subscription();
+  private communityChatSyncTimer?: ReturnType<typeof setInterval>;
+  private readonly onCommunityChatResume = (): void => {
+    if (document.visibilityState !== 'visible' || !this.selected
+        || this.activeTab !== 'chat' || this.timelineLoading) return;
+    // Reconcile missed events when a suspended tab becomes visible again.
+    this.loadTimeline();
+  };
   private readonly jwtHelper = new JwtHelperService();
 
   private readonly sessionDateFormatter = new Intl.DateTimeFormat('pt-PT', {
@@ -487,6 +494,9 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   }
 
   ngOnDestroy(): void {
+    if (this.communityChatSyncTimer) clearInterval(this.communityChatSyncTimer);
+    window.removeEventListener('focus', this.onCommunityChatResume);
+    document.removeEventListener('visibilitychange', this.onCommunityChatResume);
     if (this.inviteSuggestTimer) clearTimeout(this.inviteSuggestTimer);
     this.inviteSuggestRevision++;
     this.clearCommunityFeedImage();
@@ -2091,13 +2101,22 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       entry => this.onCommunityChatRealtime(entry)
     ));
     this.chatSubscriptions.add(this.realtimeService.connected$.subscribe(connected => {
+      const reconnected = connected && !this.chatRealtimeConnected;
       this.chatRealtimeConnected = connected;
       if (connected) {
         this.chatEverConnected = true;
         // Recover missed events after reconnection, but only for the open chat.
-        if (this.selected && this.activeTab === 'chat') this.loadTimeline();
+        if (reconnected && this.selected && this.activeTab === 'chat') this.loadTimeline();
       }
     }));
+    window.addEventListener('focus', this.onCommunityChatResume);
+    document.addEventListener('visibilitychange', this.onCommunityChatResume);
+    // Backup for missed socket frames: foreground chat only, no manual refresh.
+    this.communityChatSyncTimer = setInterval(() => {
+      if (!this.selected || this.activeTab !== 'chat' || this.timelineLoading
+          || document.visibilityState !== 'visible') return;
+      this.loadTimeline();
+    }, 30_000);
   }
 
   detailMode(): boolean {
