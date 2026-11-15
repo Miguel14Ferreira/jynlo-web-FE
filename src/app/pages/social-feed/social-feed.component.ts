@@ -855,6 +855,12 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
 
   loading = false;
   posting = false;
+  recentlyPublishedPostId: number | null = null;
+  focusPublishedPost(): void {
+    const id = this.recentlyPublishedPostId;
+    if (!id) return;
+    document.getElementById('jynlo-post-' + id)?.scrollIntoView({behavior: 'smooth', block: 'start'});
+  }
   deletingPostId: number | null = null;
   hidingAttendanceSessionId: number | null = null;
   interactionLoadingPostId: number | null = null;
@@ -1302,6 +1308,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
 
     this.posting = true;
     this.actionError = '';
+    this.recentlyPublishedPostId = null;
 
     const singleGalleryFile = this.postGallery.length === 1 ? this.postGallery[0].file : undefined;
     const send = this.postGallery.length > 1
@@ -1322,6 +1329,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
             this.actionError = 'O servidor não confirmou a publicação. Verifica o teu perfil antes de repetir.';
             return;
           }
+          this.recentlyPublishedPostId = item.postId!;
           this.confirmedPosts.set(item.postId!, { item, expiresAt: Date.now() + 120_000 });
           this.items = this.preserveConfirmedPosts([item, ...this.items.filter(current => current.postId !== item.postId)]);
           this.postContent = '';
