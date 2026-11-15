@@ -581,14 +581,14 @@ describe('PublicSessionPreviewComponent', () => {
     expect(share).not.toBeNull();
     expect(share.textContent?.trim()).toBe('Partilhar sessão');
     expect(fixture.componentInstance.publicShareUrl())
-      .toBe(new URL('/sessions/42', window.location.origin).href);
+      .toBe('https://d24sports.com/sessions/42');
   });
 
   it('shares a short game-first WhatsApp message, with no promotional sentence', () => {
     const i18n = TestBed.inject(I18nService);
     const page = render({ participantCount: 2 });
     const link = page.querySelector('.whatsapp-share-action') as HTMLAnchorElement;
-    const publicUrl = new URL('/sessions/42', window.location.origin).href;
+    const publicUrl = 'https://d24sports.com/sessions/42';
     expect(link).not.toBeNull();
     expect(link.getAttribute('target')).toBe('_blank');
     expect(link.getAttribute('rel')).toBe('noopener noreferrer');
@@ -651,7 +651,7 @@ describe('PublicSessionPreviewComponent', () => {
     try {
       render({ participantCount: 2 });
       const component = fixture.componentInstance;
-      const publicUrl = new URL('/sessions/42', window.location.origin).href;
+      const publicUrl = 'https://d24sports.com/sessions/42';
       await component.shareSession();
       expect(nativeShare).toHaveBeenCalledWith(jasmine.objectContaining({
         text: shareText('pt-PT'), url: publicUrl
@@ -680,7 +680,7 @@ describe('PublicSessionPreviewComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(copy).toHaveBeenCalledWith(new URL('/sessions/42', window.location.origin).href);
+    expect(copy).toHaveBeenCalledWith('https://d24sports.com/sessions/42');
     expect(page.querySelector('.share-feedback')?.textContent?.trim()).toBe('Ligação copiada');
     expect(page.querySelector('.manual-share-link')).toBeNull();
   });
@@ -702,7 +702,7 @@ describe('PublicSessionPreviewComponent', () => {
     const input = page.querySelector('#public-preview-share-url') as HTMLInputElement;
     expect(input).not.toBeNull();
     expect(input.readOnly).toBeTrue();
-    expect(input.value).toBe(new URL('/sessions/42', window.location.origin).href);
+    expect(input.value).toBe('https://d24sports.com/sessions/42');
     expect(page.querySelector('.share-feedback')?.textContent).toContain('Select the link');
     const select = spyOn(input, 'select').and.callThrough();
     (page.querySelector('.manual-share-link button') as HTMLButtonElement).click();
