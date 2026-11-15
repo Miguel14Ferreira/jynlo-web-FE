@@ -8,6 +8,9 @@ export interface SessionDetail extends SessionSummary {
   address: string | null;
   /** Organiser-selected Google Maps URL, hidden by API until exact-location access is allowed. */
   googleMapsUrl?: string | null;
+  /** Session-specific resolved pin, never sent to unauthorized viewers. */
+  pinLatitude?: number | null;
+  pinLongitude?: number | null;
   /** Public optional description of the session. */
   description?: string | null;
   canSeeExactAddress: boolean;
