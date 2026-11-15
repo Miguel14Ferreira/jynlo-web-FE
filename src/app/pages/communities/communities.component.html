@@ -5513,7 +5513,7 @@
                              autocomplete="off"
                              [placeholder]="'communities.newOwnerPlaceholder' | t">
                       <button type="button" class="secondary-action small jynlo-action jynlo-action--neutral jynlo-action--compact"
-                              [disabled]="!selected.members.some(member => member.role !== 'OWNER' && member.username === ownershipUsername.trim())"
+                              [disabled]="!canTransferOwnershipToSelectedMember()"
                               (click)="transferOwnership()">
                         {{ 'communities.transfer' | t }}
                       </button>
