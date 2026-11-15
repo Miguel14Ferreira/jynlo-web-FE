@@ -1,0 +1,40 @@
+:host{display:block}
+.team-detail{max-width:1180px;margin:0 auto;padding:6.5rem 1.25rem 4rem;min-height:100vh;color:#f3fafc}
+.team-back{display:inline-flex;color:#8af9e3;text-decoration:none;font-weight:750;margin-bottom:1rem}
+.team-back:hover{text-decoration:underline}
+.team-hero{padding:clamp(1.4rem,4vw,2.4rem);background:linear-gradient(110deg,#073844,#092b3d 60%,#063640);border:1px solid #2dbca260;border-radius:19px;color:#fff;margin-bottom:1rem}
+.team-eyebrow{font-size:.72rem;color:#77f4de;letter-spacing:.13em;font-weight:900;margin:0 0 1rem}
+.team-hero-main{display:flex;align-items:center;gap:1.3rem}
+.team-hero-main>div{min-width:0}
+.team-hero-crest{flex:none;width:88px;height:88px;border-radius:22px;background:linear-gradient(135deg,#13d2b2,#16809c);display:grid;place-items:center;font-size:2.7rem;font-weight:900;color:#082833;box-shadow:0 10px 26px #0002}
+.team-hero h1{font-size:clamp(2rem,4vw,3.2rem);letter-spacing:-.045em;line-height:1.12;margin:0 0 .35rem;overflow-wrap:anywhere}
+.team-hero-main p{margin:.5rem 0;color:#ccdee4;line-height:1.6}
+.team-hero-meta{font-weight:780;color:#87eddd!important}
+.team-hero-stats{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid #71c7c238}
+.team-hero-stats span{display:inline-flex;align-items:baseline;gap:.4rem;padding:.65rem .85rem;border-radius:11px;background:#0b516053;border:1px solid #5bc1c14c;color:#b8d2d9;font-size:.88rem}
+.team-hero-stats strong{font-size:1.22rem;color:white}
+.team-hero-stats a{display:inline-flex;padding:.78rem 1rem;border-radius:11px;background:#28d5bc;color:#062833;text-decoration:none;font-weight:850;margin-left:auto}
+.team-tabs{display:flex;gap:.6rem;margin:1.2rem 0;flex-wrap:wrap;border-bottom:1px solid #36838b52;padding-bottom:1rem}
+.team-tabs button{padding:.75rem 1rem;border:1px solid #3e7f89;background:#113b4b;color:#d0e3e9;border-radius:11px;font:inherit;font-weight:750;cursor:pointer}
+.team-tabs button.selected{background:#20cdb4;color:#072b34;border-color:#20cdb4}
+.team-tabs button:focus-visible,.team-back:focus-visible,.team-hero-stats a:focus-visible{outline:2px solid #97ffea;outline-offset:3px}
+.team-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;align-items:start}
+.team-grid section{min-width:0;padding:1.35rem;background:#0b2d3c;border:1px solid #3c818759;border-radius:16px}
+.team-grid section h2{font-size:1.28rem;margin:0 0 .85rem}
+.team-grid section h3{font-size:1rem;margin:1.15rem 0 .5rem}
+.team-grid section p{color:#bed4dc;line-height:1.6}
+.team-grid section a{color:#70f4d7}
+.team-grid section button{padding:.65rem .9rem;margin:.25rem;border:1px solid #278b87;border-radius:10px;background:#104555;color:#e7ffff;font:inherit;font-weight:750;cursor:pointer}
+.team-grid section button:hover{background:#176777}
+.team-grid section button:disabled{opacity:.5;cursor:not-allowed}
+.team-roster{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:.6rem}
+.team-member{display:flex;align-items:center;gap:.7rem;padding:.75rem;border:1px solid #477b8d6b;border-radius:12px;background:#133e4b}
+.team-member-avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#138d8e;color:white;font-weight:900;flex:none}
+.team-member strong,.team-member small{display:block;overflow-wrap:anywhere}.team-member small{font-size:.75rem;color:#a6d3d8;margin-top:.2rem}
+.team-trophies .trophy{padding:1rem;margin:.65rem 0;border:1px solid #ad965b76;background:#a8892012;border-radius:12px}
+.team-trophies .trophy strong{color:#ffe1a4}
+.search-community{display:flex;gap:.5rem;flex-wrap:wrap}
+.search-community input{min-width:150px;flex:1;padding:.75rem;border:1px solid #358895;border-radius:10px;background:#0b2938;color:inherit;font:inherit}
+.team-feature{min-height:140px}
+@media(max-width:780px){.team-grid{grid-template-columns:1fr}.team-detail{padding:5.5rem 1rem 3rem}.team-hero-stats a{margin-left:0}}
+@media(max-width:480px){.team-hero-main{align-items:flex-start;flex-direction:column}.team-hero-crest{width:68px;height:68px;border-radius:17px;font-size:2rem}.team-hero-stats span{flex:1 1 auto}.team-hero-stats a{width:100%;justify-content:center}.team-tabs button{flex:1 1 auto}}
