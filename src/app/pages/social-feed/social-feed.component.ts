@@ -2278,6 +2278,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: () => {
+          this.confirmedPosts.delete(item.postId!);
           this.items = this.items.filter(
             current => current.postId !== item.postId
           );
