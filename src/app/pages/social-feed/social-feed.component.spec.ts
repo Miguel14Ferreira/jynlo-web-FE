@@ -1413,7 +1413,7 @@ describe('SocialFeedComponent session sharing fallback', () => {
     auth.isLoggedIn.and.returnValue(true);
     component = new SocialFeedComponent(
       {} as SocialFeedService, {} as SessionService, auth,
-      { snapshot: { queryParamMap: convertToParamMap({}) } } as unknown as ActivatedRoute,
+      { snapshot: { queryParamMap: convertToParamMap({}) }, queryParamMap: of(convertToParamMap({})) } as unknown as ActivatedRoute,
       {} as Router, {} as CommunityService
     );
     item = {
@@ -1527,7 +1527,7 @@ describe('SocialFeedComponent new session promotion', () => {
       waitlisted: false, waitlistPosition: null, creatorUsername: 'organizer',
       address: null, canSeeExactAddress: true, gamePhoto: null, ...overrides
     } as SessionDetail));
-    const route = { snapshot: { queryParamMap: convertToParamMap({ shareSession: rawId }) } } as unknown as ActivatedRoute;
+    const route = { snapshot: { queryParamMap: convertToParamMap({ shareSession: rawId }) }, queryParamMap: of(convertToParamMap({ shareSession: rawId })) } as unknown as ActivatedRoute;
     const target = new SocialFeedComponent(
       feed, sessions, auth, route,
       {} as Router,
@@ -1586,7 +1586,7 @@ describe('SocialFeedComponent post-game entry', () => {
       ...overrides
     } as SessionDetail));
     const route = ({
-      snapshot: { queryParamMap: convertToParamMap({ momentSession: rawId }) }
+      snapshot: { queryParamMap: convertToParamMap({ momentSession: rawId }) }, queryParamMap: of(convertToParamMap({ momentSession: rawId }))
     } as unknown as ActivatedRoute);
     const target = new SocialFeedComponent(
       feed, sessions, auth, route,
@@ -1766,7 +1766,7 @@ describe('SocialFeedComponent empty-feed session suggestions', () => {
       { ...candidate(14), gameDate: new Date(Date.now() + 3 * 86_400_000).toISOString() }
     ]));
     sessions.mine.and.returnValue(of({ created: [], joined: [], waitlisted: [] }));
-    const route = { snapshot: { queryParamMap: convertToParamMap({}) } } as unknown as ActivatedRoute;
+    const route = { snapshot: { queryParamMap: convertToParamMap({}) }, queryParamMap: of(convertToParamMap({})) } as unknown as ActivatedRoute;
     const target = new SocialFeedComponent(
       feed, sessions, auth, route,
       {} as Router,
@@ -1797,7 +1797,7 @@ describe('SocialFeedComponent session association restrictions', () => {
     };
     sessions.mine.and.returnValue(of({ created: [historical], joined: [], waitlisted: [] }));
     sessions.discover.and.returnValue(of([historical]));
-    const route = { snapshot: { queryParamMap: convertToParamMap({}) } } as unknown as ActivatedRoute;
+    const route = { snapshot: { queryParamMap: convertToParamMap({}) }, queryParamMap: of(convertToParamMap({})) } as unknown as ActivatedRoute;
     const component = new SocialFeedComponent(
       feed, sessions, auth, route,
       {} as Router,
@@ -1831,7 +1831,7 @@ describe('SocialFeedComponent attendance activity visibility', () => {
     feed.hideAttendanceActivity.and.returnValue(of(void 0));
     component = new SocialFeedComponent(
       feed, {} as SessionService, auth,
-      { snapshot: { queryParamMap: convertToParamMap({}) } } as unknown as ActivatedRoute,
+      { snapshot: { queryParamMap: convertToParamMap({}) }, queryParamMap: of(convertToParamMap({})) } as unknown as ActivatedRoute,
       {} as Router, {} as CommunityService
     );
     activity = {
