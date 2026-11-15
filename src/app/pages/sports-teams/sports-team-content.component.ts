@@ -34,6 +34,12 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionStat
           <time>{{item.createdAt | date:'dd/MM/yyyy HH:mm'}}</time>
           <p *ngIf="item.replyToId" class="team-content-reply">↳ {{replyPreview(item.replyToId)}}</p>
           <p>{{item.deleted ? 'Mensagem eliminada' : item.body}}</p>
+          <div class="team-private-files" *ngIf="!item.deleted && item.attachments?.length">
+            <button type="button" *ngFor="let file of item.attachments" [disabled]="downloading"
+              (click)="download(item,file.index,file.filename)">
+              <span aria-hidden="true">📎</span> {{file.filename}} ({{(file.size/1024/1024) | number:'1.1-1'}} MB)
+            </button>
+          </div>
           <small *ngIf="item.editedAt && !item.deleted">Editada</small>
           <div class="team-reactions" *ngIf="!item.deleted" aria-label="Reações à mensagem">
             <button type="button" *ngFor="let emoji of emojis" [disabled]="reactionBusyId !== null"
@@ -66,7 +72,15 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionStat
         <textarea [id]="'team-content-' + kind + '-' + teamId" name="body"
           [(ngModel)]="draft" maxlength="2000" [disabled]="sending"
           [placeholder]="kind === 'chat' ? 'Escreve uma mensagem…' : 'Partilha novidades com o plantel…'"></textarea>
-        <button type="submit" [disabled]="sending || !draft.trim()">
+        <div *ngIf="attachmentsEnabled" class="team-upload-selector">
+          <label [for]="'team-upload-' + kind + '-' + teamId">📎 Anexar fotografias, vídeos ou PDF (até 4)</label>
+          <input [id]="'team-upload-' + kind + '-' + teamId" type="file"
+            multiple accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,application/pdf"
+            (change)="chooseFiles($event)" [disabled]="sending" />
+          <p class="team-content-note" *ngIf="files.length">{{files.length}} ficheiro(s): {{filesLabel()}}</p>
+          <button type="button" *ngIf="files.length" [disabled]="sending" (click)="clearFiles()">Retirar anexos</button>
+        </div>
+        <button type="submit" [disabled]="sending || (!draft.trim() && !files.length)">
           {{sending ? 'A enviar…' : kind === 'chat' ? 'Enviar' : 'Publicar'}}
         </button>
       </form>
@@ -100,6 +114,11 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionStat
     .team-content-search button:disabled {opacity:.5;cursor:not-allowed}
     .team-content-entry form {display:grid;gap:.4rem;margin-top:.6rem}
     .team-content-entry textarea {min-height:65px;background:#072b38;color:white;border:1px solid #448b90;border-radius:8px;padding:.6rem}
+    .team-private-files {display:flex;flex-wrap:wrap;gap:.5rem;margin:.6rem 0}
+    .team-private-files button {padding:.5rem .7rem;max-width:100%;overflow-wrap:anywhere;border-radius:10px;border:1px solid #34777e;background:#144552;color:#c9fff3;cursor:pointer}
+    .team-upload-selector {display:grid;gap:.3rem}
+    .team-upload-selector input {color:#d5faf4;max-width:100%}
+    .team-upload-selector p {overflow-wrap:anywhere}
   `]
 })
 export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy {
@@ -117,6 +136,10 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   reactionsById: Record<number,TeamReactionState> = {};
   reactionBusyId: number | null = null;
   private reactionVersion = 0;
+  attachmentsEnabled = false;
+  files: File[] = [];
+  downloading = false;
+  private attachmentProbeVersion = 0;
   items: TeamContentEntry[] = [];
   draft = '';
   error = '';
@@ -131,6 +154,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
 
   ngOnInit(): void {
     this.read(false);
+    this.checkAttachmentsAvailable();
     this.subscriptions.add(interval(10000).subscribe(() => {
       if (document.visibilityState === 'visible') this.read(true);
     }));
@@ -147,6 +171,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.replyTargetId = null;this.editingId = null;
       this.clearSearch();this.searchTerm = '';
       this.reactionVersion++;this.reactionsById={};
+      this.clearFiles();this.attachmentsEnabled=false;
+      this.checkAttachmentsAvailable();
       if (!changes['teamId']?.firstChange && !changes['kind']?.firstChange) this.read(false);
     }
   }
@@ -188,12 +214,17 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     if(this.sending || !text || text.length>2000)return;
     const version=this.generation;
     this.sending=true;this.error='';
-    this.api.sendContent(this.teamId,this.kind,text,this.replyTargetId).subscribe({
+    const uploads=[...this.files];
+    const operation=uploads.length
+      ? this.api.uploadContentFiles(this.teamId,this.kind,uploads,text,this.replyTargetId)
+      : this.api.sendContent(this.teamId,this.kind,text,this.replyTargetId);
+    operation.subscribe({
       next:item => {
         if(version!==this.generation)return;
         if(!this.items.some(previous=>previous.id===item.id))
           this.items=[...this.items,item].sort((a,b)=>a.id-b.id);
         if(this.draft.trim()===text){this.draft='';this.replyTargetId=null;}
+        if(uploads.length)this.clearFiles();
       },
       error:() => {
         if(version===this.generation)
@@ -202,6 +233,53 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     }).add(() => {this.sending=false;this.read(true);});
   }
 
+
+  private checkAttachmentsAvailable():void {
+    const current=++this.attachmentProbeVersion;
+    const version=this.generation;
+    if(!Number.isSafeInteger(this.teamId)||this.teamId<=0)return;
+    this.api.attachmentsAvailable(this.teamId,this.kind).subscribe({
+      next:result=>{
+        if(current===this.attachmentProbeVersion&&version===this.generation)
+          this.attachmentsEnabled=result.available===true;
+      },
+      error:()=>{if(current===this.attachmentProbeVersion)this.attachmentsEnabled=false;}
+    });
+  }
+  chooseFiles(event:Event):void {
+    const input=event.target as HTMLInputElement;
+    const selected=Array.from(input.files||[]);
+    input.value='';
+    if(!selected.length)return;
+    const allowed=new Set(['image/jpeg','image/png','image/webp','image/gif',
+      'video/mp4','video/webm','application/pdf']);
+    const combined=[...this.files,...selected];
+    if(combined.length>4 || combined.some(file=>!allowed.has(file.type)||!file.size
+      || file.size>20*1024*1024)
+      || combined.reduce((sum,file)=>sum+file.size,0)>40*1024*1024){
+      this.error='Seleciona até 4 ficheiros permitidos, com 20 MB por ficheiro e 40 MB no total.';
+      return;
+    }
+    this.files=combined;this.error='';
+  }
+  clearFiles():void {this.files=[];}
+  filesLabel():string {return this.files.map(file=>file.name).join(', ');}
+  download(entry:TeamContentEntry,index:number,filename:string):void {
+    if(this.downloading||entry.deleted||!Number.isSafeInteger(index)||index<0||index>=4)return;
+    this.downloading=true;this.error='';
+    this.api.downloadContentFile(this.teamId,this.kind,entry.id,index).subscribe({
+      next:blob=>{
+        const url=URL.createObjectURL(blob);
+        try {
+          const link=document.createElement('a');
+          link.href=url;
+          link.download=filename.replace(/[\\/\x00-\x1f\x7f]/g,'_').slice(0,160)||'anexo';
+          link.click();
+        }finally{setTimeout(()=>URL.revokeObjectURL(url),1000);}
+      },
+      error:()=>{this.error='Não foi possível descarregar o ficheiro. Confirma a tua participação.';}
+    }).add(()=>{this.downloading=false;});
+  }
 
   private loadReactions(items:TeamContentEntry[]):void {
     const ids=items.filter(item=>!item.deleted).slice(-100).map(item=>item.id);
