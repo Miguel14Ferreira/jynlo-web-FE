@@ -16,6 +16,12 @@ export interface GlobalTeamRosterCandidate {
 export class TeamCompetitionEnrollmentsService {
   private readonly base=environment.apiUrl+'/api/team-competition-enrollments';
   constructor(private readonly http:HttpClient){}
+  existing(communityId:number,type:EnrollmentCompetitionType,
+           competitionId:number,globalTeamId:number):Observable<GlobalTeamCompetitionEntry>{
+    return this.http.get<GlobalTeamCompetitionEntry>(
+      this.base+'/communities/'+communityId+'/'+type+'/'+competitionId+
+      '/teams/'+globalTeamId+'/entry');
+  }
   finalize(communityId:number,type:EnrollmentCompetitionType,
            competitionId:number,globalTeamId:number):Observable<GlobalTeamCompetitionEntry>{
     return this.http.post<GlobalTeamCompetitionEntry>(
