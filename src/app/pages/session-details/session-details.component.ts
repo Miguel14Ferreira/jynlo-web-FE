@@ -3282,12 +3282,65 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     return venueDirectionsUrl(this.session?.venue?.latitude, this.session?.venue?.longitude, mode);
   }
 
+  googleMapsEditorOpen = false;
+  googleMapsDraft = '';
+  googleMapsSaving = false;
+  googleMapsError = '';
+  googleMapsNotice = '';
+
+  private verifiedGoogleMapsUrl(raw: string | null | undefined): string | null {
+    if (!raw || raw.length > 512) return null;
+    try {
+      const url = new URL(raw);
+      const official = ['www.google.com', 'google.com'].includes(url.hostname.toLowerCase())
+        && url.pathname.startsWith('/maps');
+      const short = url.hostname.toLowerCase() === 'maps.app.goo.gl'
+        && url.pathname.length > 1;
+      return url.protocol === 'https:' && !url.username && !url.password
+        && !url.port && (official || short) ? url.href : null;
+    } catch { return null; }
+  }
+
+  beginGoogleMapsEdit(): void {
+    if (!this.canEditCapacity() || !this.session) return;
+    this.googleMapsDraft = this.session.googleMapsUrl || '';
+    this.googleMapsError = '';
+    this.googleMapsNotice = '';
+    this.googleMapsEditorOpen = true;
+  }
+
+  saveGoogleMapsLink(): void {
+    if (!this.canEditCapacity() || !this.sessionId || this.googleMapsSaving) return;
+    const trimmed = this.googleMapsDraft.trim();
+    if (trimmed && !this.verifiedGoogleMapsUrl(trimmed)) {
+      this.googleMapsError = 'Insere um link HTTPS válido do Google Maps.';
+      return;
+    }
+    this.googleMapsSaving = true;
+    this.googleMapsError = '';
+    this.sessionService.updateGoogleMapsUrl(this.sessionId, trimmed || null)
+      .pipe(timeout(12_000), finalize(() => this.googleMapsSaving = false))
+      .subscribe({
+        next: detail => {
+          ++this.sessionDetailRequestId;
+          this.session = detail;
+          this.googleMapsEditorOpen = false;
+          this.googleMapsNotice = 'Localização Google Maps atualizada.';
+        },
+        error: () => {
+          this.googleMapsError = 'Não foi possível confirmar a atualização. Consulta novamente antes de repetir.';
+        }
+      });
+  }
+
   /** Only share precise coordinates with people authorised by the session API.
    * Many Jynlo venues have verified catalogue GPS but no postal address: a
    * missing street must not disable their navigation link.
    */
   exactGoogleMapsUrl(): string | null {
     if (!this.session?.canSeeExactAddress) return null;
+    const saved = this.verifiedGoogleMapsUrl(this.session.googleMapsUrl);
+    if (saved) return saved;
     const lat = this.session.venue?.latitude;
     const lon = this.session.venue?.longitude;
     const hasGps = this.hasVenueMapCoordinates();
