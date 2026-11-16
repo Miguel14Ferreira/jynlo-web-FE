@@ -18,7 +18,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
   api=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',
    ['detail','mine','members','honours','history','findPlayers','invite','remove']);
   community=jasmine.createSpyObj<TeamCommunityMembershipsService>('TeamCommunityMembershipsService',
-   ['teamCommunities','discover','request','respond']);
+   ['teamCommunities','discover','request','respond','remove']);
   auth=jasmine.createSpyObj<AuthenticationService>('AuthenticationService',['isLoggedIn']);
   auth.loggedInPerfilname='owner';
   auth.isLoggedIn.and.returnValue(true);
@@ -63,6 +63,19 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(component.members.map(m=>m.profileId)).toEqual([2]);
   component.removePlayer(owner);
   expect(api.remove).toHaveBeenCalledTimes(1);
+ });
+ it('leaves a community only after confirmation and owner verification',()=>{
+  const membership={id:12,teamId:5,teamName:'Clube A',communityId:9,communityName:'Comunidade A',status:'ACTIVE' as const};
+  community.teamCommunities.and.returnValue(of([membership]));
+  component.loadCommunities();
+  const confirmSpy=spyOn(window,'confirm').and.returnValue(false);
+  community.remove.and.returnValue(of(void 0));
+  component.leaveCommunity(membership);
+  expect(community.remove).not.toHaveBeenCalled();
+  confirmSpy.and.returnValue(true);
+  component.leaveCommunity(membership);
+  expect(community.remove).toHaveBeenCalledOnceWith(12);
+  expect(component.feedback).toContain('removida');
  });
  it('blocks further membership actions after a server failure',()=>{
   spyOn(window,'confirm').and.returnValue(true);
