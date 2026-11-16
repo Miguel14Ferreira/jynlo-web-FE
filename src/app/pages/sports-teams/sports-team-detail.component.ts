@@ -19,8 +19,8 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
       <p class="team-eyebrow">JYNLO · EQUIPA DESPORTIVA</p>
       <div class="team-hero-main">
         <span class="team-hero-crest" aria-hidden="true" [style.--kit-primary]="t.kitPrimary || '#16caba'">
-          <img *ngIf="t.logoUrl" [src]="t.logoUrl" alt="" class="team-crest-photo">
-          <ng-container *ngIf="!t.logoUrl">{{ (t.name || 'E').charAt(0).toUpperCase() }}</ng-container>
+          <img *ngIf="logoSrc(t.logoUrl) && !logoBroken" [src]="logoSrc(t.logoUrl)!" (error)="logoBroken=true" alt="" class="team-crest-photo">
+          <ng-container *ngIf="!logoSrc(t.logoUrl) || logoBroken">{{ (t.name || 'E').charAt(0).toUpperCase() }}</ng-container>
         </span>
         <div>
           <h1>{{ t.name }}</h1>
@@ -187,6 +187,8 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   private rosterRequest = 0;
   private rosterLoading = false;
   team: SportsTeam | null = null;
+  logoBroken=false;
+  logoSrc(url:string|null|undefined):string|null{return this.api.logoSrc(url);}
   activeTab: 'OVERVIEW' | 'TROPHIES' | 'FEED' | 'CHAT' = 'OVERVIEW';
   members: SportsTeamMember[] = [];
   pendingPlayers:TeamPendingPlayerInvitation[]=[];
@@ -233,7 +235,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     }
     this.brandingSaving=true;this.feedback='';
     this.api.uploadLogo(this.team.id,file).pipe(timeout(30000)).subscribe({
-      next:updated=>{this.team=updated;this.api.rememberTeam(updated);this.brandingSaving=false;
+      next:updated=>{this.team=updated;this.logoBroken=false;this.api.rememberTeam(updated);this.brandingSaving=false;
         this.feedback='Logótipo atualizado.';this.render();},
       error:()=>{this.brandingSaving=false;this.feedback='Não foi possível confirmar o logótipo. Consulta a equipa antes de repetir.';this.render();}
     });
@@ -437,6 +439,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     this.api.detail(id).pipe(timeout(15000)).subscribe({
       next: team => {
         this.team = team;
+        this.logoBroken=false;
         this.kitPrimary=team.kitPrimary||'#16caba';
         this.kitSecondary=team.kitSecondary||'#f2fafc';
         this.render();
