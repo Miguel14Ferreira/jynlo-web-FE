@@ -271,7 +271,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
 
   send():void {
     const text=this.draft.trim();
-    if(this.sending || !text || text.length>2000)return;
+    // An attachment can be sent without a caption, matching Mobile and backend.
+    if(this.sending || (!text && !this.files.length) || text.length>2000)return;
     const version=this.generation;
     this.invalidatePendingRead();
     this.sending=true;this.error='';
