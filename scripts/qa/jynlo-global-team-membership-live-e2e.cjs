@@ -35,7 +35,7 @@ async function main(){
     (method==='DELETE'&&valid(playerId)&&path===team+'/members/'+playerId)
    ))))||(method==='GET'&&(
     path==='/api/teams/mine'||
-    (team&&(path===team+'/members'||path===team+'/chat'))
+    (team&&(path===team+'/members'||path===team+'/chat'||path===team+'/invitations'))
    ))||(index===1&&team&&(
     (method==='POST'&&path===team+'/invitations/accept')||
     (method==='GET'&&path==='/api/teams/invitations/mine')
@@ -77,8 +77,27 @@ async function main(){
   assert.equal(memberInvites.status,200,'INVITATION_READ_FAILED');
   assert.ok(memberInvites.body.some(i=>i.teamId===teamId),'INVITATION_NOT_LISTED');
   console.log('[PASS] Pending QA invitation does not grant access to private chat.');
+  const pending=await api(0,'GET','/api/teams/'+teamId+'/invitations');
+  assert.equal(pending.status,200,'OWNER_PENDING_INVITES_UNAVAILABLE');
+  assert.equal(pending.body.filter(p=>p.profileId===playerId&&p.status==='INVITED').length,1,
+   'OWNER_PENDING_INVITATION_MISSING');
+  const unauthorized=await api(1,'GET','/api/teams/'+teamId+'/invitations');
+  assert.equal(unauthorized.status,403,'PENDING_INVITATIONS_LEAK_TO_PLAYER');
+  console.log('[PASS] Pending invitations visible to owner only.');
+  const cancelled=await api(0,'DELETE','/api/teams/'+teamId+'/members/'+playerId);
+  assert.equal(cancelled.status,204,'PENDING_INVITE_CANCEL_FAILED');
+  const afterCancel=await api(0,'GET','/api/teams/'+teamId+'/invitations');
+  assert.equal(afterCancel.status,200,'PENDING_AFTER_CANCEL_UNAVAILABLE');
+  assert.ok(!afterCancel.body.some(p=>p.profileId===playerId),'CANCELLED_INVITE_STILL_LISTED');
+  const inviteAgain=await api(0,'POST','/api/teams/'+teamId+'/invitations',{profileId:playerId});
+  assert.equal(inviteAgain.status,202,'REINVITE_AFTER_CANCEL_FAILED');
+  console.log('[PASS] Owner cancelled pending invitation and can send a fresh invitation.');
   const accepted=await api(1,'POST','/api/teams/'+teamId+'/invitations/accept');
   assert.equal(accepted.status,204,'ACCEPT_INVITE_FAILED');
+  const noLongerPending=await api(0,'GET','/api/teams/'+teamId+'/invitations');
+  assert.equal(noLongerPending.status,200,'PENDING_AFTER_ACCEPT_UNAVAILABLE');
+  assert.ok(!noLongerPending.body.some(p=>p.profileId===playerId),
+   'ACCEPTED_PLAYER_STILL_PENDING');
   const [roster,joinedChat]=await Promise.all([
    api(0,'GET','/api/teams/'+teamId+'/members'),
    api(1,'GET','/api/teams/'+teamId+'/chat')
@@ -109,7 +128,10 @@ async function main(){
    try{
     if(valid(playerId)){
      const roster=await api(0,'GET','/api/teams/'+teamId+'/members');
-     if(roster.status===200&&roster.body.some(m=>m.profileId===playerId)){
+     const pendings=await api(0,'GET','/api/teams/'+teamId+'/invitations');
+     assert.equal(pendings.status,200,'QA_PENDING_CLEANUP_READ_FAILED');
+     if(roster.status===200&&(roster.body.some(m=>m.profileId===playerId)||
+        pendings.body.some(m=>m.profileId===playerId))){
       const removal=await api(0,'DELETE','/api/teams/'+teamId+'/members/'+playerId);
       assert.equal(removal.status,204,'QA_MEMBER_CLEANUP_FAILED');
      }
