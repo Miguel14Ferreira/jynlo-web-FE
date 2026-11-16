@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AuthenticationService } from '../../services/authethication.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription, interval, fromEvent, merge } from 'rxjs';
+import { Subscription, interval, fromEvent, merge, timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PublicTeamCommunity,TeamCommunityMembership,TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
@@ -244,7 +244,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   }
   loadCommunities():void{
     if(!this.team)return;
-    this.communityMemberships.teamCommunities(this.team.id).subscribe({
+    this.communityMemberships.teamCommunities(this.team.id).pipe(timeout(15000)).subscribe({
       next:rows=>{this.communities=rows;this.communitiesVerified=true;},
       error:()=>{this.communitiesVerified=false;this.feedback='Não foi possível confirmar as comunidades da equipa.';}
     });
@@ -310,7 +310,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     const teamId=this.team.id;
     const request=++this.rosterRequest;
     this.rosterLoading=true;
-    this.api.members(teamId).subscribe({
+    this.api.members(teamId).pipe(timeout(15000)).subscribe({
       next:players=>{
         if(request!==this.rosterRequest || this.team?.id!==teamId)return;
         this.members=players;
@@ -363,24 +363,27 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     this.auth.isLoggedIn();
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isSafeInteger(id) || id <= 0) {this.error = 'Equipa inválida.'; return;}
-    this.api.detail(id).subscribe({
+    // Paint the public team identity instantly when opened from a team card.
+    // Private content and management remain disabled until the server verifies membership.
+    this.team=this.api.rememberedTeam(id);
+    this.api.detail(id).pipe(timeout(15000)).subscribe({
       next: team => {
         this.team = team;
-        this.api.mine().subscribe({next:owned=>{this.isOwner=owned.some(x=>x.id===team.id);if(this.isOwner)this.loadPendingInvitations();},error:()=>{this.isOwner=false;this.invitationsVerified=false;}});
+        this.api.mine().pipe(timeout(15000)).subscribe({next:owned=>{this.isOwner=owned.some(x=>x.id===team.id);if(this.isOwner)this.loadPendingInvitations();},error:()=>{this.isOwner=false;this.invitationsVerified=false;}});
         this.loadCommunities();
         this.historyLoading = true;
         this.honoursLoading = true;
-        this.api.honours(team.id).subscribe({
+        this.api.honours(team.id).pipe(timeout(15000)).subscribe({
           next: awards => {this.championshipHonours = awards; this.honoursLoading = false;},
           error: () => {this.honoursError = 'Não foi possível carregar os títulos dos campeonatos.'; this.honoursLoading = false;}
         });
-        this.api.history(team.id).subscribe({
+        this.api.history(team.id).pipe(timeout(15000)).subscribe({
           next: entries => {this.history = entries; this.historyLoading = false;},
           error: () => {this.historyError = 'Não foi possível carregar o histórico de troféus.'; this.historyLoading = false;}
         });
         this.refreshRoster();
       },
-      error: () => this.error = 'Não foi possível encontrar esta equipa.'
+      error: () => this.error = 'Não foi possível confirmar os dados da equipa. Tenta abrir novamente.'
     });
     this.rosterSubscriptions.add(interval(30000).subscribe(()=>{
       if(typeof document!=='undefined' && document.visibilityState==='visible')this.refreshRoster();
