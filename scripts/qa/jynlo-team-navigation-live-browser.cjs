@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 // Strictly read-only, authenticated QA of the Render preview team journeys.
-// One-time run against the deployed preview and public domain, without database writes.
+// One-time run on the verified Angular change-detection fix, strictly read-only.
 // Never log passwords, bearer tokens, account data or team names. Never POST from browser.
 const assert=require('node:assert/strict');
 const {authenticate}=require('./jynlo-inbox-live-browser.cjs');
