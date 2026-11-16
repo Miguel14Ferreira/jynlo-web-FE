@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.service';
@@ -18,7 +18,7 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
       <div class="filters">
         <label>Nome ou comunidade<input [(ngModel)]="query" maxlength="80" (keyup.enter)="search()"/></label>
         <label>Modalidade<input [(ngModel)]="sport" maxlength="80" (keyup.enter)="search()"/></label>
-        <button type="button" (click)="search()" [disabled]="loading">Pesquisar</button>
+        <button type="button" (click)="search()">Pesquisar</button>
       </div>
       <p *ngIf="error" role="alert" class="error">{{error}}</p>
       <p *ngIf="notice" role="status">{{notice}}</p>
@@ -53,7 +53,7 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
           <p *ngIf="selectedTeam && hasApplication(item,selectedTeam)">{{applicationLabel(item,selectedTeam)}}</p>
         </article>
       </section>
-      <p *ngIf="!loading && !competitions.length">Não há competições a aceitar candidaturas com estes filtros.</p>
+      <p *ngIf="!loading && !searchError && !competitions.length">Não há competições a aceitar candidaturas com estes filtros.</p>
       <p *ngIf="!mine.length">Precisas de criar ou administrar uma equipa para pedir participação.</p>
       <a routerLink="/menu/teams" fragment="criar-equipa">Criar equipa</a>
       <p class="note">A aprovação não inscreve automaticamente o plantel. A inscrição final depende das regras da competição.</p>
@@ -73,10 +73,11 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
     small,.note{opacity:.75}.error{color:#ed9393}
   `]
 })
-export class TeamCompetitionDiscoveryComponent implements OnInit {
+export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
   query='';sport='';selectedTeam:number|null=null;mine:SportsTeam[]=[];
   competitions:OpenTeamCompetition[]=[];applications:TeamCompetitionApplication[]=[];
-  error='';notice='';loading=false;saving=false;
+  error='';notice='';loading=false;saving=false;searchError=false;
+  private searchVersion=0;private destroyed=false;
   teamsVerified=false;applicationsVerified=false;refreshingApplications=false;
   constructor(private readonly route:ActivatedRoute,private readonly teams:SportsTeamsService,
               private readonly api:TeamCompetitionApplicationsService){}
@@ -84,12 +85,23 @@ export class TeamCompetitionDiscoveryComponent implements OnInit {
     this.refreshOwnershipAndApplications();
     this.search();
   }
+  ngOnDestroy():void{
+    this.destroyed=true;this.searchVersion++;
+  }
   search():void{
-    if(this.loading)return;
-    this.loading=true;this.error='';
-    this.api.discover(this.query,this.sport).subscribe({
-      next:items=>{this.competitions=items;this.loading=false;},
-      error:()=>{this.error='Não foi possível pesquisar competições.';this.loading=false;}
+    const version=++this.searchVersion;
+    const query=this.query.trim(),sport=this.sport.trim();
+    this.loading=true;this.searchError=false;this.error='';
+    this.api.discover(query,sport).subscribe({
+      next:items=>{
+        if(this.destroyed||version!==this.searchVersion)return;
+        this.competitions=items;this.loading=false;
+      },
+      error:()=>{
+        if(this.destroyed||version!==this.searchVersion)return;
+        this.searchError=true;this.error='Não foi possível pesquisar competições.';
+        this.loading=false;
+      }
     });
   }
   refreshOwnershipAndApplications():void{
