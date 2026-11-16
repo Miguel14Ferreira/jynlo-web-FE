@@ -91,3 +91,13 @@
 @media(max-width:900px){.team-grid{grid-template-columns:1fr}.team-branding-controls{gap:.7rem}}
 @media(max-width:520px){.team-branding{padding:.9rem}.team-branding-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
 .team-branding-controls .team-upload,.team-branding-controls button{grid-column:1/-1;width:100%;box-sizing:border-box}.team-branding-controls label:not(.team-upload){min-width:0}}
+
+
+/* Give the roster the full content width, like the community overview. */
+.team-grid>section:first-child{grid-column:1/-1}
+.team-grid>section:first-child .team-roster{grid-template-columns:repeat(auto-fill,minmax(min(100%,235px),1fr))}
+.team-member{gap:.85rem;padding:.9rem;flex-wrap:nowrap;min-height:72px}
+.team-member-avatar{width:48px;height:48px}
+.team-member-identity{flex:1 1 100px}
+.team-member>button{flex-shrink:0}
+@media(max-width:650px){.team-grid>section:first-child .team-roster{grid-template-columns:1fr}.team-member{flex-wrap:wrap}.team-member>button{margin-left:auto}}
