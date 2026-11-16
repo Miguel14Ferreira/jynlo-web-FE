@@ -383,8 +383,8 @@
 }
 :host .jynlo-explore-v3 .explore-map-header h3 {color:#f1fffa;letter-spacing:-.025em;}
 :host .jynlo-explore-v3 .explore-map-layout {
-  grid-template-columns:minmax(205px,.86fr) minmax(0,1.65fr);
-  gap:14px;
+  grid-template-columns:minmax(0,1fr);
+  gap:0;
 }
 :host .jynlo-explore-v3 .explore-map-picks {gap:8px;scrollbar-color:#157d88 transparent;}
 :host .jynlo-explore-v3 .explore-map-pick {
