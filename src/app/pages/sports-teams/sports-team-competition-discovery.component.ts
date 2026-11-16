@@ -44,7 +44,11 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
           <option *ngFor="let team of mine" [ngValue]="team.id">{{team.name}}</option>
         </select>
         <div class="selected-team-kit" *ngIf="selectedTeam && selectedTeamIdentity as team"
-          aria-label="Equipamento da equipa selecionada">
+          aria-label="Logótipo e equipamento da equipa selecionada">
+          <img *ngIf="selectedTeamLogo as logo" class="selected-team-crest" [src]="logo"
+            [alt]="'Logótipo de ' + team.name" (error)="failedLogoUrl=logo" />
+          <span *ngIf="!selectedTeamLogo" class="selected-team-crest crest-fallback"
+            aria-hidden="true">{{team.name.slice(0,1).toUpperCase()}}</span>
           <span class="team-shirt" [class]="'team-shirt kit-' + (team.kitPattern || 'PLAIN').toLowerCase()"
             [style.--shirt-primary]="team.kitPrimary || '#16caba'"
             [style.--shirt-secondary]="team.kitSecondary || '#f2fafc'" aria-hidden="true"></span>
@@ -90,6 +94,9 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
     .team-discover .card p,.team-discover .card small{color:#bcd7e1!important}
     .team-discover .team-picker{width:min(100%,560px)}
     .team-discover .team-picker select{margin-top:.25rem}
+    .team-discover .selected-team-crest{width:48px;height:48px;object-fit:cover;flex:none;border-radius:50%;
+      border:1px solid #347c8b;background:#0f3948}
+    .team-discover .crest-fallback{display:grid;place-items:center;color:#b2f8ed;font-weight:850;font-size:1.25rem}
     .team-discover .selected-team-kit{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-top:1rem;
       font-size:.84rem;color:#defcf9}
     .team-discover .selected-team-kit .team-shirt{display:flex;align-items:center;justify-content:center;
@@ -117,7 +124,12 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
   error='';notice='';loading=false;saving=false;searchError=false;
   private searchVersion=0;private ownershipVersion=0;private destroyed=false;
   private readonly requestTimeout=12000;
+  failedLogoUrl:string|null=null;
   get selectedTeamIdentity(){return this.mine.find(team=>team.id===this.selectedTeam)||null;}
+  get selectedTeamLogo():string|null{
+    const logo=this.teams.logoSrc(this.selectedTeamIdentity?.logoUrl);
+    return logo && logo!==this.failedLogoUrl ?logo:null;
+  }
   teamsVerified=false;applicationsVerified=false;refreshingApplications=false;
   constructor(private readonly route:ActivatedRoute,private readonly teams:SportsTeamsService,
               private readonly api:TeamCompetitionApplicationsService,
