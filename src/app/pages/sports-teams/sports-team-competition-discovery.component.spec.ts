@@ -1,4 +1,5 @@
 import { of, Subject, throwError } from 'rxjs';
+import { fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { TeamCompetitionDiscoveryComponent } from './sports-team-competition-discovery.component';
 import { SportsTeamsService, SportsTeam } from '../../services/sports-teams.service';
@@ -103,6 +104,35 @@ describe('Jynlo global team competition application safety',()=>{
   expect(api.apply).not.toHaveBeenCalled();
  });
 
+ it('exits verification mode after a failed or stalled owner lookup',fakeAsync(()=>{
+  teams.mine.and.returnValue(new Subject<SportsTeam[]>().asObservable());
+  api.mine.and.returnValue(new Subject<TeamCompetitionApplication[]>().asObservable());
+  component.refreshOwnershipAndApplications();
+  expect(component.refreshingApplications).toBeTrue();
+  tick(12001);
+  expect(component.refreshingApplications).toBeFalse();
+  expect(component.teamsVerified).toBeFalse();
+  expect(component.applicationsVerified).toBeFalse();
+  component.apply(tournament);
+  expect(api.apply).not.toHaveBeenCalled();
+ }));
+ it('does not keep competition search spinning when the API stalls',fakeAsync(()=>{
+  api.discover.and.returnValue(new Subject<OpenTeamCompetition[]>().asObservable());
+  component.search();
+  expect(component.loading).toBeTrue();
+  tick(12001);
+  expect(component.loading).toBeFalse();
+  expect(component.searchError).toBeTrue();
+  expect(component.error).toContain('demorou demasiado');
+ }));
+ it('does not trust late ownership results after the route was closed',()=>{
+  const old=new Subject<SportsTeam[]>();
+  teams.mine.and.returnValue(old.asObservable());
+  component.refreshOwnershipAndApplications();
+  component.ngOnDestroy();
+  old.next([team]);old.complete();
+  expect(component.teamsVerified).toBeFalse();
+ });
  it('blocks applications when the competition has closed registrations',()=>{
   component.selectedTeam=5;
   component.apply({...tournament,applicationsOpen:false});
