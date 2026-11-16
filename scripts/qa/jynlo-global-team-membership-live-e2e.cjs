@@ -120,6 +120,6 @@ async function main(){
  console.log('[PASS] Two-account permanent-team access E2E completed without residual QA team.');
 }
 main().catch(e=>{
- console.error('[FAIL] '+String(e?.message||e).replace(/https?:\\/\\/\\S+/g,'[redacted]').slice(0,140));
+ console.error('[FAIL] '+String(e?.message||e).replace(/https?:[^ ]+/g,'[redacted]').slice(0,140));
  process.exitCode=1;
 });
