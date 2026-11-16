@@ -16,7 +16,8 @@ describe('Jynlo global team competition application safety',()=>{
  const pending:TeamCompetitionApplication={id:50,teamId:5,teamName:'Equipa A',communityId:9,
   competitionType:'TOURNAMENT',competitionId:8,status:'PENDING'};
  beforeEach(()=>{
-  teams=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',['mine']);
+  teams=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',['mine','logoSrc']);
+  teams.logoSrc.and.callFake(url=>url&&url.startsWith('https://')?url:null);
   api=jasmine.createSpyObj<TeamCompetitionApplicationsService>('TeamCompetitionApplicationsService',
    ['mine','discover','apply']);
   teams.mine.and.returnValue(of([team]));
@@ -62,6 +63,15 @@ describe('Jynlo global team competition application safety',()=>{
   pending.complete();
   expect(component.competitions).toEqual([]);
  });
+ it('shows the official team crest when provided and falls back after an image error',()=>{
+  component.mine=[{...team,logoUrl:'https://cdn.example.com/teams/5/crest.png'}];
+  expect(component.selectedTeamLogo).toBe('https://cdn.example.com/teams/5/crest.png');
+  component.failedLogoUrl=component.selectedTeamLogo;
+  expect(component.selectedTeamLogo).toBeNull();
+  component.mine=[{...team,logoUrl:null}];
+  expect(component.selectedTeamLogo).toBeNull();
+ });
+
  it('does not submit twice when a pending request already exists',()=>{
   component.applications=[pending];
   expect(component.applicationLabel(tournament,5)).toBe('Pedido em análise');
