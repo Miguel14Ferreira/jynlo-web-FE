@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 // READ-ONLY live QA inventory for the two explicitly allowlisted Jynlo accounts.
+// Audit the current permanent-team and competition API state without writes.
 const assert=require('node:assert/strict');
 const {authenticate}=require('./jynlo-inbox-live-browser.cjs');
 const USERS=['jynloteste01','jynloteste02'];
