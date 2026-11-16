@@ -1,4 +1,5 @@
 import { SimpleChange } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { of, Subject } from 'rxjs';
 import { SportsTeamContentComponent } from './sports-team-content.component';
 import { SportsTeamsService, TeamContentEntry } from '../../services/sports-teams.service';
@@ -73,5 +74,34 @@ describe('Team conversation synchronization', () => {
     second.next([entry(1,7),entry(2,7)]);
     second.complete();
     expect(component.items.map(item=>item.id)).toEqual([1,2]);
+  });
+
+  it('removes cached private history after membership is revoked',()=>{
+    const denied=new Subject<TeamContentEntry[]>();
+    api.content.and.returnValue(denied.asObservable());
+    component.items=[entry(1,7,'Mensagem privada')];
+    component.searchResults=[entry(1,7,'Pesquisa privada')];
+    component.searchActive=true;
+    component.draft='Rascunho privado';
+    component.attachmentsEnabled=true;
+    component.read(true);
+    denied.error(new HttpErrorResponse({status:403,statusText:'Forbidden'}));
+    expect(component.accessRevoked).toBeTrue();
+    expect(component.items).toEqual([]);
+    expect(component.searchResults).toEqual([]);
+    expect(component.searchActive).toBeFalse();
+    expect(component.draft).toBe('');
+    expect(component.attachmentsEnabled).toBeFalse();
+    component.read(true);
+    expect(api.content).toHaveBeenCalledTimes(1);
+  });
+
+  it('resets revoked state after switching to another team',()=>{
+    api.content.and.returnValue(of([]));
+    component.accessRevoked=true;
+    component.teamId=8;
+    component.ngOnChanges({teamId:new SimpleChange(7,8,false)});
+    expect(component.accessRevoked).toBeFalse();
+    expect(api.content).toHaveBeenCalledTimes(1);
   });
 });
