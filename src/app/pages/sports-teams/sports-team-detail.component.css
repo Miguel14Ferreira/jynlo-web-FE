@@ -38,3 +38,24 @@
 .team-feature{min-height:140px}
 @media(max-width:780px){.team-grid{grid-template-columns:1fr}.team-detail{padding:5.5rem 1rem 3rem}.team-hero-stats a{margin-left:0}}
 @media(max-width:480px){.team-hero-main{align-items:flex-start;flex-direction:column}.team-hero-crest{width:68px;height:68px;border-radius:17px;font-size:2rem}.team-hero-stats span{flex:1 1 auto}.team-hero-stats a{width:100%;justify-content:center}.team-tabs button{flex:1 1 auto}}
+
+/* Focused team profile: readable controls across phones and desktop. */
+.team-player-search{margin-top:1.2rem;padding-top:1rem;border-top:1px solid #3c818759}
+.team-player-search input{min-height:44px}
+.team-candidate{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;padding:.65rem .85rem;border:1px solid #477b8d6b;border-radius:11px;margin:.5rem 0}
+.team-candidate a,.team-member-identity a{color:#9df5e3;text-decoration:none;font-weight:800;overflow-wrap:anywhere}
+.team-candidate a:hover,.team-member-identity a:hover{text-decoration:underline}
+.team-member-identity{min-width:0;flex:1}
+.team-member-identity a{display:block}
+.team-member{min-width:0;flex-wrap:wrap}
+.team-member>button{margin-left:auto;min-height:42px}
+.team-feedback{padding:.8rem 1rem;border:1px solid #5bc1c169;border-radius:12px;color:#b5f4e7;background:#0b516053}
+.team-tabs button{min-height:44px}
+@media(max-width:580px){
+ .team-player-search .search-community{flex-direction:column}
+ .team-player-search .search-community input,.team-player-search .search-community button{width:100%;min-width:0}
+ .team-candidate button{width:100%}
+ .team-roster{grid-template-columns:1fr}
+ .team-grid section{padding:1rem}
+ .team-tabs button{flex:1 1 calc(50% - .6rem)}
+}
