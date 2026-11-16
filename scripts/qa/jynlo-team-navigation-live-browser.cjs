@@ -104,13 +104,25 @@ async function exercise(username,token,site){
    stage='DISCOVER_CARDS';
    const first=discover.locator('.team-card').first();
    if(await first.count()){
+    stage='TEAM_CARD_LAYOUT';
+    const dimensions=await first.evaluate(el=>{
+      const bounds=el.getBoundingClientRect();
+      const emblem=el.querySelector('.team-emblem')?.getBoundingClientRect();
+      return {height:bounds.height,width:bounds.width,emblemSize:emblem?.width||0};
+    });
+    assert.ok(dimensions.height>=200&&dimensions.width>=260&&dimensions.emblemSize>=60,
+      'TEAM_CARD_CRAMPED');
     stage='TEAM_DETAIL_CLICK';
     await first.click();
     stage='TEAM_DETAIL_HEADING';
     await page.locator('.team-detail h1').waitFor({state:'visible',timeout:TIMEOUT});
     const teamError=page.locator('.team-detail .team-error');
     assert.equal(await teamError.count(),0,'TEAM_DETAIL_ERROR');
-    console.log('[PASS] '+username+' team card opened in detail route.');
+    const crest=page.locator('.team-hero-crest');
+    await crest.waitFor({state:'visible',timeout:TIMEOUT});
+    const hero=page.locator('.team-hero');
+    assert.ok((await hero.boundingBox())?.height>140,'TEAM_IDENTITY_HEADER_CRAMPED');
+    console.log('[PASS] '+username+' community-inspired team card and detail identity are readable.');
    }else{
     console.log('[SKIP] '+username+' no public teams available for a detail click.');
    }
@@ -158,7 +170,7 @@ async function main(){
 }
 main().catch(e=>{
  const msg=String(e?.message||e);
- const code=/OWNER_REQUEST_FAILED|TEAM_DIRECTORY_ERROR|TEAM_DETAIL_ERROR|COMPETITION_REQUEST_ERROR|COMPETITION_CARD_LIGHT_CONTRAST|CREATE_TEAM_NAVIGATION|EXPLORE_TEAM_NAVIGATION|EXPLORE_TEAM_FRAGMENT|READ_ONLY_GUARD|QA_ACCOUNT_ALLOWLIST|QA_CREDENTIALS_MISSING/.exec(msg);
+ const code=/TEAM_CARD_CRAMPED|TEAM_IDENTITY_HEADER_CRAMPED|OWNER_REQUEST_FAILED|TEAM_DIRECTORY_ERROR|TEAM_DETAIL_ERROR|COMPETITION_REQUEST_ERROR|COMPETITION_CARD_LIGHT_CONTRAST|CREATE_TEAM_NAVIGATION|EXPLORE_TEAM_NAVIGATION|EXPLORE_TEAM_FRAGMENT|READ_ONLY_GUARD|QA_ACCOUNT_ALLOWLIST|QA_CREDENTIALS_MISSING/.exec(msg);
  console.error('[FAIL] '+stage+'_'+(code?.[0]||'BROWSER_QA_FAILED'));
  process.exitCode=1;
 });
