@@ -9,7 +9,7 @@ describe('Jynlo team creation deep link from competition search',()=>{
  let invitations:jasmine.SpyObj<TeamCompetitionInvitationsService>;
  let router:jasmine.SpyObj<Router>;
  beforeEach(()=>{
-  teams=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',['discover','mine']);
+  teams=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',['discover','mine','create']);
   invitations=jasmine.createSpyObj<TeamCompetitionInvitationsService>('TeamCompetitionInvitationsService',['mine']);
   router=jasmine.createSpyObj<Router>('Router',['navigate']);
   router.navigate.and.returnValue(Promise.resolve(true));
@@ -28,7 +28,7 @@ describe('Jynlo team creation deep link from competition search',()=>{
  });
  it('navigates directly to team details after server-confirmed creation',()=>{
   const component=open('1');
-  teams.create=jasmine.createSpy('create').and.returnValue(of({
+  teams.create.and.returnValue(of({
    id:16,slug:'amigos',name:'Amigos',sport:null,location:null,description:null,ownerProfileId:2,
    feedEnabled:false,chatEnabled:false
   }));
