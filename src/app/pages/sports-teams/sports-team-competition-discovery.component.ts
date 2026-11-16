@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -100,7 +100,9 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
   private readonly requestTimeout=12000;
   teamsVerified=false;applicationsVerified=false;refreshingApplications=false;
   constructor(private readonly route:ActivatedRoute,private readonly teams:SportsTeamsService,
-              private readonly api:TeamCompetitionApplicationsService){}
+              private readonly api:TeamCompetitionApplicationsService,
+              private readonly cdr:ChangeDetectorRef){}
+  private render():void{if(!this.destroyed)this.cdr.detectChanges();}
   ngOnInit():void{
     this.refreshOwnershipAndApplications();
     this.search();
@@ -116,12 +118,12 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
     this.api.discover(query,sport).pipe(timeout(this.requestTimeout)).subscribe({
       next:items=>{
         if(this.destroyed||version!==this.searchVersion)return;
-        this.competitions=items;this.loading=false;
+        this.competitions=items;this.loading=false;this.render();
       },
       error:()=>{
         if(this.destroyed||version!==this.searchVersion)return;
         this.searchError=true;this.error='A pesquisa de competições demorou demasiado ou falhou. Tenta novamente.';
-        this.loading=false;
+        this.loading=false;this.render();
       }
     });
   }
@@ -135,6 +137,7 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
       if(this.destroyed||version!==this.ownershipVersion)return;
       pending--;
       if(pending===0)this.refreshingApplications=false;
+      this.render();
     };
     this.teams.mine().pipe(timeout(this.requestTimeout)).subscribe({
       next:teams=>{
@@ -186,11 +189,11 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
     this.api.apply(item.communityId,item.type,item.id,teamId).subscribe({
       next:application=>{
         this.applications=[application,...this.applications];this.saving=false;
-        this.notice='Pedido enviado ao organizador. Podes acompanhar o estado nesta página.';
+        this.notice='Pedido enviado ao organizador. Podes acompanhar o estado nesta página.';this.render();
       },
       error:()=>{
         this.saving=false;this.applicationsVerified=false;
-        this.error='Não foi possível confirmar o pedido. Verifica os pedidos existentes antes de repetir.';
+        this.error='Não foi possível confirmar o pedido. Verifica os pedidos existentes antes de repetir.';this.render();
       }
     });
   }
