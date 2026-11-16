@@ -386,18 +386,6 @@
   grid-template-columns:minmax(0,1fr);
   gap:0;
 }
-:host .jynlo-explore-v3 .explore-map-picks {gap:8px;scrollbar-color:#157d88 transparent;}
-:host .jynlo-explore-v3 .explore-map-pick {
-  min-width:0;
-  border-radius:13px;
-  background:#082e40;
-  border-color:rgba(30,191,199,.28);
-  color:#ddf6f4;
-}
-:host .jynlo-explore-v3 .explore-map-pick:hover,
-:host .jynlo-explore-v3 .explore-map-pick.is-active {
-  border-color:#36e8d0;background:#0a4c58;
-}
 :host .jynlo-explore-v3 .explore-map-canvas {
   border-radius:14px;
   border-color:rgba(34,210,208,.36);
