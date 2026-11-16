@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subscription, interval, fromEvent, merge } from 'rxjs';
@@ -11,6 +12,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
   imports: [CommonModule, FormsModule],
   template: `
     <div class="team-content">
+      <ng-container *ngIf="!accessRevoked; else accessRevokedState">
       <p class="team-content-note">Exclusivo do responsável e dos membros confirmados.</p>
       <p role="alert" class="team-content-error" *ngIf="error">{{error}}</p>
       <p role="status" class="team-content-note" *ngIf="syncError">{{syncError}}</p>
@@ -93,6 +95,8 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
           {{sending ? 'A enviar…' : kind === 'chat' ? 'Enviar' : 'Publicar'}}
         </button>
       </form>
+      </ng-container>
+      <ng-template #accessRevokedState><p role="alert" class="team-content-error">Já não tens acesso a esta conversa.</p></ng-template>
     </div>`,
   styles: [`
     .team-content {display:grid;gap:.75rem;min-width:0}
@@ -158,6 +162,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   draft = '';
   error = '';
   syncError = '';
+  accessRevoked = false;
   sending = false;
   loading = true;
   private readonly subscriptions = new Subscription();
@@ -200,6 +205,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     if (changes['teamId'] || changes['kind']) {
       this.generation++;
       this.invalidatePendingRead();
+      this.accessRevoked = false;
       this.items = [];this.error = '';this.syncError = '';this.draft = '';
       this.replyTargetId = null;this.editingId = null;
       this.clearSearch();this.searchTerm = '';
@@ -222,7 +228,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
 
   read(silent:boolean):void {
     if (this.readingGeneration === this.generation) { this.readQueued = true; return; }
-    if (this.sending || !Number.isSafeInteger(this.teamId) || this.teamId<=0) return;
+    if (this.sending || this.accessRevoked || !Number.isSafeInteger(this.teamId) || this.teamId<=0) return;
     const version = this.generation;
     const requestId = ++this.readRequestId;
     const writeVersion = this.writeVersion;
@@ -234,9 +240,17 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
             || requestId!==this.readRequestId)return;
         this.items=items;this.syncError='';this.loadReactions(items);
       },
-      error:() => {
+      error:(failure:unknown) => {
         if(version!==this.generation || writeVersion!==this.writeVersion
             || requestId!==this.readRequestId)return;
+        if(failure instanceof HttpErrorResponse && (failure.status===401 || failure.status===403)) {
+          this.accessRevoked=true;this.items=[];this.draft='';this.replyTargetId=null;
+          this.editingId=null;this.editingDraft='';this.clearSearch();
+          this.reactionVersion++;this.reactionsById={};this.clearFiles();
+          this.clearPreviews();this.attachmentsEnabled=false;this.syncError='';
+          this.error='Já não tens acesso a esta conversa.';
+          return;
+        }
         if(silent)this.syncError='A sincronização falhou. O histórico pode estar desatualizado.';
         else this.error='Não foi possível abrir esta conversa. Confirma que és membro e que está ativada.';
       }
