@@ -206,7 +206,7 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
       !teamId||!this.mine.some(team=>team.id===teamId)||
       this.hasApplication(item,teamId))return;
     this.saving=true;this.error='';this.notice='';
-    this.api.apply(item.communityId,item.type,item.id,teamId).subscribe({
+    this.api.apply(item.communityId,item.type,item.id,teamId).pipe(timeout(this.requestTimeout)).subscribe({
       next:application=>{
         this.applications=[application,...this.applications];this.saving=false;
         this.notice='Pedido enviado ao organizador. Podes acompanhar o estado nesta página.';this.render();
