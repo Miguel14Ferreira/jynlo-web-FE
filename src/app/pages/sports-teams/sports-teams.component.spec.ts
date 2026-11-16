@@ -1,4 +1,5 @@
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
+import { fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SportsTeamsService } from '../../services/sports-teams.service';
 import { TeamCompetitionInvitationsService } from '../../services/team-competition-invitations.service';
@@ -9,7 +10,7 @@ describe('Jynlo team creation deep link from competition search',()=>{
  let invitations:jasmine.SpyObj<TeamCompetitionInvitationsService>;
  let router:jasmine.SpyObj<Router>;
  beforeEach(()=>{
-  teams=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',['discover','mine','joined','create','pendingInvitations','respond']);
+  teams=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',['discover','mine','joined','create','pendingInvitations','respond','rememberTeam']);
   invitations=jasmine.createSpyObj<TeamCompetitionInvitationsService>('TeamCompetitionInvitationsService',['mine']);
   router=jasmine.createSpyObj<Router>('Router',['navigate']);
   router.navigate.and.returnValue(Promise.resolve(true));
@@ -72,6 +73,51 @@ describe('Jynlo team creation deep link from competition search',()=>{
   const component=open(null);
   expect(component.teamInvitations).toEqual([]);
   expect(component.invitations).toEqual([]);
+ });
+
+ it('waits for primary owned teams before starting secondary network requests',()=>{
+  const outstanding=new Subject<import('../../services/sports-teams.service').SportsTeam[]>();
+  teams.mine.and.returnValue(outstanding.asObservable());
+  const component=open(null);
+  expect(component.mineLoading).toBeTrue();
+  expect(teams.discover).not.toHaveBeenCalled();
+  expect(teams.joined).not.toHaveBeenCalled();
+  outstanding.next([]);outstanding.complete();
+  expect(component.mineLoading).toBeFalse();
+  expect(teams.discover).toHaveBeenCalledTimes(1);
+  expect(teams.joined).toHaveBeenCalledTimes(1);
+  component.ngOnDestroy();
+ });
+ it('stops showing indefinite spinners if the primary team request stalls',fakeAsync(()=>{
+  teams.mine.and.returnValue(new Subject<any[]>().asObservable());
+  const component=open(null);
+  expect(component.mineLoading).toBeTrue();
+  tick(15001);
+  expect(component.mineLoading).toBeFalse();
+  expect(component.mineError).toContain('Tenta novamente');
+  expect(teams.discover).toHaveBeenCalledTimes(1);
+  component.ngOnDestroy();
+ }));
+ it('ignores delayed results from searches replaced by a newer query',()=>{
+  const first=new Subject<any[]>();
+  teams.discover.and.returnValues(first.asObservable(),of([{
+   id:9,slug:'novos',name:'Novos',sport:null,location:null,description:null,
+   ownerProfileId:3,chatEnabled:false,feedEnabled:false
+  }]));
+  const component=open(null);
+  component.query='Novos';component.search();
+  first.next([{id:2,name:'Antigos'}] as any);first.complete();
+  expect(component.teams.map(x=>x.id)).toEqual([9]);
+  expect(component.loading).toBeFalse();
+  component.ngOnDestroy();
+ });
+ it('stores only public team identity before following a card link',()=>{
+  const component=open(null);
+  const item={id:23,slug:'teste',name:'Equipa teste',sport:'Futebol',
+   location:null,description:null,ownerProfileId:7,feedEnabled:false,chatEnabled:false};
+  component.openTeam(item);
+  expect(teams.rememberTeam).toHaveBeenCalledOnceWith(item);
+  component.ngOnDestroy();
  });
  it('keeps the normal team directory uncluttered without a creation request',()=>{
   expect(open(null).createExpanded).toBeFalse();
