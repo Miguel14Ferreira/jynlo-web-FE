@@ -29,8 +29,22 @@ async function exercise(username,token,site){
    const page=await context.newPage();
    const apiTrace=[];
    let pageErrors=0,consoleErrors=0;
+   const consoleCodes=[];
    page.on('pageerror',()=>{pageErrors++;});
-   page.on('console',message=>{if(message.type()==='error')consoleErrors++;});
+   page.on('console',message=>{
+    if(message.type()!=='error')return;
+    consoleErrors++;
+    const text=message.text();
+    const ng=/NG[0-9]{4,5}/.exec(text);
+    const category=ng?.[0]||
+      (/ExpressionChangedAfterItHasBeenCheckedError/.test(text)?'EXPRESSION_CHANGED':
+       /Http failure response/.test(text)?'HTTP_FAILURE':
+       /Cannot read properties/.test(text)?'TYPE_ERROR':
+       /TypeError/.test(text)?'TYPE_ERROR':
+       /CORS|Cross-Origin|cross-origin/.test(text)?'CORS':
+       /Failed to load resource/.test(text)?'RESOURCE_FAILURE':'OTHER');
+    consoleCodes.push(category);
+   });
    page.on('request',request=>{
     try{
      const u=new URL(request.url());
@@ -77,6 +91,7 @@ async function exercise(username,token,site){
     console.log('[DIAG] '+site.label+' team route: '+new URL(page.url()).pathname);
     console.log('[DIAG] mine loading visible: '+await mine.locator('.loading-message').isVisible());
     console.log('[DIAG] page errors: '+pageErrors+', console errors: '+consoleErrors);
+    console.log('[DIAG] console categories: '+consoleCodes.join(','));
     const href=await page.getByRole('link',{name:'Explorar equipas'}).getAttribute('href').catch(()=>null);
     console.log('[DIAG] team directory bundle: '+(href?.startsWith('/menu/teams')?'UPDATED_LINK':'OLD_OR_MISSING_LINK'));
     throw e;
