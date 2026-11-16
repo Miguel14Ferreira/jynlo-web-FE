@@ -22,7 +22,8 @@ describe('Jynlo team creation deep link from competition search',()=>{
  });
  const open=(create:string|null)=>{
   const route={snapshot:{queryParamMap:{get:(key:string)=>key==='create'?create:null}}} as unknown as ActivatedRoute;
-  const component=new SportsTeamsComponent(teams,invitations,route,router);
+  const cdr={detectChanges:jasmine.createSpy('detectChanges')};
+  const component=new SportsTeamsComponent(teams,invitations,route,router,cdr as any);
   component.ngOnInit();
   return component;
  };
