@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -42,7 +42,9 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
   constructor(private readonly api: SportsTeamsService,
               private readonly competitionInvites: TeamCompetitionInvitationsService,
               private readonly route: ActivatedRoute,
-              private readonly router: Router) {}
+              private readonly router: Router,
+              private readonly cdr: ChangeDetectorRef) {}
+  private render():void {if(this.alive)this.cdr.detectChanges();}
   ngOnInit(): void {
     this.createExpanded=this.route.snapshot.queryParamMap.get('create')==='1';
     // Directory discovery is independent of account membership. Never block
@@ -57,8 +59,8 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
   loadJoined():void{
     this.joinedLoading=true;this.joinedError='';
     this.api.joined().pipe(timeout(this.requestTimeout)).subscribe({
-      next:items=>{this.joined=items;this.joinedLoading=false;},
-      error:()=>{this.joinedError='Não foi possível confirmar as equipas onde és jogador.';this.joinedLoading=false;}
+      next:items=>{if(!this.alive)return;this.joined=items;this.joinedLoading=false;this.render();},
+      error:()=>{if(!this.alive)return;this.joinedError='Não foi possível confirmar as equipas onde és jogador.';this.joinedLoading=false;this.render();}
     });
   }
   loadMine(): void {
@@ -67,12 +69,12 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
     this.api.mine().pipe(timeout(this.requestTimeout)).subscribe({
       next: teams => {
         if(!this.alive)return;
-        this.mine=teams;this.mineLoading=false;
+        this.mine=teams;this.mineLoading=false;this.render();
       },
       error: () => {
         if(!this.alive)return;
         this.mineError='Não foi possível carregar as tuas equipas. Tenta novamente.';
-        this.mineLoading=false;
+        this.mineLoading=false;this.render();
       }
     });
   }
@@ -80,10 +82,11 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
   loadTeamInvitations():void{
     this.teamInvitationError='';
     this.api.pendingInvitations().pipe(timeout(this.requestTimeout)).subscribe({
-      next:items=>{this.teamInvitations=items;this.teamInvitationsVerified=true;},
+      next:items=>{if(!this.alive)return;this.teamInvitations=items;this.teamInvitationsVerified=true;this.render();},
       error:()=>{
         this.teamInvitationsVerified=false;
         this.teamInvitationError='Não foi possível verificar os convites para equipas.';
+        this.render();
       }
     });
   }
@@ -111,8 +114,8 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
   }
   loadInvitations(): void {
     this.competitionInvites.mine().pipe(timeout(this.requestTimeout)).subscribe({
-      next: rows => this.invitations = rows,
-      error: () => this.invitations = []
+      next: rows => {if(!this.alive)return;this.invitations = rows;this.render();},
+      error: () => {if(!this.alive)return;this.invitations = [];this.render();}
     });
   }
 
@@ -133,12 +136,12 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
     this.api.discover(query).pipe(timeout(this.requestTimeout)).subscribe({
       next:data=>{
         if(!this.alive||request!==this.searchRequest)return;
-        this.teams=data;this.loading=false;
+        this.teams=data;this.loading=false;this.render();
       },
       error:()=>{
         if(!this.alive||request!==this.searchRequest)return;
         this.error='A pesquisa demorou demasiado ou falhou. Tenta novamente.';
-        this.loading=false;
+        this.loading=false;this.render();
       }
     });
   }
@@ -149,7 +152,7 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
     this.error = '';
     this.api.create(this.draft).subscribe({
       next: created => {
-        this.saving = false;
+        this.saving = false;this.render();
         this.draft = {name: '', sport: '', location: '', description: ''};
         this.createExpanded = false;
         if(Number.isSafeInteger(created.id)&&created.id>0){
@@ -159,7 +162,7 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
           this.search();this.loadMine();
         }
       },
-      error: () => { this.saving = false; this.error = 'Não foi possível criar a equipa. Confirma que tens sessão iniciada.'; }
+      error: () => { this.saving = false; this.error = 'Não foi possível criar a equipa. Confirma que tens sessão iniciada.';this.render(); }
     });
   }
 }
