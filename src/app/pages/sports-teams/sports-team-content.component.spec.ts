@@ -17,7 +17,7 @@ describe('Team conversation synchronization', () => {
 
   beforeEach(() => {
     api=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',
-      ['content','attachmentsAvailable','reactions','sendContent','downloadContentFile']);
+      ['content','attachmentsAvailable','reactions','sendContent','downloadContentFile','uploadContentFiles']);
     realtime=jasmine.createSpyObj<DirectChatRealtimeService>('DirectChatRealtimeService',['connect']);
     api.attachmentsAvailable.and.returnValue(of({available:false}));
     api.reactions.and.returnValue(of({}));
@@ -94,6 +94,24 @@ describe('Team conversation synchronization', () => {
     expect(component.attachmentsEnabled).toBeFalse();
     component.read(true);
     expect(api.content).toHaveBeenCalledTimes(1);
+  });
+
+  it('sends an attachment without a caption as a valid team message',()=>{
+    const uploadResult=new Subject<TeamContentEntry>();
+    api.uploadContentFiles.and.returnValue(uploadResult.asObservable());
+    api.content.and.returnValue(of([]));
+    const attachment=new File(['%PDF-1.7'],'prova.pdf',{type:'application/pdf'});
+    component.files=[attachment];
+    component.draft='';
+    component.send();
+    expect(api.uploadContentFiles).toHaveBeenCalledOnceWith(7,'chat',[attachment],'',null);
+    expect(component.sending).toBeTrue();
+    uploadResult.next({...entry(20,7,'📎 prova.pdf'),attachments:[
+      {index:0,filename:'prova.pdf',mimeType:'application/pdf',size:8}
+    ]});
+    uploadResult.complete();
+    expect(component.sending).toBeFalse();
+    expect(component.files).toEqual([]);
   });
 
   it('hides cached messages and drafts when the owner disables team chat (409)',()=>{
