@@ -29,7 +29,7 @@ import { CompetitionTeamInvitation, CompetitionTeamInvitationType,
               [communityId]="communityId" [competitionId]="competitionId" [type]="type"
               [globalTeamId]="team.teamId"></app-global-team-enrollment>
           </span>
-          <button type="button" *ngIf="!invitationFor(team.teamId)" [disabled]="busy"
+          <button type="button" *ngIf="!invitationFor(team.teamId)" [disabled]="busy || !invitationsVerified"
             (click)="invite(team.teamId)">Convidar para a competição</button>
         </li></ul>
         <h4>Outras equipas da Jynlo</h4>
@@ -41,6 +41,9 @@ import { CompetitionTeamInvitation, CompetitionTeamInvitationType,
           <button type="button" (click)="search()" [disabled]="busy || !query.trim()">Pesquisar</button>
         </div>
         <p *ngIf="error" role="alert" class="error">{{ error }}</p>
+        <p *ngIf="!invitationsVerified" role="alert">Convites anteriores por confirmar. Novos convites bloqueados.</p>
+        <button *ngIf="!invitationsVerified" type="button" [disabled]="busy"
+          (click)="refreshInvitations()">Verificar convites anteriores</button>
         <p *ngIf="notice" role="status">{{ notice }}</p>
         <p *ngIf="busy" aria-live="polite">A processar…</p>
         <ul *ngIf="!busy">
@@ -53,7 +56,7 @@ import { CompetitionTeamInvitation, CompetitionTeamInvitationType,
                 [communityId]="communityId" [competitionId]="competitionId" [type]="type"
                 [globalTeamId]="team.id"></app-global-team-enrollment>
             </span>
-            <button *ngIf="!invitationFor(team.id)" type="button" (click)="invite(team.id)">Convidar equipa</button>
+            <button *ngIf="!invitationFor(team.id)" type="button" [disabled]="busy || !invitationsVerified" (click)="invite(team.id)">Convidar equipa</button>
           </li>
         </ul>
         <p *ngIf="searched && !busy && results.length === 0">Não foram encontradas equipas.</p>
@@ -88,6 +91,8 @@ export class CompetitionTeamSearchComponent implements OnChanges {
   results: SportsTeam[] = [];
   associated:TeamCommunityMembership[]=[];
   invitations: CompetitionTeamInvitation[] = [];
+  invitationsVerified = false;
+  private invitationRevision = 0;
   private revision = 0;
 
   constructor(private readonly teams: SportsTeamsService,
@@ -101,6 +106,7 @@ export class CompetitionTeamSearchComponent implements OnChanges {
     this.results = [];
     this.associated=[];
     this.invitations = [];
+    this.invitationsVerified = false;
     this.searched = false;
     const rev = this.revision;
     if (this.communityId > 0 && this.competitionId > 0) {
@@ -108,11 +114,26 @@ export class CompetitionTeamSearchComponent implements OnChanges {
         next:rows=>{if(this.revision===rev)this.associated=rows.filter(m=>m.status==='ACTIVE');},
         error:()=>{if(this.revision===rev)this.associated=[];}
       });
-      this.invites.list(this.communityId, this.type, this.competitionId).subscribe({
-        next: rows => {if (this.revision === rev) this.invitations = rows;},
-        error: () => { /* Search can still be used even if invitation history is unavailable. */ }
-      });
+      this.refreshInvitations();
     }
+  }
+
+  refreshInvitations(): void {
+    if (this.busy || this.communityId <= 0 || this.competitionId <= 0) return;
+    const version = ++this.invitationRevision;
+    this.invitationsVerified = false;
+    this.invites.list(this.communityId, this.type, this.competitionId).subscribe({
+      next: rows => {
+        if (version !== this.invitationRevision) return;
+        this.invitations = rows;
+        this.invitationsVerified = true;
+        this.error = '';
+      },
+      error: () => {
+        if (version === this.invitationRevision)
+          this.error = 'Não foi possível confirmar os convites anteriores. Verifica antes de enviar.';
+      }
+    });
   }
 
   invitationFor(id: number): CompetitionTeamInvitation | undefined {
@@ -138,7 +159,9 @@ export class CompetitionTeamSearchComponent implements OnChanges {
   }
 
   invite(teamId: number): void {
-    if (this.busy || this.invitationFor(teamId)) return;
+    if (this.busy || !this.invitationsVerified ||
+        ![...this.associated.map(team=>team.teamId),...this.results.map(team=>team.id)].includes(teamId)
+        || this.invitationFor(teamId)) return;
     const rev = ++this.revision;
     this.busy = true;
     this.error = '';
@@ -152,8 +175,10 @@ export class CompetitionTeamSearchComponent implements OnChanges {
           this.notice = 'Convite registado. O responsável poderá responder na área de equipas.';
         },
         error: () => {
-          if (this.revision === rev)
-            this.error = 'Não foi possível enviar o convite. Confirma se já existe outro pedido.';
+          if (this.revision === rev) {
+            this.invitationsVerified = false;
+            this.error = 'O convite pode ter sido entregue. Verifica os convites antes de repetir.';
+          }
         }
       });
   }
