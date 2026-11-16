@@ -123,6 +123,31 @@ describe('Chat WebSocket identity and reconnection', () => {
     RealtimeFakeSocket.sockets = [];
   });
 
+  it('only routes well-formed team invalidations after authentication', () => {
+    const seen = jasmine.createSpy('teamChanged');
+    service.teamContentInvalidated$.subscribe(seen);
+    service.connect();
+    const socket = RealtimeFakeSocket.sockets[0];
+    socket.open();
+    socket.receive({type:'TEAM_CONTENT_INVALIDATED',teamId:42,kind:'chat'});
+    expect(seen).not.toHaveBeenCalled();
+    socket.receive({type:'AUTHENTICATED'});
+    for(const invalid of [
+      {teamId:42,kind:'direct'},
+      {teamId:'42',kind:'chat'},
+      {teamId:-1,kind:'chat'},
+      {teamId:42.5,kind:'chat'},
+      {teamId:42,kind:null}
+    ]) socket.receive({type:'TEAM_CONTENT_INVALIDATED',...invalid});
+    expect(seen).not.toHaveBeenCalled();
+    socket.receive({type:'TEAM_CONTENT_INVALIDATED',teamId:42,kind:'chat'});
+    socket.receive({type:'TEAM_CONTENT_INVALIDATED',teamId:42,kind:'feed'});
+    expect(seen.calls.allArgs()).toEqual([
+      [{teamId:42,kind:'chat'}],
+      [{teamId:42,kind:'feed'}]
+    ]);
+  });
+
   it('signals personal-live updates only after WebSocket authentication', () => {
     const received = jasmine.createSpy('liveUpdated');
     service.personalLiveInvalidated$.subscribe(received);
