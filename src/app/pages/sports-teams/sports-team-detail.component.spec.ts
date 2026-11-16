@@ -56,10 +56,21 @@ describe('Jynlo team profile — audit of real actions',()=>{
   api.setKit.and.returnValue(of(updated));
   component.kitPrimary='#1144aa';component.kitSecondary='#ffffff';
   component.saveTeamKit();
-  expect(api.setKit).toHaveBeenCalledOnceWith(5,'#1144aa','#ffffff');
+  expect(api.setKit).toHaveBeenCalledOnceWith(5,'#1144aa','#ffffff','PLAIN');
   expect(component.team?.kitPrimary).toBe('#1144AA');
   expect(component.brandingSaving).toBeFalse();
   expect(api.rememberTeam).toHaveBeenCalledOnceWith(updated);
+ });
+ it('persists the selected striped shirt design with team colors',()=>{
+  const kit={...team,kitPrimary:'#123456',kitSecondary:'#F0F0F0',kitPattern:'STRIPES' as const};
+  api.setKit.and.returnValue(of(kit));
+  component.kitPattern='STRIPES';
+  component.kitPrimary='#123456';component.kitSecondary='#f0f0f0';
+  component.saveTeamKit();
+  expect(api.setKit).toHaveBeenCalledOnceWith(5,'#123456','#f0f0f0','STRIPES');
+  expect(component.kitPattern).toBe('STRIPES');
+  expect(component.team?.kitPattern).toBe('STRIPES');
+  expect(component.kitPatterns.map(x=>x.id)).toEqual(['PLAIN','STRIPES','DIAGONAL']);
  });
  it('does not let non-owners change a kit or upload a crest',()=>{
   component.isOwner=false;
