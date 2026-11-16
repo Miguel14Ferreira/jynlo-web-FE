@@ -1,4 +1,4 @@
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { TeamCompetitionDiscoveryComponent } from './sports-team-competition-discovery.component';
 import { SportsTeamsService, SportsTeam } from '../../services/sports-teams.service';
@@ -36,6 +36,30 @@ describe('Jynlo global team competition application safety',()=>{
   component.apply(tournament);
   expect(api.apply).toHaveBeenCalledOnceWith(9,'TOURNAMENT',8,5);
   expect(component.applicationLabel(tournament,5)).toBe('Pedido em análise');
+ });
+ it('shows only latest search even when older responses arrive last',()=>{
+  const oldResponse=new Subject<OpenTeamCompetition[]>();
+  const newResponse=new Subject<OpenTeamCompetition[]>();
+  api.discover.and.returnValues(oldResponse.asObservable(),newResponse.asObservable());
+  component.query='Futebol';
+  component.search();
+  component.query='Padel';
+  component.search();
+  newResponse.next([{...tournament,id:12,name:'Torneio Padel'}]);
+  newResponse.complete();
+  oldResponse.next([{...tournament,id:11,name:'Torneio antigo'}]);
+  oldResponse.complete();
+  expect(component.competitions.map(item=>item.name)).toEqual(['Torneio Padel']);
+  expect(component.loading).toBeFalse();
+ });
+ it('does not update competition results after the screen is destroyed',()=>{
+  const pending=new Subject<OpenTeamCompetition[]>();
+  api.discover.and.returnValue(pending.asObservable());
+  component.search();
+  component.ngOnDestroy();
+  pending.next([{...tournament,id:11}]);
+  pending.complete();
+  expect(component.competitions.map(item=>item.id)).toEqual([8]);
  });
  it('does not submit twice when a pending request already exists',()=>{
   component.applications=[pending];
