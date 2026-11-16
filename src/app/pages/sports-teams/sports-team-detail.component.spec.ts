@@ -132,4 +132,35 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(component.isMember).toBeFalse();
   expect(component.rosterVerified).toBeFalse();
  });
+
+ it('allows only a confirmed player to leave their own team and revokes private panels',()=>{
+  auth.loggedInPerfilname='jogador';
+  component.isOwner=false;
+  component.isMember=true;
+  api.remove.and.returnValue(of(void 0));
+  api.members.and.returnValue(of([owner]));
+  const confirmSpy=spyOn(window,'confirm').and.returnValue(true);
+  component.leaveTeam();
+  expect(confirmSpy).toHaveBeenCalled();
+  expect(api.remove).toHaveBeenCalledOnceWith(5,3);
+  expect(component.isMember).toBeFalse();
+  expect(component.members.map(m=>m.profileId)).toEqual([2]);
+  expect(component.feedback).toContain('Saíste da equipa');
+ });
+ it('does not allow a team owner to leave without transferring ownership',()=>{
+  spyOn(window,'confirm').and.returnValue(true);
+  component.leaveTeam();
+  expect(api.remove).not.toHaveBeenCalled();
+ });
+ it('does not retry an uncertain leave request or retain private permissions',()=>{
+  auth.loggedInPerfilname='jogador';
+  component.isOwner=false;
+  component.isMember=true;
+  api.remove.and.returnValue(throwError(()=>new Error('timeout')));
+  spyOn(window,'confirm').and.returnValue(true);
+  component.leaveTeam();
+  expect(component.rosterVerified).toBeFalse();
+  expect(component.isMember).toBeFalse();
+  expect(component.feedback).toContain('Não foi possível confirmar a saída');
+ });
 });
