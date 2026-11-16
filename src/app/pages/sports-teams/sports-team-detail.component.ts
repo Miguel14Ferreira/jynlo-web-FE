@@ -212,7 +212,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   communityQuery='';communityResults:PublicTeamCommunity[]=[];
   isOwner=false;busy=false;featureSaving=false;feedback='';
   kitPrimary='#16caba';kitSecondary='#f2fafc';brandingSaving=false;
-  private readonly maxTeamLogoBytes=8*1024*1024;
+  private readonly maxTeamLogoBytes=5*1024*1024;
   saveTeamKit():void {
     if(!this.team||!this.isOwner||this.brandingSaving)return;
     this.brandingSaving=true;this.feedback='';
@@ -229,7 +229,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     if(!file||!this.team||!this.isOwner||this.brandingSaving)return;
     if(!['image/png','image/jpeg','image/webp','image/gif'].includes(file.type)||
        file.size<1||file.size>this.maxTeamLogoBytes){
-      this.feedback='Escolhe uma imagem PNG, JPG, WebP ou GIF até 8 MB.';return;
+      this.feedback='Escolhe uma imagem PNG, JPG, WebP ou GIF até 5 MB.';return;
     }
     this.brandingSaving=true;this.feedback='';
     this.api.uploadLogo(this.team.id,file).pipe(timeout(30000)).subscribe({
