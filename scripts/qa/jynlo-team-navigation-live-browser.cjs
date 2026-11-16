@@ -24,6 +24,24 @@ async function exercise(username,token){
    },token);
    const page=await context.newPage();
    const apiTrace=[];
+   page.on('request',request=>{
+    try{
+     const u=new URL(request.url());
+     if(u.host==='api.d24sports.com'&&
+       (u.pathname.startsWith('/api/teams')||u.pathname==='/api/auth/refresh')){
+      apiTrace.push('REQ_'+u.pathname);
+     }
+    }catch{}
+   });
+   page.on('requestfailed',request=>{
+    try{
+     const u=new URL(request.url());
+     if(u.host==='api.d24sports.com'&&
+       (u.pathname.startsWith('/api/teams')||u.pathname==='/api/auth/refresh')){
+      apiTrace.push('FAILED_'+u.pathname);
+     }
+    }catch{}
+   });
    page.on('response',response=>{
     try{
      const u=new URL(response.url());
