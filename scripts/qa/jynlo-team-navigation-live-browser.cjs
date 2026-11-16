@@ -23,6 +23,16 @@ async function exercise(username,token){
     localStorage.setItem('d24-language','pt');
    },token);
    const page=await context.newPage();
+   const apiTrace=[];
+   page.on('response',response=>{
+    try{
+     const u=new URL(response.url());
+     if(u.origin==='https://api.d24sports.com'&&
+       ['/api/teams/mine','/api/teams/joined','/api/teams'].includes(u.pathname)){
+      apiTrace.push(u.pathname+'_'+response.status());
+     }
+    }catch{}
+   });
    const prefix=SITE+'/menu/teams';
    stage='OPEN_TEAM_DIRECTORY';
    await page.goto(prefix,{waitUntil:'domcontentloaded',timeout:45000});
@@ -31,7 +41,14 @@ async function exercise(username,token){
    const mine=page.locator('section[aria-label="As minhas equipas"]');
    const discover=page.locator('section[aria-label="Explorar equipas"]');
    stage='TEAM_LOADING';
-   await mine.locator('.loading-message').waitFor({state:'hidden',timeout:TIMEOUT});
+   try{
+    await mine.locator('.loading-message').waitFor({state:'hidden',timeout:TIMEOUT});
+   }catch(e){
+    console.log('[DIAG] team loading: '+(apiTrace.join(',')||'NO_TEAM_API_RESPONSE'));
+    console.log('[DIAG] team route: '+new URL(page.url()).pathname);
+    console.log('[DIAG] mine loading visible: '+await mine.locator('.loading-message').isVisible());
+    throw e;
+   }
    stage='DISCOVER_LOADING';
    await discover.locator('.loading-message').waitFor({state:'hidden',timeout:TIMEOUT});
    assert.equal(await mine.locator('.teams-error').count(),0,'OWNER_REQUEST_FAILED');
