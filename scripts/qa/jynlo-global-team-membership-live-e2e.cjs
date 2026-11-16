@@ -95,6 +95,15 @@ async function main(){
   assert.ok(!current.body.some(m=>m.profileId===playerId),'REVOKED_MEMBER_STILL_IN_ROSTER');
   console.log('[PASS] Removed QA player loses private chat access immediately.');
  }finally{
+  // Recover the exact run-scoped fixture if POST committed but its response
+  // was lost. Never touch a team with a different name or another owner.
+  if(!valid(teamId)){
+   const inventory=await api(0,'GET','/api/teams/mine');
+   assert.equal(inventory.status,200,'QA_RECOVERY_INVENTORY_FAILED');
+   const found=inventory.body.filter(team=>team.name===name&&valid(team.id));
+   assert.ok(found.length<=1,'QA_RECOVERY_AMBIGUOUS');
+   if(found.length===1)teamId=found[0].id;
+  }
   if(valid(teamId)){
    try{
     if(valid(playerId)){
