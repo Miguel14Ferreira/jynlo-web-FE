@@ -162,8 +162,16 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   loading = true;
   private readonly subscriptions = new Subscription();
   private generation = 0;
-  private reading = false;
+  private readingGeneration: number | null = null;
+  private readRequestId = 0;
+  private writeVersion = 0;
   private readQueued = false;
+  private invalidatePendingRead(): void {
+    this.writeVersion++;
+    this.readRequestId++;
+    this.readingGeneration = null;
+    this.readQueued = false;
+  }
 
   constructor(private readonly api: SportsTeamsService,
     private readonly realtime: DirectChatRealtimeService) {}
@@ -191,7 +199,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['teamId'] || changes['kind']) {
       this.generation++;
-      this.readQueued = false;
+      this.invalidatePendingRead();
       this.items = [];this.error = '';this.syncError = '';this.draft = '';
       this.replyTargetId = null;this.editingId = null;
       this.clearSearch();this.searchTerm = '';
@@ -213,24 +221,28 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
 
 
   read(silent:boolean):void {
-    if (this.reading) { this.readQueued = true; return; }
+    if (this.readingGeneration === this.generation) { this.readQueued = true; return; }
     if (this.sending || !Number.isSafeInteger(this.teamId) || this.teamId<=0) return;
-    this.reading = true;
     const version = this.generation;
+    const requestId = ++this.readRequestId;
+    const writeVersion = this.writeVersion;
+    this.readingGeneration = version;
     if (!silent) {this.loading=true;this.error='';}
     this.api.content(this.teamId,this.kind).subscribe({
       next:items => {
-        if(version!==this.generation)return;
+        if(version!==this.generation || writeVersion!==this.writeVersion
+            || requestId!==this.readRequestId)return;
         this.items=items;this.syncError='';this.loadReactions(items);
       },
       error:() => {
-        if(version!==this.generation)return;
+        if(version!==this.generation || writeVersion!==this.writeVersion
+            || requestId!==this.readRequestId)return;
         if(silent)this.syncError='A sincronização falhou. O histórico pode estar desatualizado.';
         else this.error='Não foi possível abrir esta conversa. Confirma que és membro e que está ativada.';
-      },
-      complete:() => {},
+      }
     }).add(() => {
-      this.reading=false;
+      if(requestId!==this.readRequestId)return;
+      this.readingGeneration=null;
       if(version===this.generation && !silent)this.loading=false;
       if(this.readQueued){this.readQueued=false;this.read(true);}
     });
@@ -240,6 +252,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const text=this.draft.trim();
     if(this.sending || !text || text.length>2000)return;
     const version=this.generation;
+    this.invalidatePendingRead();
     this.sending=true;this.error='';
     const uploads=[...this.files];
     const operation=uploads.length
@@ -403,6 +416,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   saveEdit(entry:TeamContentEntry):void {
     const body=this.editingDraft.trim();
     if(this.sending || !entry.canEdit || !body)return;
+    this.invalidatePendingRead();
     this.sending=true;this.error='';
     const version=this.generation;
     this.api.editContent(this.teamId,this.kind,entry.id,body).subscribe({
@@ -417,6 +431,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   remove(entry:TeamContentEntry):void {
     if(this.sending || !entry.canManage || entry.deleted)return;
     if(!window.confirm('Eliminar esta mensagem da equipa?'))return;
+    this.invalidatePendingRead();
     this.sending=true;this.error='';
     const version=this.generation;
     this.api.deleteContent(this.teamId,this.kind,entry.id).subscribe({
