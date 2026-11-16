@@ -16,7 +16,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
  const player:SportsTeamMember={profileId:3,username:'Jogador',role:'PLAYER'};
  beforeEach(()=>{
   api=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',
-   ['detail','mine','members','honours','history','findPlayers','invite','remove']);
+   ['detail','mine','members','honours','history','findPlayers','invite','remove','teamPendingInvitations']);
   community=jasmine.createSpyObj<TeamCommunityMembershipsService>('TeamCommunityMembershipsService',
    ['teamCommunities','discover','request','respond','remove']);
   auth=jasmine.createSpyObj<AuthenticationService>('AuthenticationService',['isLoggedIn']);
@@ -25,6 +25,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
   api.detail.and.returnValue(of(team));
   api.mine.and.returnValue(of([team]));
   api.members.and.returnValue(of([owner,player]));
+  api.teamPendingInvitations.and.returnValue(of([]));
   api.honours.and.returnValue(of([]));
   api.history.and.returnValue(of([]));
   community.teamCommunities.and.returnValue(of([]));
@@ -162,5 +163,35 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(component.rosterVerified).toBeFalse();
   expect(component.isMember).toBeFalse();
   expect(component.feedback).toContain('Não foi possível confirmar a saída');
+ });
+
+ it('shows verified pending invitations only to a confirmed team owner',()=>{
+  api.teamPendingInvitations.and.returnValue(of([{profileId:4,username:'Convidado',status:'INVITED'}]));
+  component.loadPendingInvitations();
+  expect(component.invitationsVerified).toBeTrue();
+  expect(component.pendingPlayers.map(x=>x.username)).toEqual(['Convidado']);
+  api.findPlayers.and.returnValue(of([{profileId:4,username:'Convidado',fullName:null}]));
+  component.playerQuery='Convidado';
+  component.searchPlayers();
+  expect(component.availablePlayers).toEqual([]);
+ });
+ it('blocks new invitations after an uncertain response until verification',()=>{
+  api.findPlayers.and.returnValue(of([{profileId:4,username:'Novo',fullName:null}]));
+  api.invite.and.returnValue(throwError(()=>Error('timeout')));
+  component.playerQuery='Novo';component.searchPlayers();
+  component.invitePlayer(component.availablePlayers[0]);
+  expect(component.invitationsVerified).toBeFalse();
+  expect(component.feedback).toContain('Verifica os convites');
+  component.invitePlayer({profileId:4,username:'Novo',fullName:null});
+  expect(api.invite).toHaveBeenCalledTimes(1);
+ });
+ it('cancels only a verified pending invitation after confirmation',()=>{
+  api.teamPendingInvitations.and.returnValue(of([{profileId:4,username:'Novo',status:'INVITED'}]));
+  component.loadPendingInvitations();
+  api.remove.and.returnValue(of(void 0));
+  spyOn(window,'confirm').and.returnValue(true);
+  component.cancelPendingInvitation(component.pendingPlayers[0]);
+  expect(api.remove).toHaveBeenCalledOnceWith(5,4);
+  expect(component.feedback).toContain('cancelado');
  });
 });
