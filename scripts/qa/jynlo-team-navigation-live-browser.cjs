@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 // Strictly read-only, authenticated QA of the Render preview team journeys.
+// One-time run against the already deployed preview, without database writes.
 // Never log passwords, bearer tokens, account data or team names. Never POST from browser.
 const assert=require('node:assert/strict');
 const {authenticate}=require('./jynlo-inbox-live-browser.cjs');
