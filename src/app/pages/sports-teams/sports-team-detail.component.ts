@@ -92,7 +92,12 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
         <a routerLink="/menu/teams/competitions" [queryParams]="{teamId: t.id}">Encontrar torneios e campeonatos</a>
       </section>
       <section *ngIf="activeTab === 'OVERVIEW'"><h2>Comunidades ({{activeCommunities.length}})</h2>
-        <p *ngFor="let item of activeCommunities"><a [routerLink]="['/menu/communities',item.communityId]">{{item.communityName}} →</a></p>
+        <div *ngFor="let item of activeCommunities" class="team-community">
+          <a [routerLink]="['/menu/communities',item.communityId]">{{item.communityName}} →</a>
+          <button *ngIf="isOwner" type="button" [disabled]="busy || !communitiesVerified"
+            [attr.aria-label]="'Retirar equipa de ' + item.communityName"
+            (click)="leaveCommunity(item)">Sair da comunidade</button>
+        </div>
         <p *ngIf="!communitiesVerified" role="alert">Não foi possível confirmar as comunidades. Atualiza a página antes de gerir convites.</p>
         <p *ngIf="communitiesVerified && !activeCommunities.length">Esta equipa ainda não está associada a comunidades.</p>
         <ng-container *ngIf="isOwner && communitiesVerified">
@@ -201,6 +206,22 @@ export class SportsTeamDetailComponent implements OnInit {
     this.communityMemberships.respond(id,accept).subscribe({
       next:()=>{this.busy=false;this.feedback=accept?'Convite aceite.':'Convite recusado.';this.loadCommunities();},
       error:()=>{this.busy=false;this.communitiesVerified=false;this.feedback='Não foi possível confirmar a resposta. Atualiza a lista antes de repetir.';}
+    });
+  }
+  leaveCommunity(item:TeamCommunityMembership):void{
+    if(!this.team||!this.isOwner||!this.communitiesVerified||this.busy)return;
+    if(typeof window==='undefined'||!window.confirm('Retirar a equipa de '+item.communityName+'?'))return;
+    this.busy=true;this.feedback='';
+    this.communityMemberships.remove(item.id).subscribe({
+      next:()=>{
+        this.communities=this.communities.filter(row=>row.id!==item.id);
+        this.busy=false;this.feedback='Equipa removida da comunidade.';
+        this.loadCommunities();
+      },
+      error:()=>{
+        this.busy=false;this.communitiesVerified=false;
+        this.feedback='Não foi possível confirmar a saída. Atualiza as comunidades antes de repetir.';
+      }
     });
   }
   loadCommunities():void{
