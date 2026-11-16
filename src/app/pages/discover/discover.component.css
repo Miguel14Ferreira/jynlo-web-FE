@@ -796,7 +796,7 @@ button.pillar-action {
 .explore-map-header h3 { margin: .35rem 0 .25rem; font-size: 1.3rem; letter-spacing: -.02em; }
 .explore-map-header p:not(.eyebrow) { color: #a5bdcb; font-size: .82rem; margin: 0; }
 .explore-map-count { white-space: nowrap; font-size: .74rem; color: #92e7c7; padding: .4rem .65rem; border-radius: 999px; background: #20423f; }
-.explore-map-layout { display: grid; grid-template-columns: minmax(185px,.8fr) minmax(0,1.6fr); gap: 1rem; }
+.explore-map-layout { display: grid; grid-template-columns: minmax(0,1fr); gap: 0; }
 .explore-map-picks {
   display: flex; flex-direction: column; gap: .45rem;
   max-height: 395px; overflow-y: auto; scrollbar-width: thin;
