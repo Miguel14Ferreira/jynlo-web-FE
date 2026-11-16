@@ -43,8 +43,9 @@
       <div class="teams-grid" *ngIf="!mineLoading && mine.length">
         <a class="team-card" *ngFor="let team of mine" [routerLink]="['/menu/teams',team.id]" (click)="openTeam(team)">
           <div class="team-card-top"><span class="team-emblem" aria-hidden="true" [style.--team-kit]="team.kitPrimary || '#16caba'">
-            <img *ngIf="team.logoUrl" [src]="team.logoUrl" alt="">
-            <ng-container *ngIf="!team.logoUrl">{{ (team.name || 'E').charAt(0).toUpperCase() }}</ng-container>
+            <img *ngIf="logoSrc(team.logoUrl) && !brokenTeamLogos.has(team.id)"
+              [src]="logoSrc(team.logoUrl)!" (error)="logoFailed(team.id)" alt="">
+            <ng-container *ngIf="!logoSrc(team.logoUrl) || brokenTeamLogos.has(team.id)">{{ (team.name || 'E').charAt(0).toUpperCase() }}</ng-container>
           </span><span class="team-role">A tua equipa</span></div>
           <h3>{{team.name}}</h3>
           <p>{{team.sport || 'Várias modalidades'}} <span *ngIf="team.location">· {{team.location}}</span></p>
@@ -71,8 +72,9 @@
       <div class="teams-grid" *ngIf="!joinedLoading && joined.length">
         <a class="team-card" *ngFor="let team of joined" [routerLink]="['/menu/teams',team.id]" (click)="openTeam(team)">
           <div class="team-card-top"><span class="team-emblem" aria-hidden="true" [style.--team-kit]="team.kitPrimary || '#16caba'">
-            <img *ngIf="team.logoUrl" [src]="team.logoUrl" alt="">
-            <ng-container *ngIf="!team.logoUrl">{{ (team.name || 'E').charAt(0).toUpperCase() }}</ng-container>
+            <img *ngIf="logoSrc(team.logoUrl) && !brokenTeamLogos.has(team.id)"
+              [src]="logoSrc(team.logoUrl)!" (error)="logoFailed(team.id)" alt="">
+            <ng-container *ngIf="!logoSrc(team.logoUrl) || brokenTeamLogos.has(team.id)">{{ (team.name || 'E').charAt(0).toUpperCase() }}</ng-container>
           </span>
             <span class="team-role">Jogador</span></div>
           <h3>{{team.name}}</h3>
@@ -121,8 +123,9 @@
       <div class="teams-grid" *ngIf="!loading && teams.length">
         <a class="team-card" *ngFor="let team of teams" [routerLink]="['/menu/teams',team.id]" (click)="openTeam(team)">
           <div class="team-card-top"><span class="team-emblem" aria-hidden="true" [style.--team-kit]="team.kitPrimary || '#16caba'">
-            <img *ngIf="team.logoUrl" [src]="team.logoUrl" alt="">
-            <ng-container *ngIf="!team.logoUrl">{{ (team.name || 'E').charAt(0).toUpperCase() }}</ng-container>
+            <img *ngIf="logoSrc(team.logoUrl) && !brokenTeamLogos.has(team.id)"
+              [src]="logoSrc(team.logoUrl)!" (error)="logoFailed(team.id)" alt="">
+            <ng-container *ngIf="!logoSrc(team.logoUrl) || brokenTeamLogos.has(team.id)">{{ (team.name || 'E').charAt(0).toUpperCase() }}</ng-container>
           </span><span class="team-role">Equipa</span></div>
           <h3>{{team.name}}</h3>
           <p>{{team.sport || 'Várias modalidades'}} <span *ngIf="team.location">· {{team.location}}</span></p>
