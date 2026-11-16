@@ -92,6 +92,7 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
     const version=++this.searchVersion;
     const query=this.query.trim(),sport=this.sport.trim();
     this.loading=true;this.searchError=false;this.error='';
+    this.competitions=[];
     this.api.discover(query,sport).subscribe({
       next:items=>{
         if(this.destroyed||version!==this.searchVersion)return;
