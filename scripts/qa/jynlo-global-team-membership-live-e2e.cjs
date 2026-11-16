@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 'use strict';
+// One-shot consent from QA workflow; deletion support must be proven first.
 // QA-only live test. No team is created unless the safe delete endpoint is
 // already available. No chat messages, attachments or competition links are created.
 const assert=require('node:assert/strict');
