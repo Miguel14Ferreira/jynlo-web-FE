@@ -55,6 +55,26 @@
       </div>
     </section>
 
+    <section class="teams-section" aria-label="Equipas onde participas">
+      <div class="section-heading">
+        <div><p class="eyebrow">O TEU PLANTEL</p><h2>Equipas onde és jogador</h2>
+          <p>Entra no chat, consulta as publicações e acompanha a tua equipa.</p></div>
+      </div>
+      <p *ngIf="joinedLoading" role="status">A confirmar as equipas onde participas…</p>
+      <p *ngIf="joinedError" role="alert" class="teams-error">{{joinedError}}</p>
+      <button *ngIf="joinedError" type="button" class="action action-secondary"
+        (click)="loadJoined()" [disabled]="joinedLoading">Verificar equipas</button>
+      <div class="teams-grid" *ngIf="!joinedLoading && joined.length">
+        <a class="team-card" *ngFor="let team of joined" [routerLink]="['/menu/teams',team.id]">
+          <div class="team-card-top"><span class="team-emblem" aria-hidden="true">{{ (team.name || 'E').charAt(0).toUpperCase() }}</span>
+            <span class="team-role">Jogador</span></div>
+          <h3>{{team.name}}</h3>
+          <p>{{team.sport || 'Várias modalidades'}} <span *ngIf="team.location">· {{team.location}}</span></p>
+          <span class="card-link">Abrir equipa →</span>
+        </a>
+      </div>
+    </section>
+
     <section class="teams-section" aria-label="Convites para plantéis" *ngIf="teamInvitations.length || teamInvitationError">
       <div class="section-heading"><div><p class="eyebrow">PLANTÉIS</p><h2>Convites para entrares em equipas</h2>
         <p>Confirma a entrada na equipa antes de participares no chat e nas publicações do plantel.</p></div></div>
