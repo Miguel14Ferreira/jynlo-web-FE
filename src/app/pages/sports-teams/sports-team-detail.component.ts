@@ -57,7 +57,7 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
         <p *ngIf="rosterVerified && members.length === 0">Ainda não existem jogadores no plantel.</p>
         <div *ngIf="isOwner && rosterVerified" class="team-player-search">
           <h3>Convidar jogadores</h3>
-          <div class="search-community"><input [(ngModel)]="playerQuery" maxlength="80" placeholder="Nome ou utilizador" (keyup.enter)="searchPlayers()"/>
+          <div class="search-community"><input [(ngModel)]="playerQuery" (ngModelChange)="invalidatePlayerSearch()" maxlength="80" placeholder="Nome ou utilizador" (keyup.enter)="searchPlayers()"/>
             <button type="button" [disabled]="busy || searchingPlayers || playerQuery.trim().length < 2" (click)="searchPlayers()">{{ searchingPlayers ? 'A procurar…' : 'Pesquisar jogadores' }}</button></div>
           <p *ngIf="playerSearchComplete && availablePlayers.length === 0">Não encontrámos novos jogadores com essa pesquisa.</p>
           <div *ngFor="let candidate of availablePlayers" class="team-candidate">
@@ -151,6 +151,7 @@ export class SportsTeamDetailComponent implements OnInit {
   members: SportsTeamMember[] = [];
   rosterVerified=false;communitiesVerified=false;isMember=false;
   playerQuery='';playerCandidates:SportsTeamPlayerCandidate[]=[];playerSearchComplete=false;searchingPlayers=false;
+  private playerSearchVersion=0;
   get availablePlayers():SportsTeamPlayerCandidate[]{return this.playerCandidates.filter(p=>!this.members.some(m=>m.profileId===p.profileId));}
   history: TeamCompetitionHistory[] = [];
   historyLoading = false;
@@ -231,16 +232,28 @@ export class SportsTeamDetailComponent implements OnInit {
       error:()=>{this.communitiesVerified=false;this.feedback='Não foi possível confirmar as comunidades da equipa.';}
     });
   }
+  invalidatePlayerSearch():void{
+    this.playerSearchVersion++;
+    this.playerCandidates=[];this.playerSearchComplete=false;this.searchingPlayers=false;
+  }
   searchPlayers():void{
-    if(!this.isOwner||this.busy||this.searchingPlayers||this.playerQuery.trim().length<2)return;
+    if(!this.isOwner||!this.rosterVerified||this.busy||this.searchingPlayers||this.playerQuery.trim().length<2)return;
+    const version=++this.playerSearchVersion;
     this.searchingPlayers=true;this.playerCandidates=[];this.playerSearchComplete=false;this.feedback='';
     this.api.findPlayers(this.playerQuery).subscribe({
-      next:players=>{this.playerCandidates=players;this.playerSearchComplete=true;this.searchingPlayers=false;},
-      error:()=>{this.searchingPlayers=false;this.feedback='Não foi possível pesquisar jogadores.';}
+      next:players=>{
+        if(version!==this.playerSearchVersion)return;
+        this.playerCandidates=players;this.playerSearchComplete=true;this.searchingPlayers=false;
+      },
+      error:()=>{
+        if(version!==this.playerSearchVersion)return;
+        this.searchingPlayers=false;this.feedback='Não foi possível pesquisar jogadores.';
+      }
     });
   }
   invitePlayer(player:SportsTeamPlayerCandidate):void{
-    if(!this.team||!this.isOwner||!this.rosterVerified||this.busy)return;
+    if(!this.team||!this.isOwner||!this.rosterVerified||this.busy||
+      !this.availablePlayers.some(candidate=>candidate.profileId===player.profileId))return;
     const teamId=this.team.id;
     this.busy=true;this.feedback='';
     this.api.invite(teamId,player.profileId).subscribe({
