@@ -17,6 +17,9 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
   private alive=true;
   private searchRequest=0;
   private readonly requestTimeout=15000;
+  brokenTeamLogos=new Set<number>();
+  logoSrc(url:string|null|undefined):string|null{return this.api.logoSrc(url);}
+  logoFailed(id:number):void{this.brokenTeamLogos.add(id);this.render();}
   query = '';
   createExpanded = false;
   searched = false;
