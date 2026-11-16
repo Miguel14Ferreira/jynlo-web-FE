@@ -63,3 +63,31 @@
 .team-community{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin:.6rem 0;padding:.65rem .8rem;border:1px solid #477b8d6b;border-radius:10px}
 .team-community a{font-weight:800;overflow-wrap:anywhere}
 .team-community button{min-height:44px}
+
+
+/* Community-inspired identity section: generous, readable and never stacked awkwardly. */
+.team-hero-crest{background:linear-gradient(135deg,var(--kit-primary,#16caba),#0b4857);overflow:hidden}
+.team-crest-photo{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.team-hero-main>div{flex:1}
+.team-branding{margin-top:1.4rem;padding:1.2rem;border:1px solid #36808e80;border-radius:16px;background:#092635cc}
+.team-branding-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.team-branding-heading h2{font-size:1.1rem;margin:0 0 .2rem}
+.team-branding-heading p{margin:0;color:#c2dce2;font-size:.88rem}
+.team-branding-heading>span{font-size:.72rem;color:#8bf6e1;padding:.3rem .6rem;border:1px solid #318e8c;border-radius:40px}
+.team-branding-controls{display:flex;flex-wrap:wrap;align-items:end;gap:.8rem;margin-top:1rem}
+.team-branding-controls label{display:grid;gap:.4rem;color:#cfe9eb;font-weight:700;font-size:.82rem}
+.team-branding-controls input[type=color]{width:72px;height:44px;border:1px solid #438b95;border-radius:9px;padding:4px;background:#0b3442;cursor:pointer}
+.team-branding-controls button,.team-upload{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:1px solid #408c95;border-radius:10px;padding:.55rem .85rem;background:#113d4e;color:#dffdf9;font:inherit;font-size:.84rem;font-weight:750;cursor:pointer}
+.team-upload input{display:none}
+.team-branding-controls .team-branding-save{background:#22d4ba;border-color:#22d4ba;color:#062d35}
+.team-branding-controls button:disabled,.team-upload:has(input:disabled){opacity:.5;cursor:not-allowed}
+.team-kit-strip{display:flex;align-items:center;gap:.65rem;margin-top:1rem;color:#c1e7e3;font-size:.87rem}
+.team-shirt{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:linear-gradient(145deg,var(--shirt-primary),var(--shirt-secondary));font-size:0;border:1px solid #ffffff55}
+.team-shirt:after{content:' ';width:13px;height:18px;background:var(--shirt-primary);border:3px solid var(--shirt-secondary);border-radius:4px 4px 2px 2px;box-shadow:0 1px 3px #0004}
+.team-grid{grid-template-columns:minmax(0,1.4fr) minmax(290px,.85fr)}
+.team-grid section{overflow-wrap:anywhere}
+.team-tabs{gap:.7rem}
+.team-tabs button{padding:.78rem 1.15rem}
+@media(max-width:900px){.team-grid{grid-template-columns:1fr}.team-branding-controls{gap:.7rem}}
+@media(max-width:520px){.team-branding{padding:.9rem}.team-branding-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.team-branding-controls .team-upload,.team-branding-controls button{grid-column:1/-1;width:100%;box-sizing:border-box}.team-branding-controls label:not(.team-upload){min-width:0}}
