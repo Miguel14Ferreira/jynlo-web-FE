@@ -18,13 +18,39 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
     <div class="team-hero">
       <p class="team-eyebrow">JYNLO · EQUIPA DESPORTIVA</p>
       <div class="team-hero-main">
-        <span class="team-hero-crest" aria-hidden="true">{{ (t.name || 'E').charAt(0).toUpperCase() }}</span>
+        <span class="team-hero-crest" aria-hidden="true" [style.--kit-primary]="t.kitPrimary || '#16caba'">
+          <img *ngIf="t.logoUrl" [src]="t.logoUrl" alt="" class="team-crest-photo">
+          <ng-container *ngIf="!t.logoUrl">{{ (t.name || 'E').charAt(0).toUpperCase() }}</ng-container>
+        </span>
         <div>
           <h1>{{ t.name }}</h1>
           <p class="team-hero-meta">{{ t.sport || 'Várias modalidades' }} · {{ t.location || 'Localização por definir' }}</p>
           <p *ngIf="t.description">{{ t.description }}</p>
         </div>
       </div>
+      <div class="team-kit-strip" *ngIf="t.kitPrimary || t.kitSecondary" aria-label="Cores do equipamento">
+        <span class="team-shirt" [style.--shirt-primary]="t.kitPrimary || '#16caba'"
+          [style.--shirt-secondary]="t.kitSecondary || '#f2fafc'" aria-hidden="true">●</span>
+        <span>Equipamento da equipa</span>
+      </div>
+      <section *ngIf="isOwner" class="team-branding" aria-label="Personalizar identidade da equipa">
+        <div class="team-branding-heading">
+          <div><h2>Identidade da equipa</h2><p>Logótipo e cores oficiais, visíveis no perfil e nos cartões.</p></div>
+          <span>Responsável</span>
+        </div>
+        <div class="team-branding-controls">
+          <label class="team-upload">Adicionar ou mudar logótipo
+            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" [disabled]="brandingSaving"
+              (change)="uploadTeamLogo($event)">
+          </label>
+          <button type="button" *ngIf="t.logoUrl" (click)="removeTeamLogo()" [disabled]="brandingSaving">Remover logótipo</button>
+          <label>Cor principal <input type="color" [(ngModel)]="kitPrimary" [disabled]="brandingSaving"></label>
+          <label>Cor secundária <input type="color" [(ngModel)]="kitSecondary" [disabled]="brandingSaving"></label>
+          <button type="button" class="team-branding-save" [disabled]="brandingSaving" (click)="saveTeamKit()">
+            {{brandingSaving?'A guardar…':'Guardar equipamento'}}
+          </button>
+        </div>
+      </section>
       <div class="team-hero-stats">
         <span><strong>{{rosterVerified ? members.length : '—'}}</strong> Jogadores</span>
         <span><strong>{{communitiesVerified ? activeCommunities.length : '—'}}</strong> Comunidades</span>
@@ -185,6 +211,44 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   communities:TeamCommunityMembership[]=[];
   communityQuery='';communityResults:PublicTeamCommunity[]=[];
   isOwner=false;busy=false;featureSaving=false;feedback='';
+  kitPrimary='#16caba';kitSecondary='#f2fafc';brandingSaving=false;
+  private readonly maxTeamLogoBytes=8*1024*1024;
+  saveTeamKit():void {
+    if(!this.team||!this.isOwner||this.brandingSaving)return;
+    this.brandingSaving=true;this.feedback='';
+    this.api.setKit(this.team.id,this.kitPrimary,this.kitSecondary).pipe(timeout(15000)).subscribe({
+      next:updated=>{this.team=updated;this.brandingSaving=false;this.api.rememberTeam(updated);
+        this.feedback='Cores do equipamento guardadas.';this.render();},
+      error:()=>{this.brandingSaving=false;this.feedback='Não foi possível confirmar as cores. Consulta a equipa antes de repetir.';this.render();}
+    });
+  }
+  uploadTeamLogo(event:Event):void {
+    const input=event.target as HTMLInputElement;
+    const file=input.files?.[0];
+    input.value='';
+    if(!file||!this.team||!this.isOwner||this.brandingSaving)return;
+    if(!['image/png','image/jpeg','image/webp','image/gif'].includes(file.type)||
+       file.size<1||file.size>this.maxTeamLogoBytes){
+      this.feedback='Escolhe uma imagem PNG, JPG, WebP ou GIF até 8 MB.';return;
+    }
+    this.brandingSaving=true;this.feedback='';
+    this.api.uploadLogo(this.team.id,file).pipe(timeout(30000)).subscribe({
+      next:updated=>{this.team=updated;this.api.rememberTeam(updated);this.brandingSaving=false;
+        this.feedback='Logótipo atualizado.';this.render();},
+      error:()=>{this.brandingSaving=false;this.feedback='Não foi possível confirmar o logótipo. Consulta a equipa antes de repetir.';this.render();}
+    });
+  }
+  removeTeamLogo():void {
+    if(!this.team||!this.isOwner||this.brandingSaving||!this.team.logoUrl)return;
+    if(typeof window==='undefined'||!window.confirm('Remover o logótipo da equipa?'))return;
+    this.brandingSaving=true;this.feedback='';
+    this.api.removeLogo(this.team.id).pipe(timeout(15000)).subscribe({
+      next:updated=>{this.team=updated;this.api.rememberTeam(updated);this.brandingSaving=false;
+        this.feedback='Logótipo removido.';this.render();},
+      error:()=>{this.brandingSaving=false;this.feedback='Não foi possível confirmar a remoção. Consulta a equipa antes de repetir.';this.render();}
+    });
+  }
+
   toggleFeature(field:'chatEnabled'|'feedEnabled'):void {
     if(!this.isOwner||!this.team||this.featureSaving)return;
     const previous=this.team;
@@ -372,7 +436,10 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     this.team=this.api.rememberedTeam(id);
     this.api.detail(id).pipe(timeout(15000)).subscribe({
       next: team => {
-        this.team = team;this.render();
+        this.team = team;
+        this.kitPrimary=team.kitPrimary||'#16caba';
+        this.kitSecondary=team.kitSecondary||'#f2fafc';
+        this.render();
         this.api.mine().pipe(timeout(15000)).subscribe({next:owned=>{this.isOwner=owned.some(x=>x.id===team.id);if(this.isOwner)this.loadPendingInvitations();this.render();},error:()=>{this.isOwner=false;this.invitationsVerified=false;this.render();}});
         this.loadCommunities();
         this.historyLoading = true;
