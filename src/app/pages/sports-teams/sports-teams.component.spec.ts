@@ -1,4 +1,4 @@
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SportsTeamsService } from '../../services/sports-teams.service';
 import { TeamCompetitionInvitationsService } from '../../services/team-competition-invitations.service';
@@ -9,12 +9,13 @@ describe('Jynlo team creation deep link from competition search',()=>{
  let invitations:jasmine.SpyObj<TeamCompetitionInvitationsService>;
  let router:jasmine.SpyObj<Router>;
  beforeEach(()=>{
-  teams=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',['discover','mine','create']);
+  teams=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',['discover','mine','create','pendingInvitations','respond']);
   invitations=jasmine.createSpyObj<TeamCompetitionInvitationsService>('TeamCompetitionInvitationsService',['mine']);
   router=jasmine.createSpyObj<Router>('Router',['navigate']);
   router.navigate.and.returnValue(Promise.resolve(true));
   teams.discover.and.returnValue(of([]));
   teams.mine.and.returnValue(of([]));
+  teams.pendingInvitations.and.returnValue(of([]));
   invitations.mine.and.returnValue(of([]));
  });
  const open=(create:string|null)=>{
@@ -36,6 +37,31 @@ describe('Jynlo team creation deep link from competition search',()=>{
   component.create();
   expect(router.navigate).toHaveBeenCalledOnceWith(['/menu/teams',16]);
   expect(component.createExpanded).toBeFalse();
+ });
+ it('presents team roster invitations and opens the team after acceptance',()=>{
+  teams.pendingInvitations.and.returnValue(of([{teamId:8,teamName:'Equipa B',status:'INVITED'}]));
+  teams.respond.and.returnValue(of(void 0));
+  const component=open(null);
+  expect(component.teamInvitations.length).toBe(1);
+  expect(component.teamInvitationsVerified).toBeTrue();
+  component.respondTeam(8,true);
+  expect(teams.respond).toHaveBeenCalledOnceWith(8,true);
+  expect(router.navigate).toHaveBeenCalledOnceWith(['/menu/teams',8]);
+  expect(component.teamResponding).toBeFalse();
+ });
+ it('does not repeat roster invitation response after ambiguous failure',()=>{
+  teams.pendingInvitations.and.returnValue(of([{teamId:8,teamName:'Equipa B',status:'INVITED'}]));
+  teams.respond.and.returnValue(throwError(()=>Error('timeout')));
+  const component=open(null);
+  component.respondTeam(8,false);
+  expect(component.teamInvitationsVerified).toBeFalse();
+  component.respondTeam(8,false);
+  expect(teams.respond).toHaveBeenCalledTimes(1);
+ });
+ it('separates roster invitations from competition invitations',()=>{
+  const component=open(null);
+  expect(component.teamInvitations).toEqual([]);
+  expect(component.invitations).toEqual([]);
  });
  it('keeps the normal team directory uncluttered without a creation request',()=>{
   expect(open(null).createExpanded).toBeFalse();
