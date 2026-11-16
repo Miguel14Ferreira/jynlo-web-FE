@@ -1145,7 +1145,8 @@ describe('DiscoverComponent', () => {
     const map: HTMLElement = fixture.nativeElement.querySelector('.explore-map-panel');
     expect(map).not.toBeNull();
     expect(resultsHeading.hasAttribute('hidden')).toBeFalse();
-    expect(map.querySelector('.explore-map-pick')?.textContent).toContain('Recinto de teste');
+    expect(map.querySelectorAll('.explore-map-pick, .explore-map-picks').length).toBe(0);
+    expect(map.querySelector('.explore-map-canvas')).not.toBeNull();
     expect(fixture.nativeElement.querySelectorAll('.explore-map-panel').length).toBe(1);
     expect(fixture.nativeElement.querySelector('.venue-card')).toBeNull();
     expect(fixture.nativeElement.querySelector('#explore-venues')).toBeNull();
@@ -1203,7 +1204,7 @@ describe('DiscoverComponent', () => {
     expect(component.mapAvailableVenues.length).toBe(2);
     const map: HTMLElement = fixture.nativeElement.querySelector('.explore-map-panel');
     expect(map).not.toBeNull();
-    expect(map.querySelectorAll('.explore-map-pick').length).toBe(2);
+    expect(map.querySelectorAll('.explore-map-pick, .explore-map-picks').length).toBe(0);
     component.selectMapVenue(102);
     fixture.detectChanges();
     expect(component.focusedMapVenue?.id).toBe(102);
