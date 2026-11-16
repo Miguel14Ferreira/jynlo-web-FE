@@ -19,7 +19,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
       <form (ngSubmit)="search()" class="team-content-search">
         <label [for]="'team-search-' + kind + '-' + teamId">Pesquisar nesta {{kind === 'chat' ? 'conversa' : 'equipa'}}</label>
         <div class="team-content-search-controls">
-          <input [id]="'team-search-' + kind + '-' + teamId" name="search" [(ngModel)]="searchTerm"
+          <input [id]="'team-search-' + kind + '-' + teamId" name="search" [(ngModel)]="searchTerm" (ngModelChange)="onSearchTermChanged()"
             placeholder="Escreve pelo menos 2 caracteres" maxlength="80"
             [disabled]="searching" />
           <button type="submit" [disabled]="searching || searchTerm.trim().length < 2">Pesquisar</button>
@@ -96,7 +96,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
         </button>
       </form>
       </ng-container>
-      <ng-template #accessRevokedState><p role="alert" class="team-content-error">Já não tens acesso a esta conversa.</p></ng-template>
+      <ng-template #accessRevokedState><p role="alert" class="team-content-error">{{blockedReason}}</p></ng-template>
     </div>`,
   styles: [`
     .team-content {display:grid;gap:.75rem;min-width:0}
@@ -163,6 +163,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   error = '';
   syncError = '';
   accessRevoked = false;
+  blockedReason = 'Já não tens acesso a esta conversa.';
   sending = false;
   loading = true;
   private readonly subscriptions = new Subscription();
@@ -171,6 +172,19 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   private readRequestId = 0;
   private writeVersion = 0;
   private readQueued = false;
+  private blockUnavailable(failure:unknown):boolean {
+    if(!(failure instanceof HttpErrorResponse)||![401,403,409].includes(failure.status))return false;
+    this.accessRevoked=true;
+    this.blockedReason=failure.status===409
+      ? 'O chat ou feed da equipa foi desativado pelo responsável.'
+      : 'Já não tens acesso a esta conversa.';
+    this.items=[];this.draft='';this.replyTargetId=null;
+    this.editingId=null;this.editingDraft='';this.clearSearch();
+    this.reactionVersion++;this.reactionsById={};this.clearFiles();
+    this.clearPreviews();this.attachmentsEnabled=false;this.syncError='';
+    this.error=this.blockedReason;
+    return true;
+  }
   private invalidatePendingRead(): void {
     this.writeVersion++;
     this.readRequestId++;
@@ -205,7 +219,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     if (changes['teamId'] || changes['kind']) {
       this.generation++;
       this.invalidatePendingRead();
-      this.accessRevoked = false;
+      this.accessRevoked = false;this.blockedReason='Já não tens acesso a esta conversa.';
       this.items = [];this.error = '';this.syncError = '';this.draft = '';
       this.replyTargetId = null;this.editingId = null;
       this.clearSearch();this.searchTerm = '';
@@ -243,14 +257,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       error:(failure:unknown) => {
         if(version!==this.generation || writeVersion!==this.writeVersion
             || requestId!==this.readRequestId)return;
-        if(failure instanceof HttpErrorResponse && (failure.status===401 || failure.status===403)) {
-          this.accessRevoked=true;this.items=[];this.draft='';this.replyTargetId=null;
-          this.editingId=null;this.editingDraft='';this.clearSearch();
-          this.reactionVersion++;this.reactionsById={};this.clearFiles();
-          this.clearPreviews();this.attachmentsEnabled=false;this.syncError='';
-          this.error='Já não tens acesso a esta conversa.';
-          return;
-        }
+        if(this.blockUnavailable(failure))return;
         if(silent)this.syncError='A sincronização falhou. O histórico pode estar desatualizado.';
         else this.error='Não foi possível abrir esta conversa. Confirma que és membro e que está ativada.';
       }
@@ -280,11 +287,11 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         if(this.draft.trim()===text){this.draft='';this.replyTargetId=null;}
         if(uploads.length)this.clearFiles();
       },
-      error:() => {
-        if(version===this.generation)
+      error:failure => {
+        if(version===this.generation&&!this.blockUnavailable(failure))
           this.error='Envio não confirmado. Consulta o histórico antes de repetir.';
       }
-    }).add(() => {this.sending=false;this.read(true);});
+    }).add(() => {if(version===this.generation){this.sending=false;this.read(true);}});
   }
 
 
@@ -297,7 +304,9 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         if(current===this.attachmentProbeVersion&&version===this.generation)
           this.attachmentsEnabled=result.available===true;
       },
-      error:()=>{if(current===this.attachmentProbeVersion)this.attachmentsEnabled=false;}
+      error:failure=>{if(current===this.attachmentProbeVersion&&version===this.generation){
+        this.attachmentsEnabled=false;this.blockUnavailable(failure);
+      }}
     });
   }
   chooseFiles(event:Event):void {
@@ -351,9 +360,9 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         this.previews[key]={url,type:file.mimeType.startsWith('image/')?'image':'video'};
         this.previewOrder.push(key);
       },
-      error:()=>{if(generation===this.generation)
+      error:failure=>{if(generation===this.generation&&!this.blockUnavailable(failure))
         this.error='Não foi possível abrir o anexo. Confirma a tua participação.';}
-    }).add(()=>{this.downloading=false;});
+    }).add(()=>{if(generation===this.generation)this.downloading=false;});
   }
   private clearPreviews():void {
     for(const preview of Object.values(this.previews))URL.revokeObjectURL(preview.url);
@@ -362,8 +371,10 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   download(entry:TeamContentEntry,index:number,filename:string):void {
     if(this.downloading||entry.deleted||!Number.isSafeInteger(index)||index<0||index>=4)return;
     this.downloading=true;this.error='';
+    const generation=this.generation;
     this.api.downloadContentFile(this.teamId,this.kind,entry.id,index).subscribe({
       next:blob=>{
+        if(generation!==this.generation||this.accessRevoked)return;
         const url=URL.createObjectURL(blob);
         try {
           const link=document.createElement('a');
@@ -372,8 +383,9 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
           link.click();
         }finally{setTimeout(()=>URL.revokeObjectURL(url),1000);}
       },
-      error:()=>{this.error='Não foi possível descarregar o ficheiro. Confirma a tua participação.';}
-    }).add(()=>{this.downloading=false;});
+      error:failure=>{if(generation===this.generation&&!this.blockUnavailable(failure))
+        this.error='Não foi possível descarregar o ficheiro. Confirma a tua participação.';}
+    }).add(()=>{if(generation===this.generation)this.downloading=false;});
   }
 
   private loadReactions(items:TeamContentEntry[]):void {
@@ -391,13 +403,15 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   react(item:TeamContentEntry,emoji:string):void {
     if(item.deleted || this.reactionBusyId!==null || !this.emojis.includes(emoji))return;
     this.reactionBusyId=item.id;
+    const generation=this.generation;
     const same=this.reactionsById[item.id]?.mine===emoji;
     const request=same
       ? this.api.removeReaction(this.teamId,this.kind,item.id)
       : this.api.setReaction(this.teamId,this.kind,item.id,emoji);
     request.subscribe({
-      error:()=>{this.error='Não foi possível confirmar a reação. Consulta o histórico antes de repetir.';}
-    }).add(()=>{this.reactionBusyId=null;this.loadReactions([item]);});
+      error:failure=>{if(generation===this.generation&&!this.blockUnavailable(failure))
+        this.error='Não foi possível confirmar a reação. Consulta o histórico antes de repetir.';}
+    }).add(()=>{if(generation===this.generation){this.reactionBusyId=null;if(!this.accessRevoked)this.loadReactions([item]);}});
   }
 
   search():void {
@@ -410,11 +424,14 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       next:results=>{
         if(version===this.searchVersion && generation===this.generation){this.searchResults=results;this.loadReactions(results);}
       },
-      error:()=>{
-        if(version===this.searchVersion && generation===this.generation)
+      error:failure=>{
+        if(version===this.searchVersion && generation===this.generation&&!this.blockUnavailable(failure))
           this.error='Não foi possível pesquisar as mensagens.';
       }
     }).add(()=>{if(version===this.searchVersion)this.searching=false;});
+  }
+  onSearchTermChanged():void {
+    this.clearSearch();
   }
   clearSearch():void {
     this.searchVersion++;this.searchActive=false;this.searching=false;this.searchResults=[];
@@ -439,8 +456,9 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         this.items=this.items.map(item=>item.id===updated.id?updated:item);
         this.editingId=null;
       },
-      error:()=>{if(version===this.generation)this.error='Edição não confirmada. Consulta o histórico antes de repetir.';}
-    }).add(()=>{this.sending=false;this.read(true);});
+      error:failure=>{if(version===this.generation&&!this.blockUnavailable(failure))
+        this.error='Edição não confirmada. Consulta o histórico antes de repetir.';}
+    }).add(()=>{if(version===this.generation){this.sending=false;this.read(true);}});
   }
   remove(entry:TeamContentEntry):void {
     if(this.sending || !entry.canManage || entry.deleted)return;
@@ -453,8 +471,9 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         if(version!==this.generation)return;
         this.items=this.items.map(item=>item.id===entry.id?{...item,body:'',deleted:true}:item);
       },
-      error:()=>{if(version===this.generation)this.error='Eliminação não confirmada. Consulta o histórico antes de repetir.';}
-    }).add(()=>{this.sending=false;this.read(true);});
+      error:failure=>{if(version===this.generation&&!this.blockUnavailable(failure))
+        this.error='Eliminação não confirmada. Consulta o histórico antes de repetir.';}
+    }).add(()=>{if(version===this.generation){this.sending=false;this.read(true);}});
   }
 
   ngOnDestroy():void {this.generation++;this.clearPreviews();this.subscriptions.unsubscribe();}
