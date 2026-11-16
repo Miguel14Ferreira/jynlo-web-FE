@@ -59,3 +59,7 @@
  .team-grid section{padding:1rem}
  .team-tabs button{flex:1 1 calc(50% - .6rem)}
 }
+
+.team-community{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin:.6rem 0;padding:.65rem .8rem;border:1px solid #477b8d6b;border-radius:10px}
+.team-community a{font-weight:800;overflow-wrap:anywhere}
+.team-community button{min-height:44px}
