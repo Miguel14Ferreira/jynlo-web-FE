@@ -345,7 +345,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const generation=this.generation;
     this.api.downloadContentFile(this.teamId,this.kind,entry.id,file.index).subscribe({
       next:blob=>{
-        if(generation!==this.generation)return;
+        if(generation!==this.generation||this.accessRevoked)return;
         if(blob.type!==file.mimeType){
           this.error='O tipo do ficheiro recebido não corresponde ao anexo.';
           return;
@@ -396,8 +396,12 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const generation=this.generation;
     this.api.reactions(this.teamId,this.kind,ids).subscribe({
       next:reactions=>{
-        if(version===this.reactionVersion && generation===this.generation)
+        if(version===this.reactionVersion && generation===this.generation&&!this.accessRevoked)
           this.reactionsById={...this.reactionsById,...reactions};
+      },
+      error:failure=>{
+        if(version===this.reactionVersion && generation===this.generation)
+          this.blockUnavailable(failure);
       }
     });
   }
