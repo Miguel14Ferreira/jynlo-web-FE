@@ -28,12 +28,14 @@ async function exercise(username,token,site){
    },token);
    const page=await context.newPage();
    const apiTrace=[];
+   let pageErrors=0;
+   page.on('pageerror',()=>{pageErrors++;});
    page.on('request',request=>{
     try{
      const u=new URL(request.url());
      if(u.host==='api.d24sports.com'&&
        (u.pathname.startsWith('/api/teams')||u.pathname==='/api/auth/refresh')){
-      apiTrace.push('REQ_'+u.pathname);
+      apiTrace.push('REQ_'+request.method()+'_'+u.pathname);
      }
     }catch{}
    });
@@ -42,7 +44,7 @@ async function exercise(username,token,site){
      const u=new URL(request.url());
      if(u.host==='api.d24sports.com'&&
        (u.pathname.startsWith('/api/teams')||u.pathname==='/api/auth/refresh')){
-      apiTrace.push('FAILED_'+u.pathname);
+      apiTrace.push('FAILED_'+request.method()+'_'+u.pathname);
      }
     }catch{}
    });
@@ -51,7 +53,7 @@ async function exercise(username,token,site){
      const u=new URL(response.url());
      if(u.origin==='https://api.d24sports.com'&&
        ['/api/teams/mine','/api/teams/joined','/api/teams'].includes(u.pathname)){
-      apiTrace.push(u.pathname+'_'+response.status());
+      apiTrace.push(response.request().method()+'_'+u.pathname+'_'+response.status());
      }
     }catch{}
    });
@@ -69,6 +71,7 @@ async function exercise(username,token,site){
     console.log('[DIAG] '+site.label+' team loading: '+(apiTrace.join(',')||'NO_TEAM_API_RESPONSE'));
     console.log('[DIAG] '+site.label+' team route: '+new URL(page.url()).pathname);
     console.log('[DIAG] mine loading visible: '+await mine.locator('.loading-message').isVisible());
+    console.log('[DIAG] page errors: '+pageErrors);
     throw e;
    }
    stage='DISCOVER_LOADING';
