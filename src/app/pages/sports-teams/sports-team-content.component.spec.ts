@@ -1,6 +1,6 @@
 import { SimpleChange } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { SportsTeamContentComponent } from './sports-team-content.component';
 import { SportsTeamsService, TeamContentEntry } from '../../services/sports-teams.service';
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
@@ -17,7 +17,7 @@ describe('Team conversation synchronization', () => {
 
   beforeEach(() => {
     api=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',
-      ['content','attachmentsAvailable','reactions','sendContent']);
+      ['content','attachmentsAvailable','reactions','sendContent','downloadContentFile']);
     realtime=jasmine.createSpyObj<DirectChatRealtimeService>('DirectChatRealtimeService',['connect']);
     api.attachmentsAvailable.and.returnValue(of({available:false}));
     api.reactions.and.returnValue(of({}));
@@ -94,6 +94,42 @@ describe('Team conversation synchronization', () => {
     expect(component.attachmentsEnabled).toBeFalse();
     component.read(true);
     expect(api.content).toHaveBeenCalledTimes(1);
+  });
+
+  it('hides cached messages and drafts when the owner disables team chat (409)',()=>{
+    api.content.and.returnValue(throwError(()=>new HttpErrorResponse({status:409,statusText:'Conflict'})));
+    component.items=[entry(1,7,'Mensagem antiga')];
+    component.draft='Rascunho';
+    component.attachmentsEnabled=true;
+    component.read(false);
+    expect(component.accessRevoked).toBeTrue();
+    expect(component.blockedReason).toContain('desativado');
+    expect(component.items).toEqual([]);
+    expect(component.draft).toBe('');
+    expect(component.attachmentsEnabled).toBeFalse();
+  });
+
+  it('revokes cached chat when a reaction summary rejects a removed member',()=>{
+    api.content.and.returnValue(of([entry(3,7,'Privada')]));
+    api.reactions.and.returnValue(throwError(()=>new HttpErrorResponse({status:403,statusText:'Forbidden'})));
+    component.read(false);
+    expect(component.accessRevoked).toBeTrue();
+    expect(component.items).toEqual([]);
+    expect(component.reactionsById).toEqual({});
+  });
+
+  it('does not restore a preview that resolves after access was revoked',()=>{
+    const file=new Subject<Blob>();
+    api.downloadContentFile.and.returnValue(file.asObservable());
+    const message=entry(4,7,'Com anexo');
+    component.items=[message];
+    component.preview(message,{index:0,mimeType:'image/png',filename:'foto.png'});
+    api.content.and.returnValue(throwError(()=>new HttpErrorResponse({status:403,statusText:'Forbidden'})));
+    component.read(false);
+    file.next(new Blob(['image'],{type:'image/png'}));
+    file.complete();
+    expect(component.accessRevoked).toBeTrue();
+    expect(Object.keys(component.previews)).toEqual([]);
   });
 
   it('resets revoked state after switching to another team',()=>{
