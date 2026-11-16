@@ -55,6 +55,23 @@
       </div>
     </section>
 
+    <section class="teams-section" aria-label="Convites para plantéis" *ngIf="teamInvitations.length || teamInvitationError">
+      <div class="section-heading"><div><p class="eyebrow">PLANTÉIS</p><h2>Convites para entrares em equipas</h2>
+        <p>Confirma a entrada na equipa antes de participares no chat e nas publicações do plantel.</p></div></div>
+      <p *ngIf="teamInvitationError" role="alert" class="teams-error">{{teamInvitationError}}</p>
+      <button *ngIf="teamInvitationError" type="button" class="action action-secondary" [disabled]="teamResponding"
+        (click)="loadTeamInvitations()">Verificar convites</button>
+      <article class="invite-card" *ngFor="let invitation of teamInvitations">
+        <div><strong>{{invitation.teamName}}</strong><p>Convite para integrar o plantel</p></div>
+        <div class="invite-actions" *ngIf="teamInvitationsVerified">
+          <button class="action action-primary" type="button" [disabled]="teamResponding"
+            (click)="respondTeam(invitation.teamId,true)">Aceitar</button>
+          <button class="action action-secondary" type="button" [disabled]="teamResponding"
+            (click)="respondTeam(invitation.teamId,false)">Recusar</button>
+        </div>
+      </article>
+    </section>
+
     <section class="teams-section" *ngIf="invitations.length" aria-label="Convites para competições">
       <div class="section-heading"><div><p class="eyebrow">CONVITES</p><h2>Convites para as tuas equipas</h2><p>Aceitar um convite não inscreve automaticamente os jogadores.</p></div></div>
       <article class="invite-card" *ngFor="let invitation of invitations">
