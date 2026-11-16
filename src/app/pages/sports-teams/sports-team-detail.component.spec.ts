@@ -16,12 +16,13 @@ describe('Jynlo team profile — audit of real actions',()=>{
  const player:SportsTeamMember={profileId:3,username:'Jogador',role:'PLAYER'};
  beforeEach(()=>{
   api=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',
-   ['detail','mine','members','honours','history','findPlayers','invite','remove','teamPendingInvitations']);
+   ['detail','mine','members','honours','history','findPlayers','invite','remove','teamPendingInvitations','rememberedTeam']);
   community=jasmine.createSpyObj<TeamCommunityMembershipsService>('TeamCommunityMembershipsService',
    ['teamCommunities','discover','request','respond','remove']);
   auth=jasmine.createSpyObj<AuthenticationService>('AuthenticationService',['isLoggedIn']);
   auth.loggedInPerfilname='owner';
   auth.isLoggedIn.and.returnValue(true);
+  api.rememberedTeam.and.returnValue(null);
   api.detail.and.returnValue(of(team));
   api.mine.and.returnValue(of([team]));
   api.members.and.returnValue(of([owner,player]));
@@ -34,6 +35,22 @@ describe('Jynlo team profile — audit of real actions',()=>{
   component.ngOnInit();
  });
  afterEach(()=>component.ngOnDestroy());
+ it('renders known public team data before a slow detail request finishes',()=>{
+  const later=new Subject<SportsTeam>();
+  api.rememberedTeam.and.returnValue(team);
+  api.detail.and.returnValue(later.asObservable());
+  const copy=new SportsTeamDetailComponent(
+   {snapshot:{paramMap:{get:()=>String(team.id)}}} as unknown as ActivatedRoute,
+   api,community,auth
+  );
+  copy.ngOnInit();
+  expect(copy.team?.name).toBe('Clube A');
+  expect(copy.rosterVerified).toBeFalse();
+  expect(copy.isMember).toBeFalse();
+  later.next(team);later.complete();
+  expect(copy.rosterVerified).toBeTrue();
+  copy.ngOnDestroy();
+ });
  it('loads ownership and membership case-insensitively from real roster',()=>{
   expect(component.isOwner).toBeTrue();
   expect(component.rosterVerified).toBeTrue();
