@@ -797,22 +797,6 @@ button.pillar-action {
 .explore-map-header p:not(.eyebrow) { color: #a5bdcb; font-size: .82rem; margin: 0; }
 .explore-map-count { white-space: nowrap; font-size: .74rem; color: #92e7c7; padding: .4rem .65rem; border-radius: 999px; background: #20423f; }
 .explore-map-layout { display: grid; grid-template-columns: minmax(0,1fr); gap: 0; }
-.explore-map-picks {
-  display: flex; flex-direction: column; gap: .45rem;
-  max-height: 395px; overflow-y: auto; scrollbar-width: thin;
-}
-.explore-map-pick {
-  display: flex; gap: .65rem; align-items: center;
-  min-width: 0; padding: .75rem; border-radius: .75rem;
-  background: #163446; border: 1px solid #305468; color: #e5f4f9;
-  font: inherit; cursor: pointer; text-align: left;
-}
-.explore-map-pick:hover, .explore-map-pick.is-active { border-color: #44e5b2; background: #1b4147; }
-.explore-map-pick:focus-visible { outline: 3px solid #95fbd5; outline-offset: -2px; }
-.explore-map-pick-dot { font-size: 1.4rem; color: #5eeaba; }
-.explore-map-pick-text { min-width: 0; flex: 1; display: grid; gap: .25rem; }
-.explore-map-pick-text strong { overflow-wrap: anywhere; line-height: 1.35; font-size: .8rem; }
-.explore-map-pick-text small { color: #a4bdc9; font-size: .73rem; }
 .explore-map-canvas {
   min-width: 0; overflow: hidden; border: 1px solid #396072; border-radius: .8rem;
   background: #082131;
@@ -827,8 +811,6 @@ button.pillar-action {
 .explore-map-caption a:hover { text-decoration: underline; }
 @media (max-width: 760px) {
   .explore-map-layout { grid-template-columns: minmax(0,1fr); }
-  .explore-map-picks { flex-direction: row; overflow-x: auto; max-height: 0; min-height: 77px; }
-  .explore-map-pick { flex: 0 0 210px; }
   .explore-map-canvas iframe { height: 275px; }
 }
 
