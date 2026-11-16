@@ -34,6 +34,7 @@ export interface SportsTeamInvitation {
   teamName: string;
   status: 'INVITED';
 }
+export interface TeamPendingPlayerInvitation { profileId:number; username:string; status:'INVITED'; }
 export interface SportsTeamPlayerCandidate { profileId:number; username:string; fullName:string|null; }
 
 /** A trophy is earned only when the server has finalized an undisputed winner. */
@@ -89,6 +90,9 @@ export class SportsTeamsService {
   }
   joined(): Observable<SportsTeam[]> {
     return this.http.get<SportsTeam[]>(this.url + '/joined');
+  }
+  teamPendingInvitations(teamId:number):Observable<TeamPendingPlayerInvitation[]> {
+    return this.http.get<TeamPendingPlayerInvitation[]>(this.url+'/'+teamId+'/invitations');
   }
   pendingInvitations(): Observable<SportsTeamInvitation[]> {
     return this.http.get<SportsTeamInvitation[]>(this.url + '/invitations/mine');
