@@ -87,6 +87,9 @@ export class SportsTeamsService {
   members(id: number): Observable<SportsTeamMember[]> {
     return this.http.get<SportsTeamMember[]>(this.url + '/' + id + '/members');
   }
+  joined(): Observable<SportsTeam[]> {
+    return this.http.get<SportsTeam[]>(this.url + '/joined');
+  }
   pendingInvitations(): Observable<SportsTeamInvitation[]> {
     return this.http.get<SportsTeamInvitation[]>(this.url + '/invitations/mine');
   }
