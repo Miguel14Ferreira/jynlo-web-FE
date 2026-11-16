@@ -7,7 +7,7 @@
         <p class="hero-description">Cria uma identidade para a tua equipa, reúne o plantel, junta-te a comunidades e participa em torneios e campeonatos.</p>
         <div class="hero-actions">
           <button type="button" class="action action-primary" (click)="toggleCreate()" [attr.aria-expanded]="createExpanded" aria-controls="team-create-panel">{{ createExpanded ? 'Fechar criação' : '+ Criar a minha equipa' }}</button>
-          <a class="action action-secondary" href="#explorar-equipas">Explorar equipas</a>
+          <a class="action action-secondary" routerLink="/menu/teams" fragment="explorar-equipas">Explorar equipas</a>
           <a class="action action-secondary" routerLink="/menu/teams/competitions">Encontrar competições</a>
         </div>
       </div>
