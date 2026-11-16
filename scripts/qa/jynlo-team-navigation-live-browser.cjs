@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// Strictly read-only, authenticated QA of the Render preview team journeys.
+// Strictly read-only, authenticated QA of the published Jynlo team identity screens.
 // One-time run on the verified Angular change-detection fix, strictly read-only.
 // Never log passwords, bearer tokens, account data or team names. Never POST from browser.
 const assert=require('node:assert/strict');
