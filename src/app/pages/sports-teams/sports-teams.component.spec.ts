@@ -9,12 +9,13 @@ describe('Jynlo team creation deep link from competition search',()=>{
  let invitations:jasmine.SpyObj<TeamCompetitionInvitationsService>;
  let router:jasmine.SpyObj<Router>;
  beforeEach(()=>{
-  teams=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',['discover','mine','create','pendingInvitations','respond']);
+  teams=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',['discover','mine','joined','create','pendingInvitations','respond']);
   invitations=jasmine.createSpyObj<TeamCompetitionInvitationsService>('TeamCompetitionInvitationsService',['mine']);
   router=jasmine.createSpyObj<Router>('Router',['navigate']);
   router.navigate.and.returnValue(Promise.resolve(true));
   teams.discover.and.returnValue(of([]));
   teams.mine.and.returnValue(of([]));
+  teams.joined.and.returnValue(of([]));
   teams.pendingInvitations.and.returnValue(of([]));
   invitations.mine.and.returnValue(of([]));
  });
@@ -57,6 +58,15 @@ describe('Jynlo team creation deep link from competition search',()=>{
   expect(component.teamInvitationsVerified).toBeFalse();
   component.respondTeam(8,false);
   expect(teams.respond).toHaveBeenCalledTimes(1);
+ });
+ it('lists confirmed joined squads separately from owned teams',()=>{
+  teams.joined.and.returnValue(of([{
+   id:8,slug:'equipa-b',name:'Equipa B',sport:'Futebol',location:null,description:null,
+   ownerProfileId:3,feedEnabled:true,chatEnabled:true
+  }]));
+  const component=open(null);
+  expect(component.joined.map(t=>t.id)).toEqual([8]);
+  expect(component.mine).toEqual([]);
  });
  it('separates roster invitations from competition invitations',()=>{
   const component=open(null);
