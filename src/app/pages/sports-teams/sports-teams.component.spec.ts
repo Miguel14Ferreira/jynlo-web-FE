@@ -75,27 +75,38 @@ describe('Jynlo team creation deep link from competition search',()=>{
   expect(component.invitations).toEqual([]);
  });
 
- it('waits for primary owned teams before starting secondary network requests',()=>{
+ it('does not hold the public directory hostage to the owner lookup',()=>{
   const outstanding=new Subject<import('../../services/sports-teams.service').SportsTeam[]>();
   teams.mine.and.returnValue(outstanding.asObservable());
   const component=open(null);
   expect(component.mineLoading).toBeTrue();
-  expect(teams.discover).not.toHaveBeenCalled();
-  expect(teams.joined).not.toHaveBeenCalled();
-  outstanding.next([]);outstanding.complete();
-  expect(component.mineLoading).toBeFalse();
   expect(teams.discover).toHaveBeenCalledTimes(1);
   expect(teams.joined).toHaveBeenCalledTimes(1);
+  expect(component.loading).toBeFalse();
+  outstanding.next([]);outstanding.complete();
+  expect(component.mineLoading).toBeFalse();
   component.ngOnDestroy();
  });
  it('stops showing indefinite spinners if the primary team request stalls',fakeAsync(()=>{
   teams.mine.and.returnValue(new Subject<any[]>().asObservable());
   const component=open(null);
   expect(component.mineLoading).toBeTrue();
+  expect(teams.discover).toHaveBeenCalledTimes(1);
   tick(15001);
   expect(component.mineLoading).toBeFalse();
   expect(component.mineError).toContain('Tenta novamente');
   expect(teams.discover).toHaveBeenCalledTimes(1);
+  component.ngOnDestroy();
+ }));
+ it('bounds search latency independently of private team responses',fakeAsync(()=>{
+  teams.discover.and.returnValue(new Subject<any[]>().asObservable());
+  teams.mine.and.returnValue(new Subject<any[]>().asObservable());
+  const component=open(null);
+  expect(component.loading).toBeTrue();
+  tick(15001);
+  expect(component.loading).toBeFalse();
+  expect(component.error).toContain('demorou demasiado');
+  expect(component.mineLoading).toBeFalse();
   component.ngOnDestroy();
  }));
  it('ignores delayed results from searches replaced by a newer query',()=>{
