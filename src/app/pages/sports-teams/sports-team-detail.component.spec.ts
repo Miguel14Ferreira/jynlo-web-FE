@@ -16,7 +16,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
  const player:SportsTeamMember={profileId:3,username:'Jogador',role:'PLAYER'};
  beforeEach(()=>{
   api=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',
-   ['detail','mine','members','honours','history','findPlayers','invite','remove','teamPendingInvitations','rememberedTeam']);
+   ['detail','mine','members','honours','history','findPlayers','invite','remove','teamPendingInvitations','rememberedTeam','setKit','uploadLogo','removeLogo','rememberTeam']);
   community=jasmine.createSpyObj<TeamCommunityMembershipsService>('TeamCommunityMembershipsService',
    ['teamCommunities','discover','request','respond','remove']);
   auth=jasmine.createSpyObj<AuthenticationService>('AuthenticationService',['isLoggedIn']);
@@ -50,6 +50,40 @@ describe('Jynlo team profile — audit of real actions',()=>{
   later.next(team);later.complete();
   expect(copy.rosterVerified).toBeTrue();
   copy.ngOnDestroy();
+ });
+ it('allows owner to configure kit colors and displays returned branding',()=>{
+  const updated={...team,kitPrimary:'#1144AA',kitSecondary:'#FFFFFF',logoUrl:null};
+  api.setKit.and.returnValue(of(updated));
+  component.kitPrimary='#1144aa';component.kitSecondary='#ffffff';
+  component.saveTeamKit();
+  expect(api.setKit).toHaveBeenCalledOnceWith(5,'#1144aa','#ffffff');
+  expect(component.team?.kitPrimary).toBe('#1144AA');
+  expect(component.brandingSaving).toBeFalse();
+  expect(api.rememberTeam).toHaveBeenCalledOnceWith(updated);
+ });
+ it('does not let non-owners change a kit or upload a crest',()=>{
+  component.isOwner=false;
+  component.saveTeamKit();
+  const input=document.createElement('input');
+  input.type='file';
+  component.uploadTeamLogo({target:input} as unknown as Event);
+  expect(api.setKit).not.toHaveBeenCalled();
+  expect(api.uploadLogo).not.toHaveBeenCalled();
+ });
+ it('rejects oversized logos before sending requests',()=>{
+  const file=new File([new Uint8Array(8*1024*1024+1)],'large.png',{type:'image/png'});
+  const input=document.createElement('input');
+  input.type='file';
+  Object.defineProperty(input,'files',{value:[file],configurable:true});
+  component.uploadTeamLogo({target:input} as unknown as Event);
+  expect(api.uploadLogo).not.toHaveBeenCalled();
+  expect(component.feedback).toContain('8 MB');
+ });
+ it('keeps branding update uncertain after a network failure',()=>{
+  api.setKit.and.returnValue(throwError(()=>Error('timeout')));
+  component.saveTeamKit();
+  expect(component.brandingSaving).toBeFalse();
+  expect(component.feedback).toContain('Não foi possível confirmar');
  });
  it('loads ownership and membership case-insensitively from real roster',()=>{
   expect(component.isOwner).toBeTrue();
