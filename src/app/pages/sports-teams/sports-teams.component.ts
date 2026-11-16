@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.service';
+import { SportsTeam, SportsTeamInvitation, SportsTeamsService } from '../../services/sports-teams.service';
 import { CompetitionTeamInvitation, TeamCompetitionInvitationsService } from '../../services/team-competition-invitations.service';
 
 @Component({
@@ -22,6 +22,10 @@ export class SportsTeamsComponent implements OnInit {
   mine: SportsTeam[] = [];
   mineLoading = false;
   invitations: CompetitionTeamInvitation[] = [];
+  teamInvitations: SportsTeamInvitation[] = [];
+  teamInvitationError = '';
+  teamInvitationsVerified = false;
+  teamResponding = false;
   responding = false;
   draft = {name: '', sport: '', location: '', description: ''};
   saving = false;
@@ -34,7 +38,7 @@ export class SportsTeamsComponent implements OnInit {
               private readonly router: Router) {}
   ngOnInit(): void {
     this.createExpanded=this.route.snapshot.queryParamMap.get('create')==='1';
-    this.search();this.loadInvitations();this.loadMine();
+    this.search();this.loadInvitations();this.loadTeamInvitations();this.loadMine();
   }
 
   loadMine(): void {
@@ -46,6 +50,33 @@ export class SportsTeamsComponent implements OnInit {
     });
   }
 
+  loadTeamInvitations():void{
+    this.teamInvitationError='';
+    this.api.pendingInvitations().subscribe({
+      next:items=>{this.teamInvitations=items;this.teamInvitationsVerified=true;},
+      error:()=>{
+        this.teamInvitationsVerified=false;
+        this.teamInvitationError='Não foi possível verificar os convites para equipas.';
+      }
+    });
+  }
+  respondTeam(teamId:number,accept:boolean):void{
+    if(this.teamResponding||!this.teamInvitationsVerified||
+      !this.teamInvitations.some(item=>item.teamId===teamId))return;
+    this.teamResponding=true;this.teamInvitationError='';
+    this.api.respond(teamId,accept).subscribe({
+      next:()=>{
+        this.teamInvitations=this.teamInvitations.filter(item=>item.teamId!==teamId);
+        this.teamResponding=false;
+        this.loadTeamInvitations();
+        this.loadMine();
+      },
+      error:()=>{
+        this.teamResponding=false;this.teamInvitationsVerified=false;
+        this.teamInvitationError='Não foi possível confirmar a resposta. Verifica os convites antes de repetir.';
+      }
+    });
+  }
   loadInvitations(): void {
     this.competitionInvites.mine().subscribe({
       next: rows => this.invitations = rows,
