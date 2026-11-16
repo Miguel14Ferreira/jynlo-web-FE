@@ -92,9 +92,10 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
         <a routerLink="/menu/teams/competitions" [queryParams]="{teamId: t.id}">Encontrar torneios e campeonatos</a>
       </section>
       <section *ngIf="activeTab === 'OVERVIEW'"><h2>Comunidades ({{activeCommunities.length}})</h2>
-        <p *ngFor="let item of activeCommunities">{{item.communityName}}</p>
-        <p *ngIf="!activeCommunities.length">Esta equipa ainda não está associada a comunidades.</p>
-        <ng-container *ngIf="isOwner">
+        <p *ngFor="let item of activeCommunities"><a [routerLink]="['/menu/communities',item.communityId]">{{item.communityName}} →</a></p>
+        <p *ngIf="!communitiesVerified" role="alert">Não foi possível confirmar as comunidades. Atualiza a página antes de gerir convites.</p>
+        <p *ngIf="communitiesVerified && !activeCommunities.length">Esta equipa ainda não está associada a comunidades.</p>
+        <ng-container *ngIf="isOwner && communitiesVerified">
           <h3>Convites para comunidades</h3>
           <div *ngFor="let item of invitations">
             <p>{{item.communityName}}</p>
@@ -135,7 +136,7 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
       </section>
     </div>
   </main>
-  <ng-template #state><main class="team-detail"><p role="alert">{{ error || 'A carregar equipa…' }}</p></main></ng-template>
+  <ng-template #state><main class="team-detail"><p role="alert">{{ error || 'A carregar equipa…' }}</p><a routerLink="/menu/teams">Voltar às equipas</a></main></ng-template>
   `,
   styleUrls: ['./sports-team-detail.component.css']
 })
@@ -175,7 +176,7 @@ export class SportsTeamDetailComponent implements OnInit {
   get invitations(){return this.communities.filter(item=>item.status==='PENDING_TEAM');}
   hasCommunity(id:number):boolean{return this.communities.some(item=>item.communityId===id&&item.status!=='DECLINED');}
   searchCommunities():void{
-    if(!this.isOwner||this.busy)return;
+    if(!this.isOwner||!this.communitiesVerified||this.busy)return;
     this.busy=true;this.feedback='';
     this.communityMemberships.discover(this.communityQuery).subscribe({
       next:items=>{this.communityResults=items;this.busy=false;},
@@ -183,11 +184,11 @@ export class SportsTeamDetailComponent implements OnInit {
     });
   }
   requestCommunity(communityId:number):void{
-    if(!this.team||!this.isOwner||this.busy||this.hasCommunity(communityId))return;
+    if(!this.team||!this.isOwner||!this.communitiesVerified||this.busy||this.hasCommunity(communityId))return;
     this.busy=true;this.feedback='';
     this.communityMemberships.request(this.team.id,communityId).subscribe({
       next:()=>{this.busy=false;this.feedback='Pedido enviado aos responsáveis da comunidade.';this.loadCommunities();},
-      error:()=>{this.busy=false;this.feedback='Não foi possível pedir adesão. Confirma o estado do pedido.';}
+      error:()=>{this.busy=false;this.communitiesVerified=false;this.feedback='Não foi possível confirmar o pedido. Atualiza as comunidades antes de repetir.';}
     });
   }
   error = '';
@@ -195,11 +196,11 @@ export class SportsTeamDetailComponent implements OnInit {
     private readonly communityMemberships:TeamCommunityMembershipsService,
     private readonly auth:AuthenticationService) {}
   respond(id:number,accept:boolean):void{
-    if(this.busy||!this.isOwner)return;
+    if(this.busy||!this.isOwner||!this.communitiesVerified)return;
     this.busy=true;this.feedback='';
     this.communityMemberships.respond(id,accept).subscribe({
       next:()=>{this.busy=false;this.feedback=accept?'Convite aceite.':'Convite recusado.';this.loadCommunities();},
-      error:()=>{this.busy=false;this.feedback='Não foi possível responder ao convite.';}
+      error:()=>{this.busy=false;this.communitiesVerified=false;this.feedback='Não foi possível confirmar a resposta. Atualiza a lista antes de repetir.';}
     });
   }
   loadCommunities():void{
