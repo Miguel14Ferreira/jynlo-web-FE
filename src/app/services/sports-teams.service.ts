@@ -83,6 +83,19 @@ export type TeamContentKind = 'chat' | 'feed';
 @Injectable({ providedIn: 'root' })
 export class SportsTeamsService {
   private readonly url = environment.apiUrl + '/api/teams';
+  // In-memory public team preview only: never cache ownership, roster or chat permissions.
+  private readonly recentTeams=new Map<number,{team:SportsTeam;at:number}>();
+  rememberTeam(team:SportsTeam):void {
+    if(!Number.isSafeInteger(team.id)||team.id<=0)return;
+    this.recentTeams.set(team.id,{team,at:Date.now()});
+    if(this.recentTeams.size>40)this.recentTeams.delete(this.recentTeams.keys().next().value!);
+  }
+  rememberedTeam(id:number):SportsTeam|null {
+    const item=this.recentTeams.get(id);
+    if(!item||Date.now()-item.at>120000)return null;
+    return item.team;
+  }
+
   constructor(private readonly http: HttpClient) {}
 
   members(id: number): Observable<SportsTeamMember[]> {
