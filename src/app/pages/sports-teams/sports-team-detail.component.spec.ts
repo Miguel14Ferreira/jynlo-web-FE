@@ -1,4 +1,4 @@
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { AuthenticationService } from '../../services/authethication.service';
 import { TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
@@ -53,6 +53,32 @@ describe('Jynlo team profile — audit of real actions',()=>{
   component.invitePlayer(component.availablePlayers[0]);
   expect(api.invite).toHaveBeenCalledOnceWith(5,4);
   expect(component.feedback).toContain('Convite enviado');
+ });
+ it('ignores obsolete player search responses after changing the query',()=>{
+  const oldSearch=new Subject<{profileId:number;username:string;fullName:string|null}[]>();
+  const newSearch=new Subject<{profileId:number;username:string;fullName:string|null}[]>();
+  api.findPlayers.and.returnValues(oldSearch.asObservable(),newSearch.asObservable());
+  component.playerQuery='Ana';
+  component.searchPlayers();
+  component.playerQuery='Bruno';
+  component.invalidatePlayerSearch();
+  component.searchPlayers();
+  newSearch.next([{profileId:7,username:'Bruno',fullName:null}]);
+  newSearch.complete();
+  oldSearch.next([{profileId:8,username:'Ana',fullName:null}]);
+  oldSearch.complete();
+  expect(component.availablePlayers.map(player=>player.username)).toEqual(['Bruno']);
+  expect(component.searchingPlayers).toBeFalse();
+ });
+ it('cannot invite a candidate who was removed by a newer search',()=>{
+  api.findPlayers.and.returnValue(of([{profileId:4,username:'Novo',fullName:null}]));
+  api.invite.and.returnValue(of(void 0));
+  component.playerQuery='Novo';
+  component.searchPlayers();
+  const candidate=component.availablePlayers[0];
+  component.invalidatePlayerSearch();
+  component.invitePlayer(candidate);
+  expect(api.invite).not.toHaveBeenCalled();
  });
  it('removes only confirmed non-owners after explicit confirmation',()=>{
   const confirmSpy=spyOn(window,'confirm').and.returnValue(true);
