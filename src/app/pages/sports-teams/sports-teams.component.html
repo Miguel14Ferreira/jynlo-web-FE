@@ -35,12 +35,13 @@
     <section class="teams-section" aria-label="As minhas equipas">
       <div class="section-heading">
         <div><p class="eyebrow">O TEU BALNEÁRIO</p><h2>As minhas equipas</h2><p>Continua a gerir os teus jogadores e as tuas competições.</p></div>
-        <button type="button" class="action action-quiet" (click)="loadMine()" [disabled]="mineLoading">Atualizar</button>
+
       </div>
       <p *ngIf="mineLoading" role="status" class="loading-message">A carregar as tuas equipas…</p>
       <p *ngIf="mineError" role="alert" class="teams-error">{{ mineError }}</p>
+      <button *ngIf="mineError" type="button" class="action action-secondary" (click)="loadMine()" [disabled]="mineLoading">Tentar novamente</button>
       <div class="teams-grid" *ngIf="!mineLoading && mine.length">
-        <a class="team-card" *ngFor="let team of mine" [routerLink]="['/menu/teams',team.id]">
+        <a class="team-card" *ngFor="let team of mine" [routerLink]="['/menu/teams',team.id]" (click)="openTeam(team)">
           <div class="team-card-top"><span class="team-emblem" aria-hidden="true">{{ (team.name || 'E').charAt(0).toUpperCase() }}</span><span class="team-role">A tua equipa</span></div>
           <h3>{{team.name}}</h3>
           <p>{{team.sport || 'Várias modalidades'}} <span *ngIf="team.location">· {{team.location}}</span></p>
@@ -65,7 +66,7 @@
       <button *ngIf="joinedError" type="button" class="action action-secondary"
         (click)="loadJoined()" [disabled]="joinedLoading">Verificar equipas</button>
       <div class="teams-grid" *ngIf="!joinedLoading && joined.length">
-        <a class="team-card" *ngFor="let team of joined" [routerLink]="['/menu/teams',team.id]">
+        <a class="team-card" *ngFor="let team of joined" [routerLink]="['/menu/teams',team.id]" (click)="openTeam(team)">
           <div class="team-card-top"><span class="team-emblem" aria-hidden="true">{{ (team.name || 'E').charAt(0).toUpperCase() }}</span>
             <span class="team-role">Jogador</span></div>
           <h3>{{team.name}}</h3>
@@ -112,7 +113,7 @@
       </form>
       <p class="loading-message" *ngIf="loading" role="status">A procurar equipas…</p>
       <div class="teams-grid" *ngIf="!loading && teams.length">
-        <a class="team-card" *ngFor="let team of teams" [routerLink]="['/menu/teams',team.id]">
+        <a class="team-card" *ngFor="let team of teams" [routerLink]="['/menu/teams',team.id]" (click)="openTeam(team)">
           <div class="team-card-top"><span class="team-emblem" aria-hidden="true">{{ (team.name || 'E').charAt(0).toUpperCase() }}</span><span class="team-role">Equipa</span></div>
           <h3>{{team.name}}</h3>
           <p>{{team.sport || 'Várias modalidades'}} <span *ngIf="team.location">· {{team.location}}</span></p>
