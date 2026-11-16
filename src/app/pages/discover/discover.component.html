@@ -213,16 +213,6 @@
 
           @if (mapAvailableVenues.length > 0) {
           <div class="explore-map-layout">
-            <div class="explore-map-picks" role="group" [attr.aria-label]="'discover.explore.mapChoose' | t">
-              @for (venue of mapAvailableVenues; track venue.id) {
-                <button type="button" class="explore-map-pick" [class.is-active]="focusedMapVenue?.id === venue.id"
-                  [attr.aria-pressed]="focusedMapVenue?.id === venue.id" (click)="selectMapVenue(venue.id)">
-                  <span class="explore-map-pick-dot" aria-hidden="true">⌖</span>
-                  <span class="explore-map-pick-text"><strong>{{ venue.name }}</strong><small>{{ venue.city }}</small></span>
-                  <span aria-hidden="true">›</span>
-                </button>
-              }
-            </div>
             <div class="explore-map-canvas">
               @if (focusedVenueMapUrl; as mapUrl) {
                 <iframe [src]="mapUrl" loading="lazy"
