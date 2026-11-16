@@ -31,7 +31,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
   api.history.and.returnValue(of([]));
   community.teamCommunities.and.returnValue(of([]));
   const route={snapshot:{paramMap:{get:()=>String(team.id)}}} as unknown as ActivatedRoute;
-  component=new SportsTeamDetailComponent(route,api,community,auth);
+  component=new SportsTeamDetailComponent(route,api,community,auth,{detectChanges:()=>{}} as any);
   component.ngOnInit();
  });
  afterEach(()=>component.ngOnDestroy());
@@ -41,7 +41,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
   api.detail.and.returnValue(later.asObservable());
   const copy=new SportsTeamDetailComponent(
    {snapshot:{paramMap:{get:()=>String(team.id)}}} as unknown as ActivatedRoute,
-   api,community,auth
+   api,community,auth,{detectChanges:()=>{}} as any
   );
   copy.ngOnInit();
   expect(copy.team?.name).toBe('Clube A');
