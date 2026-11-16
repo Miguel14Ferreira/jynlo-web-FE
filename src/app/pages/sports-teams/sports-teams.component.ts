@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.service';
 import { CompetitionTeamInvitation, TeamCompetitionInvitationsService } from '../../services/team-competition-invitations.service';
 
@@ -30,7 +30,8 @@ export class SportsTeamsComponent implements OnInit {
 
   constructor(private readonly api: SportsTeamsService,
               private readonly competitionInvites: TeamCompetitionInvitationsService,
-              private readonly route: ActivatedRoute) {}
+              private readonly route: ActivatedRoute,
+              private readonly router: Router) {}
   ngOnInit(): void {
     this.createExpanded=this.route.snapshot.queryParamMap.get('create')==='1';
     this.search();this.loadInvitations();this.loadMine();
@@ -77,12 +78,16 @@ export class SportsTeamsComponent implements OnInit {
     this.saving = true;
     this.error = '';
     this.api.create(this.draft).subscribe({
-      next: () => {
+      next: created => {
         this.saving = false;
         this.draft = {name: '', sport: '', location: '', description: ''};
         this.createExpanded = false;
-        this.search();
-        this.loadMine();
+        if(Number.isSafeInteger(created.id)&&created.id>0){
+          void this.router.navigate(['/menu/teams',created.id]);
+        }else{
+          this.error='A equipa foi criada, mas o servidor não confirmou o identificador. Consulta as tuas equipas.';
+          this.search();this.loadMine();
+        }
       },
       error: () => { this.saving = false; this.error = 'Não foi possível criar a equipa. Confirma que tens sessão iniciada.'; }
     });
