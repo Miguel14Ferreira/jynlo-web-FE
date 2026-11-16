@@ -102,4 +102,11 @@ describe('Jynlo global team competition application safety',()=>{
   component.apply(tournament);
   expect(api.apply).not.toHaveBeenCalled();
  });
+
+ it('blocks applications when the competition has closed registrations',()=>{
+  component.selectedTeam=5;
+  component.apply({...tournament,applicationsOpen:false});
+  expect(api.apply).not.toHaveBeenCalled();
+  expect(component.applicationsVerified).toBeTrue();
+ });
 });
