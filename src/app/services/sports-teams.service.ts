@@ -14,6 +14,9 @@ export interface SportsTeam {
   ownerProfileId: number;
   feedEnabled: boolean;
   chatEnabled: boolean;
+  logoUrl?: string | null;
+  kitPrimary?: string | null;
+  kitSecondary?: string | null;
 }
 
 export interface CreateSportsTeam {
@@ -187,6 +190,17 @@ export class SportsTeamsService {
   }
   deleteContent(id:number, kind:TeamContentKind, contentId:number): Observable<void> {
     return this.http.delete<void>(this.url+'/'+id+'/'+kind+'/'+contentId);
+  }
+  setKit(id:number, primary:string|null, secondary:string|null):Observable<SportsTeam> {
+    return this.http.put<SportsTeam>(this.url+'/'+id+'/kit',{primary,secondary});
+  }
+  uploadLogo(id:number,file:File):Observable<SportsTeam> {
+    const form=new FormData();
+    form.append('logo',file,file.name);
+    return this.http.put<SportsTeam>(this.url+'/'+id+'/logo',form);
+  }
+  removeLogo(id:number):Observable<SportsTeam> {
+    return this.http.delete<SportsTeam>(this.url+'/'+id+'/logo');
   }
   setFeatures(id: number, input: {feedEnabled?: boolean; chatEnabled?: boolean}): Observable<SportsTeam> {
     return this.http.patch<SportsTeam>(this.url + '/' + id + '/features', input);
