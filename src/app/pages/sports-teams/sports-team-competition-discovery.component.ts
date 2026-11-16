@@ -55,7 +55,7 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
       </section>
       <p *ngIf="!loading && !searchError && !competitions.length">Não há competições a aceitar candidaturas com estes filtros.</p>
       <p *ngIf="!mine.length">Precisas de criar ou administrar uma equipa para pedir participação.</p>
-      <a routerLink="/menu/teams" fragment="criar-equipa">Criar equipa</a>
+      <a routerLink="/menu/teams" [queryParams]="{create:1}">Criar equipa</a>
       <p class="note">A aprovação não inscreve automaticamente o plantel. A inscrição final depende das regras da competição.</p>
     </main>
   `,
