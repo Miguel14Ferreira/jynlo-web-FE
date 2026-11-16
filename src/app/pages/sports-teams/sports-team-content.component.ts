@@ -175,6 +175,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   private blockUnavailable(failure:unknown):boolean {
     if(!(failure instanceof HttpErrorResponse)||![401,403,409].includes(failure.status))return false;
     this.accessRevoked=true;
+    this.invalidatePendingRead();
     this.blockedReason=failure.status===409
       ? 'O chat ou feed da equipa foi desativado pelo responsável.'
       : 'Já não tens acesso a esta conversa.';
@@ -220,8 +221,10 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.generation++;
       this.invalidatePendingRead();
       this.accessRevoked = false;this.blockedReason='Já não tens acesso a esta conversa.';
+      // Old requests may still complete, but their UI locks belong to the old conversation.
+      this.sending=false;this.downloading=false;this.reactionBusyId=null;this.loading=true;
       this.items = [];this.error = '';this.syncError = '';this.draft = '';
-      this.replyTargetId = null;this.editingId = null;
+      this.replyTargetId = null;this.editingId = null;this.editingDraft='';
       this.clearSearch();this.searchTerm = '';
       this.reactionVersion++;this.reactionsById={};
       this.clearFiles();this.clearPreviews();this.attachmentsEnabled=false;
@@ -251,12 +254,12 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.api.content(this.teamId,this.kind).subscribe({
       next:items => {
         if(version!==this.generation || writeVersion!==this.writeVersion
-            || requestId!==this.readRequestId)return;
+            || requestId!==this.readRequestId || this.accessRevoked)return;
         this.items=items;this.syncError='';this.loadReactions(items);
       },
       error:(failure:unknown) => {
         if(version!==this.generation || writeVersion!==this.writeVersion
-            || requestId!==this.readRequestId)return;
+            || requestId!==this.readRequestId || this.accessRevoked)return;
         if(this.blockUnavailable(failure))return;
         if(silent)this.syncError='A sincronização falhou. O histórico pode estar desatualizado.';
         else this.error='Não foi possível abrir esta conversa. Confirma que és membro e que está ativada.';
@@ -282,14 +285,14 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       : this.api.sendContent(this.teamId,this.kind,text,this.replyTargetId);
     operation.subscribe({
       next:item => {
-        if(version!==this.generation)return;
+        if(version!==this.generation||this.accessRevoked)return;
         if(!this.items.some(previous=>previous.id===item.id))
           this.items=[...this.items,item].sort((a,b)=>a.id-b.id);
         if(this.draft.trim()===text){this.draft='';this.replyTargetId=null;}
         if(uploads.length)this.clearFiles();
       },
       error:failure => {
-        if(version===this.generation&&!this.blockUnavailable(failure))
+        if(version===this.generation&&!this.accessRevoked&&!this.blockUnavailable(failure))
           this.error='Envio não confirmado. Consulta o histórico antes de repetir.';
       }
     }).add(() => {if(version===this.generation){this.sending=false;this.read(true);}});
@@ -427,7 +430,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.searching=true;this.searchActive=true;this.error='';
     this.api.searchContent(this.teamId,this.kind,query).subscribe({
       next:results=>{
-        if(version===this.searchVersion && generation===this.generation){this.searchResults=results;this.loadReactions(results);}
+        if(version===this.searchVersion && generation===this.generation&&!this.accessRevoked){this.searchResults=results;this.loadReactions(results);}
       },
       error:failure=>{
         if(version===this.searchVersion && generation===this.generation&&!this.blockUnavailable(failure))
@@ -457,7 +460,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const version=this.generation;
     this.api.editContent(this.teamId,this.kind,entry.id,body).subscribe({
       next:updated=>{
-        if(version!==this.generation)return;
+        if(version!==this.generation||this.accessRevoked)return;
         this.items=this.items.map(item=>item.id===updated.id?updated:item);
         this.editingId=null;
       },
@@ -473,7 +476,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const version=this.generation;
     this.api.deleteContent(this.teamId,this.kind,entry.id).subscribe({
       next:()=>{
-        if(version!==this.generation)return;
+        if(version!==this.generation||this.accessRevoked)return;
         this.items=this.items.map(item=>item.id===entry.id?{...item,body:'',deleted:true}:item);
       },
       error:failure=>{if(version===this.generation&&!this.blockUnavailable(failure))
@@ -481,5 +484,5 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     }).add(()=>{if(version===this.generation){this.sending=false;this.read(true);}});
   }
 
-  ngOnDestroy():void {this.generation++;this.clearPreviews();this.subscriptions.unsubscribe();}
+  ngOnDestroy():void {this.generation++;this.attachmentProbeVersion++;this.invalidatePendingRead();this.clearPreviews();this.subscriptions.unsubscribe();}
 }
