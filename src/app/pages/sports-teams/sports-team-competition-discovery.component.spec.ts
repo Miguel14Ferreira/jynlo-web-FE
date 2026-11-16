@@ -70,11 +70,36 @@ describe('Jynlo global team competition application safety',()=>{
  });
  it('distinguishes approved and declined applications',()=>{
   component.applications=[{...pending,status:'APPROVED'}];
-  expect(component.applicationLabel(tournament,5)).toBe('Candidatura aprovada');
+  expect(component.applicationLabel(tournament,5)).toBe('Aprovada · inscrição por confirmar');
   component.applications=[{...pending,status:'DECLINED'}];
   expect(component.applicationLabel(tournament,5)).toBe('Candidatura recusada');
   expect(component.hasApplication(tournament,5)).toBeTrue();
  });
+ it('does not record an application response after navigation away',()=>{
+  const pendingRequest=new Subject<TeamCompetitionApplication>();
+  api.apply.and.returnValue(pendingRequest.asObservable());
+  component.apply(tournament);
+  expect(component.saving).toBeTrue();
+  component.ngOnDestroy();
+  pendingRequest.next(pending);
+  pendingRequest.complete();
+  expect(component.applications).toEqual([]);
+  expect(component.notice).toBe('');
+ });
+
+ it('keeps verified application state authoritative when an old request completes',()=>{
+  const pendingRequest=new Subject<TeamCompetitionApplication>();
+  api.apply.and.returnValue(pendingRequest.asObservable());
+  component.apply(tournament);
+  expect(component.saving).toBeTrue();
+  // Simulate a newer validation generation without changing the persisted request.
+  (component as any).ownershipVersion++;
+  pendingRequest.next(pending);
+  pendingRequest.complete();
+  expect(component.applications).toEqual([]);
+  expect(component.notice).toBe('');
+ });
+
  it('blocks application until previous applications can be verified',()=>{
   component.applicationsVerified=false;
   component.apply(tournament);
