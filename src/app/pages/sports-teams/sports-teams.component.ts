@@ -20,6 +20,9 @@ export class SportsTeamsComponent implements OnInit {
   toggleCreate(): void { this.createExpanded = !this.createExpanded; }
   teams: SportsTeam[] = [];
   mine: SportsTeam[] = [];
+  joined: SportsTeam[] = [];
+  joinedError = '';
+  joinedLoading = false;
   mineLoading = false;
   invitations: CompetitionTeamInvitation[] = [];
   teamInvitations: SportsTeamInvitation[] = [];
@@ -38,9 +41,16 @@ export class SportsTeamsComponent implements OnInit {
               private readonly router: Router) {}
   ngOnInit(): void {
     this.createExpanded=this.route.snapshot.queryParamMap.get('create')==='1';
-    this.search();this.loadInvitations();this.loadTeamInvitations();this.loadMine();
+    this.search();this.loadInvitations();this.loadTeamInvitations();this.loadMine();this.loadJoined();
   }
 
+  loadJoined():void{
+    this.joinedLoading=true;this.joinedError='';
+    this.api.joined().subscribe({
+      next:items=>{this.joined=items;this.joinedLoading=false;},
+      error:()=>{this.joinedError='Não foi possível confirmar as equipas onde és jogador.';this.joinedLoading=false;}
+    });
+  }
   loadMine(): void {
     this.mineLoading = true;
     this.mineError = '';
@@ -70,6 +80,7 @@ export class SportsTeamsComponent implements OnInit {
         this.teamResponding=false;
         this.loadTeamInvitations();
         if(accept){
+          this.loadJoined();
           void this.router.navigate(['/menu/teams',teamId]);
         }else{
           this.loadMine();
