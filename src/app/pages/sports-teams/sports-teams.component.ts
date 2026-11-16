@@ -69,7 +69,11 @@ export class SportsTeamsComponent implements OnInit {
         this.teamInvitations=this.teamInvitations.filter(item=>item.teamId!==teamId);
         this.teamResponding=false;
         this.loadTeamInvitations();
-        this.loadMine();
+        if(accept){
+          void this.router.navigate(['/menu/teams',teamId]);
+        }else{
+          this.loadMine();
+        }
       },
       error:()=>{
         this.teamResponding=false;this.teamInvitationsVerified=false;
