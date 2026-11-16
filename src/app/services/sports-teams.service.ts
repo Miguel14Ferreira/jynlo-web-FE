@@ -99,6 +99,14 @@ export class SportsTeamsService {
     return item.team;
   }
 
+  logoSrc(url:string|null|undefined):string|null {
+    if(!url)return null;
+    if(/^https:\/\/[^\s]+$/i.test(url))return url;
+    if(/^\/media\/teams\/[1-9]\d*\/[A-Za-z0-9_-]+\.(?:png|jpg|jpeg|webp|gif)$/i.test(url))
+      return environment.apiUrl.replace(/\/$/,'')+url;
+    return null;
+  }
+
   constructor(private readonly http: HttpClient) {}
 
   members(id: number): Observable<SportsTeamMember[]> {
