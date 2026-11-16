@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 // One-use browser QA: only allowlisted private QA group / identities.
+// Authorized two-account verification: run strictly in the isolated QA community.
 // All new test records are removed in finally, with no screenshots or tokens logged.
 const assert=require('node:assert/strict');
 const {authenticate}=require('./jynlo-inbox-live-browser.cjs');
