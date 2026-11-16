@@ -71,13 +71,13 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(api.uploadLogo).not.toHaveBeenCalled();
  });
  it('rejects oversized logos before sending requests',()=>{
-  const file=new File([new Uint8Array(8*1024*1024+1)],'large.png',{type:'image/png'});
+  const file=new File([new Uint8Array(5*1024*1024+1)],'large.png',{type:'image/png'});
   const input=document.createElement('input');
   input.type='file';
   Object.defineProperty(input,'files',{value:[file],configurable:true});
   component.uploadTeamLogo({target:input} as unknown as Event);
   expect(api.uploadLogo).not.toHaveBeenCalled();
-  expect(component.feedback).toContain('8 MB');
+  expect(component.feedback).toContain('5 MB');
  });
  it('keeps branding update uncertain after a network failure',()=>{
   api.setKit.and.returnValue(throwError(()=>Error('timeout')));
