@@ -43,6 +43,13 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
           <option [ngValue]="null">Selecionar equipa</option>
           <option *ngFor="let team of mine" [ngValue]="team.id">{{team.name}}</option>
         </select>
+        <div class="selected-team-kit" *ngIf="selectedTeam && selectedTeamIdentity as team"
+          aria-label="Equipamento da equipa selecionada">
+          <span class="team-shirt" [class]="'team-shirt kit-' + (team.kitPattern || 'PLAIN').toLowerCase()"
+            [style.--shirt-primary]="team.kitPrimary || '#16caba'"
+            [style.--shirt-secondary]="team.kitSecondary || '#f2fafc'" aria-hidden="true"></span>
+          <span><strong>{{team.name}}</strong> · Equipamento oficial</span>
+        </div>
       </section>
       <section class="results">
         <article class="card" *ngFor="let item of competitions">
@@ -83,6 +90,18 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
     .team-discover .card p,.team-discover .card small{color:#bcd7e1!important}
     .team-discover .team-picker{width:min(100%,560px)}
     .team-discover .team-picker select{margin-top:.25rem}
+    .team-discover .selected-team-kit{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-top:1rem;
+      font-size:.84rem;color:#defcf9}
+    .team-discover .selected-team-kit .team-shirt{display:flex;align-items:center;justify-content:center;
+      width:52px;height:56px;flex:none;border-radius:11px;background:#08202d;border:1px solid #3e8391}
+    .team-discover .selected-team-kit .team-shirt:after{content:'';width:34px;height:42px;
+      clip-path:polygon(22% 0,78% 0,100% 20%,88% 42%,77% 35%,77% 100%,23% 100%,23% 35%,12% 42%,0 20%);
+      background:var(--shirt-primary)}
+    .team-discover .selected-team-kit .kit-stripes:after{background:repeating-linear-gradient(90deg,
+      var(--shirt-primary) 0 8px,var(--shirt-secondary) 8px 15px)}
+    .team-discover .selected-team-kit .kit-diagonal:after{background:linear-gradient(125deg,
+      var(--shirt-primary) 0 36%,var(--shirt-secondary) 36% 55%,var(--shirt-primary) 55% 100%)}
+
     .team-discover .results{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,265px),1fr));gap:.9rem}
     .team-discover .results .card{display:grid;align-content:start;gap:.65rem}
     .team-discover .results .card button{justify-self:start}
@@ -98,6 +117,7 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
   error='';notice='';loading=false;saving=false;searchError=false;
   private searchVersion=0;private ownershipVersion=0;private destroyed=false;
   private readonly requestTimeout=12000;
+  get selectedTeamIdentity(){return this.mine.find(team=>team.id===this.selectedTeam)||null;}
   teamsVerified=false;applicationsVerified=false;refreshingApplications=false;
   constructor(private readonly route:ActivatedRoute,private readonly teams:SportsTeamsService,
               private readonly api:TeamCompetitionApplicationsService,
