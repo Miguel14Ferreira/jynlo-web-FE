@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { AuthenticationService } from '../../services/authethication.service';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Subscription, interval, fromEvent, merge, timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -217,7 +217,9 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   error = '';
   constructor(private readonly route: ActivatedRoute, private readonly api: SportsTeamsService,
     private readonly communityMemberships:TeamCommunityMembershipsService,
-    private readonly auth:AuthenticationService) {}
+    private readonly auth:AuthenticationService,
+    private readonly cdr:ChangeDetectorRef) {}
+  private render():void{if(!this.rosterSubscriptions.closed)this.cdr.detectChanges();}
   respond(id:number,accept:boolean):void{
     if(this.busy||!this.isOwner||!this.communitiesVerified)return;
     this.busy=true;this.feedback='';
@@ -245,8 +247,8 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   loadCommunities():void{
     if(!this.team)return;
     this.communityMemberships.teamCommunities(this.team.id).pipe(timeout(15000)).subscribe({
-      next:rows=>{this.communities=rows;this.communitiesVerified=true;},
-      error:()=>{this.communitiesVerified=false;this.feedback='Não foi possível confirmar as comunidades da equipa.';}
+      next:rows=>{this.communities=rows;this.communitiesVerified=true;this.render();},
+      error:()=>{this.communitiesVerified=false;this.feedback='Não foi possível confirmar as comunidades da equipa.';this.render();}
     });
   }
   invalidatePlayerSearch():void{
@@ -316,13 +318,15 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         this.members=players;
         this.rosterVerified=true;
         this.isMember=players.some(p=>p.username.toLowerCase()===this.auth.loggedInPerfilname?.toLowerCase());
+        this.render();
       },
       error:()=>{
         if(request!==this.rosterRequest || this.team?.id!==teamId)return;
         // Do not keep a stale authorization decision after a failed refresh.
         this.rosterVerified=false;this.isMember=false;
+        this.render();
       }
-    }).add(()=>{if(request===this.rosterRequest)this.rosterLoading=false;});
+    }).add(()=>{if(request===this.rosterRequest){this.rosterLoading=false;this.render();}});
   }
   leaveTeam():void {
     if(!this.team||!this.rosterVerified||!this.isMember||this.isOwner||this.busy)return;
@@ -368,22 +372,22 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     this.team=this.api.rememberedTeam(id);
     this.api.detail(id).pipe(timeout(15000)).subscribe({
       next: team => {
-        this.team = team;
-        this.api.mine().pipe(timeout(15000)).subscribe({next:owned=>{this.isOwner=owned.some(x=>x.id===team.id);if(this.isOwner)this.loadPendingInvitations();},error:()=>{this.isOwner=false;this.invitationsVerified=false;}});
+        this.team = team;this.render();
+        this.api.mine().pipe(timeout(15000)).subscribe({next:owned=>{this.isOwner=owned.some(x=>x.id===team.id);if(this.isOwner)this.loadPendingInvitations();this.render();},error:()=>{this.isOwner=false;this.invitationsVerified=false;this.render();}});
         this.loadCommunities();
         this.historyLoading = true;
         this.honoursLoading = true;
         this.api.honours(team.id).pipe(timeout(15000)).subscribe({
-          next: awards => {this.championshipHonours = awards; this.honoursLoading = false;},
-          error: () => {this.honoursError = 'Não foi possível carregar os títulos dos campeonatos.'; this.honoursLoading = false;}
+          next: awards => {this.championshipHonours = awards; this.honoursLoading = false;this.render();},
+          error: () => {this.honoursError = 'Não foi possível carregar os títulos dos campeonatos.'; this.honoursLoading = false;this.render();}
         });
         this.api.history(team.id).pipe(timeout(15000)).subscribe({
-          next: entries => {this.history = entries; this.historyLoading = false;},
-          error: () => {this.historyError = 'Não foi possível carregar o histórico de troféus.'; this.historyLoading = false;}
+          next: entries => {this.history = entries; this.historyLoading = false;this.render();},
+          error: () => {this.historyError = 'Não foi possível carregar o histórico de troféus.'; this.historyLoading = false;this.render();}
         });
         this.refreshRoster();
       },
-      error: () => this.error = 'Não foi possível confirmar os dados da equipa. Tenta abrir novamente.'
+      error: () => {this.error = 'Não foi possível confirmar os dados da equipa. Tenta abrir novamente.';this.render();}
     });
     this.rosterSubscriptions.add(interval(30000).subscribe(()=>{
       if(typeof document!=='undefined' && document.visibilityState==='visible')this.refreshRoster();
