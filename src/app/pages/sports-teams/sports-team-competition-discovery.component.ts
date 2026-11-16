@@ -202,7 +202,7 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
   }
   applicationFor(item:OpenTeamCompetition,teamId:number|null):TeamCompetitionApplication|undefined{
     return teamId===null?undefined:this.applications.find(a=>a.teamId===teamId
-      &&a.competitionType===item.type&&a.competitionId===item.id);
+      &&a.communityId===item.communityId&&a.competitionType===item.type&&a.competitionId===item.id);
   }
   hasApplication(item:OpenTeamCompetition,teamId:number|null):boolean{
     return !!this.applicationFor(item,teamId);
