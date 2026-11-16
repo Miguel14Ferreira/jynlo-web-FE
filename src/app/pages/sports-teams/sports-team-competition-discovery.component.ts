@@ -22,6 +22,9 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
       </div>
       <p *ngIf="error" role="alert" class="error">{{error}}</p>
       <p *ngIf="notice" role="status">{{notice}}</p>
+      <p *ngIf="!applicationsVerified" role="alert">Não foi possível confirmar as candidaturas anteriores. Para evitar pedidos repetidos, o envio está temporariamente bloqueado.</p>
+      <button *ngIf="!applicationsVerified || !teamsVerified" type="button" class="refresh-state" [disabled]="saving || refreshingApplications"
+        (click)="refreshOwnershipAndApplications()">{{refreshingApplications?'A confirmar…':'Verificar equipas e candidaturas'}}</button>
       <p *ngIf="loading">A procurar competições…</p>
       <section class="card" *ngIf="applications.length">
         <h2>Pedidos das tuas equipas</h2>
@@ -41,9 +44,9 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
             <option [ngValue]="null">Selecionar equipa</option>
             <option *ngFor="let team of mine" [ngValue]="team.id">{{team.name}}</option>
           </select>
-          <button type="button" [disabled]="saving || !selectedTeam || hasApplication(item,selectedTeam)"
-                  (click)="apply(item)">Pedir participação</button>
-          <p *ngIf="selectedTeam && hasApplication(item,selectedTeam)">Já existe um pedido para esta equipa.</p>
+          <button type="button" [disabled]="saving || !selectedTeam || !teamsVerified || !applicationsVerified || hasApplication(item,selectedTeam)"
+                  (click)="apply(item)">{{applicationLabel(item,selectedTeam) || (saving?'A enviar…':'Pedir participação')}}</button>
+          <p *ngIf="selectedTeam && hasApplication(item,selectedTeam)">{{applicationLabel(item,selectedTeam)}}</p>
         </article>
       </section>
       <p *ngIf="!loading && !competitions.length">Não há competições a aceitar candidaturas com estes filtros.</p>
@@ -67,15 +70,11 @@ export class TeamCompetitionDiscoveryComponent implements OnInit {
   query='';sport='';selectedTeam:number|null=null;mine:SportsTeam[]=[];
   competitions:OpenTeamCompetition[]=[];applications:TeamCompetitionApplication[]=[];
   error='';notice='';loading=false;saving=false;
+  teamsVerified=false;applicationsVerified=false;refreshingApplications=false;
   constructor(private readonly route:ActivatedRoute,private readonly teams:SportsTeamsService,
               private readonly api:TeamCompetitionApplicationsService){}
   ngOnInit():void{
-    this.teams.mine().subscribe({next:teams=>{
-      this.mine=teams;
-      const requested=Number(this.route.snapshot.queryParamMap.get('teamId'));
-      if(Number.isSafeInteger(requested)&&teams.some(team=>team.id===requested))this.selectedTeam=requested;
-    },error:()=>this.mine=[]});
-    this.api.mine().subscribe({next:apps=>this.applications=apps,error:()=>this.applications=[]});
+    this.refreshOwnershipAndApplications();
     this.search();
   }
   search():void{
@@ -86,14 +85,44 @@ export class TeamCompetitionDiscoveryComponent implements OnInit {
       error:()=>{this.error='Não foi possível pesquisar competições.';this.loading=false;}
     });
   }
-  hasApplication(item:OpenTeamCompetition,teamId:number|null):boolean{
-    return teamId!==null&&this.applications.some(a=>a.teamId===teamId
+  refreshOwnershipAndApplications():void{
+    if(this.saving||this.refreshingApplications)return;
+    this.refreshingApplications=true;
+    this.teamsVerified=false;this.applicationsVerified=false;this.error='';
+    let pending=2;
+    const done=()=>{pending--;if(pending===0)this.refreshingApplications=false;};
+    this.teams.mine().subscribe({
+      next:teams=>{
+        this.mine=teams;this.teamsVerified=true;
+        const requested=Number(this.route.snapshot.queryParamMap.get('teamId'));
+        if(Number.isSafeInteger(requested)&&teams.some(team=>team.id===requested))this.selectedTeam=requested;
+        else if(!teams.some(team=>team.id===this.selectedTeam))this.selectedTeam=null;
+        done();
+      },
+      error:()=>{this.teamsVerified=false;this.error='Não foi possível confirmar as tuas equipas.';done();}
+    });
+    this.api.mine().subscribe({
+      next:apps=>{this.applications=apps;this.applicationsVerified=true;done();},
+      error:()=>{this.applicationsVerified=false;this.error='Não foi possível confirmar os pedidos existentes.';done();}
+    });
+  }
+  applicationFor(item:OpenTeamCompetition,teamId:number|null):TeamCompetitionApplication|undefined{
+    return teamId===null?undefined:this.applications.find(a=>a.teamId===teamId
       &&a.competitionType===item.type&&a.competitionId===item.id);
+  }
+  hasApplication(item:OpenTeamCompetition,teamId:number|null):boolean{
+    return !!this.applicationFor(item,teamId);
+  }
+  applicationLabel(item:OpenTeamCompetition,teamId:number|null):string|null{
+    const status=this.applicationFor(item,teamId)?.status;
+    return status==='PENDING'?'Pedido em análise':status==='APPROVED'?'Candidatura aprovada':
+      status==='DECLINED'?'Candidatura recusada':null;
   }
   apply(item:OpenTeamCompetition):void{
     const teamId=this.selectedTeam;
-    if(this.saving||!teamId||!this.mine.some(team=>team.id===teamId)
-      ||this.hasApplication(item,teamId))return;
+    if(this.saving||!this.teamsVerified||!this.applicationsVerified||
+      !teamId||!this.mine.some(team=>team.id===teamId)||
+      this.hasApplication(item,teamId))return;
     this.saving=true;this.error='';this.notice='';
     this.api.apply(item.communityId,item.type,item.id,teamId).subscribe({
       next:application=>{
@@ -101,8 +130,8 @@ export class TeamCompetitionDiscoveryComponent implements OnInit {
         this.notice='Pedido enviado ao organizador. Podes acompanhar o estado nesta página.';
       },
       error:()=>{
-        this.saving=false;
-        this.error='Não foi possível confirmar o pedido. Verifica o estado antes de repetir.';
+        this.saving=false;this.applicationsVerified=false;
+        this.error='Não foi possível confirmar o pedido. Verifica os pedidos existentes antes de repetir.';
       }
     });
   }
