@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AuthenticationService } from '../../services/authethication.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription, interval, fromEvent, merge } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PublicTeamCommunity,TeamCommunityMembership,TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
@@ -145,7 +146,10 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
   `,
   styleUrls: ['./sports-team-detail.component.css']
 })
-export class SportsTeamDetailComponent implements OnInit {
+export class SportsTeamDetailComponent implements OnInit, OnDestroy {
+  private readonly rosterSubscriptions = new Subscription();
+  private rosterRequest = 0;
+  private rosterLoading = false;
   team: SportsTeam | null = null;
   activeTab: 'OVERVIEW' | 'TROPHIES' | 'FEED' | 'CHAT' = 'OVERVIEW';
   members: SportsTeamMember[] = [];
@@ -261,12 +265,31 @@ export class SportsTeamDetailComponent implements OnInit {
       error:()=>{this.busy=false;this.feedback='Não foi possível confirmar o convite. Verifica o estado antes de repetir.';}
     });
   }
+  refreshRoster():void {
+    if(!this.team || this.rosterLoading || this.busy)return;
+    const teamId=this.team.id;
+    const request=++this.rosterRequest;
+    this.rosterLoading=true;
+    this.api.members(teamId).subscribe({
+      next:players=>{
+        if(request!==this.rosterRequest || this.team?.id!==teamId)return;
+        this.members=players;
+        this.rosterVerified=true;
+        this.isMember=players.some(p=>p.username.toLowerCase()===this.auth.loggedInPerfilname?.toLowerCase());
+      },
+      error:()=>{
+        if(request!==this.rosterRequest || this.team?.id!==teamId)return;
+        // Do not keep a stale authorization decision after a failed refresh.
+        this.rosterVerified=false;this.isMember=false;
+      }
+    }).add(()=>{if(request===this.rosterRequest)this.rosterLoading=false;});
+  }
   removePlayer(player:SportsTeamMember):void{
     if(!this.team||!this.isOwner||!this.rosterVerified||this.busy||player.role==='OWNER')return;
     if(typeof window==='undefined'||!window.confirm('Remover @'+player.username+' do plantel?'))return;
     this.busy=true;this.feedback='';
     this.api.remove(this.team.id,player.profileId).subscribe({
-      next:()=>{this.members=this.members.filter(m=>m.profileId!==player.profileId);this.busy=false;this.feedback='Jogador removido do plantel.';},
+      next:()=>{this.members=this.members.filter(m=>m.profileId!==player.profileId);this.busy=false;this.feedback='Jogador removido do plantel.';this.refreshRoster();},
       error:()=>{this.rosterVerified=false;this.isMember=false;this.busy=false;this.feedback='Não foi possível confirmar a remoção. Recarrega o plantel antes de repetir.';}
     });
   }
@@ -289,12 +312,19 @@ export class SportsTeamDetailComponent implements OnInit {
           next: entries => {this.history = entries; this.historyLoading = false;},
           error: () => {this.historyError = 'Não foi possível carregar o histórico de troféus.'; this.historyLoading = false;}
         });
-        this.api.members(team.id).subscribe({
-          next: players => {this.members=players;this.rosterVerified=true;this.isMember=players.some(p=>p.username.toLowerCase()===this.auth.loggedInPerfilname?.toLowerCase());},
-          error: () => {this.rosterVerified=false;this.isMember=false;}
-        });
+        this.refreshRoster();
       },
       error: () => this.error = 'Não foi possível encontrar esta equipa.'
     });
+    this.rosterSubscriptions.add(interval(30000).subscribe(()=>{
+      if(typeof document!=='undefined' && document.visibilityState==='visible')this.refreshRoster();
+    }));
+    if(typeof window!=='undefined' && typeof document!=='undefined')
+      this.rosterSubscriptions.add(merge(fromEvent(window,'focus'),fromEvent(document,'visibilitychange'))
+        .subscribe(()=>{if(document.visibilityState==='visible')this.refreshRoster();}));
+  }
+  ngOnDestroy():void {
+    this.rosterRequest++;
+    this.rosterSubscriptions.unsubscribe();
   }
 }
