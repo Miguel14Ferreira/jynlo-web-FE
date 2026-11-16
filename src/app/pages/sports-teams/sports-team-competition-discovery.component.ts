@@ -31,7 +31,7 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
         <h2>Pedidos das tuas equipas</h2>
         <p *ngFor="let application of applications">
           {{application.teamName}} · {{application.competitionType==='TOURNAMENT'?'Torneio':'Campeonato'}}
-          · {{application.status==='PENDING'?'Em análise':application.status==='APPROVED'?'Aprovado pelo organizador':'Recusado'}}
+          · {{application.status==='PENDING'?'Em análise':application.status==='APPROVED'?'Aprovado pelo organizador · inscrição por confirmar':'Recusado'}}
         </p>
       </section>
       <section class="card team-picker" aria-label="Escolher equipa para candidatura">
@@ -197,7 +197,7 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
   }
   applicationLabel(item:OpenTeamCompetition,teamId:number|null):string|null{
     const status=this.applicationFor(item,teamId)?.status;
-    return status==='PENDING'?'Pedido em análise':status==='APPROVED'?'Candidatura aprovada':
+    return status==='PENDING'?'Pedido em análise':status==='APPROVED'?'Aprovada · inscrição por confirmar':
       status==='DECLINED'?'Candidatura recusada':null;
   }
   apply(item:OpenTeamCompetition):void{
@@ -205,13 +205,17 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
     if(this.saving||!item.applicationsOpen||!this.teamsVerified||!this.applicationsVerified||
       !teamId||!this.mine.some(team=>team.id===teamId)||
       this.hasApplication(item,teamId))return;
+    const ownershipVersion=this.ownershipVersion;
     this.saving=true;this.error='';this.notice='';
     this.api.apply(item.communityId,item.type,item.id,teamId).pipe(timeout(this.requestTimeout)).subscribe({
       next:application=>{
-        this.applications=[application,...this.applications];this.saving=false;
+        if(this.destroyed||ownershipVersion!==this.ownershipVersion)return;
+        this.applications=[application,...this.applications.filter(previous=>previous.id!==application.id)];
+        this.saving=false;
         this.notice='Pedido enviado ao organizador. Podes acompanhar o estado nesta página.';this.render();
       },
       error:()=>{
+        if(this.destroyed||ownershipVersion!==this.ownershipVersion)return;
         this.saving=false;this.applicationsVerified=false;
         this.error='Não foi possível confirmar o pedido. Verifica os pedidos existentes antes de repetir.';this.render();
       }
