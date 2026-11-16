@@ -17,7 +17,7 @@ describe('Jynlo global team competition application safety',()=>{
   competitionType:'TOURNAMENT',competitionId:8,status:'PENDING'};
  beforeEach(()=>{
   teams=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',['mine','logoSrc']);
-  teams.logoSrc.and.callFake(url=>url&&url.startsWith('https://')?url:null);
+  teams.logoSrc.and.callFake(url=>url!=null&&url.startsWith('https://')?url:null);
   api=jasmine.createSpyObj<TeamCompetitionApplicationsService>('TeamCompetitionApplicationsService',
    ['mine','discover','apply']);
   teams.mine.and.returnValue(of([team]));
@@ -70,6 +70,15 @@ describe('Jynlo global team competition application safety',()=>{
   expect(component.selectedTeamLogo).toBeNull();
   component.mine=[{...team,logoUrl:null}];
   expect(component.selectedTeamLogo).toBeNull();
+ });
+
+ it('does not confuse applications from different communities',()=>{
+  component.applications=[{...pending,communityId:12}];
+  expect(component.applicationFor(tournament,5)).toBeUndefined();
+  expect(component.hasApplication(tournament,5)).toBeFalse();
+  api.apply.and.returnValue(of(pending));
+  component.apply(tournament);
+  expect(api.apply).toHaveBeenCalledOnceWith(9,'TOURNAMENT',8,5);
  });
 
  it('does not submit twice when a pending request already exists',()=>{
