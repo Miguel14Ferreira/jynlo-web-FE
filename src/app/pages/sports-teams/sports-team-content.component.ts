@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@
 import { FormsModule } from '@angular/forms';
 import { Subscription, interval, fromEvent, merge } from 'rxjs';
 import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionState } from '../../services/sports-teams.service';
+import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
 
 @Component({
   selector: 'app-sports-team-content',
@@ -162,12 +163,22 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   private readonly subscriptions = new Subscription();
   private generation = 0;
   private reading = false;
+  private readQueued = false;
 
-  constructor(private readonly api: SportsTeamsService) {}
+  constructor(private readonly api: SportsTeamsService,
+    private readonly realtime: DirectChatRealtimeService) {}
 
   ngOnInit(): void {
     this.read(false);
     this.checkAttachmentsAvailable();
+    this.realtime.connect();
+    this.subscriptions.add(this.realtime.teamContentInvalidated$.subscribe(event => {
+      if (event.teamId === this.teamId && event.kind === this.kind
+          && document.visibilityState === 'visible') this.read(true);
+    }));
+    this.subscriptions.add(this.realtime.connected$.subscribe(connected => {
+      if (connected && document.visibilityState === 'visible') this.read(true);
+    }));
     this.subscriptions.add(interval(10000).subscribe(() => {
       if (document.visibilityState === 'visible') this.read(true);
     }));
@@ -180,6 +191,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['teamId'] || changes['kind']) {
       this.generation++;
+      this.readQueued = false;
       this.items = [];this.error = '';this.syncError = '';this.draft = '';
       this.replyTargetId = null;this.editingId = null;
       this.clearSearch();this.searchTerm = '';
@@ -201,7 +213,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
 
 
   read(silent:boolean):void {
-    if (this.reading || this.sending || !Number.isSafeInteger(this.teamId) || this.teamId<=0) return;
+    if (this.reading) { this.readQueued = true; return; }
+    if (this.sending || !Number.isSafeInteger(this.teamId) || this.teamId<=0) return;
     this.reading = true;
     const version = this.generation;
     if (!silent) {this.loading=true;this.error='';}
@@ -219,6 +232,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     }).add(() => {
       this.reading=false;
       if(version===this.generation && !silent)this.loading=false;
+      if(this.readQueued){this.readQueued=false;this.read(true);}
     });
   }
 
