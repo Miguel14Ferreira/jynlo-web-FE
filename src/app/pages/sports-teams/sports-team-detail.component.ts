@@ -51,7 +51,7 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
           <div class="team-member" *ngFor="let player of members">
             <span class="team-member-avatar" aria-hidden="true">{{ (player.username || 'J').charAt(0).toUpperCase() }}</span>
             <div class="team-member-identity"><a [routerLink]="['/menu/perfis',player.username]">@{{player.username}}</a><small>{{player.role === 'OWNER' ? 'Responsável' : 'Jogador'}}</small></div>
-            <button *ngIf="isOwner && player.role !== 'OWNER'" type="button" [disabled]="busy || !rosterVerified" (click)="removePlayer(player)">Remover</button>
+            <button *ngIf="isOwner && player.role !== 'OWNER'" type="button" [attr.aria-label]="'Remover @' + player.username + ' da equipa'" [disabled]="busy || !rosterVerified" (click)="removePlayer(player)">Remover</button>
           </div>
         </div>
         <p *ngIf="rosterVerified && members.length === 0">Ainda não existem jogadores no plantel.</p>
@@ -62,7 +62,7 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
           <p *ngIf="playerSearchComplete && availablePlayers.length === 0">Não encontrámos novos jogadores com essa pesquisa.</p>
           <div *ngFor="let candidate of availablePlayers" class="team-candidate">
             <a [routerLink]="['/menu/perfis',candidate.username]">{{ candidate.fullName || candidate.username }} · @{{candidate.username}}</a>
-            <button type="button" [disabled]="busy" (click)="invitePlayer(candidate)">Convidar</button>
+            <button type="button" [attr.aria-label]="'Convidar @' + candidate.username + ' para a equipa'" [disabled]="busy" (click)="invitePlayer(candidate)">Convidar</button>
           </div>
         </div>
       </section>
