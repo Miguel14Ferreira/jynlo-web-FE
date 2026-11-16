@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.service';
 import { CompetitionTeamInvitation, TeamCompetitionInvitationsService } from '../../services/team-competition-invitations.service';
 
@@ -29,8 +29,12 @@ export class SportsTeamsComponent implements OnInit {
   error = '';
 
   constructor(private readonly api: SportsTeamsService,
-              private readonly competitionInvites: TeamCompetitionInvitationsService) {}
-  ngOnInit(): void { this.search(); this.loadInvitations(); this.loadMine(); }
+              private readonly competitionInvites: TeamCompetitionInvitationsService,
+              private readonly route: ActivatedRoute) {}
+  ngOnInit(): void {
+    this.createExpanded=this.route.snapshot.queryParamMap.get('create')==='1';
+    this.search();this.loadInvitations();this.loadMine();
+  }
 
   loadMine(): void {
     this.mineLoading = true;
