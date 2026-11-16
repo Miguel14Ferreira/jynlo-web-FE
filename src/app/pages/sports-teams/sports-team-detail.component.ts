@@ -5,7 +5,7 @@ import { Subscription, interval, fromEvent, merge } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PublicTeamCommunity,TeamCommunityMembership,TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
-import { SportsTeam, SportsTeamMember, SportsTeamsService, SportsTeamPlayerCandidate, TeamCompetitionHistory, TeamChampionshipHonour } from '../../services/sports-teams.service';
+import { SportsTeam, SportsTeamMember, SportsTeamsService, SportsTeamPlayerCandidate, TeamPendingPlayerInvitation, TeamCompetitionHistory, TeamChampionshipHonour } from '../../services/sports-teams.service';
 import { SportsTeamContentComponent } from './sports-team-content.component';
 
 @Component({
@@ -60,13 +60,20 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
           class="team-leave-button" [disabled]="busy"
           (click)="leaveTeam()">Sair da equipa</button>
         <div *ngIf="isOwner && rosterVerified" class="team-player-search">
+          <h3>Convites pendentes ({{invitationsVerified?pendingPlayers.length:'—'}})</h3>
+          <p *ngIf="!invitationsVerified" role="alert">Não foi possível confirmar os convites. Novos envios bloqueados.</p>
+          <button type="button" [disabled]="busy" (click)="loadPendingInvitations()">Verificar convites</button>
+          <div *ngFor="let invite of (invitationsVerified?pendingPlayers:[])" class="team-candidate">
+            <span>@{{invite.username}} · A aguardar resposta</span>
+            <button type="button" [disabled]="busy" (click)="cancelPendingInvitation(invite)">Cancelar convite</button>
+          </div>
           <h3>Convidar jogadores</h3>
           <div class="search-community"><input [(ngModel)]="playerQuery" (ngModelChange)="invalidatePlayerSearch()" maxlength="80" placeholder="Nome ou utilizador" (keyup.enter)="searchPlayers()"/>
             <button type="button" [disabled]="busy || searchingPlayers || playerQuery.trim().length < 2" (click)="searchPlayers()">{{ searchingPlayers ? 'A procurar…' : 'Pesquisar jogadores' }}</button></div>
           <p *ngIf="playerSearchComplete && availablePlayers.length === 0">Não encontrámos novos jogadores com essa pesquisa.</p>
           <div *ngFor="let candidate of availablePlayers" class="team-candidate">
             <a [routerLink]="['/menu/perfis',candidate.username]">{{ candidate.fullName || candidate.username }} · @{{candidate.username}}</a>
-            <button type="button" [attr.aria-label]="'Convidar @' + candidate.username + ' para a equipa'" [disabled]="busy" (click)="invitePlayer(candidate)">Convidar</button>
+            <button type="button" [attr.aria-label]="'Convidar @' + candidate.username + ' para a equipa'" [disabled]="busy || !invitationsVerified" (click)="invitePlayer(candidate)">Convidar</button>
           </div>
         </div>
       </section>
@@ -156,10 +163,13 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   team: SportsTeam | null = null;
   activeTab: 'OVERVIEW' | 'TROPHIES' | 'FEED' | 'CHAT' = 'OVERVIEW';
   members: SportsTeamMember[] = [];
+  pendingPlayers:TeamPendingPlayerInvitation[]=[];
+  invitationsVerified=false;
+  private pendingRequest=0;
   rosterVerified=false;communitiesVerified=false;isMember=false;
   playerQuery='';playerCandidates:SportsTeamPlayerCandidate[]=[];playerSearchComplete=false;searchingPlayers=false;
   private playerSearchVersion=0;
-  get availablePlayers():SportsTeamPlayerCandidate[]{return this.playerCandidates.filter(p=>!this.members.some(m=>m.profileId===p.profileId));}
+  get availablePlayers():SportsTeamPlayerCandidate[]{return this.playerCandidates.filter(p=>!this.members.some(m=>m.profileId===p.profileId)&&!this.pendingPlayers.some(invite=>invite.profileId===p.profileId));}
   history: TeamCompetitionHistory[] = [];
   historyLoading = false;
   historyError = '';
@@ -258,14 +268,41 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
       }
     });
   }
+  loadPendingInvitations():void {
+    if(!this.team||!this.isOwner||this.busy)return;
+    const teamId=this.team.id,version=++this.pendingRequest;
+    this.invitationsVerified=false;
+    this.api.teamPendingInvitations(teamId).subscribe({
+      next:items=>{
+        if(version!==this.pendingRequest||this.team?.id!==teamId||!this.isOwner)return;
+        this.pendingPlayers=items;this.invitationsVerified=true;
+      },
+      error:()=>{
+        if(version!==this.pendingRequest)return;
+        this.pendingPlayers=[];this.invitationsVerified=false;
+        this.feedback='Não foi possível confirmar os convites pendentes.';
+      }
+    });
+  }
+  cancelPendingInvitation(invite:TeamPendingPlayerInvitation):void {
+    if(!this.team||!this.isOwner||!this.invitationsVerified||this.busy||
+      !this.pendingPlayers.some(p=>p.profileId===invite.profileId))return;
+    if(typeof window==='undefined'||!window.confirm('Cancelar convite para @'+invite.username+'?'))return;
+    const teamId=this.team.id;
+    this.busy=true;this.feedback='';
+    this.api.remove(teamId,invite.profileId).subscribe({
+      next:()=>{this.busy=false;this.feedback='Convite cancelado.';this.loadPendingInvitations();},
+      error:()=>{this.busy=false;this.invitationsVerified=false;this.pendingPlayers=[];this.feedback='Não foi possível confirmar o cancelamento. Verifica os convites antes de repetir.';}
+    });
+  }
   invitePlayer(player:SportsTeamPlayerCandidate):void{
-    if(!this.team||!this.isOwner||!this.rosterVerified||this.busy||
+    if(!this.team||!this.isOwner||!this.rosterVerified||!this.invitationsVerified||this.busy||
       !this.availablePlayers.some(candidate=>candidate.profileId===player.profileId))return;
     const teamId=this.team.id;
     this.busy=true;this.feedback='';
     this.api.invite(teamId,player.profileId).subscribe({
-      next:()=>{this.busy=false;this.playerCandidates=this.playerCandidates.filter(item=>item.profileId!==player.profileId);this.feedback='Convite enviado. O jogador entra no plantel quando aceitar.';},
-      error:()=>{this.busy=false;this.feedback='Não foi possível confirmar o convite. Verifica o estado antes de repetir.';}
+      next:()=>{this.busy=false;this.playerCandidates=this.playerCandidates.filter(item=>item.profileId!==player.profileId);this.feedback='Convite enviado. O jogador entra no plantel quando aceitar.';this.loadPendingInvitations();},
+      error:()=>{this.busy=false;this.invitationsVerified=false;this.invalidatePlayerSearch();this.feedback='Não foi possível confirmar o convite. Verifica os convites antes de repetir.';}
     });
   }
   refreshRoster():void {
@@ -329,7 +366,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     this.api.detail(id).subscribe({
       next: team => {
         this.team = team;
-        this.api.mine().subscribe({next:owned=>this.isOwner=owned.some(x=>x.id===team.id),error:()=>this.isOwner=false});
+        this.api.mine().subscribe({next:owned=>{this.isOwner=owned.some(x=>x.id===team.id);if(this.isOwner)this.loadPendingInvitations();},error:()=>{this.isOwner=false;this.invitationsVerified=false;}});
         this.loadCommunities();
         this.historyLoading = true;
         this.honoursLoading = true;
@@ -353,7 +390,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         .subscribe(()=>{if(document.visibilityState==='visible')this.refreshRoster();}));
   }
   ngOnDestroy():void {
-    this.rosterRequest++;
+    this.rosterRequest++;this.pendingRequest++;
     this.rosterSubscriptions.unsubscribe();
   }
 }
