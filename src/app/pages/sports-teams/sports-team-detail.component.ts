@@ -5,7 +5,7 @@ import { Subscription, interval, fromEvent, merge, timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PublicTeamCommunity,TeamCommunityMembership,TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
-import { SportsTeam, SportsTeamMember, SportsTeamsService, SportsTeamPlayerCandidate, TeamPendingPlayerInvitation, TeamCompetitionHistory, TeamChampionshipHonour } from '../../services/sports-teams.service';
+import { SportsTeam, SportsTeamMember, SportsTeamsService, SportsTeamPlayerCandidate, TeamPendingPlayerInvitation, TeamCompetitionHistory, TeamChampionshipHonour, TeamKitPattern } from '../../services/sports-teams.service';
 import { SportsTeamContentComponent } from './sports-team-content.component';
 
 @Component({
@@ -28,10 +28,11 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
           <p *ngIf="t.description">{{ t.description }}</p>
         </div>
       </div>
-      <div class="team-kit-strip" *ngIf="t.kitPrimary || t.kitSecondary" aria-label="Cores do equipamento">
-        <span class="team-shirt" [style.--shirt-primary]="t.kitPrimary || '#16caba'"
-          [style.--shirt-secondary]="t.kitSecondary || '#f2fafc'" aria-hidden="true">●</span>
-        <span>Equipamento da equipa</span>
+      <div class="team-kit-strip" aria-label="Modelo oficial do equipamento">
+        <span class="team-shirt" [class]="'team-shirt kit-' + (t.kitPattern || 'PLAIN').toLowerCase()"
+          [style.--shirt-primary]="t.kitPrimary || '#16caba'"
+          [style.--shirt-secondary]="t.kitSecondary || '#f2fafc'" aria-hidden="true"></span>
+        <span>Equipamento · {{ kitLabel(t.kitPattern || 'PLAIN') }}</span>
       </div>
       <section *ngIf="isOwner" class="team-branding" aria-label="Personalizar identidade da equipa">
         <div class="team-branding-heading">
@@ -46,6 +47,17 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
           <button type="button" *ngIf="t.logoUrl" (click)="removeTeamLogo()" [disabled]="brandingSaving">Remover logótipo</button>
           <label>Cor principal <input type="color" [(ngModel)]="kitPrimary" [disabled]="brandingSaving"></label>
           <label>Cor secundária <input type="color" [(ngModel)]="kitSecondary" [disabled]="brandingSaving"></label>
+          <fieldset class="team-pattern-options" [disabled]="brandingSaving" aria-label="Desenho do equipamento">
+            <legend>Modelo de camisola</legend>
+            <button *ngFor="let option of kitPatterns" type="button"
+              [class.chosen]="kitPattern === option.id"
+              [attr.aria-pressed]="kitPattern === option.id"
+              (click)="kitPattern = option.id">
+              <span class="team-shirt pattern-sample" [class]="'team-shirt pattern-sample kit-' + option.id.toLowerCase()"
+                [style.--shirt-primary]="kitPrimary" [style.--shirt-secondary]="kitSecondary" aria-hidden="true"></span>
+              {{option.label}}
+            </button>
+          </fieldset>
           <button type="button" class="team-branding-save" [disabled]="brandingSaving" (click)="saveTeamKit()">
             {{brandingSaving?'A guardar…':'Guardar equipamento'}}
           </button>
@@ -213,15 +225,20 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   communities:TeamCommunityMembership[]=[];
   communityQuery='';communityResults:PublicTeamCommunity[]=[];
   isOwner=false;busy=false;featureSaving=false;feedback='';
-  kitPrimary='#16caba';kitSecondary='#f2fafc';brandingSaving=false;
+  kitPrimary='#16caba';kitSecondary='#f2fafc';kitPattern:TeamKitPattern='PLAIN';brandingSaving=false;
+  readonly kitPatterns:ReadonlyArray<{id:TeamKitPattern;label:string}>=[
+    {id:'PLAIN',label:'Lisa'},{id:'STRIPES',label:'Riscas'},{id:'DIAGONAL',label:'Faixa diagonal'}
+  ];
+  kitLabel(pattern:TeamKitPattern):string{return this.kitPatterns.find(p=>p.id===pattern)?.label||'Lisa';}
   private readonly maxTeamLogoBytes=5*1024*1024;
   saveTeamKit():void {
     if(!this.team||!this.isOwner||this.brandingSaving)return;
     this.brandingSaving=true;this.feedback='';
-    this.api.setKit(this.team.id,this.kitPrimary,this.kitSecondary).pipe(timeout(15000)).subscribe({
+    this.api.setKit(this.team.id,this.kitPrimary,this.kitSecondary,this.kitPattern).pipe(timeout(15000)).subscribe({
       next:updated=>{this.team=updated;this.brandingSaving=false;this.api.rememberTeam(updated);
-        this.feedback='Cores do equipamento guardadas.';this.render();},
-      error:()=>{this.brandingSaving=false;this.feedback='Não foi possível confirmar as cores. Consulta a equipa antes de repetir.';this.render();}
+        this.kitPattern=updated.kitPattern||'PLAIN';
+        this.feedback='Equipamento guardado.';this.render();},
+      error:()=>{this.brandingSaving=false;this.feedback='Não foi possível confirmar o equipamento. Consulta a equipa antes de repetir.';this.render();}
     });
   }
   uploadTeamLogo(event:Event):void {
@@ -442,6 +459,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         this.logoBroken=false;
         this.kitPrimary=team.kitPrimary||'#16caba';
         this.kitSecondary=team.kitSecondary||'#f2fafc';
+        this.kitPattern=team.kitPattern||'PLAIN';
         this.render();
         this.api.mine().pipe(timeout(15000)).subscribe({next:owned=>{this.isOwner=owned.some(x=>x.id===team.id);if(this.isOwner)this.loadPendingInvitations();this.render();},error:()=>{this.isOwner=false;this.invitationsVerified=false;this.render();}});
         this.loadCommunities();
