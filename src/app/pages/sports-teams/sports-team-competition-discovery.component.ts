@@ -48,7 +48,8 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
           <small>{{item.type==='TOURNAMENT'?'Torneio':'Campeonato'}} · {{item.communityName}}</small>
           <h2>{{item.name}}</h2>
           <p>{{item.sport || 'Modalidade não indicada'}}</p>
-          <button type="button" [disabled]="saving || !selectedTeam || !teamsVerified || !applicationsVerified || hasApplication(item,selectedTeam)"
+          <p *ngIf="!item.applicationsOpen" role="status">Candidaturas encerradas</p>
+          <button type="button" [disabled]="saving || !item.applicationsOpen || !selectedTeam || !teamsVerified || !applicationsVerified || hasApplication(item,selectedTeam)"
                   (click)="apply(item)">{{applicationLabel(item,selectedTeam) || (saving?'A enviar…':'Pedir participação')}}</button>
           <p *ngIf="selectedTeam && hasApplication(item,selectedTeam)">{{applicationLabel(item,selectedTeam)}}</p>
         </article>
@@ -140,7 +141,7 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
   }
   apply(item:OpenTeamCompetition):void{
     const teamId=this.selectedTeam;
-    if(this.saving||!this.teamsVerified||!this.applicationsVerified||
+    if(this.saving||!item.applicationsOpen||!this.teamsVerified||!this.applicationsVerified||
       !teamId||!this.mine.some(team=>team.id===teamId)||
       this.hasApplication(item,teamId))return;
     this.saving=true;this.error='';this.notice='';
