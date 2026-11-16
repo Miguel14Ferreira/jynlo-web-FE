@@ -84,6 +84,8 @@ describe('Jynlo team profile — audit of real actions',()=>{
  it('removes only confirmed non-owners after explicit confirmation',()=>{
   const confirmSpy=spyOn(window,'confirm').and.returnValue(true);
   api.remove.and.returnValue(of(void 0));
+  // The next authoritative roster read reflects the confirmed removal.
+  api.members.and.returnValue(of([owner]));
   component.removePlayer(player);
   expect(confirmSpy).toHaveBeenCalled();
   expect(api.remove).toHaveBeenCalledOnceWith(5,3);
