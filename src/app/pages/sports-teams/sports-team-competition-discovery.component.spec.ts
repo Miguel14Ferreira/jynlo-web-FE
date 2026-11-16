@@ -59,7 +59,7 @@ describe('Jynlo global team competition application safety',()=>{
   component.ngOnDestroy();
   pending.next([{...tournament,id:11}]);
   pending.complete();
-  expect(component.competitions.map(item=>item.id)).toEqual([8]);
+  expect(component.competitions).toEqual([]);
  });
  it('does not submit twice when a pending request already exists',()=>{
   component.applications=[pending];
