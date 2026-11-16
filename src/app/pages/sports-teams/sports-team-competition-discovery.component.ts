@@ -33,17 +33,21 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
           · {{application.status==='PENDING'?'Em análise':application.status==='APPROVED'?'Aprovado pelo organizador':'Recusado'}}
         </p>
       </section>
+      <section class="card team-picker">
+        <h2>Escolher a equipa</h2>
+        <p *ngIf="!teamsVerified">Ainda não foi possível confirmar as equipas que geres.</p>
+        <label for="choose-team-for-competition">Equipa que se candidata</label>
+        <select id="choose-team-for-competition" [disabled]="!teamsVerified || saving"
+                [ngModel]="selectedTeam" (ngModelChange)="selectedTeam=$event">
+          <option [ngValue]="null">Selecionar equipa</option>
+          <option *ngFor="let team of mine" [ngValue]="team.id">{{team.name}}</option>
+        </select>
+      </section>
       <section class="results">
         <article class="card" *ngFor="let item of competitions">
           <small>{{item.type==='TOURNAMENT'?'Torneio':'Campeonato'}} · {{item.communityName}}</small>
           <h2>{{item.name}}</h2>
           <p>{{item.sport || 'Modalidade não indicada'}}</p>
-          <label [for]="'choose-team-'+item.type+'-'+item.id">Equipa que se candidata</label>
-          <select [id]="'choose-team-'+item.type+'-'+item.id"
-                  [ngModel]="selectedTeam" (ngModelChange)="selectedTeam=$event">
-            <option [ngValue]="null">Selecionar equipa</option>
-            <option *ngFor="let team of mine" [ngValue]="team.id">{{team.name}}</option>
-          </select>
           <button type="button" [disabled]="saving || !selectedTeam || !teamsVerified || !applicationsVerified || hasApplication(item,selectedTeam)"
                   (click)="apply(item)">{{applicationLabel(item,selectedTeam) || (saving?'A enviar…':'Pedir participação')}}</button>
           <p *ngIf="selectedTeam && hasApplication(item,selectedTeam)">{{applicationLabel(item,selectedTeam)}}</p>
@@ -63,6 +67,9 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
     button{margin:.5rem 0;padding:.75rem 1rem;border:0;border-radius:9px;background:#78e979;color:#102315;font-weight:750;cursor:pointer}
     button:disabled{opacity:.5;cursor:default}.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
     .card{border:1px solid #74947a66;border-radius:14px;padding:1.25rem;margin:1rem 0}
+    .team-picker{max-width:520px}.team-picker h2{margin:.2rem 0 .4rem;font-size:1.12rem}
+    .team-picker label{display:block;margin-bottom:.4rem;font-weight:700}
+    .team-picker select{background:#0b2938;color:#f3fafc}
     small,.note{opacity:.75}.error{color:#ed9393}
   `]
 })
