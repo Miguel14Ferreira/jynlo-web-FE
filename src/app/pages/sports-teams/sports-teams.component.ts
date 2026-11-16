@@ -16,7 +16,6 @@ import { CompetitionTeamInvitation, TeamCompetitionInvitationsService } from '..
 export class SportsTeamsComponent implements OnInit, OnDestroy {
   private alive=true;
   private searchRequest=0;
-  private initialSecondaryStarted=false;
   private readonly requestTimeout=15000;
   query = '';
   createExpanded = false;
@@ -46,17 +45,12 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
               private readonly router: Router) {}
   ngOnInit(): void {
     this.createExpanded=this.route.snapshot.queryParamMap.get('create')==='1';
-    // Prioritize the user's teams instead of launching five competing API requests.
-    this.loadMine();
+    // Directory discovery is independent of account membership. Never block
+    // the public team list behind a slow token refresh or ownership lookup.
+    this.search();this.loadMine();this.loadJoined();this.loadTeamInvitations();this.loadInvitations();
   }
 
   ngOnDestroy():void {this.alive=false;this.searchRequest++;}
-  private loadSecondary():void {
-    if(!this.alive||this.initialSecondaryStarted)return;
-    this.initialSecondaryStarted=true;
-    this.loadJoined();this.loadTeamInvitations();this.loadInvitations();
-    this.search();
-  }
   openTeam(team:SportsTeam):void {
     this.api.rememberTeam(team);
   }
@@ -73,12 +67,12 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
     this.api.mine().pipe(timeout(this.requestTimeout)).subscribe({
       next: teams => {
         if(!this.alive)return;
-        this.mine=teams;this.mineLoading=false;this.loadSecondary();
+        this.mine=teams;this.mineLoading=false;
       },
       error: () => {
         if(!this.alive)return;
         this.mineError='Não foi possível carregar as tuas equipas. Tenta novamente.';
-        this.mineLoading=false;this.loadSecondary();
+        this.mineLoading=false;
       }
     });
   }
