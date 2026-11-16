@@ -23,7 +23,7 @@ describe('Jynlo global team competition application safety',()=>{
   api.mine.and.returnValue(of([]));
   api.discover.and.returnValue(of([tournament]));
   const route={snapshot:{queryParamMap:{get:()=>String(team.id)}}} as unknown as ActivatedRoute;
-  component=new TeamCompetitionDiscoveryComponent(route,teams,api);
+  component=new TeamCompetitionDiscoveryComponent(route,teams,api,{detectChanges:()=>{}} as any);
   component.ngOnInit();
  });
  it('keeps one verified team selection across competition cards',()=>{
