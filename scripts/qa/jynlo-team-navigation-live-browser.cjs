@@ -5,11 +5,15 @@
 // Never log passwords, bearer tokens, account data or team names. Never POST from browser.
 const assert=require('node:assert/strict');
 const {authenticate}=require('./jynlo-inbox-live-browser.cjs');
-const SITE='https://desporto24-full-preview.onrender.com';
+const SITES=[
+ {url:'https://desporto24-full-preview.onrender.com',label:'PREVIEW'},
+ {url:'https://d24sports.com',label:'PUBLIC_DOMAIN'}
+];
 const USERS=['jynloteste01','jynloteste02'];
 const TIMEOUT=24000;
 let stage='START';
-async function exercise(username,token){
+async function exercise(username,token,site){
+ stage=site.label+'_START';
  const {chromium}=require('playwright');
  const browser=await chromium.launch({headless:true,timeout:30000,
   args:['--no-sandbox','--disable-dev-shm-usage']});
@@ -51,7 +55,7 @@ async function exercise(username,token){
      }
     }catch{}
    });
-   const prefix=SITE+'/menu/teams';
+   const prefix=site.url+'/menu/teams';
    stage='OPEN_TEAM_DIRECTORY';
    await page.goto(prefix,{waitUntil:'domcontentloaded',timeout:45000});
    stage='TEAM_HEADING';
@@ -62,8 +66,8 @@ async function exercise(username,token){
    try{
     await mine.locator('.loading-message').waitFor({state:'hidden',timeout:TIMEOUT});
    }catch(e){
-    console.log('[DIAG] team loading: '+(apiTrace.join(',')||'NO_TEAM_API_RESPONSE'));
-    console.log('[DIAG] team route: '+new URL(page.url()).pathname);
+    console.log('[DIAG] '+site.label+' team loading: '+(apiTrace.join(',')||'NO_TEAM_API_RESPONSE'));
+    console.log('[DIAG] '+site.label+' team route: '+new URL(page.url()).pathname);
     console.log('[DIAG] mine loading visible: '+await mine.locator('.loading-message').isVisible());
     throw e;
    }
@@ -123,7 +127,7 @@ async function main(){
  for(let i=0;i<USERS.length;i++){
   stage='AUTH_'+(i+1);
   const token=await authenticate(USERS[i],passwords[i],fetch);
-  await exercise(USERS[i],token);
+  for(const site of SITES)await exercise(USERS[i],token,site);
  }
  console.log('[PASS] Read-only authenticated team page smoke passed for both QA accounts.');
 }
