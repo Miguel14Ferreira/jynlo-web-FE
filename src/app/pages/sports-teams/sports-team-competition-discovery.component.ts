@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.service';
@@ -22,10 +23,10 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
       </div>
       <p *ngIf="error" role="alert" class="error">{{error}}</p>
       <p *ngIf="notice" role="status">{{notice}}</p>
-      <p *ngIf="!applicationsVerified" role="alert">Não foi possível confirmar as candidaturas anteriores. Para evitar pedidos repetidos, o envio está temporariamente bloqueado.</p>
+      <p *ngIf="!refreshingApplications && !applicationsVerified" role="alert">Não foi possível confirmar as candidaturas anteriores. Para evitar pedidos repetidos, o envio está temporariamente bloqueado.</p>
       <button *ngIf="!applicationsVerified || !teamsVerified" type="button" class="refresh-state" [disabled]="saving || refreshingApplications"
         (click)="refreshOwnershipAndApplications()">{{refreshingApplications?'A confirmar…':'Verificar equipas e candidaturas'}}</button>
-      <p *ngIf="loading">A procurar competições…</p>
+      <p *ngIf="loading" role="status">A procurar competições…</p>
       <section class="card" *ngIf="applications.length">
         <h2>Pedidos das tuas equipas</h2>
         <p *ngFor="let application of applications">
@@ -33,9 +34,9 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
           · {{application.status==='PENDING'?'Em análise':application.status==='APPROVED'?'Aprovado pelo organizador':'Recusado'}}
         </p>
       </section>
-      <section class="card team-picker">
+      <section class="card team-picker" aria-label="Escolher equipa para candidatura">
         <h2>Escolher a equipa</h2>
-        <p *ngIf="!teamsVerified">Ainda não foi possível confirmar as equipas que geres.</p>
+        <p *ngIf="!refreshingApplications && !teamsVerified">Ainda não foi possível confirmar as equipas que geres.</p>
         <label for="choose-team-for-competition">Equipa que se candidata</label>
         <select id="choose-team-for-competition" [disabled]="!teamsVerified || saving"
                 [ngModel]="selectedTeam" (ngModelChange)="selectedTeam=$event">
@@ -55,8 +56,8 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
         </article>
       </section>
       <p *ngIf="!loading && !searchError && !competitions.length">Não há competições a aceitar candidaturas com estes filtros.</p>
-      <p *ngIf="!mine.length">Precisas de criar ou administrar uma equipa para pedir participação.</p>
-      <a routerLink="/menu/teams" [queryParams]="{create:1}">Criar equipa</a>
+      <p *ngIf="teamsVerified && !mine.length">Precisas de criar ou administrar uma equipa para pedir participação.</p>
+      <a class="create-team-link" routerLink="/menu/teams" [queryParams]="{create:1}">Criar equipa</a>
       <p class="note">A aprovação não inscreve automaticamente o plantel. A inscrição final depende das regras da competição.</p>
     </main>
   `,
@@ -78,7 +79,8 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
   query='';sport='';selectedTeam:number|null=null;mine:SportsTeam[]=[];
   competitions:OpenTeamCompetition[]=[];applications:TeamCompetitionApplication[]=[];
   error='';notice='';loading=false;saving=false;searchError=false;
-  private searchVersion=0;private destroyed=false;
+  private searchVersion=0;private ownershipVersion=0;private destroyed=false;
+  private readonly requestTimeout=12000;
   teamsVerified=false;applicationsVerified=false;refreshingApplications=false;
   constructor(private readonly route:ActivatedRoute,private readonly teams:SportsTeamsService,
               private readonly api:TeamCompetitionApplicationsService){}
@@ -87,44 +89,63 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
     this.search();
   }
   ngOnDestroy():void{
-    this.destroyed=true;this.searchVersion++;
+    this.destroyed=true;this.searchVersion++;this.ownershipVersion++;
   }
   search():void{
     const version=++this.searchVersion;
     const query=this.query.trim(),sport=this.sport.trim();
     this.loading=true;this.searchError=false;this.error='';
     this.competitions=[];
-    this.api.discover(query,sport).subscribe({
+    this.api.discover(query,sport).pipe(timeout(this.requestTimeout)).subscribe({
       next:items=>{
         if(this.destroyed||version!==this.searchVersion)return;
         this.competitions=items;this.loading=false;
       },
       error:()=>{
         if(this.destroyed||version!==this.searchVersion)return;
-        this.searchError=true;this.error='Não foi possível pesquisar competições.';
+        this.searchError=true;this.error='A pesquisa de competições demorou demasiado ou falhou. Tenta novamente.';
         this.loading=false;
       }
     });
   }
   refreshOwnershipAndApplications():void{
     if(this.saving||this.refreshingApplications)return;
+    const version=++this.ownershipVersion;
     this.refreshingApplications=true;
     this.teamsVerified=false;this.applicationsVerified=false;this.error='';
     let pending=2;
-    const done=()=>{pending--;if(pending===0)this.refreshingApplications=false;};
-    this.teams.mine().subscribe({
+    const done=()=>{
+      if(this.destroyed||version!==this.ownershipVersion)return;
+      pending--;
+      if(pending===0)this.refreshingApplications=false;
+    };
+    this.teams.mine().pipe(timeout(this.requestTimeout)).subscribe({
       next:teams=>{
+        if(this.destroyed||version!==this.ownershipVersion)return;
         this.mine=teams;this.teamsVerified=true;
         const requested=Number(this.route.snapshot.queryParamMap.get('teamId'));
         if(Number.isSafeInteger(requested)&&teams.some(team=>team.id===requested))this.selectedTeam=requested;
         else if(!teams.some(team=>team.id===this.selectedTeam))this.selectedTeam=null;
         done();
       },
-      error:()=>{this.teamsVerified=false;this.error='Não foi possível confirmar as tuas equipas.';done();}
+      error:()=>{
+        if(this.destroyed||version!==this.ownershipVersion)return;
+        this.mine=[];this.selectedTeam=null;this.teamsVerified=false;
+        this.error='Não foi possível confirmar as tuas equipas. Verifica a ligação e tenta novamente.';
+        done();
+      }
     });
-    this.api.mine().subscribe({
-      next:apps=>{this.applications=apps;this.applicationsVerified=true;done();},
-      error:()=>{this.applicationsVerified=false;this.error='Não foi possível confirmar os pedidos existentes.';done();}
+    this.api.mine().pipe(timeout(this.requestTimeout)).subscribe({
+      next:apps=>{
+        if(this.destroyed||version!==this.ownershipVersion)return;
+        this.applications=apps;this.applicationsVerified=true;done();
+      },
+      error:()=>{
+        if(this.destroyed||version!==this.ownershipVersion)return;
+        this.applications=[];this.applicationsVerified=false;
+        this.error='Não foi possível confirmar os pedidos existentes. Tenta novamente.';
+        done();
+      }
     });
   }
   applicationFor(item:OpenTeamCompetition,teamId:number|null):TeamCompetitionApplication|undefined{
