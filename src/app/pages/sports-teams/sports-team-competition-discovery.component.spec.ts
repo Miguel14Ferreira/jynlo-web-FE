@@ -25,6 +25,18 @@ describe('Jynlo global team competition application safety',()=>{
   component=new TeamCompetitionDiscoveryComponent(route,teams,api);
   component.ngOnInit();
  });
+ it('keeps one verified team selection across competition cards',()=>{
+  expect(component.selectedTeam).toBe(5);
+  expect(component.teamsVerified).toBeTrue();
+  component.selectedTeam=null;
+  component.apply(tournament);
+  expect(api.apply).not.toHaveBeenCalled();
+  component.selectedTeam=5;
+  api.apply.and.returnValue(of(pending));
+  component.apply(tournament);
+  expect(api.apply).toHaveBeenCalledOnceWith(9,'TOURNAMENT',8,5);
+  expect(component.applicationLabel(tournament,5)).toBe('Pedido em análise');
+ });
  it('does not submit twice when a pending request already exists',()=>{
   component.applications=[pending];
   expect(component.applicationLabel(tournament,5)).toBe('Pedido em análise');
