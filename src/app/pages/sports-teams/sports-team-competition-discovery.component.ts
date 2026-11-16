@@ -62,17 +62,34 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
     </main>
   `,
   styles:[`
-    .team-discover{max-width:1000px;margin:2rem auto;padding:0 1rem}
-    .filters{display:flex;flex-wrap:wrap;gap:1rem;align-items:end;margin:1.5rem 0}
-    .filters label{display:flex;flex-direction:column;flex:1;min-width:150px}
-    input,select{min-height:42px;width:100%;padding:.65rem;color:inherit;background:transparent;border:1px solid #779587;border-radius:9px}
-    button{margin:.5rem 0;padding:.75rem 1rem;border:0;border-radius:9px;background:#78e979;color:#102315;font-weight:750;cursor:pointer}
-    button:disabled{opacity:.5;cursor:default}.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
-    .card{border:1px solid #74947a66;border-radius:14px;padding:1.25rem;margin:1rem 0}
-    .team-picker{max-width:520px}.team-picker h2{margin:.2rem 0 .4rem;font-size:1.12rem}
-    .team-picker label{display:block;margin-bottom:.4rem;font-weight:700}
-    .team-picker select{background:#0b2938;color:#f3fafc}
-    small,.note{opacity:.75}.error{color:#ed9393}
+    :host{display:block;min-height:100vh;background:linear-gradient(145deg,#07111f,#0b293b);color:#f5fafb}
+    .team-discover{box-sizing:border-box;width:min(1180px,100%);margin:0 auto;padding:6.5rem 1.25rem 4rem;display:grid;gap:1rem}
+    .team-discover h1{margin:.2rem 0 0;font-size:clamp(1.7rem,3vw,2.5rem);letter-spacing:-.025em;line-height:1.12;color:#f5fafb}
+    .team-discover h2{font-size:1.15rem;line-height:1.35;color:#f5fafb;margin:0 0 .65rem}
+    .team-discover p{color:#bcd7e1;line-height:1.55;margin:.2rem 0}
+    .team-discover>a{color:#72f4df;font-weight:750;text-decoration:none;justify-self:start}
+    .team-discover>a:hover{text-decoration:underline}
+    .team-discover .filters{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:.85rem;align-items:end;margin:.3rem 0}
+    .team-discover label{display:grid;gap:.4rem;font-weight:700;font-size:.92rem;color:#e8f9fc}
+    .team-discover input,.team-discover select{box-sizing:border-box;display:block;width:100%;min-height:46px;max-width:100%;border:1px solid #34808d;border-radius:10px;background:#0b303e;color:#f5fafb;padding:.65rem .8rem;font:inherit}
+    .team-discover select{background:#0b303e!important;color:#f5fafb!important}
+    .team-discover option{background:#0b303e;color:#f5fafb}
+    .team-discover input:focus-visible,.team-discover select:focus-visible,.team-discover button:focus-visible,.team-discover a:focus-visible{outline:2px solid #73f6dd;outline-offset:2px}
+    .team-discover button{border:1px solid #20ccae;border-radius:10px;background:#24d5bd;color:#062d37;min-height:46px;padding:.68rem 1rem;font:inherit;font-weight:800;cursor:pointer}
+    .team-discover button:hover:not(:disabled){background:#69edd9}
+    .team-discover button:disabled{opacity:.6;cursor:not-allowed}
+    .team-discover .refresh-state{justify-self:start;background:#0b3544;color:#defcf9;border-color:#377d8b}
+    .team-discover .card{box-sizing:border-box;min-width:0;max-width:100%;border:1px solid #347c8b80!important;border-radius:16px!important;background:#0a2a3b!important;color:#f5fafb!important;box-shadow:none!important;padding:1.1rem!important;margin:0!important}
+    .team-discover .card p,.team-discover .card small{color:#bcd7e1!important}
+    .team-discover .team-picker{width:min(100%,560px)}
+    .team-discover .team-picker select{margin-top:.25rem}
+    .team-discover .results{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,265px),1fr));gap:.9rem}
+    .team-discover .results .card{display:grid;align-content:start;gap:.65rem}
+    .team-discover .results .card button{justify-self:start}
+    .team-discover .error,.team-discover [role="alert"]{color:#ffb7bc;border-left:3px solid #eb9198;padding:.35rem .65rem}
+    .team-discover .create-team-link{border:1px solid #337e8e;border-radius:10px;padding:.5rem .8rem}
+    .team-discover .note{font-size:.9rem;color:#9dbec9}
+    @media(max-width:720px){.team-discover{padding:5.5rem 1rem 3rem}.team-discover .filters{grid-template-columns:1fr}.team-discover .filters button{width:100%}.team-discover .results{grid-template-columns:1fr}}
   `]
 })
 export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
