@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { AuthenticationService } from '../../services/authethication.service';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -84,7 +85,7 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
       </section>
       <section *ngIf="activeTab === 'TROPHIES'"><h2>Histórico de competições ({{history.length}})</h2>
         <p *ngIf="!historyLoading && !historyError && !history.length">Ainda não participou em torneios associados à equipa.</p>
-        <p *ngFor="let entry of history"><a [routerLink]="['/menu/communities',entry.communityId,'tournaments',entry.tournamentId]">{{entry.tournamentName}}</a> · {{entry.communityName}} — {{entry.champion ? '🏆 Campeão' : entry.archived ? 'Concluído' : 'Em curso'}}</p>
+        <p *ngFor="let entry of history"><a [routerLink]="['/menu/communities',entry.communityId]">{{entry.tournamentName}}</a> · {{entry.communityName}} — {{entry.champion ? '🏆 Campeão' : entry.archived ? 'Concluído' : 'Em curso'}}</p>
       </section>
       <section *ngIf="activeTab === 'OVERVIEW'"><h2>Competições</h2>
         <p>Encontra torneios e campeonatos com candidaturas abertas para esta equipa.</p>
@@ -191,7 +192,8 @@ export class SportsTeamDetailComponent implements OnInit {
   }
   error = '';
   constructor(private readonly route: ActivatedRoute, private readonly api: SportsTeamsService,
-    private readonly communityMemberships:TeamCommunityMembershipsService) {}
+    private readonly communityMemberships:TeamCommunityMembershipsService,
+    private readonly auth:AuthenticationService) {}
   respond(id:number,accept:boolean):void{
     if(this.busy||!this.isOwner)return;
     this.busy=true;this.feedback='';
@@ -234,6 +236,7 @@ export class SportsTeamDetailComponent implements OnInit {
     });
   }
   ngOnInit(): void {
+    this.auth.isLoggedIn();
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isSafeInteger(id) || id <= 0) {this.error = 'Equipa inválida.'; return;}
     this.api.detail(id).subscribe({
@@ -252,7 +255,7 @@ export class SportsTeamDetailComponent implements OnInit {
           error: () => {this.historyError = 'Não foi possível carregar o histórico de troféus.'; this.historyLoading = false;}
         });
         this.api.members(team.id).subscribe({
-          next: players => {this.members=players;this.rosterVerified=true;this.isMember=players.some(p=>p.profileId===team.ownerProfileId?this.isOwner:p.username.length>0&&false);},
+          next: players => {this.members=players;this.rosterVerified=true;this.isMember=players.some(p=>p.username.toLowerCase()===this.auth.loggedInPerfilname?.toLowerCase());},
           error: () => {this.rosterVerified=false;this.isMember=false;}
         });
       },
