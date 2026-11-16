@@ -55,6 +55,8 @@ interface ChatSocketEnvelope {
   read?: InboxOwnReadEvent;
   type?: string;
   groupId?: number;
+  teamId?: number;
+  kind?: 'chat' | 'feed';
   message?: DirectChatMessage | SessionMessage | CommunityTimelineEntry | PrivateGroupMessage;
 }
 
@@ -120,6 +122,7 @@ export class DirectChatRealtimeService {
   private readonly callSubject = new Subject<DirectCallEvent>();
   private readonly groupMessageSubject = new Subject<PrivateGroupMessage>();
   private readonly groupUpdateSubject = new Subject<number>();
+  private readonly teamContentInvalidatedSubject = new Subject<{teamId:number;kind:'chat'|'feed'}>();
   private readonly typingSubject = new Subject<ChatTypingEvent>();
   private readonly readReceiptSubject = new Subject<DirectChatReadReceiptEvent>();
   private readonly ownReadSubject = new Subject<InboxOwnReadEvent>();
@@ -134,6 +137,7 @@ export class DirectChatRealtimeService {
   readonly calls$ = this.callSubject.asObservable();
   readonly groupMessages$ = this.groupMessageSubject.asObservable();
   readonly groupUpdates$ = this.groupUpdateSubject.asObservable();
+  readonly teamContentInvalidated$ = this.teamContentInvalidatedSubject.asObservable();
   readonly typing$ = this.typingSubject.asObservable();
   readonly readReceipts$ = this.readReceiptSubject.asObservable();
   readonly ownReads$ = this.ownReadSubject.asObservable();
@@ -208,6 +212,13 @@ export class DirectChatRealtimeService {
         // The backend requires AUTH before delivering private messages.
         // Apply the same contract on the client, including typing/reactions.
         if (!authenticated) return;
+
+        if (envelope.type === 'TEAM_CONTENT_INVALIDATED'
+            && Number.isSafeInteger(envelope.teamId) && (envelope.teamId ?? 0) > 0
+            && (envelope.kind === 'chat' || envelope.kind === 'feed')) {
+          this.teamContentInvalidatedSubject.next({teamId: envelope.teamId!, kind: envelope.kind});
+          return;
+        }
 
         if (envelope.type === 'PERSONAL_LIVE_INVALIDATED') {
           this.personalLiveInvalidatedSubject.next();
