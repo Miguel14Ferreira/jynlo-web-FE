@@ -28,8 +28,9 @@ async function exercise(username,token,site){
    },token);
    const page=await context.newPage();
    const apiTrace=[];
-   let pageErrors=0;
+   let pageErrors=0,consoleErrors=0;
    page.on('pageerror',()=>{pageErrors++;});
+   page.on('console',message=>{if(message.type()==='error')consoleErrors++;});
    page.on('request',request=>{
     try{
      const u=new URL(request.url());
@@ -54,6 +55,10 @@ async function exercise(username,token,site){
      if(u.origin==='https://api.d24sports.com'&&
        ['/api/teams/mine','/api/teams/joined','/api/teams'].includes(u.pathname)){
       apiTrace.push(response.request().method()+'_'+u.pathname+'_'+response.status());
+      if(response.ok()&&response.request().method()==='GET'){
+       void response.json().then(value=>apiTrace.push('DATA_'+u.pathname+'_'+(Array.isArray(value)?'ARRAY':'NON_ARRAY')))
+        .catch(()=>apiTrace.push('DATA_'+u.pathname+'_INVALID'));
+      }
      }
     }catch{}
    });
@@ -71,7 +76,9 @@ async function exercise(username,token,site){
     console.log('[DIAG] '+site.label+' team loading: '+(apiTrace.join(',')||'NO_TEAM_API_RESPONSE'));
     console.log('[DIAG] '+site.label+' team route: '+new URL(page.url()).pathname);
     console.log('[DIAG] mine loading visible: '+await mine.locator('.loading-message').isVisible());
-    console.log('[DIAG] page errors: '+pageErrors);
+    console.log('[DIAG] page errors: '+pageErrors+', console errors: '+consoleErrors);
+    const href=await page.getByRole('link',{name:'Explorar equipas'}).getAttribute('href').catch(()=>null);
+    console.log('[DIAG] team directory bundle: '+(href?.startsWith('/menu/teams')?'UPDATED_LINK':'OLD_OR_MISSING_LINK'));
     throw e;
    }
    stage='DISCOVER_LOADING';
