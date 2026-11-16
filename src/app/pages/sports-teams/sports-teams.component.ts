@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SportsTeam, SportsTeamInvitation, SportsTeamsService } from '../../services/sports-teams.service';
@@ -12,7 +13,11 @@ import { CompetitionTeamInvitation, TeamCompetitionInvitationsService } from '..
   templateUrl: './sports-teams.component.html',
   styleUrls: ['./sports-teams.component.css']
 })
-export class SportsTeamsComponent implements OnInit {
+export class SportsTeamsComponent implements OnInit, OnDestroy {
+  private alive=true;
+  private searchRequest=0;
+  private initialSecondaryStarted=false;
+  private readonly requestTimeout=15000;
   query = '';
   createExpanded = false;
   searched = false;
@@ -41,12 +46,23 @@ export class SportsTeamsComponent implements OnInit {
               private readonly router: Router) {}
   ngOnInit(): void {
     this.createExpanded=this.route.snapshot.queryParamMap.get('create')==='1';
-    this.search();this.loadInvitations();this.loadTeamInvitations();this.loadMine();this.loadJoined();
+    // Prioritize the user's teams instead of launching five competing API requests.
+    this.loadMine();
   }
 
+  ngOnDestroy():void {this.alive=false;this.searchRequest++;}
+  private loadSecondary():void {
+    if(!this.alive||this.initialSecondaryStarted)return;
+    this.initialSecondaryStarted=true;
+    this.loadJoined();this.loadTeamInvitations();this.loadInvitations();
+    this.search();
+  }
+  openTeam(team:SportsTeam):void {
+    this.api.rememberTeam(team);
+  }
   loadJoined():void{
     this.joinedLoading=true;this.joinedError='';
-    this.api.joined().subscribe({
+    this.api.joined().pipe(timeout(this.requestTimeout)).subscribe({
       next:items=>{this.joined=items;this.joinedLoading=false;},
       error:()=>{this.joinedError='Não foi possível confirmar as equipas onde és jogador.';this.joinedLoading=false;}
     });
@@ -54,15 +70,22 @@ export class SportsTeamsComponent implements OnInit {
   loadMine(): void {
     this.mineLoading = true;
     this.mineError = '';
-    this.api.mine().subscribe({
-      next: teams => {this.mine = teams; this.mineLoading = false;},
-      error: () => {this.mineError = 'Não foi possível carregar as tuas equipas.'; this.mineLoading = false;}
+    this.api.mine().pipe(timeout(this.requestTimeout)).subscribe({
+      next: teams => {
+        if(!this.alive)return;
+        this.mine=teams;this.mineLoading=false;this.loadSecondary();
+      },
+      error: () => {
+        if(!this.alive)return;
+        this.mineError='Não foi possível carregar as tuas equipas. Tenta novamente.';
+        this.mineLoading=false;this.loadSecondary();
+      }
     });
   }
 
   loadTeamInvitations():void{
     this.teamInvitationError='';
-    this.api.pendingInvitations().subscribe({
+    this.api.pendingInvitations().pipe(timeout(this.requestTimeout)).subscribe({
       next:items=>{this.teamInvitations=items;this.teamInvitationsVerified=true;},
       error:()=>{
         this.teamInvitationsVerified=false;
@@ -93,7 +116,7 @@ export class SportsTeamsComponent implements OnInit {
     });
   }
   loadInvitations(): void {
-    this.competitionInvites.mine().subscribe({
+    this.competitionInvites.mine().pipe(timeout(this.requestTimeout)).subscribe({
       next: rows => this.invitations = rows,
       error: () => this.invitations = []
     });
@@ -110,12 +133,19 @@ export class SportsTeamsComponent implements OnInit {
   }
 
   search(): void {
-    this.loading = true;
-    this.searched = true;
-    this.error = '';
-    this.api.discover(this.query).subscribe({
-      next: data => { this.teams = data; this.loading = false; },
-      error: () => { this.error = 'Não foi possível carregar equipas.'; this.loading = false; }
+    const request=++this.searchRequest;
+    const query=this.query.trim();
+    this.loading=true;this.searched=true;this.error='';
+    this.api.discover(query).pipe(timeout(this.requestTimeout)).subscribe({
+      next:data=>{
+        if(!this.alive||request!==this.searchRequest)return;
+        this.teams=data;this.loading=false;
+      },
+      error:()=>{
+        if(!this.alive||request!==this.searchRequest)return;
+        this.error='A pesquisa demorou demasiado ou falhou. Tenta novamente.';
+        this.loading=false;
+      }
     });
   }
 
