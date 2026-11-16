@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environment/environment';
 
 /** Global team identity, not the existing community-scoped permanent-team record. */
+export type TeamKitPattern = 'PLAIN' | 'STRIPES' | 'DIAGONAL';
 export interface SportsTeam {
   id: number;
   slug: string;
@@ -17,6 +18,7 @@ export interface SportsTeam {
   logoUrl?: string | null;
   kitPrimary?: string | null;
   kitSecondary?: string | null;
+  kitPattern?: TeamKitPattern | null;
 }
 
 export interface CreateSportsTeam {
@@ -199,8 +201,8 @@ export class SportsTeamsService {
   deleteContent(id:number, kind:TeamContentKind, contentId:number): Observable<void> {
     return this.http.delete<void>(this.url+'/'+id+'/'+kind+'/'+contentId);
   }
-  setKit(id:number, primary:string|null, secondary:string|null):Observable<SportsTeam> {
-    return this.http.put<SportsTeam>(this.url+'/'+id+'/kit',{primary,secondary});
+  setKit(id:number, primary:string|null, secondary:string|null,pattern:TeamKitPattern='PLAIN'):Observable<SportsTeam> {
+    return this.http.put<SportsTeam>(this.url+'/'+id+'/kit',{primary,secondary,pattern});
   }
   uploadLogo(id:number,file:File):Observable<SportsTeam> {
     const form=new FormData();
