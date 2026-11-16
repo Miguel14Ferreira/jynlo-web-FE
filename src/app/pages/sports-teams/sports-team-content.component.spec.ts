@@ -150,6 +150,40 @@ describe('Team conversation synchronization', () => {
     expect(Object.keys(component.previews)).toEqual([]);
   });
 
+  it('does not restore private history from a pending read after an attachment is denied',()=>{
+    const pendingHistory=new Subject<TeamContentEntry[]>();
+    const pendingPreview=new Subject<Blob>();
+    api.content.and.returnValue(pendingHistory.asObservable());
+    api.downloadContentFile.and.returnValue(pendingPreview.asObservable());
+    const message=entry(6,7,'Conteúdo reservado');
+    component.items=[message];
+    component.read(false);
+    component.preview(message,{index:0,mimeType:'image/png',filename:'prova.png'});
+    pendingPreview.error(new HttpErrorResponse({status:403,statusText:'Forbidden'}));
+    expect(component.accessRevoked).toBeTrue();
+    pendingHistory.next([message]);
+    pendingHistory.complete();
+    expect(component.items).toEqual([]);
+    expect(Object.keys(component.previews)).toEqual([]);
+  });
+
+  it('unlocks a newly selected team without allowing a previous send to change it',()=>{
+    const pendingSend=new Subject<TeamContentEntry>();
+    api.sendContent.and.returnValue(pendingSend.asObservable());
+    api.content.and.returnValue(of([entry(7,8,'Mensagem da equipa nova')]));
+    component.draft='Mensagem da equipa antiga';
+    component.send();
+    expect(component.sending).toBeTrue();
+    component.teamId=8;
+    component.ngOnChanges({teamId:new SimpleChange(7,8,false)});
+    expect(component.sending).toBeFalse();
+    expect(component.items.map(item=>item.teamId)).toEqual([8]);
+    pendingSend.next(entry(9,7,'Mensagem da equipa antiga'));
+    pendingSend.complete();
+    expect(component.items.map(item=>item.teamId)).toEqual([8]);
+    expect(component.sending).toBeFalse();
+  });
+
   it('resets revoked state after switching to another team',()=>{
     api.content.and.returnValue(of([]));
     component.accessRevoked=true;
