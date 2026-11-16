@@ -56,6 +56,9 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
           </div>
         </div>
         <p *ngIf="rosterVerified && members.length === 0">Ainda não existem jogadores no plantel.</p>
+        <button *ngIf="rosterVerified && isMember && !isOwner" type="button"
+          class="team-leave-button" [disabled]="busy"
+          (click)="leaveTeam()">Sair da equipa</button>
         <div *ngIf="isOwner && rosterVerified" class="team-player-search">
           <h3>Convidar jogadores</h3>
           <div class="search-community"><input [(ngModel)]="playerQuery" (ngModelChange)="invalidatePlayerSearch()" maxlength="80" placeholder="Nome ou utilizador" (keyup.enter)="searchPlayers()"/>
@@ -283,6 +286,32 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         this.rosterVerified=false;this.isMember=false;
       }
     }).add(()=>{if(request===this.rosterRequest)this.rosterLoading=false;});
+  }
+  leaveTeam():void {
+    if(!this.team||!this.rosterVerified||!this.isMember||this.isOwner||this.busy)return;
+    const currentUsername=this.auth.loggedInPerfilname?.toLowerCase();
+    const player=this.members.find(member=>member.role==='PLAYER'
+      && member.username.toLowerCase()===currentUsername);
+    if(!player)return;
+    if(typeof window==='undefined'||!window.confirm(
+      'Sair desta equipa? Deixarás de ter acesso ao chat e às publicações privadas.'))return;
+    const teamId=this.team.id;
+    this.busy=true;this.feedback='';
+    this.api.remove(teamId,player.profileId).subscribe({
+      next:()=>{
+        // Remove private panels immediately; the next roster read is authoritative.
+        this.isMember=false;
+        this.members=this.members.filter(member=>member.profileId!==player.profileId);
+        this.busy=false;
+        this.feedback='Saíste da equipa. O acesso ao chat e às publicações foi retirado.';
+        this.refreshRoster();
+      },
+      error:()=>{
+        // A timeout may hide a committed removal: do not retry automatically.
+        this.isMember=false;this.rosterVerified=false;this.busy=false;
+        this.feedback='Não foi possível confirmar a saída. Verifica o plantel antes de tentares novamente.';
+      }
+    });
   }
   removePlayer(player:SportsTeamMember):void{
     if(!this.team||!this.isOwner||!this.rosterVerified||this.busy||player.role==='OWNER')return;
