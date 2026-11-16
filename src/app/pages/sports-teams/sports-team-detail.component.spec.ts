@@ -32,6 +32,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
   component=new SportsTeamDetailComponent(route,api,community,auth);
   component.ngOnInit();
  });
+ afterEach(()=>component.ngOnDestroy());
  it('loads ownership and membership case-insensitively from real roster',()=>{
   expect(component.isOwner).toBeTrue();
   expect(component.rosterVerified).toBeTrue();
@@ -110,5 +111,23 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(component.rosterVerified).toBeFalse();
   expect(component.isMember).toBeFalse();
   expect(component.feedback).toContain('confirmar a remoção');
+ });
+
+ it('revokes private panels when the refreshed roster no longer includes the player',()=>{
+  auth.loggedInPerfilname='jogador';
+  api.members.and.returnValue(of([owner,player]));
+  component.refreshRoster();
+  expect(component.isMember).toBeTrue();
+  api.members.and.returnValue(of([owner]));
+  component.refreshRoster();
+  expect(component.rosterVerified).toBeTrue();
+  expect(component.isMember).toBeFalse();
+  expect(component.members.map(m=>m.profileId)).toEqual([2]);
+ });
+ it('fails closed if the current roster can no longer be verified',()=>{
+  api.members.and.returnValue(throwError(()=>new Error('offline')));
+  component.refreshRoster();
+  expect(component.isMember).toBeFalse();
+  expect(component.rosterVerified).toBeFalse();
  });
 });
