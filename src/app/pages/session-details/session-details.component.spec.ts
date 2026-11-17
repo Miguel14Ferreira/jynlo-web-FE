@@ -4733,6 +4733,26 @@ describe('SessionDetailsComponent', () => {
   });
 
 
+  it('quietly reconciles public memories without hiding the album while loading',()=>{
+    (component as any).currentUsername='player-one';
+    component.session={...session,canSharePublicly:true};
+    const pending=new Subject<FeedItem[]>();
+    socialFeedService.sessionMemories.and.returnValue(pending.asObservable());
+    component.sessionMemories=[];
+    component.loadSessionMemories(true,true);
+    expect(component.sessionMemoriesLoading).toBeFalse();
+    component.loadSessionMemories(true,true);
+    expect(socialFeedService.sessionMemories).toHaveBeenCalledTimes(1);
+    pending.next([{
+      type:'POST',postId:48,authorUsername:'player-one',authorDisplayName:'Jogador',
+      authorProfilePicUrl:null,content:'O nosso jogo',imageUrl:null,
+      videoUrl:null,sessionId:session.id,createdAt:'2026-11-17T15:00:00Z',
+      city:'Lisboa',gameDate:null,likeCount:0,likedByMe:false,commentCount:0
+    } as FeedItem]);
+    expect(component.sessionMemories.map(x=>x.postId)).toEqual([48]);
+    expect(component.sessionMemoriesLoading).toBeFalse();
+  });
+
   it('never retrieves or renders public memories for private or community sessions',()=>{
     (component as any).currentUsername='player-one';
     component.session={...session,privateGame:true,canSharePublicly:false};
