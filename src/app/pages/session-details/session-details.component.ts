@@ -6,6 +6,8 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { catchError, concatMap, finalize, forkJoin, from, map, mergeMap, of, retry, Subscription, TimeoutError, timeout, toArray } from 'rxjs';
 
 import { environment } from 'src/environment/environment';
+import { SocialFeedService } from '../../services/social-feed.service';
+import { FeedItem } from '../model/feed-item';
 import { CommunityService } from '../../services/community.service';
 import { DirectChatService } from '../../services/direct-chat.service';
 import { DirectCallClientService } from '../../services/direct-call-client.service';
@@ -46,6 +48,42 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     timeStyle: 'short'
   });
   session?: SessionDetail;
+  readonly socialFeed=inject(SocialFeedService);
+  sessionMemories:FeedItem[]=[];
+  sessionMemoriesLoading=false;
+  sessionMemoriesError='';
+  private sessionMemoriesLoadedId:number|null=null;
+  private sessionMemoriesVersion=0;
+
+  /** Nothing is published automatically. The session album reads existing posts. */
+  loadSessionMemories(force=false):void {
+    const current=this.session;
+    if(!current || current.canSharePublicly!==true || !this.currentUsername)return;
+    const id=current.id;
+    if(!force&&(this.sessionMemoriesLoadedId===id||this.sessionMemoriesLoading))return;
+    const generation=++this.sessionMemoriesVersion;
+    this.sessionMemoriesLoadedId=id;
+    this.sessionMemoriesLoading=true;this.sessionMemoriesError='';
+    this.socialFeed.sessionMemories(id).pipe(timeout(10000)).subscribe({
+      next:items=>{
+        if(generation!==this.sessionMemoriesVersion||this.session?.id!==id)return;
+        this.sessionMemories=items.filter(item=>item.type==='POST'&&item.sessionId===id);
+        this.sessionMemoriesLoading=false;
+      },
+      error:()=>{
+        if(generation!==this.sessionMemoriesVersion||this.session?.id!==id)return;
+        this.sessionMemories=[];
+        this.sessionMemoriesError='Não foi possível carregar os momentos desta sessão.';
+        this.sessionMemoriesLoading=false;
+      }
+    });
+  }
+
+  memoryMedia(item:FeedItem):string|null {
+    const candidate=item.imageUrl || item.extraMedia?.find(media=>media.mimeType.startsWith('image/'))?.url;
+    return candidate ? this.photoUrl(candidate):null;
+  }
+
   sessionContext: SessionContext | null = null;
   showRankingBenefits = false;
   sessionContextLoading = false;
@@ -815,6 +853,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
 
   ngOnDestroy(): void {
     if (this.registrationClockTimer) clearInterval(this.registrationClockTimer);
+    ++this.sessionMemoriesVersion;
     this.typing.destroy();
     this.closeSessionAttachmentPreview();
     this.realtimeSubscriptions.unsubscribe();
@@ -3419,6 +3458,13 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
             && this.session.waitlisted && !this.session.joined
             && session.joined && !session.waitlisted;
           this.session = session;
+          if(session.canSharePublicly===true && this.currentUsername){
+            if(this.sessionMemoriesLoadedId!==session.id)this.loadSessionMemories();
+          }else{
+            ++this.sessionMemoriesVersion;
+            this.sessionMemories=[];this.sessionMemoriesLoadedId=null;
+            this.sessionMemoriesLoading=false;this.sessionMemoriesError='';
+          }
           if (promotedFromWaitlist) {
             this.actionError = '';
             this.actionSuccess = t('sessionDetail.waitlistPromoted');
