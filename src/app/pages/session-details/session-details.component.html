@@ -2013,8 +2013,12 @@
                   <button type="button" class="jynlo-action jynlo-action--neutral"
                     [disabled]="sessionMemoriesLoading" (click)="loadSessionMemories(true)"
                     aria-label="Ver novos momentos desta sessão">Ver novos momentos</button>
-                  <a class="jynlo-action jynlo-action--primary" routerLink="/menu/feed"
-                    [queryParams]="{momentSession:session.id}">Partilhar um momento</a>
+                  @if (session.status === 'COMPLETED' && (session.joined || isCreator())) {
+                    <a class="jynlo-action jynlo-action--primary" routerLink="/menu/feed"
+                      [queryParams]="{momentSession:session.id}">Partilhar um momento</a>
+                  } @else if (session.status !== 'COMPLETED') {
+                    <span class="session-memories-hint">A partilha das recordações abre depois do jogo.</span>
+                  }
                 </div>
               </div>
               @if (sessionMemoriesLoading) {
