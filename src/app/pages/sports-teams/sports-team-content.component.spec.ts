@@ -339,4 +339,36 @@ describe('Team conversation synchronization', () => {
     expect(component.replyTargetId).toBe(2);
     expect(component.draft).toBe('Outra mensagem');
   });
+
+  it('never recreates a private preview after an in-flight attachment was deleted',()=>{
+    const message={...entry(31,7,'Imagem antiga'),attachments:[
+      {index:0,mimeType:'image/png',filename:'foto.png',size:30}
+    ]};
+    const pending=new Subject<Blob>();
+    api.downloadContentFile.and.returnValue(pending.asObservable());
+    component.items=[message];
+    const create=spyOn(URL,'createObjectURL').and.returnValue('blob:should-not-appear');
+    component.preview(message,{index:0,mimeType:'image/png',filename:'foto.png'});
+    component.items=[{...message,deleted:true,body:'',attachments:[]}];
+    pending.next(new Blob(['private'],{type:'image/png'}));
+    pending.complete();
+    expect(create).not.toHaveBeenCalled();
+    expect(component.previews['31:0']).toBeUndefined();
+  });
+
+  it('rejects a late attachment preview after a realtime refresh removes that file',()=>{
+    const message={...entry(32,7,'Ficheiro'),attachments:[
+      {index:0,mimeType:'image/png',filename:'foto.png',size:30}
+    ]};
+    const pending=new Subject<Blob>();
+    api.downloadContentFile.and.returnValue(pending.asObservable());
+    component.items=[message];
+    const create=spyOn(URL,'createObjectURL').and.returnValue('blob:should-not-appear');
+    component.preview(message,{index:0,mimeType:'image/png',filename:'foto.png'});
+    component.items=[{...message,attachments:[]}];
+    pending.next(new Blob(['private'],{type:'image/png'}));
+    pending.complete();
+    expect(create).not.toHaveBeenCalled();
+    expect(component.previews['32:0']).toBeUndefined();
+  });
 });
