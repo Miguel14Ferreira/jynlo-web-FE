@@ -339,6 +339,12 @@ async function main() {
           if (endpoint === '/api/teams/joined') return respond(route, 200, []);
           if (endpoint === '/api/teams/invitations/mine') return respond(route, 200, []);
           if (endpoint === '/api/teams/710') return respond(route, 200, fictionalGlobalTeam);
+          if (endpoint === '/api/team-challenges/teams/710') return respond(route, 200, [{
+            id:920,challengerTeamId:710,challengerTeamName:'Equipa QA',
+            challengedTeamId:711,challengedTeamName:'Adversários QA',
+            status:'PENDING',message:'Jogo amigável',sessionId:null,
+            createdAt:'2026-11-17T15:00:00Z',respondedAt:null
+          }]);
           if (endpoint === '/api/teams/710/members') return respond(route, 200, fictionalGlobalRoster);
           if (endpoint === '/api/teams/710/invitations') return respond(route, 200, []);
           if (endpoint === '/api/teams/710/honours') return respond(route, 200, []);
@@ -522,6 +528,13 @@ async function main() {
                 'Trophies tab must fetch honours exactly once');
               assert.equal(teamHttpReads.filter(x=>x.endsWith('/history')).length,1,
                 'Trophies tab must fetch history exactly once');
+              await page.getByRole('tab',{name:/Desafios/i}).click();
+              await page.locator('.challenges .challenge-card').first()
+                .waitFor({state:'visible',timeout:10000});
+              assert.equal(await page.getByRole('button',{name:'Cancelar convite'}).count(),1,
+                'Only the challenger captain should have a pending cancellation action');
+              assert.equal(await page.getByRole('button',{name:'Aceitar desafio'}).count(),0,
+                'The challenger must never approve its own challenge');
             }
             console.log('TEAM_NAVIGATION_SYNTHETIC',JSON.stringify({route,width,language,
               firstPaintMs,initialApiReads:initialReads.length,initialEndpoints:initialReads}));
