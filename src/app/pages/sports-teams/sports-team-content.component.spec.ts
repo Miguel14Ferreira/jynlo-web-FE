@@ -127,6 +127,35 @@ describe('Team conversation synchronization', () => {
     expect(component.attachmentsEnabled).toBeFalse();
   });
 
+  it('reopens a disabled chat only after an authenticated refresh succeeds',()=>{
+    api.content.and.returnValues(
+      throwError(()=>new HttpErrorResponse({status:409,statusText:'Conflict'})),
+      of([entry(4,7,'Conversa reativada')])
+    );
+    component.read(false);
+    expect(component.accessRevoked).toBeTrue();
+    expect(component.items).toEqual([]);
+    component.read(true);
+    expect(api.content).toHaveBeenCalledTimes(1);
+    component.read(true,true);
+    expect(api.content).toHaveBeenCalledTimes(2);
+    expect(component.accessRevoked).toBeFalse();
+    expect(component.items.map(item=>item.id)).toEqual([4]);
+    expect(component.blockedReason).toBe('Já não tens acesso a esta conversa.');
+  });
+
+  it('keeps removed players blocked when a revalidation is also denied',()=>{
+    api.content.and.returnValue(
+      throwError(()=>new HttpErrorResponse({status:403,statusText:'Forbidden'})));
+    component.items=[entry(8,7,'Privada')];
+    component.read(false);
+    expect(component.accessRevoked).toBeTrue();
+    component.read(true,true);
+    expect(api.content).toHaveBeenCalledTimes(2);
+    expect(component.accessRevoked).toBeTrue();
+    expect(component.items).toEqual([]);
+  });
+
   it('revokes cached chat when a reaction summary rejects a removed member',()=>{
     api.content.and.returnValue(of([entry(3,7,'Privada')]));
     api.reactions.and.returnValue(throwError(()=>new HttpErrorResponse({status:403,statusText:'Forbidden'})));
