@@ -18,6 +18,14 @@ export class SocialFeedService {
     return this.http.get<FeedItem[]>(this.baseUrl);
   }
 
+  /** Opt-in posts associated with a public game; privacy enforced on the API. */
+  sessionMemories(sessionId: number): Observable<FeedItem[]> {
+    if (!Number.isSafeInteger(sessionId) || sessionId <= 0) {
+      throw new Error('Sessão inválida');
+    }
+    return this.http.get<FeedItem[]>(this.baseUrl + '/sessions/' + sessionId + '/memories');
+  }
+
   postById(id: number): Observable<FeedItem> {
     return this.http.get<FeedItem>(this.baseUrl + '/posts/' + id);
   }
