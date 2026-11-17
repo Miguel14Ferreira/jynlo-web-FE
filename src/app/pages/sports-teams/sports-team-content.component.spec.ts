@@ -317,6 +317,8 @@ describe('Team conversation synchronization', () => {
     const recent=Array.from({length:100},(_,i)=>entry(i+101,7,'Post '+i));
     api.content.and.returnValue(of(recent));
     api.olderFeed.and.returnValue(of([entry(99,7,'Antigo 1'),entry(100,7,'Antigo 2')]));
+    // These older posts still exist; reconciliation must preserve them.
+    api.feedEntries.and.returnValue(of([entry(99,7,'Antigo 1'),entry(100,7,'Antigo 2')]));
     component.read(false);
     expect(component.hasOlderPosts).toBeTrue();
     component.loadOlderPosts();
