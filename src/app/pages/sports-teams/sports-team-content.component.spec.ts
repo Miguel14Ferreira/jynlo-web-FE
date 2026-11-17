@@ -114,6 +114,9 @@ describe('Team conversation synchronization', () => {
     component.draft='Uma resposta';
     const pending=new Subject<TeamContentEntry>();
     api.sendContent.and.returnValue(pending.asObservable());
+    // The failure handler revalidates the authenticated history; the test must
+    // supply that response rather than allowing a mock to return undefined.
+    api.content.and.returnValue(of([]));
     component.send();
     component.send();
     expect(api.sendContent).toHaveBeenCalledTimes(1);
