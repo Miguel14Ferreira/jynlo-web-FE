@@ -401,6 +401,44 @@ describe('Team conversation synchronization', () => {
     expect(component.reactionsById).toEqual({});
   });
 
+  it('auto-renders only four recent private feed photos without duplicate downloads',()=>{
+    component.kind='feed';
+    const rows=Array.from({length:6},(_,i)=>({
+      ...entry(i+1,7,'Post '+i),
+      attachments:[{index:0,filename:'photo.png',mimeType:'image/png',size:128}]
+    }));
+    const image=new Blob(['png'],{type:'image/png'});
+    api.content.and.returnValue(of(rows));
+    api.downloadContentFile.and.returnValue(of(image));
+    const create=spyOn(URL,'createObjectURL').and.returnValue('blob:private');
+    const revoke=spyOn(URL,'revokeObjectURL');
+    component.read(false);
+    expect(api.downloadContentFile).toHaveBeenCalledTimes(4);
+    expect(create).toHaveBeenCalledTimes(4);
+    expect(Object.keys(component.previews)).toHaveSize(4);
+    component.read(true);
+    expect(api.downloadContentFile).toHaveBeenCalledTimes(4);
+    component.ngOnDestroy();
+    expect(revoke).toHaveBeenCalledTimes(4);
+  });
+
+  it('drops late auto-preview bytes when a private team feed loses authorization',()=>{
+    component.kind='feed';
+    const row={...entry(11,7,'Private'),attachments:[
+      {index:0,filename:'photo.png',mimeType:'image/png',size:128}
+    ]};
+    const pending=new Subject<Blob>();
+    api.downloadContentFile.and.returnValue(pending.asObservable());
+    api.content.and.returnValues(of([row]),
+      throwError(()=>new HttpErrorResponse({status:403,statusText:'Forbidden'})));
+    component.read(false);
+    expect(api.downloadContentFile).toHaveBeenCalledTimes(1);
+    component.read(true);
+    pending.next(new Blob(['private'],{type:'image/png'}));
+    expect(component.accessRevoked).toBeTrue();
+    expect(Object.keys(component.previews)).toEqual([]);
+  });
+
   it('does not restore a preview that resolves after access was revoked',()=>{
     const file=new Subject<Blob>();
     api.downloadContentFile.and.returnValue(file.asObservable());
