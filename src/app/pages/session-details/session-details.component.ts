@@ -81,7 +81,11 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
 
   memoryMedia(item:FeedItem):string|null {
     const candidate=item.imageUrl || item.extraMedia?.find(media=>media.mimeType.startsWith('image/'))?.url;
-    return candidate ? this.photoUrl(candidate):null;
+    // Browser image tags cannot authenticate protected media requests. The
+    // linked post opens with its normal authorized media viewer instead.
+    if(!candidate || candidate.includes('/api/profile-media/'))return null;
+    const url=this.photoUrl(candidate);
+    return url?.startsWith('https://')?url:null;
   }
 
   sessionContext: SessionContext | null = null;
