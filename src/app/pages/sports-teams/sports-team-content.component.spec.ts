@@ -17,7 +17,7 @@ describe('Team conversation synchronization', () => {
 
   beforeEach(() => {
     api=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',
-      ['content','attachmentsAvailable','reactions','sendContent','downloadContentFile','uploadContentFiles']);
+      ['content','attachmentsAvailable','reactions','sendContent','downloadContentFile','uploadContentFiles','editContent','deleteContent']);
     realtime=jasmine.createSpyObj<DirectChatRealtimeService>('DirectChatRealtimeService',['connect']);
     api.attachmentsAvailable.and.returnValue(of({available:false}));
     api.reactions.and.returnValue(of({}));
@@ -264,5 +264,49 @@ describe('Team conversation synchronization', () => {
     component.ngOnChanges({teamId:new SimpleChange(7,8,false)});
     expect(component.accessRevoked).toBeFalse();
     expect(api.content).toHaveBeenCalledTimes(1);
+  });
+
+  it('updates visible search hits when a live history refresh contains edits',()=>{
+    const original=entry(11,7,'Antes');
+    const revised={...original,body:'Depois',editedAt:'2026-11-17T12:00:00Z'};
+    component.searchActive=true;
+    component.searchResults=[original];
+    api.content.and.returnValue(of([revised]));
+    component.read(false);
+    expect(component.searchActive).toBeTrue();
+    expect(component.searchResults[0].body).toBe('Depois');
+  });
+
+  it('updates search results immediately when an edited team message is confirmed',()=>{
+    const original=entry(12,7,'Antes');
+    const revised={...original,body:'Depois'};
+    component.items=[original];
+    component.searchResults=[original];
+    component.searchActive=true;
+    api.editContent.and.returnValue(of(revised));
+    api.content.and.returnValue(of([revised]));
+    component.beginEdit(original);
+    component.editingDraft='Depois';
+    component.saveEdit(original);
+    expect(component.searchResults[0].body).toBe('Depois');
+    expect(component.editingId).toBeNull();
+  });
+
+  it('removes deleted search content and local attachment previews',()=>{
+    const original=entry(13,7,'Privado');
+    component.items=[original];
+    component.searchResults=[original];
+    component.searchActive=true;
+    const url='blob:team-test-preview';
+    component.previews['13:0']={url,type:'image'};
+    const revoke=spyOn(URL,'revokeObjectURL');
+    spyOn(window,'confirm').and.returnValue(true);
+    api.deleteContent.and.returnValue(of(void 0));
+    api.content.and.returnValue(of([{...original,deleted:true,body:'',attachments:[]}]));
+    component.remove(original);
+    expect(component.searchResults[0].deleted).toBeTrue();
+    expect(component.searchResults[0].body).toBe('');
+    expect(component.previews['13:0']).toBeUndefined();
+    expect(revoke).toHaveBeenCalledWith(url);
   });
 });
