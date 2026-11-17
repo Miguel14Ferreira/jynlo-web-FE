@@ -699,7 +699,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   cancelReply():void {
-    if(this.replyTargetId===null)return;
+    if(this.sending||this.replyTargetId===null)return;
     if(this.kind==='feed'){
       this.feedCommentDrafts.set(this.replyTargetId,{draft:this.draft,files:this.files});
       this.draft=this.feedRootDraft;this.files=this.feedRootFiles;
