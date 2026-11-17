@@ -509,6 +509,10 @@ async function main() {
             const firstPaintMs=Date.now()-navigationStarted;
             const initialReads=[...teamHttpReads];
             if(route==='/menu/teams/710'){
+              // Ownership is now derived from the already-required roster:
+              // listing *all* owned teams is unnecessary on a detail page.
+              assert.equal(initialReads.filter(x=>x==='/api/teams/mine').length,0,
+                'Team detail must not issue a redundant owned-teams request');
               assert.equal(initialReads.filter(x=>x.endsWith('/honours')||x.endsWith('/history')).length,0,
                 'Opening the team profile must not fetch trophies before the trophy tab');
               await page.getByRole('tab',{name:/Troféus/i}).click();
