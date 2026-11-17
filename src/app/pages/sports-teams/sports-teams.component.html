@@ -26,7 +26,7 @@
         <label>Modalidade <input name="sport" [(ngModel)]="draft.sport" placeholder="Ex.: Futebol" maxlength="100"></label>
         <label>Localização <input name="location" [(ngModel)]="draft.location" placeholder="Ex.: Lisboa" maxlength="100"></label>
         <label class="full">Descrição <textarea name="description" [(ngModel)]="draft.description" placeholder="Conta um pouco sobre a tua equipa..." maxlength="500"></textarea></label>
-        <div class="form-footer"><small>O feed e o chat começam desativados e podem ser configurados pelo responsável.</small><button type="submit" class="action action-primary" [disabled]="saving || teamForm.invalid">{{ saving ? 'A criar…' : 'Criar equipa' }}</button></div>
+        <div class="form-footer"><small>O feed e o chat ficam disponíveis para os membros confirmados. O responsável pode gerir ambos.</small><button type="submit" class="action action-primary" [disabled]="saving || teamForm.invalid">{{ saving ? 'A criar…' : 'Criar equipa' }}</button></div>
       </form>
     </section>
 
