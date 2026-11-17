@@ -425,7 +425,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       || !this.visibleEntries().some(item=>item.id===this.replyTargetId));
   }
   visibleEntries():TeamContentEntry[] {
-    const entries=this.searchActive?this.searchResults:(this.kind==='feed'?this.feedCombined:this.items);
+    const entries=this.searchActive?this.searchResults:(this.kind==='feed'?(this.feedCombined.length?this.feedCombined:this.items):this.items);
     if(this.kind!=='feed')return entries;
     const collapsed=[...this.collapsedFeedPosts].sort((a,b)=>a-b).join(',');
     const cached=this.visibleCache;
@@ -459,7 +459,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
   commentCount(postId:number):number {
     if(this.kind!=='feed')return 0;
-    const entries=this.searchActive?this.searchResults:this.feedCombined;
+    const entries=this.searchActive?this.searchResults:(this.feedCombined.length?this.feedCombined:this.items);
     // Angular checks each card repeatedly: count all threads once per history update.
     if(this.commentCountSource!==entries){
       this.commentCountSource=entries;
@@ -512,7 +512,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
   isFeedComment(item:TeamContentEntry):boolean {
     return this.kind==='feed' && item.replyToId!=null
-      && (this.searchActive?this.searchResults:this.feedCombined).some(parent=>parent.id===item.replyToId);
+      && (this.searchActive?this.searchResults:(this.feedCombined.length?this.feedCombined:this.items)).some(parent=>parent.id===item.replyToId);
   }
   replyPreview(id:number|null):string {
     const original=(this.searchActive?this.searchResults:[]).find(item=>item.id===id)
