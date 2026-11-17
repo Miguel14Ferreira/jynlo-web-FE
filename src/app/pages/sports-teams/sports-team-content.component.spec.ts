@@ -78,6 +78,36 @@ describe('Team conversation synchronization', () => {
     expect(component.showFeedComposerAtTop()).toBeFalse();
   });
 
+  it('sends a comment through the authenticated team feed endpoint without double posting',()=>{
+    const comment=entry(12,7,'Boa partida!');
+    comment.replyToId=10;
+    component.kind='feed';
+    component.items=[entry(10,7,'Treino de hoje')];
+    component.reply(component.items[0]);
+    component.draft='Boa partida!';
+    api.sendContent.and.returnValue(of(comment));
+    api.content.and.returnValue(of([component.items[0],comment]));
+    component.send();
+    expect(api.sendContent).toHaveBeenCalledOnceWith(7,'feed','Boa partida!',10);
+    expect(component.replyTargetId).toBeNull();
+    expect(component.draft).toBe('');
+    expect(component.visibleEntries().map(item=>item.id)).toEqual([10,12]);
+  });
+
+  it('does not publish private comments when a send is already in progress',()=>{
+    component.kind='feed';
+    component.replyTargetId=10;
+    component.draft='Uma resposta';
+    const pending=new Subject<TeamContentEntry>();
+    api.sendContent.and.returnValue(pending.asObservable());
+    component.send();
+    component.send();
+    expect(api.sendContent).toHaveBeenCalledTimes(1);
+    pending.error(new HttpErrorResponse({status:500}));
+    expect(component.draft).toBe('Uma resposta');
+    expect(component.replyTargetId).toBe(10);
+  });
+
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
     const image=new File(['png-bytes'],'captura.png',{type:'image/png'});
     const event={
