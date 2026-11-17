@@ -18,6 +18,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
         <div><h3>{{kind === 'chat' ? 'Conversa do plantel' : 'Publicações da equipa'}}</h3>
           <p class="team-content-note">Só os membros confirmados podem participar. Atualização automática.</p></div>
       </div>
+      <ng-container *ngIf="showFeedComposerAtTop()" [ngTemplateOutlet]="teamComposer"></ng-container>
       <p role="alert" class="team-content-error" *ngIf="error">{{error}}</p>
       <p role="status" class="team-content-note" *ngIf="syncError">{{syncError}}</p>
       <form (ngSubmit)="search()" class="team-content-search">
@@ -72,6 +73,10 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
             <button type="button" *ngIf="item.canEdit" [disabled]="sending" (click)="beginEdit(item)" [attr.aria-label]="kind === 'chat' ? 'Editar mensagem' : 'Editar publicação'" title="Editar">✎ <span>Editar</span></button>
             <button type="button" *ngIf="item.canManage" [disabled]="sending" (click)="remove(item)" [attr.aria-label]="kind === 'chat' ? 'Eliminar mensagem' : 'Eliminar publicação'" title="Eliminar">× <span>Eliminar</span></button>
           </div>
+          <div *ngIf="kind === 'feed' && replyTargetId === item.id" class="team-inline-comment-editor">
+            <p class="team-content-note">A comentar publicação de @{{item.username}}</p>
+            <ng-container [ngTemplateOutlet]="teamComposer"></ng-container>
+          </div>
           <form *ngIf="editingId === item.id" (ngSubmit)="saveEdit(item)">
             <textarea name="editBody" [(ngModel)]="editingDraft" maxlength="2000" [disabled]="sending"></textarea>
             <button type="submit" [disabled]="sending || !editingDraft.trim()">Guardar</button>
@@ -80,13 +85,16 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
         </article>
       </div>
       <button *ngIf="kind === 'chat' && unseenBelow && !searchActive" type="button" class="team-new-messages" (click)="showLatest()" aria-label="Ver mensagens novas">↓ Mensagens novas</button>
+      <ng-container *ngIf="kind === 'chat'" [ngTemplateOutlet]="teamComposer"></ng-container>
+      </ng-container>
+      <ng-template #teamComposer>
       <div *ngIf="replyTargetId" class="team-content-note">
-        A responder a {{replyPreview(replyTargetId)}}
+        {{kind === 'chat' ? 'A responder a' : 'A comentar'}} {{replyPreview(replyTargetId)}}
         <button type="button" (click)="replyTargetId = null">Cancelar resposta</button>
       </div>
       <form (ngSubmit)="send()" class="team-content-editor">
         <label [for]="'team-content-' + kind + '-' + teamId">
-          {{kind === 'chat' ? 'Mensagem' : 'Nova publicação'}}
+          {{kind === 'chat' ? 'Mensagem' : replyTargetId ? 'Comentário' : 'Nova publicação'}}
         </label>
         <textarea [id]="'team-content-' + kind + '-' + teamId" name="body"
           [(ngModel)]="draft" maxlength="2000" [disabled]="sending" (keydown)="onComposerKeydown($event)"
@@ -104,11 +112,11 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
           <small *ngIf="kind === 'chat'">Enter para enviar · Shift + Enter para nova linha · Podes colar imagens</small>
           <small *ngIf="kind === 'feed'">Partilha notícias, fotografias ou momentos da equipa.</small>
           <button type="submit" [disabled]="sending || (!draft.trim() && !files.length)">
-            {{sending ? 'A enviar…' : kind === 'chat' ? 'Enviar mensagem' : 'Publicar'}}
+            {{sending ? 'A enviar…' : kind === 'chat' ? 'Enviar mensagem' : replyTargetId ? 'Comentar' : 'Publicar'}}
           </button>
         </div>
       </form>
-      </ng-container>
+      </ng-template>
       <ng-template #accessRevokedState><p role="alert" class="team-content-error">{{blockedReason}}</p></ng-template>
     </div>`,
   styles: [`
@@ -179,6 +187,8 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
     .team-new-messages:focus-visible{outline:2px solid #78f9dc;outline-offset:3px}
     .team-chat-mode .team-content-entry{max-width:min(100%,760px)}
     .team-feed-mode .team-content-entry{max-width:100%}
+    .team-inline-comment-editor{margin-top:.75rem;padding:.8rem;border:1px solid #35bba4;border-radius:12px;background:#103c45;display:grid;gap:.55rem}
+    .team-inline-comment-editor .team-content-editor{padding:.7rem}
     .team-feed-mode .team-feed-comment{margin-left:clamp(12px,4vw,48px);border-left:3px solid #36bca8;background:#0b303c}
     .team-feed-mode .team-feed-comment .team-entry-avatar{width:30px;height:30px;font-size:.8rem}
     .team-feed-mode .team-content-history{max-height:none;min-height:0}
@@ -326,6 +336,10 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   trackMessage(_:number, entry:TeamContentEntry):number { return entry.id; }
+  showFeedComposerAtTop():boolean {
+    return this.kind==='feed' && (this.replyTargetId===null
+      || !this.visibleEntries().some(item=>item.id===this.replyTargetId));
+  }
   visibleEntries():TeamContentEntry[] {
     const entries=this.searchActive?this.searchResults:this.items;
     if(this.kind!=='feed')return entries;
@@ -670,7 +684,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   reply(entry:TeamContentEntry):void {
-    if(!entry.deleted)this.replyTargetId=entry.id;
+    if(!entry.deleted)this.replyTargetId=this.replyTargetId===entry.id?null:entry.id;
   }
   beginEdit(entry:TeamContentEntry):void {
     if(entry.deleted || !entry.canEdit)return;
