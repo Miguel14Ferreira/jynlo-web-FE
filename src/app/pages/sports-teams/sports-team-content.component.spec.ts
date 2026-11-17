@@ -255,6 +255,22 @@ describe('Team conversation synchronization', () => {
     expect(component.visibleEntries().map(item=>item.id)).toEqual([3,1]);
   });
 
+  it('sums reaction totals and hides the optional feed emoji picker after selection',()=>{
+    component.kind='feed';
+    component.reactionsById={12:{mine:'❤️',counts:{'❤️':3,'👍':2,'😂':1}}};
+    expect(component.reactionCount(12)).toBe(6);
+    expect(component.reactionCount(999)).toBe(0);
+    component.toggleFeedReactionPicker(12);
+    expect(component.feedReactionPickerId).toBe(12);
+    component.toggleFeedReactionPicker(12);
+    expect(component.feedReactionPickerId).toBeNull();
+    component.toggleFeedReactionPicker(12);
+    api.removeReaction.and.returnValue(of({}));
+    component.react(entry(12,7,'Post'),'❤️');
+    expect(component.feedReactionPickerId).toBeNull();
+    expect(api.removeReaction).toHaveBeenCalled();
+  });
+
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
     const image=new File(['png-bytes'],'captura.png',{type:'image/png'});
     const event={
