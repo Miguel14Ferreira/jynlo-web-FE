@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { timeout } from 'rxjs';
 import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.service';
+import { SessionService } from '../../services/session.service';
+import { SessionSummary } from '../model/session-summary';
 import { SportsTeamChallengesService, TeamChallenge } from '../../services/sports-team-challenges.service';
 
 @Component({
@@ -49,14 +51,24 @@ import { SportsTeamChallengesService, TeamChallenge } from '../../services/sport
             <ng-container *ngIf="challenge.status==='ACCEPTED'&&!challenge.sessionId">
               <p class="hint">Cria uma sessão pública normalmente e associa-a aqui.
                 A organização do jogo e as inscrições mantêm as regras habituais.</p>
-              <label [attr.for]="'challenge-session-'+challenge.id">ID da sessão criada por ti</label>
+              <label [attr.for]="'challenge-session-'+challenge.id">Escolher um jogo público criado por ti</label>
               <div class="link-form">
-                <input [id]="'challenge-session-'+challenge.id" type="number" min="1"
-                  inputmode="numeric" [disabled]="busy"
-                  [(ngModel)]="sessionInputs[challenge.id]" placeholder="Ex.: 123">
+                <select [id]="'challenge-session-'+challenge.id" [disabled]="busy||sessionsLoading||!sessionsVerified"
+                  [(ngModel)]="sessionInputs[challenge.id]">
+                  <option value="">Escolher sessão</option>
+                  <option *ngFor="let game of availableSessions" [value]="game.id">
+                    {{game.sport}} · {{game.city}} · {{game.gameDate | date:'dd/MM/yyyy HH:mm'}}
+                  </option>
+                </select>
                 <button type="button" class="primary" [disabled]="busy||!validSession(challenge.id)"
                   (click)="linkSession(challenge)">Associar sessão</button>
               </div>
+              <p class="hint" *ngIf="sessionsLoading">A consultar as tuas sessões…</p>
+              <p class="hint" *ngIf="sessionsError" role="alert">{{sessionsError}}</p>
+              <p class="hint" *ngIf="sessionsVerified&&!availableSessions.length">
+                Ainda não tens uma sessão pública elegível. Cria uma antes de associares o jogo.
+              </p>
+              <a routerLink="/menu/createEvent">Criar uma sessão</a>
             </ng-container>
           </div>
           <a *ngIf="challenge.sessionId" [routerLink]="['/menu/events',challenge.sessionId]">
@@ -114,7 +126,8 @@ import { SportsTeamChallengesService, TeamChallenge } from '../../services/sport
     input,textarea{min-height:44px;background:#082b36;color:#f5ffff;border:1px solid #59919b;border-radius:10px;padding:10px;max-width:100%}
     textarea{min-height:72px;resize:vertical;width:100%}
     .search input{flex:1;min-width:160px}
-    .link-form input{width:130px}
+    .link-form select{min-height:44px;min-width:200px;flex:1;border-radius:10px;padding:10px;
+      border:1px solid #59919b;background:#082b36;color:#f5ffff;max-width:100%}
     button{min-height:44px;border:1px solid #55929b;border-radius:10px;padding:9px 14px;background:#164455;color:#f0ffff;cursor:pointer}
     button.primary{background:#0f897e;border-color:#20b5a1;font-weight:800}
     button:disabled{cursor:not-allowed;opacity:.55}
@@ -138,29 +151,59 @@ export class SportsTeamChallengesComponent implements OnInit,OnDestroy {
   error='';
   feedback='';
   sessionInputs:Record<number,string>={};
+  availableSessions:SessionSummary[]=[];
+  sessionsLoading=false;
+  sessionsVerified=false;
+  sessionsError='';
+  private sessionsRequested=false;
+  private sessionsVersion=0;
   private generation=0;
   private searchVersion=0;
   private destroyed=false;
   constructor(private readonly api:SportsTeamChallengesService,
-      private readonly teams:SportsTeamsService,private readonly cd:ChangeDetectorRef){}
+      private readonly teams:SportsTeamsService,private readonly sessions:SessionService,
+      private readonly cd:ChangeDetectorRef){}
   ngOnInit():void{this.refresh();}
-  ngOnDestroy():void{this.destroyed=true;this.generation++;this.searchVersion++;}
+  ngOnDestroy():void{this.destroyed=true;this.generation++;this.searchVersion++;this.sessionsVersion++;}
   private render():void{if(!this.destroyed)this.cd.markForCheck();}
   statusLabel(value:TeamChallenge['status']):string {
     return {PENDING:'A aguardar',ACCEPTED:'Aceite',DECLINED:'Recusado',CANCELLED:'Cancelado'}[value];
   }
   validSession(id:number):boolean {
-    return /^[1-9][0-9]*$/.test(this.sessionInputs[id]||'')
-      &&Number.isSafeInteger(Number(this.sessionInputs[id]));
+    return this.sessionsVerified && /^[1-9][0-9]*$/.test(this.sessionInputs[id]||'')
+      &&Number.isSafeInteger(Number(this.sessionInputs[id]))
+      &&this.availableSessions.some(x=>x.id===Number(this.sessionInputs[id]));
   }
   refresh():void {
     if(!Number.isSafeInteger(this.teamId)||this.teamId<=0||this.busy)return;
     const version=++this.generation;this.loading=true;this.error='';
     this.api.forTeam(this.teamId).pipe(timeout(12000)).subscribe({
       next:items=>{if(this.destroyed||version!==this.generation)return;
-        this.items=items;this.loading=false;this.render();},
+        this.items=items;this.loading=false;
+        if(this.isOwner&&items.some(x=>x.status==='ACCEPTED'&&!x.sessionId))this.loadAvailableSessions();
+        this.render();},
       error:()=>{if(this.destroyed||version!==this.generation)return;
         this.items=[];this.loading=false;this.error='Não foi possível confirmar os desafios desta equipa.';this.render();}
+    });
+  }
+  private loadAvailableSessions():void {
+    if(this.sessionsRequested||!this.isOwner)return;
+    this.sessionsRequested=true;this.sessionsLoading=true;this.sessionsError='';
+    const version=++this.sessionsVersion;
+    this.sessions.mine().pipe(timeout(12000)).subscribe({
+      next:result=>{
+        if(this.destroyed||version!==this.sessionsVersion)return;
+        this.availableSessions=result.created.filter(item=>
+          !item.privateGame&&item.audience!=='COMMUNITY_ONLY'
+          &&item.status!=='CANCELLED'
+          &&(!this.sport||!item.sport||item.sport.toLowerCase()===this.sport.toLowerCase()));
+        this.sessionsVerified=true;this.sessionsLoading=false;this.render();
+      },
+      error:()=>{
+        if(this.destroyed||version!==this.sessionsVersion)return;
+        this.sessionsVerified=false;this.sessionsLoading=false;this.sessionsRequested=false;
+        this.sessionsError='Não foi possível consultar as tuas sessões. Tenta verificar novamente.';this.render();
+      }
     });
   }
   findTeams():void {
