@@ -36,7 +36,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
         {{kind === 'chat' ? 'Ainda não existem mensagens nesta equipa.' : 'Ainda não há publicações.'}}
       </p>
       <div #historyPane class="team-content-history" aria-live="polite" (scroll)="onHistoryScroll()">
-        <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry">
+        <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry" [class.team-feed-comment]="isFeedComment(item)">
           <div class="team-entry-header">
             <span class="team-entry-avatar" aria-hidden="true">{{(item.username || 'J').slice(0,1).toUpperCase()}}</span>
             <div class="team-entry-meta"><strong>@{{item.username}}</strong>
@@ -179,6 +179,8 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
     .team-new-messages:focus-visible{outline:2px solid #78f9dc;outline-offset:3px}
     .team-chat-mode .team-content-entry{max-width:min(100%,760px)}
     .team-feed-mode .team-content-entry{max-width:100%}
+    .team-feed-mode .team-feed-comment{margin-left:clamp(12px,4vw,48px);border-left:3px solid #36bca8;background:#0b303c}
+    .team-feed-mode .team-feed-comment .team-entry-avatar{width:30px;height:30px;font-size:.8rem}
     .team-feed-mode .team-content-history{max-height:none;min-height:0}
     /* The feed composes above its cards; chat keeps the composer below history. */
     .team-feed-mode .team-content-editor{order:2}
@@ -326,7 +328,32 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   trackMessage(_:number, entry:TeamContentEntry):number { return entry.id; }
   visibleEntries():TeamContentEntry[] {
     const entries=this.searchActive?this.searchResults:this.items;
-    return this.kind==='feed'?entries.slice().reverse():entries;
+    if(this.kind!=='feed')return entries;
+    // Group replies beneath the original publication rather than treating
+    // every comment as an unrelated post. Missing parents remain visible.
+    const byId=new Map(entries.map(item=>[item.id,item]));
+    const rootOf=(item:TeamContentEntry):number=>{
+      let current=item;
+      const seen=new Set<number>([item.id]);
+      while(current.replyToId!=null && byId.has(current.replyToId)
+            && !seen.has(current.replyToId)){
+        current=byId.get(current.replyToId)!;
+        seen.add(current.id);
+      }
+      return current.id;
+    };
+    const groups=new Map<number,TeamContentEntry[]>();
+    for(const item of entries){
+      const root=rootOf(item),group=groups.get(root)||[];
+      group.push(item);groups.set(root,group);
+    }
+    return [...groups.entries()].sort((a,b)=>b[0]-a[0])
+      .flatMap(([root,items])=>items.slice().sort((a,b)=>
+        a.id===root?-1:b.id===root?1:a.id-b.id));
+  }
+  isFeedComment(item:TeamContentEntry):boolean {
+    return this.kind==='feed' && item.replyToId!=null
+      && (this.searchActive?this.searchResults:this.items).some(parent=>parent.id===item.replyToId);
   }
   replyPreview(id:number|null):string {
     const original=(this.searchActive?this.searchResults:[]).find(item=>item.id===id)
