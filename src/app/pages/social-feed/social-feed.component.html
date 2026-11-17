@@ -624,25 +624,6 @@
           }
           <a class="week-card-link" routerLink="/menu/discover">{{ 'week.discover' | t }} →</a>
         </article>
-        <article class="week-hub-card" aria-label="As tuas comunidades">
-          <div class="week-card-heading"><span aria-hidden="true">◎</span><h3>{{ 'week.communities' | t }}</h3></div>
-          @if (myWeekCommunitiesLoading) {
-            <p class="week-muted" role="status">{{ 'week.loading' | t }}</p>
-          } @else if (myWeekCommunitiesError) {
-            <p class="week-muted" role="alert">{{ 'week.unavailable' | t }}</p>
-          } @else if (myWeekCommunities.length === 0) {
-            <p class="week-muted">{{ 'week.noCommunities' | t }}</p>
-          } @else {
-            @for (community of myWeekCommunities; track community.id) {
-              <a class="week-item" [routerLink]="['/menu/communities', community.id]">
-                <strong>{{ community.name }} <span aria-hidden="true">↗</span></strong>
-                <span>{{ community.sport || (community.sports && community.sports[0]) || ('week.multisport' | t) }}</span>
-                <small>{{ community.memberCount }} {{ 'week.members' | t }}</small>
-              </a>
-            }
-          }
-          <a class="week-card-link" routerLink="/menu/communities">{{ 'week.exploreCommunities' | t }} →</a>
-        </article>
       </div>
     </section>
 
