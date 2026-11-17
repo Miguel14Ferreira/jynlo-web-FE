@@ -297,7 +297,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   collapsedFeedPosts=new Set<number>();
   private commentCountSource:TeamContentEntry[]|null=null;
   private readonly cachedCommentCounts=new Map<number,number>();
-  private visibleCache?:{source:TeamContentEntry[];collapsed:string;replyTo:number|null;visible:TeamContentEntry[]};
+  private visibleCache?:{source:TeamContentEntry[];searchActive:boolean;collapsed:string;replyTo:number|null;visible:TeamContentEntry[]};
   draft = '';
   error = '';
   syncError = '';
@@ -389,7 +389,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     if(this.kind!=='feed')return entries;
     const collapsed=[...this.collapsedFeedPosts].sort((a,b)=>a-b).join(',');
     const cached=this.visibleCache;
-    if(cached&&cached.source===entries&&cached.collapsed===collapsed
+    if(cached&&cached.source===entries&&cached.searchActive===this.searchActive&&cached.collapsed===collapsed
         &&cached.replyTo===this.replyTargetId)return cached.visible;
     // Group replies beneath the original publication rather than treating
     // every comment as an unrelated post. Missing parents remain visible.
@@ -414,7 +414,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         a.id===root?-1:b.id===root?1:a.id-b.id)
         .filter(item=>this.searchActive || item.id===root
           || !this.collapsedFeedPosts.has(root) || this.replyTargetId===item.id));
-    this.visibleCache={source:entries,collapsed,replyTo:this.replyTargetId,visible};
+    this.visibleCache={source:entries,searchActive:this.searchActive,collapsed,replyTo:this.replyTargetId,visible};
     return visible;
   }
   commentCount(postId:number):number {
