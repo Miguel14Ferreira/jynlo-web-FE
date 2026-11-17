@@ -123,3 +123,22 @@
 .team-pattern-options .pattern-sample:after{width:36px;height:42px}
 .team-pattern-options:disabled button{cursor:not-allowed;opacity:.6}
 @media(max-width:560px){.team-pattern-options button{min-width:90px}}
+
+/* Match the community detail's full-width conversation area and separate
+   irreversible administration actions from ordinary identity controls. */
+.team-grid>.team-feature{grid-column:1/-1}
+.team-danger-zone{margin-top:1.35rem;padding:1.1rem 1.25rem;
+ border:1px solid #ba77706b;border-radius:14px;background:#3b202344;
+ display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.team-danger-zone strong{color:#ffe3df;font-size:.98rem}
+.team-danger-zone p{margin:.35rem 0 0;max-width:70ch;color:#e6c9c7;font-size:.83rem;line-height:1.55}
+.team-delete-button{border:1px solid #e59b94;border-radius:10px;
+ padding:.8rem 1rem;color:#fff;background:#803b3d;cursor:pointer;
+ font:inherit;font-weight:800;white-space:nowrap;min-height:44px}
+.team-delete-button:hover:not(:disabled){background:#a94446}
+.team-delete-button:focus-visible{outline:2px solid #ffd6d2;outline-offset:3px}
+.team-delete-button:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:690px){
+ .team-danger-zone{flex-direction:column;align-items:stretch}
+ .team-delete-button{width:100%}
+}
