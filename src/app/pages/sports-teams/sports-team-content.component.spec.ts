@@ -17,7 +17,7 @@ describe('Team conversation synchronization', () => {
 
   beforeEach(() => {
     api=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',
-      ['content','searchContent','attachmentsAvailable','reactions','sendContent','downloadContentFile','uploadContentFiles','editContent','deleteContent','playerAvatarSrc']);
+      ['content','searchContent','attachmentsAvailable','reactions','sendContent','downloadContentFile','uploadContentFiles','editContent','deleteContent','playerAvatarSrc','setReaction','removeReaction']);
     realtime=jasmine.createSpyObj<DirectChatRealtimeService>('DirectChatRealtimeService',['connect']);
     api.attachmentsAvailable.and.returnValue(of({available:false}));
     api.searchContent.and.returnValue(of([]));
