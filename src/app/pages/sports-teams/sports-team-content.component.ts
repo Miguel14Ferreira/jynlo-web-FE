@@ -290,6 +290,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   downloading = false;
   previews: Record<string,{url:string;type:'image'|'video'}> = {};
   private readonly previewOrder:string[] = [];
+  private readonly autoFeedPreviewRequested=new Set<string>();
   private attachmentProbeVersion = 0;
   items: TeamContentEntry[] = [];
   brokenAuthorAvatars=new Set<number>();
@@ -464,6 +465,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         if(this.kind==='chat'&&!this.nearLatest&&oldLatest>0&&newLatest>oldLatest)
           this.unseenBelow=true;
         this.items=items;
+        this.loadRecentFeedImages();
         this.scrollIfReadingLatest();
         // Keep visible search hits consistent with live edits/deletions, without
         // unexpectedly discarding the user's search or scroll position.
@@ -660,7 +662,44 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         this.error='Não foi possível abrir o anexo. Confirma a tua participação.';}
     }).add(()=>{if(generation===this.generation)this.downloading=false;});
   }
+  /** Preload only four recent private post photos: no publicly addressable URLs. */
+  private loadRecentFeedImages():void {
+    if(this.kind!=='feed'||this.accessRevoked)return;
+    const recent=this.items.filter(item=>!item.deleted&&item.replyToId==null)
+      .slice().reverse().slice(0,4);
+    for(const item of recent){
+      const file=(item.attachments||[]).find(attachment=>
+        ['image/jpeg','image/png','image/webp','image/gif'].includes(attachment.mimeType));
+      if(!file)continue;
+      const key=this.previewKey(item.id,file.index);
+      if(this.autoFeedPreviewRequested.has(key)||this.previews[key])continue;
+      this.autoFeedPreviewRequested.add(key);
+      const generation=this.generation;
+      this.api.downloadContentFile(this.teamId,'feed',item.id,file.index).subscribe({
+        next:blob=>{
+          if(generation!==this.generation||this.accessRevoked
+              ||!this.currentAttachment(item.id,file.index,file.mimeType)
+              ||blob.type!==file.mimeType||this.previews[key])return;
+          if(this.previewOrder.length>=8){
+            const old=this.previewOrder.shift();
+            if(old&&this.previews[old]){
+              URL.revokeObjectURL(this.previews[old].url);
+              delete this.previews[old];
+            }
+          }
+          const url=URL.createObjectURL(blob);
+          this.previews[key]={url,type:'image'};
+          this.previewOrder.push(key);
+        },
+        error:failure=>{
+          // Do not auto-retry transient media failures; the manual action remains available.
+          this.blockUnavailable(failure);
+        }
+      });
+    }
+  }
   private clearPreviews():void {
+    this.autoFeedPreviewRequested.clear();
     for(const preview of Object.values(this.previews))URL.revokeObjectURL(preview.url);
     this.previews={};this.previewOrder.length=0;
   }
