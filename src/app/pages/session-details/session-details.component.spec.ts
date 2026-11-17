@@ -84,11 +84,12 @@ describe('SessionDetailsComponent', () => {
     directChatService.send.and.returnValue(of({} as any));
     sessionService = jasmine.createSpyObj<SessionService>(
       'SessionService',
-      ['detail', 'context', 'postGameCommunities', 'joinCommunityAfterGame', 'updateMeetingPoint', 'updateCapacity', 'updateDetails', 'join', 'leave', 'cancel', 'complete', 'reportDidNotOccur', 'reportProblem', 'messages', 'postMessage', 'attachmentsAvailable', 'sendAttachment', 'downloadAttachment', 'participants', 'removeParticipant', 'teamSuggestion', 'confirmTeams', 'futureExclusionStatus', 'excludeFromFutureSessions', 'allowFutureSessions', 'myOverallRating', 'rateOverall', 'myVenueRating', 'rateVenue', 'sentCompliments', 'receivedCompliments', 'giveCompliment', 'issueGuestLink', 'guestRequests', 'confirmedGuests', 'reviewGuestRequest', 'cancelGuestRequest']
+      ['detail', 'officialResult', 'context', 'postGameCommunities', 'joinCommunityAfterGame', 'updateMeetingPoint', 'updateCapacity', 'updateDetails', 'join', 'leave', 'cancel', 'complete', 'reportDidNotOccur', 'reportProblem', 'messages', 'postMessage', 'attachmentsAvailable', 'sendAttachment', 'downloadAttachment', 'participants', 'removeParticipant', 'teamSuggestion', 'confirmTeams', 'futureExclusionStatus', 'excludeFromFutureSessions', 'allowFutureSessions', 'myOverallRating', 'rateOverall', 'myVenueRating', 'rateVenue', 'sentCompliments', 'receivedCompliments', 'giveCompliment', 'issueGuestLink', 'guestRequests', 'confirmedGuests', 'reviewGuestRequest', 'cancelGuestRequest']
     );
     socialFeedService=jasmine.createSpyObj<SocialFeedService>('SocialFeedService',['sessionMemories']);
     socialFeedService.sessionMemories.and.returnValue(of([]));
     sessionService.detail.and.returnValue(of(session));
+    sessionService.officialResult.and.returnValue(of({sessionId:7,roundId:18,scoreA:3,scoreB:2}));
     sessionService.context.and.returnValue(of({communities:[],seasonGame:false,seasonName:null}));
     sessionService.postGameCommunities.and.returnValue(of([]));
     sessionService.joinCommunityAfterGame.and.returnValue(of({communityId:22,state:'REQUESTED'}));
@@ -4802,6 +4803,32 @@ describe('SessionDetailsComponent', () => {
     expect(fixture.nativeElement.querySelector('.session-memories')).not.toBeNull();
     expect(fixture.nativeElement.textContent).toContain('A partilha das recordações abre depois do jogo.');
     expect(fixture.nativeElement.querySelector('.session-memories a.jynlo-action--primary')).toBeNull();
+  });
+
+  it('shares only verified public final scores and does not expose a private game',()=>{
+    (component as any).currentUsername='player-one';
+    component.session={...session,status:'COMPLETED',canSharePublicly:true,joined:true};
+    (component as any).loadOfficialSocialScore();
+    expect(sessionService.officialResult).toHaveBeenCalledOnceWith(7);
+    expect(component.shareableOfficialScore).toContain('Equipa A 3 — 2 Equipa B');
+    expect(component.shareableOfficialScore).toContain('/sessions/7');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.session-social-result')).not.toBeNull();
+
+    component.session={...session,status:'COMPLETED',canSharePublicly:false,joined:true};
+    expect(component.shareableOfficialScore).toBeNull();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.session-social-result')).toBeNull();
+  });
+
+  it('does not create shareable results from missing scores or a different session',()=>{
+    (component as any).currentUsername='player-one';
+    component.session={...session,status:'COMPLETED',canSharePublicly:true,joined:true};
+    sessionService.officialResult.and.returnValue(of({sessionId:9,roundId:18,scoreA:3,scoreB:2}));
+    (component as any).loadOfficialSocialScore();
+    expect(component.shareableOfficialScore).toBeNull();
+    component.officialSocialScore={sessionId:7,roundId:18,scoreA:null,scoreB:2};
+    expect(component.shareableOfficialScore).toBeNull();
   });
 
 });
