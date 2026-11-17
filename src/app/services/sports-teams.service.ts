@@ -136,6 +136,11 @@ export class SportsTeamsService {
   respond(teamId: number, accept: boolean): Observable<void> {
     return this.http.post<void>(this.url + '/' + teamId + '/invitations/' + (accept ? 'accept' : 'decline'), {});
   }
+  deleteEmptyTeam(teamId:number):Observable<void> {
+    return this.http.delete<void>(this.url+'/'+teamId);
+  }
+  forgetTeam(id:number):void {this.recentTeams.delete(id);}
+
   remove(teamId: number, profileId: number): Observable<void> {
     return this.http.delete<void>(this.url + '/' + teamId + '/members/' + profileId);
   }
