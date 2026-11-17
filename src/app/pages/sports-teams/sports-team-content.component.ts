@@ -64,6 +64,11 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
                 [src]="previews[previewKey(item.id,file.index)]?.url || ''" controls preload="none"></video>
             </div>
           </div>
+          <button *ngIf="kind === 'feed' && !searchActive && !isFeedComment(item) && commentCount(item.id) > 0"
+            type="button" class="team-comment-toggle" [attr.aria-expanded]="!collapsedFeedPosts.has(item.id)"
+            (click)="toggleComments(item.id)">
+            {{collapsedFeedPosts.has(item.id) ? 'Ver' : 'Ocultar'}} {{commentCount(item.id)}} {{commentCount(item.id) === 1 ? 'comentário' : 'comentários'}}
+          </button>
           <small *ngIf="item.editedAt && !item.deleted">Editada</small>
           <div class="team-reactions" *ngIf="!item.deleted" [attr.aria-label]="kind === 'chat' ? 'Reações à mensagem' : 'Reações à publicação'">
             <button type="button" *ngFor="let emoji of emojis" [disabled]="reactionBusyId !== null"
@@ -211,6 +216,8 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
     .team-feed-mode .team-content-entry{max-width:100%}
     .team-inline-comment-editor{margin-top:.75rem;padding:.8rem;border:1px solid #35bba4;border-radius:12px;background:#103c45;display:grid;gap:.55rem}
     .team-inline-comment-editor .team-content-editor{padding:.7rem}
+    .team-comment-toggle{justify-self:start;background:none;border:0;color:#75e8d7;cursor:pointer;font-weight:700;padding:.45rem 0}
+    .team-comment-toggle:focus-visible{outline:2px solid #78f9dc;outline-offset:2px}
     .team-feed-mode .team-feed-comment{margin-left:clamp(12px,4vw,48px);border-left:3px solid #36bca8;background:#0b303c}
     .team-feed-mode .team-feed-comment .team-entry-avatar{width:30px;height:30px;font-size:.8rem}
     .team-feed-mode .team-content-history{max-height:none;min-height:0}
@@ -286,6 +293,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   private attachmentProbeVersion = 0;
   items: TeamContentEntry[] = [];
   brokenAuthorAvatars=new Set<number>();
+  collapsedFeedPosts=new Set<number>();
   draft = '';
   error = '';
   syncError = '';
@@ -307,7 +315,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       ? 'O chat ou feed da equipa foi desativado pelo responsável.'
       : 'Já não tens acesso a esta conversa.';
     this.items=[];this.draft='';this.replyTargetId=null;
-    this.brokenAuthorAvatars.clear();
+    this.brokenAuthorAvatars.clear();this.collapsedFeedPosts.clear();
     this.feedRootDraft='';this.feedRootFiles=[];this.feedCommentDrafts.clear();
     this.nearLatest=true;this.unseenBelow=false;
     this.editingId=null;this.editingDraft='';this.searchRecheckBusy=false;this.clearSearch();
@@ -354,7 +362,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       // Old requests may still complete, but their UI locks belong to the old conversation.
       this.sending=false;this.downloading=false;this.reactionBusyId=null;this.loading=true;
       this.items = [];this.error = '';this.syncError = '';this.draft = '';
-      this.brokenAuthorAvatars.clear();
+      this.brokenAuthorAvatars.clear();this.collapsedFeedPosts.clear();
       this.nearLatest=true;this.unseenBelow=false;
       this.replyTargetId = null;this.editingId = null;this.editingDraft='';
       this.feedRootDraft='';this.feedRootFiles=[];this.feedCommentDrafts.clear();
@@ -395,7 +403,29 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     }
     return [...groups.entries()].sort((a,b)=>b[0]-a[0])
       .flatMap(([root,items])=>items.slice().sort((a,b)=>
-        a.id===root?-1:b.id===root?1:a.id-b.id));
+        a.id===root?-1:b.id===root?1:a.id-b.id)
+        .filter(item=>this.searchActive || item.id===root
+          || !this.collapsedFeedPosts.has(root) || this.replyTargetId===item.id));
+  }
+  commentCount(postId:number):number {
+    if(this.kind!=='feed')return 0;
+    const entries=this.searchActive?this.searchResults:this.items;
+    const byId=new Map(entries.map(item=>[item.id,item]));
+    return entries.filter(item=>{
+      if(item.id===postId || item.replyToId===null)return false;
+      const seen=new Set<number>([item.id]);
+      let parent=item.replyToId;
+      while(parent!=null && !seen.has(parent)){
+        if(parent===postId)return true;
+        seen.add(parent);
+        parent=byId.get(parent)?.replyToId??null;
+      }
+      return false;
+    }).length;
+  }
+  toggleComments(postId:number):void {
+    if(this.collapsedFeedPosts.has(postId))this.collapsedFeedPosts.delete(postId);
+    else this.collapsedFeedPosts.add(postId);
   }
   isFeedComment(item:TeamContentEntry):boolean {
     return this.kind==='feed' && item.replyToId!=null
@@ -752,6 +782,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
   reply(entry:TeamContentEntry):void {
     if(entry.deleted||this.sending)return;
+    if(this.kind==='feed')this.collapsedFeedPosts.delete(entry.id);
     if(this.replyTargetId===entry.id){this.cancelReply();return;}
     if(this.kind==='feed'){
       if(this.replyTargetId===null){
