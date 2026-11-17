@@ -202,17 +202,17 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.realtime.connect();
     this.subscriptions.add(this.realtime.teamContentInvalidated$.subscribe(event => {
       if (event.teamId === this.teamId && event.kind === this.kind
-          && document.visibilityState === 'visible') this.read(true);
+          && document.visibilityState === 'visible') this.read(true,true);
     }));
     this.subscriptions.add(this.realtime.connected$.subscribe(connected => {
-      if (connected && document.visibilityState === 'visible') this.read(true);
+      if (connected && document.visibilityState === 'visible') this.read(true,true);
     }));
     this.subscriptions.add(interval(10000).subscribe(() => {
-      if (document.visibilityState === 'visible') this.read(true);
+      if (document.visibilityState === 'visible') this.read(true,true);
     }));
     this.subscriptions.add(merge(fromEvent(window, 'focus'),
       fromEvent(document, 'visibilitychange')).subscribe(() => {
-      if (document.visibilityState === 'visible') this.read(true);
+      if (document.visibilityState === 'visible') this.read(true,true);
     }));
   }
 
@@ -243,9 +243,12 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
 
 
-  read(silent:boolean):void {
+  read(silent:boolean, revalidateBlocked=false):void {
     if (this.readingGeneration === this.generation) { this.readQueued = true; return; }
-    if (this.sending || this.accessRevoked || !Number.isSafeInteger(this.teamId) || this.teamId<=0) return;
+    // Reopening a disabled chat requires a successful authenticated HTTP read.
+    // Only background reconciliation may probe a blocked conversation.
+    if (this.sending || (this.accessRevoked && !revalidateBlocked)
+        || !Number.isSafeInteger(this.teamId) || this.teamId<=0) return;
     const version = this.generation;
     const requestId = ++this.readRequestId;
     const writeVersion = this.writeVersion;
@@ -254,12 +257,17 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.api.content(this.teamId,this.kind).subscribe({
       next:items => {
         if(version!==this.generation || writeVersion!==this.writeVersion
-            || requestId!==this.readRequestId || this.accessRevoked)return;
+            || requestId!==this.readRequestId)return;
+        const wasBlocked=this.accessRevoked;
+        this.accessRevoked=false;
+        this.blockedReason='Já não tens acesso a esta conversa.';
+        this.error='';
         this.items=items;this.syncError='';this.loadReactions(items);
+        if(wasBlocked)this.checkAttachmentsAvailable();
       },
       error:(failure:unknown) => {
         if(version!==this.generation || writeVersion!==this.writeVersion
-            || requestId!==this.readRequestId || this.accessRevoked)return;
+            || requestId!==this.readRequestId)return;
         if(this.blockUnavailable(failure))return;
         if(silent)this.syncError='A sincronização falhou. O histórico pode estar desatualizado.';
         else this.error='Não foi possível abrir esta conversa. Confirma que és membro e que está ativada.';
