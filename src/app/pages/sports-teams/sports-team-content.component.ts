@@ -40,7 +40,11 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
       <div #historyPane class="team-content-history" aria-live="polite" (scroll)="onHistoryScroll()">
         <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry" [class.team-feed-comment]="isFeedComment(item)">
           <div class="team-entry-header">
-            <span class="team-entry-avatar" aria-hidden="true">{{(item.username || 'J').slice(0,1).toUpperCase()}}</span>
+            <span class="team-entry-avatar" aria-hidden="true">
+              <img *ngIf="authorAvatarSrc(item) && !brokenAuthorAvatars.has(item.id)"
+                [src]="authorAvatarSrc(item)!" (error)="brokenAuthorAvatars.add(item.id)" loading="lazy" alt="" />
+              <ng-container *ngIf="!authorAvatarSrc(item) || brokenAuthorAvatars.has(item.id)">{{(item.username || 'J').slice(0,1).toUpperCase()}}</ng-container>
+            </span>
             <div class="team-entry-meta"><a class="team-author-link" [routerLink]="['/menu/perfis',item.username]" [attr.aria-label]="'Abrir perfil de @' + item.username">@{{item.username}}</a>
               <time>{{item.createdAt | date:'dd/MM/yyyy HH:mm'}}</time></div>
           </div>
@@ -185,6 +189,8 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
     .team-entry-avatar{display:grid;place-items:center;width:39px;height:39px;
       flex:none;border-radius:50%;background:linear-gradient(135deg,#23bcae,#14758b);
       font-weight:850;color:#032731}
+    .team-entry-avatar{overflow:hidden}
+    .team-entry-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
     .team-entry-meta{min-width:0;display:grid;gap:.15rem}
     .team-entry-meta strong{overflow-wrap:anywhere}
     .team-author-link{color:#79efda;font-weight:800;text-decoration:none;overflow-wrap:anywhere}
@@ -279,6 +285,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   private readonly previewOrder:string[] = [];
   private attachmentProbeVersion = 0;
   items: TeamContentEntry[] = [];
+  brokenAuthorAvatars=new Set<number>();
   draft = '';
   error = '';
   syncError = '';
@@ -300,6 +307,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       ? 'O chat ou feed da equipa foi desativado pelo responsável.'
       : 'Já não tens acesso a esta conversa.';
     this.items=[];this.draft='';this.replyTargetId=null;
+    this.brokenAuthorAvatars.clear();
     this.feedRootDraft='';this.feedRootFiles=[];this.feedCommentDrafts.clear();
     this.nearLatest=true;this.unseenBelow=false;
     this.editingId=null;this.editingDraft='';this.searchRecheckBusy=false;this.clearSearch();
@@ -346,6 +354,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       // Old requests may still complete, but their UI locks belong to the old conversation.
       this.sending=false;this.downloading=false;this.reactionBusyId=null;this.loading=true;
       this.items = [];this.error = '';this.syncError = '';this.draft = '';
+      this.brokenAuthorAvatars.clear();
       this.nearLatest=true;this.unseenBelow=false;
       this.replyTargetId = null;this.editingId = null;this.editingDraft='';
       this.feedRootDraft='';this.feedRootFiles=[];this.feedCommentDrafts.clear();
@@ -358,6 +367,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   trackMessage(_:number, entry:TeamContentEntry):number { return entry.id; }
+  authorAvatarSrc(item:TeamContentEntry):string|null {return this.api.playerAvatarSrc(item.profilePicUrl); }
   showFeedComposerAtTop():boolean {
     return this.kind==='feed' && (this.replyTargetId===null
       || !this.visibleEntries().some(item=>item.id===this.replyTargetId));
