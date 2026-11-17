@@ -91,7 +91,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
       <ng-template #teamComposer>
       <div *ngIf="replyTargetId" class="team-content-note">
         {{kind === 'chat' ? 'A responder a' : 'A comentar'}} {{replyPreview(replyTargetId)}}
-        <button type="button" (click)="replyTargetId = null">Cancelar resposta</button>
+        <button type="button" (click)="cancelReply()">Cancelar resposta</button>
       </div>
       <form (ngSubmit)="send()" class="team-content-editor">
         <label [for]="'team-content-' + kind + '-' + teamId">
@@ -243,6 +243,9 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
   @Input({required:true}) kind: TeamContentKind = 'chat';
   replyTargetId: number | null = null;
+  private feedRootDraft='';
+  private feedRootFiles:File[]=[];
+  private feedCommentDrafts=new Map<number,{draft:string;files:File[]}>();
   editingId: number | null = null;
   editingDraft = '';
   searchTerm = '';
@@ -283,6 +286,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       ? 'O chat ou feed da equipa foi desativado pelo responsável.'
       : 'Já não tens acesso a esta conversa.';
     this.items=[];this.draft='';this.replyTargetId=null;
+    this.feedRootDraft='';this.feedRootFiles=[];this.feedCommentDrafts.clear();
     this.nearLatest=true;this.unseenBelow=false;
     this.editingId=null;this.editingDraft='';this.searchRecheckBusy=false;this.clearSearch();
     this.reactionVersion++;this.reactionsById={};this.clearFiles();
@@ -330,6 +334,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.items = [];this.error = '';this.syncError = '';this.draft = '';
       this.nearLatest=true;this.unseenBelow=false;
       this.replyTargetId = null;this.editingId = null;this.editingDraft='';
+      this.feedRootDraft='';this.feedRootFiles=[];this.feedCommentDrafts.clear();
       this.searchRecheckBusy=false;this.clearSearch();this.searchTerm = '';
       this.reactionVersion++;this.reactionsById={};
       this.clearFiles();this.clearPreviews();this.attachmentsEnabled=false;
@@ -467,8 +472,15 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         if(!this.items.some(previous=>previous.id===item.id))
           this.items=[...this.items,item].sort((a,b)=>a.id-b.id);
         if(this.draft.trim()===text)this.draft='';
-        if(this.replyTargetId===submittedReply)this.replyTargetId=null;
         if(uploads.length)this.clearFiles();
+        if(this.replyTargetId===submittedReply && submittedReply!==null){
+          if(this.kind==='feed'){
+            this.feedCommentDrafts.delete(submittedReply);
+            this.replyTargetId=null;
+            this.draft=this.feedRootDraft;this.files=this.feedRootFiles;
+            this.feedRootDraft='';this.feedRootFiles=[];
+          }else this.replyTargetId=null;
+        }
       },
       error:failure => {
         if(version===this.generation&&!this.accessRevoked&&!this.blockUnavailable(failure))
@@ -686,8 +698,28 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.searchVersion++;this.searchActive=false;this.searching=false;this.searchResults=[];
   }
 
+  cancelReply():void {
+    if(this.replyTargetId===null)return;
+    if(this.kind==='feed'){
+      this.feedCommentDrafts.set(this.replyTargetId,{draft:this.draft,files:this.files});
+      this.draft=this.feedRootDraft;this.files=this.feedRootFiles;
+      this.feedRootDraft='';this.feedRootFiles=[];
+    }
+    this.replyTargetId=null;
+  }
   reply(entry:TeamContentEntry):void {
-    if(!entry.deleted)this.replyTargetId=this.replyTargetId===entry.id?null:entry.id;
+    if(entry.deleted||this.sending)return;
+    if(this.replyTargetId===entry.id){this.cancelReply();return;}
+    if(this.kind==='feed'){
+      if(this.replyTargetId===null){
+        this.feedRootDraft=this.draft;this.feedRootFiles=this.files;
+      }else{
+        this.feedCommentDrafts.set(this.replyTargetId,{draft:this.draft,files:this.files});
+      }
+      const restored=this.feedCommentDrafts.get(entry.id);
+      this.draft=restored?.draft||'';this.files=restored?.files||[];
+    }
+    this.replyTargetId=entry.id;
   }
   beginEdit(entry:TeamContentEntry):void {
     if(entry.deleted || !entry.canEdit)return;
