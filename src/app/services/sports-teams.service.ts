@@ -178,6 +178,13 @@ export class SportsTeamsService {
   content(id: number, kind: TeamContentKind): Observable<TeamContentEntry[]> {
     return this.http.get<TeamContentEntry[]>(this.url + '/' + id + '/' + kind);
   }
+  olderFeed(id:number,before:number,limit=30):Observable<TeamContentEntry[]> {
+    if(!Number.isSafeInteger(before)||before<=0||!Number.isInteger(limit)||limit<1||limit>50)
+      throw Error('Página de publicações inválida.');
+    return this.http.get<TeamContentEntry[]>(this.url+'/'+id+'/feed/older',{
+      params:new HttpParams().set('before',String(before)).set('limit',String(limit))
+    });
+  }
   reactions(id: number, kind: TeamContentKind, ids: number[]): Observable<Record<number,TeamReactionState>> {
     return this.http.get<Record<number,TeamReactionState>>(this.url+'/'+id+'/'+kind+'/reactions', {
       params: new HttpParams().set('ids', ids.join(','))
