@@ -98,7 +98,12 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
         <p *ngIf="!rosterVerified" role="alert">Não foi possível confirmar o plantel. As opções de gestão estão temporariamente bloqueadas.</p>
         <div class="team-roster" *ngIf="rosterVerified && members.length">
           <div class="team-member" *ngFor="let player of members">
-            <span class="team-member-avatar" aria-hidden="true">{{ (player.username || 'J').charAt(0).toUpperCase() }}</span>
+            <span class="team-member-avatar" aria-hidden="true">
+              <img *ngIf="playerAvatarSrc(player.profilePicUrl) && !brokenPlayerAvatars.has(player.profileId)"
+                [src]="playerAvatarSrc(player.profilePicUrl)!" loading="lazy" decoding="async"
+                (error)="brokenPlayerAvatars.add(player.profileId)" alt="">
+              <ng-container *ngIf="!playerAvatarSrc(player.profilePicUrl) || brokenPlayerAvatars.has(player.profileId)">{{ (player.username || 'J').charAt(0).toUpperCase() }}</ng-container>
+            </span>
             <div class="team-member-identity"><a [routerLink]="['/menu/perfis',player.username]">@{{player.username}}</a><small>{{player.role === 'OWNER' ? 'Responsável' : 'Jogador'}}</small></div>
             <button *ngIf="isOwner && player.role !== 'OWNER'" type="button" [attr.aria-label]="'Remover @' + player.username + ' da equipa'" [disabled]="busy || !rosterVerified" (click)="removePlayer(player)">Remover</button>
           </div>
@@ -212,6 +217,8 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   private rosterLoading = false;
   team: SportsTeam | null = null;
   logoBroken=false;
+  brokenPlayerAvatars=new Set<number>();
+  playerAvatarSrc(url:string|null|undefined):string|null{return this.api.playerAvatarSrc(url);}
   logoSrc(url:string|null|undefined):string|null{return this.api.logoSrc(url);}
   activeTab: 'OVERVIEW' | 'TROPHIES' | 'FEED' | 'CHAT' = 'OVERVIEW';
   private trophiesRequestedForTeam:number|null=null;
