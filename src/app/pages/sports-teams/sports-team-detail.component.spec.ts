@@ -1,4 +1,5 @@
 import { of, Subject, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthenticationService } from '../../services/authethication.service';
 import { TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
@@ -97,7 +98,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
   api.setKit.and.returnValue(throwError(()=>Error('timeout')));
   component.saveTeamKit();
   expect(component.brandingSaving).toBeFalse();
-  expect(component.feedback).toContain('Não foi possível confirmar');
+  expect(component.feedback).toContain('ligações históricas');
  });
  it('loads ownership and membership case-insensitively from real roster',()=>{
   expect(component.isOwner).toBeTrue();
@@ -271,7 +272,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
  });
  it('preserves historical teams when server rejects deletion with 409',()=>{
   spyOn(window,'confirm').and.returnValue(true);
-  api.deleteEmptyTeam.and.returnValue(throwError(()=>({status:409})));
+  api.deleteEmptyTeam.and.returnValue(throwError(()=>new HttpErrorResponse({status:409,statusText:'Conflict'})));
   component.deleteTeam();
   expect(component.deletingTeam).toBeFalse();
   expect(router.navigate).not.toHaveBeenCalled();
