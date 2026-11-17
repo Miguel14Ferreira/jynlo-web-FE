@@ -54,7 +54,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
             <div *ngFor="let file of item.attachments" class="team-file-card">
               <p>📎 {{file.filename}} ({{(file.size/1024/1024) | number:'1.1-1'}} MB)</p>
               <button type="button" *ngIf="canPreview(file.mimeType)"
-                [disabled]="downloading" (click)="preview(item,file)">Ver anexo</button>
+                [disabled]="downloading" (click)="preview(item,file)">{{previews[previewKey(item.id,file.index)] ? 'Ocultar anexo' : 'Ver anexo'}}</button>
               <button type="button" [disabled]="downloading"
                 (click)="download(item,file.index,file.filename)">Descarregar</button>
               <img *ngIf="previews[previewKey(item.id,file.index)]?.type === 'image'"
