@@ -22,6 +22,8 @@ describe('Team conversation synchronization', () => {
     api.attachmentsAvailable.and.returnValue(of({available:false}));
     api.searchContent.and.returnValue(of([]));
     api.reactions.and.returnValue(of({}));
+    // All tests reconcile older pages unless explicitly testing a delayed or denied response.
+    api.feedEntries.and.returnValue(of([]));
     component=new SportsTeamContentComponent(api,realtime);
     component.teamId=7;
     component.kind='chat';
