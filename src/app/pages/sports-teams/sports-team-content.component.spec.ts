@@ -309,4 +309,34 @@ describe('Team conversation synchronization', () => {
     expect(component.previews['13:0']).toBeUndefined();
     expect(revoke).toHaveBeenCalledWith(url);
   });
+
+  it('keeps a reader on older messages and announces new chat messages',()=>{
+    const pane={scrollTop:0,clientHeight:200,scrollHeight:700} as HTMLDivElement;
+    component.historyPane={nativeElement:pane} as any;
+    component.items=[entry(1,7,'Mensagem antiga')];
+    component.onHistoryScroll();
+    api.content.and.returnValue(of([entry(1,7,'Mensagem antiga'),entry(2,7,'Mensagem nova')]));
+    component.read(true);
+    expect(component.unseenBelow).toBeTrue();
+    expect(pane.scrollTop).toBe(0);
+    component.showLatest();
+    expect(component.unseenBelow).toBeFalse();
+    expect(pane.scrollTop).toBe(700);
+  });
+
+  it('does not clear a newly selected reply after an older send succeeds',()=>{
+    const pending=new Subject<TeamContentEntry>();
+    api.sendContent.and.returnValue(pending.asObservable());
+    api.content.and.returnValue(of([]));
+    component.replyTargetId=1;
+    component.draft='Olá';
+    component.send();
+    expect(api.sendContent).toHaveBeenCalledOnceWith(7,'chat','Olá',1);
+    component.replyTargetId=2;
+    component.draft='Outra mensagem';
+    pending.next(entry(3,7,'Olá'));
+    pending.complete();
+    expect(component.replyTargetId).toBe(2);
+    expect(component.draft).toBe('Outra mensagem');
+  });
 });
