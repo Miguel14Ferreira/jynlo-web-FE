@@ -11,9 +11,13 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="team-content">
+    <div class="team-content" [class.team-chat-mode]="kind === 'chat'" [class.team-feed-mode]="kind === 'feed'">
       <ng-container *ngIf="!accessRevoked; else accessRevokedState">
-      <p class="team-content-note">Exclusivo do responsável e dos membros confirmados.</p>
+      <div class="team-content-heading">
+        <div class="team-content-heading-icon" aria-hidden="true">{{kind === 'chat' ? '💬' : '📰'}}</div>
+        <div><h3>{{kind === 'chat' ? 'Conversa do plantel' : 'Publicações da equipa'}}</h3>
+          <p class="team-content-note">Só os membros confirmados podem participar. Atualização automática.</p></div>
+      </div>
       <p role="alert" class="team-content-error" *ngIf="error">{{error}}</p>
       <p role="status" class="team-content-note" *ngIf="syncError">{{syncError}}</p>
       <form (ngSubmit)="search()" class="team-content-search">
@@ -33,8 +37,11 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
       </p>
       <div class="team-content-history" aria-live="polite">
         <article *ngFor="let item of (searchActive ? searchResults : items); trackBy: trackMessage" class="team-content-entry">
-          <strong>@{{item.username}}</strong>
-          <time>{{item.createdAt | date:'dd/MM/yyyy HH:mm'}}</time>
+          <div class="team-entry-header">
+            <span class="team-entry-avatar" aria-hidden="true">{{(item.username || 'J').slice(0,1).toUpperCase()}}</span>
+            <div class="team-entry-meta"><strong>@{{item.username}}</strong>
+              <time>{{item.createdAt | date:'dd/MM/yyyy HH:mm'}}</time></div>
+          </div>
           <p *ngIf="item.replyToId" class="team-content-reply">↳ {{replyPreview(item.replyToId)}}</p>
           <p>{{item.deleted ? 'Mensagem eliminada' : item.body}}</p>
           <div class="team-private-files" *ngIf="!item.deleted && item.attachments?.length">
@@ -61,9 +68,9 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
             </button>
           </div>
           <div class="team-content-actions" *ngIf="!item.deleted">
-            <button type="button" (click)="reply(item)" [disabled]="sending">Responder</button>
-            <button type="button" *ngIf="item.canEdit" [disabled]="sending" (click)="beginEdit(item)">Editar</button>
-            <button type="button" *ngIf="item.canManage" [disabled]="sending" (click)="remove(item)">Eliminar</button>
+            <button type="button" (click)="reply(item)" [disabled]="sending" aria-label="Responder à mensagem" title="Responder">↩ <span>Responder</span></button>
+            <button type="button" *ngIf="item.canEdit" [disabled]="sending" (click)="beginEdit(item)" aria-label="Editar mensagem" title="Editar">✎ <span>Editar</span></button>
+            <button type="button" *ngIf="item.canManage" [disabled]="sending" (click)="remove(item)" aria-label="Eliminar mensagem" title="Eliminar">× <span>Eliminar</span></button>
           </div>
           <form *ngIf="editingId === item.id" (ngSubmit)="saveEdit(item)">
             <textarea name="editBody" [(ngModel)]="editingDraft" maxlength="2000" [disabled]="sending"></textarea>
@@ -81,7 +88,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
           {{kind === 'chat' ? 'Mensagem' : 'Nova publicação'}}
         </label>
         <textarea [id]="'team-content-' + kind + '-' + teamId" name="body"
-          [(ngModel)]="draft" maxlength="2000" [disabled]="sending"
+          [(ngModel)]="draft" maxlength="2000" [disabled]="sending" (keydown)="onComposerKeydown($event)"
           [placeholder]="kind === 'chat' ? 'Escreve uma mensagem…' : 'Partilha novidades com o plantel…'"></textarea>
         <div *ngIf="attachmentsEnabled" class="team-upload-selector">
           <label [for]="'team-upload-' + kind + '-' + teamId">📎 Anexar fotografias, vídeos ou PDF (até 4)</label>
@@ -91,9 +98,13 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
           <p class="team-content-note" *ngIf="files.length">{{files.length}} ficheiro(s): {{filesLabel()}}</p>
           <button type="button" *ngIf="files.length" [disabled]="sending" (click)="clearFiles()">Retirar anexos</button>
         </div>
-        <button type="submit" [disabled]="sending || (!draft.trim() && !files.length)">
-          {{sending ? 'A enviar…' : kind === 'chat' ? 'Enviar' : 'Publicar'}}
-        </button>
+        <div class="team-composer-footer">
+          <small *ngIf="kind === 'chat'">Enter para enviar · Shift + Enter para nova linha</small>
+          <small *ngIf="kind === 'feed'">Partilha notícias, fotografias ou momentos da equipa.</small>
+          <button type="submit" [disabled]="sending || (!draft.trim() && !files.length)">
+            {{sending ? 'A enviar…' : kind === 'chat' ? 'Enviar mensagem' : 'Publicar'}}
+          </button>
+        </div>
       </form>
       </ng-container>
       <ng-template #accessRevokedState><p role="alert" class="team-content-error">{{blockedReason}}</p></ng-template>
@@ -135,6 +146,47 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
     .team-upload-selector {display:grid;gap:.3rem}
     .team-upload-selector input {color:#d5faf4;max-width:100%}
     .team-upload-selector p {overflow-wrap:anywhere}
+    /* Shared Jynlo message hierarchy: identifiable authors, readable media
+       and a dedicated composer, not two cramped half-width columns. */
+    .team-content {gap:1.1rem}
+    .team-content-heading{display:flex;align-items:center;gap:.85rem;padding:.2rem 0 .8rem;border-bottom:1px solid #42798855}
+    .team-content-heading-icon{display:grid;place-items:center;width:43px;height:43px;
+      flex:none;background:#125362;border:1px solid #31888388;border-radius:13px;font-size:1.25rem}
+    .team-content-heading h3{font-size:1.08rem;margin:0 0 .3rem;color:#e7fcf7}
+    .team-content-history{max-height:min(62vh,650px);min-height:160px;gap:.8rem;padding:.15rem .2rem .6rem;
+      overscroll-behavior:contain;scrollbar-gutter:stable}
+    .team-content-entry{background:linear-gradient(140deg,#103e4b,#0b2c3a);
+      border-color:#3a82905e;padding:1rem 1.1rem;border-radius:16px;min-width:0}
+    .team-entry-header{display:flex;align-items:center;gap:.75rem;min-width:0}
+    .team-entry-avatar{display:grid;place-items:center;width:39px;height:39px;
+      flex:none;border-radius:50%;background:linear-gradient(135deg,#23bcae,#14758b);
+      font-weight:850;color:#032731}
+    .team-entry-meta{min-width:0;display:grid;gap:.15rem}
+    .team-entry-meta strong{overflow-wrap:anywhere}
+    .team-entry-meta time{margin:0;font-size:.75rem;color:#a1c0c8}
+    .team-content-entry>p{line-height:1.6;color:#e4f6f8}
+    .team-content-actions button{min-height:34px;display:inline-flex;align-items:center;gap:.3rem}
+    .team-content-editor{background:#0c3543;border:1px solid #39898977;border-radius:15px;
+      padding:1rem;gap:.85rem}
+    .team-content-editor textarea{min-height:68px;max-height:230px;resize:vertical}
+    .team-composer-footer{display:flex;align-items:center;justify-content:space-between;
+      flex-wrap:wrap;gap:.7rem}
+    .team-composer-footer small{font-size:.73rem;color:#9cbdc5}
+    .team-composer-footer button{justify-self:auto;min-height:43px}
+    .team-chat-mode .team-content-entry{max-width:min(100%,760px)}
+    .team-feed-mode .team-content-entry{max-width:100%}
+    .team-feed-mode .team-content-history{max-height:none;min-height:0}
+    .team-file-card{min-width:0;flex:1 1 200px}
+    .team-file-card img,.team-file-card video{display:block;width:auto;height:auto;object-fit:contain}
+    .team-content-search-controls button:focus-visible,.team-composer-footer button:focus-visible,
+    .team-content-actions button:focus-visible{outline:2px solid #78f9dc;outline-offset:2px}
+    @media(max-width:620px){
+      .team-content-entry{padding:.85rem}
+      .team-content-search-controls{flex-direction:column}
+      .team-content-search-controls input,.team-content-search-controls button{width:100%;flex:auto}
+      .team-content-editor{padding:.8rem}
+      .team-composer-footer button{width:100%}
+    }
   `]
 })
 export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy {
@@ -278,6 +330,13 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       if(version===this.generation && !silent)this.loading=false;
       if(this.readQueued){this.readQueued=false;this.read(true);}
     });
+  }
+
+  onComposerKeydown(event:KeyboardEvent):void {
+    if(this.kind!=='chat'||event.key!=='Enter'||event.shiftKey||event.altKey||
+       event.ctrlKey||event.metaKey||event.isComposing)return;
+    event.preventDefault();
+    this.send();
   }
 
   send():void {
