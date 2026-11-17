@@ -328,4 +328,17 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(component.honoursError).toContain('Não foi possível');
   expect(component.trophiesVerified).toBeFalse();
  });
+
+ it('retries trophy fetches after a failed request without reloading the whole team',()=>{
+  api.honours.and.returnValues(throwError(()=>Error('offline')),of([]));
+  component.selectTab('TROPHIES');
+  expect(component.honoursError).toBeTruthy();
+  const initialTeamRequests=api.detail.calls.count();
+  component.retryTrophies();
+  expect(api.honours).toHaveBeenCalledTimes(2);
+  expect(api.history).toHaveBeenCalledTimes(2);
+  expect(component.honoursError).toBe('');
+  expect(component.trophiesVerified).toBeTrue();
+  expect(api.detail).toHaveBeenCalledTimes(initialTeamRequests);
+ });
 });
