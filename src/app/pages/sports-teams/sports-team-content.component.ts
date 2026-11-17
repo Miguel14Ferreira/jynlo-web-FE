@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Subscription, interval, fromEvent, merge } from 'rxjs';
 import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionState } from '../../services/sports-teams.service';
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
@@ -9,7 +10,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
 @Component({
   selector: 'app-sports-team-content',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="team-content" [class.team-chat-mode]="kind === 'chat'" [class.team-feed-mode]="kind === 'feed'">
       <ng-container *ngIf="!accessRevoked; else accessRevokedState">
@@ -40,7 +41,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
         <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry" [class.team-feed-comment]="isFeedComment(item)">
           <div class="team-entry-header">
             <span class="team-entry-avatar" aria-hidden="true">{{(item.username || 'J').slice(0,1).toUpperCase()}}</span>
-            <div class="team-entry-meta"><strong>@{{item.username}}</strong>
+            <div class="team-entry-meta"><a class="team-author-link" [routerLink]="['/menu/perfis',item.username]" [attr.aria-label]="'Abrir perfil de @' + item.username">@{{item.username}}</a>
               <time>{{item.createdAt | date:'dd/MM/yyyy HH:mm'}}</time></div>
           </div>
           <p *ngIf="item.replyToId" class="team-content-reply">↳ {{replyPreview(item.replyToId)}}</p>
@@ -173,6 +174,8 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
       font-weight:850;color:#032731}
     .team-entry-meta{min-width:0;display:grid;gap:.15rem}
     .team-entry-meta strong{overflow-wrap:anywhere}
+    .team-author-link{color:#79efda;font-weight:800;text-decoration:none;overflow-wrap:anywhere}
+    .team-author-link:hover,.team-author-link:focus-visible{text-decoration:underline}
     .team-entry-meta time{margin:0;font-size:.75rem;color:#a1c0c8}
     .team-content-entry>p{line-height:1.6;color:#e4f6f8}
     .team-content-actions button{min-height:34px;display:inline-flex;align-items:center;gap:.3rem}
