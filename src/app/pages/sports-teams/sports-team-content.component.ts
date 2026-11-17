@@ -618,8 +618,14 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         this.searchResults=this.searchResults.map(item=>item.id===updated.id?updated:item);
         this.editingId=null;
       },
-      error:failure=>{if(version===this.generation&&!this.blockUnavailable(failure))
-        this.error='Edição não confirmada. Consulta o histórico antes de repetir.';}
+      error:failure=>{if(version===this.generation){
+        // Editing a concurrently deleted message returns 409 too. Only the
+        // authenticated history read can decide if the chat was disabled.
+        if(failure instanceof HttpErrorResponse&&failure.status===409)
+          this.error='Esta mensagem pode ter sido eliminada. A verificar o histórico.';
+        else if(!this.blockUnavailable(failure))
+          this.error='Edição não confirmada. Consulta o histórico antes de repetir.';
+      }}
     }).add(()=>{if(version===this.generation){this.sending=false;this.read(true);}});
   }
   remove(entry:TeamContentEntry):void {
@@ -642,8 +648,12 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
           if(index!==-1)this.previewOrder.splice(index,1);
         }
       },
-      error:failure=>{if(version===this.generation&&!this.blockUnavailable(failure))
-        this.error='Eliminação não confirmada. Consulta o histórico antes de repetir.';}
+      error:failure=>{if(version===this.generation){
+        if(failure instanceof HttpErrorResponse&&failure.status===409)
+          this.error='A mensagem já pode ter sido eliminada. A verificar o histórico.';
+        else if(!this.blockUnavailable(failure))
+          this.error='Eliminação não confirmada. Consulta o histórico antes de repetir.';
+      }}
     }).add(()=>{if(version===this.generation){this.sending=false;this.read(true);}});
   }
 
