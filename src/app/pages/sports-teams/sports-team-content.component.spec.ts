@@ -27,6 +27,20 @@ describe('Team conversation synchronization', () => {
     component.kind='chat';
   });
 
+  it('shows team feed posts newest first without altering chronological chat history',()=>{
+    component.items=[entry(1,7,'Primeiro'),entry(2,7,'Segundo'),entry(3,7,'Terceiro')];
+    component.kind='feed';
+    expect(component.visibleEntries().map(item=>item.id)).toEqual([3,2,1]);
+    expect(component.items.map(item=>item.id)).toEqual([1,2,3]);
+    component.searchResults=[entry(4,7),entry(8,7)];
+    component.searchActive=true;
+    expect(component.visibleEntries().map(item=>item.id)).toEqual([8,4]);
+    component.kind='chat';
+    expect(component.visibleEntries().map(item=>item.id)).toEqual([4,8]);
+    component.searchActive=false;
+    expect(component.visibleEntries().map(item=>item.id)).toEqual([1,2,3]);
+  });
+
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
     const image=new File(['png-bytes'],'captura.png',{type:'image/png'});
     const event={
