@@ -999,6 +999,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       next:updated=>{
         if(version!==this.generation||this.accessRevoked)return;
         this.items=this.items.map(item=>item.id===updated.id?updated:item);
+        this.olderEntries=this.olderEntries.map(item=>item.id===updated.id?updated:item);
+        if(this.kind==='feed')this.feedCombined=[...this.olderEntries,...this.items];
         this.searchResults=this.searchResults.map(item=>item.id===updated.id?updated:item);
         this.editingId=null;
       },
@@ -1021,8 +1023,12 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.api.deleteContent(this.teamId,this.kind,entry.id).subscribe({
       next:()=>{
         if(version!==this.generation||this.accessRevoked)return;
-        this.items=this.items.map(item=>item.id===entry.id?{...item,body:'',deleted:true,attachments:[]}:item);
-        this.searchResults=this.searchResults.map(item=>item.id===entry.id?{...item,body:'',deleted:true,attachments:[]}:item);
+        const tombstone=(item:TeamContentEntry):TeamContentEntry=>item.id===entry.id
+          ?{...item,body:'',deleted:true,attachments:[]}:item;
+        this.items=this.items.map(tombstone);
+        this.olderEntries=this.olderEntries.map(tombstone);
+        if(this.kind==='feed')this.feedCombined=[...this.olderEntries,...this.items];
+        this.searchResults=this.searchResults.map(tombstone);
         // An attachment preview must not remain on screen after removal.
         for(const key of Object.keys(this.previews)){
           if(!key.startsWith(entry.id+':'))continue;
