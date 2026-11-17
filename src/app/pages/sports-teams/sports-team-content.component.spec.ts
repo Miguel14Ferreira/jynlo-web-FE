@@ -265,7 +265,7 @@ describe('Team conversation synchronization', () => {
     component.toggleFeedReactionPicker(12);
     expect(component.feedReactionPickerId).toBeNull();
     component.toggleFeedReactionPicker(12);
-    api.removeReaction.and.returnValue(of({}));
+    api.removeReaction.and.returnValue(of(void 0));
     component.react(entry(12,7,'Post'),'❤️');
     expect(component.feedReactionPickerId).toBeNull();
     expect(api.removeReaction).toHaveBeenCalled();
