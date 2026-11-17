@@ -107,16 +107,18 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   sessionMemoriesError='';
   private sessionMemoriesLoadedId:number|null=null;
   private sessionMemoriesVersion=0;
+  private sessionMemoriesRefreshTimer?: ReturnType<typeof setInterval>;
 
   /** Nothing is published automatically. The session album reads existing posts. */
-  loadSessionMemories(force=false):void {
+  loadSessionMemories(force=false, silent=false):void {
     const current=this.session;
     if(!current || current.canSharePublicly!==true || !this.currentUsername)return;
     const id=current.id;
-    if(!force&&(this.sessionMemoriesLoadedId===id||this.sessionMemoriesLoading))return;
+    if(this.sessionMemoriesLoading || (!force&&this.sessionMemoriesLoadedId===id))return;
     const generation=++this.sessionMemoriesVersion;
     this.sessionMemoriesLoadedId=id;
-    this.sessionMemoriesLoading=true;this.sessionMemoriesError='';
+    this.sessionMemoriesLoading=true;
+    if(!silent)this.sessionMemoriesError='';
     this.socialFeed.sessionMemories(id).pipe(timeout(10000)).subscribe({
       next:items=>{
         if(generation!==this.sessionMemoriesVersion||this.session?.id!==id)return;
@@ -125,8 +127,8 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       },
       error:()=>{
         if(generation!==this.sessionMemoriesVersion||this.session?.id!==id)return;
-        this.sessionMemories=[];
-        this.sessionMemoriesError='Não foi possível carregar os momentos desta sessão.';
+        if(!silent)this.sessionMemories=[];
+        if(!silent)this.sessionMemoriesError='Não foi possível carregar os momentos desta sessão.';
         this.sessionMemoriesLoading=false;
       }
     });
@@ -868,6 +870,15 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
           this.syncVisibleRoster();
         }), 15000);
     });
+    // Session memories are read-only: quietly reconcile while the page is visible.
+    this.zone.runOutsideAngular(() => {
+      this.sessionMemoriesRefreshTimer = setInterval(() => {
+        if (!document.hidden && this.session?.canSharePublicly === true
+            && this.currentUsername && !this.sessionMemoriesLoading) {
+          this.zone.run(() => this.loadSessionMemories(true, true));
+        }
+      }, 30000);
+    });
     this.realtimeService.connect();
 
     this.realtimeSubscriptions.add(
@@ -910,6 +921,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
 
   ngOnDestroy(): void {
     if (this.registrationClockTimer) clearInterval(this.registrationClockTimer);
+    if (this.sessionMemoriesRefreshTimer) clearInterval(this.sessionMemoriesRefreshTimer);
     ++this.sessionMemoriesVersion;
     ++this.officialSocialScoreVersion;
     this.typing.destroy();
