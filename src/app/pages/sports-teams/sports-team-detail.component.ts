@@ -82,15 +82,15 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
     </div>
     <nav class="team-tabs" role="tablist" aria-label="Secções da equipa">
       <button type="button" role="tab" [attr.aria-selected]="activeTab === 'OVERVIEW'"
-        [class.selected]="activeTab === 'OVERVIEW'" (click)="activeTab = 'OVERVIEW'">Visão geral</button>
+        [class.selected]="activeTab === 'OVERVIEW'" (click)="selectTab('OVERVIEW')">Visão geral</button>
       <button type="button" role="tab" [attr.aria-selected]="activeTab === 'TROPHIES'"
-        [class.selected]="activeTab === 'TROPHIES'" (click)="activeTab = 'TROPHIES'">
+        [class.selected]="activeTab === 'TROPHIES'" (click)="selectTab('TROPHIES')">
         🏆 Troféus ({{trophies.length + championshipHonours.length}})
       </button>
       <button type="button" role="tab" [attr.aria-selected]="activeTab === 'FEED'"
-        [class.selected]="activeTab === 'FEED'" (click)="activeTab = 'FEED'">Publicações</button>
+        [class.selected]="activeTab === 'FEED'" (click)="selectTab('FEED')">Publicações</button>
       <button type="button" role="tab" [attr.aria-selected]="activeTab === 'CHAT'"
-        [class.selected]="activeTab === 'CHAT'" (click)="activeTab = 'CHAT'">Mensagens</button>
+        [class.selected]="activeTab === 'CHAT'" (click)="selectTab('CHAT')">Mensagens</button>
     </nav>
     <p *ngIf="feedback" role="status" class="team-feedback">{{feedback}}</p>
     <div class="team-grid" role="tabpanel">
@@ -212,6 +212,40 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   logoBroken=false;
   logoSrc(url:string|null|undefined):string|null{return this.api.logoSrc(url);}
   activeTab: 'OVERVIEW' | 'TROPHIES' | 'FEED' | 'CHAT' = 'OVERVIEW';
+  private trophiesRequestedForTeam:number|null=null;
+  selectTab(tab:'OVERVIEW'|'TROPHIES'|'FEED'|'CHAT'):void {
+    this.activeTab=tab;
+    if(tab==='TROPHIES')this.loadTrophies();
+  }
+  private loadTrophies():void {
+    const id=this.team?.id;
+    if(!id||this.trophiesRequestedForTeam===id)return;
+    this.trophiesRequestedForTeam=id;
+    this.historyLoading=true;this.honoursLoading=true;
+    this.historyError='';this.honoursError='';
+    this.api.honours(id).pipe(timeout(15000)).subscribe({
+      next:awards=>{
+        if(this.team?.id!==id)return;
+        this.championshipHonours=awards;this.honoursLoading=false;this.render();
+      },
+      error:()=>{
+        if(this.team?.id!==id)return;
+        this.honoursError='Não foi possível carregar os títulos dos campeonatos.';
+        this.honoursLoading=false;this.render();
+      }
+    });
+    this.api.history(id).pipe(timeout(15000)).subscribe({
+      next:entries=>{
+        if(this.team?.id!==id)return;
+        this.history=entries;this.historyLoading=false;this.render();
+      },
+      error:()=>{
+        if(this.team?.id!==id)return;
+        this.historyError='Não foi possível carregar o histórico de troféus.';
+        this.historyLoading=false;this.render();
+      }
+    });
+  }
   members: SportsTeamMember[] = [];
   pendingPlayers:TeamPendingPlayerInvitation[]=[];
   invitationsVerified=false;
@@ -501,16 +535,9 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         this.render();
         this.api.mine().pipe(timeout(15000)).subscribe({next:owned=>{this.isOwner=owned.some(x=>x.id===team.id);if(this.isOwner)this.loadPendingInvitations();this.render();},error:()=>{this.isOwner=false;this.invitationsVerified=false;this.render();}});
         this.loadCommunities();
-        this.historyLoading = true;
-        this.honoursLoading = true;
-        this.api.honours(team.id).pipe(timeout(15000)).subscribe({
-          next: awards => {this.championshipHonours = awards; this.honoursLoading = false;this.render();},
-          error: () => {this.honoursError = 'Não foi possível carregar os títulos dos campeonatos.'; this.honoursLoading = false;this.render();}
-        });
-        this.api.history(team.id).pipe(timeout(15000)).subscribe({
-          next: entries => {this.history = entries; this.historyLoading = false;this.render();},
-          error: () => {this.historyError = 'Não foi possível carregar o histórico de troféus.'; this.historyLoading = false;this.render();}
-        });
+        // Trophy/history requests are unnecessary on the initial squad screen.
+        // Load them once, when the user actually opens the trophies tab.
+        if(this.activeTab==='TROPHIES')this.loadTrophies();
         this.refreshRoster();
       },
       error: () => {this.error = 'Não foi possível confirmar os dados da equipa. Tenta abrir novamente.';this.render();}
