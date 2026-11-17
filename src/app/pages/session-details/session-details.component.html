@@ -2025,9 +2025,6 @@
                   <p>Fotografias, vídeos e histórias partilhadas pelos jogadores. Nada é publicado automaticamente.</p>
                 </div>
                 <div class="session-memories-actions">
-                  <button type="button" class="jynlo-action jynlo-action--neutral"
-                    [disabled]="sessionMemoriesLoading" (click)="loadSessionMemories(true)"
-                    aria-label="Ver novos momentos desta sessão">Ver novos momentos</button>
                   @if (session.status === 'COMPLETED' && (session.joined || isCreator())) {
                     <a class="jynlo-action jynlo-action--primary" routerLink="/menu/feed"
                       [queryParams]="{momentSession:session.id}">Partilhar um momento</a>
