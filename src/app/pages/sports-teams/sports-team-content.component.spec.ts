@@ -58,6 +58,26 @@ describe('Team conversation synchronization', () => {
     expect(component.visibleEntries().map(item=>item.id)).toEqual([1,2,3,4,5,6]);
   });
 
+  it('shows the private feed editor above posts only when no visible comment is selected',()=>{
+    component.kind='feed';
+    component.items=[entry(10,7,'Publicação')];
+    expect(component.showFeedComposerAtTop()).toBeTrue();
+    component.reply(component.items[0]);
+    expect(component.replyTargetId).toBe(10);
+    expect(component.showFeedComposerAtTop()).toBeFalse();
+    component.reply(component.items[0]);
+    expect(component.replyTargetId).toBeNull();
+    expect(component.showFeedComposerAtTop()).toBeTrue();
+    component.replyTargetId=999;
+    expect(component.showFeedComposerAtTop()).toBeTrue();
+    component.searchActive=true;
+    component.searchResults=[];
+    component.replyTargetId=10;
+    expect(component.showFeedComposerAtTop()).toBeTrue();
+    component.kind='chat';
+    expect(component.showFeedComposerAtTop()).toBeFalse();
+  });
+
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
     const image=new File(['png-bytes'],'captura.png',{type:'image/png'});
     const event={
