@@ -1,0 +1,24 @@
+name: Jynlo dual-account teams QA (read-only)
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  dual_account_teams:
+    name: Verify two QA accounts without writes or private data logs
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      JYNLO_QA_PASSWORD_1: ${{ secrets.JYNLO_QA_PASSWORD_1 }}
+      JYNLO_QA_PASSWORD_2: ${{ secrets.JYNLO_QA_PASSWORD_2 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate safe team QA fixtures and strict GET allowlist
+        run: node --test scripts/qa/jynlo-teams-live-readonly.test.cjs
+      - name: Check actual team/chat/competition access for both test accounts
+        run: node scripts/qa/jynlo-teams-live-readonly.cjs
