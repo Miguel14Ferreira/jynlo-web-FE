@@ -8,6 +8,7 @@ import { catchError, concatMap, finalize, forkJoin, from, map, mergeMap, of, ret
 import { environment } from 'src/environment/environment';
 import { SocialFeedService } from '../../services/social-feed.service';
 import { FeedItem } from '../model/feed-item';
+import { OfficialGameScore, publicSessionResultMessage } from '../../shared/session-result-share';
 import { CommunityService } from '../../services/community.service';
 import { DirectChatService } from '../../services/direct-chat.service';
 import { DirectCallClientService } from '../../services/direct-call-client.service';
@@ -49,6 +50,58 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   });
   session?: SessionDetail;
   readonly socialFeed=inject(SocialFeedService);
+  officialSocialScore: OfficialGameScore | null = null;
+  officialSocialScoreError = '';
+  officialSocialScoreLoading = false;
+  officialSocialShareFeedback = '';
+  private officialSocialScoreSessionId:number|null=null;
+  private officialSocialScoreVersion=0;
+
+  get shareableOfficialScore():string|null {
+    return publicSessionResultMessage(this.session,this.officialSocialScore);
+  }
+
+  private loadOfficialSocialScore():void {
+    const game=this.session;
+    if(!game || game.canSharePublicly!==true || game.status!=='COMPLETED'
+       || (!game.joined&&!this.isCreator()) || !this.currentUsername)return;
+    if(this.officialSocialScoreSessionId===game.id)return;
+    const id=game.id,version=++this.officialSocialScoreVersion;
+    this.officialSocialScoreSessionId=id;
+    this.officialSocialScoreLoading=true;
+    this.officialSocialScore=null;
+    this.officialSocialScoreError='';
+    this.sessionService.officialResult(id).pipe(timeout(10000)).subscribe({
+      next:score=>{
+        if(version!==this.officialSocialScoreVersion||this.session?.id!==id)return;
+        this.officialSocialScore=score.sessionId===id?score:null;
+        this.officialSocialScoreLoading=false;
+      },
+      error:(err:HttpErrorResponse)=>{
+        if(version!==this.officialSocialScoreVersion||this.session?.id!==id)return;
+        this.officialSocialScore=null;
+        this.officialSocialScoreLoading=false;
+        if(err.status!==404)this.officialSocialScoreError='Não foi possível consultar o resultado oficial.';
+      }
+    });
+  }
+
+  async shareOfficialSocialScore():Promise<void> {
+    const text= this.shareableOfficialScore;
+    if(!text)return;
+    this.officialSocialShareFeedback='';
+    try {
+      if(typeof navigator.share==='function')await navigator.share({text});
+      else if(navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        this.officialSocialShareFeedback='Resultado copiado para partilhar.';
+      }else this.officialSocialShareFeedback='Não foi possível copiar automaticamente o resultado.';
+    }catch{
+      // A cancelled native share is not a successful publication.
+      this.officialSocialShareFeedback='Partilha cancelada ou indisponível.';
+    }
+  }
+
   sessionMemories:FeedItem[]=[];
   sessionMemoriesLoading=false;
   sessionMemoriesError='';
@@ -858,6 +911,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   ngOnDestroy(): void {
     if (this.registrationClockTimer) clearInterval(this.registrationClockTimer);
     ++this.sessionMemoriesVersion;
+    ++this.officialSocialScoreVersion;
     this.typing.destroy();
     this.closeSessionAttachmentPreview();
     this.realtimeSubscriptions.unsubscribe();
@@ -3462,6 +3516,18 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
             && this.session.waitlisted && !this.session.joined
             && session.joined && !session.waitlisted;
           this.session = session;
+          if(this.officialSocialScoreSessionId!==null&&this.officialSocialScoreSessionId!==session.id){
+            ++this.officialSocialScoreVersion;
+            this.officialSocialScore=null;this.officialSocialScoreSessionId=null;
+            this.officialSocialScoreError='';this.officialSocialScoreLoading=false;
+          }
+          if(session.canSharePublicly===true&&session.status==='COMPLETED'
+             &&(session.joined||this.isCreator()))this.loadOfficialSocialScore();
+          else{
+            ++this.officialSocialScoreVersion;
+            this.officialSocialScore=null;this.officialSocialScoreSessionId=null;
+            this.officialSocialScoreError='';this.officialSocialScoreLoading=false;
+          }
           if(this.sessionMemoriesLoadedId!==null&&this.sessionMemoriesLoadedId!==session.id){
             ++this.sessionMemoriesVersion;
             this.sessionMemories=[];this.sessionMemoriesLoadedId=null;
