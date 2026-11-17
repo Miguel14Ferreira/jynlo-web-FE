@@ -17,7 +17,7 @@ describe('Team conversation synchronization', () => {
 
   beforeEach(() => {
     api=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',
-      ['content','searchContent','attachmentsAvailable','reactions','sendContent','downloadContentFile','uploadContentFiles','editContent','deleteContent','playerAvatarSrc','setReaction','removeReaction','olderFeed']);
+      ['content','searchContent','attachmentsAvailable','reactions','sendContent','downloadContentFile','uploadContentFiles','editContent','deleteContent','playerAvatarSrc','setReaction','removeReaction','olderFeed','feedEntries']);
     realtime=jasmine.createSpyObj<DirectChatRealtimeService>('DirectChatRealtimeService',['connect']);
     api.attachmentsAvailable.and.returnValue(of({available:false}));
     api.searchContent.and.returnValue(of([]));
@@ -356,6 +356,41 @@ describe('Team conversation synchronization', () => {
     delayed.next([entry(90,7,'Privado da equipa antiga')]);delayed.complete();
     expect(component.olderEntries).toEqual([]);
     expect(component.feedCombined.map(item=>item.teamId)).toEqual([8]);
+  });
+
+  it('reconciles edits and tombstones in older private feed pages',()=>{
+    component.kind='feed';
+    const recent=Array.from({length:100},(_,i)=>entry(i+101,7,'Atual '+i));
+    const old=entry(90,7,'Antes da edição');
+    const removed=entry(91,7,'A eliminar');
+    api.content.and.returnValue(of(recent));
+    api.olderFeed.and.returnValue(of([old,removed]));
+    api.feedEntries.and.returnValue(of([
+      {...old,body:'Texto corrigido',editedAt:'2026-11-17T16:00:00Z'},
+      {...removed,body:'',deleted:true,attachments:[]}
+    ]));
+    component.read(false);
+    component.loadOlderPosts();
+    component.read(true);
+    expect(api.feedEntries).toHaveBeenCalledOnceWith(7,[90,91]);
+    expect(component.olderEntries[0].body).toBe('Texto corrigido');
+    expect(component.olderEntries[1].deleted).toBeTrue();
+    expect(component.olderEntries[1].body).toBe('');
+  });
+
+  it('never restores a historical private entry after losing membership',()=>{
+    component.kind='feed';
+    const recent=Array.from({length:100},(_,i)=>entry(i+101,7,'Atual'));
+    api.content.and.returnValue(of(recent));
+    api.olderFeed.and.returnValue(of([entry(90,7,'Privado')]));
+    api.feedEntries.and.returnValue(throwError(()=>new HttpErrorResponse({status:403})));
+    component.read(false);
+    component.loadOlderPosts();
+    component.read(true);
+    expect(component.accessRevoked).toBeTrue();
+    expect(component.olderEntries).toEqual([]);
+    expect(component.feedCombined).toEqual([]);
+    expect(component.items).toEqual([]);
   });
 
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
