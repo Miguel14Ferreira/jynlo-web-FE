@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthenticationService } from '../../services/authethication.service';
 import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Subscription, interval, fromEvent, merge, timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PublicTeamCommunity,TeamCommunityMembership,TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
 import { SportsTeam, SportsTeamMember, SportsTeamsService, SportsTeamPlayerCandidate, TeamPendingPlayerInvitation, TeamCompetitionHistory, TeamChampionshipHonour, TeamKitPattern } from '../../services/sports-teams.service';
 import { SportsTeamContentComponent } from './sports-team-content.component';
@@ -62,6 +63,15 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
             {{brandingSaving?'A guardar…':'Guardar equipamento'}}
           </button>
         </div>
+      </section>
+      <section *ngIf="isOwner" class="team-danger-zone" aria-label="Administração da equipa">
+        <div>
+          <strong>Administração da equipa</strong>
+          <p>A eliminação só é permitida se não existirem jogadores, convites,
+            mensagens, competições ou associações guardadas. O histórico é protegido.</p>
+        </div>
+        <button type="button" class="team-delete-button" [disabled]="deletingTeam || busy || brandingSaving || featureSaving"
+          (click)="deleteTeam()">{{deletingTeam ? 'A eliminar…' : 'Eliminar equipa'}}</button>
       </section>
       <div class="team-hero-stats">
         <span><strong>{{rosterVerified ? members.length : '—'}}</strong> Jogadores</span>
@@ -224,7 +234,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   }
   communities:TeamCommunityMembership[]=[];
   communityQuery='';communityResults:PublicTeamCommunity[]=[];
-  isOwner=false;busy=false;featureSaving=false;feedback='';
+  isOwner=false;busy=false;featureSaving=false;deletingTeam=false;feedback='';
   kitPrimary='#16caba';kitSecondary='#f2fafc';kitPattern:TeamKitPattern='PLAIN';brandingSaving=false;
   readonly kitPatterns:ReadonlyArray<{id:TeamKitPattern;label:string}>=[
     {id:'PLAIN',label:'Lisa'},{id:'STRIPES',label:'Riscas'},{id:'DIAGONAL',label:'Faixa diagonal'}
@@ -268,6 +278,33 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     });
   }
 
+  deleteTeam():void {
+    if(!this.team||!this.isOwner||this.deletingTeam||this.busy||
+       this.brandingSaving||this.featureSaving||typeof window==='undefined')return;
+    const current=this.team;
+    const confirmed=window.confirm(
+      'Eliminar definitivamente a equipa "'+current.name+'"?\n\n'
+      +'Esta ação não pode ser anulada. Se houver jogadores, convites, mensagens, '
+      +'competições ou histórico, o servidor não permitirá a eliminação.');
+    if(!confirmed)return;
+    this.deletingTeam=true;this.feedback='';
+    this.api.deleteEmptyTeam(current.id).pipe(timeout(15000)).subscribe({
+      next:()=>{
+        if(this.rosterSubscriptions.closed)return;
+        this.deletingTeam=false;this.api.forgetTeam(current.id);
+        void this.router.navigate(['/menu/teams']);
+      },
+      error:(failure:unknown)=>{
+        if(this.rosterSubscriptions.closed)return;
+        this.deletingTeam=false;
+        this.feedback=failure instanceof HttpErrorResponse && failure.status===409
+          ? 'Não é possível eliminar esta equipa porque tem jogadores, convites, publicações, mensagens ou ligações históricas. Estes dados ficam protegidos.'
+          : 'Não foi possível confirmar a eliminação. Consulta a equipa antes de tentares novamente.';
+        this.render();
+      }
+    });
+  }
+
   toggleFeature(field:'chatEnabled'|'feedEnabled'):void {
     if(!this.isOwner||!this.team||this.featureSaving)return;
     const previous=this.team;
@@ -301,7 +338,8 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   constructor(private readonly route: ActivatedRoute, private readonly api: SportsTeamsService,
     private readonly communityMemberships:TeamCommunityMembershipsService,
     private readonly auth:AuthenticationService,
-    private readonly cdr:ChangeDetectorRef) {}
+    private readonly cdr:ChangeDetectorRef,
+    private readonly router:Router) {}
   private render():void{if(!this.rosterSubscriptions.closed)this.cdr.detectChanges();}
   respond(id:number,accept:boolean):void{
     if(this.busy||!this.isOwner||!this.communitiesVerified)return;
