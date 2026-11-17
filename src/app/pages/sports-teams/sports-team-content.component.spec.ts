@@ -17,7 +17,7 @@ describe('Team conversation synchronization', () => {
 
   beforeEach(() => {
     api=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',
-      ['content','searchContent','attachmentsAvailable','reactions','sendContent','downloadContentFile','uploadContentFiles','editContent','deleteContent']);
+      ['content','searchContent','attachmentsAvailable','reactions','sendContent','downloadContentFile','uploadContentFiles','editContent','deleteContent','playerAvatarSrc']);
     realtime=jasmine.createSpyObj<DirectChatRealtimeService>('DirectChatRealtimeService',['connect']);
     api.attachmentsAvailable.and.returnValue(of({available:false}));
     api.searchContent.and.returnValue(of([]));
@@ -25,6 +25,19 @@ describe('Team conversation synchronization', () => {
     component=new SportsTeamContentComponent(api,realtime);
     component.teamId=7;
     component.kind='chat';
+  });
+
+  it('uses the existing safe avatar URL helper and keeps a fallback for missing photos',()=>{
+    api.playerAvatarSrc.and.callFake(url=>url?.startsWith('https://')?url:null);
+    const withPhoto={...entry(2,7),profilePicUrl:'https://cdn.example.org/athlete.png'};
+    const missingPhoto={...entry(3,7),profilePicUrl:null};
+    const suspicious={...entry(4,7),profilePicUrl:'javascript:alert(1)'};
+    expect(component.authorAvatarSrc(withPhoto)).toBe('https://cdn.example.org/athlete.png');
+    expect(component.authorAvatarSrc(missingPhoto)).toBeNull();
+    expect(component.authorAvatarSrc(suspicious)).toBeNull();
+    component.brokenAuthorAvatars.add(2);
+    component.ngOnChanges({teamId:new SimpleChange(7,8,false)});
+    expect(component.brokenAuthorAvatars.size).toBe(0);
   });
 
   it('shows team feed posts newest first without altering chronological chat history',()=>{
