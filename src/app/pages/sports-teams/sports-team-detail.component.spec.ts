@@ -276,7 +276,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
   component.deleteTeam();
   expect(component.deletingTeam).toBeFalse();
   expect(router.navigate).not.toHaveBeenCalled();
-  expect(component.feedback).toContain('Não foi possível confirmar');
+  expect(component.feedback).toContain('ligações históricas');
  });
  it('cancels only a verified pending invitation after confirmation',()=>{
   api.teamPendingInvitations.and.returnValue(of([{profileId:4,username:'Novo',status:'INVITED'}]));
