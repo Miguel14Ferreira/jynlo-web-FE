@@ -41,6 +41,23 @@ describe('Team conversation synchronization', () => {
     expect(component.visibleEntries().map(item=>item.id)).toEqual([1,2,3]);
   });
 
+  it('keeps comments beneath the correct newest-first private team posts',()=>{
+    component.kind='feed';
+    component.items=[
+      entry(1,7,'Primeira'),
+      {...entry(2,7,'Resposta'),replyToId:1},
+      entry(3,7,'Segunda'),
+      {...entry(4,7,'Resposta da resposta'),replyToId:2},
+      {...entry(5,7,'Resposta à segunda'),replyToId:3},
+      {...entry(6,7,'Sem pai carregado'),replyToId:999}
+    ];
+    expect(component.visibleEntries().map(item=>item.id)).toEqual([6,3,5,1,2,4]);
+    expect(component.isFeedComment(component.items[1])).toBeTrue();
+    expect(component.isFeedComment(component.items[5])).toBeFalse();
+    component.kind='chat';
+    expect(component.visibleEntries().map(item=>item.id)).toEqual([1,2,3,4,5,6]);
+  });
+
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
     const image=new File(['png-bytes'],'captura.png',{type:'image/png'});
     const event={
