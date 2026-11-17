@@ -241,6 +241,16 @@ const fictionalCommunitySession = {
   distanceKm: null, recurrenceSeriesId: null, seasonCommunityId: null
 };
 
+// Global team fixtures measure list/detail navigation without production data.
+const fictionalGlobalTeam={
+  id:710,slug:'equipa-qa',name:'Equipa QA',sport:'Futebol',location:'Lisboa',
+  description:'Plantel fictício de auditoria',ownerProfileId:1,
+  feedEnabled:true,chatEnabled:true,logoUrl:null,
+  kitPrimary:'#16caba',kitSecondary:'#f2fafc',kitPattern:'PLAIN'
+};
+const fictionalGlobalRoster=[{profileId:1,username:'mobile-fixture',role:'OWNER'},
+  {profileId:2,username:'qa-teammate',role:'PLAYER'}];
+
 const unexpectedWrites = [];
 const browserErrors = [];
 
@@ -324,6 +334,16 @@ async function main() {
               warning: false, reducedPriority: false, joinRestricted: false });
           }
 
+          if (endpoint === '/api/teams') return respond(route, 200, [fictionalGlobalTeam]);
+          if (endpoint === '/api/teams/mine') return respond(route, 200, [fictionalGlobalTeam]);
+          if (endpoint === '/api/teams/joined') return respond(route, 200, []);
+          if (endpoint === '/api/teams/invitations/mine') return respond(route, 200, []);
+          if (endpoint === '/api/teams/710') return respond(route, 200, fictionalGlobalTeam);
+          if (endpoint === '/api/teams/710/members') return respond(route, 200, fictionalGlobalRoster);
+          if (endpoint === '/api/teams/710/invitations') return respond(route, 200, []);
+          if (endpoint === '/api/teams/710/honours') return respond(route, 200, []);
+          if (endpoint === '/api/teams/710/history') return respond(route, 200, []);
+          if (endpoint === '/api/team-community-memberships/teams/710') return respond(route, 200, []);
           if (endpoint === '/api/profile/me') return respond(route, 200, profile);
           if (endpoint === '/api/notifications/me') return respond(route, 200, []);
           if (endpoint === '/api/notifications/me/unread-count') return respond(route, 200, 0);
@@ -438,6 +458,8 @@ async function main() {
 
         // High-value authenticated detail states in four synthetic states.
         scenarios.push(
+          ['/menu/teams', '.teams-page .team-card'],
+          ['/menu/teams/710', '.team-detail .team-hero'],
           ['/menu/venues', '.venue-directory-grid .venue-directory-card'],
           ['/menu/venues/201', '.venue-detail-page .venue-header'],
           ['/menu/venues/new', '.venue-create-form'],
@@ -462,7 +484,16 @@ async function main() {
           ['/menu/events/904', '.jynlo-session-detail-premium .detail-card']
         );
 
+        // Synthetic requests are counted only for the current navigation. This
+        // captures repeatable relative changes, not production latency.
+        const teamHttpReads=[];
+        page.on('request',req=>{
+          if(req.method()==='GET'&&/\/api\/(?:teams|team-community-memberships)\//.test(req.url()))
+            teamHttpReads.push(new URL(req.url()).pathname);
+        });
         for (const [route, selector] of scenarios) {
+          teamHttpReads.length=0;
+          const navigationStarted=Date.now();
           await page.goto(SITE + route, { waitUntil: 'domcontentloaded', timeout: 20_000 });
           // Competition screen now opens with the Championships view by default.
           // Switch to Tournaments before asserting its visible panels; this is
@@ -474,6 +505,23 @@ async function main() {
             await tournamentTab.click();
           }
           await page.locator(selector).first().waitFor({ state: 'visible', timeout: 15_000 });
+          if(route==='/menu/teams'||route==='/menu/teams/710'){
+            const firstPaintMs=Date.now()-navigationStarted;
+            const initialReads=[...teamHttpReads];
+            if(route==='/menu/teams/710'){
+              assert.equal(initialReads.filter(x=>x.endsWith('/honours')||x.endsWith('/history')).length,0,
+                'Opening the team profile must not fetch trophies before the trophy tab');
+              await page.getByRole('tab',{name:/Troféus/i}).click();
+              await page.waitForFunction(()=>document.querySelector('.team-trophies')!==null);
+              await page.waitForTimeout(120);
+              assert.equal(teamHttpReads.filter(x=>x.endsWith('/honours')).length,1,
+                'Trophies tab must fetch honours exactly once');
+              assert.equal(teamHttpReads.filter(x=>x.endsWith('/history')).length,1,
+                'Trophies tab must fetch history exactly once');
+            }
+            console.log('TEAM_NAVIGATION_SYNTHETIC',JSON.stringify({route,width,language,
+              firstPaintMs,initialApiReads:initialReads.length,initialEndpoints:initialReads}));
+          }
           await page.evaluate(() => document.fonts && document.fonts.ready);
           // Angular and mobile viewport metadata can settle after the route host.
           // Wait for the viewport to match the device width before testing overflow.
