@@ -74,6 +74,7 @@ export interface TeamContentEntry {
   id: number;
   teamId: number;
   username: string;
+  profilePicUrl?: string | null;
   body: string;
   createdAt: string;
   replyToId: number | null;
