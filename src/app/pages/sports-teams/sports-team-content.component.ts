@@ -414,7 +414,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     return entries.filter(item=>{
       if(item.id===postId || item.replyToId===null)return false;
       const seen=new Set<number>([item.id]);
-      let parent=item.replyToId;
+      let parent:number|null=item.replyToId;
       while(parent!=null && !seen.has(parent)){
         if(parent===postId)return true;
         seen.add(parent);
