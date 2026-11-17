@@ -329,6 +329,9 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   olderLoading=false;
   hasOlderPosts=false;
   olderError='';
+  private olderReconcileInFlight=false;
+  private olderReconcileAt=0;
+  private olderReconcileOffset=0;
   brokenAuthorAvatars=new Set<number>();
   collapsedFeedPosts=new Set<number>();
   private commentCountSource:TeamContentEntry[]|null=null;
@@ -356,6 +359,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       : 'Já não tens acesso a esta conversa.';
     this.items=[];this.olderEntries=[];this.feedCombined=[];
     this.hasOlderPosts=false;this.olderLoading=false;this.olderError='';
+    this.olderReconcileInFlight=false;this.olderReconcileAt=0;this.olderReconcileOffset=0;
     this.draft='';this.replyTargetId=null;
     this.brokenAuthorAvatars.clear();this.collapsedFeedPosts.clear();
     this.feedRootDraft='';this.feedRootFiles=[];this.feedCommentDrafts.clear();
@@ -405,6 +409,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.sending=false;this.downloading=false;this.reactionBusyId=null;this.loading=true;
       this.items = [];this.olderEntries=[];this.feedCombined=[];
       this.hasOlderPosts=false;this.olderLoading=false;this.olderError='';
+      this.olderReconcileInFlight=false;this.olderReconcileAt=0;this.olderReconcileOffset=0;
       this.error = '';this.syncError = '';this.draft = '';
       this.brokenAuthorAvatars.clear();this.collapsedFeedPosts.clear();
       this.nearLatest=true;this.unseenBelow=false;
@@ -510,6 +515,42 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       }
     }).add(()=>{if(generation===this.generation)this.olderLoading=false;});
   }
+  /** Reconcile one bounded page of previously loaded feed posts, rotating through older pages. */
+  private reconcileOlderPosts():void {
+    if(this.kind!=='feed'||this.accessRevoked||this.olderReconcileInFlight
+        ||this.olderLoading||!this.olderEntries.length
+        ||Date.now()-this.olderReconcileAt<30000)return;
+    this.olderReconcileAt=Date.now();
+    const start=this.olderReconcileOffset%this.olderEntries.length;
+    const ids=this.olderEntries.slice(start,start+100).map(item=>item.id);
+    this.olderReconcileOffset=start+ids.length>=this.olderEntries.length?0:start+ids.length;
+    if(!ids.length)return;
+    const generation=this.generation;
+    this.olderReconcileInFlight=true;
+    this.api.feedEntries(this.teamId,ids).subscribe({
+      next:updated=>{
+        if(generation!==this.generation||this.accessRevoked)return;
+        const fresh=new Map(updated.map(item=>[item.id,item]));
+        const requested=new Set(ids);
+        this.olderEntries=this.olderEntries
+          .filter(item=>!requested.has(item.id)||fresh.has(item.id))
+          .map(item=>fresh.get(item.id)||item);
+        this.feedCombined=[...this.olderEntries,...this.items];
+        for(const key of Object.keys(this.previews)){
+          const [message,index]=key.split(':').map(Number);
+          if(!requested.has(message)||this.currentAttachment(message,index))continue;
+          URL.revokeObjectURL(this.previews[key].url);
+          delete this.previews[key];
+          const position=this.previewOrder.indexOf(key);
+          if(position!==-1)this.previewOrder.splice(position,1);
+        }
+        this.loadReactions(updated);
+      },
+      error:failure=>{
+        if(generation===this.generation&&!this.accessRevoked)this.blockUnavailable(failure);
+      }
+    }).add(()=>{if(generation===this.generation)this.olderReconcileInFlight=false;});
+  }
   isFeedComment(item:TeamContentEntry):boolean {
     return this.kind==='feed' && item.replyToId!=null
       && (this.searchActive?this.searchResults:(this.feedCombined.length?this.feedCombined:this.items)).some(parent=>parent.id===item.replyToId);
@@ -574,6 +615,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
           if(position!==-1)this.previewOrder.splice(position,1);
         }
         this.syncError='';this.loadReactions(items);
+        this.reconcileOlderPosts();
         this.revalidateVisibleSearch();
         if(wasBlocked)this.checkAttachmentsAvailable();
       },
