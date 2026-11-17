@@ -20,7 +20,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
   router=jasmine.createSpyObj<Router>('Router',['navigate']);
   router.navigate.and.returnValue(Promise.resolve(true));
   api=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',
-   ['detail','mine','members','honours','history','findPlayers','invite','remove','teamPendingInvitations','rememberedTeam','setKit','uploadLogo','removeLogo','rememberTeam','deleteEmptyTeam','forgetTeam']);
+   ['detail','mine','members','honours','history','findPlayers','invite','remove','teamPendingInvitations','rememberedTeam','setKit','uploadLogo','removeLogo','rememberTeam','deleteEmptyTeam','forgetTeam','playerAvatarSrc']);
   community=jasmine.createSpyObj<TeamCommunityMembershipsService>('TeamCommunityMembershipsService',
    ['teamCommunities','discover','request','respond','remove']);
   auth=jasmine.createSpyObj<AuthenticationService>('AuthenticationService',['isLoggedIn']);
@@ -377,5 +377,15 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(component.invitationsVerified).toBeFalse();
   expect(component.pendingPlayers).toEqual([]);
   expect(api.mine).not.toHaveBeenCalled();
+ });
+
+ it('renders only safe player avatar URLs and uses initials if the image is unavailable',()=>{
+  api.playerAvatarSrc.and.callFake(url=>
+   url?.startsWith('https://')?url:null);
+  expect(component.playerAvatarSrc('https://example.test/player.jpg'))
+   .toBe('https://example.test/player.jpg');
+  expect(component.playerAvatarSrc('javascript:alert(1)')).toBeNull();
+  component.brokenPlayerAvatars.add(3);
+  expect(component.brokenPlayerAvatars.has(3)).toBeTrue();
  });
 });
