@@ -371,4 +371,36 @@ describe('Team conversation synchronization', () => {
     expect(create).not.toHaveBeenCalled();
     expect(component.previews['32:0']).toBeUndefined();
   });
+
+  it('revokes an already visible private preview after remote deletion is reconciled',()=>{
+    const original={...entry(41,7,'Imagem'),attachments:[
+      {index:0,mimeType:'image/png',filename:'foto.png',size:60}
+    ]};
+    component.items=[original];
+    component.previews['41:0']={url:'blob:remote-deleted',type:'image'};
+    const revoke=spyOn(URL,'revokeObjectURL');
+    api.content.and.returnValue(of([{...original,deleted:true,body:'',attachments:[]}]));
+    component.read(true);
+    expect(component.previews['41:0']).toBeUndefined();
+    expect(revoke).toHaveBeenCalledWith('blob:remote-deleted');
+  });
+
+  it('preserves a search-only old attachment until authoritative history updates it',()=>{
+    const old={...entry(42,7,'Arquivo'),attachments:[
+      {index:0,mimeType:'image/png',filename:'arquivo.png',size:40}
+    ]};
+    component.items=[];
+    component.searchActive=true;
+    component.searchResults=[old];
+    component.previews['42:0']={url:'blob:old-search',type:'image'};
+    const revoke=spyOn(URL,'revokeObjectURL');
+    api.content.and.returnValue(of([]));
+    component.read(true);
+    expect(component.previews['42:0']).toBeDefined();
+    expect(revoke).not.toHaveBeenCalled();
+    api.content.and.returnValue(of([{...old,deleted:true,body:'',attachments:[]}]));
+    component.read(true);
+    expect(component.previews['42:0']).toBeUndefined();
+    expect(revoke).toHaveBeenCalledWith('blob:old-search');
+  });
 });
