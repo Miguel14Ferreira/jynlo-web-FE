@@ -145,3 +145,19 @@
  .jynlo-session-detail-premium .session-memory-card img,.jynlo-session-detail-premium .session-memory-video{height:115px}
  .jynlo-session-detail-premium .session-memory-copy{padding:.65rem}
 }
+
+/* Public official score, displayed beside manually authored game memories. */
+.jynlo-session-detail-premium .session-social-result{
+ display:flex;align-items:center;justify-content:space-between;gap:1rem;
+ flex-wrap:wrap;margin-bottom:1.3rem;padding:1rem;
+ background:#133b4a;border:1px solid #4f999c8c;border-radius:14px;
+}
+.jynlo-session-detail-premium .session-social-result>div{display:flex;flex-direction:column;gap:.3rem}
+.jynlo-session-detail-premium .session-social-result strong{
+ font-weight:900;color:#f5ffff;font-size:clamp(1.1rem,3vw,1.55rem);
+}
+.jynlo-session-detail-premium .session-social-result small{color:#a6d4d5}
+.jynlo-session-detail-premium .session-social-result button{min-height:44px}
+@media(max-width:600px){
+ .jynlo-session-detail-premium .session-social-result button{width:100%}
+}
