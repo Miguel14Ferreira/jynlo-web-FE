@@ -927,8 +927,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
           if(this.currentAttachment(id,index))continue;
           URL.revokeObjectURL(this.previews[key].url);
           delete this.previews[key];
-          const index=this.previewOrder.indexOf(key);
-          if(index!==-1)this.previewOrder.splice(index,1);
+          const previewPosition=this.previewOrder.indexOf(key);
+          if(previewPosition!==-1)this.previewOrder.splice(previewPosition,1);
         }
         this.loadReactions(results);
       },
