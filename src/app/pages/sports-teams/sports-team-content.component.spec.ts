@@ -17,7 +17,7 @@ describe('Team conversation synchronization', () => {
 
   beforeEach(() => {
     api=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',
-      ['content','searchContent','attachmentsAvailable','reactions','sendContent','downloadContentFile','uploadContentFiles','editContent','deleteContent','playerAvatarSrc','setReaction','removeReaction']);
+      ['content','searchContent','attachmentsAvailable','reactions','sendContent','downloadContentFile','uploadContentFiles','editContent','deleteContent','playerAvatarSrc','setReaction','removeReaction','olderFeed']);
     realtime=jasmine.createSpyObj<DirectChatRealtimeService>('DirectChatRealtimeService',['connect']);
     api.attachmentsAvailable.and.returnValue(of({available:false}));
     api.searchContent.and.returnValue(of([]));
@@ -308,6 +308,54 @@ describe('Team conversation synchronization', () => {
     expect(api.reactions).toHaveBeenCalledOnceWith(7,'feed',[15]);
     expect(component.reactionsById[12].mine).toBe('❤️');
     component.ngOnDestroy();
+  });
+
+  it('loads only older authorized team feed posts and retains recent live history',()=>{
+    component.kind='feed';
+    const recent=Array.from({length:100},(_,i)=>entry(i+101,7,'Post '+i));
+    api.content.and.returnValue(of(recent));
+    api.olderFeed.and.returnValue(of([entry(99,7,'Antigo 1'),entry(100,7,'Antigo 2')]));
+    component.read(false);
+    expect(component.hasOlderPosts).toBeTrue();
+    component.loadOlderPosts();
+    expect(api.olderFeed).toHaveBeenCalledOnceWith(7,101,30);
+    expect(component.feedCombined.map(row=>row.id)).toEqual([
+      99,100,...recent.map(row=>row.id)
+    ]);
+    expect(component.hasOlderPosts).toBeFalse();
+    component.read(true);
+    expect(component.feedCombined[0].id).toBe(99);
+    expect(component.feedCombined[101].id).toBe(200);
+  });
+
+  it('drops old private posts when access to a team is revoked during pagination',()=>{
+    component.kind='feed';
+    const recent=Array.from({length:100},(_,i)=>entry(i+101,7,'Post '+i));
+    api.content.and.returnValue(of(recent));
+    api.olderFeed.and.returnValue(throwError(()=>new HttpErrorResponse({status:403})));
+    component.read(false);
+    component.loadOlderPosts();
+    expect(component.accessRevoked).toBeTrue();
+    expect(component.items).toEqual([]);
+    expect(component.olderEntries).toEqual([]);
+    expect(component.feedCombined).toEqual([]);
+    expect(component.hasOlderPosts).toBeFalse();
+  });
+
+  it('ignores an older private page returned after switching teams',()=>{
+    component.kind='feed';
+    const recent=Array.from({length:100},(_,i)=>entry(i+101,7,'Post '+i));
+    api.content.and.returnValue(of(recent));
+    const delayed=new Subject<TeamContentEntry[]>();
+    api.olderFeed.and.returnValue(delayed.asObservable());
+    component.read(false);
+    component.loadOlderPosts();
+    api.content.and.returnValue(of([entry(400,8,'Equipa nova')]));
+    component.teamId=8;
+    component.ngOnChanges({teamId:new SimpleChange(7,8,false)});
+    delayed.next([entry(90,7,'Privado da equipa antiga')]);delayed.complete();
+    expect(component.olderEntries).toEqual([]);
+    expect(component.feedCombined.map(item=>item.teamId)).toEqual([8]);
   });
 
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
