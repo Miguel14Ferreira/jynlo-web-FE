@@ -17,9 +17,10 @@ describe('Team conversation synchronization', () => {
 
   beforeEach(() => {
     api=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',
-      ['content','attachmentsAvailable','reactions','sendContent','downloadContentFile','uploadContentFiles','editContent','deleteContent']);
+      ['content','searchContent','attachmentsAvailable','reactions','sendContent','downloadContentFile','uploadContentFiles','editContent','deleteContent']);
     realtime=jasmine.createSpyObj<DirectChatRealtimeService>('DirectChatRealtimeService',['connect']);
     api.attachmentsAvailable.and.returnValue(of({available:false}));
+    api.searchContent.and.returnValue(of([]));
     api.reactions.and.returnValue(of({}));
     component=new SportsTeamContentComponent(api,realtime);
     component.teamId=7;
@@ -437,5 +438,34 @@ describe('Team conversation synchronization', () => {
     component.saveEdit(original);
     expect(component.accessRevoked).toBeTrue();
     expect(component.items).toEqual([]);
+  });
+
+  it('refreshes old search hits outside the recent history and removes stale private previews',()=>{
+    const old={...entry(4,7,'Texto antigo'),attachments:[
+      {index:0,mimeType:'image/png',filename:'antigo.png',size:10}
+    ]};
+    component.searchTerm='antigo';component.searchActive=true;component.searchResults=[old];
+    component.previews['4:0']={url:'blob:old-hit',type:'image'};
+    const revoke=spyOn(URL,'revokeObjectURL');
+    api.content.and.returnValue(of([]));
+    api.searchContent.and.returnValue(of([]));
+    component.read(true);
+    expect(api.searchContent).toHaveBeenCalledOnceWith(7,'chat','antigo');
+    expect(component.searchActive).toBeTrue();
+    expect(component.searchResults).toEqual([]);
+    expect(revoke).toHaveBeenCalledWith('blob:old-hit');
+  });
+
+  it('never revokes unrelated search results when a background search arrives after being cleared',()=>{
+    const delayed=new Subject<TeamContentEntry[]>();
+    const old=entry(7,7,'Antes');
+    component.searchTerm='antes';component.searchActive=true;component.searchResults=[old];
+    api.content.and.returnValue(of([]));
+    api.searchContent.and.returnValue(delayed.asObservable());
+    component.read(true);
+    component.clearSearch();
+    delayed.next([old]);delayed.complete();
+    expect(component.searchActive).toBeFalse();
+    expect(component.searchResults).toEqual([]);
   });
 });
