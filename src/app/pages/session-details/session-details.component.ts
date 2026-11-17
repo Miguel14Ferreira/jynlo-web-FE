@@ -107,6 +107,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   sessionMemoriesError='';
   private sessionMemoriesLoadedId:number|null=null;
   private sessionMemoriesVersion=0;
+  private sessionMemoriesPending=false;
   private sessionMemoriesRefreshTimer?: ReturnType<typeof setInterval>;
 
   /** Nothing is published automatically. The session album reads existing posts. */
@@ -114,22 +115,24 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     const current=this.session;
     if(!current || current.canSharePublicly!==true || !this.currentUsername)return;
     const id=current.id;
-    if(this.sessionMemoriesLoading || (!force&&this.sessionMemoriesLoadedId===id))return;
+    if(this.sessionMemoriesPending || (!force&&this.sessionMemoriesLoadedId===id))return;
     const generation=++this.sessionMemoriesVersion;
     this.sessionMemoriesLoadedId=id;
-    this.sessionMemoriesLoading=true;
-    if(!silent)this.sessionMemoriesError='';
+    this.sessionMemoriesPending=true;
+    if(!silent){this.sessionMemoriesLoading=true;this.sessionMemoriesError='';}
     this.socialFeed.sessionMemories(id).pipe(timeout(10000)).subscribe({
       next:items=>{
         if(generation!==this.sessionMemoriesVersion||this.session?.id!==id)return;
         this.sessionMemories=items.filter(item=>item.type==='POST'&&item.sessionId===id);
-        this.sessionMemoriesLoading=false;
+        this.sessionMemoriesPending=false;
+        if(!silent)this.sessionMemoriesLoading=false;
       },
       error:()=>{
         if(generation!==this.sessionMemoriesVersion||this.session?.id!==id)return;
         if(!silent)this.sessionMemories=[];
         if(!silent)this.sessionMemoriesError='Não foi possível carregar os momentos desta sessão.';
-        this.sessionMemoriesLoading=false;
+        this.sessionMemoriesPending=false;
+        if(!silent)this.sessionMemoriesLoading=false;
       }
     });
   }
@@ -874,7 +877,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     this.zone.runOutsideAngular(() => {
       this.sessionMemoriesRefreshTimer = setInterval(() => {
         if (!document.hidden && this.session?.canSharePublicly === true
-            && this.currentUsername && !this.sessionMemoriesLoading) {
+            && this.currentUsername && !this.sessionMemoriesPending) {
           this.zone.run(() => this.loadSessionMemories(true, true));
         }
       }, 30000);
@@ -923,6 +926,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     if (this.registrationClockTimer) clearInterval(this.registrationClockTimer);
     if (this.sessionMemoriesRefreshTimer) clearInterval(this.sessionMemoriesRefreshTimer);
     ++this.sessionMemoriesVersion;
+    this.sessionMemoriesPending=false;
     ++this.officialSocialScoreVersion;
     this.typing.destroy();
     this.closeSessionAttachmentPreview();
@@ -3542,6 +3546,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
           }
           if(this.sessionMemoriesLoadedId!==null&&this.sessionMemoriesLoadedId!==session.id){
             ++this.sessionMemoriesVersion;
+            this.sessionMemoriesPending=false;
             this.sessionMemories=[];this.sessionMemoriesLoadedId=null;
             this.sessionMemoriesLoading=false;this.sessionMemoriesError='';
           }
