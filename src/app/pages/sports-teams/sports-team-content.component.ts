@@ -71,12 +71,25 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
           </button>
           <small *ngIf="item.editedAt && !item.deleted">Editada</small>
           <div class="team-reactions" *ngIf="!item.deleted" [attr.aria-label]="kind === 'chat' ? 'Reações à mensagem' : 'Reações à publicação'">
-            <button type="button" *ngFor="let emoji of emojis" [disabled]="reactionBusyId !== null"
-              [class.selected]="reactionsById[item.id]?.mine === emoji"
-              [attr.aria-pressed]="reactionsById[item.id]?.mine === emoji"
-              (click)="react(item, emoji)">{{emoji}}
-              <small *ngIf="(reactionsById[item.id]?.counts?.[emoji] || 0) > 0">{{reactionsById[item.id]?.counts?.[emoji] || 0}}</small>
-            </button>
+            <ng-container *ngIf="kind === 'feed'">
+              <button type="button" [disabled]="reactionBusyId !== null"
+                [class.selected]="reactionsById[item.id]?.mine === '❤️'"
+                [attr.aria-pressed]="reactionsById[item.id]?.mine === '❤️'"
+                [attr.aria-label]="'Gostar da publicação de @' + item.username"
+                (click)="react(item, '❤️')">❤️ {{reactionCount(item.id) || 'Gostar'}}</button>
+              <button type="button" [disabled]="reactionBusyId !== null"
+                [attr.aria-expanded]="feedReactionPickerId === item.id"
+                [attr.aria-label]="'Escolher reação à publicação de @' + item.username"
+                (click)="toggleFeedReactionPicker(item.id)">☺ Reagir</button>
+            </ng-container>
+            <ng-container *ngIf="kind === 'chat' || feedReactionPickerId === item.id">
+              <button type="button" *ngFor="let emoji of emojis" [disabled]="reactionBusyId !== null"
+                [class.selected]="reactionsById[item.id]?.mine === emoji"
+                [attr.aria-pressed]="reactionsById[item.id]?.mine === emoji"
+                (click)="react(item, emoji)">{{emoji}}
+                <small *ngIf="(reactionsById[item.id]?.counts?.[emoji] || 0) > 0">{{reactionsById[item.id]?.counts?.[emoji] || 0}}</small>
+              </button>
+            </ng-container>
           </div>
           <div class="team-content-actions" *ngIf="!item.deleted">
             <button type="button" (click)="reply(item)" [disabled]="sending" [attr.aria-label]="kind === 'chat' ? 'Responder à mensagem' : 'Comentar publicação'" [title]="kind === 'chat' ? 'Responder' : 'Comentar'">↩ <span>{{kind === 'chat' ? 'Responder' : 'Comentar'}}</span></button>
@@ -283,6 +296,14 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   readonly emojis = ['👍','❤️','😂','🔥','👏'];
   reactionsById: Record<number,TeamReactionState> = {};
   reactionBusyId: number | null = null;
+  feedReactionPickerId:number|null=null;
+  reactionCount(contentId:number):number {
+    const counts=this.reactionsById[contentId]?.counts;
+    return counts?Object.values(counts).reduce((total,count)=>total+(Number(count)||0),0):0;
+  }
+  toggleFeedReactionPicker(contentId:number):void {
+    this.feedReactionPickerId=this.feedReactionPickerId===contentId?null:contentId;
+  }
   private reactionVersion = 0;
   attachmentsEnabled = false;
   files: File[] = [];
@@ -323,7 +344,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.feedRootDraft='';this.feedRootFiles=[];this.feedCommentDrafts.clear();
     this.nearLatest=true;this.unseenBelow=false;
     this.editingId=null;this.editingDraft='';this.searchRecheckBusy=false;this.clearSearch();
-    this.reactionVersion++;this.reactionsById={};this.clearFiles();
+    this.reactionVersion++;this.reactionsById={};this.feedReactionPickerId=null;this.clearFiles();
     this.clearPreviews();this.attachmentsEnabled=false;this.syncError='';
     this.error=this.blockedReason;
     return true;
@@ -371,7 +392,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.replyTargetId = null;this.editingId = null;this.editingDraft='';
       this.feedRootDraft='';this.feedRootFiles=[];this.feedCommentDrafts.clear();
       this.searchRecheckBusy=false;this.clearSearch();this.searchTerm = '';
-      this.reactionVersion++;this.reactionsById={};
+      this.reactionVersion++;this.reactionsById={};this.feedReactionPickerId=null;
       this.releaseSelectedFiles();this.clearFiles();this.clearPreviews();this.attachmentsEnabled=false;
       this.checkAttachmentsAvailable();
       if (!changes['teamId']?.firstChange && !changes['kind']?.firstChange) this.read(false);
@@ -764,6 +785,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
   react(item:TeamContentEntry,emoji:string):void {
     if(item.deleted || this.reactionBusyId!==null || !this.emojis.includes(emoji))return;
+    if(this.kind==='feed')this.feedReactionPickerId=null;
     this.reactionBusyId=item.id;
     const generation=this.generation;
     const same=this.reactionsById[item.id]?.mine===emoji;
