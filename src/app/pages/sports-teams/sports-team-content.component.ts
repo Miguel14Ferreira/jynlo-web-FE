@@ -106,8 +106,16 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
           <input [id]="'team-upload-' + kind + '-' + teamId" type="file"
             multiple accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,application/pdf"
             (change)="chooseFiles($event)" [disabled]="sending" />
-          <p class="team-content-note" *ngIf="files.length">{{files.length}} ficheiro(s): {{filesLabel()}}</p>
-          <button type="button" *ngIf="files.length" [disabled]="sending" (click)="clearFiles()">Retirar anexos</button>
+          <p class="team-content-note" *ngIf="files.length">{{files.length}} ficheiro(s) selecionado(s) · Legenda opcional.</p>
+          <div *ngIf="files.length" class="team-selected-media">
+            <div *ngFor="let file of files; let i=index" class="team-selected-file">
+              <img *ngIf="file.type.startsWith('image/')" [src]="filePreviewUrl(file)" [alt]="'Pré-visualização: ' + file.name" />
+              <video *ngIf="file.type.startsWith('video/')" [src]="filePreviewUrl(file)" muted preload="metadata" controls></video>
+              <span *ngIf="file.type==='application/pdf'">📄 {{file.name}}</span>
+              <button type="button" [disabled]="sending" (click)="removeSelectedFile(i)" [attr.aria-label]="'Retirar anexo ' + (i+1)">Retirar</button>
+            </div>
+          </div>
+          <button type="button" *ngIf="files.length" [disabled]="sending" (click)="clearFiles()">Retirar todos</button>
         </div>
         <div class="team-composer-footer">
           <small *ngIf="kind === 'chat'">Enter para enviar · Shift + Enter para nova linha · Podes colar imagens</small>
@@ -157,6 +165,11 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
     .team-upload-selector {display:grid;gap:.3rem}
     .team-upload-selector input {color:#d5faf4;max-width:100%}
     .team-upload-selector p {overflow-wrap:anywhere}
+    .team-selected-media{display:flex;gap:.6rem;flex-wrap:wrap}
+    .team-selected-file{display:grid;gap:.4rem;width:min(155px,45%);border:1px solid #3f8b8c;border-radius:11px;padding:.4rem;min-width:0}
+    .team-selected-file img,.team-selected-file video{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px}
+    .team-selected-file span{overflow-wrap:anywhere;font-size:.8rem}
+    .team-selected-file button{min-height:36px;justify-self:stretch;background:#153c49;color:#d2fff5;border:1px solid #468987;border-radius:8px}
     /* Shared Jynlo message hierarchy: identifiable authors, readable media
        and a dedicated composer, not two cramped half-width columns. */
     .team-content {gap:1.1rem}
@@ -260,6 +273,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   private reactionVersion = 0;
   attachmentsEnabled = false;
   files: File[] = [];
+  private readonly selectedFileUrls=new Map<File,string>();
   downloading = false;
   previews: Record<string,{url:string;type:'image'|'video'}> = {};
   private readonly previewOrder:string[] = [];
@@ -337,7 +351,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.feedRootDraft='';this.feedRootFiles=[];this.feedCommentDrafts.clear();
       this.searchRecheckBusy=false;this.clearSearch();this.searchTerm = '';
       this.reactionVersion++;this.reactionsById={};
-      this.clearFiles();this.clearPreviews();this.attachmentsEnabled=false;
+      this.releaseSelectedFiles();this.clearFiles();this.clearPreviews();this.attachmentsEnabled=false;
       this.checkAttachmentsAvailable();
       if (!changes['teamId']?.firstChange && !changes['kind']?.firstChange) this.read(false);
     }
@@ -533,7 +547,26 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     }
     this.files=combined;this.error='';
   }
-  clearFiles():void {this.files=[];}
+  filePreviewUrl(file:File):string {
+    let url=this.selectedFileUrls.get(file);
+    if(!url){url=URL.createObjectURL(file);this.selectedFileUrls.set(file,url);}
+    return url;
+  }
+  removeSelectedFile(index:number):void {
+    if(this.sending||index<0||index>=this.files.length)return;
+    const file=this.files[index];
+    this.files=this.files.filter((_,i)=>i!==index);
+    this.releaseSelectedFile(file);
+  }
+  private releaseSelectedFile(file:File):void {
+    const url=this.selectedFileUrls.get(file);
+    if(url){URL.revokeObjectURL(url);this.selectedFileUrls.delete(file);}
+  }
+  private releaseSelectedFiles():void {
+    for(const url of this.selectedFileUrls.values())URL.revokeObjectURL(url);
+    this.selectedFileUrls.clear();
+  }
+  clearFiles():void {for(const file of this.files)this.releaseSelectedFile(file);this.files=[];}
   filesLabel():string {return this.files.map(file=>file.name).join(', ');}
   previewKey(messageId:number,index:number):string{return messageId+':'+index;}
   private currentAttachment(messageId:number,index:number,mimeType?:string):boolean {
@@ -777,5 +810,5 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     }).add(()=>{if(version===this.generation){this.sending=false;this.read(true);}});
   }
 
-  ngOnDestroy():void {this.generation++;this.attachmentProbeVersion++;this.invalidatePendingRead();this.clearPreviews();this.subscriptions.unsubscribe();}
+  ngOnDestroy():void {this.generation++;this.attachmentProbeVersion++;this.invalidatePendingRead();this.releaseSelectedFiles();this.clearPreviews();this.subscriptions.unsubscribe();}
 }
