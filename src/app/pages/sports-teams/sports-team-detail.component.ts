@@ -76,7 +76,7 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
       <div class="team-hero-stats">
         <span><strong>{{rosterVerified ? members.length : '—'}}</strong> Jogadores</span>
         <span><strong>{{communitiesVerified ? activeCommunities.length : '—'}}</strong> Comunidades</span>
-        <span><strong>{{trophies.length + championshipHonours.length}}</strong> Troféus</span>
+        <span><strong>{{trophiesVerified ? trophies.length + championshipHonours.length : '—'}}</strong> Troféus</span>
         <a routerLink="/menu/teams/competitions" [queryParams]="{teamId:t.id}">Explorar competições →</a>
       </div>
     </div>
@@ -85,7 +85,7 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
         [class.selected]="activeTab === 'OVERVIEW'" (click)="selectTab('OVERVIEW')">Visão geral</button>
       <button type="button" role="tab" [attr.aria-selected]="activeTab === 'TROPHIES'"
         [class.selected]="activeTab === 'TROPHIES'" (click)="selectTab('TROPHIES')">
-        🏆 Troféus ({{trophies.length + championshipHonours.length}})
+        🏆 Troféus ({{trophiesVerified ? trophies.length + championshipHonours.length : '—'}})
       </button>
       <button type="button" role="tab" [attr.aria-selected]="activeTab === 'FEED'"
         [class.selected]="activeTab === 'FEED'" (click)="selectTab('FEED')">Publicações</button>
@@ -125,7 +125,7 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
           </div>
         </div>
       </section>
-      <section *ngIf="activeTab === 'TROPHIES'" class="team-trophies"><h2>🏆 Troféus ({{trophies.length + championshipHonours.length}})</h2>
+      <section *ngIf="activeTab === 'TROPHIES'" class="team-trophies"><h2>🏆 Troféus ({{trophiesVerified ? trophies.length + championshipHonours.length : '—'}})</h2>
         <p *ngIf="historyLoading || honoursLoading">A carregar conquistas oficiais…</p>
         <p *ngIf="historyError" role="alert">{{historyError}}</p>
         <p *ngIf="honoursError" role="alert">{{honoursError}}</p>
@@ -213,6 +213,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   logoSrc(url:string|null|undefined):string|null{return this.api.logoSrc(url);}
   activeTab: 'OVERVIEW' | 'TROPHIES' | 'FEED' | 'CHAT' = 'OVERVIEW';
   private trophiesRequestedForTeam:number|null=null;
+  get trophiesVerified():boolean{return this.trophiesRequestedForTeam===this.team?.id && !this.historyLoading && !this.honoursLoading && !this.historyError && !this.honoursError;}
   selectTab(tab:'OVERVIEW'|'TROPHIES'|'FEED'|'CHAT'):void {
     this.activeTab=tab;
     if(tab==='TROPHIES')this.loadTrophies();
