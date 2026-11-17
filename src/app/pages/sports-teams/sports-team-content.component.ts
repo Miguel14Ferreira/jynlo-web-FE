@@ -89,6 +89,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
         </label>
         <textarea [id]="'team-content-' + kind + '-' + teamId" name="body"
           [(ngModel)]="draft" maxlength="2000" [disabled]="sending" (keydown)="onComposerKeydown($event)"
+          (paste)="onComposerPaste($event)"
           [placeholder]="kind === 'chat' ? 'Escreve uma mensagem…' : 'Partilha novidades com o plantel…'"></textarea>
         <div *ngIf="attachmentsEnabled" class="team-upload-selector">
           <label [for]="'team-upload-' + kind + '-' + teamId">📎 Anexar fotografias, vídeos ou PDF (até 4)</label>
@@ -99,7 +100,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
           <button type="button" *ngIf="files.length" [disabled]="sending" (click)="clearFiles()">Retirar anexos</button>
         </div>
         <div class="team-composer-footer">
-          <small *ngIf="kind === 'chat'">Enter para enviar · Shift + Enter para nova linha</small>
+          <small *ngIf="kind === 'chat'">Enter para enviar · Shift + Enter para nova linha · Podes colar imagens</small>
           <small *ngIf="kind === 'feed'">Partilha notícias, fotografias ou momentos da equipa.</small>
           <button type="submit" [disabled]="sending || (!draft.trim() && !files.length)">
             {{sending ? 'A enviar…' : kind === 'chat' ? 'Enviar mensagem' : 'Publicar'}}
@@ -384,7 +385,20 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const input=event.target as HTMLInputElement;
     const selected=Array.from(input.files||[]);
     input.value='';
-    if(!selected.length)return;
+    this.addFiles(selected);
+  }
+  onComposerPaste(event:ClipboardEvent):void {
+    const images=Array.from(event.clipboardData?.files||[]).filter(file=>file.type.startsWith('image/'));
+    if(!images.length)return;
+    event.preventDefault();
+    if(!this.attachmentsEnabled||this.sending||this.accessRevoked){
+      this.error='Os anexos não estão disponíveis nesta conversa.';
+      return;
+    }
+    this.addFiles(images);
+  }
+  private addFiles(selected:File[]):void {
+    if(!selected.length||this.sending||this.accessRevoked||!this.attachmentsEnabled)return;
     const allowed=new Set(['image/jpeg','image/png','image/webp','image/gif',
       'video/mp4','video/webm','application/pdf']);
     const combined=[...this.files,...selected];
