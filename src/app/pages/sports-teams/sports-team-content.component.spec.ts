@@ -403,4 +403,39 @@ describe('Team conversation synchronization', () => {
     expect(component.previews['42:0']).toBeUndefined();
     expect(revoke).toHaveBeenCalledWith('blob:old-search');
   });
+
+  it('keeps a private chat open when editing a concurrently deleted message returns 409',()=>{
+    const original=entry(50,7,'Antes');
+    component.items=[original];
+    api.editContent.and.returnValue(throwError(()=>new HttpErrorResponse({status:409})));
+    api.content.and.returnValue(of([{...original,deleted:true,body:'',attachments:[]}]));
+    component.beginEdit(original);
+    component.editingDraft='Depois';
+    component.saveEdit(original);
+    expect(component.accessRevoked).toBeFalse();
+    expect(component.items[0].deleted).toBeTrue();
+  });
+
+  it('does not revoke the team on a duplicate delete conflict',()=>{
+    const original=entry(51,7,'Já eliminada noutro dispositivo');
+    component.items=[original];
+    spyOn(window,'confirm').and.returnValue(true);
+    api.deleteContent.and.returnValue(throwError(()=>new HttpErrorResponse({status:409})));
+    api.content.and.returnValue(of([{...original,deleted:true,body:'',attachments:[]}]));
+    component.remove(original);
+    expect(component.accessRevoked).toBeFalse();
+    expect(component.items[0].deleted).toBeTrue();
+  });
+
+  it('still revokes a team if a conflicting mutation is followed by a disabled-history 409',()=>{
+    const original=entry(52,7,'Chat desativado');
+    component.items=[original];
+    api.editContent.and.returnValue(throwError(()=>new HttpErrorResponse({status:409})));
+    api.content.and.returnValue(throwError(()=>new HttpErrorResponse({status:409})));
+    component.beginEdit(original);
+    component.editingDraft='Tentativa';
+    component.saveEdit(original);
+    expect(component.accessRevoked).toBeTrue();
+    expect(component.items).toEqual([]);
+  });
 });
