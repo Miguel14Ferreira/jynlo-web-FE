@@ -1,5 +1,5 @@
 import { of, Subject, throwError } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthenticationService } from '../../services/authethication.service';
 import { TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
 import { SportsTeamsService, SportsTeam, SportsTeamMember } from '../../services/sports-teams.service';
@@ -10,13 +10,16 @@ describe('Jynlo team profile — audit of real actions',()=>{
  let community:jasmine.SpyObj<TeamCommunityMembershipsService>;
  let auth:jasmine.SpyObj<AuthenticationService>;
  let component:SportsTeamDetailComponent;
+ let router:jasmine.SpyObj<Router>;
  const team:SportsTeam={id:5,slug:'club-a',name:'Clube A',sport:'Futebol',location:null,description:null,
   ownerProfileId:2,chatEnabled:true,feedEnabled:true};
  const owner:SportsTeamMember={profileId:2,username:'Owner',role:'OWNER'};
  const player:SportsTeamMember={profileId:3,username:'Jogador',role:'PLAYER'};
  beforeEach(()=>{
+  router=jasmine.createSpyObj<Router>('Router',['navigate']);
+  router.navigate.and.returnValue(Promise.resolve(true));
   api=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',
-   ['detail','mine','members','honours','history','findPlayers','invite','remove','teamPendingInvitations','rememberedTeam','setKit','uploadLogo','removeLogo','rememberTeam']);
+   ['detail','mine','members','honours','history','findPlayers','invite','remove','teamPendingInvitations','rememberedTeam','setKit','uploadLogo','removeLogo','rememberTeam','deleteEmptyTeam','forgetTeam']);
   community=jasmine.createSpyObj<TeamCommunityMembershipsService>('TeamCommunityMembershipsService',
    ['teamCommunities','discover','request','respond','remove']);
   auth=jasmine.createSpyObj<AuthenticationService>('AuthenticationService',['isLoggedIn']);
@@ -31,7 +34,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
   api.history.and.returnValue(of([]));
   community.teamCommunities.and.returnValue(of([]));
   const route={snapshot:{paramMap:{get:()=>String(team.id)}}} as unknown as ActivatedRoute;
-  component=new SportsTeamDetailComponent(route,api,community,auth,{detectChanges:()=>{}} as any);
+  component=new SportsTeamDetailComponent(route,api,community,auth,{detectChanges:()=>{}} as any,router);
   component.ngOnInit();
  });
  afterEach(()=>component.ngOnDestroy());
@@ -41,7 +44,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
   api.detail.and.returnValue(later.asObservable());
   const copy=new SportsTeamDetailComponent(
    {snapshot:{paramMap:{get:()=>String(team.id)}}} as unknown as ActivatedRoute,
-   api,community,auth,{detectChanges:()=>{}} as any
+   api,community,auth,{detectChanges:()=>{}} as any,router
   );
   copy.ngOnInit();
   expect(copy.team?.name).toBe('Clube A');
@@ -246,6 +249,33 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(component.feedback).toContain('Verifica os convites');
   component.invitePlayer({profileId:4,username:'Novo',fullName:null});
   expect(api.invite).toHaveBeenCalledTimes(1);
+ });
+ it('only deletes an owned team after explicit confirmation and redirects on server success',()=>{
+  const confirmation=spyOn(window,'confirm').and.returnValue(true);
+  api.deleteEmptyTeam.and.returnValue(of(void 0));
+  component.deleteTeam();
+  expect(confirmation).toHaveBeenCalled();
+  expect(api.deleteEmptyTeam).toHaveBeenCalledOnceWith(5);
+  expect(api.forgetTeam).toHaveBeenCalledOnceWith(5);
+  expect(router.navigate).toHaveBeenCalledOnceWith(['/menu/teams']);
+ });
+ it('does not delete another user team or skip confirmation',()=>{
+  component.isOwner=false;
+  spyOn(window,'confirm').and.returnValue(true);
+  component.deleteTeam();
+  expect(api.deleteEmptyTeam).not.toHaveBeenCalled();
+  component.isOwner=true;
+  (window.confirm as jasmine.Spy).and.returnValue(false);
+  component.deleteTeam();
+  expect(api.deleteEmptyTeam).not.toHaveBeenCalled();
+ });
+ it('preserves historical teams when server rejects deletion with 409',()=>{
+  spyOn(window,'confirm').and.returnValue(true);
+  api.deleteEmptyTeam.and.returnValue(throwError(()=>({status:409})));
+  component.deleteTeam();
+  expect(component.deletingTeam).toBeFalse();
+  expect(router.navigate).not.toHaveBeenCalled();
+  expect(component.feedback).toContain('Não foi possível confirmar');
  });
  it('cancels only a verified pending invitation after confirmation',()=>{
   api.teamPendingInvitations.and.returnValue(of([{profileId:4,username:'Novo',status:'INVITED'}]));
