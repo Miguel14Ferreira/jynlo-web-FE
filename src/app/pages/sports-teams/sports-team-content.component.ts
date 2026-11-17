@@ -783,18 +783,32 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       }
     });
   }
+  private optimisticReaction(contentId:number,emoji:string):TeamReactionState {
+    const original=this.reactionsById[contentId]??{counts:{},mine:null};
+    const counts={...original.counts};
+    if(original.mine){counts[original.mine]=Math.max(0,(counts[original.mine]||0)-1);}
+    const mine=original.mine===emoji?null:emoji;
+    if(mine){counts[mine]=(counts[mine]||0)+1;}
+    return {counts,mine};
+  }
   react(item:TeamContentEntry,emoji:string):void {
     if(item.deleted || this.reactionBusyId!==null || !this.emojis.includes(emoji))return;
     if(this.kind==='feed')this.feedReactionPickerId=null;
     this.reactionBusyId=item.id;
     const generation=this.generation;
-    const same=this.reactionsById[item.id]?.mine===emoji;
+    const previous=this.reactionsById[item.id]??{counts:{},mine:null};
+    const same=previous.mine===emoji;
+    this.reactionsById={...this.reactionsById,[item.id]:this.optimisticReaction(item.id,emoji)};
     const request=same
       ? this.api.removeReaction(this.teamId,this.kind,item.id)
       : this.api.setReaction(this.teamId,this.kind,item.id,emoji);
     request.subscribe({
-      error:failure=>{if(generation===this.generation&&!this.blockUnavailable(failure))
-        this.error='Não foi possível confirmar a reação. Consulta o histórico antes de repetir.';}
+      error:failure=>{
+        if(generation!==this.generation||this.accessRevoked)return;
+        if(this.blockUnavailable(failure))return;
+        this.reactionsById={...this.reactionsById,[item.id]:previous};
+        this.error='Não foi possível confirmar a reação. Consulta o histórico antes de repetir.';
+      }
     }).add(()=>{if(generation===this.generation){this.reactionBusyId=null;if(!this.accessRevoked)this.loadReactions([item]);}});
   }
 
