@@ -938,6 +938,28 @@ describe('Team conversation synchronization', () => {
     expect(revoke).toHaveBeenCalledWith('blob:old-hit');
   });
 
+  it('keeps authorized preview media when old search hits disappear but paginated feed still contains the post',()=>{
+    component.kind='feed';
+    const old={...entry(4,7,'Partilha antiga'),attachments:[
+      {index:0,mimeType:'image/png',filename:'foto.png',size:10}
+    ]};
+    component.olderEntries=[old];
+    component.feedCombined=[old];
+    component.searchTerm='outro';
+    component.searchActive=true;
+    component.searchResults=[old];
+    component.previews['4:0']={url:'blob:valid-old-feed',type:'image'};
+    const revoke=spyOn(URL,'revokeObjectURL');
+    api.content.and.returnValue(of([entry(150,7,'Publicação nova')]));
+    api.searchContent.and.returnValue(of([]));
+    api.feedEntries.and.returnValue(of([old]));
+    component.read(true);
+    expect(component.searchResults).toEqual([]);
+    expect(component.olderEntries.map(post=>post.id)).toEqual([4]);
+    expect(component.previews['4:0']?.url).toBe('blob:valid-old-feed');
+    expect(revoke).not.toHaveBeenCalledWith('blob:valid-old-feed');
+  });
+
   it('never revokes unrelated search results when a background search arrives after being cleared',()=>{
     const delayed=new Subject<TeamContentEntry[]>();
     const old=entry(7,7,'Antes');
