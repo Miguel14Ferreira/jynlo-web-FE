@@ -108,6 +108,51 @@ describe('Team conversation synchronization', () => {
     expect(component.replyTargetId).toBe(10);
   });
 
+  it('preserves independent post and comment drafts with their attachments',()=>{
+    component.kind='feed';
+    const original=entry(10,7,'Partida de hoje');
+    const another=entry(20,7,'Treino de amanhã');
+    component.items=[original,another];
+    const image=new File(['photo'],'foto.png',{type:'image/png'});
+    component.draft='Publicação em preparação';component.files=[image];
+    component.reply(original);
+    expect(component.draft).toBe('');expect(component.files).toEqual([]);
+    component.draft='Comentário ainda não enviado';
+    component.reply(another);
+    expect(component.draft).toBe('');
+    component.cancelReply();
+    expect(component.replyTargetId).toBeNull();
+    expect(component.draft).toBe('Publicação em preparação');
+    expect(component.files).toEqual([image]);
+    component.reply(original);
+    expect(component.draft).toBe('Comentário ainda não enviado');
+    expect(component.files).toEqual([]);
+    component.cancelReply();
+    expect(component.draft).toBe('Publicação em preparação');
+  });
+
+  it('restores the post draft after an accepted comment but keeps it after an uncertain send',()=>{
+    component.kind='feed';component.items=[entry(10,7,'Partida')];
+    component.draft='Meu post';
+    component.reply(component.items[0]);
+    component.draft='Comentário';
+    api.sendContent.and.returnValue(of({...entry(12,7,'Comentário'),replyToId:10}));
+    api.content.and.returnValue(of([component.items[0],{...entry(12,7,'Comentário'),replyToId:10}]));
+    component.send();
+    expect(component.replyTargetId).toBeNull();
+    expect(component.draft).toBe('Meu post');
+    component.reply(component.items[0]);
+    component.draft='Outro comentário';
+    const delayed=new Subject<TeamContentEntry>();
+    api.sendContent.and.returnValue(delayed.asObservable());
+    component.send();
+    component.cancelReply();
+    expect(component.replyTargetId).toBe(10);
+    delayed.error(new HttpErrorResponse({status:500}));
+    expect(component.replyTargetId).toBe(10);
+    expect(component.draft).toBe('Outro comentário');
+  });
+
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
     const image=new File(['png-bytes'],'captura.png',{type:'image/png'});
     const event={
