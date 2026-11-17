@@ -540,7 +540,8 @@ describe('SocialFeedComponent discovery sidebar', () => {
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('.jynlo-feed-premium .jynlo-feed-hero')).not.toBeNull();
     expect(root.querySelector('.jynlo-premium-week .week-hub-grid')).not.toBeNull();
-    expect(root.querySelectorAll('.jynlo-premium-week .week-hub-card').length).toBe(3);
+    expect(root.querySelectorAll('.jynlo-premium-week .week-hub-card').length).toBe(2);
+    expect(root.querySelector('.jynlo-premium-week .week-hub-card[aria-label="As tuas comunidades"]')).toBeNull();
     expect(root.querySelector('.jynlo-premium-feed-grid')).not.toBeNull();
     expect(root.querySelector('a[href="/menu/createEvent"]')).not.toBeNull();
     component.ngOnDestroy();
