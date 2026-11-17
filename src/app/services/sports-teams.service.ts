@@ -33,6 +33,7 @@ export interface SportsTeamMember {
   profileId: number;
   username: string;
   role: 'OWNER' | 'PLAYER';
+  profilePicUrl?: string | null;
 }
 export interface SportsTeamInvitation {
   teamId: number;
@@ -99,6 +100,14 @@ export class SportsTeamsService {
     const item=this.recentTeams.get(id);
     if(!item||Date.now()-item.at>120000)return null;
     return item.team;
+  }
+
+  playerAvatarSrc(url:string|null|undefined):string|null {
+    if(!url)return null;
+    if(/^https:\/\/[^\s]+$/i.test(url))return url;
+    if(/^\/media\/[A-Za-z0-9_\/.-]+$/i.test(url)&&!url.includes('..'))
+      return environment.apiUrl.replace(/\/$/,'')+url;
+    return null;
   }
 
   logoSrc(url:string|null|undefined):string|null {
