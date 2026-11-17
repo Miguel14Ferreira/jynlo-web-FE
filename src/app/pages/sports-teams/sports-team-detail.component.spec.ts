@@ -98,7 +98,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
   api.setKit.and.returnValue(throwError(()=>Error('timeout')));
   component.saveTeamKit();
   expect(component.brandingSaving).toBeFalse();
-  expect(component.feedback).toContain('ligações históricas');
+  expect(component.feedback).toContain('Não foi possível confirmar o equipamento');
  });
  it('loads ownership and membership case-insensitively from real roster',()=>{
   expect(component.isOwner).toBeTrue();
