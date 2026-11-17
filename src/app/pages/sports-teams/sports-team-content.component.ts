@@ -27,7 +27,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
             placeholder="Escreve pelo menos 2 caracteres" maxlength="80"
             [disabled]="searching" />
           <button type="submit" [disabled]="searching || searchTerm.trim().length < 2">Pesquisar</button>
-          <button type="button" *ngIf="searchActive" (click)="clearSearch()">Voltar ao chat</button>
+          <button type="button" *ngIf="searchActive" (click)="clearSearch()">Voltar {{kind === 'chat' ? 'ao chat' : 'às publicações'}}</button>
         </div>
       </form>
       <p class="team-content-note" *ngIf="searchActive">{{searching ? 'A pesquisar…' : ('Resultados encontrados: ' + searchResults.length)}}</p>
@@ -36,14 +36,14 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
         {{kind === 'chat' ? 'Ainda não existem mensagens nesta equipa.' : 'Ainda não há publicações.'}}
       </p>
       <div #historyPane class="team-content-history" aria-live="polite" (scroll)="onHistoryScroll()">
-        <article *ngFor="let item of (searchActive ? searchResults : items); trackBy: trackMessage" class="team-content-entry">
+        <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry">
           <div class="team-entry-header">
             <span class="team-entry-avatar" aria-hidden="true">{{(item.username || 'J').slice(0,1).toUpperCase()}}</span>
             <div class="team-entry-meta"><strong>@{{item.username}}</strong>
               <time>{{item.createdAt | date:'dd/MM/yyyy HH:mm'}}</time></div>
           </div>
           <p *ngIf="item.replyToId" class="team-content-reply">↳ {{replyPreview(item.replyToId)}}</p>
-          <p>{{item.deleted ? 'Mensagem eliminada' : item.body}}</p>
+          <p>{{item.deleted ? (kind === 'chat' ? 'Mensagem eliminada' : 'Publicação eliminada') : item.body}}</p>
           <div class="team-private-files" *ngIf="!item.deleted && item.attachments?.length">
             <div *ngFor="let file of item.attachments" class="team-file-card">
               <p>📎 {{file.filename}} ({{(file.size/1024/1024) | number:'1.1-1'}} MB)</p>
@@ -59,7 +59,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
             </div>
           </div>
           <small *ngIf="item.editedAt && !item.deleted">Editada</small>
-          <div class="team-reactions" *ngIf="!item.deleted" aria-label="Reações à mensagem">
+          <div class="team-reactions" *ngIf="!item.deleted" [attr.aria-label]="kind === 'chat' ? 'Reações à mensagem' : 'Reações à publicação'">
             <button type="button" *ngFor="let emoji of emojis" [disabled]="reactionBusyId !== null"
               [class.selected]="reactionsById[item.id]?.mine === emoji"
               [attr.aria-pressed]="reactionsById[item.id]?.mine === emoji"
@@ -68,9 +68,9 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
             </button>
           </div>
           <div class="team-content-actions" *ngIf="!item.deleted">
-            <button type="button" (click)="reply(item)" [disabled]="sending" aria-label="Responder à mensagem" title="Responder">↩ <span>Responder</span></button>
-            <button type="button" *ngIf="item.canEdit" [disabled]="sending" (click)="beginEdit(item)" aria-label="Editar mensagem" title="Editar">✎ <span>Editar</span></button>
-            <button type="button" *ngIf="item.canManage" [disabled]="sending" (click)="remove(item)" aria-label="Eliminar mensagem" title="Eliminar">× <span>Eliminar</span></button>
+            <button type="button" (click)="reply(item)" [disabled]="sending" [attr.aria-label]="kind === 'chat' ? 'Responder à mensagem' : 'Comentar publicação'" [title]="kind === 'chat' ? 'Responder' : 'Comentar'">↩ <span>{{kind === 'chat' ? 'Responder' : 'Comentar'}}</span></button>
+            <button type="button" *ngIf="item.canEdit" [disabled]="sending" (click)="beginEdit(item)" [attr.aria-label]="kind === 'chat' ? 'Editar mensagem' : 'Editar publicação'" title="Editar">✎ <span>Editar</span></button>
+            <button type="button" *ngIf="item.canManage" [disabled]="sending" (click)="remove(item)" [attr.aria-label]="kind === 'chat' ? 'Eliminar mensagem' : 'Eliminar publicação'" title="Eliminar">× <span>Eliminar</span></button>
           </div>
           <form *ngIf="editingId === item.id" (ngSubmit)="saveEdit(item)">
             <textarea name="editBody" [(ngModel)]="editingDraft" maxlength="2000" [disabled]="sending"></textarea>
@@ -180,6 +180,12 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
     .team-chat-mode .team-content-entry{max-width:min(100%,760px)}
     .team-feed-mode .team-content-entry{max-width:100%}
     .team-feed-mode .team-content-history{max-height:none;min-height:0}
+    /* The feed composes above its cards; chat keeps the composer below history. */
+    .team-feed-mode .team-content-editor{order:2}
+    .team-feed-mode .team-content-search{order:3}
+    .team-feed-mode .team-content-history{order:5}
+    .team-feed-mode .team-content-heading{order:0}
+    .team-feed-mode>p{order:4}
     .team-file-card{min-width:0;flex:1 1 200px}
     .team-file-card img,.team-file-card video{display:block;width:auto;height:auto;object-fit:contain}
     .team-content-search-controls button:focus-visible,.team-composer-footer button:focus-visible,
@@ -318,6 +324,10 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   trackMessage(_:number, entry:TeamContentEntry):number { return entry.id; }
+  visibleEntries():TeamContentEntry[] {
+    const entries=this.searchActive?this.searchResults:this.items;
+    return this.kind==='feed'?entries.slice().reverse():entries;
+  }
   replyPreview(id:number|null):string {
     const original=(this.searchActive?this.searchResults:[]).find(item=>item.id===id)
       || this.items.find(item=>item.id===id);
