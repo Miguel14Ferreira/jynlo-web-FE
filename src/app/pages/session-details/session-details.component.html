@@ -2003,6 +2003,21 @@
 
           @if (session.canSharePublicly === true && currentUsername) {
             <section class="session-memories" aria-labelledby="session-memories-heading">
+              @if (shareableOfficialScore) {
+                <div class="session-social-result" aria-label="Resultado oficial desta sessão">
+                  <div><span class="section-kicker">MARCADOR OFICIAL</span>
+                    <strong>Equipa A {{officialSocialScore!.scoreA}} — {{officialSocialScore!.scoreB}} Equipa B</strong>
+                    <small>Marcador confirmado para esta sessão pública</small>
+                  </div>
+                  <button type="button" class="jynlo-action jynlo-action--primary"
+                    (click)="shareOfficialSocialScore()">Partilhar resultado</button>
+                </div>
+                @if (officialSocialShareFeedback) {
+                  <p class="session-memories-hint" role="status">{{officialSocialShareFeedback}}</p>
+                }
+              } @else if (officialSocialScoreError) {
+                <p class="session-memories-hint" role="status">{{officialSocialScoreError}}</p>
+              }
               <div class="session-memories-heading">
                 <div>
                   <p class="section-kicker">JYNLO · MOMENTOS</p>
