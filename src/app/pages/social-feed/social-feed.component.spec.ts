@@ -1314,7 +1314,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     const openGame = hub?.querySelector<HTMLAnchorElement>('a[href^="/menu/events/6?"]');
     expect(openGame).not.toBeNull();
     expect(openGame?.getAttribute('href')).toContain('join=1');
-    expect(hub?.querySelector('a[href="/menu/communities/13"]')).not.toBeNull();
+    expect(root.querySelector('.feed-v3-community-panel a[href="/menu/communities/13"]')).not.toBeNull();
     expect(hub?.querySelector('a[href="/menu/events/7"]')).toBeNull();
     expect(hub?.querySelector('a[href="/menu/events/8"]')).toBeNull();
     expect(hub?.querySelector('a[href="/menu/events/9"]')).toBeNull();
@@ -1357,7 +1357,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     const hub = (fixture.nativeElement as HTMLElement).querySelector('.week-hub');
     expect(hub?.textContent).toContain(t('week.noUpcoming'));
     expect(hub?.textContent).toContain(t('week.noOpenSlots'));
-    expect(hub?.textContent).toContain(t('week.noCommunities'));
+    expect(hub?.querySelector('.week-hub-card[aria-label="As tuas comunidades"]')).toBeNull();
     expect(hub?.querySelector('a[href="/menu/discover"]')).not.toBeNull();
     expect(hub?.querySelector('a[href="/menu/my-sessions"]')).not.toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('.feed-hero-cta[href="/menu/createEvent"]')).not.toBeNull();
