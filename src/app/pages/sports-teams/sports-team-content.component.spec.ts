@@ -153,6 +153,32 @@ describe('Team conversation synchronization', () => {
     expect(component.draft).toBe('Outro comentário');
   });
 
+  it('previews selected private media without uploading until publish and releases local URLs',()=>{
+    const photo=new File(['photo'],'equipa.png',{type:'image/png'});
+    const video=new File(['video'],'jogo.mp4',{type:'video/mp4'});
+    const create=spyOn(URL,'createObjectURL').and.returnValues('blob:photo','blob:video');
+    const revoke=spyOn(URL,'revokeObjectURL');
+    component.files=[photo,video];
+    expect(component.filePreviewUrl(photo)).toBe('blob:photo');
+    expect(component.filePreviewUrl(photo)).toBe('blob:photo');
+    expect(component.filePreviewUrl(video)).toBe('blob:video');
+    expect(create).toHaveBeenCalledTimes(2);
+    expect(api.uploadContentFiles).not.toHaveBeenCalled();
+    component.removeSelectedFile(0);
+    expect(component.files).toEqual([video]);
+    expect(revoke).toHaveBeenCalledWith('blob:photo');
+    component.clearFiles();
+    expect(component.files).toEqual([]);
+    expect(revoke).toHaveBeenCalledWith('blob:video');
+  });
+
+  it('does not let a pending private upload remove its selected files',()=>{
+    component.sending=true;
+    component.files=[new File(['p'],'imagem.png',{type:'image/png'})];
+    component.removeSelectedFile(0);
+    expect(component.files).toHaveSize(1);
+  });
+
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
     const image=new File(['png-bytes'],'captura.png',{type:'image/png'});
     const event={
