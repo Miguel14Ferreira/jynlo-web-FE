@@ -3458,6 +3458,11 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
             && this.session.waitlisted && !this.session.joined
             && session.joined && !session.waitlisted;
           this.session = session;
+          if(this.sessionMemoriesLoadedId!==null&&this.sessionMemoriesLoadedId!==session.id){
+            ++this.sessionMemoriesVersion;
+            this.sessionMemories=[];this.sessionMemoriesLoadedId=null;
+            this.sessionMemoriesLoading=false;this.sessionMemoriesError='';
+          }
           if(session.canSharePublicly===true && this.currentUsername){
             if(this.sessionMemoriesLoadedId!==session.id)this.loadSessionMemories();
           }else{
