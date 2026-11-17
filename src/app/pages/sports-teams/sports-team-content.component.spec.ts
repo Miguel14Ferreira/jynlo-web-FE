@@ -271,6 +271,33 @@ describe('Team conversation synchronization', () => {
     expect(api.removeReaction).toHaveBeenCalled();
   });
 
+  it('shows instant private team reactions and restores previous counts after a failed send',()=>{
+    component.kind='feed';
+    component.reactionsById={12:{mine:'👍',counts:{'👍':3,'❤️':1}}};
+    const pending=new Subject<void>();
+    api.setReaction.and.returnValue(pending.asObservable());
+    api.reactions.and.returnValue(of({12:{mine:'👍',counts:{'👍':3,'❤️':1}}}));
+    component.react(entry(12,7,'Publicação'),'❤️');
+    expect(component.reactionsById[12].mine).toBe('❤️');
+    expect(component.reactionsById[12].counts['👍']).toBe(2);
+    expect(component.reactionsById[12].counts['❤️']).toBe(2);
+    pending.error(new HttpErrorResponse({status:500,statusText:'Server error'}));
+    expect(component.reactionsById[12].mine).toBe('👍');
+    expect(component.reactionsById[12].counts['👍']).toBe(3);
+    expect(component.reactionsById[12].counts['❤️']).toBe(1);
+    expect(component.error).toContain('Não foi possível confirmar');
+  });
+
+  it('never restores private reactions after the server revokes team access',()=>{
+    component.kind='feed';
+    component.reactionsById={12:{mine:null,counts:{}}};
+    api.setReaction.and.returnValue(throwError(()=>new HttpErrorResponse({status:403})));
+    component.react(entry(12,7,'Privada'),'❤️');
+    expect(component.accessRevoked).toBeTrue();
+    expect(component.reactionsById).toEqual({});
+    expect(api.reactions).not.toHaveBeenCalled();
+  });
+
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
     const image=new File(['png-bytes'],'captura.png',{type:'image/png'});
     const event={
