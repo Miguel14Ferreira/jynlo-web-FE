@@ -236,6 +236,25 @@ describe('Team conversation synchronization', () => {
     expect(component.commentCount(1)).toBe(0);
   });
 
+  it('reuses sorted feed cards until history, collapsed comments, or reply selection changes',()=>{
+    component.kind='feed';
+    const a=entry(1,7,'Post'),b={...entry(2,7,'Comentário'),replyToId:1};
+    component.items=[a,b];
+    const first=component.visibleEntries();
+    expect(first.map(item=>item.id)).toEqual([1,2]);
+    expect(component.visibleEntries()).toBe(first);
+    component.toggleComments(1);
+    const folded=component.visibleEntries();
+    expect(folded.map(item=>item.id)).toEqual([1]);
+    expect(folded).not.toBe(first);
+    expect(component.visibleEntries()).toBe(folded);
+    component.reply(b);
+    expect(component.visibleEntries().map(item=>item.id)).toEqual([1,2]);
+    component.cancelReply();
+    component.items=[...component.items,entry(3,7,'Outro post')];
+    expect(component.visibleEntries().map(item=>item.id)).toEqual([3,1]);
+  });
+
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
     const image=new File(['png-bytes'],'captura.png',{type:'image/png'});
     const event={
