@@ -768,7 +768,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   private loadReactions(items:TeamContentEntry[]):void {
-    const ids=items.filter(item=>!item.deleted).slice(-100).map(item=>item.id);
+    // A background refresh must not replace an optimistic reaction still being saved.
+    const ids=items.filter(item=>!item.deleted&&item.id!==this.reactionBusyId).slice(-100).map(item=>item.id);
     if(!ids.length)return;
     const version=++this.reactionVersion;
     const generation=this.generation;
