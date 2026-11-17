@@ -431,6 +431,26 @@ describe('Team conversation synchronization', () => {
     expect(component.searchResults[0].deleted).toBeTrue();
   });
 
+  it('discards a historical reconciliation started before the author edits that post',()=>{
+    component.kind='feed';
+    const historical=entry(8,7,'Texto antigo');
+    component.olderEntries=[historical];
+    component.items=[entry(108,7,'Recente')];
+    component.feedCombined=[historical,...component.items];
+    const stale=new Subject<TeamContentEntry[]>();
+    api.feedEntries.and.returnValue(stale.asObservable());
+    api.content.and.returnValue(new Subject<TeamContentEntry[]>().asObservable());
+    component['reconcileOlderPosts']();
+    expect(api.feedEntries).toHaveBeenCalledOnceWith(7,[8]);
+    api.editContent.and.returnValue(of({...historical,body:'Nova versão'}));
+    component.beginEdit(historical);
+    component.editingDraft='Nova versão';
+    component.saveEdit(historical);
+    stale.next([historical]);stale.complete();
+    expect(component.olderEntries[0].body).toBe('Nova versão');
+    expect(component.feedCombined[0].body).toBe('Nova versão');
+  });
+
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
     const image=new File(['png-bytes'],'captura.png',{type:'image/png'});
     const event={
