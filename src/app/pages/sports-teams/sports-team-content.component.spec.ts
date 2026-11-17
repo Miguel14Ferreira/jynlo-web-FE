@@ -26,6 +26,29 @@ describe('Team conversation synchronization', () => {
     component.kind='chat';
   });
 
+  it('sends chat messages with Enter but keeps Shift+Enter for multiline drafts',()=>{
+    api.sendContent.and.returnValue(of(entry(10,7,'Mensagem nova')));
+    api.content.and.returnValue(of([entry(10,7,'Mensagem nova')]));
+    component.draft='Mensagem nova';
+    const plain={
+      key:'Enter',shiftKey:false,altKey:false,ctrlKey:false,metaKey:false,
+      isComposing:false,preventDefault:jasmine.createSpy('preventDefault')
+    } as unknown as KeyboardEvent;
+    component.onComposerKeydown(plain);
+    expect(plain.preventDefault).toHaveBeenCalled();
+    expect(api.sendContent).toHaveBeenCalledOnceWith(7,'chat','Mensagem nova',null);
+    const shifted={
+      ...plain,shiftKey:true,preventDefault:jasmine.createSpy('shiftPreventDefault')
+    } as unknown as KeyboardEvent;
+    component.draft='Outra linha';
+    component.onComposerKeydown(shifted);
+    expect(shifted.preventDefault).not.toHaveBeenCalled();
+    expect(api.sendContent).toHaveBeenCalledTimes(1);
+    component.kind='feed';
+    component.onComposerKeydown(plain);
+    expect(api.sendContent).toHaveBeenCalledTimes(1);
+  });
+
   it('ignores old responses when changing team while an HTTP history load is pending',()=>{
     const oldRead=new Subject<TeamContentEntry[]>();
     const newRead=new Subject<TeamContentEntry[]>();
