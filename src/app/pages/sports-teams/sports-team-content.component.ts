@@ -920,12 +920,10 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       next:results=>{
         if(generation!==this.generation||searchVersion!==this.searchVersion||!this.searchActive||this.accessRevoked)return;
         this.searchResults=results;
-        const found=new Set(results.map(item=>item.id));
         for(const key of Object.keys(this.previews)){
           const [id,index]=key.split(':').map(Number);
           // A result disappearing from the search does not revoke a still-visible,
           // authorized attachment in a separately paginated feed page.
-          if(found.has(id)&&this.currentAttachment(id,index))continue;
           if(this.currentAttachment(id,index))continue;
           URL.revokeObjectURL(this.previews[key].url);
           delete this.previews[key];
