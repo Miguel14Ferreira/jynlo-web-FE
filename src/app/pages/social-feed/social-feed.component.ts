@@ -1205,6 +1205,9 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       this.postGameSessionId = id;
       this.selectedSessionId = id;
       this.availableSessions = [session, ...this.availableSessions.filter(item => item.id !== id)];
+      // A moment link is a compose intent, not a request to browse the feed.
+      // Open only after server-side session eligibility has been confirmed.
+      this.openPostComposer();
     });
   }
 
