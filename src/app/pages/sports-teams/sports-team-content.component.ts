@@ -295,6 +295,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   items: TeamContentEntry[] = [];
   brokenAuthorAvatars=new Set<number>();
   collapsedFeedPosts=new Set<number>();
+  private commentCountSource:TeamContentEntry[]|null=null;
+  private readonly cachedCommentCounts=new Map<number,number>();
   draft = '';
   error = '';
   syncError = '';
@@ -411,18 +413,28 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   commentCount(postId:number):number {
     if(this.kind!=='feed')return 0;
     const entries=this.searchActive?this.searchResults:this.items;
-    const byId=new Map(entries.map(item=>[item.id,item]));
-    return entries.filter(item=>{
-      if(item.id===postId || item.replyToId===null)return false;
-      const seen=new Set<number>([item.id]);
-      let parent:number|null=item.replyToId;
-      while(parent!=null && !seen.has(parent)){
-        if(parent===postId)return true;
-        seen.add(parent);
-        parent=byId.get(parent)?.replyToId??null;
+    // Angular checks each card repeatedly: count all threads once per history update.
+    if(this.commentCountSource!==entries){
+      this.commentCountSource=entries;
+      this.cachedCommentCounts.clear();
+      const byId=new Map(entries.map(item=>[item.id,item]));
+      for(const item of entries){
+        if(item.replyToId==null)continue;
+        const visited=new Set<number>([item.id]);
+        let parent:number|null=item.replyToId;
+        while(parent!=null&&!visited.has(parent)){
+          const ancestor=byId.get(parent);
+          if(!ancestor)break;
+          if(ancestor.replyToId==null){
+            this.cachedCommentCounts.set(parent,(this.cachedCommentCounts.get(parent)||0)+1);
+            break;
+          }
+          visited.add(parent);
+          parent=ancestor.replyToId;
+        }
       }
-      return false;
-    }).length;
+    }
+    return this.cachedCommentCounts.get(postId)||0;
   }
   toggleComments(postId:number):void {
     if(this.collapsedFeedPosts.has(postId))this.collapsedFeedPosts.delete(postId);
