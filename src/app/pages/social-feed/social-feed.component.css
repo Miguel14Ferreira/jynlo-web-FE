@@ -938,7 +938,7 @@ h1 {
 .week-hub-heading p:not(.week-hub-eyebrow) { margin: .4rem 0 0; max-width: 630px;
   color: #cbd5e1; line-height: 1.5; font-size: .86rem; }
 .week-hub-create { text-decoration: none; flex-shrink: 0; }
-.week-hub-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .75rem;
+.week-hub-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .75rem;
   margin-top: 1.1rem; }
 .week-hub-card { display: flex; flex-direction: column; min-width: 0; padding: 1rem;
   border-radius: 1rem; border: 1px solid rgba(148,163,184,.14);
