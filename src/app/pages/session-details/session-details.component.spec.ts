@@ -4778,4 +4778,30 @@ describe('SessionDetailsComponent', () => {
     expect(component.sessionMemories).toEqual([]);
   });
 
+  it('protects private photos in game memories and opens those publications in the normal viewer',()=>{
+    expect(component.memoryMedia({
+      type:'POST',postId:44,authorUsername:'private',authorDisplayName:'Private',
+      authorProfilePicUrl:null,content:'Memória privada',
+      imageUrl:'/api/profile-media/posts/44/image',
+      createdAt:new Date().toISOString(),sessionId:7,sport:null,city:null,
+      gameDate:null,likeCount:0,likedByMe:false,commentCount:0
+    })).toBeNull();
+    expect(component.memoryMedia({
+      type:'POST',postId:45,authorUsername:'public',authorDisplayName:'Public',
+      authorProfilePicUrl:null,content:'Momento público',
+      imageUrl:'javascript:alert(1)',
+      createdAt:new Date().toISOString(),sessionId:7,sport:null,city:null,
+      gameDate:null,likeCount:0,likedByMe:false,commentCount:0
+    })).toBeNull();
+  });
+
+  it('only offers creating a post-game memory after the game to eligible players',()=>{
+    (component as any).currentUsername='player-one';
+    component.session={...session,status:'OPEN',joined:true,canSharePublicly:true};
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.session-memories')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('A partilha das recordações abre depois do jogo.');
+    expect(fixture.nativeElement.querySelector('.session-memories a.jynlo-action--primary')).toBeNull();
+  });
+
 });
