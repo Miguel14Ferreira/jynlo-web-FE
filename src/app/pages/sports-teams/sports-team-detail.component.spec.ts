@@ -287,4 +287,45 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(api.remove).toHaveBeenCalledOnceWith(5,4);
   expect(component.feedback).toContain('cancelado');
  });
+
+ it('opens team overview without requesting trophies or historic competitions',()=>{
+  expect(component.activeTab).toBe('OVERVIEW');
+  expect(api.detail).toHaveBeenCalled();
+  expect(api.members).toHaveBeenCalled();
+  expect(api.honours).not.toHaveBeenCalled();
+  expect(api.history).not.toHaveBeenCalled();
+  expect(component.trophiesVerified).toBeFalse();
+ });
+ it('loads official trophies and competition history only once when opening trophies',()=>{
+  component.selectTab('CHAT');
+  component.selectTab('FEED');
+  expect(api.honours).not.toHaveBeenCalled();
+  expect(api.history).not.toHaveBeenCalled();
+  component.selectTab('TROPHIES');
+  expect(api.honours).toHaveBeenCalledOnceWith(5);
+  expect(api.history).toHaveBeenCalledOnceWith(5);
+  expect(component.trophiesVerified).toBeTrue();
+  component.selectTab('OVERVIEW');
+  component.selectTab('TROPHIES');
+  expect(api.honours).toHaveBeenCalledTimes(1);
+  expect(api.history).toHaveBeenCalledTimes(1);
+ });
+ it('reports unverified trophy totals until both independent requests resolve',()=>{
+  const honour=new Subject<any[]>();
+  const history=new Subject<any[]>();
+  api.honours.and.returnValue(honour.asObservable());
+  api.history.and.returnValue(history.asObservable());
+  component.selectTab('TROPHIES');
+  expect(component.trophiesVerified).toBeFalse();
+  honour.next([]);honour.complete();
+  expect(component.trophiesVerified).toBeFalse();
+  history.next([]);history.complete();
+  expect(component.trophiesVerified).toBeTrue();
+ });
+ it('shows trophy loading errors and does not present zero trophies as confirmed',()=>{
+  api.honours.and.returnValue(throwError(()=>Error('offline')));
+  component.selectTab('TROPHIES');
+  expect(component.honoursError).toContain('Não foi possível');
+  expect(component.trophiesVerified).toBeFalse();
+ });
 });
