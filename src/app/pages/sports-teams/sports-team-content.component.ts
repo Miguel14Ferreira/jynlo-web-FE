@@ -38,6 +38,12 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
         {{kind === 'chat' ? 'Ainda não existem mensagens nesta equipa.' : 'Ainda não há publicações.'}}
       </p>
       <div #historyPane class="team-content-history" aria-live="polite" (scroll)="onHistoryScroll()">
+        <div *ngIf="kind === 'feed' && !searchActive && (hasOlderPosts || olderLoading || olderError)" class="team-history-more">
+          <button type="button" [disabled]="olderLoading || loading || sending" (click)="loadOlderPosts()">
+            {{olderLoading ? 'A carregar publicações…' : 'Ver publicações anteriores'}}
+          </button>
+          <span *ngIf="olderError" role="status">{{olderError}}</span>
+        </div>
         <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry" [class.team-feed-comment]="isFeedComment(item)">
           <div class="team-entry-header">
             <span class="team-entry-avatar" aria-hidden="true">
@@ -229,6 +235,10 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
     .team-feed-mode .team-content-entry{max-width:100%}
     .team-inline-comment-editor{margin-top:.75rem;padding:.8rem;border:1px solid #35bba4;border-radius:12px;background:#103c45;display:grid;gap:.55rem}
     .team-inline-comment-editor .team-content-editor{padding:.7rem}
+    .team-history-more{display:flex;gap:.55rem;align-items:center;justify-content:center;flex-wrap:wrap;padding:.6rem}
+    .team-history-more button{border-radius:10px;border:1px solid #358e90;background:#123e4a;color:#d9fff8;padding:.65rem 1rem;cursor:pointer}
+    .team-history-more button:disabled{opacity:.6;cursor:not-allowed}
+    .team-history-more span{font-size:.85rem;color:#f4c49b}
     .team-comment-toggle{justify-self:start;background:none;border:0;color:#75e8d7;cursor:pointer;font-weight:700;padding:.45rem 0}
     .team-comment-toggle:focus-visible{outline:2px solid #78f9dc;outline-offset:2px}
     .team-feed-mode .team-feed-comment{margin-left:clamp(12px,4vw,48px);border-left:3px solid #36bca8;background:#0b303c}
@@ -314,6 +324,11 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   private readonly autoFeedPreviewRequested=new Set<string>();
   private attachmentProbeVersion = 0;
   items: TeamContentEntry[] = [];
+  olderEntries:TeamContentEntry[]=[];
+  feedCombined:TeamContentEntry[]=[];
+  olderLoading=false;
+  hasOlderPosts=false;
+  olderError='';
   brokenAuthorAvatars=new Set<number>();
   collapsedFeedPosts=new Set<number>();
   private commentCountSource:TeamContentEntry[]|null=null;
@@ -339,7 +354,9 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.blockedReason=failure.status===409
       ? 'O chat ou feed da equipa foi desativado pelo responsável.'
       : 'Já não tens acesso a esta conversa.';
-    this.items=[];this.draft='';this.replyTargetId=null;
+    this.items=[];this.olderEntries=[];this.feedCombined=[];
+    this.hasOlderPosts=false;this.olderLoading=false;this.olderError='';
+    this.draft='';this.replyTargetId=null;
     this.brokenAuthorAvatars.clear();this.collapsedFeedPosts.clear();
     this.feedRootDraft='';this.feedRootFiles=[];this.feedCommentDrafts.clear();
     this.nearLatest=true;this.unseenBelow=false;
@@ -386,7 +403,9 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.accessRevoked = false;this.blockedReason='Já não tens acesso a esta conversa.';
       // Old requests may still complete, but their UI locks belong to the old conversation.
       this.sending=false;this.downloading=false;this.reactionBusyId=null;this.loading=true;
-      this.items = [];this.error = '';this.syncError = '';this.draft = '';
+      this.items = [];this.olderEntries=[];this.feedCombined=[];
+      this.hasOlderPosts=false;this.olderLoading=false;this.olderError='';
+      this.error = '';this.syncError = '';this.draft = '';
       this.brokenAuthorAvatars.clear();this.collapsedFeedPosts.clear();
       this.nearLatest=true;this.unseenBelow=false;
       this.replyTargetId = null;this.editingId = null;this.editingDraft='';
@@ -406,7 +425,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       || !this.visibleEntries().some(item=>item.id===this.replyTargetId));
   }
   visibleEntries():TeamContentEntry[] {
-    const entries=this.searchActive?this.searchResults:this.items;
+    const entries=this.searchActive?this.searchResults:(this.kind==='feed'?this.feedCombined:this.items);
     if(this.kind!=='feed')return entries;
     const collapsed=[...this.collapsedFeedPosts].sort((a,b)=>a-b).join(',');
     const cached=this.visibleCache;
@@ -440,7 +459,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
   commentCount(postId:number):number {
     if(this.kind!=='feed')return 0;
-    const entries=this.searchActive?this.searchResults:this.items;
+    const entries=this.searchActive?this.searchResults:this.feedCombined;
     // Angular checks each card repeatedly: count all threads once per history update.
     if(this.commentCountSource!==entries){
       this.commentCountSource=entries;
@@ -468,12 +487,36 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     if(this.collapsedFeedPosts.has(postId))this.collapsedFeedPosts.delete(postId);
     else this.collapsedFeedPosts.add(postId);
   }
+  loadOlderPosts():void {
+    if(this.kind!=='feed'||this.accessRevoked||this.olderLoading||!this.hasOlderPosts||this.sending)return;
+    const before=this.feedCombined.length?Math.min(...this.feedCombined.map(item=>item.id)):null;
+    if(before===null||before<=0){this.hasOlderPosts=false;return;}
+    const generation=this.generation;
+    this.olderLoading=true;this.olderError='';
+    this.api.olderFeed(this.teamId,before,30).subscribe({
+      next:page=>{
+        if(generation!==this.generation||this.accessRevoked)return;
+        const knownIds=new Set(this.feedCombined.map(item=>item.id));
+        const older=page.filter(item=>item.id<before&&!knownIds.has(item.id));
+        this.olderEntries=[...older,...this.olderEntries];
+        this.feedCombined=[...this.olderEntries,...this.items];
+        this.hasOlderPosts=page.length===30 && older.length>0;
+        this.loadReactions(older);
+      },
+      error:failure=>{
+        if(generation!==this.generation||this.accessRevoked)return;
+        if(!this.blockUnavailable(failure))
+          this.olderError='Não foi possível carregar publicações antigas. Tenta novamente.';
+      }
+    }).add(()=>{if(generation===this.generation)this.olderLoading=false;});
+  }
   isFeedComment(item:TeamContentEntry):boolean {
     return this.kind==='feed' && item.replyToId!=null
-      && (this.searchActive?this.searchResults:this.items).some(parent=>parent.id===item.replyToId);
+      && (this.searchActive?this.searchResults:this.feedCombined).some(parent=>parent.id===item.replyToId);
   }
   replyPreview(id:number|null):string {
     const original=(this.searchActive?this.searchResults:[]).find(item=>item.id===id)
+      || this.feedCombined.find(item=>item.id===id)
       || this.items.find(item=>item.id===id);
     if(!original)return 'uma mensagem anterior';
     if(original.deleted)return 'uma mensagem eliminada';
@@ -505,6 +548,11 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         if(this.kind==='chat'&&!this.nearLatest&&oldLatest>0&&newLatest>oldLatest)
           this.unseenBelow=true;
         this.items=items;
+        if(this.kind==='feed'){
+          this.olderEntries=this.olderEntries.filter(old=>!items.some(item=>item.id===old.id));
+          this.feedCombined=[...this.olderEntries,...items];
+          if(!this.olderEntries.length)this.hasOlderPosts=items.length===100;
+        }
         this.loadRecentFeedImages();
         if(this.accessRevoked)return;
         this.scrollIfReadingLatest();
@@ -659,6 +707,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     // search hits. Search-only older messages remain available when absent
     // from the latest-history window.
     const known=this.items.find(item=>item.id===messageId)
+      ?? this.olderEntries.find(item=>item.id===messageId)
       ?? this.searchResults.find(item=>item.id===messageId);
     if(!known||known.deleted)return false;
     return (known.attachments||[]).some(file=>file.index===index
