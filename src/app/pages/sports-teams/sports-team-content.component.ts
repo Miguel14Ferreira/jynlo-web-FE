@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subscription, interval, fromEvent, merge } from 'rxjs';
 import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionState } from '../../services/sports-teams.service';
@@ -35,7 +35,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
       <p *ngIf="!loading && !searchActive && !items.length && !error" class="team-content-note">
         {{kind === 'chat' ? 'Ainda não existem mensagens nesta equipa.' : 'Ainda não há publicações.'}}
       </p>
-      <div class="team-content-history" aria-live="polite">
+      <div #historyPane class="team-content-history" aria-live="polite" (scroll)="onHistoryScroll()">
         <article *ngFor="let item of (searchActive ? searchResults : items); trackBy: trackMessage" class="team-content-entry">
           <div class="team-entry-header">
             <span class="team-entry-avatar" aria-hidden="true">{{(item.username || 'J').slice(0,1).toUpperCase()}}</span>
@@ -79,6 +79,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
           </form>
         </article>
       </div>
+      <button *ngIf="kind === 'chat' && unseenBelow && !searchActive" type="button" class="team-new-messages" (click)="showLatest()" aria-label="Ver mensagens novas">↓ Mensagens novas</button>
       <div *ngIf="replyTargetId" class="team-content-note">
         A responder a {{replyPreview(replyTargetId)}}
         <button type="button" (click)="replyTargetId = null">Cancelar resposta</button>
@@ -174,6 +175,8 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
       flex-wrap:wrap;gap:.7rem}
     .team-composer-footer small{font-size:.73rem;color:#9cbdc5}
     .team-composer-footer button{justify-self:auto;min-height:43px}
+    .team-new-messages{justify-self:center;padding:.65rem 1rem;background:#125362;color:#bffff1;border:1px solid #30b9a7;border-radius:30px;cursor:pointer;font-weight:800}
+    .team-new-messages:focus-visible{outline:2px solid #78f9dc;outline-offset:3px}
     .team-chat-mode .team-content-entry{max-width:min(100%,760px)}
     .team-feed-mode .team-content-entry{max-width:100%}
     .team-feed-mode .team-content-history{max-height:none;min-height:0}
@@ -192,6 +195,31 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
 })
 export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy {
   @Input({required:true}) teamId = 0;
+  @ViewChild('historyPane') historyPane?:ElementRef<HTMLDivElement>;
+  unseenBelow=false;
+  private nearLatest=true;
+  onHistoryScroll():void {
+    if(this.kind!=='chat'||this.searchActive)return;
+    const el=this.historyPane?.nativeElement;
+    if(!el)return;
+    this.nearLatest=el.scrollTop+el.clientHeight>=el.scrollHeight-85;
+    if(this.nearLatest)this.unseenBelow=false;
+  }
+  private scrollIfReadingLatest():void {
+    if(this.kind!=='chat'||!this.nearLatest||this.searchActive)return;
+    const version=this.generation;
+    setTimeout(()=>{
+      if(version!==this.generation||!this.nearLatest||this.searchActive)return;
+      const el=this.historyPane?.nativeElement;
+      if(el)el.scrollTop=el.scrollHeight;
+    },0);
+  }
+  showLatest():void {
+    this.nearLatest=true;this.unseenBelow=false;
+    const el=this.historyPane?.nativeElement;
+    if(el)el.scrollTop=el.scrollHeight;
+    this.scrollIfReadingLatest();
+  }
   @Input({required:true}) kind: TeamContentKind = 'chat';
   replyTargetId: number | null = null;
   editingId: number | null = null;
@@ -233,6 +261,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       ? 'O chat ou feed da equipa foi desativado pelo responsável.'
       : 'Já não tens acesso a esta conversa.';
     this.items=[];this.draft='';this.replyTargetId=null;
+    this.nearLatest=true;this.unseenBelow=false;
     this.editingId=null;this.editingDraft='';this.clearSearch();
     this.reactionVersion++;this.reactionsById={};this.clearFiles();
     this.clearPreviews();this.attachmentsEnabled=false;this.syncError='';
@@ -277,6 +306,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       // Old requests may still complete, but their UI locks belong to the old conversation.
       this.sending=false;this.downloading=false;this.reactionBusyId=null;this.loading=true;
       this.items = [];this.error = '';this.syncError = '';this.draft = '';
+      this.nearLatest=true;this.unseenBelow=false;
       this.replyTargetId = null;this.editingId = null;this.editingDraft='';
       this.clearSearch();this.searchTerm = '';
       this.reactionVersion++;this.reactionsById={};
@@ -315,7 +345,12 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         this.accessRevoked=false;
         this.blockedReason='Já não tens acesso a esta conversa.';
         this.error='';
+        const oldLatest=this.items.reduce((id,item)=>Math.max(id,item.id),0);
+        const newLatest=items.reduce((id,item)=>Math.max(id,item.id),0);
+        if(this.kind==='chat'&&!this.nearLatest&&oldLatest>0&&newLatest>oldLatest)
+          this.unseenBelow=true;
         this.items=items;
+        this.scrollIfReadingLatest();
         // Keep visible search hits consistent with live edits/deletions, without
         // unexpectedly discarding the user's search or scroll position.
         if(this.searchActive && this.searchResults.length){
@@ -355,15 +390,17 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.invalidatePendingRead();
     this.sending=true;this.error='';
     const uploads=[...this.files];
+    const submittedReply=this.replyTargetId;
     const operation=uploads.length
-      ? this.api.uploadContentFiles(this.teamId,this.kind,uploads,text,this.replyTargetId)
-      : this.api.sendContent(this.teamId,this.kind,text,this.replyTargetId);
+      ? this.api.uploadContentFiles(this.teamId,this.kind,uploads,text,submittedReply)
+      : this.api.sendContent(this.teamId,this.kind,text,submittedReply);
     operation.subscribe({
       next:item => {
         if(version!==this.generation||this.accessRevoked)return;
         if(!this.items.some(previous=>previous.id===item.id))
           this.items=[...this.items,item].sort((a,b)=>a.id-b.id);
-        if(this.draft.trim()===text){this.draft='';this.replyTargetId=null;}
+        if(this.draft.trim()===text)this.draft='';
+        if(this.replyTargetId===submittedReply)this.replyTargetId=null;
         if(uploads.length)this.clearFiles();
       },
       error:failure => {
