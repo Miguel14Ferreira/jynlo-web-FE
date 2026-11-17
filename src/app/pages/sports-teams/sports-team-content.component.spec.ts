@@ -393,6 +393,44 @@ describe('Team conversation synchronization', () => {
     expect(component.items).toEqual([]);
   });
 
+  it('updates a personally edited historical team post immediately',()=>{
+    component.kind='feed';
+    const old=entry(8,7,'Texto antigo');
+    component.items=[entry(108,7,'Recente')];
+    component.olderEntries=[old];
+    component.feedCombined=[old,...component.items];
+    component.searchResults=[old];
+    component.searchActive=true;
+    api.content.and.returnValue(new Subject<TeamContentEntry[]>().asObservable());
+    api.editContent.and.returnValue(of({...old,body:'Texto atualizado'}));
+    component.beginEdit(old);
+    component.editingDraft='Texto atualizado';
+    component.saveEdit(old);
+    expect(component.olderEntries[0].body).toBe('Texto atualizado');
+    expect(component.feedCombined[0].body).toBe('Texto atualizado');
+    expect(component.searchResults[0].body).toBe('Texto atualizado');
+  });
+
+  it('immediately removes historical team content and its private attachment metadata',()=>{
+    component.kind='feed';
+    const old={...entry(8,7,'Ficheiro privado'),attachments:[
+      {index:0,filename:'prova.png',mimeType:'image/png',size:5}
+    ]};
+    component.items=[entry(108,7,'Recente')];
+    component.olderEntries=[old];
+    component.feedCombined=[old,...component.items];
+    component.searchResults=[old];
+    api.content.and.returnValue(new Subject<TeamContentEntry[]>().asObservable());
+    api.deleteContent.and.returnValue(of(void 0));
+    spyOn(window,'confirm').and.returnValue(true);
+    component.remove(old);
+    expect(component.olderEntries[0].deleted).toBeTrue();
+    expect(component.olderEntries[0].body).toBe('');
+    expect(component.olderEntries[0].attachments).toEqual([]);
+    expect(component.feedCombined[0].deleted).toBeTrue();
+    expect(component.searchResults[0].deleted).toBeTrue();
+  });
+
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
     const image=new File(['png-bytes'],'captura.png',{type:'image/png'});
     const event={
