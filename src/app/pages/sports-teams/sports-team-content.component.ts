@@ -517,7 +517,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
   /** Reconcile one bounded page of previously loaded feed posts, rotating through older pages. */
   private reconcileOlderPosts():void {
-    if(this.kind!=='feed'||this.accessRevoked||this.olderReconcileInFlight
+    if(this.kind!=='feed'||this.accessRevoked||this.olderReconcileInFlight||this.sending
         ||this.olderLoading||!this.olderEntries.length
         ||Date.now()-this.olderReconcileAt<30000)return;
     this.olderReconcileAt=Date.now();
@@ -526,10 +526,12 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.olderReconcileOffset=start+ids.length>=this.olderEntries.length?0:start+ids.length;
     if(!ids.length)return;
     const generation=this.generation;
+    const writeVersion=this.writeVersion;
     this.olderReconcileInFlight=true;
     this.api.feedEntries(this.teamId,ids).subscribe({
       next:updated=>{
         if(generation!==this.generation||this.accessRevoked)return;
+        if(writeVersion!==this.writeVersion){this.olderReconcileAt=0;return;}
         const fresh=new Map(updated.map(item=>[item.id,item]));
         const requested=new Set(ids);
         this.olderEntries=this.olderEntries
