@@ -26,6 +26,27 @@ describe('Team conversation synchronization', () => {
     component.kind='chat';
   });
 
+  it('pastes images into the private composer without sending or bypassing authorization',()=>{
+    const image=new File(['png-bytes'],'captura.png',{type:'image/png'});
+    const event={
+      clipboardData:{files:[image]},
+      preventDefault:jasmine.createSpy('preventDefault')
+    } as unknown as ClipboardEvent;
+    component.attachmentsEnabled=true;
+    component.onComposerPaste(event);
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(component.files).toEqual([image]);
+    expect(api.uploadContentFiles).not.toHaveBeenCalled();
+    component.files=[];
+    component.attachmentsEnabled=false;
+    component.onComposerPaste(event);
+    expect(component.files).toEqual([]);
+    component.attachmentsEnabled=true;
+    component.accessRevoked=true;
+    component.onComposerPaste(event);
+    expect(component.files).toEqual([]);
+  });
+
   it('sends chat messages with Enter but keeps Shift+Enter for multiline drafts',()=>{
     api.sendContent.and.returnValue(of(entry(10,7,'Mensagem nova')));
     api.content.and.returnValue(of([entry(10,7,'Mensagem nova')]));
