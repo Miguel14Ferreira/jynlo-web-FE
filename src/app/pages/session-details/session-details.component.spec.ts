@@ -8,6 +8,8 @@ import { CommunityService } from '../../services/community.service';
 import { DirectChatService } from '../../services/direct-chat.service';
 import { DirectCallClientService } from '../../services/direct-call-client.service';
 import { SessionService } from '../../services/session.service';
+import { SocialFeedService } from '../../services/social-feed.service';
+import { FeedItem } from '../model/feed-item';
 import { SessionPresetService } from '../../services/session-preset.service';
 import { ReliabilityService } from '../../services/reliability.service';
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
@@ -21,6 +23,7 @@ describe('SessionDetailsComponent', () => {
   let component: SessionDetailsComponent;
   let fixture: ComponentFixture<SessionDetailsComponent>;
   let sessionService: jasmine.SpyObj<SessionService>;
+  let socialFeedService: jasmine.SpyObj<SocialFeedService>;
   let presetService: jasmine.SpyObj<SessionPresetService>;
   let communityService: jasmine.SpyObj<CommunityService>;
   let directChatService: jasmine.SpyObj<DirectChatService>;
@@ -83,6 +86,8 @@ describe('SessionDetailsComponent', () => {
       'SessionService',
       ['detail', 'context', 'postGameCommunities', 'joinCommunityAfterGame', 'updateMeetingPoint', 'updateCapacity', 'updateDetails', 'join', 'leave', 'cancel', 'complete', 'reportDidNotOccur', 'reportProblem', 'messages', 'postMessage', 'attachmentsAvailable', 'sendAttachment', 'downloadAttachment', 'participants', 'removeParticipant', 'teamSuggestion', 'confirmTeams', 'futureExclusionStatus', 'excludeFromFutureSessions', 'allowFutureSessions', 'myOverallRating', 'rateOverall', 'myVenueRating', 'rateVenue', 'sentCompliments', 'receivedCompliments', 'giveCompliment', 'issueGuestLink', 'guestRequests', 'confirmedGuests', 'reviewGuestRequest', 'cancelGuestRequest']
     );
+    socialFeedService=jasmine.createSpyObj<SocialFeedService>('SocialFeedService',['sessionMemories']);
+    socialFeedService.sessionMemories.and.returnValue(of([]));
     sessionService.detail.and.returnValue(of(session));
     sessionService.context.and.returnValue(of({communities:[],seasonGame:false,seasonName:null}));
     sessionService.postGameCommunities.and.returnValue(of([]));
@@ -218,6 +223,7 @@ describe('SessionDetailsComponent', () => {
           provide: SessionService,
           useValue: sessionService
         },
+        { provide: SocialFeedService, useValue: socialFeedService },
         { provide: CommunityService, useValue: communityService },
         { provide: DirectChatService, useValue: directChatService },
         { provide: DirectCallClientService, useValue: callClient },
@@ -4725,5 +4731,51 @@ describe('SessionDetailsComponent', () => {
     expect(component.canContactSessionMember('player-two')).toBeFalse();
   });
 
+
+  it('never retrieves or renders public memories for private or community sessions',()=>{
+    (component as any).currentUsername='player-one';
+    component.session={...session,privateGame:true,canSharePublicly:false};
+    component.loadSessionMemories();
+    fixture.detectChanges();
+    expect(socialFeedService.sessionMemories).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('.session-memories')).toBeNull();
+  });
+
+  it('shows manually authored memories of a public session and preserves the linked post',()=>{
+    (component as any).currentUsername='player-one';
+    component.session={...session,canSharePublicly:true};
+    const memory:FeedItem={
+      type:'POST',postId:31,authorUsername:'athlete',authorDisplayName:'Athlete',
+      authorProfilePicUrl:null,content:'Foi um bom jogo',imageUrl:null,
+      createdAt:new Date().toISOString(),sessionId:7,sport:'Padel',
+      city:'Lisboa',gameDate:null,likeCount:2,likedByMe:false,commentCount:1
+    };
+    socialFeedService.sessionMemories.and.returnValue(of([memory,{...memory,postId:32,sessionId:8}]));
+    component.loadSessionMemories();
+    fixture.detectChanges();
+    expect(socialFeedService.sessionMemories).toHaveBeenCalledOnceWith(7);
+    expect(component.sessionMemories.map(x=>x.postId)).toEqual([31]);
+    const card=fixture.nativeElement.querySelector('.session-memory-card') as HTMLElement;
+    expect(card).not.toBeNull();
+    expect(card.textContent).toContain('@athlete');
+    expect(fixture.nativeElement.querySelectorAll('.session-memory-card').length).toBe(1);
+    expect(fixture.nativeElement.textContent).toContain('Nada é publicado automaticamente');
+  });
+
+  it('ignores late memory responses when a different session replaces the page',()=>{
+    (component as any).currentUsername='player-one';
+    component.session={...session,canSharePublicly:true};
+    const delayed=new Subject<FeedItem[]>();
+    socialFeedService.sessionMemories.and.returnValue(delayed.asObservable());
+    component.loadSessionMemories();
+    component.session={...session,id:9,canSharePublicly:false};
+    delayed.next([{
+      type:'POST',postId:31,authorUsername:'athlete',authorDisplayName:'Athlete',
+      authorProfilePicUrl:null,content:'Outra sessão',imageUrl:null,
+      createdAt:new Date().toISOString(),sessionId:7,sport:null,city:null,
+      gameDate:null,likeCount:0,likedByMe:false,commentCount:0
+    }]);
+    expect(component.sessionMemories).toEqual([]);
+  });
 
 });
