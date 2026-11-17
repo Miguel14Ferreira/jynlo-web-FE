@@ -1706,9 +1706,24 @@ describe('SocialFeedComponent post-game entry', () => {
     expect(sessions.detail).toHaveBeenCalledWith(42);
     expect(target.selectedSessionId).toBe(42);
     expect(target.postGameSessionId).toBe(42);
+    expect(target.postComposerOpen).toBeTrue();
     expect(target.availableSessions.map(session => session.id)).toEqual([42]);
     expect(target.postContent).toBe('');
     target.ngOnDestroy();
+  });
+
+  it('does not open a composer for a private or unfinished session', () => {
+    for (const changes of [
+      { privateGame: true },
+      { status: 'OPEN' as SessionDetail['status'] },
+      { joined: false, creatorUsername: 'someone-else' },
+      { canSharePublicly: false }
+    ]) {
+      const { target } = openFromSession(changes);
+      expect(target.postComposerOpen).toBeFalse();
+      expect(target.selectedSessionId).toBeNull();
+      target.ngOnDestroy();
+    }
   });
 
   it('shows only the verified session in the post-game draft summary', () => {
