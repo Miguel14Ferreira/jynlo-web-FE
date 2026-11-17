@@ -485,6 +485,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
           this.unseenBelow=true;
         this.items=items;
         this.loadRecentFeedImages();
+        if(this.accessRevoked)return;
         this.scrollIfReadingLatest();
         // Keep visible search hits consistent with live edits/deletions, without
         // unexpectedly discarding the user's search or scroll position.
@@ -687,6 +688,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const recent=this.items.filter(item=>!item.deleted&&item.replyToId==null)
       .slice().reverse().slice(0,4);
     for(const item of recent){
+      if(this.accessRevoked)return;
       const file=(item.attachments||[]).find(attachment=>
         ['image/jpeg','image/png','image/webp','image/gif'].includes(attachment.mimeType));
       if(!file)continue;
