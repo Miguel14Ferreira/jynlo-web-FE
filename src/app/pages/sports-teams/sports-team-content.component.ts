@@ -229,6 +229,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   searchActive = false;
   searching = false;
   private searchVersion = 0;
+  private searchRecheckBusy = false;
   readonly emojis = ['👍','❤️','😂','🔥','👏'];
   reactionsById: Record<number,TeamReactionState> = {};
   reactionBusyId: number | null = null;
@@ -262,7 +263,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       : 'Já não tens acesso a esta conversa.';
     this.items=[];this.draft='';this.replyTargetId=null;
     this.nearLatest=true;this.unseenBelow=false;
-    this.editingId=null;this.editingDraft='';this.clearSearch();
+    this.editingId=null;this.editingDraft='';this.searchRecheckBusy=false;this.clearSearch();
     this.reactionVersion++;this.reactionsById={};this.clearFiles();
     this.clearPreviews();this.attachmentsEnabled=false;this.syncError='';
     this.error=this.blockedReason;
@@ -308,7 +309,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.items = [];this.error = '';this.syncError = '';this.draft = '';
       this.nearLatest=true;this.unseenBelow=false;
       this.replyTargetId = null;this.editingId = null;this.editingDraft='';
-      this.clearSearch();this.searchTerm = '';
+      this.searchRecheckBusy=false;this.clearSearch();this.searchTerm = '';
       this.reactionVersion++;this.reactionsById={};
       this.clearFiles();this.clearPreviews();this.attachmentsEnabled=false;
       this.checkAttachmentsAvailable();
@@ -369,6 +370,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
           if(position!==-1)this.previewOrder.splice(position,1);
         }
         this.syncError='';this.loadReactions(items);
+        this.revalidateVisibleSearch();
         if(wasBlocked)this.checkAttachmentsAvailable();
       },
       error:(failure:unknown) => {
@@ -573,6 +575,38 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       error:failure=>{if(generation===this.generation&&!this.blockUnavailable(failure))
         this.error='Não foi possível confirmar a reação. Consulta o histórico antes de repetir.';}
     }).add(()=>{if(generation===this.generation){this.reactionBusyId=null;if(!this.accessRevoked)this.loadReactions([item]);}});
+  }
+
+  private revalidateVisibleSearch():void {
+    // Search hits may be older than the bounded 100-message timeline. A
+    // content-free WebSocket hint must also reconcile those older results.
+    if(!this.searchActive||this.searching||this.searchRecheckBusy||this.accessRevoked)return;
+    const query=this.searchTerm.trim();
+    if(query.length<2||query.length>80)return;
+    const generation=this.generation,searchVersion=this.searchVersion;
+    this.searchRecheckBusy=true;
+    this.api.searchContent(this.teamId,this.kind,query).subscribe({
+      next:results=>{
+        if(generation!==this.generation||searchVersion!==this.searchVersion||!this.searchActive||this.accessRevoked)return;
+        this.searchResults=results;
+        const found=new Set(results.map(item=>item.id));
+        for(const key of Object.keys(this.previews)){
+          const id=Number(key.split(':')[0]);
+          if(found.has(id)||this.items.some(item=>item.id===id&&!item.deleted))continue;
+          URL.revokeObjectURL(this.previews[key].url);
+          delete this.previews[key];
+          const index=this.previewOrder.indexOf(key);
+          if(index!==-1)this.previewOrder.splice(index,1);
+        }
+        this.loadReactions(results);
+      },
+      error:failure=>{
+        if(generation===this.generation&&searchVersion===this.searchVersion){
+          if(!this.blockUnavailable(failure))
+            this.syncError='Não foi possível atualizar os resultados da pesquisa.';
+        }
+      }
+    }).add(()=>{if(generation===this.generation)this.searchRecheckBusy=false;});
   }
 
   search():void {
