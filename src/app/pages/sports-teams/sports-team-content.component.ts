@@ -297,6 +297,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   collapsedFeedPosts=new Set<number>();
   private commentCountSource:TeamContentEntry[]|null=null;
   private readonly cachedCommentCounts=new Map<number,number>();
+  private visibleCache?:{source:TeamContentEntry[];collapsed:string;replyTo:number|null;visible:TeamContentEntry[]};
   draft = '';
   error = '';
   syncError = '';
@@ -386,6 +387,10 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   visibleEntries():TeamContentEntry[] {
     const entries=this.searchActive?this.searchResults:this.items;
     if(this.kind!=='feed')return entries;
+    const collapsed=[...this.collapsedFeedPosts].sort((a,b)=>a-b).join(',');
+    const cached=this.visibleCache;
+    if(cached&&cached.source===entries&&cached.collapsed===collapsed
+        &&cached.replyTo===this.replyTargetId)return cached.visible;
     // Group replies beneath the original publication rather than treating
     // every comment as an unrelated post. Missing parents remain visible.
     const byId=new Map(entries.map(item=>[item.id,item]));
@@ -404,11 +409,13 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       const root=rootOf(item),group=groups.get(root)||[];
       group.push(item);groups.set(root,group);
     }
-    return [...groups.entries()].sort((a,b)=>b[0]-a[0])
+    const visible=[...groups.entries()].sort((a,b)=>b[0]-a[0])
       .flatMap(([root,items])=>items.slice().sort((a,b)=>
         a.id===root?-1:b.id===root?1:a.id-b.id)
         .filter(item=>this.searchActive || item.id===root
           || !this.collapsedFeedPosts.has(root) || this.replyTargetId===item.id));
+    this.visibleCache={source:entries,collapsed,replyTo:this.replyTargetId,visible};
+    return visible;
   }
   commentCount(postId:number):number {
     if(this.kind!=='feed')return 0;
