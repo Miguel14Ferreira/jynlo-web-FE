@@ -218,6 +218,24 @@ describe('Team conversation synchronization', () => {
     expect(component.visibleEntries().map(item=>item.id)).toEqual([1,2,3]);
   });
 
+  it('recalculates cached thread totals after new comments and filtered searches',()=>{
+    component.kind='feed';
+    const root=entry(1,7,'Post');
+    const child={...entry(2,7,'Comentário'),replyToId:1};
+    component.items=[root,child];
+    expect(component.commentCount(1)).toBe(1);
+    expect(component.commentCount(1)).toBe(1);
+    component.items=[...component.items,{...entry(3,7,'Resposta'),replyToId:2}];
+    expect(component.commentCount(1)).toBe(2);
+    component.searchActive=true;
+    component.searchResults=[root];
+    expect(component.commentCount(1)).toBe(0);
+    component.searchResults=[root,child];
+    expect(component.commentCount(1)).toBe(1);
+    component.kind='chat';
+    expect(component.commentCount(1)).toBe(0);
+  });
+
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
     const image=new File(['png-bytes'],'captura.png',{type:'image/png'});
     const event={
