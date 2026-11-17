@@ -298,6 +298,18 @@ describe('Team conversation synchronization', () => {
     expect(api.reactions).not.toHaveBeenCalled();
   });
 
+  it('does not fetch stale reaction totals for a post while its write is pending',()=>{
+    component.kind='feed';
+    const post=entry(12,7,'Publicação');
+    const other=entry(15,7,'Outra publicação');
+    api.setReaction.and.returnValue(new Subject<void>().asObservable());
+    component.react(post,'❤️');
+    component['loadReactions']([post,other]);
+    expect(api.reactions).toHaveBeenCalledOnceWith(7,'feed',[15]);
+    expect(component.reactionsById[12].mine).toBe('❤️');
+    component.ngOnDestroy();
+  });
+
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
     const image=new File(['png-bytes'],'captura.png',{type:'image/png'});
     const event={
