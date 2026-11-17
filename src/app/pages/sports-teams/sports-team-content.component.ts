@@ -357,6 +357,17 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
           const latest=new Map(items.map(item=>[item.id,item]));
           this.searchResults=this.searchResults.map(item=>latest.get(item.id) || item);
         }
+        // Remove already-displayed private blobs as soon as authenticated
+        // reconciliation reports deletion or an attachment removal.
+        for(const key of Object.keys(this.previews)){
+          const [idText,indexText]=key.split(':');
+          const messageId=Number(idText),index=Number(indexText);
+          if(this.currentAttachment(messageId,index))continue;
+          URL.revokeObjectURL(this.previews[key].url);
+          delete this.previews[key];
+          const position=this.previewOrder.indexOf(key);
+          if(position!==-1)this.previewOrder.splice(position,1);
+        }
         this.syncError='';this.loadReactions(items);
         if(wasBlocked)this.checkAttachmentsAvailable();
       },
@@ -460,8 +471,11 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   private currentAttachment(messageId:number,index:number,mimeType?:string):boolean {
     // A late media response must never resurrect a preview after a message is
     // deleted or its attachments have been removed by a realtime refresh.
+    // The authenticated live history takes precedence over potentially stale
+    // search hits. Search-only older messages remain available when absent
+    // from the latest-history window.
     const known=this.items.find(item=>item.id===messageId)
-      || this.searchResults.find(item=>item.id===messageId);
+      ?? this.searchResults.find(item=>item.id===messageId);
     if(!known||known.deleted)return false;
     return (known.attachments||[]).some(file=>file.index===index
       && (!mimeType||file.mimeType===mimeType));
