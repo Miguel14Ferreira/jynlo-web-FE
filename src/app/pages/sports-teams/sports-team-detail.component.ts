@@ -8,11 +8,12 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PublicTeamCommunity,TeamCommunityMembership,TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
 import { SportsTeam, SportsTeamMember, SportsTeamsService, SportsTeamPlayerCandidate, TeamPendingPlayerInvitation, TeamCompetitionHistory, TeamChampionshipHonour, TeamKitPattern } from '../../services/sports-teams.service';
 import { SportsTeamContentComponent } from './sports-team-content.component';
+import { SportsTeamChallengesComponent } from './sports-team-challenges.component';
 
 @Component({
   standalone: true,
   selector: 'app-sports-team-detail',
-  imports: [CommonModule, RouterLink, FormsModule, SportsTeamContentComponent],
+  imports: [CommonModule, RouterLink, FormsModule, SportsTeamContentComponent, SportsTeamChallengesComponent],
   template: `
   <main class="team-detail" *ngIf="team as t; else state">
     <a class="team-back" routerLink="/menu/teams">← Voltar às equipas</a>
@@ -91,6 +92,8 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
         [class.selected]="activeTab === 'FEED'" (click)="selectTab('FEED')">Publicações</button>
       <button type="button" role="tab" [attr.aria-selected]="activeTab === 'CHAT'"
         [class.selected]="activeTab === 'CHAT'" (click)="selectTab('CHAT')">Mensagens</button>
+      <button type="button" role="tab" [attr.aria-selected]="activeTab === 'CHALLENGES'"
+        [class.selected]="activeTab === 'CHALLENGES'" (click)="selectTab('CHALLENGES')">Desafios</button>
     </nav>
     <p *ngIf="feedback" role="status" class="team-feedback">{{feedback}}</p>
     <div class="team-grid" role="tabpanel">
@@ -197,6 +200,10 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
         <app-sports-team-content *ngIf="t.feedEnabled && rosterVerified && isMember" [teamId]="t.id" kind="feed"></app-sports-team-content>
         <p *ngIf="t.feedEnabled && (!rosterVerified || !isMember)">Disponível apenas para membros confirmados da equipa.</p>
       </section>
+      <section *ngIf="activeTab === 'CHALLENGES'">
+        <app-sports-team-challenges [teamId]="t.id" [isOwner]="isOwner && rosterVerified"
+          [sport]="t.sport"></app-sports-team-challenges>
+      </section>
       <section *ngIf="activeTab === 'CHAT'" class="team-feature">
         <h2>Chat</h2>
         <button *ngIf="isOwner" type="button" [disabled]="featureSaving"
@@ -220,10 +227,10 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   brokenPlayerAvatars=new Set<number>();
   playerAvatarSrc(url:string|null|undefined):string|null{return this.api.playerAvatarSrc(url);}
   logoSrc(url:string|null|undefined):string|null{return this.api.logoSrc(url);}
-  activeTab: 'OVERVIEW' | 'TROPHIES' | 'FEED' | 'CHAT' = 'OVERVIEW';
+  activeTab: 'OVERVIEW' | 'TROPHIES' | 'FEED' | 'CHAT' | 'CHALLENGES' = 'OVERVIEW';
   private trophiesRequestedForTeam:number|null=null;
   get trophiesVerified():boolean{return this.trophiesRequestedForTeam===this.team?.id && !this.historyLoading && !this.honoursLoading && !this.historyError && !this.honoursError;}
-  selectTab(tab:'OVERVIEW'|'TROPHIES'|'FEED'|'CHAT'):void {
+  selectTab(tab:'OVERVIEW'|'TROPHIES'|'FEED'|'CHAT'|'CHALLENGES'):void {
     this.activeTab=tab;
     if(tab==='TROPHIES')this.loadTrophies();
   }
