@@ -36,6 +36,7 @@ describe('Team conversation synchronization', () => {
     expect(component.authorAvatarSrc(missingPhoto)).toBeNull();
     expect(component.authorAvatarSrc(suspicious)).toBeNull();
     component.brokenAuthorAvatars.add(2);
+    api.content.and.returnValue(of([]));
     component.ngOnChanges({teamId:new SimpleChange(7,8,false)});
     expect(component.brokenAuthorAvatars.size).toBe(0);
   });
