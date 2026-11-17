@@ -92,7 +92,7 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
         [class.selected]="activeTab === 'FEED'" (click)="selectTab('FEED')">Publicações</button>
       <button type="button" role="tab" [attr.aria-selected]="activeTab === 'CHAT'"
         [class.selected]="activeTab === 'CHAT'" (click)="selectTab('CHAT')">Mensagens</button>
-      <button type="button" role="tab" [attr.aria-selected]="activeTab === 'CHALLENGES'"
+      <button *ngIf="isOwner && rosterVerified" type="button" role="tab" [attr.aria-selected]="activeTab === 'CHALLENGES'"
         [class.selected]="activeTab === 'CHALLENGES'" (click)="selectTab('CHALLENGES')">Desafios</button>
     </nav>
     <p *ngIf="feedback" role="status" class="team-feedback">{{feedback}}</p>
@@ -200,7 +200,7 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
         <app-sports-team-content *ngIf="t.feedEnabled && rosterVerified && isMember" [teamId]="t.id" kind="feed"></app-sports-team-content>
         <p *ngIf="t.feedEnabled && (!rosterVerified || !isMember)">Disponível apenas para membros confirmados da equipa.</p>
       </section>
-      <section *ngIf="activeTab === 'CHALLENGES'">
+      <section *ngIf="activeTab === 'CHALLENGES' && isOwner && rosterVerified">
         <app-sports-team-challenges [teamId]="t.id" [isOwner]="isOwner && rosterVerified"
           [sport]="t.sport"></app-sports-team-challenges>
       </section>
