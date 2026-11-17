@@ -341,4 +341,41 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(component.trophiesVerified).toBeTrue();
   expect(api.detail).toHaveBeenCalledTimes(initialTeamRequests);
  });
+
+ it('derives owner permissions from the verified team roster without fetching all owned teams',()=>{
+  expect(component.isOwner).toBeTrue();
+  expect(component.isMember).toBeTrue();
+  expect(component.rosterVerified).toBeTrue();
+  expect(api.mine).not.toHaveBeenCalled();
+  expect(api.teamPendingInvitations).toHaveBeenCalledOnceWith(5);
+ });
+ it('only enables owner operations after a roster confirms the owner role',()=>{
+  const delayed=new Subject<SportsTeamMember[]>();
+  api.members.and.returnValue(delayed.asObservable());
+  const copy=new SportsTeamDetailComponent(
+   {snapshot:{paramMap:{get:()=>String(team.id)}}} as unknown as ActivatedRoute,
+   api,community,auth,{detectChanges:()=>{}} as any,router
+  );
+  api.teamPendingInvitations.calls.reset();
+  copy.ngOnInit();
+  expect(copy.isOwner).toBeFalse();
+  expect(copy.rosterVerified).toBeFalse();
+  expect(api.teamPendingInvitations).not.toHaveBeenCalled();
+  delayed.next([owner,player]);delayed.complete();
+  expect(copy.isOwner).toBeTrue();
+  expect(api.teamPendingInvitations).toHaveBeenCalledOnceWith(5);
+  copy.ngOnDestroy();
+ });
+ it('revokes owner controls and invalidates pending invitations when role changes',()=>{
+  expect(component.isOwner).toBeTrue();
+  component.invitationsVerified=true;
+  component.pendingPlayers=[{profileId:9,username:'Pendente',status:'INVITED'}];
+  api.members.and.returnValue(of([player]));
+  component.refreshRoster();
+  expect(component.isOwner).toBeFalse();
+  expect(component.isMember).toBeFalse();
+  expect(component.invitationsVerified).toBeFalse();
+  expect(component.pendingPlayers).toEqual([]);
+  expect(api.mine).not.toHaveBeenCalled();
+ });
 });
