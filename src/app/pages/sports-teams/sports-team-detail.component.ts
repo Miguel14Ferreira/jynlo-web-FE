@@ -480,13 +480,25 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         if(request!==this.rosterRequest || this.team?.id!==teamId)return;
         this.members=players;
         this.rosterVerified=true;
-        this.isMember=players.some(p=>p.username.toLowerCase()===this.auth.loggedInPerfilname?.toLowerCase());
+        // The authenticated roster already provides OWNER/PLAYER roles.
+        // A separate GET /teams/mine is redundant and slows the team detail.
+        const username=this.auth.loggedInPerfilname?.toLowerCase();
+        const ownRole=players.find(p=>p.username.toLowerCase()===username)?.role;
+        const wasOwner=this.isOwner;
+        this.isMember=ownRole==='OWNER'||ownRole==='PLAYER';
+        this.isOwner=ownRole==='OWNER';
+        if(!this.isOwner){
+          this.pendingRequest++;this.pendingPlayers=[];this.invitationsVerified=false;
+        }else if(!wasOwner){
+          this.loadPendingInvitations();
+        }
         this.render();
       },
       error:()=>{
         if(request!==this.rosterRequest || this.team?.id!==teamId)return;
         // Do not keep a stale authorization decision after a failed refresh.
-        this.rosterVerified=false;this.isMember=false;
+        this.rosterVerified=false;this.isMember=false;this.isOwner=false;
+        this.pendingRequest++;this.pendingPlayers=[];this.invitationsVerified=false;
         this.render();
       }
     }).add(()=>{if(request===this.rosterRequest){this.rosterLoading=false;this.render();}});
@@ -541,7 +553,6 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         this.kitSecondary=team.kitSecondary||'#f2fafc';
         this.kitPattern=team.kitPattern||'PLAIN';
         this.render();
-        this.api.mine().pipe(timeout(15000)).subscribe({next:owned=>{this.isOwner=owned.some(x=>x.id===team.id);if(this.isOwner)this.loadPendingInvitations();this.render();},error:()=>{this.isOwner=false;this.invitationsVerified=false;this.render();}});
         this.loadCommunities();
         // Trophy/history requests are unnecessary on the initial squad screen.
         // Load them once, when the user actually opens the trophies tab.
