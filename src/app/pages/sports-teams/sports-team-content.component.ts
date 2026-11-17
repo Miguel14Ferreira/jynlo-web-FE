@@ -784,8 +784,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     });
   }
   private optimisticReaction(contentId:number,emoji:string):TeamReactionState {
-    const original=this.reactionsById[contentId]??{counts:{},mine:null};
-    const counts={...original.counts};
+    const original:TeamReactionState=this.reactionsById[contentId]??{counts:{},mine:null};
+    const counts:Record<string,number>={...original.counts};
     if(original.mine){counts[original.mine]=Math.max(0,(counts[original.mine]||0)-1);}
     const mine=original.mine===emoji?null:emoji;
     if(mine){counts[mine]=(counts[mine]||0)+1;}
