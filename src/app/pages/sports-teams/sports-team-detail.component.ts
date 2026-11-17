@@ -129,6 +129,8 @@ import { SportsTeamContentComponent } from './sports-team-content.component';
         <p *ngIf="historyLoading || honoursLoading">A carregar conquistas oficiais…</p>
         <p *ngIf="historyError" role="alert">{{historyError}}</p>
         <p *ngIf="honoursError" role="alert">{{honoursError}}</p>
+        <button type="button" *ngIf="!historyLoading && !honoursLoading && (historyError || honoursError)"
+          (click)="retryTrophies()">Voltar a tentar carregar troféus</button>
         <p *ngIf="!historyLoading && !honoursLoading && !historyError && !honoursError && !trophies.length && !championshipHonours.length">Ainda não existem troféus oficiais nesta equipa.</p>
         <article *ngFor="let honour of championshipHonours" class="trophy">
           <strong>🏆 {{honour.competitionName}}</strong>
@@ -217,6 +219,11 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   selectTab(tab:'OVERVIEW'|'TROPHIES'|'FEED'|'CHAT'):void {
     this.activeTab=tab;
     if(tab==='TROPHIES')this.loadTrophies();
+  }
+  retryTrophies():void {
+    if(this.activeTab!=='TROPHIES'||this.historyLoading||this.honoursLoading)return;
+    this.trophiesRequestedForTeam=null;
+    this.loadTrophies();
   }
   private loadTrophies():void {
     const id=this.team?.id;
