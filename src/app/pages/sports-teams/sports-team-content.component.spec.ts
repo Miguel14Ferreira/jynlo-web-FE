@@ -476,6 +476,22 @@ describe('Team conversation synchronization', () => {
     expect(Object.keys(component.previews)).toEqual([]);
   });
 
+  it('stops private feed media and reaction requests after an authorization denial',()=>{
+    component.kind='feed';
+    const items=Array.from({length:4},(_,index)=>({
+      ...entry(index+1,7,'Private '+index),
+      attachments:[{index:0,filename:'photo.png',mimeType:'image/png',size:100}]
+    }));
+    api.content.and.returnValue(of(items));
+    api.downloadContentFile.and.returnValue(
+      throwError(()=>new HttpErrorResponse({status:403,statusText:'Forbidden'})));
+    component.read(false);
+    expect(api.downloadContentFile).toHaveBeenCalledTimes(1);
+    expect(api.reactions).not.toHaveBeenCalled();
+    expect(component.accessRevoked).toBeTrue();
+    expect(component.items).toEqual([]);
+  });
+
   it('does not restore a preview that resolves after access was revoked',()=>{
     const file=new Subject<Blob>();
     api.downloadContentFile.and.returnValue(file.asObservable());
