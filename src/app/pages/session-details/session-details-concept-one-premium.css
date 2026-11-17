@@ -120,3 +120,28 @@
   .jynlo-session-detail-premium .team-generator-actions{width:100%}
   .jynlo-session-detail-premium .team-generator-actions .jynlo-action{flex-basis:100%}
 }
+
+/* Session memories live beside the game, not as automatically generated feed spam. */
+.jynlo-session-detail-premium .session-memories{margin:1.6rem 0 0;padding:clamp(1rem,3vw,1.5rem);border:1px solid #338d9170;border-radius:18px;background:#092f3ce8;min-width:0}
+.jynlo-session-detail-premium .session-memories-heading{display:flex;align-items:start;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.jynlo-session-detail-premium .session-memories-heading h2{font-size:clamp(1.2rem,2.5vw,1.7rem);margin:.3rem 0;color:#f2ffff}
+.jynlo-session-detail-premium .session-memories-heading p{line-height:1.55;color:#c5dadb;max-width:60ch}
+.jynlo-session-detail-premium .session-memories-actions{display:flex;gap:.65rem;flex-wrap:wrap;align-items:center}
+.jynlo-session-detail-premium .session-memories-actions .jynlo-action{min-height:44px;text-decoration:none}
+.jynlo-session-detail-premium .session-memories-hint{color:#b9d8dd;padding:.9rem 0}
+.jynlo-session-detail-premium .session-memories-grid{margin-top:1.2rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:.9rem}
+.jynlo-session-detail-premium .session-memory-card{display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid #397b856b;border-radius:15px;background:#103b4b;color:#f5ffff;text-decoration:none;min-height:140px}
+.jynlo-session-detail-premium .session-memory-card:focus-visible{outline:2px solid #8bf9e2;outline-offset:3px}
+.jynlo-session-detail-premium .session-memory-card img{width:100%;height:165px;object-fit:cover;display:block}
+.jynlo-session-detail-premium .session-memory-video{display:grid;place-items:center;height:165px;background:#173f4d;font-size:1.2rem;font-weight:800}
+.jynlo-session-detail-premium .session-memory-copy{padding:.85rem;overflow-wrap:anywhere}
+.jynlo-session-detail-premium .session-memory-copy strong{color:#91f7e5}
+.jynlo-session-detail-premium .session-memory-copy p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;line-height:1.45;color:#d7e7e9}
+.jynlo-session-detail-premium .session-memory-copy small{color:#a7cbd2}
+@media(max-width:600px){
+ .jynlo-session-detail-premium .session-memories-actions{width:100%}
+ .jynlo-session-detail-premium .session-memories-actions .jynlo-action{flex:1 1 100%;text-align:center;justify-content:center}
+ .jynlo-session-detail-premium .session-memories-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}
+ .jynlo-session-detail-premium .session-memory-card img,.jynlo-session-detail-premium .session-memory-video{height:115px}
+ .jynlo-session-detail-premium .session-memory-copy{padding:.65rem}
+}
