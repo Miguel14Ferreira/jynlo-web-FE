@@ -196,6 +196,28 @@ describe('Team conversation synchronization', () => {
     expect(component.files).toHaveSize(1);
   });
 
+  it('collapses threaded comments without losing root posts, search hits, or active reply editor',()=>{
+    component.kind='feed';
+    component.items=[
+      entry(1,7,'Post'),
+      {...entry(2,7,'Comentário'),replyToId:1},
+      {...entry(3,7,'Subcomentário'),replyToId:2},
+      entry(4,7,'Outro post')
+    ];
+    expect(component.commentCount(1)).toBe(2);
+    expect(component.visibleEntries().map(item=>item.id)).toEqual([4,1,2,3]);
+    component.toggleComments(1);
+    expect(component.visibleEntries().map(item=>item.id)).toEqual([4,1]);
+    component.reply(component.items[1]);
+    expect(component.visibleEntries().map(item=>item.id)).toEqual([4,1,2]);
+    component.cancelReply();
+    component.searchActive=true;
+    component.searchResults=[component.items[0],component.items[1],component.items[2]];
+    expect(component.visibleEntries().map(item=>item.id)).toEqual([1,2,3]);
+    component.kind='chat';
+    expect(component.visibleEntries().map(item=>item.id)).toEqual([1,2,3]);
+  });
+
   it('pastes images into the private composer without sending or bypassing authorization',()=>{
     const image=new File(['png-bytes'],'captura.png',{type:'image/png'});
     const event={
