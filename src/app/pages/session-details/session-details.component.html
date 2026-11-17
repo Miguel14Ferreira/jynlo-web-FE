@@ -2001,6 +2001,49 @@
             }
           }
 
+          @if (session.canSharePublicly === true && currentUsername) {
+            <section class="session-memories" aria-labelledby="session-memories-heading">
+              <div class="session-memories-heading">
+                <div>
+                  <p class="section-kicker">JYNLO · MOMENTOS</p>
+                  <h2 id="session-memories-heading">Recordações deste jogo</h2>
+                  <p>Fotografias, vídeos e histórias partilhadas pelos jogadores. Nada é publicado automaticamente.</p>
+                </div>
+                <div class="session-memories-actions">
+                  <button type="button" class="jynlo-action jynlo-action--neutral"
+                    [disabled]="sessionMemoriesLoading" (click)="loadSessionMemories(true)"
+                    aria-label="Ver novos momentos desta sessão">Ver novos momentos</button>
+                  <a class="jynlo-action jynlo-action--primary" routerLink="/menu/feed"
+                    [queryParams]="{momentSession:session.id}">Partilhar um momento</a>
+                </div>
+              </div>
+              @if (sessionMemoriesLoading) {
+                <p role="status" class="session-memories-hint">A carregar recordações…</p>
+              } @else if (sessionMemoriesError) {
+                <p role="alert" class="session-memories-hint">{{sessionMemoriesError}}</p>
+              } @else if (sessionMemories.length === 0) {
+                <p class="session-memories-hint">Ainda não há recordações. Podes partilhar a primeira fotografia ou história.</p>
+              } @else {
+                <div class="session-memories-grid">
+                  @for (memory of sessionMemories; track memory.postId) {
+                    <a class="session-memory-card" routerLink="/menu/feed"
+                      [queryParams]="{post:memory.postId}" [attr.aria-label]="'Abrir publicação de @' + memory.authorUsername">
+                      @if (memoryMedia(memory); as image) {
+                        <img [src]="image" alt="" loading="lazy" decoding="async">
+                      } @else if (memory.videoUrl) {
+                        <div class="session-memory-video" aria-hidden="true">▶ Vídeo</div>
+                      }
+                      <div class="session-memory-copy">
+                        <strong>@{{memory.authorUsername}}</strong>
+                        @if (memory.content) { <p>{{memory.content}}</p> }
+                        <small>{{memory.createdAt | date:'dd/MM/yyyy'}}</small>
+                      </div>
+                    </a>
+                  }
+                </div>
+              }
+            </section>
+          }
         </div>
       </article>
     }
