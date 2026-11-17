@@ -457,6 +457,15 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   clearFiles():void {this.files=[];}
   filesLabel():string {return this.files.map(file=>file.name).join(', ');}
   previewKey(messageId:number,index:number):string{return messageId+':'+index;}
+  private currentAttachment(messageId:number,index:number,mimeType?:string):boolean {
+    // A late media response must never resurrect a preview after a message is
+    // deleted or its attachments have been removed by a realtime refresh.
+    const known=this.items.find(item=>item.id===messageId)
+      || this.searchResults.find(item=>item.id===messageId);
+    if(!known||known.deleted)return false;
+    return (known.attachments||[]).some(file=>file.index===index
+      && (!mimeType||file.mimeType===mimeType));
+  }
   canPreview(mime:string):boolean {
     return ['image/jpeg','image/png','image/webp','image/gif','video/mp4','video/webm'].includes(mime);
   }
@@ -467,13 +476,16 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     if(this.previews[key]){
       URL.revokeObjectURL(this.previews[key].url);
       delete this.previews[key];
+      const position=this.previewOrder.indexOf(key);
+      if(position!==-1)this.previewOrder.splice(position,1);
       return;
     }
     this.downloading=true;this.error='';
     const generation=this.generation;
     this.api.downloadContentFile(this.teamId,this.kind,entry.id,file.index).subscribe({
       next:blob=>{
-        if(generation!==this.generation||this.accessRevoked)return;
+        if(generation!==this.generation||this.accessRevoked
+          ||!this.currentAttachment(entry.id,file.index,file.mimeType))return;
         if(blob.type!==file.mimeType){
           this.error='O tipo do ficheiro recebido não corresponde ao anexo.';
           return;
@@ -498,12 +510,14 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.previews={};this.previewOrder.length=0;
   }
   download(entry:TeamContentEntry,index:number,filename:string):void {
-    if(this.downloading||entry.deleted||!Number.isSafeInteger(index)||index<0||index>=4)return;
+    if(this.downloading||entry.deleted||!Number.isSafeInteger(index)||index<0||index>=4
+      ||!this.currentAttachment(entry.id,index))return;
     this.downloading=true;this.error='';
     const generation=this.generation;
     this.api.downloadContentFile(this.teamId,this.kind,entry.id,index).subscribe({
       next:blob=>{
-        if(generation!==this.generation||this.accessRevoked)return;
+        if(generation!==this.generation||this.accessRevoked
+          ||!this.currentAttachment(entry.id,index))return;
         const url=URL.createObjectURL(blob);
         try {
           const link=document.createElement('a');
