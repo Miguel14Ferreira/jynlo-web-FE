@@ -315,7 +315,14 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         this.accessRevoked=false;
         this.blockedReason='Já não tens acesso a esta conversa.';
         this.error='';
-        this.items=items;this.syncError='';this.loadReactions(items);
+        this.items=items;
+        // Keep visible search hits consistent with live edits/deletions, without
+        // unexpectedly discarding the user's search or scroll position.
+        if(this.searchActive && this.searchResults.length){
+          const latest=new Map(items.map(item=>[item.id,item]));
+          this.searchResults=this.searchResults.map(item=>latest.get(item.id) || item);
+        }
+        this.syncError='';this.loadReactions(items);
         if(wasBlocked)this.checkAttachmentsAvailable();
       },
       error:(failure:unknown) => {
@@ -543,6 +550,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       next:updated=>{
         if(version!==this.generation||this.accessRevoked)return;
         this.items=this.items.map(item=>item.id===updated.id?updated:item);
+        this.searchResults=this.searchResults.map(item=>item.id===updated.id?updated:item);
         this.editingId=null;
       },
       error:failure=>{if(version===this.generation&&!this.blockUnavailable(failure))
@@ -558,7 +566,16 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.api.deleteContent(this.teamId,this.kind,entry.id).subscribe({
       next:()=>{
         if(version!==this.generation||this.accessRevoked)return;
-        this.items=this.items.map(item=>item.id===entry.id?{...item,body:'',deleted:true}:item);
+        this.items=this.items.map(item=>item.id===entry.id?{...item,body:'',deleted:true,attachments:[]}:item);
+        this.searchResults=this.searchResults.map(item=>item.id===entry.id?{...item,body:'',deleted:true,attachments:[]}:item);
+        // An attachment preview must not remain on screen after removal.
+        for(const key of Object.keys(this.previews)){
+          if(!key.startsWith(entry.id+':'))continue;
+          URL.revokeObjectURL(this.previews[key].url);
+          delete this.previews[key];
+          const index=this.previewOrder.indexOf(key);
+          if(index!==-1)this.previewOrder.splice(index,1);
+        }
       },
       error:failure=>{if(version===this.generation&&!this.blockUnavailable(failure))
         this.error='Eliminação não confirmada. Consulta o histórico antes de repetir.';}
