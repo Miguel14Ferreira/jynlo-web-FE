@@ -237,6 +237,12 @@ export class SessionService {
     return this.http.get<SessionSummary[]>(this.baseUrl, { params });
   }
 
+  /** Private, authenticated scoreboard: server verifies organiser/participant. */
+  officialResult(id: number): Observable<import('../shared/session-result-share').OfficialGameScore> {
+    return this.http.get<import('../shared/session-result-share').OfficialGameScore>(
+      this.baseUrl + '/' + id + '/official-result');
+  }
+
   detail(id: number): Observable<SessionDetail> {
     return this.http.get<SessionDetail>(this.baseUrl + '/' + id);
   }
