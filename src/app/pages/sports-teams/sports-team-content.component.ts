@@ -797,6 +797,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.reactionBusyId=item.id;
     const generation=this.generation;
     const previous=this.reactionsById[item.id]??{counts:{},mine:null};
+    // Ignore reaction summaries fetched before this mutation.
+    this.reactionVersion++;
     const same=previous.mine===emoji;
     this.reactionsById={...this.reactionsById,[item.id]:this.optimisticReaction(item.id,emoji)};
     const request=same
