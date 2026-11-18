@@ -110,7 +110,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
   ];
   expect(component.visibleRoster.map(p=>p.username)).toEqual(['Owner','ana','Bruno','Jogador','Zeca']);
   component.rosterQuery='  AN ';
-  expect(component.visibleRoster.map(p=>p.username)).toEqual([]);
+  expect(component.visibleRoster.map(p=>p.username)).toEqual(['ana']);
   component.rosterQuery='  anA ';
   expect(component.visibleRoster.map(p=>p.username)).toEqual(['ana']);
   component.rosterQuery='';
@@ -182,6 +182,23 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(component.members.map(m=>m.profileId)).toEqual([2]);
   component.removePlayer(owner);
   expect(api.remove).toHaveBeenCalledTimes(1);
+ });
+ it('ignores an obsolete community search result after the query changes',()=>{
+  const pending=new Subject<{id:number;name:string;sport:string|null}[]>();
+  community.discover.and.returnValue(pending.asObservable());
+  component.communityQuery='Futebol';
+  component.searchCommunities();
+  component.communityQuery='Basquetebol';
+  component.invalidateCommunitySearch();
+  pending.next([{id:10,name:'Futebol Antigo',sport:'Futebol'}]);
+  pending.complete();
+  expect(component.communityResults).toEqual([]);
+  expect(component.communitySearchComplete).toBeFalse();
+  expect(component.searchingCommunities).toBeFalse();
+ });
+ it('keeps community cards identified by membership and candidate id',()=>{
+  expect(component.trackTeamCommunity(0,{id:31} as any)).toBe(31);
+  expect(component.trackCommunityCandidate(0,{id:45} as any)).toBe(45);
  });
  it('leaves a community only after confirmation and owner verification',()=>{
   const membership={id:12,teamId:5,teamName:'Clube A',communityId:9,communityName:'Comunidade A',status:'ACTIVE' as const};
