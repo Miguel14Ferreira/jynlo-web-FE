@@ -407,3 +407,16 @@
   .feed-cancelled-notice > div { grid-column:1/-1; }
   .feed-cancelled-notice > button { min-height:42px; }
 }
+
+/* Publishing a media post can take longer on mobile connections.
+   Keep the status legible, visible and non-interactive while upload is pending. */
+:host .feed-v3-shell .composer-publish-status {
+  margin:8px 0 0;
+  padding:10px 12px;
+  border-radius:11px;
+  border:1px solid rgba(97,234,210,.35);
+  background:rgba(4,53,65,.72);
+  color:#e4f9f7;
+  font-size:.875rem;
+  line-height:1.5;
+}
