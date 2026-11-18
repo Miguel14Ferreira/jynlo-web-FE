@@ -423,7 +423,7 @@
               @if (audienceData.viewers.length === 0) { <p>Sem visualizações registadas.</p> }
               <div class="story-audience-people">
                 @for (person of audienceData.viewers; track person.username) {
-                  <a [routerLink]="['/menu/perfis', person.username]" (click)="close()">
+                  <a [routerLink]="['/menu/perfis', person.username]" (click)="closeAudience(); close()">
                     <strong>&#64;{{ person.username }}</strong>
                     <small>{{ person.viewedAt | date:'dd/MM · HH:mm' }}</small>
                   </a>
