@@ -300,6 +300,15 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   viewElapsedMs = 0;
   viewDurationMs = 7000;
   imageLoaded = false;
+  private readonly reportedViews = new Set<number>();
+  private recordRenderedView(): void {
+    const active = this.activeStory;
+    if (!active || this.reportedViews.has(active.id)) return;
+    this.reportedViews.add(active.id);
+    this.stories.recordView(active.id).pipe(takeUntil(this.destroyed)).subscribe({
+      error: () => this.reportedViews.delete(active.id)
+    });
+  }
   mediaFailed = false;
   autoplayFailed = false;
   viewerPaused = false;
@@ -382,12 +391,14 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   }
 
   onImageLoaded(): void {
+    this.recordRenderedView();
     this.imageLoaded = true;
     this.lastFrameAt = Date.now();
     this.changeDetector.markForCheck();
   }
 
   onVideoReady(event: Event): void {
+    this.recordRenderedView();
     const video = event.target as HTMLVideoElement;
     if (Number.isFinite(video.duration) && video.duration > 0) {
       this.viewDurationMs = video.duration * 1000;
