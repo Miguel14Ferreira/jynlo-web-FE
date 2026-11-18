@@ -291,3 +291,21 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   border:0!important;border-radius:0!important;background:transparent!important;
   box-shadow:none!important;color:#f8fafc;
 }
+
+
+/* Native-style audience sheet: private to the original author and scrollable. */
+.story-dialog .story-audience-panel{
+ position:absolute;z-index:30;left:0;right:0;bottom:0;max-height:72%;overflow:auto;
+ border:1px solid #2dd4bf;border-bottom:0;border-radius:20px 20px 0 0;
+ padding:16px;background:#102733;color:#f8fafc;
+ box-shadow:0 -12px 36px rgba(0,0,0,.42);
+}
+.story-dialog .story-audience-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.story-dialog .story-audience-header strong{font-size:1.03rem}
+.story-dialog .story-audience-header button{min-width:44px;min-height:44px;background:transparent;color:#fff;border:0;font-size:1.15rem;cursor:pointer}
+.story-dialog .story-audience-panel p{font-size:.85rem;color:#aed1d4;margin:8px 0}
+.story-dialog .story-audience-people{display:flex;flex-direction:column;max-height:45dvh;overflow:auto}
+.story-dialog .story-audience-people a{min-height:50px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+ padding:9px 3px;color:#f0fdfa;text-decoration:none;border-bottom:1px solid #ffffff24}
+.story-dialog .story-audience-people a:hover{background:#155064}
+.story-dialog .story-audience-people small{color:#a8c4cb;font-size:.75rem}
