@@ -129,6 +129,12 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(component.rosterVerified).toBeFalse();
   expect(component.isMember).toBeFalse();
  });
+ it('keeps stable identities for pending invitations and player results',()=>{
+  const invite={profileId:42,username:'ana'} as any;
+  const candidate={profileId:57,username:'bruno',fullName:'Bruno'} as any;
+  expect(component.trackPendingPlayer(2,invite)).toBe(42);
+  expect(component.trackCandidate(1,candidate)).toBe(57);
+ });
  it('finds users and submits only the selected invitation',()=>{
   api.findPlayers.and.returnValue(of([{profileId:4,username:'Novo',fullName:'Novo Jogador'}]));
   api.invite.and.returnValue(of(void 0));
