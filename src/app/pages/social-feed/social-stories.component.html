@@ -398,6 +398,10 @@
           } @else {
             <div class="story-owner-row">
               <span>{{ story.communityName || ('stories.yourStory' | t) }}</span>
+              @if (isStoryAuthor(story)) {
+                <button type="button" class="story-owner-share" (click)="openAudience()"
+                  aria-label="Ver quem viu esta Story">👁 {{ audienceData ? audienceData.viewCount + ' visualizações' : 'Quem viu' }}</button>
+              }
               <button type="button" class="story-owner-share" (click)="shareStory()">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4zM22 2 11 13"/></svg>
                 {{ 'stories.share' | t }}
@@ -405,6 +409,32 @@
             </div>
           }
         </div>
+
+        @if (audienceOpen && isStoryAuthor(story)) {
+          <aside class="story-audience-panel" aria-label="Visualizações da Story">
+            <div class="story-audience-header">
+              <strong>Quem viu a tua Story</strong>
+              <button type="button" aria-label="Fechar visualizações" (click)="closeAudience()">✕</button>
+            </div>
+            @if (audienceBusy) { <p>A carregar visualizações…</p> }
+            @if (audienceError) { <p role="alert">{{ audienceError }}</p> }
+            @if (audienceData) {
+              <p>{{ audienceData.viewCount }} visualizações únicas</p>
+              @if (audienceData.viewers.length === 0) { <p>Sem visualizações registadas.</p> }
+              <div class="story-audience-people">
+                @for (person of audienceData.viewers; track person.username) {
+                  <a [routerLink]="['/menu/perfis', person.username]" (click)="close()">
+                    <strong>&#64;{{ person.username }}</strong>
+                    <small>{{ person.viewedAt | date:'dd/MM · HH:mm' }}</small>
+                  </a>
+                }
+              </div>
+              @if (audienceData.viewCount > audienceData.viewers.length) {
+                <p>Lista limitada às 100 visualizações mais recentes disponíveis.</p>
+              }
+            }
+          </aside>
+        }
 
         @if (deleteConfirmOpen) {
           <div class="story-confirm-backdrop" (click)="cancelDeleteStory()">
