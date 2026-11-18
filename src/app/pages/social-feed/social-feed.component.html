@@ -15,6 +15,33 @@
     </header>
     }
 
+    <nav class="jynlo-feed-quick-actions" aria-label="Acessos rápidos da Jynlo">
+      <a routerLink="/menu/createEvent" class="jynlo-quick-action jynlo-quick-action--primary">
+        <span class="jynlo-quick-icon" aria-hidden="true">⚽</span>
+        <span>Criar sessão</span>
+      </a>
+      <a routerLink="/menu/events" class="jynlo-quick-action">
+        <span class="jynlo-quick-icon" aria-hidden="true">🏆</span>
+        <span>Competições</span>
+      </a>
+      <a routerLink="/menu/communities" class="jynlo-quick-action">
+        <span class="jynlo-quick-icon" aria-hidden="true">👥</span>
+        <span>Comunidades</span>
+      </a>
+      <a routerLink="/menu/discover" class="jynlo-quick-action">
+        <span class="jynlo-quick-icon" aria-hidden="true">🧭</span>
+        <span>Explorar</span>
+      </a>
+      <button type="button" class="jynlo-quick-action" (click)="openPostComposer()">
+        <span class="jynlo-quick-icon" aria-hidden="true">📷</span>
+        <span>Publicar</span>
+      </button>
+      <button type="button" class="jynlo-quick-action" (click)="openLiveComposer()">
+        <span class="jynlo-quick-icon" aria-hidden="true">●</span>
+        <span>Direto</span>
+      </button>
+    </nav>
+
     <app-social-stories></app-social-stories>
 
     @if (personalLiveNotice) {
