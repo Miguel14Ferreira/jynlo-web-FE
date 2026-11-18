@@ -44,7 +44,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
           </button>
           <span *ngIf="olderError" role="status">{{olderError}}</span>
         </div>
-        <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry" [class.team-feed-comment]="isFeedComment(item)">
+        <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry" [class.team-feed-comment]="isFeedComment(item)" [class.team-own-message]="kind === 'chat' && item.canEdit" [class.team-removed-message]="item.deleted">
           <div class="team-entry-header">
             <span class="team-entry-avatar" aria-hidden="true">
               <img *ngIf="authorAvatarSrc(item) && !brokenAuthorAvatars.has(item.id)"
@@ -97,7 +97,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
               </button>
             </ng-container>
           </div>
-          <div class="team-content-actions" *ngIf="!item.deleted">
+          <div class="team-content-actions" *ngIf="!item.deleted" [attr.aria-label]="'Ações de @' + item.username">
             <button type="button" (click)="reply(item)" [disabled]="sending" [attr.aria-label]="kind === 'chat' ? 'Responder à mensagem' : 'Comentar publicação'" [title]="kind === 'chat' ? 'Responder' : 'Comentar'">↩ <span>{{kind === 'chat' ? 'Responder' : 'Comentar'}}</span></button>
             <button type="button" *ngIf="item.canEdit" [disabled]="sending" (click)="beginEdit(item)" [attr.aria-label]="kind === 'chat' ? 'Editar mensagem' : 'Editar publicação'" title="Editar">✎ <span>Editar</span></button>
             <button type="button" *ngIf="item.canManage" [disabled]="sending" (click)="remove(item)" [attr.aria-label]="kind === 'chat' ? 'Eliminar mensagem' : 'Eliminar publicação'" title="Eliminar">× <span>Eliminar</span></button>
@@ -231,7 +231,31 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
     .team-composer-footer button{justify-self:auto;min-height:43px}
     .team-new-messages{justify-self:center;padding:.65rem 1rem;background:#125362;color:#bffff1;border:1px solid #30b9a7;border-radius:30px;cursor:pointer;font-weight:800}
     .team-new-messages:focus-visible{outline:2px solid #78f9dc;outline-offset:3px}
-    .team-chat-mode .team-content-entry{max-width:min(100%,760px)}
+    .team-chat-mode .team-content-history{display:flex;flex-direction:column;align-items:stretch;gap:.75rem;
+      background:linear-gradient(180deg,#092b37,#0b3240);border:1px solid #2d667458;
+      border-radius:16px;padding:1rem;box-sizing:border-box;min-width:0}
+    .team-chat-mode .team-content-entry{width:fit-content;max-width:min(85%,680px);
+      align-self:flex-start;box-sizing:border-box}
+    .team-chat-mode .team-own-message{align-self:flex-end;background:linear-gradient(140deg,#135e5d,#10434f);
+      border-color:#2db4a07d}
+    .team-chat-mode .team-own-message .team-entry-header{flex-direction:row-reverse}
+    .team-chat-mode .team-own-message .team-entry-meta{text-align:right}
+    .team-chat-mode .team-own-message .team-content-actions{justify-content:flex-end}
+    .team-chat-mode .team-removed-message{opacity:.75}
+    .team-chat-mode .team-removed-message>p{font-style:italic}
+    .team-chat-mode .team-content-entry>p{overflow-wrap:anywhere}
+    .team-chat-mode .team-content-reply{padding:.45rem .65rem;border-left:3px solid #42d4bd;
+      background:#092d398c;border-radius:6px}
+    .team-chat-mode .team-content-editor{border-color:#2e9d9a;box-shadow:0 10px 25px #001b2638}
+    .team-chat-mode .team-content-editor textarea:focus-visible{outline:2px solid #68edda;outline-offset:2px}
+    .team-feed-mode .team-content-entry{box-shadow:0 8px 26px #041d2633}
+    .team-feed-mode .team-entry-header{padding-bottom:.65rem;border-bottom:1px solid #34697755}
+    .team-feed-mode .team-reactions{padding-top:.35rem}
+    .team-feed-mode .team-content-actions{padding-top:.4rem;border-top:1px solid #34697755}
+    .team-feed-mode .team-feed-comment{box-shadow:none}
+    .team-content-entry button{touch-action:manipulation}
+    .team-content-actions button:focus-visible,.team-reactions button:focus-visible{
+      outline:2px solid #78f9dc;outline-offset:2px}
     .team-feed-mode .team-content-entry{max-width:100%}
     .team-inline-comment-editor{margin-top:.75rem;padding:.8rem;border:1px solid #35bba4;border-radius:12px;background:#103c45;display:grid;gap:.55rem}
     .team-inline-comment-editor .team-content-editor{padding:.7rem}
@@ -256,6 +280,11 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
     .team-content-actions button:focus-visible{outline:2px solid #78f9dc;outline-offset:2px}
     @media(max-width:620px){
       .team-content-entry{padding:.85rem}
+      .team-chat-mode .team-content-history{padding:.6rem;max-height:min(60dvh,580px)}
+      .team-chat-mode .team-content-entry{max-width:94%;padding:.7rem .8rem}
+      .team-chat-mode .team-entry-avatar{width:32px;height:32px}
+      .team-chat-mode .team-content-actions button{min-height:40px}
+      .team-feed-mode .team-feed-comment{margin-left:12px}
       .team-content-search-controls{flex-direction:column}
       .team-content-search-controls input,.team-content-search-controls button{width:100%;flex:auto}
       .team-content-editor{padding:.8rem}
