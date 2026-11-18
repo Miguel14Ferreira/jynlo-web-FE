@@ -495,3 +495,71 @@
     margin-top: 15px;
   }
 }
+
+/*
+ * Mobile refinement (phones): shorter top, compact search, scrolling sport chips
+ * and game cards led by their start time. Presentation only; markup, routes,
+ * map, tabs and translations are unchanged. Desktop keeps the layout above.
+ */
+:host .jynlo-explore-v3 .session-time { display: none; }
+
+@media (max-width: 760px) {
+  :host .discover-page.jynlo-explore-v3 { padding-top: 104px; }
+
+  /* The intro kept a 400px flex-basis, which became a 400px-tall gap in a column. */
+  :host .jynlo-explore-v3 .discover-header { flex-direction: column; align-items: stretch; gap: 10px; }
+  :host .jynlo-explore-v3 .discover-intro { flex: 0 0 auto; }
+  :host .jynlo-explore-v3 .discover-header h1 { font-size: clamp(1.9rem, 8.5vw, 2.3rem); max-width: none; }
+  :host .jynlo-explore-v3 .discover-header .subtitle { margin-top: 6px; font-size: .92rem; }
+  :host .jynlo-explore-v3 .explore-header-actions { align-self: flex-start; }
+
+  /* Search: the placeholders say what each field is; labels stay for screen readers. */
+  :host .jynlo-explore-v3 .search-copy { display: none; }
+  :host .jynlo-explore-v3 .search-fields label > span {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  :host .jynlo-explore-v3 .search-fields { gap: 10px; }
+  :host .jynlo-explore-v3 .search-fields input,
+  :host .jynlo-explore-v3 .search-fields button { min-height: 52px; font-size: 16px; }
+
+  /* Sport chips: one scrolling row of 44px targets. */
+  :host .jynlo-explore-v3 .explore-sports {
+    flex-wrap: nowrap; overflow-x: auto; margin: 0 -4px; padding: 2px 4px;
+    scrollbar-width: none;
+  }
+  :host .jynlo-explore-v3 .explore-sports::-webkit-scrollbar { display: none; }
+  :host .jynlo-explore-v3 .explore-sports > span { display: none; }
+  :host .jynlo-explore-v3 .explore-chip { flex: 0 0 auto; min-height: 44px; padding: 0 18px; }
+
+  /* Spotlight: keep the headline and main action, drop the secondary copy. */
+  :host .jynlo-explore-v3 .explore-spotlight { min-height: 0; padding: 18px; }
+  :host .jynlo-explore-v3 .explore-spotlight-copy > p:not(.explore-spotlight-kicker),
+  :host .jynlo-explore-v3 .explore-secondary-cta { display: none; }
+  :host .jynlo-explore-v3 .explore-main-cta { min-height: 48px; }
+  :host .jynlo-explore-v3 .explore-results-heading > span,
+  :host .jynlo-explore-v3 .discover-flow { display: none; }
+
+  /* Game cards: start time first, then what and where, then the spots. */
+  :host .jynlo-explore-v3 .session-card {
+    display: grid; grid-template-columns: 60px minmax(0, 1fr);
+    align-items: center; gap: 10px 12px; padding: 12px; border-radius: 18px;
+  }
+  /* Spots and the action share one row under the card, so the title keeps its width. */
+  :host .jynlo-explore-v3 .session-card .session-side {
+    grid-column: 1 / -1; display: flex; flex-direction: row; align-items: center;
+    justify-content: flex-start; gap: 6px; justify-items: stretch;
+  }
+  :host .jynlo-explore-v3 .session-card .session-entry-hint { margin-left: auto; }
+  :host .jynlo-explore-v3 .session-card .session-side > strong { font-size: 1rem; }
+  :host .jynlo-explore-v3 .session-card .session-time {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 60px; height: 60px; border-radius: 14px; background: rgba(40,236,211,.14);
+  }
+  :host .jynlo-explore-v3 .session-card .session-time b {
+    color: #f1fefb; font-size: 1.1rem; line-height: 1.1; letter-spacing: -.02em;
+  }
+  :host .jynlo-explore-v3 .session-card .session-time small { color: #b8d6dc; font-size: .7rem; }
+  :host .jynlo-explore-v3 .session-card .session-main strong { white-space: normal; }
+  :host .jynlo-explore-v3 .session-card .session-entry-hint { min-height: 36px; }
+}

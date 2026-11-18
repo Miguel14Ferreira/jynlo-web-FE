@@ -345,6 +345,10 @@
                    [queryParams]="{ from: 'discover', sport: sport.trim(), city: location.trim(),
                       player: playerName.trim() || null,
                       join: sessionEntryAction(session) === 'details' ? null : '1' }">
+                  <span class="session-time" aria-hidden="true">
+                    <b>{{ sessionDisplayDate(session) | date:'HH:mm' }}</b>
+                    <small>{{ sessionDisplayDate(session) | date:'dd/MM' }}</small>
+                  </span>
                   <div class="session-main">
                     <strong>{{ session.sport }}</strong>
                     <span>{{ session.city }} · {{ (sessionDisplayDate(session) | date:'dd/MM HH:mm') || ('publicSession.notSpecified' | t) }}</span>
