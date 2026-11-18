@@ -182,8 +182,12 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
         <a routerLink="/menu/teams/competitions" [queryParams]="{teamId: t.id}">Encontrar torneios e campeonatos</a>
       </section>
       <section *ngIf="activeTab === 'OVERVIEW'"><h2>Comunidades ({{activeCommunities.length}})</h2>
-        <div *ngFor="let item of activeCommunities" class="team-community">
-          <a [routerLink]="['/menu/communities',item.communityId]">{{item.communityName}} →</a>
+        <div *ngFor="let item of activeCommunities; trackBy: trackTeamCommunity" class="team-community">
+          <span class="team-community-avatar" aria-hidden="true">{{item.communityName.slice(0,1).toUpperCase()}}</span>
+          <div class="team-community-identity">
+            <a [routerLink]="['/menu/communities',item.communityId]">{{item.communityName}}</a>
+            <small>Equipa associada</small>
+          </div>
           <button *ngIf="isOwner" type="button" [disabled]="busy || !communitiesVerified"
             [attr.aria-label]="'Retirar equipa de ' + item.communityName"
             (click)="leaveCommunity(item)">Sair da comunidade</button>
@@ -191,21 +195,38 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
         <p *ngIf="!communitiesVerified" role="alert">Não foi possível confirmar as comunidades. Atualiza a página antes de gerir convites.</p>
         <p *ngIf="communitiesVerified && !activeCommunities.length">Esta equipa ainda não está associada a comunidades.</p>
         <ng-container *ngIf="isOwner && communitiesVerified">
-          <h3>Convites para comunidades</h3>
-          <div *ngFor="let item of invitations">
-            <p>{{item.communityName}}</p>
-            <button type="button" [disabled]="busy" (click)="respond(item.id,true)">Aceitar</button>
-            <button type="button" [disabled]="busy" (click)="respond(item.id,false)">Recusar</button>
+          <h3>Convites para comunidades ({{invitations.length}})</h3>
+          <p *ngIf="!invitations.length" class="team-empty-hint">Não há convites pendentes.</p>
+          <div *ngFor="let item of invitations; trackBy: trackTeamCommunity" class="team-community team-community-invite">
+            <span class="team-community-avatar" aria-hidden="true">{{item.communityName.slice(0,1).toUpperCase()}}</span>
+            <div class="team-community-identity">
+              <a [routerLink]="['/menu/communities',item.communityId]">{{item.communityName}}</a>
+              <small>Convite recebido · a aguardar decisão</small>
+            </div>
+            <div class="team-community-actions">
+              <button type="button" [disabled]="busy" (click)="respond(item.id,true)">Aceitar</button>
+              <button type="button" [disabled]="busy" (click)="respond(item.id,false)">Recusar</button>
+            </div>
           </div>
-          <p *ngIf="feedback" role="status">{{feedback}}</p>
           <h3>Encontrar comunidades</h3>
           <p>Pesquisa comunidades públicas e pede adesão em nome desta equipa.</p>
-          <div class="search-community">
-            <input [(ngModel)]="communityQuery" maxlength="100" placeholder="Pesquisar comunidade"/>
-            <button type="button" [disabled]="busy" (click)="searchCommunities()">Pesquisar</button>
+          <div class="search-community team-community-search">
+            <label for="team-community-query">Nome da comunidade</label>
+            <input id="team-community-query" type="search" [(ngModel)]="communityQuery"
+              (ngModelChange)="invalidateCommunitySearch()" maxlength="100" placeholder="Pesquisar comunidades"
+              (keyup.enter)="searchCommunities()" autocomplete="off">
+            <button type="button" [disabled]="busy || searchingCommunities || communityQuery.trim().length < 2"
+              (click)="searchCommunities()">{{searchingCommunities?'A pesquisar…':'Pesquisar'}}</button>
           </div>
-          <div *ngFor="let candidate of communityResults">
-            <strong>{{candidate.name}}</strong> · {{candidate.sport||'Várias modalidades'}}
+          <p *ngIf="communitySearchComplete && !communityResults.length" role="status" class="team-empty-hint">
+            Não encontramos comunidades para esta pesquisa.
+          </p>
+          <div *ngFor="let candidate of communityResults; trackBy: trackCommunityCandidate" class="team-community team-community-discovery">
+            <span class="team-community-avatar" aria-hidden="true">{{candidate.name.slice(0,1).toUpperCase()}}</span>
+            <div class="team-community-identity">
+              <a [routerLink]="['/menu/communities',candidate.id]">{{candidate.name}}</a>
+              <small>{{candidate.sport||'Várias modalidades'}}</small>
+            </div>
             <button type="button" [disabled]="busy || hasCommunity(candidate.id)"
               (click)="requestCommunity(candidate.id)">
               {{hasCommunity(candidate.id)?'Pedido existente':'Pedir adesão'}}
@@ -325,6 +346,14 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   }
   communities:TeamCommunityMembership[]=[];
   communityQuery='';communityResults:PublicTeamCommunity[]=[];
+  searchingCommunities=false;communitySearchComplete=false;
+  private communitySearchVersion=0;
+  trackTeamCommunity(_:number,item:TeamCommunityMembership):number{return item.id;}
+  trackCommunityCandidate(_:number,item:PublicTeamCommunity):number{return item.id;}
+  invalidateCommunitySearch():void{
+    this.communitySearchVersion++;
+    this.communityResults=[];this.communitySearchComplete=false;this.searchingCommunities=false;
+  }
   isOwner=false;busy=false;featureSaving=false;deletingTeam=false;feedback='';
   kitPrimary='#16caba';kitSecondary='#f2fafc';kitPattern:TeamKitPattern='PLAIN';brandingSaving=false;
   readonly kitPatterns:ReadonlyArray<{id:TeamKitPattern;label:string}>=[
@@ -410,11 +439,22 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   get invitations(){return this.communities.filter(item=>item.status==='PENDING_TEAM');}
   hasCommunity(id:number):boolean{return this.communities.some(item=>item.communityId===id&&item.status!=='DECLINED');}
   searchCommunities():void{
-    if(!this.isOwner||!this.communitiesVerified||this.busy)return;
-    this.busy=true;this.feedback='';
-    this.communityMemberships.discover(this.communityQuery).subscribe({
-      next:items=>{this.communityResults=items;this.busy=false;},
-      error:()=>{this.feedback='Não foi possível pesquisar comunidades.';this.busy=false;}
+    const query=this.communityQuery.trim();
+    if(!this.isOwner||!this.communitiesVerified||this.busy||this.searchingCommunities||query.length<2)return;
+    const version=++this.communitySearchVersion;
+    const teamId=this.team?.id;
+    this.searchingCommunities=true;this.communitySearchComplete=false;this.communityResults=[];this.feedback='';
+    this.communityMemberships.discover(query).pipe(timeout(15000)).subscribe({
+      next:items=>{
+        if(version!==this.communitySearchVersion||this.team?.id!==teamId||!this.isOwner)return;
+        this.communityResults=items;this.communitySearchComplete=true;
+        this.searchingCommunities=false;this.render();
+      },
+      error:()=>{
+        if(version!==this.communitySearchVersion||this.team?.id!==teamId)return;
+        this.feedback='Não foi possível pesquisar comunidades.';
+        this.searchingCommunities=false;this.render();
+      }
     });
   }
   requestCommunity(communityId:number):void{
