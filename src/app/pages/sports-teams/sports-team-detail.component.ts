@@ -125,17 +125,32 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
           <h3>Convites pendentes ({{invitationsVerified?pendingPlayers.length:'—'}})</h3>
           <p *ngIf="!invitationsVerified" role="alert">Não foi possível confirmar os convites. Novos envios bloqueados.</p>
           <p class="team-content-note" *ngIf="invitationsVerified">Convites sincronizados automaticamente.</p>
-          <div *ngFor="let invite of (invitationsVerified?pendingPlayers:[])" class="team-candidate">
-            <span>@{{invite.username}} · A aguardar resposta</span>
-            <button type="button" [disabled]="busy" (click)="cancelPendingInvitation(invite)">Cancelar convite</button>
+          <p *ngIf="invitationsVerified && !pendingPlayers.length" class="team-empty-hint">Não tens convites por responder.</p>
+          <div *ngFor="let invite of (invitationsVerified?pendingPlayers:[]); trackBy: trackPendingPlayer" class="team-candidate team-invite-card">
+            <span class="team-candidate-avatar" aria-hidden="true">{{(invite.username || 'J').slice(0,1).toUpperCase()}}</span>
+            <div class="team-candidate-identity">
+              <a [routerLink]="['/menu/perfis',invite.username]">@{{invite.username}}</a>
+              <small>A aguardar resposta</small>
+            </div>
+            <button type="button" [disabled]="busy || pendingLoading" (click)="cancelPendingInvitation(invite)">Cancelar convite</button>
           </div>
           <h3>Convidar jogadores</h3>
-          <div class="search-community"><input [(ngModel)]="playerQuery" (ngModelChange)="invalidatePlayerSearch()" maxlength="80" placeholder="Nome ou utilizador" (keyup.enter)="searchPlayers()"/>
-            <button type="button" [disabled]="busy || searchingPlayers || playerQuery.trim().length < 2" (click)="searchPlayers()">{{ searchingPlayers ? 'A procurar…' : 'Pesquisar jogadores' }}</button></div>
-          <p *ngIf="playerSearchComplete && availablePlayers.length === 0">Não encontrámos novos jogadores com essa pesquisa.</p>
-          <div *ngFor="let candidate of availablePlayers" class="team-candidate">
-            <a [routerLink]="['/menu/perfis',candidate.username]">{{ candidate.fullName || candidate.username }} · @{{candidate.username}}</a>
-            <button type="button" [attr.aria-label]="'Convidar @' + candidate.username + ' para a equipa'" [disabled]="busy || !invitationsVerified" (click)="invitePlayer(candidate)">Convidar</button>
+          <div class="search-community team-player-discovery">
+            <label for="team-player-query">Nome ou utilizador</label>
+            <input id="team-player-query" type="search" [(ngModel)]="playerQuery" (ngModelChange)="invalidatePlayerSearch()"
+              maxlength="80" placeholder="Pesquisar jogadores na Jynlo" autocomplete="off" (keyup.enter)="searchPlayers()">
+            <button type="button" [disabled]="busy || searchingPlayers || playerQuery.trim().length < 2 || !invitationsVerified"
+              (click)="searchPlayers()">{{ searchingPlayers ? 'A procurar…' : 'Pesquisar jogadores' }}</button>
+          </div>
+          <p *ngIf="playerSearchComplete && availablePlayers.length === 0" class="team-empty-hint" role="status">Não encontrámos jogadores disponíveis nesta pesquisa.</p>
+          <div *ngFor="let candidate of availablePlayers; trackBy: trackCandidate" class="team-candidate team-player-result">
+            <span class="team-candidate-avatar" aria-hidden="true">{{(candidate.username || 'J').slice(0,1).toUpperCase()}}</span>
+            <div class="team-candidate-identity">
+              <a [routerLink]="['/menu/perfis',candidate.username]">{{candidate.fullName || candidate.username}}</a>
+              <small>@{{candidate.username}}</small>
+            </div>
+            <button type="button" [attr.aria-label]="'Convidar @' + candidate.username + ' para a equipa'"
+              [disabled]="busy || !invitationsVerified || !rosterVerified" (click)="invitePlayer(candidate)">Convidar</button>
           </div>
         </div>
       </section>
@@ -287,6 +302,8 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
       });
   }
   pendingPlayers:TeamPendingPlayerInvitation[]=[];
+  trackPendingPlayer(_:number,invite:TeamPendingPlayerInvitation):number{return invite.profileId;}
+  trackCandidate(_:number,candidate:SportsTeamPlayerCandidate):number{return candidate.profileId;}
   invitationsVerified=false;
   private pendingRequest=0;
   private pendingLoading=false;
