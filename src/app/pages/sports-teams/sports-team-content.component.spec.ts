@@ -32,6 +32,7 @@ describe('Team conversation synchronization', () => {
   it('ignores a late attachment capability response after membership is revoked',()=>{
     const pending=new Subject<{available:boolean}>();
     api.attachmentsAvailable.and.returnValue(pending.asObservable());
+    api.content.and.returnValue(of([]));
     component.ngOnChanges({teamId:new SimpleChange(7,8,false)});
     expect(component.attachmentsEnabled).toBeFalse();
     api.content.and.returnValue(throwError(()=>new HttpErrorResponse({status:403})));
@@ -46,6 +47,7 @@ describe('Team conversation synchronization', () => {
   it('ignores a late attachment permission failure after another request revoked access',()=>{
     const pending=new Subject<{available:boolean}>();
     api.attachmentsAvailable.and.returnValue(pending.asObservable());
+    api.content.and.returnValue(of([]));
     component.ngOnChanges({teamId:new SimpleChange(7,8,false)});
     api.content.and.returnValue(throwError(()=>new HttpErrorResponse({status:403})));
     component.read(false);
