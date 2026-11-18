@@ -30,6 +30,7 @@ describe('SocialStoriesComponent', () => {
     api = jasmine.createSpyObj<SocialStoriesService>('SocialStoriesService', ['feed', 'mine', 'get', 'publish', 'delete', 'recordView', 'audience']);
     api.feed.and.returnValue(of([picture]));
     api.recordView.and.returnValue(of(void 0));
+    api.audience.and.returnValue(of({viewCount:1,viewers:[{username:'amigo',displayName:'Amigo',avatarUrl:null,viewedAt:new Date().toISOString()}]}));
     direct = jasmine.createSpyObj<DirectChatService>('DirectChatService', ['send']);
     direct.send.and.returnValue(of({} as any));
     profiles = jasmine.createSpyObj<CommunityService>('CommunityService', ['friends', 'discoverProfiles', 'searchProfiles']);
@@ -515,6 +516,20 @@ describe('SocialStoriesComponent', () => {
     expect(dialog.querySelector('.story-progress-track')).toBeTruthy();
     expect(dialog.textContent).not.toContain('dd/MM');
     expect(dialog.querySelector('.story-dialog-footer')).toBeNull();
+    component.close();
+  }));
+
+  it('only the real Story author can open the viewer list', fakeAsync(() => {
+    fixture.detectChanges();
+    tick();
+    component.openGroup(component.storyGroups[0]);
+    component.openAudience();
+    tick();
+    expect(api.audience).toHaveBeenCalledOnceWith(picture.id);
+    expect(component.audienceData?.viewCount).toBe(1);
+    expect(component.audienceData?.viewers[0].username).toBe('amigo');
+    component.closeAudience();
+    expect(component.audienceOpen).toBeFalse();
     component.close();
   }));
 
