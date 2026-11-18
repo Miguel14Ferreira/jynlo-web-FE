@@ -118,7 +118,7 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
         <div *ngIf="isOwner && rosterVerified" class="team-player-search">
           <h3>Convites pendentes ({{invitationsVerified?pendingPlayers.length:'—'}})</h3>
           <p *ngIf="!invitationsVerified" role="alert">Não foi possível confirmar os convites. Novos envios bloqueados.</p>
-          <button type="button" [disabled]="busy" (click)="loadPendingInvitations()">Verificar convites</button>
+          <p class="team-content-note" *ngIf="invitationsVerified">Convites sincronizados automaticamente.</p>
           <div *ngFor="let invite of (invitationsVerified?pendingPlayers:[])" class="team-candidate">
             <span>@{{invite.username}} · A aguardar resposta</span>
             <button type="button" [disabled]="busy" (click)="cancelPendingInvitation(invite)">Cancelar convite</button>
@@ -272,6 +272,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   pendingPlayers:TeamPendingPlayerInvitation[]=[];
   invitationsVerified=false;
   private pendingRequest=0;
+  private pendingLoading=false;
   rosterVerified=false;communitiesVerified=false;isMember=false;
   playerQuery='';playerCandidates:SportsTeamPlayerCandidate[]=[];playerSearchComplete=false;searchingPlayers=false;
   private playerSearchVersion=0;
@@ -448,20 +449,22 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     });
   }
   loadPendingInvitations():void {
-    if(!this.team||!this.isOwner||this.busy)return;
+    if(!this.team||!this.isOwner||this.busy||this.pendingLoading)return;
     const teamId=this.team.id,version=++this.pendingRequest;
-    this.invitationsVerified=false;
-    this.api.teamPendingInvitations(teamId).subscribe({
+    this.pendingLoading=true;
+    // Keep the last verified list visible while a background refresh runs.
+    this.api.teamPendingInvitations(teamId).pipe(timeout(15000)).subscribe({
       next:items=>{
         if(version!==this.pendingRequest||this.team?.id!==teamId||!this.isOwner)return;
-        this.pendingPlayers=items;this.invitationsVerified=true;
+        this.pendingPlayers=items;this.invitationsVerified=true;this.render();
       },
       error:()=>{
-        if(version!==this.pendingRequest)return;
+        if(version!==this.pendingRequest||this.team?.id!==teamId)return;
         this.pendingPlayers=[];this.invitationsVerified=false;
         this.feedback='Não foi possível confirmar os convites pendentes.';
+        this.render();
       }
-    });
+    }).add(()=>{if(version===this.pendingRequest)this.pendingLoading=false;});
   }
   cancelPendingInvitation(invite:TeamPendingPlayerInvitation):void {
     if(!this.team||!this.isOwner||!this.invitationsVerified||this.busy||
@@ -498,12 +501,14 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         // A separate GET /teams/mine is redundant and slows the team detail.
         const username=this.auth.loggedInPerfilname?.toLowerCase();
         const ownRole=players.find(p=>p.username.toLowerCase()===username)?.role;
-        const wasOwner=this.isOwner;
         this.isMember=ownRole==='OWNER'||ownRole==='PLAYER';
         this.isOwner=ownRole==='OWNER';
         if(!this.isOwner){
-          this.pendingRequest++;this.pendingPlayers=[];this.invitationsVerified=false;
-        }else if(!wasOwner){
+          this.pendingRequest++;this.pendingLoading=false;
+          this.pendingPlayers=[];this.invitationsVerified=false;
+        }else {
+          // Refresh pending invitations alongside the roster, including when
+          // another player accepts or declines without the captain clicking.
           this.loadPendingInvitations();
         }
         this.render();
@@ -512,7 +517,8 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         if(request!==this.rosterRequest || this.team?.id!==teamId)return;
         // Do not keep a stale authorization decision after a failed refresh.
         this.rosterVerified=false;this.isMember=false;this.isOwner=false;
-        this.pendingRequest++;this.pendingPlayers=[];this.invitationsVerified=false;
+        this.pendingRequest++;this.pendingLoading=false;
+        this.pendingPlayers=[];this.invitationsVerified=false;
         this.render();
       }
     }).add(()=>{if(request===this.rosterRequest){this.rosterLoading=false;this.render();}});
@@ -583,7 +589,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         .subscribe(()=>{if(document.visibilityState==='visible')this.refreshRoster();}));
   }
   ngOnDestroy():void {
-    this.rosterRequest++;this.pendingRequest++;
+    this.rosterRequest++;this.pendingRequest++;this.pendingLoading=false;
     this.rosterSubscriptions.unsubscribe();
   }
 }
