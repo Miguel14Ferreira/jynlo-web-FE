@@ -3,6 +3,7 @@ import { Component, EventEmitter, HostListener, Input, OnDestroy, Output } from 
 import { RouterModule } from '@angular/router';
 import { ProtectedMediaDirective } from '../../shared/protected-media.directive';
 import { SocialStory } from '../model/social-story';
+import { SocialStoriesService } from '../../services/social-stories.service';
 
 @Component({
   selector:'app-profile-story-viewer',
@@ -25,13 +26,13 @@ import { SocialStory } from '../model/social-story';
           <div class="profile-story-media">
             @if(story.video){
               <video [jynloProtectedSrc]="story.mediaUrl" autoplay playsinline [muted]="muted" #video
-                (loadedmetadata)="videoDuration($event)" (ended)="next()"></video>
+                (loadedmetadata)="videoDuration($event); recordRenderedView(story)" (ended)="next()"></video>
               <button type="button" class="profile-story-mute" (click)="muted=!muted">
                 {{muted?'Ativar som':'Silenciar'}}
               </button>
             } @else {
               <img [jynloProtectedSrc]="story.mediaUrl" [alt]="story.altText || 'Story de '+username"
-                (load)="imageReady=true" (error)="mediaError=true">
+                (load)="imageReady=true; recordRenderedView(story)" (error)="mediaError=true">
             }
             @if(story.caption){
               <span class="profile-story-caption"
@@ -95,6 +96,13 @@ import { SocialStory } from '../model/social-story';
   `]
 })
 export class ProfileStoryViewerComponent implements OnDestroy {
+  private readonly reportedViews = new Set<number>();
+  constructor(private readonly storyApi: SocialStoriesService) {}
+  recordRenderedView(story:SocialStory):void {
+    if(this.reportedViews.has(story.id))return;
+    this.reportedViews.add(story.id);
+    this.storyApi.recordView(story.id).subscribe({error:()=>this.reportedViews.delete(story.id)});
+  }
   @Input({required:true}) stories:SocialStory[]=[];
   @Input({required:true}) username='';
   @Output() closed=new EventEmitter<void>();
