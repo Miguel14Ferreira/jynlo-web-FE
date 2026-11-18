@@ -64,6 +64,20 @@ export class SocialStoriesService {
     return this.http.post<SocialStory>(this.url, body);
   }
 
+  /** Only called after media is rendered, not when the list is loaded. */
+  recordView(id: number): Observable<void> {
+    return this.http.post<void>(this.url + '/' + id + '/views', null);
+  }
+
+  /** The server authorizes this information for the Story author only. */
+  audience(id: number): Observable<{viewCount:number;viewers:Array<{
+    username:string;displayName:string;avatarUrl:string|null;viewedAt:string;
+  }>}> {
+    return this.http.get<{viewCount:number;viewers:Array<{
+      username:string;displayName:string;avatarUrl:string|null;viewedAt:string;
+    }> }>(this.url + '/' + id + '/audience');
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(this.url + '/' + id);
   }
