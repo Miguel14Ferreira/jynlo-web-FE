@@ -99,8 +99,13 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
     <div class="team-grid" role="tabpanel">
       <section *ngIf="activeTab === 'OVERVIEW'"><h2>Plantel ({{ rosterVerified ? members.length : '—' }})</h2>
         <p *ngIf="!rosterVerified" role="alert">Não foi possível confirmar o plantel. As opções de gestão estão temporariamente bloqueadas.</p>
-        <div class="team-roster" *ngIf="rosterVerified && members.length">
-          <div class="team-member" *ngFor="let player of members">
+        <div class="team-roster-toolbar" *ngIf="rosterVerified && members.length > 4">
+          <label for="team-roster-filter">Encontrar jogador</label>
+          <input id="team-roster-filter" type="search" [(ngModel)]="rosterQuery" maxlength="80" placeholder="Pesquisar pelo nome de utilizador" autocomplete="off">
+          <span role="status">{{visibleRoster.length}} de {{members.length}} jogadores</span>
+        </div>
+        <div class="team-roster" *ngIf="rosterVerified && visibleRoster.length">
+          <div class="team-member" *ngFor="let player of visibleRoster; trackBy: trackRosterMember">
             <span class="team-member-avatar" aria-hidden="true">
               <img *ngIf="playerAvatarSrc(player.profilePicUrl) && !brokenPlayerAvatars.has(player.profileId)"
                 [src]="playerAvatarSrc(player.profilePicUrl)!" loading="lazy" decoding="async"
@@ -112,6 +117,7 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
           </div>
         </div>
         <p *ngIf="rosterVerified && members.length === 0">Ainda não existem jogadores no plantel.</p>
+        <p *ngIf="rosterVerified && members.length > 0 && !visibleRoster.length" role="status">Não existem jogadores que correspondam à pesquisa.</p>
         <button *ngIf="rosterVerified && isMember && !isOwner" type="button"
           class="team-leave-button" [disabled]="busy"
           (click)="leaveTeam()">Sair da equipa</button>
@@ -269,6 +275,17 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     });
   }
   members: SportsTeamMember[] = [];
+  rosterQuery='';
+  trackRosterMember(_:number,player:SportsTeamMember):number{return player.profileId;}
+  get visibleRoster():SportsTeamMember[]{
+    const query=this.rosterQuery.trim().toLocaleLowerCase();
+    return this.members.filter(player=>!query||player.username.toLocaleLowerCase().includes(query))
+      .slice().sort((a,b)=>{
+        if(a.role==='OWNER' && b.role!=='OWNER')return -1;
+        if(b.role==='OWNER' && a.role!=='OWNER')return 1;
+        return a.username.localeCompare(b.username,undefined,{sensitivity:'base'});
+      });
+  }
   pendingPlayers:TeamPendingPlayerInvitation[]=[];
   invitationsVerified=false;
   private pendingRequest=0;
