@@ -501,7 +501,6 @@
  * and game cards led by their start time. Presentation only; markup, routes,
  * map, tabs and translations are unchanged. Desktop keeps the layout above.
  */
-:host .jynlo-explore-v3 .session-time { display: none; }
 
 @media (max-width: 760px) {
   :host .discover-page.jynlo-explore-v3 { padding-top: 104px; }
@@ -539,27 +538,47 @@
   :host .jynlo-explore-v3 .explore-main-cta { min-height: 48px; }
   :host .jynlo-explore-v3 .explore-results-heading > span,
   :host .jynlo-explore-v3 .discover-flow { display: none; }
+}
 
-  /* Game cards: start time first, then what and where, then the spots. */
-  :host .jynlo-explore-v3 .session-card {
-    display: grid; grid-template-columns: 60px minmax(0, 1fr);
-    align-items: center; gap: 10px 12px; padding: 12px; border-radius: 18px;
+/* Game cards, all sizes: start time first, then what and where, then the spots. */
+:host .jynlo-explore-v3 .session-card {
+  display: grid; grid-template-columns: 60px minmax(0, 1fr);
+  align-items: center; gap: 10px 12px; padding: 12px 14px; border-radius: 18px;
+}
+/* Spots and the action share one row under the card, so the title keeps its width. */
+:host .jynlo-explore-v3 .session-card .session-side {
+  grid-column: 1 / -1; display: flex; flex-direction: row; align-items: center;
+  justify-content: flex-start; gap: 6px; justify-items: stretch;
+}
+:host .jynlo-explore-v3 .session-card .session-entry-hint { margin-left: auto; }
+:host .jynlo-explore-v3 .session-card .session-side > strong { font-size: 1rem; }
+:host .jynlo-explore-v3 .session-card .session-time {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 60px; height: 60px; border-radius: 14px; background: rgba(40,236,211,.14);
+}
+:host .jynlo-explore-v3 .session-card .session-time b {
+  color: #f1fefb; font-size: 1.1rem; line-height: 1.1; letter-spacing: -.02em;
+}
+:host .jynlo-explore-v3 .session-card .session-time small { color: #b8d6dc; font-size: .7rem; }
+:host .jynlo-explore-v3 .session-card .session-main strong { white-space: normal; }
+:host .jynlo-explore-v3 .session-card .session-entry-hint { min-height: 36px; }
+
+/*
+ * Desktop refinement: the first games were below the fold, behind a tall intro,
+ * the search, the tabs and a full spotlight banner that repeated what the list
+ * below already says. Same content, tighter bands.
+ */
+@media (min-width: 761px) {
+  :host .jynlo-explore-v3 .discover-header { padding-top: 0; padding-bottom: 0; }
+  :host .jynlo-explore-v3 .discover-header h1 { font-size: clamp(2rem, 3vw, 2.6rem); }
+  :host .jynlo-explore-v3 .explore-spotlight { min-height: 0; padding: 18px 26px; }
+  :host .jynlo-explore-v3 .explore-spotlight-art { display: none; }
+  :host .jynlo-explore-v3 .explore-spotlight { grid-template-columns: minmax(0, 1fr); }
+  :host .jynlo-explore-v3 .explore-spotlight-copy {
+    max-width: none; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 28px;
   }
-  /* Spots and the action share one row under the card, so the title keeps its width. */
-  :host .jynlo-explore-v3 .session-card .session-side {
-    grid-column: 1 / -1; display: flex; flex-direction: row; align-items: center;
-    justify-content: flex-start; gap: 6px; justify-items: stretch;
-  }
-  :host .jynlo-explore-v3 .session-card .session-entry-hint { margin-left: auto; }
-  :host .jynlo-explore-v3 .session-card .session-side > strong { font-size: 1rem; }
-  :host .jynlo-explore-v3 .session-card .session-time {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    width: 60px; height: 60px; border-radius: 14px; background: rgba(40,236,211,.14);
-  }
-  :host .jynlo-explore-v3 .session-card .session-time b {
-    color: #f1fefb; font-size: 1.1rem; line-height: 1.1; letter-spacing: -.02em;
-  }
-  :host .jynlo-explore-v3 .session-card .session-time small { color: #b8d6dc; font-size: .7rem; }
-  :host .jynlo-explore-v3 .session-card .session-main strong { white-space: normal; }
-  :host .jynlo-explore-v3 .session-card .session-entry-hint { min-height: 36px; }
+  :host .jynlo-explore-v3 .explore-spotlight-copy > p:not(.explore-spotlight-kicker) { display: none; }
+  :host .jynlo-explore-v3 .explore-spotlight-kicker { flex-basis: 100%; margin: 0; }
+  :host .jynlo-explore-v3 .explore-spotlight h2 { margin: 0; font-size: 1.5rem; }
+  :host .jynlo-explore-v3 .explore-spotlight-actions { margin: 0 0 0 auto; }
 }
