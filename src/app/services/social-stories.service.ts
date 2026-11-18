@@ -4,6 +4,11 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environment/environment';
 import { SocialStory } from '../pages/model/social-story';
 
+export interface StoryAudience {
+  viewCount:number;
+  viewers:Array<{username:string;displayName:string;avatarUrl:string|null;viewedAt:string}>;
+}
+
 @Injectable({ providedIn: 'root' })
 export class SocialStoriesService {
   private readonly url = environment.apiUrl + '/api/stories';
@@ -70,12 +75,8 @@ export class SocialStoriesService {
   }
 
   /** The server authorizes this information for the Story author only. */
-  audience(id: number): Observable<{viewCount:number;viewers:Array<{
-    username:string;displayName:string;avatarUrl:string|null;viewedAt:string;
-  }>}> {
-    return this.http.get<{viewCount:number;viewers:Array<{
-      username:string;displayName:string;avatarUrl:string|null;viewedAt:string;
-    }> }>(this.url + '/' + id + '/audience');
+  audience(id: number): Observable<StoryAudience> {
+    return this.http.get<StoryAudience>(this.url + '/' + id + '/audience');
   }
 
   delete(id: number): Observable<void> {
