@@ -102,7 +102,8 @@
 :host .feed-v3-shell .week-hub-heading .week-hub-eyebrow {display:none;}
 :host .feed-v3-shell .week-hub-heading p:not(.week-hub-eyebrow) {display:none;}
 :host .feed-v3-shell .week-hub-create {min-height:36px;padding:6px 10px;font-size:.77rem;white-space:nowrap;}
-:host .feed-v3-shell .week-hub-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:11px;}
+/* This section renders two cards, so never reserve a vacant third grid track. */
+:host .feed-v3-shell .week-hub-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:11px;}
 :host .feed-v3-shell .week-hub-card {border:1px solid #13cecb33;border-radius:13px;padding:12px 10px;min-width:0;background:#032b3ca8;box-shadow:none;}
 :host .feed-v3-shell .week-card-heading {align-items:flex-start;flex-direction:column;gap:7px;margin-bottom:6px;}
 :host .feed-v3-shell .week-card-heading>span {width:30px;height:30px;border:1px solid #13dbcc52;border-radius:9px;color:#28f8da;background:#15dbcb1d;}
