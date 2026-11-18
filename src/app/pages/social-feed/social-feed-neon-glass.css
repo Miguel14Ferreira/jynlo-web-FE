@@ -101,19 +101,19 @@
 :host .feed-v3-shell .week-hub-heading h2 {font-size:1.1rem;letter-spacing:-.01em;}
 :host .feed-v3-shell .week-hub-heading .week-hub-eyebrow {display:none;}
 :host .feed-v3-shell .week-hub-heading p:not(.week-hub-eyebrow) {display:none;}
-:host .feed-v3-shell .week-hub-create {min-height:36px;padding:6px 10px;font-size:.77rem;white-space:nowrap;}
+:host .feed-v3-shell .week-hub-create {min-height:44px;padding:9px 12px;font-size:.84rem;white-space:normal;}
 /* This section renders two cards, so never reserve a vacant third grid track. */
 :host .feed-v3-shell .week-hub-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:11px;}
 :host .feed-v3-shell .week-hub-card {border:1px solid #13cecb33;border-radius:13px;padding:12px 10px;min-width:0;background:#032b3ca8;box-shadow:none;}
 :host .feed-v3-shell .week-card-heading {align-items:flex-start;flex-direction:column;gap:7px;margin-bottom:6px;}
 :host .feed-v3-shell .week-card-heading>span {width:30px;height:30px;border:1px solid #13dbcc52;border-radius:9px;color:#28f8da;background:#15dbcb1d;}
-:host .feed-v3-shell .week-card-heading h3 {font-size:.78rem;line-height:1.3;color:#a9ebe8;}
+:host .feed-v3-shell .week-card-heading h3 {font-size:.91rem;line-height:1.4;color:#d0fff2;}
 :host .feed-v3-shell .week-item {padding:7px 0;gap:2px;}
-:host .feed-v3-shell .week-item strong {font-size:.78rem;display:block;overflow-wrap:anywhere;}
-:host .feed-v3-shell .week-item>span {font-size:.71rem;overflow-wrap:anywhere;}
-:host .feed-v3-shell .week-item small {font-size:.69rem;}
-:host .feed-v3-shell .week-card-link {font-size:.75rem;padding-top:7px;color:#48f6d9;}
-:host .feed-v3-shell .week-muted {font-size:.74rem;line-height:1.35;}
+:host .feed-v3-shell .week-item strong {font-size:.875rem;display:block;overflow-wrap:anywhere;}
+:host .feed-v3-shell .week-item>span {font-size:.8125rem;line-height:1.4;overflow-wrap:anywhere;}
+:host .feed-v3-shell .week-item small {font-size:.8125rem;}
+:host .feed-v3-shell .week-card-link {font-size:.875rem;padding-top:9px;min-height:44px;display:flex;align-items:center;color:#7affdf;}
+:host .feed-v3-shell .week-muted {font-size:.875rem;line-height:1.5;color:#c9e3e9;}
 :host .feed-v3-shell .feed-v3-post-heading,
 :host .feed-v3-shell .feed-v3-side-heading {display:flex;align-items:center;justify-content:space-between;gap:9px;}
 :host .feed-v3-shell .feed-v3-post-heading {padding:10px 2px 0;}
