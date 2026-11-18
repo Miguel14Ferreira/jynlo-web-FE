@@ -486,10 +486,23 @@ describe('Team conversation synchronization', () => {
     component.attachmentsEnabled=false;
     component.onComposerPaste(event);
     expect(component.files).toEqual([]);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
     component.attachmentsEnabled=true;
     component.accessRevoked=true;
     component.onComposerPaste(event);
     expect(component.files).toEqual([]);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not send or upload private team content after membership is revoked',()=>{
+    component.accessRevoked=true;
+    component.draft='Mensagem privada';
+    component.files=[new File(['private'],'image.png',{type:'image/png'})];
+    component.send();
+    expect(api.sendContent).not.toHaveBeenCalled();
+    expect(api.uploadContentFiles).not.toHaveBeenCalled();
+    expect(component.draft).toBe('Mensagem privada');
+    expect(component.files).toHaveSize(1);
   });
 
   it('sends chat messages with Enter but keeps Shift+Enter for multiline drafts',()=>{
