@@ -183,15 +183,15 @@
   border-radius:9px;padding:.65rem .8rem;
   background:rgba(14,70,82,.3);
   color:#b3f9e9;
-  font-size:.82rem;font-weight:750;
+  min-height:44px;font-size:.9rem;line-height:1.45;font-weight:750;
 }
 :host .round-card-details-toggle::-webkit-details-marker {display:none}
 :host .round-card-details-toggle::before {
   content:'▸';color:#61ead2;font-size:1rem;
 }
 :host details[open] > .round-card-details-toggle::before { content:'▾'; }
-:host .round-card-details-toggle small {color:#b8d8de;font-size:.75rem;font-weight:500}
-:host .round-card-details-hint {margin-left:auto;font-size:.74rem;white-space:nowrap}
+:host .round-card-details-toggle small {color:#d4eaef;font-size:.85rem;font-weight:600}
+:host .round-card-details-hint {margin-left:auto;font-size:.85rem;white-space:normal}
 :host .round-card-details-toggle:hover {background:rgba(19,102,111,.42)}
 :host .round-card-details-toggle:focus-visible {outline:2px solid #68eddc;outline-offset:2px}
 :host .round-card-details > :not(summary) {margin-top:.7rem}
@@ -204,7 +204,7 @@
   display:flex;align-items:center;justify-content:flex-end;gap:.65rem;flex-wrap:wrap;
 }
 :host .round-history-controls .jynlo-action {
-  min-height:36px;min-width:116px;
+  min-height:44px;min-width:116px;
 }
 @media(max-width:540px) {
   :host .round-history > .section-heading { align-items:flex-start;flex-wrap:wrap; }
