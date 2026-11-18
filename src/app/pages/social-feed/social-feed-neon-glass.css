@@ -336,7 +336,8 @@
   :host .feed-v3-shell .week-hub-grid {
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
-  :host .feed-v3-shell .week-hub-card:last-child {grid-column:1/-1;}
+  /* Two cards fill the two columns; spanning the second would leave a blank half-row. */
+  :host .feed-v3-shell .week-hub-card:last-child {grid-column:auto;}
 }
 @container (max-width:510px) {
   :host .feed-v3-shell .week-hub-grid {grid-template-columns:minmax(0,1fr);}
