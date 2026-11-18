@@ -9,6 +9,7 @@ import type { OnlinePresenceService } from './services/online-presence.service';
 import { appTranslate as t } from './i18n/i18n.service';
 import { registrationSessionReturnUrl, registrationCommunityReturnUrl, takeRegistrationDestination } from './shared/registration-return-url';
 import { dismissStartupSplash } from './shared/startup-splash';
+import { SeoService } from './shared/seo.service';
 
 @Component({
     selector: 'app-root',
@@ -30,10 +31,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private router: Router,
     private authenticationService: AuthenticationService,
-    private injector: Injector
+    private injector: Injector,
+    private seo: SeoService
   ) {}
 
   ngOnInit(): void {
+    // Title, description, canonical and share tags follow each route.
+    this.seo.start();
     // The static startup screen is visible even before the Angular bundle loads.
     // Keep it until first route resolution + two browser paint frames; never
     // replay it during ordinary SPA navigation.

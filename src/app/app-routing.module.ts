@@ -29,16 +29,19 @@ const legacyPrivateChatRedirect: CanActivateFn = route => {
 
 const routes: Routes = [
   {path:'', redirectTo:'home',pathMatch:'full'},
-  {path:'home',component:HomeComponent},
-  {path:'about',component:AboutComponent},
-  {path:'contact',component:ContactComponent},
-  {path:'privacy',component:LegalPageComponent,data:{document:'privacy'}},
-  {path:'terms',component:LegalPageComponent,data:{document:'terms'}},
-  {path:'delete-account',component:LegalPageComponent,data:{document:'delete'}},
-  {path:'sessions/:id',component:PublicSessionPreviewComponent},
+  // `seo` feeds SeoService (title, description, canonical, robots, share tags).
+  // A route without `seo` data is treated as private and marked noindex.
+  {path:'home',component:HomeComponent,data:{seo:{path:'/',index:true,description:'Encontra onde, quando e com quem jogar. Descobre jogos de padel, futebol, ténis e muito mais perto de ti.'}}},
+  {path:'about',component:AboutComponent,data:{seo:{title:'Sobre a Jynlo',index:true,description:'Conhece a Jynlo, a forma mais simples de encontrar jogos, locais e pessoas para praticar desporto em Portugal.'}}},
+  {path:'contact',component:ContactComponent,data:{seo:{title:'Contacto',index:true,description:'Fala com a equipa da Jynlo: dúvidas, sugestões e apoio.'}}},
+  {path:'privacy',component:LegalPageComponent,data:{document:'privacy',seo:{title:'Política de privacidade',index:true,description:'Como a Jynlo trata e protege os teus dados pessoais.'}}},
+  {path:'terms',component:LegalPageComponent,data:{document:'terms',seo:{title:'Termos e condições',index:true,description:'Os termos e condições de utilização da Jynlo.'}}},
+  {path:'delete-account',component:LegalPageComponent,data:{document:'delete',seo:{title:'Eliminar conta',index:false,description:'Como eliminar a tua conta Jynlo e os dados associados.'}}},
+  // Sessions are short-lived, so they are not indexed; they still need a share title.
+  {path:'sessions/:id',component:PublicSessionPreviewComponent,data:{seo:{index:false}}},
   // The same venue details page can be read by visitors. The authenticated route
   // below still exposes photo uploads, community contributions and suggestions.
-  {path:'venues/:id',loadChildren:() => import('./pages/venue-details/venue-details.module').then(m => m.VenueDetailsModule),data:{publicVenueView:true}},
+  {path:'venues/:id',loadChildren:() => import('./pages/venue-details/venue-details.module').then(m => m.VenueDetailsModule),data:{publicVenueView:true,seo:{index:true}}},
   {path:'menu/events/menu',redirectTo:'/menu', pathMatch:'full'},
   {path:'menu/my-sessions',loadChildren:() => import('./pages/my-sessions/my-sessions.module').then(m => m.MySessionsModule),canActivate:[AuthenticationGuard]},
   {path:'menu/events/:id',loadChildren:() => import('./pages/session-details/session-details.module').then(m => m.SessionDetailsModule),canActivate:[AuthenticationGuard]},

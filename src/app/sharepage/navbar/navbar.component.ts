@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { Title } from '@angular/platform-browser';
+import { SeoService } from 'src/app/shared/seo.service';
 import { AuthenticationService } from 'src/app/services/authethication.service';
 import { MyProfileService } from 'src/app/services/my-profile.service';
 import { MyProfile } from 'src/app/pages/model/my-profile';
@@ -52,7 +52,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private readonly seenToastIds = new Set<number>();
   chatToast?: AppNotification;
   private readonly subscriptions = new Subscription();
-  private readonly baseTabTitle = 'Jynlo — Join the game.';
 
   constructor(
     private elementRef: ElementRef<HTMLElement>,
@@ -64,7 +63,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private inboxApi: InboxApiService,
     private privateGroups: PrivateGroupService,
     private conversationMutes: ConversationMuteService,
-    private browserTitle: Title,
+    private seo: SeoService,
     public i18n: I18nService
   ) { }
 
@@ -397,14 +396,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     /** Browser tab displays only the user's unread, in-app notifications. */
     private updateBrowserTabTitle(): void {
-      const count = this.authenticated ? this.unreadNotifications : 0;
-      const badge = count > 99 ? '99+' : String(count);
-      const title = count > 0
-        ? `Jynlo (${badge}) — Join the game.`
-        : this.baseTabTitle;
-      if (this.browserTitle.getTitle() !== title) {
-        this.browserTitle.setTitle(title);
-      }
+      // SeoService owns the title so route changes never wipe the badge.
+      this.seo.setUnreadCount(this.authenticated ? this.unreadNotifications : 0);
     }
 
     // A user may have read notifications in a different tab.

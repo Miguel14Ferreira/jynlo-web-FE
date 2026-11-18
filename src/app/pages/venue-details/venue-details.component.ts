@@ -10,6 +10,7 @@ import { isVenueGpsOnly, venuePostalAddress } from '../../shared/venue-location'
 import { venueEnvironmentTranslationKey } from '../../shared/venue-environment';
 import { venueHasPortugueseCoordinates, venueDirectionsUrl, VenueTravelMode, venueOsmEmbedUrl, venueTelephoneUrl } from '../../shared/venue-public-contact';
 import { venueOfficialContactPage, venueOfficialContactPageNeedsIdentityCheck } from '../../shared/venue-official-contact-source';
+import { SeoService } from '../../shared/seo.service';
 
 @Component({
   selector: 'app-venue-details',
@@ -56,8 +57,24 @@ export class VenueDetailsComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private venueService: VenueService,
     @Optional() private readonly changeDetector: ChangeDetectorRef | null = null,
-    @Optional() private readonly sanitizer: DomSanitizer | null = null
+    @Optional() private readonly sanitizer: DomSanitizer | null = null,
+    @Optional() private readonly seo: SeoService | null = null
   ) {}
+
+  /** Names the page after the venue so search results and shared links are meaningful. */
+  private applySeo(venue: Venue): void {
+    const name = (venue.name ?? '').trim();
+    if (!name) return;
+    const city = (venue.city ?? '').trim();
+    this.seo?.apply({
+      title: city ? `${name}, ${city}` : name,
+      description: city
+        ? `Informação sobre ${name}, em ${city}: morada, localização no mapa e modalidades. Encontra jogos neste local na Jynlo.`
+        : `Informação sobre ${name}: morada, localização no mapa e modalidades. Encontra jogos neste local na Jynlo.`,
+      // The signed-in copy of this page keeps its own URL and stays noindex.
+      path: this.isPublicView ? `/venues/${venue.id}` : undefined
+    });
+  }
 
   /** Only whitelisted public filters survive the round-trip back to the directory. */
   get backToDirectoryQueryParams(): Record<string, string | number> {
@@ -167,6 +184,7 @@ export class VenueDetailsComponent implements OnInit, OnDestroy {
         next: venue => {
           if (version !== this.venueLoadVersion) return;
           this.venue = venue;
+          this.applySeo(venue);
           this.loading = false;
           this.updateView();
         },

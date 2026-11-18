@@ -3,3 +3,6 @@ Allow: /
 
 Disallow: /admin
 Disallow: /login
+Disallow: /menu/
+
+Sitemap: https://d24sports.com/sitemap.xml
