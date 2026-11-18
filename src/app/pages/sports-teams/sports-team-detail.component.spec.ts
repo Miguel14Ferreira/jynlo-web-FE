@@ -100,6 +100,23 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(component.brandingSaving).toBeFalse();
   expect(component.feedback).toContain('Não foi possível confirmar o equipamento');
  });
+ it('sorts the verified squad with the captain first and allows local name filtering',()=>{
+  component.members=[
+    {profileId:8,username:'Zeca',role:'PLAYER'},
+    {profileId:7,username:'ana',role:'PLAYER'},
+    owner,
+    {profileId:9,username:'Bruno',role:'PLAYER'},
+    player
+  ];
+  expect(component.visibleRoster.map(p=>p.username)).toEqual(['Owner','ana','Bruno','Jogador','Zeca']);
+  component.rosterQuery='  AN ';
+  expect(component.visibleRoster.map(p=>p.username)).toEqual([]);
+  component.rosterQuery='  anA ';
+  expect(component.visibleRoster.map(p=>p.username)).toEqual(['ana']);
+  component.rosterQuery='';
+  expect(component.members[0].username).toBe('Zeca');
+  expect(component.trackRosterMember(0,owner)).toBe(2);
+ });
  it('loads ownership and membership case-insensitively from real roster',()=>{
   expect(component.isOwner).toBeTrue();
   expect(component.rosterVerified).toBeTrue();
