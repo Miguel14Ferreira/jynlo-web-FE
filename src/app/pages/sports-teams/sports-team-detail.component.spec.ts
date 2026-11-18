@@ -366,6 +366,45 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(api.teamPendingInvitations).toHaveBeenCalledOnceWith(5);
   copy.ngOnDestroy();
  });
+ it('automatically reconciles pending invitations when the verified roster refreshes',()=>{
+  api.teamPendingInvitations.calls.reset();
+  api.teamPendingInvitations.and.returnValue(of([{profileId:9,username:'Pendente',status:'INVITED'}]));
+  component.refreshRoster();
+  expect(api.teamPendingInvitations).toHaveBeenCalledOnceWith(5);
+  expect(component.pendingPlayers.map(x=>x.username)).toEqual(['Pendente']);
+  api.teamPendingInvitations.and.returnValue(of([]));
+  component.refreshRoster();
+  expect(api.teamPendingInvitations).toHaveBeenCalledTimes(2);
+  expect(component.pendingPlayers).toEqual([]);
+  expect(component.invitationsVerified).toBeTrue();
+ });
+ it('avoids overlapping invitation requests and ignores stale results after losing ownership',()=>{
+  const delayed=new Subject<any[]>();
+  api.teamPendingInvitations.calls.reset();
+  api.teamPendingInvitations.and.returnValue(delayed.asObservable());
+  component.refreshRoster();
+  component.refreshRoster();
+  expect(api.teamPendingInvitations).toHaveBeenCalledTimes(1);
+  api.members.and.returnValue(of([player]));
+  component.refreshRoster();
+  delayed.next([{profileId:9,username:'Pendente',status:'INVITED'}]);
+  delayed.complete();
+  expect(component.pendingPlayers).toEqual([]);
+  expect(component.invitationsVerified).toBeFalse();
+  expect(component.isOwner).toBeFalse();
+ });
+ it('retries failed invitation reconciliation on the next roster update',()=>{
+  api.teamPendingInvitations.calls.reset();
+  api.teamPendingInvitations.and.returnValues(
+    throwError(()=>Error('offline')),
+    of([{profileId:10,username:'Novo',status:'INVITED'}])
+  );
+  component.refreshRoster();
+  expect(component.invitationsVerified).toBeFalse();
+  component.refreshRoster();
+  expect(component.invitationsVerified).toBeTrue();
+  expect(component.pendingPlayers[0].username).toBe('Novo');
+ });
  it('revokes owner controls and invalidates pending invitations when role changes',()=>{
   expect(component.isOwner).toBeTrue();
   component.invitationsVerified=true;
