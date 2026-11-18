@@ -158,3 +158,28 @@
 .team-member-identity a:focus-visible{outline:2px solid #79eeda;outline-offset:3px}
 @media(max-width:560px){.team-roster-toolbar{align-items:stretch;flex-direction:column}
  .team-roster-toolbar input{flex:none;width:100%;box-sizing:border-box}}
+
+/* Pending invitations and player discovery share a clean, readable identity card. */
+.team-candidate.team-invite-card,.team-candidate.team-player-result{display:flex;align-items:center;
+  flex-wrap:nowrap;gap:.8rem;min-width:0;padding:.8rem .9rem}
+.team-candidate-avatar{display:grid;place-items:center;flex:none;width:44px;height:44px;
+  background:linear-gradient(145deg,#18baaa,#126576);border:1px solid #49b5af75;
+  border-radius:50%;font-weight:850;color:#f0fffa}
+.team-candidate-identity{flex:1;min-width:0;display:grid;gap:.15rem}
+.team-candidate-identity a{color:#a3fff0;font-weight:800;text-decoration:none;overflow-wrap:anywhere}
+.team-candidate-identity a:hover,.team-candidate-identity a:focus-visible{text-decoration:underline}
+.team-candidate-identity small{font-size:.78rem;color:#b0cbd3;overflow-wrap:anywhere}
+.team-candidate.team-invite-card button,.team-candidate.team-player-result button{
+  flex:none;margin:0;min-height:44px}
+.team-player-discovery label{flex:1 0 100%;font-size:.85rem;color:#d0e8e9;font-weight:750}
+.team-player-discovery input{flex:1 1 240px;min-width:0;min-height:44px}
+.team-player-discovery button{min-height:44px}
+.team-empty-hint{padding:.8rem 1rem;border:1px dashed #4c858d;border-radius:10px;background:#0b344055}
+@media(max-width:560px){
+ .team-candidate.team-invite-card,.team-candidate.team-player-result{flex-wrap:wrap}
+ .team-candidate-identity{flex:1 1 calc(100% - 66px)}
+ .team-candidate.team-invite-card button,.team-candidate.team-player-result button{
+   flex:1 0 100%;width:100%}
+ .team-player-discovery{display:grid;grid-template-columns:1fr}
+ .team-player-discovery input,.team-player-discovery button{width:100%;box-sizing:border-box}
+}
