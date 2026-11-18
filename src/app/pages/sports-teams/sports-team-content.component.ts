@@ -337,6 +337,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   private commentCountSource:TeamContentEntry[]|null=null;
   private readonly cachedCommentCounts=new Map<number,number>();
   private visibleCache?:{source:TeamContentEntry[];searchActive:boolean;collapsed:string;replyTo:number|null;visible:TeamContentEntry[]};
+  private feedParentIdsSource:TeamContentEntry[]|null=null;
+  private feedParentIds=new Set<number>();
   draft = '';
   error = '';
   syncError = '';
@@ -554,8 +556,16 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     }).add(()=>{if(generation===this.generation)this.olderReconcileInFlight=false;});
   }
   isFeedComment(item:TeamContentEntry):boolean {
-    return this.kind==='feed' && item.replyToId!=null
-      && (this.searchActive?this.searchResults:(this.feedCombined.length?this.feedCombined:this.items)).some(parent=>parent.id===item.replyToId);
+    if(this.kind!=='feed'||item.replyToId==null)return false;
+    const entries=this.searchActive?this.searchResults
+      :(this.feedCombined.length?this.feedCombined:this.items);
+    // A feed with hundreds of comments must not scan its entire history for
+    // every rendered card on every Angular change-detection pass.
+    if(this.feedParentIdsSource!==entries){
+      this.feedParentIdsSource=entries;
+      this.feedParentIds=new Set(entries.map(entry=>entry.id));
+    }
+    return this.feedParentIds.has(item.replyToId);
   }
   replyPreview(id:number|null):string {
     const original=(this.searchActive?this.searchResults:[]).find(item=>item.id===id)
