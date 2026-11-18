@@ -315,6 +315,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.feedReactionPickerId=this.feedReactionPickerId===contentId?null:contentId;
   }
   private reactionVersion = 0;
+  private reactionRequestSequence = 0;
+  private readonly latestReactionRequestById = new Map<number,number>();
   attachmentsEnabled = false;
   files: File[] = [];
   private readonly selectedFileUrls=new Map<File,string>();
@@ -874,12 +876,20 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     // A background refresh must not replace an optimistic reaction still being saved.
     const ids=items.filter(item=>!item.deleted&&item.id!==this.reactionBusyId).slice(-100).map(item=>item.id);
     if(!ids.length)return;
-    const version=++this.reactionVersion;
+    const version=this.reactionVersion;
     const generation=this.generation;
+    const request=++this.reactionRequestSequence;
+    for(const id of ids)this.latestReactionRequestById.set(id,request);
     this.api.reactions(this.teamId,this.kind,ids).subscribe({
       next:reactions=>{
-        if(version===this.reactionVersion && generation===this.generation&&!this.accessRevoked)
-          this.reactionsById={...this.reactionsById,...reactions};
+        if(version!==this.reactionVersion||generation!==this.generation||this.accessRevoked)return;
+        const latest:Record<number,TeamReactionState>={};
+        for(const id of ids){
+          if(this.latestReactionRequestById.get(id)===request
+              &&id!==this.reactionBusyId&&reactions[id])latest[id]=reactions[id];
+        }
+        if(Object.keys(latest).length)
+          this.reactionsById={...this.reactionsById,...latest};
       },
       error:failure=>{
         if(version===this.reactionVersion && generation===this.generation)
