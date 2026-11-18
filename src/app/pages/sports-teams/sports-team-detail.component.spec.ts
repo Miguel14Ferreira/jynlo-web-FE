@@ -117,6 +117,35 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(component.members[0].username).toBe('Zeca');
   expect(component.trackRosterMember(0,owner)).toBe(2);
  });
+ it('opens focused team workspaces without re-fetching the public team',()=>{
+  component.selectTab('SQUAD');
+  expect(component.activeTab).toBe('SQUAD');
+  component.selectTab('COMMUNITIES');
+  expect(component.activeTab).toBe('COMMUNITIES');
+  component.selectTab('FEED');
+  expect(component.activeTab).toBe('FEED');
+  component.selectTab('CHAT');
+  expect(component.activeTab).toBe('CHAT');
+  component.selectTab('SETTINGS');
+  expect(component.activeTab).toBe('SETTINGS');
+  expect(api.detail).toHaveBeenCalledTimes(1);
+ });
+ it('protects owner-only team management when permission is missing or stale',()=>{
+  component.isOwner=false;
+  component.selectTab('SETTINGS');
+  expect(component.activeTab).toBe('OVERVIEW');
+  component.selectTab('CHALLENGES');
+  expect(component.activeTab).toBe('OVERVIEW');
+  component.isOwner=true;component.rosterVerified=false;
+  component.selectTab('SETTINGS');
+  expect(component.activeTab).toBe('OVERVIEW');
+  component.rosterVerified=true;
+  component.selectTab('SETTINGS');
+  api.members.and.returnValue(of([player]));
+  component.refreshRoster();
+  expect(component.activeTab).toBe('OVERVIEW');
+  expect(component.isOwner).toBeFalse();
+ });
  it('loads ownership and membership case-insensitively from real roster',()=>{
   expect(component.isOwner).toBeTrue();
   expect(component.rosterVerified).toBeTrue();
