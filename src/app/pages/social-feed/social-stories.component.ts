@@ -11,7 +11,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
 import { appTranslate as t, I18nService } from '../../i18n/i18n.service';
 import { DirectChatService } from '../../services/direct-chat.service';
 import { CommunityGroupsService } from '../../services/community-groups.service';
-import { SocialStoriesService } from '../../services/social-stories.service';
+import { SocialStoriesService, type StoryAudience } from '../../services/social-stories.service';
 import { CommunityGroup } from '../model/community-group';
 import { SocialStory } from '../model/social-story';
 import { VenueService } from '../../services/venue.service';
@@ -290,6 +290,42 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   error = '';
   feedback = '';
   activeStory: SocialStory | null = null;
+  audienceOpen = false;
+  audienceBusy = false;
+  audienceError = '';
+  audienceData: StoryAudience | null = null;
+  isStoryAuthor(story: SocialStory): boolean {
+    return this.mineEntries.some(entry => entry.id === story.id);
+  }
+  openAudience(): void {
+    const story = this.activeStory;
+    if (!story || !this.isStoryAuthor(story) || this.audienceBusy) return;
+    this.audienceOpen = true;
+    this.audienceBusy = true;
+    this.audienceError = '';
+    this.viewerPaused = true;
+    this.stories.audience(story.id).pipe(takeUntil(this.destroyed)).subscribe({
+      next: response => {
+        if (this.activeStory?.id !== story.id) return;
+        this.audienceData = response;
+        this.audienceBusy = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        if (this.activeStory?.id !== story.id) return;
+        this.audienceError = 'Não foi possível carregar as visualizações.';
+        this.audienceBusy = false;
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+  closeAudience(): void {
+    this.audienceOpen = false;
+    this.viewerPaused = false;
+    this.lastFrameAt = Date.now();
+    this.syncVideo();
+  }
+
   currentGroup: SocialStory[] = [];
   storyIndex = 0;
   private readonly destroyed = new Subject<void>();
@@ -342,6 +378,10 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     this.autoplayFailed = false;
     this.viewerPaused = false;
     this.menuOpen = false;
+    this.audienceOpen = false;
+    this.audienceData = null;
+    this.audienceBusy = false;
+    this.audienceError = '';
     this.deleteConfirmOpen = false;
     this.deleteError = '';
     this.muted = true;
@@ -369,7 +409,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   }
 
   playbackBlocked(): boolean {
-    return this.viewerPaused || this.menuOpen || this.replyFocused || this.deleteConfirmOpen || document.hidden;
+    return this.viewerPaused || this.audienceOpen || this.menuOpen || this.replyFocused || this.deleteConfirmOpen || document.hidden;
   }
 
   private syncVideo(): void {
@@ -672,6 +712,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   }
 
   close(): void {
+    if (this.audienceOpen) { this.closeAudience(); return; }
     if (this.deleteConfirmOpen) {
       this.cancelDeleteStory();
       return;
