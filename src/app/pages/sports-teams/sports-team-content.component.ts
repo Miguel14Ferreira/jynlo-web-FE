@@ -271,7 +271,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   onHistoryScroll():void {
     if(this.kind!=='chat'||this.searchActive)return;
     const el=this.historyPane?.nativeElement;
-    if(!el)return;
+    if(!el || el.clientHeight<=0 || el.scrollHeight<=0)return;
     this.nearLatest=el.scrollTop+el.clientHeight>=el.scrollHeight-85;
     if(this.nearLatest)this.unseenBelow=false;
   }
@@ -656,7 +656,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   send():void {
     const text=this.draft.trim();
     // An attachment can be sent without a caption, matching Mobile and backend.
-    if(this.sending || (!text && !this.files.length) || text.length>2000)return;
+    if(this.sending || this.accessRevoked || (!text && !this.files.length) || text.length>2000)return;
     const version=this.generation;
     this.invalidatePendingRead();
     this.sending=true;this.error='';
@@ -712,11 +712,11 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   onComposerPaste(event:ClipboardEvent):void {
     const images=Array.from(event.clipboardData?.files||[]).filter(file=>file.type.startsWith('image/'));
     if(!images.length)return;
-    event.preventDefault();
     if(!this.attachmentsEnabled||this.sending||this.accessRevoked){
       this.error='Os anexos não estão disponíveis nesta conversa.';
       return;
     }
+    event.preventDefault();
     this.addFiles(images);
   }
   private addFiles(selected:File[]):void {
