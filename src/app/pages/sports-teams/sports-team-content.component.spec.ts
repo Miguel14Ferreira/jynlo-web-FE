@@ -74,6 +74,22 @@ describe('Team conversation synchronization', () => {
     expect(component.visibleEntries().map(item=>item.id)).toEqual([1,2,3,4,5,6]);
   });
 
+  it('rebuilds feed comment parent lookup when live history or search changes',()=>{
+    component.kind='feed';
+    const reply={...entry(2,7),replyToId:1};
+    component.items=[entry(1,7),reply];
+    expect(component.isFeedComment(reply)).toBeTrue();
+    component.items=[reply];
+    expect(component.isFeedComment(reply)).toBeFalse();
+    component.searchActive=true;
+    component.searchResults=[entry(1,7),reply];
+    expect(component.isFeedComment(reply)).toBeTrue();
+    component.searchResults=[reply];
+    expect(component.isFeedComment(reply)).toBeFalse();
+    component.kind='chat';
+    expect(component.isFeedComment(reply)).toBeFalse();
+  });
+
   it('shows the private feed editor above posts only when no visible comment is selected',()=>{
     component.kind='feed';
     component.items=[entry(10,7,'Publicação')];
