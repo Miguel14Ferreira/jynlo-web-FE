@@ -41,3 +41,18 @@ test('sports week never creates an empty third column for its two real cards', (
   assert.match(css, /@container \(max-width:510px\) \{/);
   assert.match(css, /week-hub-grid \{grid-template-columns:minmax\(0,1fr\);\}/);
 });
+
+test('weekly sports dashboard has readable text and touch-sized navigation',()=>{
+ const css=read('src/app/pages/social-feed/social-feed-neon-glass.css');
+ const selectors=[
+  /week-card-heading h3 \{font-size:\.91rem;line-height:1\.4;color:#d0fff2;/,
+  /week-item>span \{font-size:\.8125rem;line-height:1\.4;/,
+  /week-item small \{font-size:\.8125rem;/,
+  /week-card-link \{font-size:\.875rem;padding-top:9px;min-height:44px;/,
+  /week-muted \{font-size:\.875rem;line-height:1\.5;color:#c9e3e9;/,
+  /week-hub-create \{min-height:44px;/
+ ];
+ for(const regex of selectors)assert.match(css,regex);
+ assert.match(css,/week-hub-grid \{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.doesNotMatch(css,/week-hub-grid \{display:grid;grid-template-columns:repeat\(3,/);
+});
