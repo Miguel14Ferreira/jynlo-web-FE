@@ -36,44 +36,6 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
           [style.--shirt-secondary]="t.kitSecondary || '#f2fafc'" aria-hidden="true"></span>
         <span>Equipamento · {{ kitLabel(t.kitPattern || 'PLAIN') }}</span>
       </div>
-      <section *ngIf="isOwner" class="team-branding" aria-label="Personalizar identidade da equipa">
-        <div class="team-branding-heading">
-          <div><h2>Identidade da equipa</h2><p>Logótipo e cores oficiais, visíveis no perfil e nos cartões.</p></div>
-          <span>Responsável</span>
-        </div>
-        <div class="team-branding-controls">
-          <label class="team-upload">Adicionar ou mudar logótipo
-            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" [disabled]="brandingSaving"
-              (change)="uploadTeamLogo($event)">
-          </label>
-          <button type="button" *ngIf="t.logoUrl" (click)="removeTeamLogo()" [disabled]="brandingSaving">Remover logótipo</button>
-          <label>Cor principal <input type="color" [(ngModel)]="kitPrimary" [disabled]="brandingSaving"></label>
-          <label>Cor secundária <input type="color" [(ngModel)]="kitSecondary" [disabled]="brandingSaving"></label>
-          <fieldset class="team-pattern-options" [disabled]="brandingSaving" aria-label="Desenho do equipamento">
-            <legend>Modelo de camisola</legend>
-            <button *ngFor="let option of kitPatterns" type="button"
-              [class.chosen]="kitPattern === option.id"
-              [attr.aria-pressed]="kitPattern === option.id"
-              (click)="kitPattern = option.id">
-              <span class="team-shirt pattern-sample" [class]="'team-shirt pattern-sample kit-' + option.id.toLowerCase()"
-                [style.--shirt-primary]="kitPrimary" [style.--shirt-secondary]="kitSecondary" aria-hidden="true"></span>
-              {{option.label}}
-            </button>
-          </fieldset>
-          <button type="button" class="team-branding-save" [disabled]="brandingSaving" (click)="saveTeamKit()">
-            {{brandingSaving?'A guardar…':'Guardar equipamento'}}
-          </button>
-        </div>
-      </section>
-      <section *ngIf="isOwner" class="team-danger-zone" aria-label="Administração da equipa">
-        <div>
-          <strong>Administração da equipa</strong>
-          <p>A eliminação só é permitida se não existirem jogadores, convites,
-            mensagens, competições ou associações guardadas. O histórico é protegido.</p>
-        </div>
-        <button type="button" class="team-delete-button" [disabled]="deletingTeam || busy || brandingSaving || featureSaving"
-          (click)="deleteTeam()">{{deletingTeam ? 'A eliminar…' : 'Eliminar equipa'}}</button>
-      </section>
       <div class="team-hero-stats">
         <span><strong>{{rosterVerified ? members.length : '—'}}</strong> Jogadores</span>
         <span><strong>{{communitiesVerified ? activeCommunities.length : '—'}}</strong> Comunidades</span>
@@ -81,23 +43,53 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
         <a routerLink="/menu/teams/competitions" [queryParams]="{teamId:t.id}">Explorar competições →</a>
       </div>
     </div>
-    <nav class="team-tabs" role="tablist" aria-label="Secções da equipa">
-      <button type="button" role="tab" [attr.aria-selected]="activeTab === 'OVERVIEW'"
+    <nav class="team-tabs" aria-label="Secções da equipa">
+      <button type="button" [attr.aria-current]="activeTab === 'OVERVIEW' ? 'page' : null"
         [class.selected]="activeTab === 'OVERVIEW'" (click)="selectTab('OVERVIEW')">Visão geral</button>
-      <button type="button" role="tab" [attr.aria-selected]="activeTab === 'TROPHIES'"
-        [class.selected]="activeTab === 'TROPHIES'" (click)="selectTab('TROPHIES')">
-        🏆 Troféus ({{trophiesVerified ? trophies.length + championshipHonours.length : '—'}})
-      </button>
-      <button type="button" role="tab" [attr.aria-selected]="activeTab === 'FEED'"
+      <button type="button" [attr.aria-current]="activeTab === 'SQUAD' ? 'page' : null"
+        [class.selected]="activeTab === 'SQUAD'" (click)="selectTab('SQUAD')">Plantel</button>
+      <button type="button" [attr.aria-current]="activeTab === 'COMMUNITIES' ? 'page' : null"
+        [class.selected]="activeTab === 'COMMUNITIES'" (click)="selectTab('COMMUNITIES')">Comunidades</button>
+      <button type="button" [attr.aria-current]="activeTab === 'TROPHIES' ? 'page' : null"
+        [class.selected]="activeTab === 'TROPHIES'" (click)="selectTab('TROPHIES')">🏆 Troféus</button>
+      <button type="button" [attr.aria-current]="activeTab === 'FEED' ? 'page' : null"
         [class.selected]="activeTab === 'FEED'" (click)="selectTab('FEED')">Publicações</button>
-      <button type="button" role="tab" [attr.aria-selected]="activeTab === 'CHAT'"
+      <button type="button" [attr.aria-current]="activeTab === 'CHAT' ? 'page' : null"
         [class.selected]="activeTab === 'CHAT'" (click)="selectTab('CHAT')">Mensagens</button>
-      <button *ngIf="isOwner && rosterVerified" type="button" role="tab" [attr.aria-selected]="activeTab === 'CHALLENGES'"
+      <button *ngIf="isOwner && rosterVerified" type="button" [attr.aria-current]="activeTab === 'CHALLENGES' ? 'page' : null"
         [class.selected]="activeTab === 'CHALLENGES'" (click)="selectTab('CHALLENGES')">Desafios</button>
+      <button *ngIf="isOwner && rosterVerified" type="button" [attr.aria-current]="activeTab === 'SETTINGS' ? 'page' : null"
+        [class.selected]="activeTab === 'SETTINGS'" (click)="selectTab('SETTINGS')">Gerir equipa</button>
     </nav>
     <p *ngIf="feedback" role="status" class="team-feedback">{{feedback}}</p>
-    <div class="team-grid" role="tabpanel">
-      <section *ngIf="activeTab === 'OVERVIEW'"><h2>Plantel ({{ rosterVerified ? members.length : '—' }})</h2>
+    <div class="team-grid" aria-live="off">
+      <section *ngIf="activeTab === 'OVERVIEW'" class="team-dashboard">
+        <h2>O espaço da tua equipa</h2>
+        <p>Consulta o plantel, acompanha a comunidade e entra nas conversas sem perder tempo.</p>
+        <div class="team-dashboard-links">
+          <button type="button" (click)="selectTab('SQUAD')">
+            <span aria-hidden="true">👥</span><strong>Plantel</strong>
+            <small>{{rosterVerified ? members.length + ' jogadores' : 'A confirmar jogadores'}}</small>
+          </button>
+          <button type="button" (click)="selectTab('COMMUNITIES')">
+            <span aria-hidden="true">🤝</span><strong>Comunidades</strong>
+            <small>{{communitiesVerified ? activeCommunities.length + ' associadas' : 'A confirmar associações'}}</small>
+          </button>
+          <button type="button" (click)="selectTab('FEED')">
+            <span aria-hidden="true">📰</span><strong>Publicações</strong><small>Novidades do plantel</small>
+          </button>
+          <button type="button" (click)="selectTab('CHAT')">
+            <span aria-hidden="true">💬</span><strong>Mensagens</strong><small>Conversa da equipa</small>
+          </button>
+          <button type="button" (click)="selectTab('TROPHIES')">
+            <span aria-hidden="true">🏆</span><strong>Conquistas</strong><small>Títulos e histórico</small>
+          </button>
+          <a [routerLink]="['/menu/teams/competitions']" [queryParams]="{teamId:t.id}">
+            <span aria-hidden="true">⚔️</span><strong>Competições</strong><small>Encontrar torneios e campeonatos</small>
+          </a>
+        </div>
+      </section>
+      <section *ngIf="activeTab === 'SQUAD'"><h2>Plantel ({{ rosterVerified ? members.length : '—' }})</h2>
         <p *ngIf="!rosterVerified" role="alert">Não foi possível confirmar o plantel. As opções de gestão estão temporariamente bloqueadas.</p>
         <div class="team-roster-toolbar" *ngIf="rosterVerified && members.length > 4">
           <label for="team-roster-filter">Encontrar jogador</label>
@@ -177,11 +169,11 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
         <p *ngIf="!historyLoading && !historyError && !history.length">Ainda não participou em torneios associados à equipa.</p>
         <p *ngFor="let entry of history"><a [routerLink]="['/menu/communities',entry.communityId]">{{entry.tournamentName}}</a> · {{entry.communityName}} — {{entry.champion ? '🏆 Campeão' : entry.archived ? 'Concluído' : 'Em curso'}}</p>
       </section>
-      <section *ngIf="activeTab === 'OVERVIEW'"><h2>Competições</h2>
+      <section *ngIf="activeTab === 'OVERVIEW'" class="team-competition-next"><h2>Competições</h2>
         <p>Encontra torneios e campeonatos com candidaturas abertas para esta equipa.</p>
         <a routerLink="/menu/teams/competitions" [queryParams]="{teamId: t.id}">Encontrar torneios e campeonatos</a>
       </section>
-      <section *ngIf="activeTab === 'OVERVIEW'"><h2>Comunidades ({{activeCommunities.length}})</h2>
+      <section *ngIf="activeTab === 'COMMUNITIES'"><h2>Comunidades ({{activeCommunities.length}})</h2>
         <div *ngFor="let item of activeCommunities; trackBy: trackTeamCommunity" class="team-community">
           <span class="team-community-avatar" aria-hidden="true">{{item.communityName.slice(0,1).toUpperCase()}}</span>
           <div class="team-community-identity">
@@ -234,6 +226,46 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
           </div>
         </ng-container>
       </section>
+      <section *ngIf="activeTab === 'SETTINGS' && isOwner && rosterVerified" class="team-settings">
+        <section *ngIf="isOwner" class="team-branding" aria-label="Personalizar identidade da equipa">
+        <div class="team-branding-heading">
+          <div><h2>Identidade da equipa</h2><p>Logótipo e cores oficiais, visíveis no perfil e nos cartões.</p></div>
+          <span>Responsável</span>
+        </div>
+        <div class="team-branding-controls">
+          <label class="team-upload">Adicionar ou mudar logótipo
+            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" [disabled]="brandingSaving"
+              (change)="uploadTeamLogo($event)">
+          </label>
+          <button type="button" *ngIf="t.logoUrl" (click)="removeTeamLogo()" [disabled]="brandingSaving">Remover logótipo</button>
+          <label>Cor principal <input type="color" [(ngModel)]="kitPrimary" [disabled]="brandingSaving"></label>
+          <label>Cor secundária <input type="color" [(ngModel)]="kitSecondary" [disabled]="brandingSaving"></label>
+          <fieldset class="team-pattern-options" [disabled]="brandingSaving" aria-label="Desenho do equipamento">
+            <legend>Modelo de camisola</legend>
+            <button *ngFor="let option of kitPatterns" type="button"
+              [class.chosen]="kitPattern === option.id"
+              [attr.aria-pressed]="kitPattern === option.id"
+              (click)="kitPattern = option.id">
+              <span class="team-shirt pattern-sample" [class]="'team-shirt pattern-sample kit-' + option.id.toLowerCase()"
+                [style.--shirt-primary]="kitPrimary" [style.--shirt-secondary]="kitSecondary" aria-hidden="true"></span>
+              {{option.label}}
+            </button>
+          </fieldset>
+          <button type="button" class="team-branding-save" [disabled]="brandingSaving" (click)="saveTeamKit()">
+            {{brandingSaving?'A guardar…':'Guardar equipamento'}}
+          </button>
+        </div>
+      </section>
+      <section *ngIf="isOwner" class="team-danger-zone" aria-label="Administração da equipa">
+        <div>
+          <strong>Administração da equipa</strong>
+          <p>A eliminação só é permitida se não existirem jogadores, convites,
+            mensagens, competições ou associações guardadas. O histórico é protegido.</p>
+        </div>
+        <button type="button" class="team-delete-button" [disabled]="deletingTeam || busy || brandingSaving || featureSaving"
+          (click)="deleteTeam()">{{deletingTeam ? 'A eliminar…' : 'Eliminar equipa'}}</button>
+      </section>
+      </section>
       <section *ngIf="activeTab === 'FEED'" class="team-feature">
         <h2>Feed</h2>
         <button *ngIf="isOwner" type="button" [disabled]="featureSaving"
@@ -269,10 +301,11 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   brokenPlayerAvatars=new Set<number>();
   playerAvatarSrc(url:string|null|undefined):string|null{return this.api.playerAvatarSrc(url);}
   logoSrc(url:string|null|undefined):string|null{return this.api.logoSrc(url);}
-  activeTab: 'OVERVIEW' | 'TROPHIES' | 'FEED' | 'CHAT' | 'CHALLENGES' = 'OVERVIEW';
+  activeTab: 'OVERVIEW' | 'SQUAD' | 'COMMUNITIES' | 'TROPHIES' | 'FEED' | 'CHAT' | 'CHALLENGES' | 'SETTINGS' = 'OVERVIEW';
   private trophiesRequestedForTeam:number|null=null;
   get trophiesVerified():boolean{return this.trophiesRequestedForTeam===this.team?.id && !this.historyLoading && !this.honoursLoading && !this.historyError && !this.honoursError;}
-  selectTab(tab:'OVERVIEW'|'TROPHIES'|'FEED'|'CHAT'|'CHALLENGES'):void {
+  selectTab(tab:SportsTeamDetailComponent['activeTab']):void {
+    if((tab==='SETTINGS'||tab==='CHALLENGES')&&(!this.isOwner||!this.rosterVerified))return;
     this.activeTab=tab;
     if(tab==='TROPHIES')this.loadTrophies();
   }
@@ -577,6 +610,8 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         const ownRole=players.find(p=>p.username.toLowerCase()===username)?.role;
         this.isMember=ownRole==='OWNER'||ownRole==='PLAYER';
         this.isOwner=ownRole==='OWNER';
+        if(!this.isOwner && (this.activeTab==='SETTINGS'||this.activeTab==='CHALLENGES'))
+          this.activeTab='OVERVIEW';
         if(!this.isOwner){
           this.pendingRequest++;this.pendingLoading=false;
           this.pendingPlayers=[];this.invitationsVerified=false;
