@@ -695,10 +695,10 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     if(!Number.isSafeInteger(this.teamId)||this.teamId<=0)return;
     this.api.attachmentsAvailable(this.teamId,this.kind).subscribe({
       next:result=>{
-        if(current===this.attachmentProbeVersion&&version===this.generation)
+        if(current===this.attachmentProbeVersion&&version===this.generation&&!this.accessRevoked)
           this.attachmentsEnabled=result.available===true;
       },
-      error:failure=>{if(current===this.attachmentProbeVersion&&version===this.generation){
+      error:failure=>{if(current===this.attachmentProbeVersion&&version===this.generation&&!this.accessRevoked){
         this.attachmentsEnabled=false;this.blockUnavailable(failure);
       }}
     });
