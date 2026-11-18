@@ -29,3 +29,15 @@ test('confirmed Stories survive stale feed and mine responses', () => {
   assert.match(source, /this\.mineEntries = this\.retainConfirmedStories\(stories\)/);
   assert.match(source, /this\.confirmedStories\.set\(story\.id/);
 });
+
+test('sports week never creates an empty third column for its two real cards', () => {
+  const template = read('src/app/pages/social-feed/social-feed.component.html');
+  const css = read('src/app/pages/social-feed/social-feed-neon-glass.css');
+  const week = template.slice(template.indexOf('<div class="week-hub-grid">'), template.indexOf('</section>', template.indexOf('<div class="week-hub-grid">')));
+  assert.equal((week.match(/<article class="week-hub-card"/g)||[]).length, 2);
+  assert.match(css, /:host \.feed-v3-shell \.week-hub-grid \{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.doesNotMatch(css, /week-hub-grid \{display:grid;grid-template-columns:repeat\(3,/);
+  assert.doesNotMatch(css, /week-hub-card:last-child \{grid-column:1\/-1;\}/);
+  assert.match(css, /@container \(max-width:510px\) \{/);
+  assert.match(css, /week-hub-grid \{grid-template-columns:minmax\(0,1fr\);\}/);
+});
