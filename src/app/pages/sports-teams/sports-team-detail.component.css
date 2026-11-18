@@ -205,3 +205,35 @@
  .team-community-search{display:grid;grid-template-columns:1fr}
  .team-community-search input,.team-community-search button{width:100%;box-sizing:border-box}
 }
+
+/* Team hub: put the everyday actions first and move dangerous admin controls into management. */
+.team-dashboard,.team-settings{grid-column:1/-1}
+.team-dashboard>p{max-width:65ch;margin:.2rem 0 1.2rem}
+.team-dashboard-links{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:.85rem}
+.team-grid .team-dashboard-links button,.team-dashboard-links a{
+ display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:.4rem;
+ min-height:118px;min-width:0;padding:1rem 1.1rem;margin:0;
+ border:1px solid #397d857a;border-radius:15px;
+ background:linear-gradient(135deg,#104b54,#0c3442);color:#e8fffa;
+ text-align:left;text-decoration:none;cursor:pointer;box-sizing:border-box;
+ transition:border-color .15s ease,transform .15s ease
+}
+.team-grid .team-dashboard-links button:hover,.team-dashboard-links a:hover{border-color:#65e5d0;transform:translateY(-2px)}
+.team-dashboard-links strong{font-size:1.04rem}
+.team-dashboard-links small{font-size:.79rem;color:#b7d6dc}
+.team-dashboard-links span{font-size:1.25rem}
+.team-dashboard-links button:focus-visible,.team-dashboard-links a:focus-visible{outline:2px solid #72f7dd;outline-offset:3px}
+.team-tabs{position:relative;display:flex;flex-wrap:nowrap;overflow-x:auto;max-width:100%;scrollbar-width:thin;
+ overscroll-behavior-inline:contain;scroll-padding-inline:1rem}
+.team-tabs button{white-space:nowrap;flex-shrink:0}
+.team-settings{display:grid;gap:1.15rem}
+.team-grid .team-settings{padding:1.1rem}
+.team-settings .team-branding,.team-settings .team-danger-zone{margin:0}
+.team-settings .team-danger-zone{display:flex}
+.team-competition-next{grid-column:1/-1}
+@media(max-width:650px){
+ .team-tabs button{flex:0 0 auto}
+ .team-dashboard-links{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .team-grid .team-dashboard-links button,.team-dashboard-links a{padding:.75rem;min-height:116px}
+}
+@media(max-width:360px){.team-dashboard-links{grid-template-columns:1fr}}
