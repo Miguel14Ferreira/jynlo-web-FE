@@ -289,10 +289,6 @@
                 </div>
                 <div class="session-inline-chat-actions">
                   <button type="button" class="jynlo-action jynlo-action--neutral"
-                    [disabled]="chatLoading" (click)="refreshMessages()">
-                    {{ (chatLoading ? 'chat.refreshing' : 'chat.refresh') | t }}
-                  </button>
-                  <button type="button" class="jynlo-action jynlo-action--neutral"
                     (click)="toggleInlineSessionChat()">{{ 'sessionDetail.hideChat' | t }}</button>
                 </div>
               </header>
