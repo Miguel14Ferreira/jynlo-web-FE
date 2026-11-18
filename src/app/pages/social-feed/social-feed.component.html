@@ -125,8 +125,8 @@
     }
 
     @if (personalLiveRoom; as event) {
-      <div class="feed-confirm-backdrop" role="presentation">
-        <div>
+      <div class="feed-confirm-backdrop feed-personal-live-backdrop" role="presentation">
+        <div class="feed-personal-live-shell">
           <app-personal-live-room [event]="event" (closed)="closePersonalLiveRoom($event)"></app-personal-live-room>
         </div>
       </div>
