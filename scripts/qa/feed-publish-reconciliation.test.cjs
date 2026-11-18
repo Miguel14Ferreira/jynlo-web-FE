@@ -56,3 +56,15 @@ test('weekly sports dashboard has readable text and touch-sized navigation',()=>
  assert.match(css,/week-hub-grid \{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
  assert.doesNotMatch(css,/week-hub-grid \{display:grid;grid-template-columns:repeat\(3,/);
 });
+
+test('web post editor clearly communicates pending uploads without allowing duplicate submissions',()=>{
+ const template=read('src/app/pages/social-feed/social-feed.component.html');
+ const css=read('src/app/pages/social-feed/social-feed-action-polish.css');
+ assert.match(template,/\[attr\.aria-busy\]="posting \? 'true' : null"/);
+ assert.match(template,/\[disabled\]="!canPublishPost"/);
+ assert.match(template,/\(click\)="publish\(\)"/);
+ assert.match(template,/@if \(posting\) \{\s*<p class="composer-publish-status" role="status" aria-live="polite">/);
+ assert.match(template,/Mantém este ecrã aberto até a publicação ser confirmada/);
+ assert.match(css,/\.composer-publish-status \{/);
+ assert.match(css,/font-size:\.875rem/);
+});
