@@ -344,6 +344,34 @@ describe('Team conversation synchronization', () => {
     expect(api.reactions).not.toHaveBeenCalled();
   });
 
+  it('merges overlapping live reaction pages without dropping unrelated posts',()=>{
+    component.kind='feed';
+    const pageA=new Subject<Record<number,{mine:string|null;counts:Record<string,number>}>>();
+    const pageB=new Subject<Record<number,{mine:string|null;counts:Record<string,number>}>>();
+    api.reactions.and.returnValues(pageA.asObservable(),pageB.asObservable());
+    component['loadReactions']([entry(1,7),entry(2,7)]);
+    component['loadReactions']([entry(2,7),entry(3,7)]);
+    pageB.next({2:{mine:'❤️',counts:{'❤️':2}},3:{mine:null,counts:{'👍':4}}});
+    pageA.next({1:{mine:'👍',counts:{'👍':1}},2:{mine:null,counts:{'❤️':0}}});
+    expect(component.reactionsById[1].counts['👍']).toBe(1);
+    expect(component.reactionsById[2].counts['❤️']).toBe(2);
+    expect(component.reactionsById[3].counts['👍']).toBe(4);
+  });
+
+  it('never replaces a pending optimistic reaction with a delayed page response',()=>{
+    component.kind='feed';
+    const pendingPage=new Subject<Record<number,{mine:string|null;counts:Record<string,number>}>>();
+    const pendingWrite=new Subject<void>();
+    api.reactions.and.returnValue(pendingPage.asObservable());
+    api.setReaction.and.returnValue(pendingWrite.asObservable());
+    component['loadReactions']([entry(12,7)]);
+    component.react(entry(12,7),'❤️');
+    pendingPage.next({12:{mine:null,counts:{'❤️':0}}});
+    expect(component.reactionsById[12].mine).toBe('❤️');
+    expect(component.reactionsById[12].counts['❤️']).toBe(1);
+    pendingWrite.complete();
+  });
+
   it('does not fetch stale reaction totals for a post while its write is pending',()=>{
     component.kind='feed';
     const post=entry(12,7,'Publicação');
