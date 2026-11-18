@@ -27,8 +27,9 @@ describe('SocialStoriesComponent', () => {
   };
 
   beforeEach(async () => {
-    api = jasmine.createSpyObj<SocialStoriesService>('SocialStoriesService', ['feed', 'mine', 'get', 'publish', 'delete']);
+    api = jasmine.createSpyObj<SocialStoriesService>('SocialStoriesService', ['feed', 'mine', 'get', 'publish', 'delete', 'recordView', 'audience']);
     api.feed.and.returnValue(of([picture]));
+    api.recordView.and.returnValue(of(void 0));
     direct = jasmine.createSpyObj<DirectChatService>('DirectChatService', ['send']);
     direct.send.and.returnValue(of({} as any));
     profiles = jasmine.createSpyObj<CommunityService>('CommunityService', ['friends', 'discoverProfiles', 'searchProfiles']);
@@ -514,6 +515,18 @@ describe('SocialStoriesComponent', () => {
     expect(dialog.querySelector('.story-progress-track')).toBeTruthy();
     expect(dialog.textContent).not.toContain('dd/MM');
     expect(dialog.querySelector('.story-dialog-footer')).toBeNull();
+    component.close();
+  }));
+
+  it('counts a Story only after the viewer has loaded the image', fakeAsync(() => {
+    fixture.detectChanges();
+    tick();
+    component.openGroup(component.storyGroups[0]);
+    expect(api.recordView).not.toHaveBeenCalled();
+    component.onImageLoaded();
+    expect(api.recordView).toHaveBeenCalledOnceWith(picture.id);
+    component.onImageLoaded();
+    expect(api.recordView).toHaveBeenCalledTimes(1);
     component.close();
   }));
 
