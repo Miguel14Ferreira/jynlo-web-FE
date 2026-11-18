@@ -1,3 +1,12 @@
+# Chat and social link-preview crawlers do not run JavaScript, so they cannot read
+# the share tags the single-page app sets after it loads. They are sent a small
+# HTML page from the backend instead. Search-engine crawlers are deliberately not
+# listed: they should see the same app as everyone else.
+map $http_user_agent $link_preview_bot {
+    default 0;
+    "~*(facebookexternalhit|facebot|meta-externalagent|whatsapp|twitterbot|linkedinbot|slackbot|telegrambot|discordbot|skypeuripreview|pinterest|embedly)" 1;
+}
+
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -36,6 +45,15 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # A shared game link: link-preview crawlers get the backend's share page
+    # (re-entering the /api/ proxy above), everyone else gets the app.
+    location ~ ^/sessions/[0-9]+/?$ {
+        if ($link_preview_bot) {
+            rewrite ^/sessions/([0-9]+)/?$ /api/share/sessions/$1 last;
+        }
+        try_files /index.html =404;
     }
 
     # Serve fresh HTML after security releases, while assets remain cacheable.
