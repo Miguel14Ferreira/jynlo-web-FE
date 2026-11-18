@@ -213,6 +213,7 @@
          [attr.aria-hidden]="postComposerOpen ? null : 'true'"
          (click)="closePostComposer()"></div>
     <section class="composer" role="dialog" aria-modal="true" aria-label="Criar publicação"
+      [attr.aria-busy]="posting ? 'true' : null"
       [class.feed-post-dialog-open]="postComposerOpen"
       [attr.aria-hidden]="postComposerOpen ? null : 'true'"
       [attr.inert]="postComposerOpen ? null : ''">
@@ -473,6 +474,11 @@
           (click)="publish()">
           {{ posting ? ('feed.publishing' | t) : ('feed.publish' | t) }}
         </button>
+        @if (posting) {
+          <p class="composer-publish-status" role="status" aria-live="polite">
+            A enviar para a Jynlo. Mantém este ecrã aberto até a publicação ser confirmada.
+          </p>
+        }
       </div>
       @if (photoTextEditorIndex !== null) {
         <section class="feed-photo-text-editor" aria-label="Escrever na fotografia">
