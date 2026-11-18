@@ -29,6 +29,32 @@ describe('Team conversation synchronization', () => {
     component.kind='chat';
   });
 
+  it('ignores a late attachment capability response after membership is revoked',()=>{
+    const pending=new Subject<{available:boolean}>();
+    api.attachmentsAvailable.and.returnValue(pending.asObservable());
+    component.ngOnChanges({teamId:new SimpleChange(7,8,false)});
+    expect(component.attachmentsEnabled).toBeFalse();
+    api.content.and.returnValue(throwError(()=>new HttpErrorResponse({status:403})));
+    component.read(false);
+    expect(component.accessRevoked).toBeTrue();
+    pending.next({available:true});
+    pending.complete();
+    expect(component.attachmentsEnabled).toBeFalse();
+    expect(component.accessRevoked).toBeTrue();
+  });
+
+  it('ignores a late attachment permission failure after another request revoked access',()=>{
+    const pending=new Subject<{available:boolean}>();
+    api.attachmentsAvailable.and.returnValue(pending.asObservable());
+    component.ngOnChanges({teamId:new SimpleChange(7,8,false)});
+    api.content.and.returnValue(throwError(()=>new HttpErrorResponse({status:403})));
+    component.read(false);
+    const oldReason=component.blockedReason;
+    pending.error(new HttpErrorResponse({status:409}));
+    expect(component.blockedReason).toBe(oldReason);
+    expect(component.attachmentsEnabled).toBeFalse();
+  });
+
   it('uses the existing safe avatar URL helper and keeps a fallback for missing photos',()=>{
     api.playerAvatarSrc.and.callFake(url=>url?.startsWith('https://')?url:null);
     const withPhoto={...entry(2,7),profilePicUrl:'https://cdn.example.org/athlete.png'};
