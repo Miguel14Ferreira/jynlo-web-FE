@@ -897,3 +897,74 @@
 :host .tournaments .team-knockout-next:focus-visible,
 :host .tournaments .team-fixture:focus-visible{outline:2px solid #a2ffe0;outline-offset:-2px;}
 
+
+
+/* Consistent league-table and match-centre hierarchy at narrow widths.
+   Horizontal tables remain scrollable rather than hiding real results. */
+:host .tournaments .standings-scroll {
+  overscroll-behavior-inline:contain;
+  scrollbar-color:#46AA9C #062634;
+}
+:host .tournaments .standings-table th,
+:host .tournaments .standings-table td {
+  white-space:nowrap;
+  padding-block:13px;
+}
+:host .tournaments .standings-table :is(th,td):first-child {
+  position:sticky;
+  left:0;
+  z-index:1;
+  background:#0B3540;
+  box-shadow:1px 0 0 rgba(60,205,180,.3);
+}
+:host .tournaments .standings-table thead th:first-child {
+  z-index:2;
+  background:#104551;
+}
+:host .tournaments .team-fixture {
+  border-color:rgba(69,197,176,.37);
+  border-radius:16px;
+  background:linear-gradient(140deg,#0B3642,#062632);
+}
+:host .tournaments .team-fixture-matchup>strong {
+  line-height:1.4;
+  hyphens:auto;
+}
+:host .tournaments .team-fixture-score {
+  background:#0D4A48;
+  border-color:rgba(84,219,181,.52);
+}
+:host .tournaments .team-fixture-score.is-pending {
+  background:#143742;
+}
+@media(max-width:600px) {
+  :host .tournaments .standings-scroll {
+    max-width:100%;
+    border-radius:11px;
+  }
+  :host .tournaments .standings-table {
+    min-width:34rem;
+    font-size:.79rem;
+  }
+  :host .tournaments .standings-table th,
+  :host .tournaments .standings-table td {
+    padding:11px 9px;
+  }
+  :host .tournaments .team-fixture {
+    padding:12px;
+  }
+  :host .tournaments .team-fixture-matchup {
+    grid-template-columns:minmax(0,1fr) 78px minmax(0,1fr);
+    gap:6px;
+  }
+  :host .tournaments .team-fixture-score {
+    padding:8px 4px;
+  }
+  :host .tournaments .team-fixture-numbers {
+    font-size:1.08rem;
+    gap:5px;
+  }
+  :host .tournaments .team-fixture-matchup>strong {
+    font-size:.78rem;
+  }
+}
