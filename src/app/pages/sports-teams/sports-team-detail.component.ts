@@ -41,6 +41,10 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
         <span><strong>{{communitiesVerified ? activeCommunities.length : '—'}}</strong> Comunidades</span>
         <span><strong>{{trophiesVerified ? trophies.length + championshipHonours.length : '—'}}</strong> Troféus</span>
         <a routerLink="/menu/teams/competitions" [queryParams]="{teamId:t.id}">Explorar competições →</a>
+        <button *ngIf="isOwner && rosterVerified" type="button" class="team-branding-shortcut"
+          (click)="selectTab('SETTINGS')" aria-label="Personalizar emblema e equipamento da equipa">
+          Personalizar equipa
+        </button>
       </div>
     </div>
     <nav class="team-tabs" aria-label="Secções da equipa">
@@ -59,7 +63,7 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
       <button *ngIf="isOwner && rosterVerified" type="button" [attr.aria-current]="activeTab === 'CHALLENGES' ? 'page' : null"
         [class.selected]="activeTab === 'CHALLENGES'" (click)="selectTab('CHALLENGES')">Desafios</button>
       <button *ngIf="isOwner && rosterVerified" type="button" [attr.aria-current]="activeTab === 'SETTINGS' ? 'page' : null"
-        [class.selected]="activeTab === 'SETTINGS'" (click)="selectTab('SETTINGS')">Gerir equipa</button>
+        [class.selected]="activeTab === 'SETTINGS'" (click)="selectTab('SETTINGS')">Identidade e gestão</button>
     </nav>
     <p *ngIf="feedback" role="status" class="team-feedback">{{feedback}}</p>
     <div class="team-grid" aria-live="off">
