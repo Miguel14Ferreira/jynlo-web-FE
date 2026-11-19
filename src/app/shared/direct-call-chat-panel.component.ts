@@ -182,7 +182,7 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
   this.writeBusy=true;this.sending=true;this.error='';
   this.chat.send(peer,body).subscribe({
    next:message=>{
-    if(version!==this.generation||peer!==this.peer)return;
+    if(version!==this.generation||peer!==this.peer||this.accessRevoked)return;
     const accepted=typeof message.id==='number'&&Number.isSafeInteger(message.id)&&message.id>0&&
      !message.deletedAt&&message.username2?.toLowerCase()===peer.toLowerCase()&&
      message.text?.trim()===body;
