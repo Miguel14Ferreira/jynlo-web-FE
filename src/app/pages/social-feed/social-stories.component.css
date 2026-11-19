@@ -313,3 +313,56 @@ button:disabled { opacity: .5; cursor: not-allowed; }
  padding:9px 3px;color:#f0fdfa;text-decoration:none;border-bottom:1px solid #ffffff24}
 .story-dialog .story-audience-people a:hover{background:#155064}
 .story-dialog .story-audience-people small{color:#a8c4cb;font-size:.75rem}
+
+
+/* Compact social-first rail: show people instead of a large empty dashboard panel. */
+:host .stories-panel {
+  margin:0;padding:17px 19px 12px;min-width:0;
+  border:1px solid rgba(47,228,194,.30);border-radius:19px;
+  background:linear-gradient(142deg,#082d3a,#04202e);
+  box-shadow:0 16px 34px #0003;
+}
+:host .stories-heading {align-items:center;gap:15px;}
+:host .stories-heading h2 {font-size:1.14rem;letter-spacing:-.025em;margin:3px 0;}
+:host .stories-heading p {font-size:.8rem;line-height:1.4;}
+:host .stories-eyebrow {color:#44ecd0;font-size:.63rem;letter-spacing:.15em;}
+:host .story-rail {
+  min-height:0;gap:12px;padding:13px 0 3px;
+  align-items:flex-start;scrollbar-width:thin;scrollbar-color:#296d71 transparent;
+}
+:host .story-rail .story-bubble {
+  width:78px;flex:0 0 78px;padding:0 1px;gap:6px;
+  color:#edfffc;overflow:hidden;
+}
+:host .story-rail .story-ring {
+  width:64px;height:64px;flex:0 0 64px;padding:3px;
+  border:2px solid #1de4bb;
+  background:#0b343e;box-shadow:0 0 0 2px #062a34 inset;
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+:host .story-rail .story-bubble:hover .story-ring {
+  transform:scale(1.055);box-shadow:0 0 17px #19eabc40;
+}
+:host .story-rail .story-placeholder {background:linear-gradient(140deg,#134450,#0b6665);font-size:1.4rem;}
+:host .story-rail .story-name {
+  display:block;width:100%;font-size:.73rem;line-height:1.2;font-weight:700;
+  text-overflow:ellipsis;overflow:hidden;white-space:nowrap;
+}
+:host .story-rail .story-bubble small {font-size:.64rem;}
+:host .story-rail .stories-empty {
+  min-height:0;margin:4px 0 9px;color:#acd3d4;font-size:.82rem;
+}
+:host .stories-panel .story-header-create {
+  min-height:38px;border-radius:11px;background:#104f4a;border-color:#35e7c7;
+}
+@media(max-width:600px) {
+  :host .stories-panel {padding:15px 12px 9px;border-radius:15px;}
+  :host .stories-heading p {display:none;}
+  :host .story-rail {gap:8px;padding-top:11px;}
+  :host .story-rail .story-bubble {width:72px;flex-basis:72px;}
+  :host .story-rail .story-ring {width:58px;height:58px;flex-basis:58px;}
+}
+@media(prefers-reduced-motion:reduce) {
+  :host .story-rail .story-ring {transition:none;}
+  :host .story-rail .story-bubble:hover .story-ring {transform:none;}
+}
