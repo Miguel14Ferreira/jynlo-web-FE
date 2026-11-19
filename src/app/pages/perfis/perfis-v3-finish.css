@@ -481,3 +481,91 @@
 :host .community-page.jynlo-social :is(input,select,textarea){box-sizing:border-box;max-width:100%}
 @media(max-width:650px){:host .community-page.jynlo-social{overflow-x:clip}}
 @media(prefers-reduced-motion:reduce){:host .community-page.jynlo-social *, :host .community-page.jynlo-social *::before, :host .community-page.jynlo-social *::after{transition-duration:.01ms;animation-duration:.01ms}}
+
+
+/* Social profile visual pass — real avatar/media only, no fabricated cover imagery.
+   Keep follow/privacy/message handlers, keyboard controls and stats intact. */
+:host .community-page.jynlo-social.profile-page-open .profile-detail {
+  background:linear-gradient(158deg,#092f3c 0%,#05212f 44%,#031924 100%);
+  border-color:rgba(38,219,197,.35);
+  box-shadow:0 20px 58px #0005;
+}
+:host .community-page.jynlo-social.profile-page-open .profile-hero {
+  position:relative;isolation:isolate;min-height:228px;
+  padding:clamp(22px,3vw,38px);
+  margin:-12px -12px 25px;
+  border:1px solid rgba(39,214,193,.26);border-radius:19px;
+  overflow:hidden;
+  background:
+    radial-gradient(ellipse 37% 115% at 85% 5%,rgba(16,202,164,.19),transparent 75%),
+    linear-gradient(110deg,rgba(3,22,34,.95),rgba(9,64,70,.7) 100%);
+}
+:host .community-page.jynlo-social.profile-page-open .profile-hero::before {
+  content:'';position:absolute;z-index:-1;right:-90px;top:-115px;
+  width:410px;height:410px;border:1px solid #42dfc126;border-radius:50%;
+  box-shadow:0 0 0 50px #42dfc10b,0 0 0 104px #42dfc108;
+  pointer-events:none;
+}
+:host .community-page.jynlo-social.profile-page-open .profile-hero .detail-heading,
+:host .community-page.jynlo-social.profile-page-open .profile-hero .profile-actions-panel {
+  position:relative;z-index:1;
+}
+:host .community-page.jynlo-social.profile-page-open .large-avatar.profile-story-avatar {
+  width:clamp(116px,11vw,164px);height:clamp(116px,11vw,164px);
+  flex:0 0 clamp(116px,11vw,164px);
+  border-radius:50%;border:3px solid #46cdb8;
+  background:#0b4b53;box-shadow:0 10px 32px #00151a99,0 0 0 5px #3cebc41a;
+}
+:host .community-page.jynlo-social.profile-page-open .large-avatar.profile-story-avatar--active {
+  border-color:#36f4d1;box-shadow:0 0 0 5px #092735,0 0 0 7px #27e9c9,0 14px 30px #0007;
+}
+:host .community-page.jynlo-social.profile-page-open .profile-identity h1 {
+  font-size:clamp(1.9rem,3vw,3rem);letter-spacing:-.04em;
+}
+:host .community-page.jynlo-social.profile-page-open .profile-display-name {
+  font-size:1.01rem!important;line-height:1.45;
+}
+:host .community-page.jynlo-social.profile-page-open .profile-identity .eyebrow {
+  font-size:.69rem;letter-spacing:.15em;margin-bottom:8px;
+}
+:host .community-page.jynlo-social.profile-page-open .social-summary {
+  gap:7px;margin-top:17px;
+}
+:host .community-page.jynlo-social.profile-page-open .social-summary button {
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-width:94px;min-height:63px;padding:8px 13px;
+  border:1px solid rgba(90,206,189,.20);border-radius:12px;
+  background:rgba(2,29,39,.46);color:#f7fffc;
+}
+:host .community-page.jynlo-social.profile-page-open .social-summary button strong {
+  font-size:1.25rem;line-height:1.25;color:white;
+}
+:host .community-page.jynlo-social.profile-page-open .social-summary button span {
+  font-size:.75rem;line-height:1.3;color:#bddfd9;
+}
+:host .community-page.jynlo-social.profile-page-open .profile-publications-grid {
+  gap:clamp(8px,1.2vw,14px);
+}
+:host .community-page.jynlo-social.profile-page-open .profile-publication-card {
+  min-width:0;overflow:hidden;border:1px solid #3dc8b43b;border-radius:15px;
+  background:#061f2b;box-shadow:0 9px 24px #0003;
+}
+:host .community-page.jynlo-social.profile-page-open .profile-publication-card:hover {
+  border-color:#48edd0b0;box-shadow:0 14px 32px #0006;
+}
+:host .community-page.jynlo-social.profile-page-open .profile-publication-image,
+:host .community-page.jynlo-social.profile-page-open .profile-publication-video {
+  width:100%;max-width:100%;object-fit:cover;
+}
+@media(max-width:1000px) {
+  :host .community-page.jynlo-social.profile-page-open .profile-hero {min-height:0;margin-inline:0;}
+}
+@media(max-width:650px) {
+  :host .community-page.jynlo-social.profile-page-open .profile-hero {padding:18px 14px;border-radius:15px;}
+  :host .community-page.jynlo-social.profile-page-open .large-avatar.profile-story-avatar {
+    width:96px;height:96px;flex-basis:96px;
+  }
+  :host .community-page.jynlo-social.profile-page-open .social-summary button {
+    min-width:78px;min-height:56px;padding:7px;
+  }
+}
