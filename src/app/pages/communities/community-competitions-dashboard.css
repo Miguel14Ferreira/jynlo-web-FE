@@ -328,3 +328,65 @@
 :host .jynlo-athlete-stats .jynlo-owned-league-scroll th:nth-child(2) {
   text-align: left;
 }
+
+
+/* Competition overview: compact, data-led and consistent with the Jynlo club UI.
+   Real counts and creation permissions are unchanged. */
+:host .tournaments .competition-dashboard-header {
+  gap:12px 22px;padding:clamp(14px,1.9vw,22px);
+  border:1px solid rgba(55,209,184,.38);border-radius:17px;
+  background:linear-gradient(122deg,#092F3D,#052532);
+  box-shadow:0 10px 26px #0002;
+}
+:host .tournaments .competition-dashboard-header h3 {
+  margin:0 0 4px;font-size:clamp(1.35rem,2.35vw,1.95rem);
+  letter-spacing:-.035em;line-height:1.2;
+}
+:host .tournaments .competition-dashboard-header p:last-child{
+  max-width:60ch;font-size:.87rem;line-height:1.45;
+}
+:host .tournaments .competition-dashboard-stats{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:clamp(6px,1vw,12px);margin:0;
+}
+:host .tournaments .competition-stat{
+  padding:clamp(11px,1.4vw,17px);
+  border:1px solid rgba(64,207,189,.35);border-radius:14px;
+  background:#0A3441;min-width:0;
+}
+:host .tournaments .competition-stat strong{
+  color:#f3fffb;font-size:clamp(1.25rem,2.45vw,1.85rem);
+  font-variant-numeric:tabular-nums;
+}
+:host .tournaments .competition-stat span{
+  color:#B5DADB;font-size:clamp(.68rem,1vw,.81rem);
+  line-height:1.35;overflow-wrap:anywhere;
+}
+:host .tournaments .competition-dashboard-tabs{
+  flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:thin;
+  border-color:rgba(64,207,189,.28);border-radius:14px;
+  background:#041F2C;margin:0 0 12px;padding:5px;
+}
+:host .tournaments .competition-dashboard-tab{
+  flex:1 0 max-content;min-height:44px;padding:10px 16px;
+  white-space:nowrap;border-radius:10px;font-size:.85rem;
+}
+:host .tournaments .competition-dashboard-tab.is-active{
+  background:#1CCFB4;color:#052F32;border-color:#4CE5C8;
+}
+:host .tournaments .competition-dashboard-tab.is-active span{
+  color:#043A34;background:#ffffff67;
+}
+:host .tournaments .competition-choice-card{
+  min-height:108px;border-color:rgba(69,205,188,.37);
+  border-radius:15px;background:#0B3543;
+}
+:host .tournaments .competition-choice-card:hover{
+  border-color:#5FEDD0;background:#104954;
+}
+@media(max-width:600px){
+  :host .tournaments .competition-dashboard-header {padding:15px;}
+  :host .tournaments .competition-dashboard-stats{gap:6px;}
+  :host .tournaments .competition-stat{padding:10px 8px;}
+  :host .tournaments .competition-dashboard-tab{flex:0 0 auto;min-width:135px;}
+}
