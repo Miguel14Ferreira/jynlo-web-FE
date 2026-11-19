@@ -353,6 +353,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   replyText = '';
   replyFocused = false;
   replying = false;
+  readonly heartReactionsSent = new Set<number>();
   private viewerTimer: ReturnType<typeof setInterval> | null = null;
   private lastFrameAt = 0;
 
@@ -530,6 +531,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   replyToStory(reaction?: string): void {
     const story = this.activeStory;
     if (!story || story.communityId !== null || story.canDelete || this.replying) return;
+    if (reaction === '❤️' && this.heartReactionsSent.has(story.id)) return;
     const text = (reaction || this.replyText).trim();
     if (!text || text.length > 500) return;
     const permalink = new URL('/menu/feed?story=' + story.id, window.location.origin).href;
@@ -545,8 +547,10 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
       takeUntil(this.destroyed)
     ).subscribe({
       next: () => {
+        if (reaction === '❤️') this.heartReactionsSent.add(story.id);
         this.replyText = '';
         this.feedback = t('stories.replySent');
+        this.changeDetector.markForCheck();
       },
       error: () => this.feedback = t('stories.replyFailed')
     });
