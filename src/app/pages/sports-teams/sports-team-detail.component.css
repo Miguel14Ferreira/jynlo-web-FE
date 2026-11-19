@@ -237,3 +237,92 @@
  .team-grid .team-dashboard-links button,.team-dashboard-links a{padding:.75rem;min-height:116px}
 }
 @media(max-width:360px){.team-dashboard-links{grid-template-columns:1fr}}
+
+
+/* Premium team detail: cohesive dashboard surfaces and accessible interactions.
+   Pure presentation: team permissions, navigation and live data remain unchanged. */
+:host .team-detail {
+  --team-surface: #092632;
+  --team-surface-raised: #0c3440;
+  --team-border: rgba(87, 211, 187, .28);
+  --team-accent: #67efd0;
+  --team-muted: #b8d4d8;
+  width: min(1240px, 100%);
+  box-sizing: border-box;
+  padding-inline: clamp(1rem, 3vw, 2rem);
+  background: radial-gradient(ellipse 80% 380px at 75% 0%, rgba(14, 133, 119, .12), transparent 75%);
+}
+:host .team-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: var(--team-border);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 95% 5%, rgba(35, 210, 168, .17), transparent 42%),
+    linear-gradient(125deg, #092d3b, #071e2c 75%);
+  box-shadow: 0 20px 48px rgba(0, 9, 20, .25);
+}
+:host .team-hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 260px;
+  aspect-ratio: 1;
+  right: -100px;
+  bottom: -180px;
+  border: 1px solid rgba(103, 239, 208, .15);
+  border-radius: 50%;
+  pointer-events: none;
+}
+:host .team-hero-crest {
+  border: 1px solid rgba(180, 255, 236, .35);
+  box-shadow: 0 12px 30px rgba(0, 8, 15, .28);
+}
+:host .team-grid { min-width: 0; }
+:host .team-grid > * { min-width: 0; }
+:host .team-tabs {
+  gap: .35rem;
+  padding: .45rem;
+  margin-block: 1rem;
+  border: 1px solid var(--team-border);
+  border-radius: 14px;
+  background: rgba(6, 30, 42, .92);
+}
+:host .team-tabs button {
+  min-height: 44px;
+  border-radius: 10px;
+  transition: background-color .18s ease, color .18s ease;
+}
+:host .team-tabs button:hover { background-color: rgba(103, 239, 208, .1); }
+:host .team-detail :is(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid var(--team-accent);
+  outline-offset: 3px;
+}
+:host .team-detail :is(input, textarea, select) {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+:host .team-detail :is(h1, h2, h3, p, strong, small) {
+  overflow-wrap: anywhere;
+}
+:host .team-dashboard-links button,
+:host .team-dashboard-links a {
+  border-color: var(--team-border);
+  background: linear-gradient(145deg, var(--team-surface-raised), var(--team-surface));
+  box-shadow: inset 0 1px rgba(200, 255, 245, .04);
+}
+:host .team-dashboard-links small { color: var(--team-muted); }
+@media (max-width: 650px) {
+  :host .team-detail { padding-top: 5.5rem; }
+  :host .team-hero { padding: 1.2rem; border-radius: 17px; }
+  :host .team-hero-main { flex-wrap: wrap; gap: 1rem; }
+  :host .team-hero-crest { width: 70px; height: 70px; }
+  :host .team-tabs { margin-inline: -.25rem; }
+  :host .team-dashboard-links { gap: .65rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :host .team-tabs button,
+  :host .team-dashboard-links button,
+  :host .team-dashboard-links a { transition: none; transform: none; }
+}
