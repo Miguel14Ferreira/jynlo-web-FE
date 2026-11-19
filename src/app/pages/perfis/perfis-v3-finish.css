@@ -467,3 +467,17 @@
   :host .community-page.profile-page-open .profile-share-action{justify-self:stretch}
   :host .community-page.profile-page-open .profile-share-feedback{justify-self:stretch}
 }
+
+
+/* Premium player identity: maintain existing privacy and follow state. */
+:host .community-page.jynlo-social {
+  --profile-accent:#75efd0;
+  --profile-line:rgba(83,210,184,.3);
+  --profile-muted:#c0dce0;
+  background:radial-gradient(ellipse 65% 400px at 90% 0%,rgba(27,157,137,.14),transparent 75%),linear-gradient(145deg,#041522,#072535 60%,#041723);
+}
+:host .community-page.jynlo-social :is(h1,h2,h3,p,strong){overflow-wrap:anywhere}
+:host .community-page.jynlo-social :is(button,a,input,select,textarea):focus-visible{outline:3px solid var(--profile-accent);outline-offset:3px}
+:host .community-page.jynlo-social :is(input,select,textarea){box-sizing:border-box;max-width:100%}
+@media(max-width:650px){:host .community-page.jynlo-social{overflow-x:clip}}
+@media(prefers-reduced-motion:reduce){:host .community-page.jynlo-social *, :host .community-page.jynlo-social *::before, :host .community-page.jynlo-social *::after{transition-duration:.01ms;animation-duration:.01ms}}
