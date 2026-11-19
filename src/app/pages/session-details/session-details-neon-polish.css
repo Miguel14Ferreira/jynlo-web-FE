@@ -521,3 +521,70 @@
   border-color: rgba(251, 113, 133, .45);
   background: rgba(148, 34, 59, .25);
 }
+
+
+/* Unified premium session detail: visual layer only. Participant confirmation,
+   direct-contact permissions and session group chat remain controlled by the API. */
+:host .detail-page.jynlo-session-detail-premium {
+  --session-accent: #71f0d2;
+  --session-border: rgba(84, 211, 188, .29);
+  --session-panel: #092a38;
+  --session-muted: #bbd9dc;
+  background:
+    radial-gradient(ellipse 75% 430px at 85% 0%, rgba(24, 163, 140, .15), transparent 74%),
+    linear-gradient(155deg, #041521, #071f2e 62%, #051521);
+}
+:host .detail-page.jynlo-session-detail-premium .detail-shell {
+  width: min(1240px, 100%);
+  box-sizing: border-box;
+}
+:host .detail-page.jynlo-session-detail-premium .detail-card {
+  border-color: var(--session-border);
+  border-radius: 22px;
+  background: linear-gradient(150deg, #0b3040, #071e2d 68%);
+  box-shadow: 0 22px 55px rgba(0, 8, 20, .27);
+}
+:host .detail-page.jynlo-session-detail-premium .detail-content {
+  min-width: 0;
+  padding: clamp(1rem, 3vw, 2rem);
+}
+:host .detail-page.jynlo-session-detail-premium .session-participant-list {
+  min-width: 0;
+  gap: .75rem;
+}
+:host .detail-page.jynlo-session-detail-premium .session-player-card {
+  min-width: 0;
+  border-color: var(--session-border);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(11, 55, 68, .9), rgba(8, 34, 48, .95));
+}
+:host .detail-page.jynlo-session-detail-premium .session-player-card__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+:host .detail-page.jynlo-session-detail-premium :is(button, a, input, textarea, select):focus-visible {
+  outline: 3px solid var(--session-accent);
+  outline-offset: 3px;
+}
+:host .detail-page.jynlo-session-detail-premium :is(input, textarea, select) {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+:host .detail-page.jynlo-session-detail-premium :is(h1, h2, h3, p, strong) {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 680px) {
+  :host .detail-page.jynlo-session-detail-premium { padding-inline: .75rem; }
+  :host .detail-page.jynlo-session-detail-premium .detail-card { border-radius: 16px; }
+  :host .detail-page.jynlo-session-detail-premium .detail-content { padding: 1rem; }
+  :host .detail-page.jynlo-session-detail-premium .session-player-card { max-width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :host .detail-page.jynlo-session-detail-premium *,
+  :host .detail-page.jynlo-session-detail-premium *::before,
+  :host .detail-page.jynlo-session-detail-premium *::after {
+    scroll-behavior: auto;
+    animation-duration: .01ms;
+    transition-duration: .01ms;
+  }
+}
