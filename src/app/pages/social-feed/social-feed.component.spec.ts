@@ -536,6 +536,10 @@ describe('SocialFeedComponent discovery sidebar', () => {
     const shell = root.querySelector('.feed-v3-shell')!;
     expect(shell.querySelector('.feed-left-rail')).toBeNull();
     expect(shell.querySelector('.feed-rail-links')).toBeNull();
+    expect(shell.querySelector('.jynlo-feed-quick-actions')).toBeNull();
+    expect(shell.querySelector('app-social-stories')).not.toBeNull();
+    expect(shell.querySelector('.feed-create-prompt')).not.toBeNull();
+    expect(shell.querySelector('.feed-entry-live-action button')).not.toBeNull();
     expect(shell.querySelector('.feed-main .feed-v3-welcome h1')?.textContent).toContain('Encontra o teu desporto.');
     expect(shell.querySelector('.feed-main .week-hub-grid')).not.toBeNull();
     expect(shell.querySelector('.feed-main .composer textarea')).not.toBeNull();
