@@ -382,11 +382,15 @@
                 [attr.aria-label]="'stories.replyTo' | t"
                 [placeholder]="('stories.replyTo' | t) + ' ' + storyLabel(story) + '…'"
                 [disabled]="replying" (focus)="onReplyFocus(true)" (blur)="onReplyFocus(false)">
-              <button type="submit" class="story-send-button" [disabled]="replying || !replyText.trim()"
+              @if (replyText.trim()) {
+              <button type="submit" class="story-send-button" [disabled]="replying"
                 [attr.aria-label]="'stories.sendReply' | t">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4zM22 2 11 13"/></svg>
               </button>
-              <button type="button" class="story-reaction-button" [disabled]="replying"
+              }
+              <button type="button" class="story-reaction-button" [disabled]="replying || heartReactionsSent.has(story.id)"
+                [class.is-reacted]="heartReactionsSent.has(story.id)"
+                [attr.aria-pressed]="heartReactionsSent.has(story.id)"
                 [attr.aria-label]="'stories.sendHeart' | t" (click)="replyToStory('❤️')">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 4.8a5.4 5.4 0 0 0-7.7 0L12 5.6l-.8-.8a5.4 5.4 0 0 0-7.7 7.7L12 21l8.5-8.5a5.4 5.4 0 0 0 0-7.7z"/></svg>
               </button>
