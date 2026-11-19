@@ -502,36 +502,17 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('.feed-attendance-row').length).toBe(8);
   }));
 
-  it('shows onboarding for two visits and then preserves the regular feed', fakeAsync(() => {
-    const first = fixture;
-    first.detectChanges();
+  it('keeps sports discovery visible on repeated visits without any browser onboarding counter', fakeAsync(() => {
+    fixture.detectChanges();
     tick(351);
-    expect(first.nativeElement.querySelector('.feed-v3-welcome')).not.toBeNull();
-    const key = 'jynlo:feed-welcome:v1:' + component.currentUsername.toLocaleLowerCase();
-    if (!component.currentUsername) {
-      // Anonymous fallback deliberately does not persist an account-specific key.
-      component.ngOnDestroy();
-      return;
-    }
-    expect(localStorage.getItem(key)).toBe('1');
+    const root = fixture.nativeElement as HTMLElement;
+    const hero = root.querySelector('.feed-v3-welcome') as HTMLElement;
+    expect(hero).not.toBeNull();
+    expect(hero.textContent).toContain('Encontra o teu desporto.');
+    expect(hero.querySelector('a[href="/menu/createEvent"]')).not.toBeNull();
+    expect(hero.querySelector('a[href="/menu/discover"]')).not.toBeNull();
+    expect(root.querySelector('.week-hub')).not.toBeNull();
     component.ngOnDestroy();
-    first.destroy();
-
-    const second = TestBed.createComponent(SocialFeedComponent);
-    second.detectChanges();
-    tick(351);
-    expect(second.nativeElement.querySelector('.feed-v3-welcome')).not.toBeNull();
-    expect(localStorage.getItem(key)).toBe('2');
-    second.componentInstance.ngOnDestroy();
-    second.destroy();
-
-    const third = TestBed.createComponent(SocialFeedComponent);
-    third.detectChanges();
-    tick(351);
-    expect(third.nativeElement.querySelector('.feed-v3-welcome')).toBeNull();
-    expect(third.nativeElement.querySelector('.week-hub')).not.toBeNull();
-    third.componentInstance.ngOnDestroy();
-    third.destroy();
   }));
 
   it('uses the approved premium Concept One feed with genuine existing interactions', fakeAsync(() => {
@@ -555,7 +536,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     const shell = root.querySelector('.feed-v3-shell')!;
     expect(shell.querySelector('.feed-left-rail')).toBeNull();
     expect(shell.querySelector('.feed-rail-links')).toBeNull();
-    expect(shell.querySelector('.feed-main .feed-v3-welcome h1')?.textContent).toContain(t('feed.v3.welcome'));
+    expect(shell.querySelector('.feed-main .feed-v3-welcome h1')?.textContent).toContain('Encontra o teu desporto.');
     expect(shell.querySelector('.feed-main .week-hub-grid')).not.toBeNull();
     expect(shell.querySelector('.feed-main .composer textarea')).not.toBeNull();
     expect(shell.querySelector('.feed-sidebar .feed-v3-community-panel')).toBeNull();
