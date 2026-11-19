@@ -146,3 +146,84 @@
   :host .session-cancelled-share{padding:12px;}
   :host .session-cancelled-share button{width:100%;}
 }
+
+
+/* Real session detail: sport-first visual hierarchy, without changing
+   attendance, privacy, sharing, maps or chat behaviour. */
+:host .detail-page.jynlo-session-detail-premium {
+  background:radial-gradient(ellipse 48rem 30rem at 89% 0%,rgba(25,177,150,.19),transparent 76%),linear-gradient(150deg,#03131e,#052634 63%,#031723);
+}
+:host .detail-page.jynlo-session-detail-premium .detail-shell {
+  width:min(1320px,100%);max-width:1320px;
+}
+:host .detail-page.jynlo-session-detail-premium .detail-card {
+  overflow:hidden;border:1px solid rgba(47,223,199,.33);
+  border-radius:22px;background:linear-gradient(160deg,#082e3c,#041d2d);
+  box-shadow:0 24px 58px #0005;
+}
+:host .detail-page.jynlo-session-detail-premium .session-photo {
+  display:block;width:100%;max-width:100%;
+  height:clamp(190px,27vw,335px);object-fit:cover;object-position:center;
+  background:#082a34;
+}
+:host .detail-page.jynlo-session-detail-premium .detail-content {
+  padding:clamp(16px,2.5vw,32px);
+}
+:host .detail-page.jynlo-session-detail-premium .title-row {
+  position:relative;display:flex;align-items:flex-start;
+  justify-content:space-between;gap:14px 24px;flex-wrap:wrap;
+  margin-bottom:20px;padding:clamp(15px,2vw,24px);
+  border:1px solid #38d3be47;border-radius:17px;
+  background:radial-gradient(ellipse at 90% 0%,#0b816e29,transparent 70%),linear-gradient(118deg,#073541,#082934);
+}
+:host .detail-page.jynlo-session-detail-premium .title-row .eyebrow {
+  letter-spacing:.12em;color:#7ff9d9;font-weight:850;
+}
+:host .detail-page.jynlo-session-detail-premium .title-row h1 {
+  margin:5px 0 0;font-size:clamp(1.85rem,3.3vw,3rem);
+  line-height:1.1;text-wrap:balance;color:#f2fffd;
+}
+:host .detail-page.jynlo-session-detail-premium .title-row .badges {
+  display:flex;align-items:center;flex-wrap:wrap;gap:7px;
+}
+:host .detail-page.jynlo-session-detail-premium .title-row .badges > span {
+  padding:7px 11px;border:1px solid #52dabd75;border-radius:999px;
+  background:#0a66514d;color:#a6ffe4;font-size:.76rem;
+}
+:host .detail-page.jynlo-session-detail-premium .detail-grid {
+  gap:clamp(9px,1.4vw,14px);
+}
+:host .detail-page.jynlo-session-detail-premium .detail-grid > div {
+  min-width:0;border:1px solid #3ec9b943;
+  border-radius:15px;background:#0a3642;padding:clamp(12px,1.45vw,18px);
+}
+:host .detail-page.jynlo-session-detail-premium .session-top-actions {
+  display:flex;flex-wrap:wrap;align-items:center;gap:9px;
+  border-color:#55cbbb35;
+}
+:host .detail-page.jynlo-session-detail-premium .session-top-actions > :is(a,button) {
+  min-height:44px;border-radius:12px;
+}
+:host .detail-page.jynlo-session-detail-premium
+  :is(.session-participants-panel,.participation-panel,.attendance-panel,.venue-detail-panel) {
+  border-color:#40c5b345;border-radius:17px;
+  background:linear-gradient(150deg,#0b3440,#062634);
+}
+:host .detail-page.jynlo-session-detail-premium .session-player-card {
+  border:1px solid #38cdb63d;border-radius:14px;
+  background:linear-gradient(140deg,#0d3b46,#072b3a);
+}
+:host .detail-page.jynlo-session-detail-premium .session-player-card:hover {
+  border-color:#50e5c0a1;
+}
+@media(max-width:650px){
+  :host .detail-page.jynlo-session-detail-premium .session-photo {
+    height:clamp(175px,51vw,270px);
+  }
+  :host .detail-page.jynlo-session-detail-premium .title-row {
+    padding:14px;border-radius:14px;
+  }
+  :host .detail-page.jynlo-session-detail-premium .title-row .badges {
+    width:100%;
+  }
+}
