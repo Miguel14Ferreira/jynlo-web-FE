@@ -48,6 +48,24 @@ describe('Teams-style chat beside a live call',()=>{
   realtimeEvents.next({...received,id:15,text:'Nova mensagem'});
   expect(api.history).toHaveBeenCalledWith('beatriz');
  });
+ it('drops removed messages when the authenticated API history no longer includes them',()=>{
+  expect(fixture.componentInstance.messages.some(message=>message.id===10)).toBeTrue();
+  api.history.and.returnValue(of([]));
+  fixture.componentInstance.refresh();
+  expect(fixture.componentInstance.messages.some(message=>message.id===10)).toBeFalse();
+ });
+ it('keeps just-confirmed sends visible until the server history includes them',()=>{
+  api.history.and.returnValue(of([]));
+  fixture.componentInstance.draft='Até já';
+  fixture.componentInstance.sendMessage();
+  expect(fixture.componentInstance.messages.some(message=>message.id===11)).toBeTrue();
+  fixture.componentInstance.refresh();
+  expect(fixture.componentInstance.messages.some(message=>message.id===11)).toBeTrue();
+  api.history.and.returnValue(of([{id:11,username1:'ana',username2:'beatriz',
+   text:'Até já',date:'2026-11-19T14:01:00Z',dataDisplay:null}]));
+  fixture.componentInstance.refresh();
+  expect(fixture.componentInstance.messages.some(message=>message.id===11)).toBeTrue();
+ });
  it('clears private messages and prevents further sends if membership is revoked',()=>{
   api.history.and.returnValue(throwError(()=>new HttpErrorResponse({status:403})));
   fixture.componentInstance.refresh();
