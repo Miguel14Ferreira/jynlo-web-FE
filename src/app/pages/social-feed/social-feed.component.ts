@@ -787,6 +787,14 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       }
     });
   }
+  /** Occupancy is derived only from real session API counts; invalid limits display an empty bar. */
+  sessionCapacityPercent(session: SessionSummary): number {
+    const capacity = session.maxParticipants;
+    const count = session.participantCount;
+    if (!Number.isFinite(capacity) || capacity <= 0 || !Number.isFinite(count)) return 0;
+    return Math.round(Math.max(0, Math.min(100, (count / capacity) * 100)));
+  }
+
   suggestedSessions: SessionSummary[] = [];
   suggestedPeople: CommunityProfile[] = [];
 
