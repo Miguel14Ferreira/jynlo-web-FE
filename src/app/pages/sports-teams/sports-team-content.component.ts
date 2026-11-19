@@ -278,6 +278,44 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
     .team-file-card img,.team-file-card video{display:block;width:auto;height:auto;object-fit:contain}
     .team-content-search-controls button:focus-visible,.team-composer-footer button:focus-visible,
     .team-content-actions button:focus-visible{outline:2px solid #78f9dc;outline-offset:2px}
+    /* Cohesive social-first conversation and post layout, no behavioural changes. */
+    .team-chat-mode .team-content-history{
+      min-height:320px;max-height:min(72dvh,760px);
+      background:#041e2b;border-color:rgba(64,203,186,.36);
+      border-radius:18px;padding:clamp(12px,1.6vw,20px);
+    }
+    .team-chat-mode .team-content-entry{
+      max-width:min(83%,720px);border:1px solid rgba(70,192,181,.38);
+      border-radius:17px 17px 17px 5px;background:#103844;
+    }
+    .team-chat-mode .team-own-message{
+      border-radius:17px 17px 5px 17px;
+      background:#12574f;border-color:rgba(85,220,180,.57);
+    }
+    .team-chat-mode .team-content-editor{
+      background:#062734;border:1px solid rgba(73,205,184,.42);
+      border-radius:16px;padding:clamp(12px,1.5vw,18px);
+    }
+    .team-chat-mode .team-content-editor textarea{
+      background:#031c27;border-color:rgba(82,204,192,.51);
+      border-radius:12px;min-height:70px;
+    }
+    .team-feed-mode .team-content-entry{
+      border-color:rgba(61,199,182,.36);
+      background:linear-gradient(145deg,#0c3542,#061f2c);
+      border-radius:18px;padding:clamp(14px,1.8vw,20px);
+    }
+    .team-feed-mode .team-content-editor{
+      border-color:rgba(61,199,182,.4);
+      background:linear-gradient(145deg,#0c3542,#061f2c);
+    }
+    .team-feed-mode .team-reactions button.selected{
+      border-color:#64f1d2;background:rgba(37,217,175,.19);
+    }
+    @media(max-width:620px){
+      .team-chat-mode .team-content-history{min-height:280px;max-height:65dvh}
+      .team-chat-mode .team-content-entry{max-width:94%}
+    }
     @media(max-width:620px){
       .team-content-entry{padding:.85rem}
       .team-chat-mode .team-content-history{padding:.6rem;max-height:min(60dvh,580px)}
