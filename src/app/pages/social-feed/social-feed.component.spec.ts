@@ -1421,6 +1421,16 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(aside).not.toBeNull();
     expect(aside.querySelector('.feed-suggested-session')?.getAttribute('href'))
       .toBe('/menu/events/24');
+    const sessionCard = aside.querySelector('.feed-session-spotlight') as HTMLElement;
+    expect(sessionCard.textContent).toContain('2 / 4');
+    expect(sessionCard.textContent).toContain('Padel');
+    expect((sessionCard.querySelector('.feed-session-capacity-track > span') as HTMLElement)
+      .style.width).toBe('50%');
+    expect(component.sessionCapacityPercent({
+      id: 0, sport: 'Padel', city: 'Lisboa', gameDate: new Date().toISOString(),
+      distanceKm: null, participantCount: 10, maxParticipants: 0,
+      priceAmount: 0, privateGame: false, status: 'OPEN'
+    })).toBe(0);
     expect(aside.querySelector('a[href="/menu/perfis"]')).not.toBeNull();
   }));
 
