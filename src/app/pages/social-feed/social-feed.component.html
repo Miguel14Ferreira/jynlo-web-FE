@@ -2,18 +2,20 @@
   <div class="feed-shell feed-v3-shell">
     <div class="feed-layout jynlo-premium-feed-grid">
       <div class="feed-main">
-    @if (showWelcomeHero) {
-    <header class="page-header jynlo-feed-hero feed-v3-welcome">
-      <div>
-        <span class="feed-v3-greeting">{{ 'feed.v3.greeting' | t }} {{ currentUsername || ('nav.account.profile' | t) }} 👋</span>
-        <h1>{{ 'feed.v3.welcome' | t }}</h1>
-        <p class="subtitle">{{ 'feed.v3.tagline' | t }}</p>
+    <header class="page-header jynlo-feed-hero feed-v3-welcome" aria-label="Descobre o teu próximo jogo">
+      <div class="feed-hero-copy">
+        <span class="feed-v3-greeting">A TUA COMUNIDADE DESPORTIVA</span>
+        <h1>Encontra o teu desporto.<br>Encontra as tuas pessoas.</h1>
+        <p class="subtitle">Descobre jogos, junta a tua equipa e vive cada momento na Jynlo.</p>
+        <div class="feed-hero-actions">
+          <a class="feed-hero-cta jynlo-premium-btn jynlo-premium-btn--primary" routerLink="/menu/createEvent">
+            <span aria-hidden="true">+</span> Criar sessão
+          </a>
+          <a class="feed-hero-discover" routerLink="/menu/discover">Explorar sessões <span aria-hidden="true">→</span></a>
+        </div>
       </div>
-      <a class="feed-hero-cta jynlo-premium-btn jynlo-premium-btn--primary" routerLink="/menu/createEvent">
-        <span aria-hidden="true">+</span> {{ 'week.create' | t }}
-      </a>
+      <div class="feed-hero-art" aria-hidden="true"><span>JYNLO</span><small>JOGA · CONECTA · COMPETE</small></div>
     </header>
-    }
 
     <nav class="jynlo-feed-quick-actions" aria-label="Acessos rápidos da Jynlo">
       <a routerLink="/menu/createEvent" class="jynlo-quick-action jynlo-quick-action--primary">
