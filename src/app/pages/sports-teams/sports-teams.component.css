@@ -86,3 +86,55 @@ textarea{min-height:105px;resize:vertical}
  #explorar-equipas .teams-grid{grid-template-columns:minmax(0,1fr)}
  #explorar-equipas .team-card{min-height:190px;padding:1.1rem}
 }
+
+
+/* Premium team discovery: one visual language for hero, search and squad cards.
+   Pure presentation: links, filtering, permissions and data remain unchanged. */
+.teams-page{
+  background:
+    radial-gradient(ellipse 55% 360px at 92% 8%,rgba(36,201,168,.13),transparent 78%),
+    linear-gradient(150deg,#061723,#092b39 60%,#061b2a);
+}
+.teams-hero{
+  border-color:rgba(95,221,197,.32);
+  background:
+    radial-gradient(ellipse at 94% 0%,rgba(54,228,190,.16),transparent 65%),
+    linear-gradient(125deg,#103c48,#082b3b 75%);
+  box-shadow:0 22px 56px rgba(0,9,20,.24);
+}
+.teams-section{
+  border-color:rgba(109,188,197,.25);
+  background:linear-gradient(145deg,rgba(14,46,61,.95),rgba(8,33,48,.96));
+}
+.hero-benefits>div,.team-card{
+  border-color:rgba(111,194,194,.29);
+  background:linear-gradient(150deg,rgba(20,65,77,.93),rgba(9,38,54,.96));
+}
+.team-card{
+  position:relative;
+  box-shadow:0 12px 30px rgba(0,10,22,.17);
+  transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease;
+}
+.team-card:is(:hover,:focus-visible){
+  border-color:#59ebd0;
+  box-shadow:0 18px 40px rgba(0,10,22,.28);
+}
+.team-card .card-link{color:#9affea}
+.team-card :is(h3,p,small){max-width:100%;overflow-wrap:anywhere}
+.teams-section :is(input,textarea):focus-visible,
+.teams-section button:focus-visible,
+.teams-hero :is(a,button):focus-visible{
+  outline:2px solid #8bffe5;
+  outline-offset:3px;
+}
+@media(max-width:560px){
+  .teams-hero{gap:1.1rem;padding:1.2rem}
+  .hero-actions .action{flex:1 1 100%;min-height:44px}
+  .hero-benefits{gap:.55rem}
+  .hero-benefits>div{min-width:0;min-height:0}
+  .team-card{min-height:0}
+}
+@media(prefers-reduced-motion:reduce){
+  .team-card,.action{transition:none}
+  .team-card:hover,.action:hover:not(:disabled){transform:none}
+}
