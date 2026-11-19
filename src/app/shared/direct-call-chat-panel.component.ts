@@ -94,6 +94,8 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
  private loadingNow=false;
  private pendingRefresh=false;
  private writeBusy=false;
+ /** Keep only recently acknowledged sends while the server read catches up. */
+ private readonly locallyConfirmed=new Map<number,{message:DirectChatMessage;at:number}>();
  private pollTimer:ReturnType<typeof setInterval>|null=null;
  private realtimeSubscription:Subscription|null=null;
  constructor(private readonly chat:DirectChatService,private readonly realtime:DirectChatRealtimeService){}
@@ -111,12 +113,14 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
  ngOnChanges():void{
   this.generation++;this.loadingNow=false;this.pendingRefresh=false;
   this.messages=[];this.draft='';this.error='';this.syncWarning='';this.accessRevoked=false;
+  this.locallyConfirmed.clear();
   if(this.pollTimer)this.refresh(false);
  }
  ngOnDestroy():void{
   this.generation++;
   if(this.pollTimer)clearInterval(this.pollTimer);
   this.realtimeSubscription?.unsubscribe();
+  this.locallyConfirmed.clear();
  }
  refresh(silent=true):void{
   if(!this.peer||this.accessRevoked)return;
@@ -129,15 +133,25 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
     if(version!==this.generation||this.peer!==peer)return;
     if(!Array.isArray(rows)){this.syncWarning='Não foi possível validar o histórico.';return;}
     const messages=new Map<number,DirectChatMessage>();
-    for(const item of [...this.messages,...rows])
-     if(typeof item.id==='number'&&Number.isSafeInteger(item.id)&&item.id>0)messages.set(item.id,item);
+    const serverIds=new Set<number>();
+    for(const item of rows){
+     if(typeof item.id!=='number'||!Number.isSafeInteger(item.id)||item.id<=0)continue;
+     serverIds.add(item.id);
+     messages.set(item.id,item);
+    }
+    const now=Date.now();
+    for(const [id,entry] of this.locallyConfirmed){
+     if(serverIds.has(id)||now-entry.at>45_000){this.locallyConfirmed.delete(id);continue;}
+     messages.set(id,entry.message);
+    }
+    // A deletion or redaction on the server takes precedence over the old UI.
     this.messages=[...messages.values()].sort((a,b)=>(a.id||0)-(b.id||0)).slice(-60);
     this.syncWarning='';
    },
    error:(e:unknown)=>{
     if(version!==this.generation||this.peer!==peer)return;
     if(e instanceof HttpErrorResponse&&[401,403,404,410].includes(e.status)){
-     this.messages=[];this.draft='';this.accessRevoked=true;
+     this.messages=[];this.draft='';this.locallyConfirmed.clear();this.accessRevoked=true;
      this.error='Já não tens acesso ao chat deste contacto.';
     }else this.syncWarning='Não foi possível sincronizar as mensagens. O histórico pode estar desatualizado.';
    },
@@ -173,6 +187,7 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
      this.error='O servidor não confirmou a mensagem. Consulta o histórico antes de repetir.';
      return;
     }
+    this.locallyConfirmed.set(message.id!,{message,at:Date.now()});
     this.messages=this.messages.some(item=>item.id===message.id)?this.messages:
      [...this.messages,message].sort((a,b)=>(a.id||0)-(b.id||0)).slice(-60);
     if(this.draft.trim()===body)this.draft='';
