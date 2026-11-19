@@ -113,6 +113,9 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
  ngOnChanges():void{
   this.generation++;this.loadingNow=false;this.pendingRefresh=false;
   this.messages=[];this.draft='';this.error='';this.syncWarning='';this.accessRevoked=false;
+  // An in-flight request belongs to the previous conversation. Its completion
+  // is generation-guarded, so it must not keep the next peer's composer locked.
+  this.writeBusy=false;this.sending=false;
   this.locallyConfirmed.clear();
   if(this.pollTimer)this.refresh(false);
  }
