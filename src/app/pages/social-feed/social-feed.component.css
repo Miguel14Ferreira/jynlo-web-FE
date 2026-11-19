@@ -1556,3 +1556,21 @@ h1 {
   .jynlo-quick-action{transition:none}
   .jynlo-quick-action:hover{transform:none}
 }
+
+/* Social feed card polish, shared with the approved Jynlo palette. */
+.jynlo-feed-premium .feed-card,
+.jynlo-feed-premium .feed-post-card,
+.jynlo-feed-premium .post-card{
+  border:1px solid rgba(64,193,185,.18);
+  border-radius:21px;
+  background:linear-gradient(145deg,rgba(10,41,54,.98),rgba(8,32,44,.98));
+  box-shadow:0 12px 34px rgba(0,0,0,.14);
+}
+.jynlo-feed-premium .feed-card{padding:clamp(15px,2vw,22px)}
+.jynlo-feed-premium .feed-author{gap:12px}
+.jynlo-feed-premium .post-content{line-height:1.66}
+.jynlo-feed-premium .feed-card a:focus-visible,
+.jynlo-feed-premium .feed-card button:focus-visible{
+  outline:2px solid #56ead5;
+  outline-offset:3px;
+}
