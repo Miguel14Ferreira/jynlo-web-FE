@@ -66,6 +66,27 @@ describe('Teams-style chat beside a live call',()=>{
   fixture.componentInstance.refresh();
   expect(fixture.componentInstance.messages.some(message=>message.id===11)).toBeTrue();
  });
+ it('unlocks the composer on peer change and ignores the previous pending send',()=>{
+  const pending=new Subject<DirectChatMessage>();
+  api.send.and.returnValue(pending.asObservable());
+  fixture.componentInstance.draft='Mensagem anterior';
+  fixture.componentInstance.sendMessage();
+  expect(fixture.componentInstance.sending).toBeTrue();
+  fixture.componentRef.setInput('peer','catarina');
+  fixture.detectChanges();
+  expect(fixture.componentInstance.sending).toBeFalse();
+  expect(fixture.componentInstance.draft).toBe('');
+  api.send.and.returnValue(of({id:12,username1:'ana',username2:'catarina',
+   text:'Nova conversa',date:'2026-11-19T14:02:00Z',dataDisplay:null}));
+  fixture.componentInstance.draft='Nova conversa';
+  fixture.componentInstance.sendMessage();
+  expect(api.send).toHaveBeenCalledWith('catarina','Nova conversa');
+  pending.next({id:13,username1:'ana',username2:'beatriz',
+   text:'Mensagem anterior',date:'2026-11-19T14:03:00Z',dataDisplay:null});
+  pending.complete();
+  expect(fixture.componentInstance.messages.some(message=>message.id===13)).toBeFalse();
+  expect(fixture.componentInstance.messages.some(message=>message.id===12)).toBeTrue();
+ });
  it('clears private messages and prevents further sends if membership is revoked',()=>{
   api.history.and.returnValue(throwError(()=>new HttpErrorResponse({status:403})));
   fixture.componentInstance.refresh();
