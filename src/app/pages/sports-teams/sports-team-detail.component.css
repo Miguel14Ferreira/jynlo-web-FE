@@ -400,3 +400,31 @@
   :host .team-tabs {flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;}
   :host .team-tabs button {flex-shrink:0;white-space:nowrap;}
 }
+
+
+/* Owner identity is a first-class action, not buried in the admin area. */
+:host .team-hero-stats .team-branding-shortcut {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .75rem 1rem;
+  border: 1px solid #79f4d2;
+  border-radius: 11px;
+  background: #0b3e45;
+  color: #b4ffeb;
+  font: inherit;
+  font-weight: 850;
+  cursor: pointer;
+}
+:host .team-hero-stats .team-branding-shortcut:hover { background: #12545a; }
+:host .team-hero-stats .team-branding-shortcut:focus-visible {
+  outline: 3px solid #b5ffe5;
+  outline-offset: 3px;
+}
+@media (max-width: 650px) {
+  :host .team-hero-stats .team-branding-shortcut {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
