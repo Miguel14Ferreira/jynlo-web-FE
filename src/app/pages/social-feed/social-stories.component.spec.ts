@@ -592,7 +592,10 @@ describe('SocialStoriesComponent', () => {
     expect(heart.classList.contains('is-reacted')).toBeTrue();
     expect(heart.disabled).toBeTrue();
 
-    component.replyText = 'Boa!';
+    const replyInput = root.querySelector('.story-reply-row input[name="storyReply"]') as HTMLInputElement;
+    replyInput.value = 'Boa!';
+    replyInput.dispatchEvent(new Event('input', { bubbles: true }));
+    tick();
     fixture.detectChanges();
     expect(root.querySelectorAll('.story-send-button')).toHaveSize(1);
     expect(root.querySelectorAll('.story-share-icon')).toHaveSize(1);
