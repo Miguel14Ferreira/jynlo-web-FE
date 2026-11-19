@@ -182,3 +182,80 @@
 .community-feed-gallery-draft .community-feed-media-preview button {
   align-self:flex-end;
 }
+
+
+/* Jynlo communities: make real community identity and content the focus.
+   These styles apply equally to Mine and Explore; interactions stay unchanged. */
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid > button.community-card {
+  position:relative;isolation:isolate;
+  padding:clamp(15px,1.7vw,21px);gap:14px;
+  border:1px solid rgba(62,219,194,.38);border-radius:19px;
+  background:linear-gradient(148deg,#0c3c48,#052332 86%);
+  box-shadow:0 12px 30px #0003;
+  overflow:hidden;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid > button.community-card::before {
+  content:'';position:absolute;z-index:-1;right:-50px;top:-50px;
+  width:175px;height:175px;pointer-events:none;
+  border-radius:50%;border:1px solid rgba(58,237,204,.12);
+  box-shadow:0 0 0 32px #29d8b808,0 0 0 60px #29d8b805;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid > button.community-card:is(:hover,:focus-visible) {
+  border-color:#58eed1;background:linear-gradient(148deg,#14505a,#082c3b);
+  box-shadow:0 19px 40px #0005;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid .community-card-copy strong {
+  color:#f2fffc;font-size:clamp(1.05rem,1.4vw,1.22rem);
+  line-height:1.28;letter-spacing:-.015em;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid .community-discovery-description {
+  color:#bbd8df;line-height:1.5;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid .community-discovery-card-footer {
+  border-top:1px solid rgba(109,204,199,.20);
+  padding-top:11px;
+}
+:host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+  .community-discovery-grid .community-discovery-card-link {
+  color:#75f8d9;font-weight:850;
+}
+:host .communities-page.jynlo-community-main-premium.community-detail-page .community-detail {
+  background:linear-gradient(160deg,#092f3e,#041e2c);
+  border-color:#34d9c143;border-radius:21px;
+}
+:host .communities-page.jynlo-community-main-premium.community-detail-page .detail-header {
+  position:relative;isolation:isolate;overflow:hidden;min-width:0;
+  padding:clamp(18px,2.6vw,30px);margin-bottom:18px;
+  border:1px solid rgba(62,216,198,.27);border-radius:18px;
+  background:radial-gradient(ellipse at 90% 0%,rgba(34,206,175,.16),transparent 70%),linear-gradient(120deg,#062434,#0b4248);
+}
+:host .communities-page.jynlo-community-main-premium.community-detail-page .community-detail-copy h2 {
+  font-size:clamp(1.65rem,2.6vw,2.6rem);line-height:1.13;
+  letter-spacing:-.04em;color:#f4fffd;
+}
+:host .communities-page.jynlo-community-main-premium.community-detail-page
+  .community-photo-block .community-avatar--large {
+  border:2px solid rgba(78,235,204,.59);
+  box-shadow:0 10px 32px #0005;
+}
+:host .communities-page.jynlo-community-main-premium.community-detail-page .community-tab-panel,
+:host .communities-page.jynlo-community-main-premium.community-detail-page .community-feed-card,
+:host .communities-page.jynlo-community-main-premium.community-detail-page .community-feed-composer {
+  border-color:rgba(53,213,198,.30);border-radius:17px;
+  background:linear-gradient(150deg,#082d3c,#051f2d);
+}
+@media(max-width:760px){
+  :host .communities-page.jynlo-community-main-premium.community-detail-page .detail-header {
+    padding:16px;border-radius:15px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
+    .community-discovery-grid > button.community-card:hover {transform:none;}
+}
