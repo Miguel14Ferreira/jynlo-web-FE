@@ -1121,3 +1121,51 @@
 .community-feed-gallery-draft img,.community-feed-gallery-draft video,.community-feed-gallery img,.community-feed-gallery video {display:block;width:100%;max-height:260px;object-fit:contain;background:rgba(5,20,27,.48);border-radius:10px;}
 .community-feed-gallery-draft button {margin:8px 0 0;}
 
+
+
+/* Premium community workspace — coherent with Feed, teams and sessions.
+   No changes to membership, privacy, chat or tournament actions. */
+:host .communities-page.jynlo-community-main-premium {
+  --community-accent:#76f2d4;
+  --community-border:rgba(85,211,186,.3);
+  --community-surface:#092b38;
+  --community-muted:#bfd9df;
+  background:
+    radial-gradient(ellipse 74% 440px at 90% 0%,rgba(23,159,138,.15),transparent 76%),
+    linear-gradient(150deg,#041521,#082434 58%,#051723);
+}
+:host .communities-page.jynlo-community-main-premium .communities-shell {
+  width:min(1320px,100%);
+  box-sizing:border-box;
+  padding-inline:clamp(.65rem,2vw,1.5rem);
+}
+:host .communities-page.jynlo-community-main-premium :is(h1,h2,h3,p,strong,small) {
+  overflow-wrap:anywhere;
+}
+:host .communities-page.jynlo-community-main-premium :is(button,a,input,textarea,select):focus-visible {
+  outline:3px solid var(--community-accent);
+  outline-offset:3px;
+}
+:host .communities-page.jynlo-community-main-premium :is(input,textarea,select) {
+  max-width:100%;
+  box-sizing:border-box;
+}
+:host .communities-page.jynlo-community-main-premium .community-feed-gallery img,
+:host .communities-page.jynlo-community-main-premium .community-feed-gallery video {
+  max-width:100%;
+  object-fit:contain;
+}
+@media(max-width:680px) {
+  :host .communities-page.jynlo-community-main-premium .communities-shell {padding-inline:.5rem}
+  :host .communities-page.jynlo-community-main-premium .community-feed-gallery img,
+  :host .communities-page.jynlo-community-main-premium .community-feed-gallery video {max-height:65vh}
+}
+@media(prefers-reduced-motion:reduce) {
+  :host .communities-page.jynlo-community-main-premium *,
+  :host .communities-page.jynlo-community-main-premium *::before,
+  :host .communities-page.jynlo-community-main-premium *::after {
+    scroll-behavior:auto;
+    animation-duration:.01ms;
+    transition-duration:.01ms;
+  }
+}
