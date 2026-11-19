@@ -502,15 +502,13 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('.feed-attendance-row').length).toBe(8);
   }));
 
-  it('keeps sports discovery visible on repeated visits without any browser onboarding counter', fakeAsync(() => {
+  it('keeps the feed content visible without a redundant promotional hero', fakeAsync(() => {
     fixture.detectChanges();
     tick(351);
     const root = fixture.nativeElement as HTMLElement;
-    const hero = root.querySelector('.feed-v3-welcome') as HTMLElement;
-    expect(hero).not.toBeNull();
-    expect(hero.textContent).toContain('Encontra o teu desporto.');
-    expect(hero.querySelector('a[href="/menu/createEvent"]')).not.toBeNull();
-    expect(hero.querySelector('a[href="/menu/discover"]')).not.toBeNull();
+    expect(root.querySelector('.feed-v3-welcome')).toBeNull();
+    expect(root.querySelector('app-social-stories')).not.toBeNull();
+    expect(root.querySelector('.feed-create-prompt')).not.toBeNull();
     expect(root.querySelector('.week-hub')).not.toBeNull();
     component.ngOnDestroy();
   }));
@@ -519,7 +517,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     fixture.detectChanges();
     tick(351);
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.querySelector('.jynlo-feed-premium .jynlo-feed-hero')).not.toBeNull();
+    expect(root.querySelector('.jynlo-feed-premium .jynlo-feed-hero')).toBeNull();
     expect(root.querySelector('.jynlo-premium-week .week-hub-grid')).not.toBeNull();
     expect(root.querySelectorAll('.jynlo-premium-week .week-hub-card').length).toBe(2);
     expect(root.querySelector('.jynlo-premium-week .week-hub-card[aria-label="As tuas comunidades"]')).toBeNull();
@@ -540,7 +538,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(shell.querySelector('app-social-stories')).not.toBeNull();
     expect(shell.querySelector('.feed-create-prompt')).not.toBeNull();
     expect(shell.querySelector('.feed-entry-live-action button')).not.toBeNull();
-    expect(shell.querySelector('.feed-main .feed-v3-welcome h1')?.textContent).toContain('Encontra o teu desporto.');
+    expect(shell.querySelector('.feed-main .feed-v3-welcome')).toBeNull();
     expect(shell.querySelector('.feed-main .week-hub-grid')).not.toBeNull();
     expect(shell.querySelector('.feed-main .composer textarea')).not.toBeNull();
     expect(shell.querySelector('.feed-sidebar .feed-v3-community-panel')).toBeNull();
@@ -558,9 +556,8 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(root.querySelector('.feed-rail-links')).toBeNull();
     expect(root.querySelectorAll('.composer-actions .jynlo-premium-btn').length).toBe(4);
 
-    const primary = root.querySelector('.feed-hero-cta') as HTMLAnchorElement;
-    expect(primary.classList.contains('jynlo-premium-btn--primary')).toBeTrue();
-    expect(primary.getAttribute('href')).toBe('/menu/createEvent');
+    expect(root.querySelector('.feed-hero-cta')).toBeNull();
+    expect(root.querySelector('.feed-create-prompt')).not.toBeNull();
 
     const secondary = root.querySelector('.week-hub-create') as HTMLAnchorElement;
     expect(secondary.classList.contains('jynlo-premium-btn--quiet')).toBeTrue();
@@ -600,10 +597,8 @@ describe('SocialFeedComponent discovery sidebar', () => {
     fixture.detectChanges();
     tick(351);
     const root = fixture.nativeElement as HTMLElement;
-    const header = root.querySelector('.jynlo-feed-hero') as HTMLElement;
-    expect(header).not.toBeNull();
-    expect(header.querySelector('h1')).not.toBeNull();
-    expect(header.querySelector('.feed-hero-cta')?.getAttribute('href')).toBe('/menu/createEvent');
+    expect(root.querySelector('.jynlo-feed-hero')).toBeNull();
+    expect(root.querySelector('app-social-stories')).not.toBeNull();
     expect(root.querySelector('.week-hub-heading .week-hub-create')?.getAttribute('href')).toBe('/menu/my-sessions');
     expect(root.querySelector('.composer textarea')).not.toBeNull();
     expect(root.querySelectorAll('.composer-actions .image-picker').length).toBe(3);
@@ -1208,13 +1203,12 @@ describe('SocialFeedComponent discovery sidebar', () => {
     component.ngOnDestroy();
   }));
 
-  it('keeps one primary Create session action and a separate week shortcut', fakeAsync(() => {
+  it('keeps the week shortcut but omits the duplicated feed Create session hero', fakeAsync(() => {
     fixture.detectChanges();
     tick(351);
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('.week-recruit')).toBeNull();
-    expect(root.querySelectorAll('.feed-hero-cta')).toHaveSize(1);
-    expect(root.querySelector('.feed-hero-cta')?.getAttribute('href')).toBe('/menu/createEvent');
+    expect(root.querySelectorAll('.feed-hero-cta')).toHaveSize(0);
     expect(root.querySelectorAll('.week-hub-create')).toHaveSize(1);
     expect(root.querySelector('.week-hub-create')?.getAttribute('href')).toBe('/menu/my-sessions');
   }));
@@ -1345,7 +1339,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(hub?.querySelector('.week-hub-card[aria-label="As tuas comunidades"]')).toBeNull();
     expect(hub?.querySelector('a[href="/menu/discover"]')).not.toBeNull();
     expect(hub?.querySelector('a[href="/menu/my-sessions"]')).not.toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('.feed-hero-cta[href="/menu/createEvent"]')).not.toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.feed-v3-welcome')).toBeNull();
   }));
 
   it('keeps normal publications simple, without manual session selection', fakeAsync(() => {
