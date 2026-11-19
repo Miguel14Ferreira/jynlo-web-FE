@@ -366,3 +366,11 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   :host .story-rail .story-ring {transition:none;}
   :host .story-rail .story-bubble:hover .story-ring {transform:none;}
 }
+
+
+/* Premium story rail: retain viewing, likes and sharing behaviour. */
+:host .stories-panel{border-color:rgba(90,218,191,.3);background:radial-gradient(circle at 95% 0%,rgba(26,170,142,.15),transparent 50%),linear-gradient(115deg,#092b3b,#071e2c);box-shadow:0 18px 42px rgba(0,10,20,.24)}
+:host .stories-heading h2{color:#f2fffa;letter-spacing:-.025em}
+:host .stories-eyebrow{color:#78f2d4}
+:host .stories-panel :is(button,a):focus-visible{outline:3px solid #79f4d7;outline-offset:3px}
+@media(max-width:650px){:host .stories-panel{padding:.85rem;border-radius:16px}:host .story-rail{overscroll-behavior-inline:contain}}
