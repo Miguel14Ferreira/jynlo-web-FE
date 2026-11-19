@@ -569,6 +569,36 @@ describe('SocialStoriesComponent', () => {
     component.close();
   }));
 
+  it('fills the heart only after a successful reaction and keeps one visible paper-plane action', fakeAsync(() => {
+    const other = { ...picture, canDelete: false };
+    api.feed.and.returnValue(of([other]));
+    api.mine.and.returnValue(of([]));
+    fixture.detectChanges();
+    tick();
+    component.openGroup(component.storyGroups[0]);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const heart = root.querySelector('.story-reaction-button') as HTMLButtonElement;
+    expect(heart.getAttribute('aria-pressed')).toBe('false');
+    expect(root.querySelectorAll('.story-send-button')).toHaveSize(0);
+    expect(root.querySelectorAll('.story-share-icon')).toHaveSize(1);
+
+    heart.click();
+    tick();
+    fixture.detectChanges();
+    expect(direct.send).toHaveBeenCalledTimes(1);
+    expect(heart.getAttribute('aria-pressed')).toBe('true');
+    expect(heart.classList.contains('is-reacted')).toBeTrue();
+    expect(heart.disabled).toBeTrue();
+
+    component.replyText = 'Boa!';
+    fixture.detectChanges();
+    expect(root.querySelectorAll('.story-send-button')).toHaveSize(1);
+    expect(root.querySelectorAll('.story-share-icon')).toHaveSize(1);
+    component.close();
+  }));
+
   it('excludes expired stories from the visual rail', fakeAsync(() => {
     api.feed.and.returnValue(of([{...picture, expiresAt: new Date(Date.now() - 1000).toISOString()}]));
     api.mine.and.returnValue(of([]));
