@@ -87,6 +87,21 @@ describe('Teams-style chat beside a live call',()=>{
   expect(fixture.componentInstance.messages.some(message=>message.id===13)).toBeFalse();
   expect(fixture.componentInstance.messages.some(message=>message.id===12)).toBeTrue();
  });
+ it('does not restore a private message from a delayed send after access is revoked',()=>{
+  const pending=new Subject<DirectChatMessage>();
+  api.send.and.returnValue(pending.asObservable());
+  fixture.componentInstance.draft='Antes da revogação';
+  fixture.componentInstance.sendMessage();
+  api.history.and.returnValue(throwError(()=>new HttpErrorResponse({status:403})));
+  fixture.componentInstance.refresh();
+  expect(fixture.componentInstance.accessRevoked).toBeTrue();
+  pending.next({id:16,username1:'ana',username2:'beatriz',
+   text:'Antes da revogação',date:'2026-11-19T14:04:00Z',dataDisplay:null});
+  pending.complete();
+  expect(fixture.componentInstance.messages.length).toBe(0);
+  expect(fixture.componentInstance.draft).toBe('');
+  expect(fixture.componentInstance.accessRevoked).toBeTrue();
+ });
  it('clears private messages and prevents further sends if membership is revoked',()=>{
   api.history.and.returnValue(throwError(()=>new HttpErrorResponse({status:403})));
   fixture.componentInstance.refresh();
