@@ -95,6 +95,10 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .story-overlay .story-send-button { width: 32px; height: 32px; padding: 6px; border: 0; background: none; }
 .story-overlay .story-send-button:disabled { opacity: .35; }
 .story-overlay .story-reaction-button:hover, .story-overlay .story-share-icon:hover, .story-overlay .story-owner-share:hover { background: rgba(4,112,98,.4); }
+.story-overlay .story-reaction-button.is-reacted { color: #ff6684; border-color: rgba(255,102,132,.65); background: rgba(255,102,132,.13); cursor: default; opacity: 1; }
+.story-overlay .story-reaction-button.is-reacted svg { fill: currentColor; stroke: currentColor; }
+.story-overlay .story-reaction-button.is-reacted:disabled { opacity: 1; }
+
 .story-overlay .story-reply-row svg, .story-overlay .story-owner-share svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 .story-overlay .story-owner-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: #c4dcde; font-size: .8rem; }
 .story-overlay .story-owner-share { display: inline-flex; gap: 8px; width: auto; height: 40px; padding: 8px 16px; border-radius: 30px; font-weight: 700; }
