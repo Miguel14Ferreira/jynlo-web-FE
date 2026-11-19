@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { LocalParticipant, RemoteParticipant, Track } from 'livekit-client';
 import { FormsModule } from '@angular/forms';
 import { CallParticipantTileComponent } from './call-participant-tile.component';
+import { DirectCallChatPanelComponent } from './direct-call-chat-panel.component';
 import { combineLatest, map, Observable, Subscription, timer } from 'rxjs';
 import { TranslatePipe } from '../i18n/translate.pipe';
 import { appTranslate } from '../i18n/i18n.service';
@@ -19,7 +20,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
 @Component({
   selector: 'app-direct-call-overlay',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe, CallParticipantTileComponent],
+  imports: [CommonModule, FormsModule, TranslatePipe, CallParticipantTileComponent, DirectCallChatPanelComponent],
   template: `
     @if (calls.state$ | async; as call) {
       @if (call.phase === 'incoming') {
@@ -95,7 +96,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
       } @else {
       <section class="call-backdrop" role="dialog" aria-modal="true"
           [attr.aria-label]="'calls.title' | t" (keydown.escape)="minimize()">
-        <div class="call-panel" tabindex="-1">
+        <div class="call-panel" [class.call-panel--chat-open]="showCallChat" tabindex="-1">
           <header class="call-topline">
             <strong class="call-brand">Jynlo <span class="call-brand-dot">●</span>
               <span class="connect-brand-label">Connect</span></strong>
@@ -136,6 +137,14 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                 <span class="call-metric">{{ 'calls.participants' | t }}: {{ participantCount }}</span>
               }
             </div>
+          }
+          @if (showCallChat && call.phase !== 'error') {
+            <aside class="call-chat-dock" aria-label="Chat privado da chamada">
+              <app-direct-call-chat-panel [peer]="call.peer"></app-direct-call-chat-panel>
+              <button type="button" class="call-chat-full" (click)="openChat(call.peer)">
+                Abrir conversa completa
+              </button>
+            </aside>
           }
           @if (call.phase !== 'error') {
             <!-- LiveKit's track events can run outside Angular's change detection.
@@ -384,7 +393,8 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                   </button>
                 }
                 <button type="button" class="connect-chat-button"
-                  (click)="openChat(call.peer)" [attr.aria-label]="'calls.openChatKeepCall' | t">
+                  (click)="toggleCallChat()" [attr.aria-expanded]="showCallChat"
+                   [attr.aria-label]="showCallChat?'Ocultar chat da chamada':'Mostrar chat da chamada'">
                   <svg class="call-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5Z"/></svg> Chat
                 </button>
                 <button type="button" class="call-settings-button"
@@ -644,6 +654,25 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
     }
     .call-backdrop{position:fixed;inset:0;z-index:6000;display:grid;place-items:center;
       padding:clamp(8px,2vh,24px);background:rgba(0,13,23,.9);backdrop-filter:blur(8px);}
+
+    /* Keep participant avatars/video mounted while the authenticated DM
+       occupies its own Teams-like column. */
+    .call-panel.call-panel--chat-open{width:min(100%,1540px);padding-right:374px;position:relative}
+    .call-chat-dock{position:absolute;right:14px;top:84px;bottom:85px;width:344px;min-height:0;
+      display:flex;flex-direction:column;gap:7px;z-index:6}
+    .call-chat-dock app-direct-call-chat-panel{flex:1;min-height:0}
+    .call-chat-full{min-height:38px;background:#174c58;color:#d6fff0;border:1px solid #59a99a;
+      border-radius:10px;font:inherit;font-size:.75rem;font-weight:800;cursor:pointer}
+    .call-chat-full:focus-visible{outline:3px solid #aaffdf;outline-offset:2px}
+    @media(max-width:900px){
+      .call-panel.call-panel--chat-open{width:min(100%,1180px);padding-right:clamp(12px,2vw,22px)}
+      .call-chat-dock{top:auto;bottom:87px;right:12px;left:12px;width:auto;
+        height:min(48dvh,430px);background:#08222f;border-radius:16px;
+        box-shadow:0 8px 36px #000a}
+    }
+    @media(max-height:580px){
+      .call-chat-dock{top:66px;bottom:65px;height:auto}
+    }
     .call-panel{box-sizing:border-box;width:min(100%,1180px);max-height:calc(100dvh - 20px);
       display:flex;flex-direction:column;min-height:0;padding:clamp(12px,2vw,22px);
       color:#ecfcf9;background:linear-gradient(144deg,#0b2332,#133e49);
@@ -1194,6 +1223,7 @@ export class DirectCallOverlayComponent implements OnDestroy {
         this.settingsOpen=false;
         this.inviteOpen=false;
         this.minimized=false;
+        this.showCallChat=false;
         this.inviteUsername='';
         this.contacts=[];
         this.contactsRequested=false;
@@ -1206,6 +1236,14 @@ export class DirectCallOverlayComponent implements OnDestroy {
         this.clearCameraFocus();
       }
     });
+  }
+
+  showCallChat=false;
+
+  toggleCallChat():void{
+    if(!this.calls.state$.value)return;
+    this.showCallChat=!this.showCallChat;
+    if(this.showCallChat){this.settingsOpen=false;this.inviteOpen=false;}
   }
 
   openChat(peer: string): void {
