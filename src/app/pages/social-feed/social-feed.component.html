@@ -1373,11 +1373,21 @@
           @if (suggestedSessions.length > 0) {
             <div class="feed-suggested-sessions">
               @for (session of suggestedSessions; track session.id) {
-                <a class="feed-suggested-session" [routerLink]="['/menu/events', session.id]">
-                  <span class="feed-suggested-details">
-                    <strong>{{ session.sport }}</strong>
-                    <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
-                    <span>{{ session.maxParticipants - session.participantCount }} {{ 'discover.when.vacancies' | t }}</span>
+                <a class="feed-suggested-session feed-session-spotlight" [routerLink]="['/menu/events', session.id]">
+                  <span class="feed-session-spotlight-top">
+                    <span class="feed-session-sport-icon" aria-hidden="true">⚽</span>
+                    <span class="feed-suggested-details">
+                      <strong>{{ session.sport }}</strong>
+                      <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
+                    </span>
+                    <span class="feed-session-chevron" aria-hidden="true">↗</span>
+                  </span>
+                  <span class="feed-session-occupancy">
+                    <span>{{ session.participantCount }} / {{ session.maxParticipants }} {{ 'week.players' | t }}</span>
+                    <strong>{{ session.maxParticipants - session.participantCount }} {{ 'discover.when.vacancies' | t }}</strong>
+                  </span>
+                  <span class="feed-session-capacity-track" aria-hidden="true">
+                    <span [style.width.%]="sessionCapacityPercent(session)"></span>
                   </span>
                   <span class="feed-suggested-link-label">{{ 'feed.viewSession' | t }} →</span>
                 </a>
