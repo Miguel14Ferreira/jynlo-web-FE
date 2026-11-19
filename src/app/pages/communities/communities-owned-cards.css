@@ -259,3 +259,39 @@
   :host .communities-page.jynlo-community-main-premium:not(.community-detail-page)
     .community-discovery-grid > button.community-card:hover {transform:none;}
 }
+
+
+/* Keep the community feed and chat visually consistent with team/social threads. */
+:host .communities-page.jynlo-community-main-premium.community-detail-page .community-feed-card {
+  border:1px solid rgba(61,199,182,.37);
+  border-radius:18px;
+  background:linear-gradient(145deg,#0c3542,#061f2c);
+  box-shadow:0 10px 30px #0003;
+}
+:host .communities-page.jynlo-community-main-premium.community-detail-page .community-feed-composer {
+  border:1px solid rgba(61,199,182,.42);
+  border-radius:17px;
+  background:#082b38;
+}
+:host .communities-page.jynlo-community-main-premium.community-detail-page .community-chat-column {
+  min-width:0;
+  border-color:rgba(61,199,182,.35);
+  border-radius:17px;
+  background:#062735;
+}
+:host .communities-page.jynlo-community-main-premium.community-detail-page .community-chat-bubble {
+  max-width:min(84%,720px);
+  overflow-wrap:anywhere;
+  border-color:rgba(61,199,182,.32);
+  border-radius:17px;
+}
+:host .communities-page.jynlo-community-main-premium.community-detail-page .community-chat-composer {
+  border-color:rgba(61,199,182,.41);
+  border-radius:15px;
+  background:#062735;
+}
+@media(max-width:650px) {
+  :host .communities-page.jynlo-community-main-premium.community-detail-page .community-chat-bubble {
+    max-width:94%;
+  }
+}
