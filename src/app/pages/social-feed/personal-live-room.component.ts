@@ -300,6 +300,35 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
     .live-confirm-actions .end{background:#932d42}
     .live-confirm-actions button:disabled{opacity:.5}
 
+
+    /* Wide-screen LIVE theater: larger stream while preserving optional chat. */
+    .personal-live{width:min(1780px,calc(100vw - 24px));border-color:#398a83;
+      background:linear-gradient(145deg,#092a37,#061a28 68%);box-shadow:0 24px 65px #0005}
+    .personal-live-layout{grid-template-columns:minmax(0,1fr) clamp(300px,24vw,410px)}
+    .personal-live-layout.live-layout-theater{grid-template-columns:minmax(0,1fr) clamp(260px,20vw,340px)}
+    .personal-live-stage{min-height:clamp(410px,67dvh,900px)}
+    .live-layout-theater .personal-live-stage{min-height:clamp(470px,75dvh,950px)}
+    .live-layout-no-chat .personal-live-stage{min-height:clamp(500px,82dvh,980px)}
+    .personal-live :is(button,textarea,select):focus-visible{outline:3px solid #79f5d6;outline-offset:3px}
+    .personal-live :is(header,footer,.live-toolbar){min-width:0}
+    .personal-live header strong{overflow-wrap:anywhere}
+    .live-chat{border-color:#367b7a;background:linear-gradient(155deg,#0c3340,#082530)}
+    .live-chat-history{scrollbar-width:thin;overscroll-behavior:contain}
+    .live-toolbar button:not(:disabled):hover,.live-chat button:not(:disabled):hover{border-color:#79f5d6}
+    @media(max-width:1100px) and (min-width:761px){
+      .personal-live-layout,.personal-live-layout.live-layout-theater{grid-template-columns:minmax(0,1fr) minmax(260px,30%)}
+      .personal-live-stage,.live-layout-theater .personal-live-stage{min-height:min(65dvh,690px)}
+    }
+    @media(max-width:760px){
+      .personal-live{width:100%;max-width:100%;border-radius:14px;padding:.75rem}
+      .personal-live-layout,.personal-live-layout.live-layout-theater,.personal-live-layout.live-layout-no-chat{grid-template-columns:minmax(0,1fr)}
+      .personal-live-stage,.live-layout-theater .personal-live-stage,.live-layout-no-chat .personal-live-stage{min-height:min(52dvh,490px)}
+      .live-chat{min-height:0;max-height:42dvh}
+      .live-chat-history{max-height:23dvh}
+      .live-toolbar{gap:.4rem}
+    }
+    @media(prefers-reduced-motion:reduce){.personal-live *, .personal-live *::before, .personal-live *::after{transition:none;animation:none}}
+
   `]
 })
 export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
