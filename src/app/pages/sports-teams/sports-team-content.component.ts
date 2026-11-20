@@ -523,7 +523,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.mentionTimer=setTimeout(()=>{
       (term ? this.profiles.searchProfiles(term) : this.profiles.findProfiles({})).subscribe({
         next:people=>{if(version!==this.mentionVersion||this.accessRevoked)return;
-          this.mentionOptions=people.filter(p=>p.username && (!term || [p.username,p.fullName,p.nickname].some(value=>value?.toLowerCase().includes(term.toLowerCase())))).slice(0,8);
+          this.mentionOptions=people.filter(p=>p.username && (!term || [p.username,p.fullName,p.nickname].some(value=>value?.toLowerCase().includes(term.toLowerCase())))).slice(0,5);
           this.mentionBusy=false;},
         error:()=>{if(version===this.mentionVersion){this.mentionOptions=[];this.mentionBusy=false;}}
       });
