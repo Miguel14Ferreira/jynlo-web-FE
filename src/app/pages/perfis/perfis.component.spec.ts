@@ -54,7 +54,7 @@ describe('PerfisComponent', () => {
     routeParams = new BehaviorSubject(convertToParamMap({}));
     service = jasmine.createSpyObj<CommunityService>(
       'CommunityService',
-      ['searchProfiles', 'findProfiles', 'sendFriendRequest', 'reportUser', 'userBlockStatus', 'blockUser', 'unblockUser', 'discoverProfiles', 'friends', 'publicProfile', 'friendshipStatus']
+      ['searchProfiles', 'findProfiles', 'sendFriendRequest', 'reportUser', 'userBlockStatus', 'blockUser', 'unblockUser', 'discoverProfiles', 'friends', 'publicProfile', 'publicAffiliations', 'friendshipStatus']
     );
     service.searchProfiles.and.returnValue(of([profile]));
     service.findProfiles.and.returnValue(of([profile]));
@@ -62,6 +62,7 @@ describe('PerfisComponent', () => {
     service.friends.and.returnValue(of([]));
     service.friendshipStatus.and.returnValue(of({ friends: false, pendingRequest: false }));
     service.publicProfile.and.returnValue(of(profile));
+    service.publicAffiliations.and.returnValue(of({ teams: [], communities: [] }));
     service.sendFriendRequest.and.returnValue(of({}));
     service.reportUser.and.returnValue(of(void 0));
     service.userBlockStatus.and.returnValue(of({ blocked: false }));
@@ -993,6 +994,28 @@ describe('PerfisComponent', () => {
       '/menu/teams',
       '/menu/communities'
     ]);
+  });
+
+  it('shows only server-approved public affiliations for another player', () => {
+    service.publicAffiliations.and.returnValue(of({
+      teams:[{id:42,name:'Equipa Pública',sport:'Futebol'}],
+      communities:[{id:17,name:'Comunidade Pública',sport:'Padel'}]
+    }));
+    routeParams.next(convertToParamMap({username:'ana'}));
+    fixture.detectChanges();
+    expect(service.publicAffiliations).toHaveBeenCalledWith('ana');
+    const links=(fixture.nativeElement as HTMLElement)
+      .querySelectorAll<HTMLAnchorElement>('section.profile-real-memberships a');
+    expect(Array.from(links).map(link=>link.getAttribute('href')))
+      .toEqual(['/menu/teams/42','/menu/communities/17']);
+  });
+
+  it('never guesses memberships if the public projection is denied', () => {
+    service.publicAffiliations.and.returnValue(throwError(() => ({status:403})));
+    routeParams.next(convertToParamMap({username:'ana'}));
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement)
+      .querySelector('.profile-real-memberships')).toBeNull();
   });
 
   it('does not request authenticated memberships for another player', () => {
