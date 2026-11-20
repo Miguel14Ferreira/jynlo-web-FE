@@ -637,3 +637,47 @@
 :host .community-page.profile-page-open .profile-individual-title-card small{
   font-size:.78rem;color:#abcfd1;
 }
+
+
+/* Verified participation history stays separate from awarded honours. */
+:host .community-page.profile-page-open .profile-competition-participations{
+  display:grid;gap:14px;margin:22px 0;padding:19px;
+  border:1px solid rgba(96,178,190,.33);border-radius:17px;
+  background:linear-gradient(135deg,#102f3b,#0c2531);
+}
+:host .community-page.profile-page-open .profile-competition-participations-list{display:grid;gap:8px}
+:host .community-page.profile-page-open .profile-competition-participation{
+  display:flex;justify-content:space-between;align-items:center;gap:13px;
+  padding:12px 14px;background:#123744;border:1px solid rgba(95,166,178,.37);
+  border-radius:12px;text-decoration:none;color:#e6fff9;
+}
+:host .community-page.profile-page-open .profile-competition-participation:hover{
+  background:#184656;border-color:#5bd3c7;
+}
+:host .community-page.profile-page-open .profile-competition-participation:focus-visible{
+  outline:2px solid #87ffe3;outline-offset:2px;
+}
+:host .community-page.profile-page-open .profile-competition-participation-main,
+:host .community-page.profile-page-open .profile-competition-participation-status{
+  display:grid;gap:5px;min-width:0;
+}
+:host .community-page.profile-page-open .profile-competition-participation-status{
+  justify-items:end;text-align:right;flex-shrink:0;font-size:.8rem;color:#b1d4d7;
+}
+:host .community-page.profile-page-open .profile-competition-participation-main strong{
+  font-size:.91rem;overflow-wrap:anywhere;
+}
+:host .community-page.profile-page-open .profile-competition-participation small{
+  color:#a3cbd0;font-size:.76rem;
+}
+:host .community-page.profile-page-open .profile-competition-winner{
+  color:#dcfff0;font-weight:800;
+}
+@media(max-width:650px){
+  :host .community-page.profile-page-open .profile-competition-participation{
+    align-items:flex-start;flex-direction:column;
+  }
+  :host .community-page.profile-page-open .profile-competition-participation-status{
+    justify-items:start;text-align:left;
+  }
+}
