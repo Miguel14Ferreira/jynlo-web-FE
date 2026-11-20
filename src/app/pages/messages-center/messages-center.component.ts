@@ -84,6 +84,11 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   muteLoading = false;
   muteError = '';
   contactPreviewOpen = false;
+  /** Compact message actions are visible on hover, or explicitly by tap. */
+  openMessageActionsId:number|null=null;
+  toggleMessageActions(id:number):void {
+    this.openMessageActionsId=this.openMessageActionsId===id?null:id;
+  }
   messages: InboxMessage[] = [];
   filter: InboxFilter = 'all';
   search = '';
