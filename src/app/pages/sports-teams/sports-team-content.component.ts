@@ -287,6 +287,13 @@ import { CommunityProfile } from '../model/community-profile';
       min-height:31px;padding:5px 7px;border:0;border-radius:8px;background:transparent;
       color:#e0f8f3;font-size:1.02rem}
     .team-chat-mode .team-content-actions button:hover{background:#24616c}
+    .team-chat-mode .team-content-actions>button:first-child{
+      color:#153946;background:#f7fafb;border:1px solid #e4f2f2;border-radius:50%;
+      min-width:29px;width:29px;height:29px;padding:0;font-size:1.12rem;font-weight:800;
+    }
+    .team-chat-mode .team-content-actions>button:first-child:hover{
+      color:#053a3d;background:#b4ffeb;border-color:#b4ffeb;
+    }
     .team-chat-mode .team-content-actions button span{display:none}
     .team-chat-mode .team-emoji-picker{position:absolute;z-index:15;display:flex;align-items:center;
       flex-wrap:wrap;gap:3px;top:-65px;right:8px;width:max-content;max-width:min(340px,95vw);
