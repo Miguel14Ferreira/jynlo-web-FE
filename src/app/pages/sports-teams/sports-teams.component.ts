@@ -4,6 +4,7 @@ import { timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SportsTeam, SportsTeamInvitation, SportsTeamsService } from '../../services/sports-teams.service';
+import { SPORTS_CATALOG } from '../../shared/sports-catalog';
 import { CompetitionTeamInvitation, TeamCompetitionInvitationsService } from '../../services/team-competition-invitations.service';
 
 @Component({
@@ -37,6 +38,7 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
   teamInvitationsVerified = false;
   teamResponding = false;
   responding = false;
+  readonly sportsCatalog = SPORTS_CATALOG;
   draft = {name: '', sport: '', location: '', description: ''};
   saving = false;
   loading = false;
