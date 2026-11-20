@@ -35,6 +35,9 @@ export class CommunityHabitualVenuePickerComponent implements OnChanges, OnDestr
                   city: string; address: string} | null = null;
   pointMapPreviewUrl: SafeResourceUrl | null = null;
   venueMapPreviewUrl: SafeResourceUrl | null = null;
+  savedMapPreviewUrl: SafeResourceUrl | null = null;
+  savedMapLink: string | null = null;
+  private savedMapRequest?: Subscription;
   query = '';
   results: Venue[] = [];
   expanded: Venue | null = null;
@@ -78,6 +81,7 @@ export class CommunityHabitualVenuePickerComponent implements OnChanges, OnDestr
       this.error = '';
       this.feedback = '';
     }
+    if (this.previousCommunityId !== id || changes['community']) this.refreshSavedMap();
     if (this.previousCommunityId !== id) this.editing = !this.hasHabitualVenue;
     this.previousCommunityId = id;
   }
@@ -85,6 +89,37 @@ export class CommunityHabitualVenuePickerComponent implements OnChanges, OnDestr
   constructor(private venues: VenueService, private groups: CommunityGroupsService,
               private readonly cdr: ChangeDetectorRef, private readonly ngZone: NgZone,
               private readonly sanitizer: DomSanitizer) {}
+
+  private refreshSavedMap(): void {
+    this.savedMapRequest?.unsubscribe();
+    this.savedMapPreviewUrl = null;
+    this.savedMapLink = null;
+    const group = this.community;
+    if (!group) return;
+    if (this.validPoint(group.habitualLatitude!, group.habitualLongitude!)
+        && group.habitualLatitude != null && group.habitualLongitude != null) {
+      this.setSavedMap(group.habitualLatitude, group.habitualLongitude);
+      return;
+    }
+    if (!group.defaultVenueId) return;
+    const id = group.defaultVenueId;
+    this.savedMapRequest = this.venues.get(id).pipe(timeout(10000)).subscribe({
+      next: venue => {
+        if (this.community?.id !== group.id || this.community?.defaultVenueId !== id) return;
+        if (venue.latitude != null && venue.longitude != null
+            && this.validPoint(venue.latitude, venue.longitude)) {
+          this.setSavedMap(venue.latitude, venue.longitude);
+        }
+        this.cdr.markForCheck();
+      },
+      error: () => { /* Retain the address and venue link when coordinates are unavailable. */ }
+    });
+  }
+
+  private setSavedMap(latitude: number, longitude: number): void {
+    this.savedMapPreviewUrl = this.mapPreview(latitude, longitude);
+    this.savedMapLink = 'https://www.google.com/maps?q=' + latitude + ',' + longitude;
+  }
 
   get canManage(): boolean {
     return this.community?.myRole === 'OWNER' || this.community?.myRole === 'ADMIN';
@@ -138,6 +173,7 @@ export class CommunityHabitualVenuePickerComponent implements OnChanges, OnDestr
 
   private finishSave(group: CommunityGroup): void {
     this.community = group;
+    this.refreshSavedMap();
     this.resetDraft();
     // Once persisted, show only the usual venue summary until the user selects Change.
     this.editing = !this.hasHabitualVenue;
