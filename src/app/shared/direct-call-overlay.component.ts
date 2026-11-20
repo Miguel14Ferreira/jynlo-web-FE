@@ -1266,7 +1266,7 @@ export class DirectCallOverlayComponent implements OnDestroy {
 
   get matchingContacts(): FriendSummary[] {
     if (!this.inviteOpen) return [];
-    const query = this.inviteUsername.trim().toLowerCase();
+    const query = this.inviteUsername.trim().replace(/^@/, '').toLowerCase();
     const membership = this.calls.members$.value;
     const excluded = new Set([...membership.participants.map(p => p.username),
       ...membership.pending, this.calls.state$.value?.peer || ''].map(p => p.toLowerCase()));
@@ -1301,7 +1301,7 @@ export class DirectCallOverlayComponent implements OnDestroy {
   }
 
   async inviteMember(): Promise<void> {
-    const target=this.inviteUsername.trim();
+    const target=this.inviteUsername.trim().replace(/^@/, '');
     if (await this.calls.inviteMember(target)) this.inviteUsername='';
   }
   get speakerSelectionSupported(): boolean {
