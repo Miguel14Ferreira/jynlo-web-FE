@@ -902,7 +902,12 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
 
 
   read(silent:boolean, revalidateBlocked=false):void {
-    if (this.readingGeneration === this.generation) { this.readQueued = true; return; }
+    if (this.readingGeneration === this.generation) {
+      // A pending initial GET already supersedes socket reconnect notices.
+      // Reserve one follow-up read only when we have displayed history.
+      if (this.items.length || this.kind==='feed' && this.feedCombined.length) this.readQueued=true;
+      return;
+    }
     // Reopening a disabled chat requires a successful authenticated HTTP read.
     // Only background reconciliation may probe a blocked conversation.
     if (this.sending || (this.accessRevoked && !revalidateBlocked)
@@ -912,7 +917,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const writeVersion = this.writeVersion;
     this.readingGeneration = version;
     if (!silent) {this.loading=true;this.error='';}
-    this.api.content(this.teamId,this.kind).subscribe({
+    this.api.content(this.teamId,this.kind).pipe(timeout(12000)).subscribe({
       next:items => {
         if(version!==this.generation || writeVersion!==this.writeVersion
             || requestId!==this.readRequestId)return;
@@ -960,7 +965,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
             || requestId!==this.readRequestId)return;
         if(this.blockUnavailable(failure))return;
         if(silent)this.syncError='A sincronização falhou. O histórico pode estar desatualizado.';
-        else this.error='Não foi possível abrir esta conversa. Confirma que és membro e que está ativada.';
+        else this.error='A conversa está a demorar a responder. Tenta novamente.';
       }
     }).add(() => {
       if(requestId!==this.readRequestId)return;
