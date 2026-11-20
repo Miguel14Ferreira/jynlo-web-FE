@@ -710,7 +710,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
 
   ngOnInit(): void {
     this.read(false);
-    this.checkAttachmentsAvailable();
+    // ngOnChanges has already started the attachment capability check for
+    // the initial required inputs. Avoid a duplicate authenticated request.
     this.realtime.connect();
     this.subscriptions.add(this.realtime.teamContentInvalidated$.subscribe(event => {
       if (event.teamId === this.teamId && event.kind === this.kind
