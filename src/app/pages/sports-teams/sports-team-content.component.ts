@@ -114,14 +114,14 @@ import { CommunityProfile } from '../model/community-profile';
                 [attr.aria-label]="'Escolher reação à publicação de @' + item.username"
                 (click)="toggleFeedReactionPicker(item.id)">☺ Reagir</button>
             </ng-container>
-            <ng-container *ngIf="feedReactionPickerId === item.id">
+            <div class="team-emoji-picker" *ngIf="feedReactionPickerId === item.id">
               <button type="button" *ngFor="let emoji of emojis" [disabled]="reactionBusyId !== null"
                 [class.selected]="reactionsById[item.id]?.mine === emoji"
                 [attr.aria-pressed]="reactionsById[item.id]?.mine === emoji"
                 (click)="react(item, emoji)">{{emoji}}
                 <small *ngIf="(reactionsById[item.id]?.counts?.[emoji] || 0) > 0">{{reactionsById[item.id]?.counts?.[emoji] || 0}}</small>
               </button>
-            </ng-container>
+            </div>
           </div>
           <button type="button" *ngIf="kind === 'chat' && !item.deleted"
             class="team-message-mobile-actions" [attr.aria-expanded]="activeActionMessageId === item.id"
@@ -274,6 +274,13 @@ import { CommunityProfile } from '../model/community-profile';
       color:#e0f8f3;font-size:1.02rem}
     .team-chat-mode .team-content-actions button:hover{background:#24616c}
     .team-chat-mode .team-content-actions button span{display:none}
+    .team-chat-mode .team-emoji-picker{position:absolute;z-index:15;display:flex;align-items:center;
+      flex-wrap:wrap;gap:3px;top:-65px;right:8px;width:max-content;max-width:min(340px,95vw);
+      padding:6px;border:1px solid #46828b;border-radius:13px;background:#173f4b;
+      box-shadow:0 10px 25px #0008}
+    .team-chat-mode .team-emoji-picker button{display:grid;place-items:center;min-width:34px;min-height:34px;
+      border:0;background:transparent;border-radius:8px;padding:4px}
+    .team-chat-mode .team-emoji-picker button:hover{background:#24636a}
     .team-chat-mode .team-reactions>.team-react-trigger{display:none}
     .team-chat-mode .team-reactions{min-height:0;margin-top:0}
     .team-chat-mode .team-reactions:empty{display:none}
