@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ElementRef, OnDestroy, OnInit, AfterViewChecked, ViewChild, ChangeDetectionStrategy, Optional, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, AfterViewChecked, ViewChild, ChangeDetectionStrategy, Optional, HostListener, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { catchError, finalize, forkJoin, map, Observable, of, Subscription, TimeoutError, timeout } from 'rxjs';
 import { appTranslate as t } from '../../i18n/i18n.service';
@@ -478,10 +478,12 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     });
   }
 
+  private readonly profileRouter=inject(Router);
   openContact(username: string | null | undefined): void {
     if(!username?.trim())return;
-    this.contactPreviewOpen=true;
-    this.profilePeek?.open(username);
+    const safeUsername=username.trim().replace(/^@/,'');
+    if(!/^[\p{L}\p{N}_.-]{1,80}$/u.test(safeUsername))return;
+    void this.profileRouter.navigate(['/menu/perfis',safeUsername]);
   }
 
   get callsEnabled(): boolean {
