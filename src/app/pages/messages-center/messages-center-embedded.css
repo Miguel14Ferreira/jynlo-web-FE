@@ -53,12 +53,12 @@
 .inbox-bubble:is(:hover,:focus-within)>.inbox-message-actions,
 .inbox-bubble.inbox-actions-expanded>.inbox-message-actions{
  opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}
-.inbox-bubble>.inbox-message-actions button{display:inline-flex;align-items:center;
+.inbox-bubble>.inbox-message-actions>button{display:inline-flex;align-items:center;
  justify-content:center;min-height:32px;padding:5px 9px;white-space:nowrap;
  margin:0;border:0;border-radius:8px;background:transparent;color:#e3fcf6;
  font-size:.78rem;line-height:1.2}
-.inbox-bubble>.inbox-message-actions button:hover{background:#245a65;text-decoration:none}
-.inbox-bubble>.inbox-message-actions button:focus-visible{outline:2px solid #80f7dd;outline-offset:1px}
+.inbox-bubble>.inbox-message-actions>button:hover{background:#245a65;text-decoration:none}
+.inbox-bubble>.inbox-message-actions>button:focus-visible{outline:2px solid #80f7dd;outline-offset:1px}
 .inbox-bubble .inbox-message-more{display:none}
 @media(hover:none),(pointer:coarse){
  .inbox-bubble .inbox-message-more{display:grid;place-items:center;
@@ -75,3 +75,9 @@
 @media(prefers-reduced-motion:reduce){
  .inbox-bubble>.inbox-message-actions{transition:none}
 }
+
+/* Reactions belong to the contextual toolbar, never a floating control below bubbles. */
+.inbox-bubble>.inbox-message-actions .inbox-toolbar-reactions{display:inline-flex;align-items:center;min-width:0}
+.inbox-bubble>.inbox-message-actions .inbox-toolbar-reactions:focus-within{z-index:4}
+.inbox-bubble>.inbox-message-actions:has(.inbox-toolbar-reactions.is-picker-open){z-index:60}
+.inbox-bubble>.inbox-message-actions:has(.inbox-toolbar-reactions.is-details-open){z-index:60}
