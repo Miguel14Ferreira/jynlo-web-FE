@@ -1,15 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-/** Editable, versioned project; the SVG is drawn locally, never injected from stored HTML. */
+/** Each layer is locally rendered SVG/canvas text, never untrusted HTML or external assets. */
+export interface TeamCrestLayer {
+  id:string;kind:'text'|'symbol';text:string;symbol:string;
+  x:number;y:number;size:number;rotation:number;color:string;opacity:number;
+}
+/** Editable, versioned project, compatible with saved version-one emblems. */
 export interface TeamCrestDesign {
-  version:1;
+  version:1|2;
   shape:string;symbol:string;pattern:string;
   primary:string;secondary:string;textColor:string;borderColor:string;
   patternOpacity:number;borderWidth:number;symbolSize:number;symbolY:number;
   showInitials:boolean;innerBorder:boolean;initialsSize:number;initialsY:number;
   customInitials:string;caption:string;
+  layers?:TeamCrestLayer[];
 }
 /** Sport-neutral badge designer. Exports a PNG and its editable model atomically. */
 @Component({
@@ -25,7 +31,8 @@ export interface TeamCrestDesign {
       </header>
       <div class="crest-designer">
         <div class="crest-preview">
-          <svg viewBox="0 0 320 360" role="img" [attr.aria-label]="'Pré-visualização do emblema da equipa ' + teamName">
+          <svg #drawingBoard viewBox="0 0 320 360" role="img" (pointermove)="moveLayer($event)"
+               (pointerup)="finishLayerDrag($event)" (pointercancel)="finishLayerDrag($event)" [attr.aria-label]="'Pré-visualização do emblema da equipa ' + teamName">
             <defs>
               <clipPath id="crestDesignClip"><path [attr.d]="shieldPath"/></clipPath>
             </defs>
@@ -52,10 +59,60 @@ export interface TeamCrestDesign {
               [attr.font-size]="initialsSize" font-weight="900" [attr.fill]="textColor" font-family="Arial,sans-serif">{{initials}}</text>
             <text *ngIf="footerText" x="160" y="286" dominant-baseline="central" text-anchor="middle"
               font-size="16" font-weight="750" [attr.fill]="textColor" font-family="Arial,sans-serif">{{footerText}}</text>
+            <g *ngFor="let layer of layers;trackBy:trackLayer" class="crest-layer"
+              [class.active]="selectedLayerId===layer.id" [attr.transform]="layerTransform(layer)"
+              [attr.opacity]="layer.opacity/100"
+              (pointerdown)="startLayerDrag($event,layer.id)">
+              <text x="0" y="0" text-anchor="middle" dominant-baseline="central" font-weight="800"
+                [attr.font-size]="layer.size" [attr.fill]="layer.color"
+                font-family="Arial,sans-serif">{{layerLabel(layer)}}</text>
+              <rect *ngIf="selectedLayerId===layer.id" x="-56" y="-32" width="112" height="64"
+                rx="6" fill="none" stroke="#84ffda" stroke-width="1.6" stroke-dasharray="4 3" pointer-events="none"/>
+            </g>
           </svg>
           <p>{{loadedFromTeam?'Projeto guardado reaberto para edição':'Pré-visualização em tempo real'}}</p>
         </div>
         <div class="crest-fields">
+          <section class="crest-wide crest-layer-editor" aria-label="Camadas do emblema">
+            <div class="crest-layer-head">
+              <strong>Camadas livres <small>({{layers.length}}/6)</small></strong>
+              <span>Arrasta os elementos no emblema para os posicionar.</span>
+            </div>
+            <div class="crest-presets">
+              <button type="button" [disabled]="disabled||layers.length>=6" (click)="addLayer('text')">+ Texto</button>
+              <button type="button" [disabled]="disabled||layers.length>=6" (click)="addLayer('symbol')">+ Símbolo</button>
+            </div>
+            <div class="crest-layer-stack" *ngIf="layers.length">
+              <button type="button" *ngFor="let layer of layers;trackBy:trackLayer"
+                [class.selected]="selectedLayerId===layer.id"
+                [attr.aria-pressed]="selectedLayerId===layer.id"
+                (click)="selectedLayerId=layer.id">{{layer.kind==='text'?(layer.text||'Texto'):layerLabel(layer)}}</button>
+            </div>
+            <ng-container *ngIf="selectedLayer as layer">
+              <div class="crest-layer-settings">
+                <label *ngIf="layer.kind==='text'">Texto da camada
+                  <input [(ngModel)]="layer.text" maxlength="18" [disabled]="disabled" placeholder="Texto personalizado">
+                </label>
+                <label *ngIf="layer.kind==='symbol'">Símbolo da camada
+                  <select [(ngModel)]="layer.symbol" [disabled]="disabled">
+                    <option *ngFor="let choice of layerSymbols" [value]="choice.id">{{choice.label}}</option>
+                  </select>
+                </label>
+                <label>Cor <input type="color" [(ngModel)]="layer.color" [disabled]="disabled"></label>
+                <label>Tamanho {{layer.size}} <input type="range" min="18" max="110" step="1" [(ngModel)]="layer.size" [disabled]="disabled"></label>
+                <label>Rotação {{layer.rotation}}° <input type="range" min="-180" max="180" step="5" [(ngModel)]="layer.rotation" [disabled]="disabled"></label>
+                <label>Opacidade {{layer.opacity}}% <input type="range" min="0" max="100" step="5" [(ngModel)]="layer.opacity" [disabled]="disabled"></label>
+                <label>Horizontal {{layer.x}} <input type="range" min="24" max="296" step="1" [(ngModel)]="layer.x" [disabled]="disabled"></label>
+                <label>Vertical {{layer.y}} <input type="range" min="24" max="330" step="1" [(ngModel)]="layer.y" [disabled]="disabled"></label>
+              </div>
+              <div class="crest-layer-actions">
+                <button type="button" (click)="moveLayerOrder(-1)" [disabled]="disabled||selectedLayerIndex===0">Para trás</button>
+                <button type="button" (click)="moveLayerOrder(1)" [disabled]="disabled||selectedLayerIndex===layers.length-1">Para a frente</button>
+                <button type="button" (click)="duplicateLayer()" [disabled]="disabled||layers.length>=6">Duplicar</button>
+                <button type="button" (click)="removeLayer()" [disabled]="disabled">Eliminar camada</button>
+              </div>
+            </ng-container>
+          </section>
           <div class="crest-wide" role="group" aria-label="Modelos rápidos de emblema">
             <strong>Começar com um estilo</strong>
             <div class="crest-presets">
@@ -159,6 +216,19 @@ export interface TeamCrestDesign {
     .crest-colors label{display:flex;align-items:center;gap:7px}
     .crest-colors input{height:33px;width:43px;border:0;cursor:pointer;background:transparent}
     .crest-fields input[type=range]{width:100%;accent-color:#55edc4}
+    .crest-layer{cursor:grab;touch-action:none;user-select:none}
+    .crest-layer:active{cursor:grabbing}
+    .crest-layer-editor{display:grid;gap:10px;padding:12px;border:1px solid #31676f;border-radius:12px;background:#103642}
+    .crest-layer-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px}
+    .crest-layer-head span{font-size:.72rem;color:#b6d8d8}
+    .crest-layer-stack,.crest-layer-actions{display:flex;gap:6px;flex-wrap:wrap}
+    .crest-layer-stack button,.crest-layer-actions button{background:#124957;border:1px solid #459b90;color:#e7fff9;border-radius:8px;padding:8px;cursor:pointer}
+    .crest-layer-stack button.selected{background:#57e8c0;color:#07333a}
+    .crest-layer-settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+    .crest-layer-settings label{display:grid;gap:5px;min-width:0}
+    .crest-layer-settings input[type=color]{height:35px;width:55px;border:0;background:transparent}
+    .crest-layer-actions button:disabled{opacity:.45}
+    @media(max-width:450px){.crest-layer-settings{grid-template-columns:1fr}}
     .crest-reset{background:#153d4b;color:#d9fff7;border:1px solid #458e86;border-radius:10px;padding:10px;cursor:pointer}
     .crest-save{border:0;background:#55edc4;color:#062c31;border-radius:10px;padding:12px;font-weight:850;cursor:pointer}
     .crest-save:disabled{opacity:.6;cursor:wait}
@@ -169,6 +239,7 @@ export interface TeamCrestDesign {
   `]
 })
 export class TeamCrestEditorComponent {
+  @ViewChild('drawingBoard') drawingBoard?:ElementRef<SVGSVGElement>;
   @Input() teamName='';
   @Input() disabled=false;
   @Input() set savedDesign(raw:string|null|undefined) {
@@ -179,7 +250,7 @@ export class TeamCrestEditorComponent {
     }
     try {
       const design=JSON.parse(raw) as TeamCrestDesign;
-      if(design.version!==1 || !['shield','rounded','circle','hex','diamond','square','oval','banner'].includes(design.shape))return;
+      if(![1,2].includes(design.version) || !['shield','rounded','circle','hex','diamond','square','oval','banner'].includes(design.shape))return;
       this.applyDesign(design);
       this.loadedFromTeam=true;
     } catch { this.error='Não foi possível reabrir o desenho guardado.'; }
@@ -191,13 +262,102 @@ export class TeamCrestEditorComponent {
   patternOpacity=30;borderWidth=8;symbolSize=76;symbolY=145;
   showInitials=true;innerBorder=true;initialsSize=30;initialsY=225;
   customInitials='';caption='';error='';
+  layers:TeamCrestLayer[]=[];
+  selectedLayerId:string|null=null;
+  private layerSequence=0;
+  private dragPointerId:number|null=null;
+  private dragOffsetX=0;
+  private dragOffsetY=0;
+  readonly layerSymbols=[
+    {id:'star',label:'★ Estrela'},{id:'bolt',label:'⚡ Raio'},
+    {id:'crown',label:'♛ Coroa'},{id:'flame',label:'🔥 Chama'},
+    {id:'heart',label:'♥ Coração'},{id:'trophy',label:'🏆 Troféu'},
+    {id:'ball',label:'⚽ Futebol'},{id:'basketball',label:'🏀 Basquetebol'},
+    {id:'volleyball',label:'🏐 Voleibol'},{id:'tennis',label:'🎾 Ténis'},
+    {id:'rugby',label:'🏉 Rugby'},{id:'badminton',label:'🏸 Badminton'},
+    {id:'cricket',label:'🏏 Cricket'},{id:'hockey',label:'🏑 Hóquei'},
+    {id:'golf',label:'⛳ Golfe'},{id:'cycling',label:'🚴 Ciclismo'},
+    {id:'running',label:'🏃 Atletismo'},{id:'swimming',label:'🏊 Natação'},
+    {id:'boxing',label:'🥊 Combate'},{id:'target',label:'🎯 Precisão'},
+    {id:'mountain',label:'⛰ Montanha'},{id:'wave',label:'≈ Ondas'}
+  ];
+  get selectedLayer():TeamCrestLayer|undefined{return this.layers.find(l=>l.id===this.selectedLayerId);}
+  get selectedLayerIndex():number{return this.layers.findIndex(l=>l.id===this.selectedLayerId);}
+  trackLayer(_index:number,layer:TeamCrestLayer):string{return layer.id;}
+  layerLabel(layer:TeamCrestLayer):string {
+    return layer.kind==='text'?layer.text:this.symbolFor(layer.symbol);
+  }
+  layerTransform(layer:TeamCrestLayer):string{
+    return 'translate('+layer.x+' '+layer.y+') rotate('+layer.rotation+')';
+  }
+  addLayer(kind:'text'|'symbol'):void{
+    if(this.disabled||this.layers.length>=6)return;
+    const id='layer-'+(++this.layerSequence);
+    this.layers=[...this.layers,{id,kind,text:kind==='text'?'JYNLO':'',symbol:'star',
+      x:160,y:155+Math.min(this.layers.length,3)*22,size:48,rotation:0,color:'#FFFFFF',opacity:100}];
+    this.selectedLayerId=id;
+  }
+  duplicateLayer():void{
+    const layer=this.selectedLayer;
+    if(!layer||this.disabled||this.layers.length>=6)return;
+    const id='layer-'+(++this.layerSequence);
+    this.layers=[...this.layers,{...layer,id,x:Math.min(296,layer.x+16),y:Math.min(330,layer.y+16)}];
+    this.selectedLayerId=id;
+  }
+  removeLayer():void{
+    if(!this.selectedLayer||this.disabled)return;
+    this.layers=this.layers.filter(l=>l.id!==this.selectedLayerId);
+    this.selectedLayerId=this.layers[this.layers.length-1]?.id||null;
+  }
+  moveLayerOrder(direction:-1|1):void{
+    if(this.disabled)return;
+    const from=this.selectedLayerIndex,to=from+direction;
+    if(from<0||to<0||to>=this.layers.length)return;
+    const next=[...this.layers];
+    [next[from],next[to]]=[next[to],next[from]];
+    this.layers=next;
+  }
+  private toBoardPosition(event:PointerEvent):{x:number;y:number}|null{
+    const svg=this.drawingBoard?.nativeElement;
+    if(!svg)return null;
+    const rect=svg.getBoundingClientRect();
+    if(!rect.width||!rect.height)return null;
+    return {x:(event.clientX-rect.left)*320/rect.width,
+      y:(event.clientY-rect.top)*360/rect.height};
+  }
+  startLayerDrag(event:PointerEvent,id:string):void{
+    if(this.disabled)return;
+    const layer=this.layers.find(l=>l.id===id);
+    const point=this.toBoardPosition(event);
+    if(!layer||!point)return;
+    this.selectedLayerId=id;
+    this.dragPointerId=event.pointerId;
+    this.dragOffsetX=layer.x-point.x;
+    this.dragOffsetY=layer.y-point.y;
+    this.drawingBoard?.nativeElement.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }
+  moveLayer(event:PointerEvent):void{
+    if(event.pointerId!==this.dragPointerId||this.disabled)return;
+    const layer=this.selectedLayer,point=this.toBoardPosition(event);
+    if(!layer||!point)return;
+    layer.x=Math.round(Math.max(24,Math.min(296,point.x+this.dragOffsetX)));
+    layer.y=Math.round(Math.max(24,Math.min(330,point.y+this.dragOffsetY)));
+  }
+  finishLayerDrag(event:PointerEvent):void{
+    if(event.pointerId!==this.dragPointerId)return;
+    this.dragPointerId=null;
+    const svg=this.drawingBoard?.nativeElement;
+    if(svg?.hasPointerCapture(event.pointerId))svg.releasePointerCapture(event.pointerId);
+  }
   private snapshot():TeamCrestDesign {
-    return {version:1,shape:this.shape,symbol:this.symbol,pattern:this.pattern,
+    return {version:2,shape:this.shape,symbol:this.symbol,pattern:this.pattern,
       primary:this.primary,secondary:this.secondary,textColor:this.textColor,
       borderColor:this.borderColor,patternOpacity:this.patternOpacity,borderWidth:this.borderWidth,
       symbolSize:this.symbolSize,symbolY:this.symbolY,showInitials:this.showInitials,
       innerBorder:this.innerBorder,initialsSize:this.initialsSize,initialsY:this.initialsY,
-      customInitials:this.customInitials,caption:this.caption};
+      customInitials:this.customInitials,caption:this.caption,
+      layers:this.layers.map(layer=>({...layer}))};
   }
   private applyDesign(value:TeamCrestDesign):void {
     this.shape=value.shape;this.symbol=value.symbol;this.pattern=value.pattern;
@@ -208,6 +368,10 @@ export class TeamCrestEditorComponent {
     this.showInitials=value.showInitials;this.innerBorder=value.innerBorder;
     this.initialsSize=value.initialsSize;this.initialsY=value.initialsY;
     this.customInitials=value.customInitials;this.caption=value.caption;
+    this.layers=(value.version===2 && Array.isArray(value.layers)?value.layers:[])
+      .slice(0,6).map(layer=>({...layer}));
+    this.layerSequence=this.layers.reduce((max,layer)=>Math.max(max,Number(layer.id.replace('layer-',''))||0),0);
+    this.selectedLayerId=null;
   }
   readonly presets=[
     {id:'classic',label:'Clássico'},{id:'minimal',label:'Minimalista'},
@@ -237,6 +401,13 @@ export class TeamCrestEditorComponent {
       running:'🏃',swimming:'🏊',boxing:'🥊',target:'🎯',mountain:'⛰',wave:'≈'};
     return icons[this.symbol]||'';
   }
+  private symbolFor(symbol:string):string {
+    const icons:Record<string,string>={star:'★',bolt:'⚡',crown:'♛',flame:'🔥',
+      heart:'♥',trophy:'🏆',ball:'⚽',basketball:'🏀',volleyball:'🏐',tennis:'🎾',
+      rugby:'🏉',badminton:'🏸',cricket:'🏏',hockey:'🏑',golf:'⛳',cycling:'🚴',
+      running:'🏃',swimming:'🏊',boxing:'🥊',target:'🎯',mountain:'⛰',wave:'≈'};
+    return icons[symbol]||'';
+  }
   get shieldPath():string {
     switch(this.shape){
       case 'circle':return 'M160 23 A142 142 0 1 1 159.99 23 Z';
@@ -256,6 +427,7 @@ export class TeamCrestEditorComponent {
     this.symbolSize=76;this.symbolY=145;this.showInitials=true;
     this.innerBorder=true;this.initialsSize=30;this.initialsY=225;
     this.customInitials='';this.caption='';this.error='';
+    this.layers=[];this.selectedLayerId=null;this.layerSequence=0;this.dragPointerId=null;
   }
   save():void {
     if(this.disabled||typeof document==='undefined')return;
@@ -264,6 +436,11 @@ export class TeamCrestEditorComponent {
     if(!/^[\p{L}0-9]{0,5}$/u.test(this.customInitials)
       || this.caption.length>22 || /[\x00-\x1F]/.test(this.caption)){
       this.error='Verifica as iniciais (até cinco caracteres) e o texto inferior.';
+      return;
+    }
+    if(this.layers.some(layer=>layer.text.length>18 || /[\x00-\x1F]/.test(layer.text)
+      || (layer.kind==='text' && !layer.text.trim()))){
+      this.error='As camadas de texto devem ter entre 1 e 18 caracteres.';
       return;
     }
     const canvas=document.createElement('canvas');
@@ -304,6 +481,17 @@ export class TeamCrestEditorComponent {
     if(this.footerText){
       ctx.font='750 16px Arial, sans-serif';
       ctx.fillText(this.footerText,160,286,245);
+    }
+    for(const layer of this.layers){
+      ctx.save();
+      ctx.translate(layer.x,layer.y);
+      ctx.rotate(layer.rotation*Math.PI/180);
+      ctx.globalAlpha=layer.opacity/100;
+      ctx.fillStyle=layer.color;
+      ctx.font='800 '+layer.size+'px Arial, sans-serif';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(this.layerLabel(layer),0,0,270);
+      ctx.restore();
     }
     const editableDesign=JSON.stringify(this.snapshot());
     canvas.toBlob(blob=>{
