@@ -1,9 +1,10 @@
+import { fakeAsync, tick } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, Subject, throwError } from 'rxjs';
 import { SocialStoriesService } from '../../services/social-stories.service';
 import { SocialStory } from '../model/social-story';
 import { InboxStoryCardComponent } from './inbox-story-card.component';
-import { storyIdFromChatText } from './inbox-story-share';
+import { storyIdFromChatText, storyShareFromChatText } from './inbox-story-share';
 
 const story:SocialStory={
   id:9,authorUsername:'atleta',displayName:'Atleta',avatarUrl:null,
@@ -17,10 +18,12 @@ describe('Jynlo story shares in inbox',()=>{
   it('recognizes the old heart and official story link without showing its raw URL',()=>{
     expect(storyIdFromChatText('❤️\nhttps://d24sports.com/menu/feed?story=9')).toBe(9);
     expect(storyIdFromChatText('https://d24sports.com/menu/feed?story=9')).toBe(9);
+    expect(storyShareFromChatText('hehe que giro\nhttps://d24sports.com/menu/feed?story=9'))
+      .toEqual({id:9,caption:'hehe que giro'});
     expect(storyIdFromChatText('❤️\nhttps://evil.test/menu/feed?story=9')).toBeNull();
     expect(storyIdFromChatText('https://d24sports.com/menu/feed?story=9&story=10')).toBeNull();
     expect(storyIdFromChatText('https://d24sports.com/menu/feed?story=9&token=secret')).toBeNull();
-    expect(storyIdFromChatText('Outra mensagem\nhttps://d24sports.com/menu/feed?story=9')).toBeNull();
+    expect(storyIdFromChatText('Outra mensagem\nhttps://d24sports.com/menu/feed?story=9')).toBe(9);
   });
 
   it('shows verified media while active and does not show expired media',()=>{
@@ -51,6 +54,18 @@ describe('Jynlo story shares in inbox',()=>{
     expect(card.story).toBeNull();
     card.ngOnDestroy();
   });
+
+  it('shows unavailable after five seconds if the story request never responds',fakeAsync(()=>{
+    const api=jasmine.createSpyObj<SocialStoriesService>('SocialStoriesService',['get']);
+    api.get.and.returnValue(new Subject<SocialStory>().asObservable());
+    const card=new InboxStoryCardComponent(api);
+    card.storyId=9;card.ngOnChanges();
+    expect(card.loading).toBeTrue();
+    tick(5001);
+    expect(card.loading).toBeFalse();
+    expect(card.unavailable).toBeTrue();
+    card.ngOnDestroy();
+  }));
 
   it('ignores delayed results after the embedded story changes',()=>{
     const api=jasmine.createSpyObj<SocialStoriesService>('SocialStoriesService',['get']);
