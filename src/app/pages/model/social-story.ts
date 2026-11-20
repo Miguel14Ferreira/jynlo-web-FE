@@ -6,6 +6,9 @@ export interface SocialStory {
   communityId: number | null;
   communityName: string | null;
   communityPhotoUrl: string | null;
+  teamId?: number | null;
+  teamName?: string | null;
+  teamLogoUrl?: string | null;
   caption: string | null;
   mediaUrl: string;
   video: boolean;
