@@ -283,6 +283,11 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
                       [attr.fill]="kitSecondary"/>
                   </ng-container>
                   <path *ngIf="kitPattern === 'DIAGONAL'" d="M260 -40 340 2 82 362 -4 318Z" [attr.fill]="kitSecondary"/>
+                  <ng-container *ngIf="kitPattern === 'HOOPS'">
+                    <rect *ngFor="let y of kitHoopPositions" x="0" [attr.y]="y" width="320" height="35" [attr.fill]="kitSecondary"/>
+                  </ng-container>
+                  <rect *ngIf="kitPattern === 'HALVES'" x="160" y="0" width="160" height="336" [attr.fill]="kitSecondary"/>
+                  <path *ngIf="kitPattern === 'CHEVRON'" d="M-20 65 160 226 340 65 340 112 160 274 -20 112Z" [attr.fill]="kitSecondary"/>
                   <rect x="0" y="0" width="320" height="336" fill="url(#jynloTeamKitShading)"/>
                 </g>
                 <path d="M112 30 77 42 24 93 57 146 91 126 91 290 Q160 312 229 290 L229 126 263 146 296 93 243 42 208 30
@@ -514,9 +519,11 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   isOwner=false;busy=false;featureSaving=false;deletingTeam=false;feedback='';
   kitPrimary='#16caba';kitSecondary='#f2fafc';kitPattern:TeamKitPattern='PLAIN';brandingSaving=false;
   readonly kitPatterns:ReadonlyArray<{id:TeamKitPattern;label:string}>=[
-    {id:'PLAIN',label:'Lisa'},{id:'STRIPES',label:'Riscas'},{id:'DIAGONAL',label:'Faixa diagonal'}
+    {id:'PLAIN',label:'Lisa'},{id:'STRIPES',label:'Riscas verticais'},{id:'DIAGONAL',label:'Faixa diagonal'},
+    {id:'HOOPS',label:'Riscas horizontais'},{id:'HALVES',label:'Metades'},{id:'CHEVRON',label:'V frontal'}
   ];
   readonly kitStripePositions:ReadonlyArray<number>=[-30,14,58,102,146,190,234,278];
+  readonly kitHoopPositions:ReadonlyArray<number>=[40,110,180,250];
   kitLabel(pattern:TeamKitPattern):string{return this.kitPatterns.find(p=>p.id===pattern)?.label||'Lisa';}
   private readonly maxTeamLogoBytes=5*1024*1024;
   saveTeamKit():void {
