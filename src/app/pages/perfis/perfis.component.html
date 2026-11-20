@@ -481,6 +481,50 @@
             }
           </section>
 
+          @if (isOwnProfile(selectedProfile)) {
+            <section class="profile-real-memberships" aria-label="As minhas equipas e comunidades">
+              <div class="profile-membership-heading">
+                <div>
+                  <h2>As minhas equipas e comunidades</h2>
+                  <p>Associações confirmadas pela tua conta Jynlo.</p>
+                </div>
+              </div>
+              @if (ownMembershipLoading) {
+                <p role="status" class="profile-membership-state">A carregar associações…</p>
+              } @else {
+                @if (ownVerifiedTeams.length) {
+                  <h3>Equipas</h3>
+                  <div class="profile-membership-grid">
+                    @for (team of ownVerifiedTeams; track team.id) {
+                      <a [routerLink]="['/menu/teams', team.id]" class="profile-membership-card">
+                        <strong>{{ team.name }}</strong>
+                        <span>{{ team.sport || 'Equipa desportiva' }}</span>
+                      </a>
+                    }
+                  </div>
+                }
+                @if (ownVerifiedCommunities.length) {
+                  <h3>Comunidades</h3>
+                  <div class="profile-membership-grid">
+                    @for (group of ownVerifiedCommunities; track group.id) {
+                      <a routerLink="/menu/communities" [queryParams]="{ communityId: group.id }"
+                         class="profile-membership-card">
+                        <strong>{{ group.name }}</strong>
+                        <span>{{ group.sport || 'Comunidade desportiva' }}</span>
+                      </a>
+                    }
+                  </div>
+                }
+                @if (!ownVerifiedTeams.length && !ownVerifiedCommunities.length && !ownMembershipError) {
+                  <p class="profile-membership-state">Ainda não tens equipas ou comunidades confirmadas.</p>
+                }
+                @if (ownMembershipError) {
+                  <p role="status" class="profile-membership-state">Não foi possível verificar todas as associações.</p>
+                }
+              }
+            </section>
+          }
+
           <nav class="profile-discovery-links" aria-label="Explorar desporto na Jynlo">
             <div class="profile-discovery-intro">
               <strong>Continuar a descobrir</strong>
