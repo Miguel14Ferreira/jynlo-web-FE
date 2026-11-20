@@ -164,7 +164,7 @@ import { CommunityProfile } from '../model/community-profile';
           {{kind === 'chat' ? 'Mensagem' : replyTargetId ? 'Comentário' : 'Nova publicação'}}
         </label>
         <div class="team-mention-anchor">
-          <textarea [id]="'team-content-' + kind + '-' + teamId" name="body"
+          <textarea #teamComposerInput [id]="'team-content-' + kind + '-' + teamId" name="body"
             [(ngModel)]="draft" maxlength="2000" [disabled]="sending"
             [attr.aria-expanded]="mentionOpen" [attr.aria-haspopup]="'listbox'"
             (ngModelChange)="onMentionDraftChange($event)" (keydown)="onComposerKeydown($event)"
@@ -529,6 +529,7 @@ import { CommunityProfile } from '../model/community-profile';
 export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy {
   @Input({required:true}) teamId = 0;
   @ViewChild('historyPane') historyPane?:ElementRef<HTMLDivElement>;
+  @ViewChild('teamComposerInput') teamComposerInput?:ElementRef<HTMLTextAreaElement>;
   unseenBelow=false;
   private nearLatest=true;
   onHistoryScroll():void {
@@ -1348,6 +1349,9 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.draft=restored?.draft||'';this.files=restored?.files||[];
     }
     this.replyTargetId=entry.id;
+    // The reply composer stays in the same conversation, as in unified messages.
+    // Render the inline feed composer before focusing it.
+    setTimeout(() => this.teamComposerInput?.nativeElement.focus({preventScroll:true}), 0);
   }
   beginEdit(entry:TeamContentEntry):void {
     if(entry.deleted || !entry.canEdit)return;
