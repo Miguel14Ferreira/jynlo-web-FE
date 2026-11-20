@@ -584,11 +584,20 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   private readonly maxTeamLogoBytes=5*1024*1024;
   saveTeamKit():void {
     if(!this.team||!this.isOwner||this.brandingSaving)return;
+    const playerName=this.kitPlayerName.trim();
+    const playerNumber=this.kitPlayerNumber.trim();
+    if(playerName.length>14 || (playerName && !/^[\\p{L}0-9 .'-]+$/u.test(playerName))){
+      this.feedback='Nome inválido: usa até 14 letras, números, espaços, pontos, hífenes ou apóstrofos.';
+      return;
+    }
+    if(playerNumber && !/^[0-9]{1,2}$/.test(playerNumber)){
+      this.feedback='Número inválido: indica um ou dois algarismos.';
+      return;
+    }
     this.brandingSaving=true;this.feedback='';
     this.api.setKit(this.team.id,this.kitPrimary,this.kitSecondary,this.kitPattern,{
       garment:this.kitGarment,accent:this.kitAccent,
-      playerName:this.kitPlayerName.trim().slice(0,14),
-      playerNumber:this.kitPlayerNumber.trim()
+      playerName,playerNumber
     }).pipe(timeout(15000)).subscribe({
       next:updated=>{this.team=updated;this.brandingSaving=false;this.api.rememberTeam(updated);
         this.kitPattern=updated.kitPattern||'PLAIN';
