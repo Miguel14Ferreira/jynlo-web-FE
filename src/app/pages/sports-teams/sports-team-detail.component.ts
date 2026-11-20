@@ -113,12 +113,12 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
         </div>
         <div class="team-roster" *ngIf="rosterVerified && visibleRoster.length">
           <div class="team-member" *ngFor="let player of visibleRoster; trackBy: trackRosterMember">
-            <span class="team-member-avatar" aria-hidden="true">
+            <a class="team-member-avatar team-member-profile-link" [routerLink]="['/menu/perfis',player.username]" [attr.aria-label]="'Abrir perfil de @' + player.username">
               <img *ngIf="playerAvatarSrc(player.profilePicUrl) && !brokenPlayerAvatars.has(player.profileId)"
                 [src]="playerAvatarSrc(player.profilePicUrl)!" loading="lazy" decoding="async"
                 (error)="brokenPlayerAvatars.add(player.profileId)" alt="">
               <ng-container *ngIf="!playerAvatarSrc(player.profilePicUrl) || brokenPlayerAvatars.has(player.profileId)">{{ (player.username || 'J').charAt(0).toUpperCase() }}</ng-container>
-            </span>
+            </a>
             <div class="team-member-identity"><a [routerLink]="['/menu/perfis',player.username]">@{{player.username}}</a><small>{{player.role === 'OWNER' ? 'Responsável' : 'Jogador'}}</small></div>
             <button *ngIf="isOwner && player.role !== 'OWNER'" type="button" [attr.aria-label]="'Remover @' + player.username + ' da equipa'" [disabled]="busy || !rosterVerified" (click)="removePlayer(player)">Remover</button>
           </div>
@@ -134,7 +134,7 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
           <p class="team-content-note" *ngIf="invitationsVerified">Convites sincronizados automaticamente.</p>
           <p *ngIf="invitationsVerified && !pendingPlayers.length" class="team-empty-hint">Não tens convites por responder.</p>
           <div *ngFor="let invite of (invitationsVerified?pendingPlayers:[]); trackBy: trackPendingPlayer" class="team-candidate team-invite-card">
-            <span class="team-candidate-avatar" aria-hidden="true">{{(invite.username || 'J').slice(0,1).toUpperCase()}}</span>
+            <a class="team-candidate-avatar team-member-profile-link" [routerLink]="['/menu/perfis',invite.username]" [attr.aria-label]="'Abrir perfil de @' + invite.username">{{(invite.username || 'J').slice(0,1).toUpperCase()}}</a>
             <div class="team-candidate-identity">
               <a [routerLink]="['/menu/perfis',invite.username]">@{{invite.username}}</a>
               <small>A aguardar resposta</small>
@@ -151,7 +151,7 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
           </div>
           <p *ngIf="playerSearchComplete && availablePlayers.length === 0" class="team-empty-hint" role="status">Não encontrámos jogadores disponíveis nesta pesquisa.</p>
           <div *ngFor="let candidate of availablePlayers; trackBy: trackCandidate" class="team-candidate team-player-result">
-            <span class="team-candidate-avatar" aria-hidden="true">{{(candidate.username || 'J').slice(0,1).toUpperCase()}}</span>
+            <a class="team-candidate-avatar team-member-profile-link" [routerLink]="['/menu/perfis',candidate.username]" [attr.aria-label]="'Abrir perfil de @' + candidate.username">{{(candidate.username || 'J').slice(0,1).toUpperCase()}}</a>
             <div class="team-candidate-identity">
               <a [routerLink]="['/menu/perfis',candidate.username]">{{candidate.fullName || candidate.username}}</a>
               <small>@{{candidate.username}}</small>
