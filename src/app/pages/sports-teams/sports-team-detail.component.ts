@@ -248,29 +248,82 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
           <span>Responsável</span>
         </div>
         <app-team-crest-editor [teamName]="t.name" [disabled]="brandingSaving" (generated)="saveGeneratedCrest($event)"></app-team-crest-editor>
-        <div class="team-branding-controls">
+        <div class="team-logo-actions">
           <label class="team-upload">Adicionar ou mudar logótipo
             <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" [disabled]="brandingSaving"
               (change)="uploadTeamLogo($event)">
           </label>
           <button type="button" *ngIf="t.logoUrl" (click)="removeTeamLogo()" [disabled]="brandingSaving">Remover logótipo</button>
-          <label>Cor principal <input type="color" [(ngModel)]="kitPrimary" [disabled]="brandingSaving"></label>
-          <label>Cor secundária <input type="color" [(ngModel)]="kitSecondary" [disabled]="brandingSaving"></label>
-          <fieldset class="team-pattern-options" [disabled]="brandingSaving" aria-label="Desenho do equipamento">
-            <legend>Modelo de camisola</legend>
-            <button *ngFor="let option of kitPatterns" type="button"
-              [class.chosen]="kitPattern === option.id"
-              [attr.aria-pressed]="kitPattern === option.id"
-              (click)="kitPattern = option.id">
-              <span class="team-shirt pattern-sample" [class]="'team-shirt pattern-sample kit-' + option.id.toLowerCase()"
-                [style.--shirt-primary]="kitPrimary" [style.--shirt-secondary]="kitSecondary" aria-hidden="true"></span>
-              {{option.label}}
-            </button>
-          </fieldset>
-          <button type="button" class="team-branding-save" [disabled]="brandingSaving" (click)="saveTeamKit()">
-            {{brandingSaving?'A guardar…':'Guardar equipamento'}}
-          </button>
         </div>
+        <section class="team-kit-editor" aria-label="Editor de equipamentos">
+          <div class="team-kit-editor-heading">
+            <div><h3>Desenhar equipamento</h3>
+              <p>Escolhe o modelo e as cores. Vê o resultado em grande antes de guardar.</p></div>
+            <span class="team-kit-preview-tag">PRÉ-VISUALIZAÇÃO</span>
+          </div>
+          <div class="team-kit-designer">
+            <div class="team-kit-preview-stage">
+              <svg class="team-kit-big-shirt" viewBox="0 0 320 336" role="img"
+                   [attr.aria-label]="'Pré-visualização da camisola ' + kitLabel(kitPattern) + ', cor principal ' + kitPrimary + ', cor secundária ' + kitSecondary">
+                <defs>
+                  <clipPath id="jynloTeamKitOutline">
+                    <path d="M112 30 77 42 24 93 57 146 91 126 91 290 Q160 312 229 290 L229 126 263 146 296 93 243 42 208 30
+                      Q194 57 160 57 Q126 57 112 30Z"/>
+                  </clipPath>
+                  <linearGradient id="jynloTeamKitShading" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#ffffff" stop-opacity=".22"/>
+                    <stop offset=".46" stop-color="#ffffff" stop-opacity="0"/>
+                    <stop offset="1" stop-color="#00121a" stop-opacity=".26"/>
+                  </linearGradient>
+                </defs>
+                <g clip-path="url(#jynloTeamKitOutline)">
+                  <rect x="0" y="0" width="320" height="336" [attr.fill]="kitPrimary"/>
+                  <ng-container *ngIf="kitPattern === 'STRIPES'">
+                    <rect *ngFor="let x of kitStripePositions" [attr.x]="x" y="0" width="22" height="336"
+                      [attr.fill]="kitSecondary"/>
+                  </ng-container>
+                  <path *ngIf="kitPattern === 'DIAGONAL'" d="M260 -40 340 2 82 362 -4 318Z" [attr.fill]="kitSecondary"/>
+                  <rect x="0" y="0" width="320" height="336" fill="url(#jynloTeamKitShading)"/>
+                </g>
+                <path d="M112 30 77 42 24 93 57 146 91 126 91 290 Q160 312 229 290 L229 126 263 146 296 93 243 42 208 30
+                  Q194 57 160 57 Q126 57 112 30Z" fill="none" stroke="#eafffa" stroke-opacity=".65" stroke-width="2.5"/>
+                <path d="M112 30 Q126 57 160 57 Q194 57 208 30 L196 20 Q160 43 124 20Z"
+                  [attr.fill]="kitSecondary" stroke="#ffffff" stroke-opacity=".6" stroke-width="2"/>
+                <path d="M91 126 57 146 M229 126 263 146 M91 290 Q160 312 229 290"
+                  fill="none" [attr.stroke]="kitSecondary" stroke-width="6" stroke-opacity=".8"/>
+              </svg>
+              <div class="team-kit-preview-caption">
+                <strong>{{ kitLabel(kitPattern) }}</strong>
+                <span>Equipamento da equipa · Visualização ilustrativa</span>
+                <div class="team-kit-swatch-pair" aria-hidden="true">
+                  <i [style.background]="kitPrimary"></i><i [style.background]="kitSecondary"></i>
+                </div>
+              </div>
+            </div>
+            <div class="team-kit-config">
+              <div class="team-kit-color-row">
+                <label>Cor principal <input type="color" [(ngModel)]="kitPrimary" [disabled]="brandingSaving"></label>
+                <label>Cor secundária <input type="color" [(ngModel)]="kitSecondary" [disabled]="brandingSaving"></label>
+              </div>
+              <fieldset class="team-pattern-options" [disabled]="brandingSaving" aria-label="Desenho do equipamento">
+                <legend>Modelo de camisola</legend>
+                <button *ngFor="let option of kitPatterns" type="button"
+                  [class.chosen]="kitPattern === option.id"
+                  [attr.aria-pressed]="kitPattern === option.id"
+                  (click)="kitPattern = option.id">
+                  <span class="team-shirt pattern-sample" [class]="'team-shirt pattern-sample kit-' + option.id.toLowerCase()"
+                    [style.--shirt-primary]="kitPrimary" [style.--shirt-secondary]="kitSecondary" aria-hidden="true"></span>
+                  <span>{{option.label}}</span>
+                  <small *ngIf="kitPattern === option.id">Selecionado</small>
+                </button>
+              </fieldset>
+              <p class="team-kit-save-hint">As alterações só ficam oficiais depois de guardares o equipamento.</p>
+              <button type="button" class="team-branding-save" [disabled]="brandingSaving" (click)="saveTeamKit()">
+                {{brandingSaving?'A guardar…':'Guardar equipamento'}}
+              </button>
+            </div>
+          </div>
+        </section>
       </section>
       <section *ngIf="isOwner" class="team-danger-zone" aria-label="Administração da equipa">
         <div>
@@ -453,6 +506,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   readonly kitPatterns:ReadonlyArray<{id:TeamKitPattern;label:string}>=[
     {id:'PLAIN',label:'Lisa'},{id:'STRIPES',label:'Riscas'},{id:'DIAGONAL',label:'Faixa diagonal'}
   ];
+  readonly kitStripePositions:ReadonlyArray<number>=[-30,14,58,102,146,190,234,278];
   kitLabel(pattern:TeamKitPattern):string{return this.kitPatterns.find(p=>p.id===pattern)?.label||'Lisa';}
   private readonly maxTeamLogoBytes=5*1024*1024;
   saveTeamKit():void {
