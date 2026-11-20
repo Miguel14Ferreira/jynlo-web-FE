@@ -5365,10 +5365,16 @@
 
                   @for (member of selected.members; track member.profileId) {
                     <div class="member-row">
-                      <div>
-                        <strong>{{ member.fullName || member.username }}</strong>
-                        <span>@{{ member.username }} · {{ member.role }}</span>
-                      </div>
+                      <a class="community-member-profile" [routerLink]="['/menu/perfis',member.username]"
+                         [attr.aria-label]="'Abrir perfil de @' + member.username"
+                         [title]="'Ver perfil de @' + member.username">
+                        <span class="community-member-avatar" aria-hidden="true">{{(member.fullName || member.username).slice(0,1).toUpperCase()}}</span>
+                        <span class="community-member-identity">
+                          <strong>{{ member.fullName || member.username }}</strong>
+                          <span>@{{ member.username }} · {{ member.role }}</span>
+                        </span>
+                        <span class="community-member-open" aria-hidden="true">↗</span>
+                      </a>
 
                       @if (isOwner() && member.role !== 'OWNER') {
                         <div class="row-actions">
