@@ -112,16 +112,28 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
           <span role="status">{{visibleRoster.length}} de {{members.length}} jogadores</span>
         </div>
         <div class="team-roster" *ngIf="rosterVerified && visibleRoster.length">
-          <div class="team-member" *ngFor="let player of visibleRoster; trackBy: trackRosterMember">
+          <article class="team-member" *ngFor="let player of visibleRoster; trackBy: trackRosterMember">
             <a class="team-member-avatar team-member-profile-link" [routerLink]="['/menu/perfis',player.username]" [attr.aria-label]="'Abrir perfil de @' + player.username">
               <img *ngIf="playerAvatarSrc(player.profilePicUrl) && !brokenPlayerAvatars.has(player.profileId)"
                 [src]="playerAvatarSrc(player.profilePicUrl)!" loading="lazy" decoding="async"
                 (error)="brokenPlayerAvatars.add(player.profileId)" alt="">
               <ng-container *ngIf="!playerAvatarSrc(player.profilePicUrl) || brokenPlayerAvatars.has(player.profileId)">{{ (player.username || 'J').charAt(0).toUpperCase() }}</ng-container>
             </a>
-            <div class="team-member-identity"><a [routerLink]="['/menu/perfis',player.username]">@{{player.username}}</a><small>{{player.role === 'OWNER' ? 'Responsável' : 'Jogador'}}</small></div>
-            <button *ngIf="isOwner && player.role !== 'OWNER'" type="button" [attr.aria-label]="'Remover @' + player.username + ' da equipa'" [disabled]="busy || !rosterVerified" (click)="removePlayer(player)">Remover</button>
-          </div>
+            <div class="team-member-identity">
+              <a class="team-member-name" [routerLink]="['/menu/perfis',player.username]">{{player.fullName || player.username}}</a>
+              <span class="team-member-handle">@{{player.username}}</span>
+              <span *ngIf="player.bio" class="team-member-bio">{{player.bio}}</span>
+            </div>
+            <span class="team-member-role" [class.team-member-role-owner]="player.role === 'OWNER'">
+              {{player.role === 'OWNER' ? 'Responsável' : 'Jogador'}}
+            </span>
+            <div class="team-member-actions">
+              <a class="team-member-open" [routerLink]="['/menu/perfis',player.username]" [attr.aria-label]="'Ver perfil de @' + player.username" title="Ver perfil">↗</a>
+              <button *ngIf="isOwner && player.role !== 'OWNER'" type="button" class="team-member-remove"
+                [attr.aria-label]="'Remover @' + player.username + ' da equipa'" title="Remover jogador da equipa"
+                [disabled]="busy || !rosterVerified" (click)="removePlayer(player)">Remover</button>
+            </div>
+          </article>
         </div>
         <p *ngIf="rosterVerified && members.length === 0">Ainda não existem jogadores no plantel.</p>
         <p *ngIf="rosterVerified && members.length > 0 && !visibleRoster.length" role="status">Não existem jogadores que correspondam à pesquisa.</p>
