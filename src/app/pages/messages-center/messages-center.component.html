@@ -301,7 +301,7 @@
                   @if (sharedStory.caption) {
                     <p class="inbox-story-share-caption">{{ sharedStory.caption }}</p>
                   }
-                  <app-inbox-story-card [storyId]="sharedStory.id"></app-inbox-story-card>
+                  <app-inbox-story-card [storyId]="sharedStory.id" [sharedAt]="message.createdAt"></app-inbox-story-card>
                 } @else if (readSharedMessage(message.text); as shared) {
                   <div class="inbox-shared-card">
                     <span class="inbox-shared-card-kind">{{ ('chat.shareType.' + shared.kind) | t }}</span>
