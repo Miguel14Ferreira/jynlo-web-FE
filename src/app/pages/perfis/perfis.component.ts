@@ -4,6 +4,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@
 import { CommunityGroupsService } from '../../services/community-groups.service';
 import { SessionService } from '../../services/session.service';
 import { CommunityGroup } from '../model/community-group';
+import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.service';
 import { SessionSummary } from '../model/session-summary';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, finalize, forkJoin, of, retry, Subscription, timeout } from 'rxjs';
@@ -44,6 +45,11 @@ export class PerfisComponent implements OnInit, OnDestroy {
   private routeSubscription?: Subscription;
   private profileSubscription?: Subscription;
   private detailSubscription?: Subscription;
+  private membershipSubscription?: Subscription;
+  ownVerifiedTeams: SportsTeam[] = [];
+  ownVerifiedCommunities: CommunityGroup[] = [];
+  ownMembershipLoading = false;
+  ownMembershipError = false;
   private blockStatusSubscription?: Subscription;
   private postsSubscription?: Subscription;
   private postsRevision = 0;
@@ -383,6 +389,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     private socialGraphService: SocialGraphService,
     private route: ActivatedRoute,
     private communityGroups: CommunityGroupsService,
+    private sportsTeams: SportsTeamsService,
     private sessionService: SessionService,
     private socialFeed: SocialFeedService,
     private socialStories: SocialStoriesService
@@ -433,6 +440,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.routeSubscription?.unsubscribe();
     this.profileSubscription?.unsubscribe();
     this.detailSubscription?.unsubscribe();
+    this.membershipSubscription?.unsubscribe();
     this.blockStatusSubscription?.unsubscribe();
     this.friendshipSubscription?.unsubscribe();
     this.postsSubscription?.unsubscribe();
@@ -588,6 +596,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.closeInvitePanel();
     this.sentInvites.clear();
     this.selectedProfile = profile;
+    this.loadOwnMemberships(profile);
     this.expandedPost = null;
     // Never flash content from a previously viewed profile while permissions load.
     this.postsSubscription?.unsubscribe();
@@ -629,6 +638,49 @@ export class PerfisComponent implements OnInit, OnDestroy {
           if (this.selectedProfile?.username !== profile.username) return;
           this.selectedFollowStatus = followStatus;
         })
+    );
+  }
+
+  private loadOwnMemberships(profile: CommunityProfile): void {
+    this.membershipSubscription?.unsubscribe();
+    this.ownVerifiedTeams = [];
+    this.ownVerifiedCommunities = [];
+    this.ownMembershipError = false;
+    this.ownMembershipLoading = false;
+    // /joined and /mine are authenticated 'me' endpoints, never a public
+    // membership lookup. Do not call or display them on someone else's profile.
+    if (!this.isOwnProfile(profile)) return;
+    this.ownMembershipLoading = true;
+    const isCurrent = () => this.selectedProfile?.username.toLowerCase() === profile.username.toLowerCase()
+      && this.isOwnProfile(profile);
+    let pending = 2;
+    let failed = false;
+    const complete = () => {
+      if (!isCurrent()) return;
+      if (--pending === 0) {
+        this.ownMembershipLoading = false;
+        this.ownMembershipError = failed;
+      }
+    };
+    this.membershipSubscription = new Subscription();
+    this.membershipSubscription.add(
+      this.sportsTeams.joined().pipe(timeout(10000)).subscribe({
+        next: teams => {
+          if (isCurrent()) this.ownVerifiedTeams = teams.filter(team => Number.isSafeInteger(team.id) && team.id > 0);
+        },
+        error: () => { failed = true; complete(); },
+        complete
+      })
+    );
+    this.membershipSubscription.add(
+      this.communityGroups.mine().pipe(timeout(10000)).subscribe({
+        next: communities => {
+          if (isCurrent()) this.ownVerifiedCommunities = communities.filter(group =>
+            Number.isSafeInteger(group.id) && group.id > 0 && group.myRole !== null);
+        },
+        error: () => { failed = true; complete(); },
+        complete
+      })
     );
   }
 
@@ -706,6 +758,11 @@ export class PerfisComponent implements OnInit, OnDestroy {
   }
 
   closeProfile(): void {
+    this.membershipSubscription?.unsubscribe();
+    this.ownMembershipLoading = false;
+    this.ownMembershipError = false;
+    this.ownVerifiedTeams = [];
+    this.ownVerifiedCommunities = [];
     this.closeFollowList();
     this.closeInvitePanel();
     this.expandedPost = null;
