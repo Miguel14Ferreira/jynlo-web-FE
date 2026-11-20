@@ -316,7 +316,13 @@
                   <app-giphy-embed [id]="giphy.id" [pageUrl]="giphy.pageUrl"
                     [caption]="giphy.caption" [creator]="giphy.creator"></app-giphy-embed>
                 } @else if (showMessageBody(message)) {
-                  <p>{{ displayMessagePreview(message.text) }}</p>
+                  <p class="inbox-mention-body">@for (part of messageMentionParts(displayMessagePreview(message.text)); track $index) {
+                    @if (part.username) {
+                      <button type="button" class="inbox-mention-link"
+                        [attr.aria-label]="'Ver perfil de @' + part.username"
+                        (click)="openContact(part.username)">{{part.text}}</button>
+                    } @else {<span>{{part.text}}</span>}
+                  }</p>
                 }
                 @if (!message.deletedAt && message.attachmentName) {
                   <div class="inbox-attachment">
@@ -616,6 +622,17 @@
               [disabled]="composerAccessLoading || !composerAllowed || !isSelectedSessionOpen() || previewLoading || previewError || deliveryUncertain || deliveryChecking"
               (ngModelChange)="onTypingInput()" (blur)="typing.stop()"
               (keydown.enter)="onComposerEnter($event)" (paste)="onComposerPaste($event)"></textarea>
+              @if(mentionMatches.length || mentionLoading) {
+                <div class="inbox-mention-picker" role="listbox" aria-label="Identificar utilizador">
+                  @if(mentionLoading){<span class="inbox-mention-loading">A procurar perfis…</span>}
+                  @for(person of mentionMatches; track person.username){
+                    <button type="button" class="inbox-mention-choice"
+                      [attr.aria-label]="'Identificar @' + person.username" (click)="selectMention(person.username)">
+                      <strong>@{{person.username}}</strong><span>{{person.fullName || person.nickname || ''}}</span>
+                    </button>
+                  }
+                </div>
+              }
               <div class="inbox-composer-actions">
                 @if (attachmentControlsReady && voiceSupported) {
                   <button type="button" class="inbox-voice-trigger"
