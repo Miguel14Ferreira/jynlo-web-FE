@@ -571,6 +571,30 @@
             </div>
           </nav>
 
+          @if (publicIndividualTitles.length > 0) {
+            <section class="profile-individual-titles" aria-label="Títulos individuais oficiais">
+              <div class="profile-individual-titles-heading">
+                <span class="section-kicker">PALMARÉS</span>
+                <h2>Títulos individuais oficiais</h2>
+                <p>Vitórias confirmadas em torneios concluídos de comunidades públicas.</p>
+              </div>
+              <div class="profile-individual-titles-grid">
+                @for (title of publicIndividualTitles; track title.tournamentId) {
+                  <a [routerLink]="['/menu/communities', title.communityId]"
+                     class="profile-individual-title-card">
+                    <span class="profile-individual-title-icon" aria-hidden="true">🏆</span>
+                    <strong>{{ title.tournamentName }}</strong>
+                    <span>{{ title.communityName }}</span>
+                    @if (title.sport) {
+                      <span>{{ title.sport }}</span>
+                    }
+                    <small>Concluído em {{ title.completedAt | date:'MMM yyyy' }}</small>
+                  </a>
+                }
+              </div>
+            </section>
+          }
+
           @if (selectedActivity) {
             <section class="public-activity">
               <span class="section-kicker">{{ 'profileData.activityKicker' | t }}</span>
