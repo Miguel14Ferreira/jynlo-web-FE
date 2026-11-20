@@ -17,7 +17,7 @@ import { SocialFeedService } from '../../services/social-feed.service';
 import { SocialStoriesService } from '../../services/social-stories.service';
 import { SocialStory } from '../model/social-story';
 import { FollowStatus, FollowProfile } from '../model/follow';
-import { CommunityService, FriendshipStatus, ProfileSearchFilters, PublicProfileAffiliations } from '../../services/community.service';
+import { CommunityService, FriendshipStatus, ProfileSearchFilters, PublicProfileAffiliations, PublicIndividualTitle } from '../../services/community.service';
 import { AuthenticationService } from '../../services/authethication.service';
 import { ReliabilityService } from '../../services/reliability.service';
 import { SocialGraphService } from '../../services/social-graph.service';
@@ -47,6 +47,9 @@ export class PerfisComponent implements OnInit, OnDestroy {
   private detailSubscription?: Subscription;
   private membershipSubscription?: Subscription;
   private publicMembershipSubscription?: Subscription;
+  private competitionTitlesSubscription?: Subscription;
+  publicIndividualTitles: PublicIndividualTitle[] = [];
+  publicTitlesLoading = false;
   publicAffiliations: PublicProfileAffiliations | null = null;
   publicAffiliationsLoading = false;
   ownVerifiedTeams: SportsTeam[] = [];
@@ -445,6 +448,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.detailSubscription?.unsubscribe();
     this.membershipSubscription?.unsubscribe();
     this.publicMembershipSubscription?.unsubscribe();
+    this.competitionTitlesSubscription?.unsubscribe();
     this.blockStatusSubscription?.unsubscribe();
     this.friendshipSubscription?.unsubscribe();
     this.postsSubscription?.unsubscribe();
@@ -602,6 +606,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.selectedProfile = profile;
     this.loadOwnMemberships(profile);
     this.loadPublicAffiliations(profile);
+    this.loadPublicIndividualTitles(profile);
     this.expandedPost = null;
     // Never flash content from a previously viewed profile while permissions load.
     this.postsSubscription?.unsubscribe();
@@ -648,6 +653,9 @@ export class PerfisComponent implements OnInit, OnDestroy {
 
   private loadPublicAffiliations(profile: CommunityProfile): void {
     this.publicMembershipSubscription?.unsubscribe();
+    this.competitionTitlesSubscription?.unsubscribe();
+    this.publicIndividualTitles = [];
+    this.publicTitlesLoading = false;
     this.publicAffiliations = null;
     this.publicAffiliationsLoading = false;
     if (this.isOwnProfile(profile)) return;
@@ -671,6 +679,30 @@ export class PerfisComponent implements OnInit, OnDestroy {
           // fall back to /mine, roster searches or guessed affiliations.
           if (this.selectedProfile?.username.toLowerCase() === profile.username.toLowerCase())
             this.publicAffiliations = null;
+        }
+      });
+  }
+
+  private loadPublicIndividualTitles(profile: CommunityProfile): void {
+    this.competitionTitlesSubscription?.unsubscribe();
+    this.publicIndividualTitles = [];
+    this.publicTitlesLoading = true;
+    this.competitionTitlesSubscription = this.communityService.publicIndividualTitles(profile.username)
+      .pipe(timeout(10000), finalize(() => {
+        if (this.selectedProfile?.username.toLowerCase() === profile.username.toLowerCase())
+          this.publicTitlesLoading = false;
+      }))
+      .subscribe({
+        next: titles => {
+          if (this.selectedProfile?.username.toLowerCase() !== profile.username.toLowerCase()) return;
+          this.publicIndividualTitles = (Array.isArray(titles) ? titles : []).filter(title =>
+            Number.isSafeInteger(title.tournamentId) && title.tournamentId > 0
+            && Number.isSafeInteger(title.communityId) && title.communityId > 0);
+        },
+        error: () => {
+          // Failure must never produce inferred medals or invented results.
+          if (this.selectedProfile?.username.toLowerCase() === profile.username.toLowerCase())
+            this.publicIndividualTitles = [];
         }
       });
   }
