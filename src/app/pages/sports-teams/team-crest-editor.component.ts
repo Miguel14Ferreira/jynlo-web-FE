@@ -22,7 +22,7 @@ import { FormsModule } from '@angular/forms';
             <path [attr.d]="shieldPath" fill="none" [attr.stroke]="secondary" stroke-width="5"
               transform="translate(160 170) scale(.91) translate(-160 -170)"/>
             <path *ngIf="shape==='shield'" d="M74 106H246" [attr.stroke]="secondary" stroke-width="5"/>
-            <text x="160" y="160" text-anchor="middle" font-size="87" font-weight="800"
+            <text *ngIf="symbol !== 'none'" x="160" y="160" text-anchor="middle" font-size="87" font-weight="800"
               [attr.fill]="secondary" font-family="Arial,sans-serif">{{ symbolLabel }}</text>
             <text x="160" y="221" text-anchor="middle" font-size="28" font-weight="900"
               [attr.fill]="secondary" font-family="Arial,sans-serif">{{ initials }}</text>
@@ -42,6 +42,7 @@ import { FormsModule } from '@angular/forms';
           </label>
           <label>Símbolo
             <select [(ngModel)]="symbol" [disabled]="disabled">
+              <option value="none">Nenhum símbolo</option>
               <option value="ball">⚽ Futebol</option>
               <option value="star">★ Estrela</option>
               <option value="bolt">⚡ Energia</option>
@@ -98,7 +99,7 @@ export class TeamCrestEditorComponent {
   @Input() disabled = false;
   @Output() generated = new EventEmitter<File>();
   shape: 'shield'|'circle'|'hex'|'diamond'|'rounded' = 'shield';
-  symbol: 'ball'|'star'|'bolt'|'trophy'|'letter'|'crown'|'flame'|'heart' = 'ball';
+  symbol: 'none'|'ball'|'star'|'bolt'|'trophy'|'letter'|'crown'|'flame'|'heart' = 'ball';
   primary = '#0D7169';
   secondary = '#F5FFFF';
   customInitials = '';
@@ -109,7 +110,7 @@ export class TeamCrestEditorComponent {
       .replace(/[^A-Za-z0-9À-ÿ]/g,'').toUpperCase().slice(0,4) || 'J';
   }
   get symbolLabel(): string {
-    return {ball:'⚽',star:'★',bolt:'⚡',trophy:'🏆',letter:'◆',crown:'♛',flame:'🔥',heart:'♥'}[this.symbol];
+    return {none:'',ball:'⚽',star:'★',bolt:'⚡',trophy:'🏆',letter:'◆',crown:'♛',flame:'🔥',heart:'♥'}[this.symbol];
   }
   get shieldPath(): string {
     if (this.shape==='circle') return 'M160 23 A142 142 0 1 1 159.99 23 Z';
@@ -135,7 +136,7 @@ export class TeamCrestEditorComponent {
     ctx.translate(160,170);ctx.scale(.91,.91);ctx.translate(-160,-170);
     ctx.strokeStyle=this.secondary;ctx.lineWidth=5;ctx.stroke(path);ctx.restore();
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=this.secondary;
-    ctx.font='bold 80px Arial';ctx.fillText(this.symbolLabel,160,145);
+    if(this.symbol!=='none'){ctx.font='bold 80px Arial';ctx.fillText(this.symbolLabel,160,145);}
     ctx.font='900 32px Arial';ctx.fillText(this.initials,160,218);
     ctx.font='bold 17px Arial';ctx.fillText('JYNLO · '+year,160,268);
     canvas.toBlob(blob=>{
