@@ -170,12 +170,12 @@ export class DiscoverComponent implements OnInit {
       this.locationEdited = true;
     }
 
+    // Show useful public results without waiting for the optional profile GET.
+    // Profile preferences are applied as a later refinement, never as a
+    // prerequisite for painting Explore.
+    this.search();
     const username = this.authenticationService.loggedInPerfilname;
-
-    if (!username) {
-      this.search();
-      return;
-    }
+    if (!username) return;
 
     this.communityService.publicProfile(username)
       .pipe(
@@ -184,24 +184,32 @@ export class DiscoverComponent implements OnInit {
         catchError(() => of(null))
       )
       .subscribe(profile => {
-        if (profile) {
-          if (!this.sportEdited) {
-            const favorites = (profile.favoriteSports || '')
-              .split(/[,;|]/)
-              .map(value => this.normalizeFavoriteSport(value))
-              .filter(Boolean);
-            this.sport = favorites
-              .map(favorite => this.sportsCatalog.find(sport =>
-                this.normalizeFavoriteSport(sport) === favorite))
-              .find((sport): sport is string => Boolean(sport)) || '';
-          }
-
-          if (!this.locationEdited) {
-            this.location = profile.location?.trim() || '';
+        if (!profile) return;
+        let refined = false;
+        if (!this.sportEdited) {
+          const favorites = (profile.favoriteSports || '')
+            .split(/[,;|]/)
+            .map(value => this.normalizeFavoriteSport(value))
+            .filter(Boolean);
+          const preferred = favorites
+            .map(favorite => this.sportsCatalog.find(sport =>
+              this.normalizeFavoriteSport(sport) === favorite))
+            .find((sport): sport is string => Boolean(sport)) || '';
+          if (preferred && preferred !== this.sport) {
+            this.sport = preferred;
+            refined = true;
           }
         }
-
-        this.search();
+        if (!this.locationEdited) {
+          const preferred = profile.location?.trim() || '';
+          if (preferred && preferred !== this.location) {
+            this.location = preferred;
+            refined = true;
+          }
+        }
+        // Only repeat discovery when a real preference changed. Avoid a
+        // second identical full search after every profile request.
+        if (refined) this.search();
       });
   }
 
