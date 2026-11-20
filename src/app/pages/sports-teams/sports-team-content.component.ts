@@ -300,6 +300,32 @@ import { CommunityProfile } from '../model/community-profile';
       .team-chat-mode .team-content-entry:focus-within>.team-content-actions{
         opacity:1;visibility:visible;pointer-events:auto}
     }
+    /* Feed feels like the main Jynlo timeline: clean composer and readable cards. */
+    .team-feed-mode{gap:17px}
+    .team-feed-mode .team-content-heading{border:0;padding:3px 2px 10px}
+    .team-feed-mode .team-content-heading-icon{border-radius:50%;background:#124c53}
+    .team-feed-mode .team-content-editor{padding:clamp(12px,2vw,18px);
+      gap:12px;background:#0c303e;border:1px solid #3b7f836e;border-radius:17px}
+    .team-feed-mode .team-content-editor>label{font-size:.84rem;color:#d0eee8;font-weight:850}
+    .team-feed-mode .team-content-editor textarea{min-height:92px;border-radius:13px;
+      padding:15px;background:#092c39;line-height:1.55;resize:vertical}
+    .team-feed-mode .team-composer-footer{padding-top:12px;border-top:1px solid #3d747955}
+    .team-feed-mode .team-composer-footer>button{margin-left:auto;border-radius:11px;
+      min-width:110px;background:#43e4c2;color:#06313b;border:0}
+    .team-feed-mode .team-content-history{display:grid;gap:17px;padding:3px 1px 18px;
+      max-height:min(68vh,850px)}
+    .team-feed-mode .team-content-entry{padding:clamp(15px,2.1vw,21px);
+      border-radius:17px;background:#0c303e;border:1px solid #3c80846e;
+      box-shadow:none}
+    .team-feed-mode .team-entry-header{border-bottom:0;padding-bottom:11px}
+    .team-feed-mode .team-content-entry>.team-content-body{font-size:.93rem;line-height:1.65}
+    .team-feed-mode .team-reactions{margin-top:16px;border-top:1px solid #3b757951;
+      padding-top:12px}
+    .team-feed-mode .team-content-actions{margin-top:5px;padding-top:8px;
+      border-top:0}
+    .team-feed-mode .team-content-actions button{border:0;background:transparent;
+      color:#bde8e1}
+    .team-feed-mode .team-content-actions button:hover{background:#164e56}
     .team-chat-mode .team-react-trigger{font-size:.76rem;color:#a9d9d4;border-color:transparent;background:transparent}
     .team-chat-mode .team-reactions{gap:.28rem;margin-top:.5rem;align-items:center}
     .team-chat-mode .team-reactions .team-reaction-summary{padding:.22rem .5rem;min-height:29px;border:1px solid #3a8a8c;border-radius:20px;font-size:.78rem;background:#123d49;color:#eefdf8}
