@@ -1563,6 +1563,7 @@ export const EN: Record<string, string> = {
   'profileData.participantsMobilized': 'Participants mobilised',
   'profileData.communitiesJoined': 'Communities',
   'profileData.achievements': 'Achievements',
+  'profileData.showAllAchievements': 'View all achievements',
   'profileData.trustKicker': 'Trust',
   'profileData.accountKicker': 'Account',
   'profileData.privateData': 'Private data',
