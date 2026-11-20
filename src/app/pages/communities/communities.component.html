@@ -530,6 +530,24 @@
                   </div>
                   <h2>{{ selected.name }}</h2>
                   <p>{{ selected.description || ('communities.noDescription' | t) }}</p>
+                  @if (selected.visibility === 'PUBLIC') {
+                    <div class="community-follow-control" aria-label="Seguir comunidade">
+                      @if (communityFollowState; as followState) {
+                        <span class="community-follow-count">
+                          <strong>{{ followState.count }}</strong>
+                          {{ followState.count===1 ? 'seguidor' : 'seguidores' }}
+                        </span>
+                        <button type="button" [disabled]="communityFollowBusy"
+                          [attr.aria-pressed]="followState.following"
+                          (click)="toggleCommunityFollow()">
+                          {{ communityFollowBusy ? 'A atualizar…' : followState.following ? 'A seguir ✓' : 'Seguir comunidade +' }}
+                        </button>
+                      } @else if (communityFollowError) {
+                        <span role="status">{{communityFollowError}}</span>
+                        <button type="button" (click)="loadCommunityFollow(selected.id)">Tentar novamente</button>
+                      }
+                    </div>
+                  }
                   <div class="community-hero-meta">
                     <span>{{ selected.memberCount === 1
                       ? ('communities.memberOne' | t:{ count: selected.memberCount })
