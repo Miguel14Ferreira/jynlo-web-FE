@@ -289,12 +289,12 @@
                     <textarea [ngModel]="editDraft" (ngModelChange)="editDraft = $event"
                       [ngModelOptions]="{standalone:true}" maxlength="2000" rows="3"
                       [disabled]="mutationPending"
-                      [attr.aria-label]="'chat.editMessage' | t"></textarea>
-                    <div class="inbox-mutation-actions">
-                      <button type="button" [disabled]="mutationPending || !editDraft.trim() || editDraft.trim() === message.text || editDraft.trim().length > 2000"
-                        (click)="saveEditedMessage(message)">{{ 'chat.saveEdit' | t }}</button>
-                      <button type="button" [disabled]="mutationPending"
+                      [attr.aria-label]="'chat.editMessage' | t" (keydown.escape)="cancelMessageMutation()"></textarea>
+                    <div class="inbox-mutation-actions inbox-edit-actions">
+                      <button type="button" class="inbox-edit-cancel" [disabled]="mutationPending"
                         (click)="cancelMessageMutation()">{{ 'chat.cancelEdit' | t }}</button>
+                      <button type="button" class="inbox-edit-save" [disabled]="mutationPending || !editDraft.trim() || editDraft.trim() === message.text || editDraft.trim().length > 2000"
+                        (click)="saveEditedMessage(message)">✓ {{ 'chat.saveEdit' | t }}</button>
                     </div>
                     @if (mutationError) { <p role="alert">{{ mutationError }}</p> }
                   </div>
@@ -524,8 +524,8 @@
                   <strong>{{ 'chat.replyingTo' | t }} {{ original.sender }}</strong>
                   <span>{{ displayMessagePreview(original.text) }}</span>
                 </div>
-                <button type="button" [disabled]="sending || deliveryUncertain"
-                  (click)="cancelReply()">{{ 'chat.cancelReply' | t }}</button>
+                <button type="button" class="inbox-reply-dismiss" [disabled]="sending || deliveryUncertain"
+                  (click)="cancelReply()" [attr.aria-label]="'chat.cancelReply' | t" [title]="'chat.cancelReply' | t">×</button>
               </div>
             }
             @if (!composerAccessLoading && composerAccessError && !previewLoading && !previewError) {
