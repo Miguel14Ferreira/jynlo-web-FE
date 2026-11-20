@@ -114,6 +114,15 @@
   var(--shirt-primary) 0 8px,var(--shirt-secondary) 8px 15px)}
 .team-shirt.kit-diagonal:after{background:linear-gradient(125deg,
   var(--shirt-primary) 0 36%,var(--shirt-secondary) 36% 55%,var(--shirt-primary) 55% 100%)}
+.team-shirt.kit-hoops:after{background:repeating-linear-gradient(0deg,
+  var(--shirt-primary) 0 8px,var(--shirt-secondary) 8px 15px)}
+.team-shirt.kit-halves:after{background:linear-gradient(90deg,
+  var(--shirt-primary) 0 50%,var(--shirt-secondary) 50% 100%)}
+.team-shirt.kit-chevron:after{background:linear-gradient(145deg,
+  transparent 0 41%,var(--shirt-secondary) 41% 52%,transparent 52%) left/50% 65% no-repeat,
+  linear-gradient(215deg,transparent 0 41%,var(--shirt-secondary) 41% 52%,transparent 52%) right/50% 65% no-repeat,
+  var(--shirt-primary)}
+
 .team-pattern-options{min-width:0;width:100%;display:flex;flex-wrap:wrap;gap:.65rem;
   border:1px solid #346c78;border-radius:13px;padding:.85rem;margin:.2rem 0}
 .team-pattern-options legend{font-size:.83rem;font-weight:800;padding:0 .4rem;color:#d5f8f3}
