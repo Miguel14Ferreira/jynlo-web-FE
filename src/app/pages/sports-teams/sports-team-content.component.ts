@@ -6,6 +6,8 @@ import { RouterLink } from '@angular/router';
 import { Subscription, interval, fromEvent, merge } from 'rxjs';
 import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionState } from '../../services/sports-teams.service';
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
+import { CommunityService } from '../../services/community.service';
+import { CommunityProfile } from '../model/community-profile';
 
 @Component({
   selector: 'app-sports-team-content',
@@ -52,11 +54,11 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
         </div>
         <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry" [class.team-feed-comment]="isFeedComment(item)" [class.team-own-message]="kind === 'chat' && item.canEdit" [class.team-removed-message]="item.deleted">
           <div class="team-entry-header">
-            <span class="team-entry-avatar" aria-hidden="true">
+            <a class="team-entry-avatar team-avatar-link" [routerLink]="['/menu/perfis', item.username]" [attr.aria-label]="'Abrir perfil de @' + item.username">
               <img *ngIf="authorAvatarSrc(item) && !brokenAuthorAvatars.has(item.id)"
                 [src]="authorAvatarSrc(item)!" (error)="brokenAuthorAvatars.add(item.id)" loading="lazy" alt="" />
               <ng-container *ngIf="!authorAvatarSrc(item) || brokenAuthorAvatars.has(item.id)">{{(item.username || 'J').slice(0,1).toUpperCase()}}</ng-container>
-            </span>
+            </a>
             <div class="team-entry-meta"><a class="team-author-link" [routerLink]="['/menu/perfis',item.username]" [attr.aria-label]="'Abrir perfil de @' + item.username">@{{item.username}}</a>
               <time>{{item.createdAt | date:'dd/MM/yyyy HH:mm'}}</time></div>
           </div>
@@ -83,6 +85,18 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
           </button>
           <small *ngIf="item.editedAt && !item.deleted">Editada</small>
           <div class="team-reactions" *ngIf="!item.deleted" [attr.aria-label]="kind === 'chat' ? 'Reações à mensagem' : 'Reações à publicação'">
+            <ng-container *ngIf="kind === 'chat'">
+              <button type="button" class="team-react-trigger" [disabled]="reactionBusyId !== null"
+                [attr.aria-expanded]="feedReactionPickerId === item.id"
+                [attr.aria-label]="'Adicionar reação à mensagem de @' + item.username"
+                (click)="toggleFeedReactionPicker(item.id)">☺ <span>Reagir</span></button>
+              <button type="button" *ngFor="let emoji of emojis" class="team-reaction-summary"
+                [hidden]="!reactionsById[item.id]?.counts?.[emoji]"
+                [disabled]="reactionBusyId !== null"
+                [class.selected]="reactionsById[item.id]?.mine === emoji"
+                [attr.aria-label]="emoji + ' ' + (reactionsById[item.id]?.counts?.[emoji] || 0) + ' reações'"
+                (click)="react(item,emoji)">{{emoji}} {{reactionsById[item.id]?.counts?.[emoji] || 0}}</button>
+            </ng-container>
             <ng-container *ngIf="kind === 'feed'">
               <button type="button" [disabled]="reactionBusyId !== null"
                 [class.selected]="reactionsById[item.id]?.mine === '❤️'"
@@ -94,7 +108,7 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
                 [attr.aria-label]="'Escolher reação à publicação de @' + item.username"
                 (click)="toggleFeedReactionPicker(item.id)">☺ Reagir</button>
             </ng-container>
-            <ng-container *ngIf="kind === 'chat' || feedReactionPickerId === item.id">
+            <ng-container *ngIf="feedReactionPickerId === item.id">
               <button type="button" *ngFor="let emoji of emojis" [disabled]="reactionBusyId !== null"
                 [class.selected]="reactionsById[item.id]?.mine === emoji"
                 [attr.aria-pressed]="reactionsById[item.id]?.mine === emoji"
@@ -132,9 +146,16 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
           {{kind === 'chat' ? 'Mensagem' : replyTargetId ? 'Comentário' : 'Nova publicação'}}
         </label>
         <textarea [id]="'team-content-' + kind + '-' + teamId" name="body"
-          [(ngModel)]="draft" maxlength="2000" [disabled]="sending" (keydown)="onComposerKeydown($event)"
+          [(ngModel)]="draft" maxlength="2000" [disabled]="sending" (ngModelChange)="onMentionDraftChange($event)" (keydown)="onComposerKeydown($event)"
           (paste)="onComposerPaste($event)"
           [placeholder]="kind === 'chat' ? 'Escreve uma mensagem…' : 'Partilha novidades com o plantel…'"></textarea>
+        <div *ngIf="mentionOptions.length || mentionBusy" class="team-mention-options" role="listbox" aria-label="Identificar utilizador">
+          <span *ngIf="mentionBusy">A procurar perfis…</span>
+          <button type="button" *ngFor="let person of mentionOptions" [disabled]="sending"
+            (click)="chooseMention(person.username)" [attr.aria-label]="'Identificar @' + person.username">
+            <strong>@{{person.username}}</strong><small>{{person.fullName || person.nickname || ''}}</small>
+          </button>
+        </div>
         <div *ngIf="attachmentsEnabled" class="team-upload-selector">
           <label [for]="'team-upload-' + kind + '-' + teamId">📎 Anexar fotografias, vídeos ou PDF (até 4)</label>
           <input [id]="'team-upload-' + kind + '-' + teamId" type="file"
@@ -183,6 +204,19 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
     .team-reactions button.selected {border-color:#48ecd1;background:#17565a}
     .team-reactions button:disabled {opacity:.55;cursor:not-allowed}
     .team-reactions small {color:#cffff5;margin-left:.2rem}
+    .team-avatar-link{text-decoration:none;cursor:pointer;transition:box-shadow .15s,transform .15s}
+    .team-avatar-link:hover{box-shadow:0 0 0 3px #55eac681;transform:scale(1.05)}
+    .team-avatar-link:focus-visible{outline:3px solid #76f6da;outline-offset:3px}
+    .team-mention-options{display:grid;gap:3px;max-height:230px;overflow:auto;padding:8px;background:#082b38;border:1px solid #52aeaa;border-radius:12px}
+    .team-mention-options button{text-align:left;display:flex;align-items:center;gap:.7rem;padding:.6rem .75rem;border:0;border-radius:8px;color:#eafff9;background:transparent;cursor:pointer;min-height:40px}
+    .team-mention-options button:hover,.team-mention-options button:focus-visible{background:#145260;outline:2px solid #4fe9c2}
+    .team-mention-options small{color:#abd4d2}
+    .team-chat-mode .team-react-trigger{font-size:.76rem;color:#a9d9d4;border-color:transparent;background:transparent}
+    .team-chat-mode .team-reactions{gap:.28rem;margin-top:.5rem;align-items:center}
+    .team-chat-mode .team-reactions .team-reaction-summary{padding:.22rem .5rem;min-height:29px;border:1px solid #3a8a8c;border-radius:20px;font-size:.78rem;background:#123d49;color:#eefdf8}
+    .team-chat-mode .team-reactions .team-reaction-summary.selected{border-color:#57ebc6;background:#20615b}
+    .team-chat-mode .team-reactions button[hidden]{display:none}
+    .team-chat-mode .team-reactions button:focus-visible{outline:2px solid #72f6db;outline-offset:2px}
     .team-content-search {display:grid;gap:.4rem}
     .team-content-search label {font-size:.82rem;color:#b9d0d9}
     .team-content-search-controls {display:flex;flex-wrap:wrap;gap:.5rem}
@@ -433,6 +467,33 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   private feedParentIdsSource:TeamContentEntry[]|null=null;
   private feedParentIds=new Set<number>();
   draft = '';
+  mentionOptions:CommunityProfile[]=[];
+  mentionBusy=false;
+  private mentionTimer:ReturnType<typeof setTimeout>|null=null;
+  private mentionVersion=0;
+  private mentionQuery='';
+  onMentionDraftChange(text:string):void {
+    if(this.mentionTimer)clearTimeout(this.mentionTimer);
+    const match=/(?:^|\s)@([\p{L}\p{N}_.-]{2,32})$/u.exec(text);
+    const term=match?.[1]||'';
+    const version=++this.mentionVersion;
+    this.mentionOptions=[];this.mentionQuery=term;
+    this.mentionBusy=!!term;
+    if(!term)return;
+    this.mentionTimer=setTimeout(()=>{
+      this.profiles.findProfiles({name:term}).subscribe({
+        next:people=>{if(version!==this.mentionVersion||this.accessRevoked)return;
+          this.mentionOptions=people.filter(p=>p.username&&p.username.toLowerCase().includes(term.toLowerCase())).slice(0,8);
+          this.mentionBusy=false;},
+        error:()=>{if(version===this.mentionVersion){this.mentionOptions=[];this.mentionBusy=false;}}
+      });
+    },250);
+  }
+  chooseMention(username:string):void {
+    if(!this.mentionOptions.some(p=>p.username===username))return;
+    this.draft=this.draft.replace(/@([\p{L}\p{N}_.-]{2,32})$/u,'@'+username)+' ';
+    this.mentionOptions=[];this.mentionBusy=false;this.mentionVersion++;
+  }
   error = '';
   syncError = '';
   accessRevoked = false;
@@ -473,7 +534,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   constructor(private readonly api: SportsTeamsService,
-    private readonly realtime: DirectChatRealtimeService) {}
+    private readonly realtime: DirectChatRealtimeService,
+    private readonly profiles: CommunityService) {}
 
   ngOnInit(): void {
     this.read(false);
@@ -505,7 +567,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.items = [];this.olderEntries=[];this.feedCombined=[];
       this.hasOlderPosts=false;this.olderLoading=false;this.olderError='';
       this.olderReconcileInFlight=false;this.olderReconcileAt=0;this.olderReconcileOffset=0;
-      this.error = '';this.syncError = '';this.draft = '';
+      this.error = '';this.syncError = '';this.draft = '';this.mentionVersion++;this.mentionOptions=[];this.mentionBusy=false;
       this.brokenAuthorAvatars.clear();this.collapsedFeedPosts.clear();
       this.nearLatest=true;this.unseenBelow=false;
       this.replyTargetId = null;this.editingId = null;this.editingDraft='';
@@ -1161,5 +1223,5 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     }).add(()=>{if(version===this.generation){this.sending=false;this.read(true);}});
   }
 
-  ngOnDestroy():void {this.generation++;this.attachmentProbeVersion++;this.invalidatePendingRead();this.releaseSelectedFiles();this.clearPreviews();this.subscriptions.unsubscribe();}
+  ngOnDestroy():void {if(this.mentionTimer)clearTimeout(this.mentionTimer);this.mentionVersion++;this.generation++;this.attachmentProbeVersion++;this.invalidatePendingRead();this.releaseSelectedFiles();this.clearPreviews();this.subscriptions.unsubscribe();}
 }
