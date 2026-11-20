@@ -242,6 +242,8 @@ import { CommunityProfile } from '../model/community-profile';
     .team-content-editor .team-mention-options button:focus-visible{background:#1c4f59;outline:2px solid #47caaa}
     .team-mention-avatar{display:grid;place-items:center;flex:none;width:34px;height:34px;
       border-radius:50%;background:#226a70;color:#e4fff7;font-weight:850}
+    .team-mention-avatar{position:relative;overflow:hidden}
+    .team-mention-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
     .team-mention-person{display:grid;min-width:0;gap:2px}
     .team-mention-person strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.86rem}
     .team-mention-person small{color:#9dc4cf;font-size:.76rem}
