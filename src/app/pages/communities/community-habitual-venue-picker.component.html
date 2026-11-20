@@ -31,6 +31,18 @@
     <p class="community-venue-empty">{{ 'communities.habitualVenue.none' | t }}</p>
   }
 
+  @if (hasHabitualVenue && savedMapPreviewUrl) {
+    <div class="community-saved-map" aria-label="Localização do recinto habitual">
+      <iframe [src]="savedMapPreviewUrl" title="Mapa do recinto habitual"
+              loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+              allowfullscreen></iframe>
+      @if (savedMapLink) {
+        <a [href]="savedMapLink" target="_blank" rel="noopener noreferrer"
+           class="community-venue-text-link">Abrir no Google Maps ↗</a>
+      }
+    </div>
+  }
+
   @if (canManage && !editing && hasHabitualVenue) {
     <button type="button" class="community-venue-edit" (click)="openEditor()">
       {{ 'communities.habitualVenue.change' | t }}
