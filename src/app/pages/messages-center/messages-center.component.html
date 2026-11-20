@@ -297,8 +297,11 @@
                     </div>
                     @if (mutationError) { <p role="alert">{{ mutationError }}</p> }
                   </div>
-                } @else if (storyIdFromChatText(message.text); as storyId) {
-                  <app-inbox-story-card [storyId]="storyId"></app-inbox-story-card>
+                } @else if (storyShareFromChatText(message.text); as sharedStory) {
+                  @if (sharedStory.caption) {
+                    <p class="inbox-story-share-caption">{{ sharedStory.caption }}</p>
+                  }
+                  <app-inbox-story-card [storyId]="sharedStory.id"></app-inbox-story-card>
                 } @else if (readSharedMessage(message.text); as shared) {
                   <div class="inbox-shared-card">
                     <span class="inbox-shared-card-kind">{{ ('chat.shareType.' + shared.kind) | t }}</span>
