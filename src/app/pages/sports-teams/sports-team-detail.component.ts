@@ -261,7 +261,7 @@ type KitDesign = Omit<TeamKitVariant,'type'>;
           <div><h2>Identidade da equipa</h2><p>Logótipo e cores oficiais, visíveis no perfil e nos cartões.</p></div>
           <span>Responsável</span>
         </div>
-        <app-team-crest-editor [teamName]="t.name" [disabled]="brandingSaving" (generated)="saveGeneratedCrest($event)"></app-team-crest-editor>
+        <app-team-crest-editor [teamName]="t.name" [savedDesign]="t.crestDesign" [disabled]="brandingSaving" (generated)="saveGeneratedCrest($event)"></app-team-crest-editor>
         <div class="team-logo-actions">
           <label class="team-upload">Adicionar ou mudar logótipo
             <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" [disabled]="brandingSaving"
@@ -699,14 +699,15 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
       }
     });
   }
-  saveGeneratedCrest(file:File):void {
+  saveGeneratedCrest(result:{file:File;design:string}):void {
+    const {file,design}=result;
     if(!this.team||!this.isOwner||!this.rosterVerified||this.brandingSaving)return;
     if(file.type!== 'image/png'||file.size<1||file.size>this.maxTeamLogoBytes){
       this.feedback='O emblema gerado não é válido.';return;
     }
     const teamId=this.team.id;
     this.brandingSaving=true;this.feedback='';
-    this.api.uploadLogo(teamId,file).pipe(timeout(30000)).subscribe({
+    this.api.uploadLogo(teamId,file,design).pipe(timeout(30000)).subscribe({
       next:updated=>{
         if(this.team?.id!==teamId)return;
         this.team=updated;this.logoBroken=false;this.api.rememberTeam(updated);
