@@ -16,13 +16,19 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
       <ng-container *ngIf="!accessRevoked; else accessRevokedState">
       <div class="team-content-heading">
         <div class="team-content-heading-icon" aria-hidden="true">{{kind === 'chat' ? '💬' : '📰'}}</div>
-        <div><h3>{{kind === 'chat' ? 'Conversa do plantel' : 'Publicações da equipa'}}</h3>
+        <div class="team-heading-copy"><h3>{{kind === 'chat' ? 'Conversa do plantel' : 'Publicações da equipa'}}</h3>
           <p class="team-content-note">Só os membros confirmados podem participar. Atualização automática.</p></div>
+        <button class="team-search-toggle" type="button" (click)="toggleSearchPanel()"
+          [attr.aria-expanded]="searchOpen" [attr.aria-controls]="'team-search-panel-' + kind + '-' + teamId"
+          [attr.aria-label]="searchOpen ? 'Fechar pesquisa' : 'Pesquisar nesta ' + (kind === 'chat' ? 'conversa' : 'equipa')">
+          <span aria-hidden="true">⌕</span> <span>{{searchOpen ? 'Fechar pesquisa' : 'Pesquisar'}}</span>
+        </button>
       </div>
       <ng-container *ngIf="showFeedComposerAtTop()" [ngTemplateOutlet]="teamComposer"></ng-container>
       <p role="alert" class="team-content-error" *ngIf="error">{{error}}</p>
       <p role="status" class="team-content-note" *ngIf="syncError">{{syncError}}</p>
-      <form (ngSubmit)="search()" class="team-content-search">
+      <form *ngIf="searchOpen" [id]="'team-search-panel-' + kind + '-' + teamId"
+        (ngSubmit)="search()" class="team-content-search">
         <label [for]="'team-search-' + kind + '-' + teamId">Pesquisar nesta {{kind === 'chat' ? 'conversa' : 'equipa'}}</label>
         <div class="team-content-search-controls">
           <input [id]="'team-search-' + kind + '-' + teamId" name="search" [(ngModel)]="searchTerm" (ngModelChange)="onSearchTermChanged()"
@@ -205,6 +211,16 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
     .team-content-heading-icon{display:grid;place-items:center;width:43px;height:43px;
       flex:none;background:#125362;border:1px solid #31888388;border-radius:13px;font-size:1.25rem}
     .team-content-heading h3{font-size:1.08rem;margin:0 0 .3rem;color:#e7fcf7}
+    .team-heading-copy{flex:1;min-width:0}
+    .team-search-toggle{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;
+      gap:.35rem;flex:none;min-height:44px;padding:.55rem .75rem;border:1px solid #3b8d89;
+      border-radius:11px;background:#0d414b;color:#baffeb;font:inherit;font-size:.85rem;font-weight:800;cursor:pointer}
+    .team-search-toggle:hover{background:#14535c}
+    .team-search-toggle:focus-visible{outline:3px solid #7af0d6;outline-offset:2px}
+    .team-search-toggle [aria-hidden]{font-size:1.3rem;line-height:1}
+    @media(max-width:480px){.team-content-heading{flex-wrap:wrap}
+      .team-search-toggle{padding:.6rem;max-width:100%}
+      .team-search-toggle span:last-child{display:none}}
     .team-content-history{max-height:min(62vh,650px);min-height:160px;gap:.8rem;padding:.15rem .2rem .6rem;
       overscroll-behavior:contain;scrollbar-gutter:stable}
     .team-content-entry{background:linear-gradient(140deg,#103e4b,#0b2c3a);
@@ -365,6 +381,14 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   editingId: number | null = null;
   editingDraft = '';
   searchTerm = '';
+  searchOpen=false;
+  toggleSearchPanel():void {
+    if(this.searchOpen){
+      this.clearSearch();
+      this.searchTerm='';
+      this.searchOpen=false;
+    }else this.searchOpen=true;
+  }
   searchResults: TeamContentEntry[] = [];
   searchActive = false;
   searching = false;
@@ -486,7 +510,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.nearLatest=true;this.unseenBelow=false;
       this.replyTargetId = null;this.editingId = null;this.editingDraft='';
       this.feedRootDraft='';this.feedRootFiles=[];this.feedCommentDrafts.clear();
-      this.searchRecheckBusy=false;this.clearSearch();this.searchTerm = '';
+      this.searchRecheckBusy=false;this.clearSearch();this.searchTerm = '';this.searchOpen=false;
       this.reactionVersion++;this.reactionsById={};this.feedReactionPickerId=null;
       this.releaseSelectedFiles();this.clearFiles();this.clearPreviews();this.attachmentsEnabled=false;
       this.checkAttachmentsAvailable();
@@ -1033,7 +1057,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     if(query.length<2 || query.length>80 || this.searching)return;
     const version=++this.searchVersion;
     const generation=this.generation;
-    this.searching=true;this.searchActive=true;this.error='';
+    this.searchOpen=true;this.searching=true;this.searchActive=true;this.error='';
     this.api.searchContent(this.teamId,this.kind,query).subscribe({
       next:results=>{
         if(version===this.searchVersion && generation===this.generation&&!this.accessRevoked){this.searchResults=results;this.loadReactions(results);}
