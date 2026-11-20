@@ -349,3 +349,17 @@
 .inbox-attachment-video {display:block;max-width:100%;width:min(440px,100%);max-height:340px;object-fit:contain;background:#091c28;border-radius:10px;}
 .inbox-attachment audio, .inbox-attachment-draft audio {display:block;width:min(360px,100%);max-width:100%;}
 .inbox-attachment-draft video {display:block;max-width:100%;max-height:180px;border-radius:10px;}
+
+/* One compact editing language across unified and team conversations. */
+.inbox-edit-inline{padding:10px 11px;border-radius:12px}
+.inbox-edit-inline textarea{box-sizing:border-box;min-height:64px;line-height:1.5}
+.inbox-edit-actions{justify-content:flex-end;align-items:center;gap:7px}
+.inbox-edit-actions .inbox-edit-cancel{background:transparent;color:#cee8e6;border-color:#396f78}
+.inbox-edit-actions .inbox-edit-save{background:#43e4c2;color:#06313b;border-color:#43e4c2;font-weight:800}
+.inbox-edit-actions button{min-height:36px;border-radius:9px;padding:7px 12px}
+.inbox-reply-banner{gap:12px;min-width:0;border-radius:10px;background:#103e4a}
+.inbox-reply-banner>div{flex:1;min-width:0}
+.inbox-reply-banner .inbox-reply-dismiss{display:grid;place-items:center;flex:none;
+ width:34px;height:34px;padding:0;border:0;border-radius:8px;
+ background:transparent;color:#dbfff6;font-size:1.35rem;line-height:1}
+.inbox-reply-banner .inbox-reply-dismiss:hover:not(:disabled){background:#255661}
