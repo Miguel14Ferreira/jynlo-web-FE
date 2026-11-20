@@ -244,6 +244,7 @@
                 </div>
               }
               <article class="inbox-bubble" [class.thread-continuation]="continuesGroupAt(i)" [class.is-mine]="isMine(message)"
+                [class.inbox-actions-expanded]="openMessageActionsId === message.id"
                 [class.inbox-bubble--voice]="!message.deletedAt && isVoiceNote(message) && !showMessageBody(message) && !message.replyToMessageId"
                 [class.inbox-bubble--search-match]="selectedSearchResultId === message.id"
                 [attr.data-message-id]="message.id" tabindex="-1">
@@ -448,7 +449,12 @@
                   }
                 }
                 @if (!message.deletedAt) {
-                  <div class="inbox-message-actions">
+                  <button type="button" class="inbox-message-more"
+                    [attr.aria-label]="'Mostrar ações da mensagem de @' + message.sender"
+                    [attr.aria-expanded]="openMessageActionsId === message.id"
+                    (click)="toggleMessageActions(message.id)">···</button>
+                  <div class="inbox-message-actions" role="toolbar"
+                    [attr.aria-label]="'Ações da mensagem de @' + message.sender">
                     <button type="button" class="inbox-reply-action"
                       [disabled]="sending || deliveryUncertain || !composerAllowed || mutationPending"
                       (click)="replyToMessage(message)">
