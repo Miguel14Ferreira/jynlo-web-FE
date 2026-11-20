@@ -601,9 +601,19 @@
                     {{ 'communities.timelineFeedPlaceholder' | t }}
                   </label>
                   <textarea id="community-feed-text" name="community-feed-text" rows="3" maxlength="1000"
-                            [(ngModel)]="feedDraft"
+                            [(ngModel)]="feedDraft" (ngModelChange)="onCommunityFeedDraftChanged($event)"
                             [disabled]="timelineSending"
                             [placeholder]="'communities.timelineFeedPlaceholder' | t"></textarea>
+                  @if (feedMentionMatches.length || feedMentionBusy) {
+                    <div class="community-feed-mentions" role="listbox" aria-label="Identificar utilizador">
+                      @if (feedMentionBusy) { <span>A procurar perfis…</span> }
+                      @for (person of feedMentionMatches; track person.username) {
+                        <button type="button" [disabled]="timelineSending" (click)="chooseCommunityFeedMention(person.username)">
+                          <strong>@{{person.username}}</strong><small>{{person.fullName || person.nickname || ''}}</small>
+                        </button>
+                      }
+                    </div>
+                  }
                   @if (feedImagePreview) {
                     <div class="community-feed-media-preview">
                       <img [src]="feedImagePreview" [alt]="'feed.imagePreviewAlt' | t">
@@ -749,7 +759,12 @@
                             </div>
                           </div>
                         } @else if (entry.body) {
-                          <p class="community-feed-body">{{ entry.body }}</p>
+                          <p class="community-feed-body">@for (piece of communityMentionParts(entry.body); track $index) {
+                            @if (piece.username) {
+                              <a class="community-feed-mention-link" [routerLink]="['/menu/perfis',piece.username]"
+                                [attr.aria-label]="'Abrir perfil de @' + piece.username">{{piece.text}}</a>
+                            } @else {<span>{{piece.text}}</span>}
+                          }</p>
                         }
                         @if (communityPostMedia(entry); as postMedia) {
                           @if (postMedia.length) {
