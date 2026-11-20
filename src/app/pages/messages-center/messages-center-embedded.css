@@ -39,3 +39,39 @@
  cursor:pointer;text-decoration:none;padding:0;vertical-align:baseline}
 .inbox-mention-link:hover{text-decoration:underline}
 .inbox-mention-link:focus-visible{outline:2px solid #76f6df;outline-offset:2px;border-radius:3px}
+
+/* The same contextual actions in the unified DM/community/session chat as in
+   team chat. Keep the confirmation modal outside the floating toolbar. */
+.inbox-bubble{position:relative;overflow:visible}
+.inbox-bubble>.inbox-message-actions{position:absolute;z-index:20;right:8px;top:-22px;
+ display:flex;align-items:center;gap:3px;flex-wrap:nowrap;
+ max-width:calc(100% - 16px);padding:5px;
+ background:#163e4b;border:1px solid #44818b;border-radius:12px;
+ box-shadow:0 10px 24px #0008;opacity:0;visibility:hidden;
+ pointer-events:none;transform:translateY(5px);
+ transition:opacity .13s,transform .13s,visibility .13s}
+.inbox-bubble:is(:hover,:focus-within)>.inbox-message-actions,
+.inbox-bubble.inbox-actions-expanded>.inbox-message-actions{
+ opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}
+.inbox-bubble>.inbox-message-actions button{display:inline-flex;align-items:center;
+ justify-content:center;min-height:32px;padding:5px 9px;white-space:nowrap;
+ margin:0;border:0;border-radius:8px;background:transparent;color:#e3fcf6;
+ font-size:.78rem;line-height:1.2}
+.inbox-bubble>.inbox-message-actions button:hover{background:#245a65;text-decoration:none}
+.inbox-bubble>.inbox-message-actions button:focus-visible{outline:2px solid #80f7dd;outline-offset:1px}
+.inbox-bubble .inbox-message-more{display:none}
+@media(hover:none),(pointer:coarse){
+ .inbox-bubble .inbox-message-more{display:grid;place-items:center;
+  position:absolute;top:4px;right:4px;z-index:10;
+  width:36px;height:36px;background:transparent;color:#c7f0e6;
+  border:0;border-radius:9px;font-size:1.15rem}
+ .inbox-bubble .inbox-message-more:focus-visible{outline:2px solid #80f7dd;outline-offset:2px}
+ .inbox-bubble:hover:not(.inbox-actions-expanded)>.inbox-message-actions{
+  visibility:hidden;pointer-events:none;opacity:0}
+ .inbox-bubble.inbox-actions-expanded>.inbox-message-actions,
+ .inbox-bubble:focus-within>.inbox-message-actions{
+  visibility:visible;pointer-events:auto;opacity:1}
+}
+@media(prefers-reduced-motion:reduce){
+ .inbox-bubble>.inbox-message-actions{transition:none}
+}
