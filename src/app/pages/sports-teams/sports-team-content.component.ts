@@ -150,16 +150,24 @@ import { CommunityProfile } from '../model/community-profile';
         <label [for]="'team-content-' + kind + '-' + teamId">
           {{kind === 'chat' ? 'Mensagem' : replyTargetId ? 'Comentário' : 'Nova publicação'}}
         </label>
-        <textarea [id]="'team-content-' + kind + '-' + teamId" name="body"
-          [(ngModel)]="draft" maxlength="2000" [disabled]="sending" (ngModelChange)="onMentionDraftChange($event)" (keydown)="onComposerKeydown($event)"
-          (paste)="onComposerPaste($event)"
-          [placeholder]="kind === 'chat' ? 'Escreve uma mensagem…' : 'Partilha novidades com o plantel…'"></textarea>
-        <div *ngIf="mentionOptions.length || mentionBusy" class="team-mention-options" role="listbox" aria-label="Identificar utilizador">
-          <span *ngIf="mentionBusy">A procurar perfis…</span>
-          <button type="button" *ngFor="let person of mentionOptions" [disabled]="sending"
-            (click)="chooseMention(person.username)" [attr.aria-label]="'Identificar @' + person.username">
-            <strong>@{{person.username}}</strong><small>{{person.fullName || person.nickname || ''}}</small>
-          </button>
+        <div class="team-mention-anchor">
+          <textarea [id]="'team-content-' + kind + '-' + teamId" name="body"
+            [(ngModel)]="draft" maxlength="2000" [disabled]="sending"
+            (ngModelChange)="onMentionDraftChange($event)" (keydown)="onComposerKeydown($event)"
+            (paste)="onComposerPaste($event)"
+            [placeholder]="kind === 'chat' ? 'Escreve uma mensagem…' : 'Partilha novidades com o plantel…'"></textarea>
+          <div *ngIf="mentionOpen" class="team-mention-options" role="listbox" aria-label="Sugestões de pessoas">
+            <div class="team-mention-title"><span aria-hidden="true">@</span> Identificar pessoa</div>
+            <span *ngIf="mentionBusy" class="team-mention-status">A procurar pessoas…</span>
+            <button type="button" role="option" *ngFor="let person of mentionOptions"
+              [disabled]="sending" (mousedown)="$event.preventDefault()"
+              (click)="chooseMention(person.username)" [attr.aria-label]="'Mencionar @' + person.username">
+              <span class="team-mention-avatar" aria-hidden="true">{{person.username.slice(0,1).toUpperCase()}}</span>
+              <span class="team-mention-person"><strong>{{person.fullName || person.nickname || person.username}}</strong>
+                <small>@{{person.username}}</small></span>
+            </button>
+            <span *ngIf="!mentionBusy && !mentionOptions.length" class="team-mention-status">Escreve o nome ou @username para encontrar alguém.</span>
+          </div>
         </div>
         <div *ngIf="attachmentsEnabled" class="team-upload-selector">
           <label [for]="'team-upload-' + kind + '-' + teamId">📎 Anexar fotografias, vídeos ou PDF (até 4)</label>
@@ -216,10 +224,26 @@ import { CommunityProfile } from '../model/community-profile';
     .team-avatar-link{text-decoration:none;cursor:pointer;transition:box-shadow .15s,transform .15s}
     .team-avatar-link:hover{box-shadow:0 0 0 3px #55eac681;transform:scale(1.05)}
     .team-avatar-link:focus-visible{outline:3px solid #76f6da;outline-offset:3px}
-    .team-mention-options{display:grid;gap:3px;max-height:230px;overflow:auto;padding:8px;background:#082b38;border:1px solid #52aeaa;border-radius:12px}
-    .team-mention-options button{text-align:left;display:flex;align-items:center;gap:.7rem;padding:.6rem .75rem;border:0;border-radius:8px;color:#eafff9;background:transparent;cursor:pointer;min-height:40px}
-    .team-mention-options button:hover,.team-mention-options button:focus-visible{background:#145260;outline:2px solid #4fe9c2}
-    .team-mention-options small{color:#abd4d2}
+    .team-mention-anchor{position:relative;min-width:0;isolation:isolate}
+    .team-mention-anchor>textarea{display:block;width:100%;box-sizing:border-box}
+    .team-mention-options{position:absolute;z-index:60;bottom:calc(100% + 8px);left:0;
+      width:min(390px,100%);max-height:288px;overflow-y:auto;display:grid;gap:2px;
+      padding:6px;background:#122e3b;border:1px solid #426e7b;border-radius:13px;
+      box-shadow:0 14px 38px #0009;text-align:left}
+    .team-mention-title{padding:9px 12px;color:#aacdd2;font-size:.75rem;font-weight:850;letter-spacing:.015em}
+    .team-mention-title span{display:inline-grid;place-items:center;width:23px;height:23px;
+      margin-right:6px;border-radius:7px;background:#1b706b;color:#b2ffea;font-size:.85rem}
+    .team-content-editor .team-mention-options button{display:flex;width:100%;min-height:54px;
+      align-items:center;gap:11px;padding:7px 10px;text-align:left;background:transparent;
+      border:0;border-radius:9px;color:#f1fffa;font-weight:500;cursor:pointer}
+    .team-content-editor .team-mention-options button:hover,
+    .team-content-editor .team-mention-options button:focus-visible{background:#1c4f59;outline:2px solid #47caaa}
+    .team-mention-avatar{display:grid;place-items:center;flex:none;width:34px;height:34px;
+      border-radius:50%;background:#226a70;color:#e4fff7;font-weight:850}
+    .team-mention-person{display:grid;min-width:0;gap:2px}
+    .team-mention-person strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.86rem}
+    .team-mention-person small{color:#9dc4cf;font-size:.76rem}
+    .team-mention-status{padding:9px 12px;color:#b9d7d9;font-size:.79rem}
     .team-chat-mode .team-react-trigger{font-size:.76rem;color:#a9d9d4;border-color:transparent;background:transparent}
     .team-chat-mode .team-reactions{gap:.28rem;margin-top:.5rem;align-items:center}
     .team-chat-mode .team-reactions .team-reaction-summary{padding:.22rem .5rem;min-height:29px;border:1px solid #3a8a8c;border-radius:20px;font-size:.78rem;background:#123d49;color:#eefdf8}
@@ -478,19 +502,21 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   draft = '';
   mentionOptions:CommunityProfile[]=[];
   mentionBusy=false;
+  mentionOpen=false;
   private mentionTimer:ReturnType<typeof setTimeout>|null=null;
   private mentionVersion=0;
   private mentionQuery='';
   onMentionDraftChange(text:string):void {
     if(this.mentionTimer)clearTimeout(this.mentionTimer);
-    const match=/(?:^|\s)@([\p{L}\p{N}_.-]{2,32})$/u.exec(text);
+    const match=/(?:^|\s)@([\p{L}\p{N}_.-]{0,32})$/u.exec(text);
     const term=match?.[1]||'';
     const version=++this.mentionVersion;
+    this.mentionOpen=!!match;
     this.mentionOptions=[];this.mentionQuery=term;
-    this.mentionBusy=!!term;
-    if(!term)return;
+    this.mentionBusy=!!match;
+    if(!match)return;
     this.mentionTimer=setTimeout(()=>{
-      this.profiles.searchProfiles(term).subscribe({
+      (term ? this.profiles.searchProfiles(term) : this.profiles.findProfiles({})).subscribe({
         next:people=>{if(version!==this.mentionVersion||this.accessRevoked)return;
           this.mentionOptions=people.filter(p=>p.username&&p.username.toLowerCase().includes(term.toLowerCase())).slice(0,8);
           this.mentionBusy=false;},
@@ -500,8 +526,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
   chooseMention(username:string):void {
     if(!this.mentionOptions.some(p=>p.username===username))return;
-    this.draft=this.draft.replace(/@([\p{L}\p{N}_.-]{2,32})$/u,'@'+username)+' ';
-    this.mentionOptions=[];this.mentionBusy=false;this.mentionVersion++;
+    this.draft=this.draft.replace(/@([\p{L}\p{N}_.-]{0,32})$/u,'@'+username)+' ';
+    this.mentionOptions=[];this.mentionBusy=false;this.mentionOpen=false;this.mentionVersion++;
   }
   error = '';
   syncError = '';
