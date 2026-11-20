@@ -210,3 +210,13 @@
   :host .round-history > .section-heading { align-items:flex-start;flex-wrap:wrap; }
   :host .round-history-controls { width:100%;justify-content:space-between; }
 }
+
+/* The community feed stays synchronized without a redundant manual refresh button. */
+.community-feed-auto-sync {
+  display:inline-flex;align-items:center;gap:.45rem;align-self:center;
+  color:#a8e8d9;font-size:.8rem;font-weight:750;white-space:nowrap;
+}
+.community-feed-auto-sync > span {color:#4de0b9;font-size:.7rem}
+@media(max-width:600px) {
+  .community-feed-auto-sync {white-space:normal;font-size:.75rem}
+}
