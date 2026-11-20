@@ -50,6 +50,15 @@ let reactionPickerSequence = 0;
             <span aria-hidden="true">ⓘ</span>
           </button>
         }
+        @if (!disabled && entries.length > 0) {
+          <button type="button" class="reaction-add-compact"
+              [attr.aria-expanded]="expanded" [attr.aria-controls]="pickerId"
+              [attr.aria-label]="'chat.changeReaction' | t"
+              [disabled]="store.isBusy(kind, conversationId, messageId)"
+              (click)="togglePicker($event)">
+            <span aria-hidden="true">＋</span>
+          </button>
+        }
         @if (!disabled && entries.length === 0) {
           <button #reactionToggle type="button" class="reaction-open"
               [attr.aria-expanded]="expanded" [attr.aria-controls]="pickerId"
@@ -199,6 +208,13 @@ let reactionPickerSequence = 0;
       background:#15313a;color:#bcdad4;font-size:.82rem;
       box-shadow:0 2px 8px rgba(0,12,19,.18);}
     .reaction-details-trigger:hover {background:#24534c;color:#f1fffc;}
+    .reaction-add-compact{display:grid;place-items:center;width:27px;height:27px;padding:0;
+      border-radius:999px;border:1px solid #4b8f86;background:#153e46;
+      color:#a8f9e4;font-size:1rem;font-weight:850;line-height:1;
+      opacity:.85;transition:opacity .15s,background .15s,transform .15s}
+    .reaction-add-compact:hover,.reaction-add-compact:focus-visible{
+      opacity:1;background:#226055;transform:translateY(-1px);outline:2px solid #7cebd8}
+    .reaction-add-compact:disabled{opacity:.45;cursor:wait}
     .reaction-open {display:grid;place-items:center;width:29px;height:29px;
       border:1px solid #467b77;border-radius:50%;background:#173c46;
       color:#daf9ed;font-size:.92rem;}
