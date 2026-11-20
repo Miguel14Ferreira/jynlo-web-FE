@@ -176,6 +176,24 @@ describe('DiscoverComponent', () => {
     }
   });
 
+  it('keeps sessions usable while the venue endpoint is still pending', () => {
+    const delayedVenues = new Subject<{venues: Venue[]; page: number; hasMore: boolean}>();
+    venueService.suggest.and.returnValue(delayedVenues.asObservable());
+    const page = TestBed.createComponent(DiscoverComponent);
+    page.detectChanges();
+
+    expect(page.componentInstance.initialized).toBeTrue();
+    expect(page.componentInstance.loading).toBeFalse();
+    expect(page.componentInstance.loadingSessions).toBeFalse();
+    expect(page.componentInstance.loadingVenues).toBeTrue();
+    expect(page.nativeElement.querySelector('#explore-sessions')).not.toBeNull();
+
+    delayedVenues.next({venues: [], page: 0, hasMore: false});
+    delayedVenues.complete();
+    expect(page.componentInstance.loadingVenues).toBeFalse();
+    page.destroy();
+  });
+
   it('starts discovery immediately instead of waiting for a slow profile', () => {
     const delayedProfile = new Subject<CommunityProfile>();
     communityService.publicProfile.and.returnValue(delayedProfile.asObservable());
