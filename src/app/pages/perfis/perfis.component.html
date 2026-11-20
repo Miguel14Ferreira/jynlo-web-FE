@@ -592,6 +592,11 @@
                       } @else {
                         <span>{{ 'profileData.confirmedParticipation' | t }}</span>
                       }
+                      @if (entry.wins != null && entry.draws != null && entry.losses != null) {
+                        <span class="profile-competition-wdl">
+                          {{ entry.wins }}V · {{ entry.draws }}E · {{ entry.losses }}D
+                        </span>
+                      }
                       <small>{{ entry.completedAt | date:'MMM yyyy' }}</small>
                     </span>
                   </a>
