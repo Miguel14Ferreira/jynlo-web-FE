@@ -146,6 +146,16 @@ describe('Jynlo team profile — audit of real actions',()=>{
   expect(api.setKit).not.toHaveBeenCalled();
   expect(component.feedback).toContain('Número inválido');
  });
+ it('uploads editable emblem project with the generated PNG in one request',()=>{
+  const png=new File([new Uint8Array([137,80,78,71])],'crest.png',{type:'image/png'});
+  const design=JSON.stringify({version:1,shape:'circle'});
+  const updated={...team,logoUrl:'https://example.org/teams/5/crest.png',crestDesign:design};
+  api.uploadLogo.and.returnValue(of(updated));
+  component.saveGeneratedCrest({file:png,design});
+  expect(api.uploadLogo).toHaveBeenCalledOnceWith(5,png,design);
+  expect(component.team?.crestDesign).toBe(design);
+  expect(component.brandingSaving).toBeFalse();
+ });
  it('does not let non-owners change a kit or upload a crest',()=>{
   component.isOwner=false;
   component.saveTeamKit();
