@@ -17,7 +17,7 @@ import { SocialFeedService } from '../../services/social-feed.service';
 import { SocialStoriesService } from '../../services/social-stories.service';
 import { SocialStory } from '../model/social-story';
 import { FollowStatus, FollowProfile } from '../model/follow';
-import { CommunityService, FriendshipStatus, ProfileSearchFilters, PublicProfileAffiliations, PublicIndividualTitle } from '../../services/community.service';
+import { CommunityService, FriendshipStatus, ProfileSearchFilters, PublicProfileAffiliations, PublicIndividualTitle, PublicCompletedParticipation } from '../../services/community.service';
 import { AuthenticationService } from '../../services/authethication.service';
 import { ReliabilityService } from '../../services/reliability.service';
 import { SocialGraphService } from '../../services/social-graph.service';
@@ -48,6 +48,8 @@ export class PerfisComponent implements OnInit, OnDestroy {
   private membershipSubscription?: Subscription;
   private publicMembershipSubscription?: Subscription;
   private competitionTitlesSubscription?: Subscription;
+  private competitionParticipationsSubscription?: Subscription;
+  completedIndividualParticipations: PublicCompletedParticipation[] = [];
   publicIndividualTitles: PublicIndividualTitle[] = [];
   publicTitlesLoading = false;
   publicAffiliations: PublicProfileAffiliations | null = null;
@@ -449,6 +451,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.membershipSubscription?.unsubscribe();
     this.publicMembershipSubscription?.unsubscribe();
     this.competitionTitlesSubscription?.unsubscribe();
+    this.competitionParticipationsSubscription?.unsubscribe();
     this.blockStatusSubscription?.unsubscribe();
     this.friendshipSubscription?.unsubscribe();
     this.postsSubscription?.unsubscribe();
@@ -607,6 +610,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.loadOwnMemberships(profile);
     this.loadPublicAffiliations(profile);
     this.loadPublicIndividualTitles(profile);
+    this.loadCompletedParticipations(profile);
     this.expandedPost = null;
     // Never flash content from a previously viewed profile while permissions load.
     this.postsSubscription?.unsubscribe();
@@ -654,6 +658,8 @@ export class PerfisComponent implements OnInit, OnDestroy {
   private loadPublicAffiliations(profile: CommunityProfile): void {
     this.publicMembershipSubscription?.unsubscribe();
     this.competitionTitlesSubscription?.unsubscribe();
+    this.competitionParticipationsSubscription?.unsubscribe();
+    this.completedIndividualParticipations = [];
     this.publicIndividualTitles = [];
     this.publicTitlesLoading = false;
     this.publicAffiliations = null;
@@ -703,6 +709,26 @@ export class PerfisComponent implements OnInit, OnDestroy {
           // Failure must never produce inferred medals or invented results.
           if (this.selectedProfile?.username.toLowerCase() === profile.username.toLowerCase())
             this.publicIndividualTitles = [];
+        }
+      });
+  }
+
+  private loadCompletedParticipations(profile: CommunityProfile): void {
+    this.competitionParticipationsSubscription?.unsubscribe();
+    this.completedIndividualParticipations = [];
+    this.competitionParticipationsSubscription = this.communityService
+      .publicCompletedParticipations(profile.username)
+      .pipe(timeout(10000))
+      .subscribe({
+        next: history => {
+          if (this.selectedProfile?.username.toLowerCase() !== profile.username.toLowerCase()) return;
+          this.completedIndividualParticipations = (Array.isArray(history) ? history : [])
+            .filter(item => Number.isSafeInteger(item.tournamentId) && item.tournamentId > 0
+              && Number.isSafeInteger(item.communityId) && item.communityId > 0);
+        },
+        error: () => {
+          if (this.selectedProfile?.username.toLowerCase() === profile.username.toLowerCase())
+            this.completedIndividualParticipations = [];
         }
       });
   }
