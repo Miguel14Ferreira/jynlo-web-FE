@@ -47,6 +47,13 @@ import { FormsModule } from '@angular/forms';
           <p>Pré-visualização em tempo real</p>
         </div>
         <div class="crest-fields">
+          <div class="crest-wide" role="group" aria-label="Modelos rápidos de emblema">
+            <strong>Começar com um estilo</strong>
+            <div class="crest-presets">
+              <button type="button" *ngFor="let preset of presets" [disabled]="disabled"
+                (click)="applyPreset(preset.id)">{{preset.label}}</button>
+            </div>
+          </div>
           <label>Formato
             <select [(ngModel)]="shape" [disabled]="disabled">
               <option value="shield">Escudo clássico</option><option value="rounded">Escudo arredondado</option>
@@ -134,6 +141,9 @@ import { FormsModule } from '@angular/forms';
     .crest-fields select,.crest-fields input:not([type=color]):not([type=checkbox]):not([type=range]){width:100%;min-width:0;box-sizing:border-box;padding:9px;border:1px solid #5a9290;
       border-radius:8px;background:#102d3b;color:white;font:inherit}
     .crest-wide,.crest-colors{grid-column:1/-1}
+    .crest-presets{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+    .crest-presets button{padding:8px 11px;border:1px solid #478f8a;border-radius:9px;background:#103944;color:#dbfff4;cursor:pointer}
+    .crest-presets button:hover{background:#18525b}
     .crest-check{display:flex!important;flex-direction:row;align-items:center;gap:8px!important}
     .crest-check input{accent-color:#55edc4}
     .crest-colors{display:flex;flex-wrap:wrap;gap:12px}
@@ -158,6 +168,22 @@ export class TeamCrestEditorComponent {
   patternOpacity=30;borderWidth=8;symbolSize=76;symbolY=145;
   showInitials=true;innerBorder=true;initialsSize=30;initialsY=225;
   customInitials='';caption='';error='';
+  readonly presets=[
+    {id:'classic',label:'Clássico'},{id:'minimal',label:'Minimalista'},
+    {id:'modern',label:'Moderno'},{id:'retro',label:'Retro'},
+    {id:'energy',label:'Energia'},{id:'blank',label:'Em branco'}
+  ];
+  applyPreset(id:string):void {
+    this.reset();
+    switch(id){
+      case 'classic':this.symbol='star';this.caption='DESDE 2026';break;
+      case 'minimal':this.shape='circle';this.borderWidth=2;this.innerBorder=false;this.showInitials=true;break;
+      case 'modern':this.shape='hex';this.pattern='diagonal';this.patternOpacity=35;this.symbol='bolt';break;
+      case 'retro':this.shape='rounded';this.pattern='hoops';this.patternOpacity=22;this.primary='#692a28';this.secondary='#f6d891';this.textColor='#fff1d2';this.borderColor='#f6d891';break;
+      case 'energy':this.shape='diamond';this.pattern='chevron';this.primary='#142e60';this.secondary='#23dbb0';this.symbol='flame';break;
+      case 'blank':this.showInitials=false;this.innerBorder=false;this.borderWidth=0;break;
+    }
+  }
   get initials():string {
     return (this.customInitials.trim() || this.teamName.split(/\s+/).filter(Boolean).map(s=>s[0]).join(''))
       .replace(/[^A-Za-z0-9À-ÿ]/g,'').toUpperCase().slice(0,5)||'J';
