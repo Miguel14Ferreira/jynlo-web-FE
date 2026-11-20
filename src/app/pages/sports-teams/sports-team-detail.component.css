@@ -588,3 +588,39 @@
   right:10px;height:3px;border-radius:3px 3px 0 0;background:#43e4c2}
 .team-tabs button:focus-visible{outline:2px solid #80f4db;outline-offset:-3px}
 @media(max-width:600px){.team-tabs{gap:1px}.team-tabs button{padding-inline:10px;font-size:.81rem}}
+
+
+/* Team roster profile cards: accessible, compact and community-inspired. */
+.team-roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:12px}
+.team-roster .team-member{position:relative;display:flex;align-items:center;gap:13px;
+  padding:15px;background:linear-gradient(145deg,#103b47,#092c39);
+  border:1px solid #398c8a75;border-radius:16px;min-height:92px;box-sizing:border-box;
+  transition:border-color .15s,background .15s,transform .15s;flex-wrap:nowrap}
+.team-roster .team-member:hover{border-color:#5ae6c4;background:#114653;transform:translateY(-1px)}
+.team-roster .team-member-avatar{width:56px;height:56px;border-radius:50%;border:2px solid #55d9bd7c;
+  box-sizing:border-box;background:#176a72;font-size:1.15rem;box-shadow:0 0 0 4px #43d9b011}
+.team-roster .team-member-identity{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1 1 auto}
+.team-roster .team-member-name{font-size:.93rem;color:#effffb;font-weight:850;line-height:1.2;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.team-roster .team-member-handle{font-size:.77rem;color:#8edacb;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.team-roster .team-member-bio{font-size:.75rem;color:#bbd3d7;line-height:1.4;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.team-roster .team-member-role{position:absolute;top:8px;right:11px;
+  font-size:.64rem;font-weight:800;letter-spacing:.01em;color:#c6e5e7;
+  background:#184652;border:1px solid #3978847e;border-radius:100px;padding:4px 8px}
+.team-roster .team-member-role-owner{background:#155b53;border-color:#46cba6;color:#bcfbea}
+.team-roster .team-member-actions{display:flex;gap:6px;align-items:center;align-self:flex-end;flex:none}
+.team-roster .team-member-open{display:grid;place-items:center;width:36px;height:36px;
+  font-size:1.1rem;font-weight:800;text-decoration:none;color:#8beed7;
+  border-radius:9px;background:#164853;border:1px solid #3e797d}
+.team-roster .team-member-open:hover{background:#20606a}
+.team-roster .team-member-remove{margin:0;min-height:36px;padding:7px 10px;
+  border:1px solid #9a6668;border-radius:9px;background:transparent;color:#ffcad0;
+  font-size:.74rem;font-weight:800;cursor:pointer}
+.team-roster .team-member-remove:hover:not(:disabled){background:#532d38}
+.team-roster .team-member :is(a,button):focus-visible{outline:2px solid #7cf9dd;outline-offset:2px}
+@media(max-width:600px){.team-roster{grid-template-columns:1fr}
+  .team-roster .team-member{padding:13px;gap:10px}
+  .team-roster .team-member-avatar{width:48px;height:48px}
+  .team-roster .team-member-actions{align-self:flex-end}
+  .team-roster .team-member-role{top:6px;right:8px}}
