@@ -604,6 +604,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   activeActionMessageId:number|null=null;
   toggleMessageActions(id:number):void {
     this.activeActionMessageId=this.activeActionMessageId===id?null:id;
+    if(this.activeActionMessageId!==id)this.feedReactionPickerId=null;
   }
     feedReactionPickerId:number|null=null;
   reactionCount(contentId:number):number {
@@ -612,6 +613,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
   toggleFeedReactionPicker(contentId:number):void {
     this.feedReactionPickerId=this.feedReactionPickerId===contentId?null:contentId;
+    if(this.kind==='chat' && this.feedReactionPickerId!==null)
+      this.activeActionMessageId=contentId;
   }
   private reactionVersion = 0;
   private reactionRequestSequence = 0;
@@ -703,7 +706,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.feedRootDraft='';this.feedRootFiles=[];this.feedCommentDrafts.clear();
     this.nearLatest=true;this.unseenBelow=false;
     this.editingId=null;this.editingDraft='';this.searchRecheckBusy=false;this.clearSearch();
-    this.reactionVersion++;this.reactionsById={};this.feedReactionPickerId=null;this.clearFiles();
+    this.reactionVersion++;this.reactionsById={};this.feedReactionPickerId=null;
+    this.activeActionMessageId=null;this.clearFiles();
     this.clearPreviews();this.attachmentsEnabled=false;this.syncError='';
     this.error=this.blockedReason;
     return true;
@@ -764,6 +768,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.feedRootDraft='';this.feedRootFiles=[];this.feedCommentDrafts.clear();
       this.searchRecheckBusy=false;this.clearSearch();this.searchTerm = '';this.searchOpen=false;
       this.reactionVersion++;this.reactionsById={};this.feedReactionPickerId=null;
+      this.activeActionMessageId=null;
       this.releaseSelectedFiles();this.clearFiles();this.clearPreviews();this.attachmentsEnabled=false;
       this.checkAttachmentsAvailable();
       if (!changes['teamId']?.firstChange && !changes['kind']?.firstChange) this.read(false);
@@ -1031,7 +1036,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     if(event.key==='Escape' && this.mentionOpen){
       event.preventDefault();
       if(this.mentionTimer)clearTimeout(this.mentionTimer);
-      this.mentionVersion++;this.mentionOpen=false;this.mentionBusy=false;this.mentionOptions=[];
+      this.mentionVersion++;this.mentionOpen=false;this.mentionBusy=false;
+      this.mentionOptions=[];this.mentionQuery='';this.mentionActiveIndex=0;
       return;
     }
     if(event.key==='Enter' && this.mentionOpen && !event.shiftKey && !event.isComposing){
@@ -1408,7 +1414,11 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.replyTargetId=entry.id;
     // The reply composer stays in the same conversation, as in unified messages.
     // Render the inline feed composer before focusing it.
-    setTimeout(() => this.teamComposerInput?.nativeElement.focus({preventScroll:true}), 0);
+    const generation=this.generation;
+    setTimeout(() => {
+      if(generation===this.generation && !this.accessRevoked && this.replyTargetId===entry.id)
+        this.teamComposerInput?.nativeElement.focus({preventScroll:true});
+    }, 0);
   }
   beginEdit(entry:TeamContentEntry):void {
     if(entry.deleted || !entry.canEdit)return;
