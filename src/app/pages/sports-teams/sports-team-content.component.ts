@@ -52,7 +52,8 @@ import { CommunityProfile } from '../model/community-profile';
           </button>
           <span *ngIf="olderError" role="status">{{olderError}}</span>
         </div>
-        <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry" [class.team-feed-comment]="isFeedComment(item)" [class.team-own-message]="kind === 'chat' && item.canEdit" [class.team-removed-message]="item.deleted">
+        <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry" [class.team-feed-comment]="isFeedComment(item)" [class.team-own-message]="kind === 'chat' && item.canEdit" [class.team-removed-message]="item.deleted"
+          [class.team-actions-expanded]="activeActionMessageId === item.id">
           <div class="team-entry-header">
             <a class="team-entry-avatar team-avatar-link" [routerLink]="['/menu/perfis', item.username]" [attr.aria-label]="'Abrir perfil de @' + item.username">
               <img *ngIf="authorAvatarSrc(item) && !brokenAuthorAvatars.has(item.id)"
@@ -122,7 +123,14 @@ import { CommunityProfile } from '../model/community-profile';
               </button>
             </ng-container>
           </div>
-          <div class="team-content-actions" *ngIf="!item.deleted" [attr.aria-label]="'Ações de @' + item.username">
+          <button type="button" *ngIf="kind === 'chat' && !item.deleted"
+            class="team-message-mobile-actions" [attr.aria-expanded]="activeActionMessageId === item.id"
+            [attr.aria-label]="'Mostrar ações da mensagem de @' + item.username"
+            (click)="toggleMessageActions(item.id)">···</button>
+          <div class="team-content-actions" *ngIf="!item.deleted" role="toolbar"
+            [attr.aria-label]="'Ações de @' + item.username">
+            <button *ngIf="kind === 'chat'" type="button" (click)="toggleFeedReactionPicker(item.id)"
+              [disabled]="reactionBusyId !== null" title="Reagir" aria-label="Reagir à mensagem">☺</button>
             <button type="button" (click)="reply(item)" [disabled]="sending" [attr.aria-label]="kind === 'chat' ? 'Responder à mensagem' : 'Comentar publicação'" [title]="kind === 'chat' ? 'Responder' : 'Comentar'">↩ <span>{{kind === 'chat' ? 'Responder' : 'Comentar'}}</span></button>
             <button type="button" *ngIf="item.canEdit" [disabled]="sending" (click)="beginEdit(item)" [attr.aria-label]="kind === 'chat' ? 'Editar mensagem' : 'Editar publicação'" title="Editar">✎ <span>Editar</span></button>
             <button type="button" *ngIf="item.canManage" [disabled]="sending" (click)="remove(item)" [attr.aria-label]="kind === 'chat' ? 'Eliminar mensagem' : 'Eliminar publicação'" title="Eliminar">× <span>Eliminar</span></button>
@@ -249,6 +257,42 @@ import { CommunityProfile } from '../model/community-profile';
     .team-mention-person strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.86rem}
     .team-mention-person small{color:#9dc4cf;font-size:.76rem}
     .team-mention-status{padding:9px 12px;color:#b9d7d9;font-size:.79rem}
+    /* Teams-like hover actions: compact toolbar above chat bubble,
+       with explicit tap control on touch devices and keyboard support. */
+    .team-chat-mode .team-content-entry{position:relative;overflow:visible}
+    .team-chat-mode .team-content-actions{position:absolute;z-index:12;top:-22px;right:9px;
+      display:flex;gap:3px;align-items:center;max-width:calc(100% - 18px);
+      padding:4px;border:1px solid #397f87;border-radius:12px;
+      background:#153e4c;box-shadow:0 9px 24px #0007;
+      opacity:0;visibility:hidden;pointer-events:none;
+      transform:translateY(5px);transition:opacity .13s,transform .13s,visibility .13s}
+    .team-chat-mode .team-content-entry:is(:hover,:focus-within)>.team-content-actions,
+    .team-chat-mode .team-actions-expanded>.team-content-actions{
+      opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}
+    .team-chat-mode .team-content-actions button{display:grid;place-items:center;min-width:31px;
+      min-height:31px;padding:5px 7px;border:0;border-radius:8px;background:transparent;
+      color:#e0f8f3;font-size:1.02rem}
+    .team-chat-mode .team-content-actions button:hover{background:#24616c}
+    .team-chat-mode .team-content-actions button span{display:none}
+    .team-chat-mode .team-reactions>.team-react-trigger{display:none}
+    .team-chat-mode .team-reactions{min-height:0;margin-top:0}
+    .team-chat-mode .team-reactions:empty{display:none}
+    .team-chat-mode .team-reactions .team-reaction-summary{margin-top:6px}
+    .team-chat-mode .team-reactions>button:not(.team-reaction-summary):not(.team-react-trigger){
+      position:relative;z-index:15}
+    .team-message-mobile-actions{display:none}
+    @media(hover:none),(pointer:coarse){
+      .team-chat-mode .team-content-entry{padding-top:14px}
+      .team-message-mobile-actions{display:grid;place-items:center;position:absolute;right:5px;top:5px;
+        min-width:36px;min-height:36px;border:0;background:transparent;color:#c7f8ec;
+        font-size:1.2rem;border-radius:8px}
+      .team-chat-mode .team-content-actions{top:-22px}
+      .team-chat-mode .team-content-entry:hover:not(.team-actions-expanded)>.team-content-actions{
+        opacity:0;visibility:hidden;pointer-events:none}
+      .team-chat-mode .team-actions-expanded>.team-content-actions,
+      .team-chat-mode .team-content-entry:focus-within>.team-content-actions{
+        opacity:1;visibility:visible;pointer-events:auto}
+    }
     .team-chat-mode .team-react-trigger{font-size:.76rem;color:#a9d9d4;border-color:transparent;background:transparent}
     .team-chat-mode .team-reactions{gap:.28rem;margin-top:.5rem;align-items:center}
     .team-chat-mode .team-reactions .team-reaction-summary{padding:.22rem .5rem;min-height:29px;border:1px solid #3a8a8c;border-radius:20px;font-size:.78rem;background:#123d49;color:#eefdf8}
@@ -469,7 +513,11 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   readonly emojis = ['👍','❤️','😂','🔥','👏'];
   reactionsById: Record<number,TeamReactionState> = {};
   reactionBusyId: number | null = null;
-  feedReactionPickerId:number|null=null;
+  activeActionMessageId:number|null=null;
+  toggleMessageActions(id:number):void {
+    this.activeActionMessageId=this.activeActionMessageId===id?null:id;
+  }
+    feedReactionPickerId:number|null=null;
   reactionCount(contentId:number):number {
     const counts=this.reactionsById[contentId]?.counts;
     return counts?Object.values(counts).reduce((total,count)=>total+(Number(count)||0),0):0;
