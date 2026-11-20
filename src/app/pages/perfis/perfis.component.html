@@ -525,6 +525,38 @@
             </section>
           }
 
+          @if (!isOwnProfile(selectedProfile) && publicAffiliations &&
+              (publicAffiliations.teams.length || publicAffiliations.communities.length)) {
+            <section class="profile-real-memberships" aria-label="Equipas e comunidades públicas">
+              <div class="profile-membership-heading">
+                <h2>Equipas e comunidades públicas</h2>
+                <p>Associações confirmadas e visíveis publicamente.</p>
+              </div>
+              @if (publicAffiliations.teams.length) {
+                <h3>Equipas</h3>
+                <div class="profile-membership-grid">
+                  @for (team of publicAffiliations.teams; track team.id) {
+                    <a [routerLink]="['/menu/teams',team.id]" class="profile-membership-card">
+                      <strong>{{ team.name }}</strong>
+                      <span>{{ team.sport || 'Equipa desportiva' }}</span>
+                    </a>
+                  }
+                </div>
+              }
+              @if (publicAffiliations.communities.length) {
+                <h3>Comunidades</h3>
+                <div class="profile-membership-grid">
+                  @for (group of publicAffiliations.communities; track group.id) {
+                    <a [routerLink]="['/menu/communities',group.id]" class="profile-membership-card">
+                      <strong>{{ group.name }}</strong>
+                      <span>{{ group.sport || 'Comunidade desportiva' }}</span>
+                    </a>
+                  }
+                </div>
+              }
+            </section>
+          }
+
           <nav class="profile-discovery-links" aria-label="Explorar desporto na Jynlo">
             <div class="profile-discovery-intro">
               <strong>Continuar a descobrir</strong>
