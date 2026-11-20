@@ -571,6 +571,35 @@
             </div>
           </nav>
 
+          @if (completedIndividualParticipations.length > 0) {
+            <section class="profile-competition-participations" aria-label="Participações individuais concluídas">
+              <div class="profile-individual-titles-heading">
+                <span class="section-kicker">{{ 'profileData.competitionsKicker' | t }}</span>
+                <h2>{{ 'profileData.completedParticipations' | t }}</h2>
+                <p>{{ 'profileData.participationSubtitle' | t }}</p>
+              </div>
+              <div class="profile-competition-participations-list">
+                @for (entry of completedIndividualParticipations; track entry.tournamentId) {
+                  <a class="profile-competition-participation"
+                    [routerLink]="['/menu/communities', entry.communityId]">
+                    <span class="profile-competition-participation-main">
+                      <strong>{{ entry.tournamentName }}</strong>
+                      <small>{{ entry.communityName }}@if (entry.sport) { · {{ entry.sport }} }</small>
+                    </span>
+                    <span class="profile-competition-participation-status">
+                      @if (entry.individualChampion) {
+                        <span class="profile-competition-winner">{{ 'profileData.officialChampion' | t }}</span>
+                      } @else {
+                        <span>{{ 'profileData.confirmedParticipation' | t }}</span>
+                      }
+                      <small>{{ entry.completedAt | date:'MMM yyyy' }}</small>
+                    </span>
+                  </a>
+                }
+              </div>
+            </section>
+          }
+
           @if (publicIndividualTitles.length > 0) {
             <section class="profile-individual-titles" aria-label="Títulos individuais oficiais">
               <div class="profile-individual-titles-heading">
