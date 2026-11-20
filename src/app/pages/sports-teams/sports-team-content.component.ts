@@ -41,7 +41,9 @@ import { CommunityProfile } from '../model/community-profile';
         </div>
       </form>
       <p class="team-content-note" *ngIf="searchActive">{{searching ? 'A pesquisar…' : ('Resultados encontrados: ' + searchResults.length)}}</p>
-      <p *ngIf="loading" class="team-content-note">A carregar…</p>
+      <p *ngIf="loading" class="team-content-note" role="status">A carregar {{kind==='chat'?'mensagens':'publicações'}}…</p>
+      <button *ngIf="!loading && !items.length && error && !accessRevoked"
+        type="button" class="team-content-retry" (click)="read(false)">Tentar novamente</button>
       <p *ngIf="!loading && !searchActive && !items.length && !error" class="team-content-note">
         {{kind === 'chat' ? 'Ainda não existem mensagens nesta equipa.' : 'Ainda não há publicações.'}}
       </p>
@@ -423,6 +425,10 @@ import { CommunityProfile } from '../model/community-profile';
     .team-feed-mode .team-reactions{padding-top:.35rem}
     .team-feed-mode .team-content-actions{padding-top:.4rem;border-top:1px solid #34697755}
     .team-feed-mode .team-feed-comment{box-shadow:none}
+    .team-content-retry{justify-self:start;min-height:40px;padding:8px 13px;
+      background:#164f58;border:1px solid #48ab9f;color:#d7fff6;
+      border-radius:10px;font-weight:800;cursor:pointer}
+    .team-content-retry:focus-visible{outline:2px solid #85f4db;outline-offset:2px}
     .team-content-entry button{touch-action:manipulation}
     .team-reply-jump{display:block;width:100%;text-align:left;cursor:pointer;
       color:#b9f4e7;border:0;border-left:3px solid #42d4bd;padding:.45rem .65rem;
