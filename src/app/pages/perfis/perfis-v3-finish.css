@@ -569,3 +569,37 @@
     min-width:78px;min-height:56px;padding:7px;
   }
 }
+
+
+/* Show only server-awarded achievements. First three remain visible; the
+   remaining awards expand on demand to keep the profile compact. */
+:host .community-page.profile-page-open .profile-achievement-showcase{
+  display:grid;gap:12px;margin-top:19px;padding:15px 0 0;
+  border-top:1px solid rgba(113,204,210,.25);
+}
+:host .community-page.profile-page-open .profile-achievement-heading{
+  display:flex;align-items:center;gap:10px;color:#e8fffb;font-weight:800;
+}
+:host .community-page.profile-page-open .profile-achievement-preview,
+:host .community-page.profile-page-open .profile-achievement-remainder{
+  display:flex;flex-wrap:wrap;gap:9px;margin:0;
+}
+:host .community-page.profile-page-open .profile-achievement-badge{
+  display:inline-flex;align-items:center;min-height:39px;
+  border:1px solid rgba(77,201,188,.46);border-radius:11px;
+  padding:8px 12px;background:linear-gradient(145deg,#153f4a,#0d303c);
+  color:#defff7;font-size:.81rem;font-weight:750;
+  white-space:normal;overflow-wrap:anywhere;
+}
+:host .community-page.profile-page-open .profile-achievement-showcase .public-achievements-disclosure{
+  margin:0;padding:0;border:0;
+}
+:host .community-page.profile-page-open .profile-achievement-showcase .public-achievements-disclosure summary{
+  min-height:42px;padding:0 2px;
+  color:#a9efe0;
+}
+@media(max-width:650px){
+  :host .community-page.profile-page-open .profile-achievement-badge{
+    font-size:.78rem;min-height:38px;
+  }
+}
