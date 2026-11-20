@@ -45,6 +45,38 @@ describe('Community feed/chat UI state isolation', () => {
     spyOn(component, 'canManage').and.returnValue(true);
   });
 
+  it('refreshes the community feed silently without hiding verified posts or the draft',()=>{
+    const previous={...message('POST'),id:71,body:'Publicação anterior'};
+    const updated={...message('POST'),id:72,body:'Nova publicação'};
+    const pending=new Subject<CommunityTimelineEntry[]>();
+    component.activeTab='feed';
+    component.timelineEntries=[previous];
+    component.feedDraft='Ainda estou a escrever';
+    list.and.returnValue(pending.asObservable());
+    component.loadTimeline(true);
+    expect(component.timelineLoading).toBeFalse();
+    expect(component.timelineEntries).toEqual([previous]);
+    expect(component.feedDraft).toBe('Ainda estou a escrever');
+    pending.next([previous,updated]);pending.complete();
+    expect(component.timelineEntries).toEqual([previous,updated]);
+    expect(component.feedDraft).toBe('Ainda estou a escrever');
+  });
+
+  it('keeps old posts if a background refresh fails and does not race with a publication',()=>{
+    const previous={...message('POST'),id:73,body:'Já publicado'};
+    component.activeTab='feed';
+    component.timelineEntries=[previous];
+    component.timelineError='';
+    list.and.returnValue(throwError(()=>new Error('offline')));
+    component.loadTimeline(true);
+    expect(component.timelineEntries).toEqual([previous]);
+    expect(component.timelineError).toBe('');
+    component.timelineSending=true;
+    list.calls.reset();
+    component.loadTimeline(true);
+    expect(list).not.toHaveBeenCalled();
+  });
+
   it('searches only current community chat messages and navigates matches', () => {
     component.activeTab = 'chat';
     const first = { ...message('CHAT'), id: 41, body: 'Padel amanhã' };
