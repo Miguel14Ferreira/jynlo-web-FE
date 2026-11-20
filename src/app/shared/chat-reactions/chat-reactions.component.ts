@@ -8,6 +8,7 @@ import {
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { ProfileQuickViewService } from '../../services/profile-quick-view.service';
 import { Optional } from '@angular/core';
+import { Router } from '@angular/router';
 
 let reactionPickerSequence = 0;
 
@@ -330,12 +331,14 @@ export class ChatReactionsComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     public readonly store: ChatReactionStoreService,
     private readonly cdr: ChangeDetectorRef,
-    @Optional() private readonly profilePeek: ProfileQuickViewService | null = null
+    @Optional() private readonly profilePeek: ProfileQuickViewService | null = null,
+    @Optional() private readonly router: Router | null = null
   ) {}
 
   openParticipantProfile(username:string):void {
     this.closeDetails(false);
-    this.profilePeek?.open(username);
+    if(this.router)void this.router.navigate(['/menu/perfis',username]);
+    else this.profilePeek?.open(username);
   }
 
   ngOnInit(): void {
