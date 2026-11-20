@@ -658,7 +658,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     const primary=this.primaryKitDraft!;
     const all=[primary,...variants];
     if(all.some(v=>v.playerName.length>14 ||
-      (v.playerName && !/^[\\p{L}0-9 .'-]+$/u.test(v.playerName)))){
+      (v.playerName && !/^[\p{L}0-9 .'-]+$/u.test(v.playerName)))){
       this.feedback='Nome inválido: usa até 14 letras, números, espaços, pontos, hífenes ou apóstrofos.';
       return;
     }
