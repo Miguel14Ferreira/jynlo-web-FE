@@ -574,9 +574,9 @@
           @if (publicIndividualTitles.length > 0) {
             <section class="profile-individual-titles" aria-label="Títulos individuais oficiais">
               <div class="profile-individual-titles-heading">
-                <span class="section-kicker">PALMARÉS</span>
-                <h2>Títulos individuais oficiais</h2>
-                <p>Vitórias confirmadas em torneios concluídos de comunidades públicas.</p>
+                <span class="section-kicker">{{ 'profileData.honoursKicker' | t }}</span>
+                <h2>{{ 'profileData.officialTitles' | t }}</h2>
+                <p>{{ 'profileData.officialTitlesSubtitle' | t }}</p>
               </div>
               <div class="profile-individual-titles-grid">
                 @for (title of publicIndividualTitles; track title.tournamentId) {
@@ -588,7 +588,7 @@
                     @if (title.sport) {
                       <span>{{ title.sport }}</span>
                     }
-                    <small>Concluído em {{ title.completedAt | date:'MMM yyyy' }}</small>
+                    <small>{{ 'profileData.officialTitlesCompleted' | t }}: {{ title.completedAt | date:'MMM yyyy' }}</small>
                   </a>
                 }
               </div>
