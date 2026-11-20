@@ -336,9 +336,14 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
       </section>
       </section>
       <section *ngIf="activeTab === 'FEED'" class="team-feature">
-        <h2>Feed</h2>
-        <button *ngIf="isOwner" type="button" [disabled]="featureSaving"
-          (click)="toggleFeature('feedEnabled')">{{ t.feedEnabled ? 'Desativar feed' : 'Ativar feed' }}</button>
+        <div class="team-feature-title">
+          <h2>Publicações</h2>
+          <details *ngIf="isOwner" class="team-feature-settings">
+            <summary [attr.aria-label]="'Definições de feed'">⚙ <span>Definições</span></summary>
+            <button type="button" [disabled]="featureSaving"
+              (click)="toggleFeature('feedEnabled')">{{ t.feedEnabled ? 'Desativar feed' : 'Ativar feed' }}</button>
+          </details>
+        </div>
         <p *ngIf="!t.feedEnabled">Desativado pelo responsável da equipa.</p>
         <app-sports-team-content *ngIf="t.feedEnabled && rosterVerified && isMember" [teamId]="t.id" kind="feed"></app-sports-team-content>
         <p *ngIf="t.feedEnabled && (!rosterVerified || !isMember)">Disponível apenas para membros confirmados da equipa.</p>
@@ -348,9 +353,14 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
           [sport]="t.sport"></app-sports-team-challenges>
       </section>
       <section *ngIf="activeTab === 'CHAT'" class="team-feature">
-        <h2>Chat</h2>
-        <button *ngIf="isOwner" type="button" [disabled]="featureSaving"
-          (click)="toggleFeature('chatEnabled')">{{ t.chatEnabled ? 'Desativar chat' : 'Ativar chat' }}</button>
+        <div class="team-feature-title">
+          <h2>Mensagens</h2>
+          <details *ngIf="isOwner" class="team-feature-settings">
+            <summary [attr.aria-label]="'Definições de chat'">⚙ <span>Definições</span></summary>
+            <button type="button" [disabled]="featureSaving"
+              (click)="toggleFeature('chatEnabled')">{{ t.chatEnabled ? 'Desativar chat' : 'Ativar chat' }}</button>
+          </details>
+        </div>
         <p *ngIf="!t.chatEnabled">Desativado pelo responsável da equipa.</p>
         <app-sports-team-content *ngIf="t.chatEnabled && rosterVerified && isMember" [teamId]="t.id" kind="chat"></app-sports-team-content>
         <p *ngIf="t.chatEnabled && (!rosterVerified || !isMember)">Disponível apenas para membros confirmados da equipa.</p>
