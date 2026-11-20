@@ -594,7 +594,7 @@
                       }
                       @if (entry.wins != null && entry.draws != null && entry.losses != null) {
                         <span class="profile-competition-wdl">
-                          {{ entry.wins }}V · {{ entry.draws }}E · {{ entry.losses }}D
+                          {{ entry.wins }}{{ 'profileData.winsShort' | t }} · {{ entry.draws }}{{ 'profileData.drawsShort' | t }} · {{ entry.losses }}{{ 'profileData.lossesShort' | t }}
                         </span>
                       }
                       <small>{{ entry.completedAt | date:'MMM yyyy' }}</small>
