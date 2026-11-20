@@ -376,7 +376,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     this.feedMentionMatches=[];this.feedMentionBusy=!!term;
     if(!term)return;
     this.feedMentionTimer=setTimeout(()=>{
-      this.profileService.findProfiles({name:term}).subscribe({
+      this.profileService.searchProfiles(term).subscribe({
         next:profiles=>{if(sequence!==this.feedMentionSequence)return;
           this.feedMentionMatches=profiles.filter(profile=>
             !!profile.username&&profile.username.toLowerCase().includes(term.toLowerCase())).slice(0,8);
