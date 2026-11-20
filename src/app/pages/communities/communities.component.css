@@ -1701,3 +1701,21 @@ input,textarea,select {
 }
 .community-chat-compose-meta small { font-size: .76rem; line-height: 1.35; }
 .community-chat-compose-meta small:last-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+
+/* Members: real profile portraits and distinct roles, without tooltips masking names. */
+.members-block .member-row{display:flex;align-items:center;gap:12px;padding:10px 12px;margin:8px 0;border:1px solid rgba(77,166,179,.26);border-radius:14px;background:linear-gradient(115deg,#0c3342,#0b2937)}
+.members-block .community-member-profile{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:13px;padding:8px 10px;border-radius:11px;color:#effffc;text-decoration:none;transition:background .16s}
+.members-block .community-member-profile:hover{background:#1a4e59}
+.members-block .community-member-profile:focus-visible{outline:2px solid #7ff6dc;outline-offset:2px}
+.members-block .community-member-avatar{flex:0 0 48px;width:48px;height:48px;display:grid;place-items:center;overflow:hidden;border-radius:50%;background:#156a75;color:#eafff6;font-size:1.1rem;font-weight:800}
+.members-block .community-member-avatar img{width:100%;height:100%;object-fit:cover}
+.members-block .community-member-identity{display:flex;align-items:center;flex-wrap:wrap;column-gap:10px;row-gap:4px;min-width:0}
+.members-block .community-member-identity strong{flex-basis:100%;font-size:.97rem;overflow-wrap:anywhere}
+.members-block .community-member-handle{color:#9fc9d6;font-size:.8rem}
+.members-block .community-member-role{display:inline-flex;align-items:center;border:1px solid #397d8d;border-radius:999px;padding:3px 9px;color:#bce4e7;background:#153c4a;font-size:.68rem;font-weight:800;letter-spacing:.04em}
+.members-block .community-member-role.is-owner{color:#ffe3a4;border-color:#9e7f3b;background:#4a3c1c}
+.members-block .community-member-role.is-admin{color:#a2f8df;border-color:#268b7e;background:#124f4b}
+.members-block .community-member-open{margin-left:auto;color:#73e2d0;font-size:1.1rem}
+.members-block .member-row>.row-actions{display:flex;flex-wrap:wrap;gap:7px}
+@media(max-width:620px){.members-block .member-row{align-items:stretch;flex-direction:column}.members-block .member-row>.row-actions{padding-left:8px}.members-block .community-member-avatar{width:44px;height:44px;flex-basis:44px}}
