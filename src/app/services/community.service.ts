@@ -15,6 +15,15 @@ export interface FriendshipStatus {
   pendingRequest: boolean;
 }
 
+export interface PublicIndividualTitle {
+  tournamentId: number;
+  tournamentName: string;
+  communityId: number;
+  communityName: string;
+  sport: string | null;
+  completedAt: string;
+}
+
 export interface PublicProfileAffiliations {
   teams: Array<{id:number;name:string;sport:string|null}>;
   communities: Array<{id:number;name:string;sport:string|null}>;
@@ -81,6 +90,12 @@ export class CommunityService {
   publicProfile(username: string): Observable<CommunityProfile> {
     return this.http.get<CommunityProfile>(
       this.profileUrl + '/' + encodeURIComponent(username)
+    );
+  }
+
+  publicIndividualTitles(username: string): Observable<PublicIndividualTitle[]> {
+    return this.http.get<PublicIndividualTitle[]>(
+      this.profileUrl + '/' + encodeURIComponent(username) + '/individual-titles'
     );
   }
 
