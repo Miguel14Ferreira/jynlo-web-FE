@@ -411,59 +411,109 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
             </div>
             @if (inviteOpen && call.phase === 'active') {
               <section class="connect-invite-panel" [attr.aria-label]="'calls.inviteMembers' | t">
-                <h3>{{ 'calls.inviteMembers' | t }}</h3>
-                <p>{{ 'calls.inviteHelp' | t }}</p>
-                @if (contactsLoading) { <p role="status">A carregar contactos…</p> }
-                @if (contactsError) { <p role="alert">Não foi possível carregar os contactos. Podes usar o nome de utilizador.</p> }
+                <div class="connect-invite-heading">
+                  <div>
+                    <span class="connect-invite-eyebrow">Jynlo Connect</span>
+                    <h3>{{ 'calls.inviteMembers' | t }}</h3>
+                    <p>Adiciona amigos à chamada atual. Só entram depois de aceitar o convite.</p>
+                  </div>
+                  <button type="button" class="connect-invite-close" (click)="inviteOpen=false"
+                    aria-label="Fechar convites" title="Fechar convites">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                      stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                      <path d="M18 6 6 18M6 6l12 12"/>
+                    </svg>
+                  </button>
+                </div>
+                <form class="connect-invite-form" (ngSubmit)="inviteMember()">
+                  <label for="connect-invite-name">Procurar por nome de utilizador</label>
+                  <div class="connect-invite-search">
+                    <input id="connect-invite-name" type="search" autocomplete="off"
+                      name="inviteUsername" [ngModel]="inviteUsername" (ngModelChange)="inviteUsername=$event"
+                      maxlength="128" [disabled]="(calls.invitationBusy$ | async) ?? false"
+                      placeholder="Pesquisar amigos ou escrever @username">
+                    <button type="submit"
+                      [disabled]="(calls.invitationBusy$ | async) || !inviteUsername.trim()">
+                      {{ (calls.invitationBusy$ | async) ? 'A enviar…' : 'Convidar' }}
+                    </button>
+                  </div>
+                </form>
+                @if (calls.invitationError$ | async; as inviteError) {
+                  <p class="connect-invite-error" role="alert">{{ inviteError | t }}</p>
+                }
+                <div class="connect-invite-list-heading">
+                  <strong>{{ inviteUsername.trim() ? 'Resultados da pesquisa' : 'Amigos disponíveis' }}</strong>
+                  @if (contactsLoading) { <span role="status">A procurar…</span> }
+                </div>
+                @if (contactsError) {
+                  <p class="connect-invite-empty" role="alert">Não foi possível carregar os amigos. Podes continuar a convidar pelo nome de utilizador.</p>
+                } @else if (!contactsLoading && !matchingContacts.length) {
+                  <p class="connect-invite-empty">
+                    {{ inviteUsername.trim() ? 'Sem correspondências na lista de amigos. Podes convidar pelo nome de utilizador acima.' : 'Não há amigos disponíveis neste momento.' }}
+                  </p>
+                }
                 @if (matchingContacts.length) {
                   <div class="connect-contact-results">
                     @for (contact of matchingContacts; track contact.username) {
                       <button type="button" class="connect-contact-option"
                         [disabled]="(calls.invitationBusy$ | async) ?? false"
+                        [attr.aria-label]="'Convidar ' + (contact.nickname || contact.fullName || contact.username)"
                         (click)="inviteContact(contact.username)">
                         <span class="connect-contact-avatar">
                           @if (contact.profilePicUrl) {
                             <img [src]="contact.profilePicUrl" alt="" loading="lazy" referrerpolicy="no-referrer">
                           } @else { {{ contact.username.slice(0,1).toUpperCase() }} }
                         </span>
-                        <span class="connect-contact-names"><strong>{{ contact.nickname || contact.fullName || contact.username }}</strong>
-                        <small>&#64;{{ contact.username }}</small></span>
-                        <span aria-hidden="true">＋</span>
+                        <span class="connect-contact-names">
+                          <strong>{{ contact.nickname || contact.fullName || contact.username }}</strong>
+                          <small>&#64;{{ contact.username }}</small>
+                        </span>
+                        <span class="connect-contact-action">Convidar <span aria-hidden="true">＋</span></span>
                       </button>
                     }
                   </div>
                 }
-                <form class="connect-invite-form" (ngSubmit)="inviteMember()">
-                  <label for="connect-invite-name">{{ 'calls.username' | t }}</label>
-                  <input id="connect-invite-name" type="text" autocomplete="off"
-                    name="inviteUsername" [ngModel]="inviteUsername" (ngModelChange)="inviteUsername=$event"
-                    maxlength="128" [disabled]="(calls.invitationBusy$ | async) ?? false"
-                    [placeholder]="'calls.username' | t">
-                  <button type="submit" [disabled]="(calls.invitationBusy$ | async) ?? false">
-                    {{ 'calls.sendInvite' | t }}
-                  </button>
-                </form>
-                @if (calls.invitationError$ | async; as inviteError) {
-                  <p class="connect-invite-error" role="alert">{{ inviteError | t }}</p>
-                }
                 @if (calls.members$ | async; as members) {
                   <div class="connect-member-list">
-                    <strong>{{ 'calls.participants' | t }} ({{ members.participants.length }})</strong>
+                    <div class="connect-member-heading">
+                      <strong>Na chamada</strong>
+                      <span>{{ participantCount }} {{ participantCount===1?'pessoa':'pessoas' }}</span>
+                    </div>
                     @for (person of members.participants; track person.identity) {
-                      <label class="connect-member-item">
-                        <span>● {{ person.username }}</span>
+                      <div class="connect-member-item">
+                        <span class="connect-member-avatar" aria-hidden="true">
+                          @if (profilePhoto(person.username); as photo) {
+                            <img [src]="photo" alt="" referrerpolicy="no-referrer" (error)="hideBrokenPhoto(person.username)">
+                          } @else { {{ person.username.slice(0,1).toUpperCase() }} }
+                        </span>
+                        <span class="connect-member-details">
+                          <strong>{{ person.username }}</strong>
+                          <small><span class="connect-presence-dot" aria-hidden="true"></span> Na chamada</small>
+                        </span>
                         @if (person.identity !== calls.room?.localParticipant?.identity) {
-                          <span class="connect-volume-label">{{ 'calls.volume' | t }} {{ volumeFor(person.identity) * 100 | number:'1.0-0' }}%</span>
-                          <input type="range" min="0" max="100" step="5"
-                            [ngModel]="volumeFor(person.identity) * 100"
-                            (ngModelChange)="setVolume(person.identity,$event)"
-                            [ngModelOptions]="{standalone:true}"
-                            [attr.aria-label]="('calls.volume' | t) + ' ' + person.username">
+                          <label class="connect-member-volume">
+                            <span class="connect-volume-label">{{ 'calls.volume' | t }} {{ volumeFor(person.identity) * 100 | number:'1.0-0' }}%</span>
+                            <input type="range" min="0" max="100" step="5"
+                              [ngModel]="volumeFor(person.identity) * 100"
+                              (ngModelChange)="setVolume(person.identity,$event)"
+                              [ngModelOptions]="{standalone:true}"
+                              [attr.aria-label]="('calls.volume' | t) + ' ' + person.username">
+                          </label>
+                        } @else {
+                          <small class="connect-member-you">Tu</small>
                         }
-                      </label>
+                      </div>
                     }
-                    @for (pending of members.pending; track pending) {
-                      <span class="connect-member-pending">◷ {{ pending }} · {{ 'calls.invitePending' | t }}</span>
+                    @if (members.pending.length) {
+                      <div class="connect-member-heading connect-pending-heading">
+                        <strong>Convites pendentes</strong>
+                        <span>{{ members.pending.length }}</span>
+                      </div>
+                      @for (pending of members.pending; track pending) {
+                        <div class="connect-member-pending">
+                          <span aria-hidden="true">◷</span> &#64;{{ pending }} <small>A aguardar resposta</small>
+                        </div>
+                      }
                     }
                   </div>
                 }
@@ -947,29 +997,68 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
       .connect-camera-strip{min-height:100px}
       .connect-camera-strip app-call-participant-tile{flex-basis:120px;height:100px;min-height:100px}
     }
-    .connect-invite-panel{position:absolute;right:0;bottom:calc(100% + 8px);z-index:15;width:min(450px,100%);box-sizing:border-box;
-      max-height:55dvh;overflow:auto;padding:17px;background:#0c2a39;border:1px solid #508d8a;border-radius:16px;box-shadow:0 14px 40px #0008}
-    .connect-invite-panel h3{margin:0 0 7px;font-size:1rem}.connect-invite-panel p{font-size:.79rem;color:#bbd8d6;line-height:1.5}
-    .connect-contact-results{display:grid;gap:6px;max-height:210px;overflow-y:auto;margin:10px 0}
-    .connect-contact-option{display:flex;align-items:center;gap:10px;width:100%;min-width:0;padding:9px;border-radius:11px;background:#123b46;border:1px solid #36796f;color:#e6fff8;text-align:left;cursor:pointer}
+    /* Self-contained people drawer: never overflow outside the call or cover
+       the page unpredictably when chat or screen sharing is active. */
+    .call-panel{position:relative}
+    .connect-invite-panel{position:absolute;z-index:20;right:14px;top:70px;bottom:75px;
+      width:min(430px,calc(100% - 28px));box-sizing:border-box;display:flex;flex-direction:column;
+      gap:12px;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:18px;
+      background:linear-gradient(155deg,#0d3440,#082430);border:1px solid #4b9990;
+      border-radius:17px;box-shadow:0 20px 55px #000b;scrollbar-width:thin}
+    .connect-invite-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+    .connect-invite-eyebrow{display:block;color:#5be8c0;font-size:.67rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
+    .connect-invite-heading h3{margin:3px 0 6px;font-size:1.18rem}
+    .connect-invite-heading p{margin:0;color:#b7d6d5;font-size:.78rem;line-height:1.5}
+    .connect-invite-close{display:grid;place-items:center;flex:0 0 36px;height:36px;
+      border:1px solid #426f76;border-radius:10px;background:#163f4b;color:#d8fff3;cursor:pointer}
+    .connect-invite-close:hover{background:#235765}
+    .connect-invite-form{display:grid;gap:8px}
+    .connect-invite-form label{font-size:.76rem;font-weight:750;color:#d9f9ee}
+    .connect-invite-search{display:flex;gap:7px;min-width:0}
+    .connect-invite-search input{min-width:0;flex:1;box-sizing:border-box;width:100%;
+      border:1px solid #528f89;background:#081f2c;color:#effffb;border-radius:10px;padding:11px;font:inherit;font-size:.78rem}
+    .connect-invite-search button{padding:10px 13px;border-radius:10px;background:#43e6bd;
+      color:#062f36;border:0;font:inherit;font-size:.75rem;font-weight:850;cursor:pointer}
+    .connect-invite-search button:disabled{opacity:.45;cursor:not-allowed}
+    .connect-invite-error{color:#ffd0cd!important;font-size:.78rem}
+    .connect-invite-list-heading,.connect-member-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .connect-invite-list-heading strong,.connect-member-heading strong{font-size:.82rem}
+    .connect-invite-list-heading span,.connect-member-heading span{font-size:.72rem;color:#a6c9cb}
+    .connect-invite-empty{margin:0;padding:12px;background:#123947;border-radius:10px;color:#bbd8d6;font-size:.76rem}
+    .connect-contact-results{display:grid;gap:7px;overflow-y:auto;min-height:0;max-height:min(32dvh,265px);scrollbar-width:thin}
+    .connect-contact-option{display:flex;align-items:center;gap:10px;width:100%;min-width:0;
+      padding:10px;border-radius:12px;background:#123b46;border:1px solid #36796f;color:#e6fff8;text-align:left;cursor:pointer}
     .connect-contact-option:hover{background:#1b5656;border-color:#54daba}
-    .connect-contact-option:disabled{opacity:.5}
-    .connect-contact-avatar{display:grid;place-items:center;width:36px;height:36px;flex:0 0 36px;border-radius:50%;background:#286b68;font-weight:800}
-    .connect-contact-names{display:grid;min-width:0;flex:1}
+    .connect-contact-option:focus-visible,.connect-invite-panel button:focus-visible,
+    .connect-invite-panel input:focus-visible{outline:2px solid #a4ffe1;outline-offset:2px}
+    .connect-contact-option:disabled{opacity:.5;cursor:wait}
+    .connect-contact-avatar,.connect-member-avatar{display:grid;place-items:center;flex:0 0 42px;
+      width:42px;height:42px;border-radius:50%;background:#286b68;color:#eafff9;font-weight:800;overflow:hidden}
+    .connect-contact-avatar img,.connect-member-avatar img{display:block;width:100%;height:100%;object-fit:cover}
+    .connect-contact-names{display:grid;gap:3px;min-width:0;flex:1}
     .connect-contact-names strong,.connect-contact-names small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .connect-contact-names small{color:#a5d7cf}
-    .connect-invite-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
-    .connect-invite-form label{grid-column:1/-1;font-size:.76rem}.connect-invite-form input{min-width:0;width:100%;box-sizing:border-box;
-      border:1px solid #54958f;background:#0d2631;color:#effffb;border-radius:10px;padding:11px;font:inherit}
-    .connect-invite-form button{padding:10px 16px;border-radius:10px;background:#43e6bd;color:#062f36;border:0;font-weight:850;cursor:pointer}
-    .connect-invite-form button:disabled{opacity:.6}.connect-invite-error{color:#ffd0cd!important}
-    .connect-member-list{display:flex;flex-wrap:wrap;gap:7px;border-top:1px solid #416a70;margin-top:14px;padding-top:12px}
-    .connect-member-list strong{width:100%;font-size:.78rem}
-    .connect-member-item,.connect-member-pending{padding:6px 10px;border-radius:99px;border:1px solid #397f77;color:#b4ffe8;font-size:.74rem}
-    .connect-member-pending{border-color:#827757;color:#f5ddb0}
-    .connect-member-item{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
-    .connect-member-item input{width:118px;accent-color:#45dfb9}
-    .connect-volume-label{font-size:.67rem;color:#a9d5d5}
+    .connect-contact-names strong{font-size:.82rem}.connect-contact-names small{color:#a5d7cf;font-size:.72rem}
+    .connect-contact-action{display:inline-flex;align-items:center;gap:4px;color:#76efd0;font-size:.72rem;font-weight:800}
+    .connect-member-list{display:grid;gap:9px;border-top:1px solid #416a70;padding-top:13px}
+    .connect-member-item{display:flex;align-items:center;gap:10px;padding:8px;
+      border:1px solid #2e6268;border-radius:11px;background:#102f3d;min-width:0}
+    .connect-member-avatar{flex-basis:35px;width:35px;height:35px;font-size:.84rem}
+    .connect-member-details{display:grid;gap:4px;flex:1;min-width:0}
+    .connect-member-details strong{font-size:.79rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .connect-member-details small{display:inline-flex;align-items:center;gap:5px;color:#add3ce;font-size:.68rem}
+    .connect-presence-dot{width:6px;height:6px;border-radius:50%;background:#4de3ad}
+    .connect-member-volume{display:grid;justify-items:end;gap:4px;max-width:105px}
+    .connect-member-volume input{width:98px;max-width:100%;accent-color:#45dfb9}
+    .connect-volume-label,.connect-member-you{font-size:.66rem;color:#9de4d3}
+    .connect-member-pending{display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+      padding:9px 11px;border:1px solid #786a43;border-radius:10px;background:#322e26;
+      color:#f5ddb0;font-size:.76rem}
+    .connect-member-pending small{margin-left:auto;color:#decba8}
+    .connect-pending-heading{margin-top:5px}
+    @media(max-width:650px){.connect-invite-panel{top:52px;bottom:60px;right:6px;
+      width:calc(100% - 12px);padding:14px}.connect-contact-results{max-height:25dvh}}
+    @media(max-height:560px){.connect-invite-panel{top:42px;bottom:48px;gap:8px;padding:12px}
+      .connect-contact-results{max-height:22dvh}}
     /* Keep the persistent call away from the message composer and Send button.
        Only the small floating surface receives pointer events. */
     .connect-mini{position:fixed;top:max(76px,env(safe-area-inset-top));right:20px;bottom:auto;
