@@ -23,6 +23,9 @@ export interface PublicCompletedParticipation {
   sport: string | null;
   completedAt: string;
   individualChampion: boolean;
+  wins: number | null;
+  draws: number | null;
+  losses: number | null;
 }
 
 export interface PublicIndividualTitle {
