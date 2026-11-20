@@ -1048,12 +1048,12 @@ describe('PerfisComponent', () => {
       tournamentId: 41, tournamentName: 'Liga de Ténis',
       communityId: 17, communityName: 'Liga de Lisboa',
       sport: 'Ténis', completedAt: '2026-10-20T10:00:00Z',
-      individualChampion: false
+      individualChampion: false, wins: null, draws: null, losses: null
     }, {
       tournamentId: 42, tournamentName: 'Open de Padel',
       communityId: 17, communityName: 'Liga de Lisboa',
       sport: 'Padel', completedAt: '2026-10-20T10:00:00Z',
-      individualChampion: true
+      individualChampion: true, wins: null, draws: null, losses: null
     }]));
     routeParams.next(convertToParamMap({username:'ana'}));
     fixture.detectChanges();
@@ -1064,6 +1064,19 @@ describe('PerfisComponent', () => {
     expect(rows[0].textContent).toContain('Participação confirmada');
     expect(rows[1].textContent).toContain('Campeão individual');
     expect(rows[1].getAttribute('href')).toBe('/menu/communities/17');
+  });
+
+  it('shows finalized win-draw-loss figures only when the backend confirms them', () => {
+    service.publicCompletedParticipations.and.returnValue(of([{
+      tournamentId: 41, tournamentName: 'Liga Individual',
+      communityId: 17, communityName: 'Liga de Lisboa',
+      sport: 'Ténis', completedAt: '2026-10-20T10:00:00Z',
+      individualChampion: false, wins: 4, draws: 1, losses: 2
+    }]));
+    routeParams.next(convertToParamMap({username:'ana'}));
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement)
+      .querySelector('.profile-competition-wdl')?.textContent).toContain('4V · 1E · 2D');
   });
 
   it('does not show competitive results if the verified history is unavailable', () => {
