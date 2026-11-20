@@ -7,6 +7,7 @@ import { PerfisComponent } from './perfis.component';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { CommunityService } from '../../services/community.service';
 import { CommunityGroupsService } from '../../services/community-groups.service';
+import { SportsTeamsService } from '../../services/sports-teams.service';
 import { SessionService } from '../../services/session.service';
 import { SocialGraphService } from '../../services/social-graph.service';
 import { ReliabilityService } from '../../services/reliability.service';
@@ -29,6 +30,7 @@ describe('PerfisComponent', () => {
   let stories: jasmine.SpyObj<SocialStoriesService>;
   let privacy: jasmine.SpyObj<ProfilePrivacyService>;
   let groups: jasmine.SpyObj<CommunityGroupsService>;
+  let sportsTeams: jasmine.SpyObj<SportsTeamsService>;
   let sessions: jasmine.SpyObj<SessionService>;
 
   const profile = {
@@ -103,8 +105,10 @@ describe('PerfisComponent', () => {
     privacy.requests.and.returnValue(of([]));
 
     groups = jasmine.createSpyObj<CommunityGroupsService>('CommunityGroupsService', ['mine','invite']);
+    sportsTeams = jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService', ['joined']);
     sessions = jasmine.createSpyObj<SessionService>('SessionService', ['mine','invitePlayer']);
     groups.mine.and.returnValue(of([]));
+    sportsTeams.joined.and.returnValue(of([]));
     groups.invite.and.returnValue(of({} as any));
     sessions.mine.and.returnValue(of({created:[],joined:[],waitlisted:[]}));
     sessions.invitePlayer.and.returnValue(of({id:1}));
@@ -120,6 +124,7 @@ describe('PerfisComponent', () => {
         { provide: SocialStoriesService, useValue: stories },
         { provide: ProfilePrivacyService, useValue: privacy },
         { provide: CommunityGroupsService, useValue: groups },
+        { provide: SportsTeamsService, useValue: sportsTeams },
         { provide: SessionService, useValue: sessions },
         { provide: ActivatedRoute, useValue: { paramMap: routeParams, snapshot: { params: {}, queryParams: {}, paramMap: convertToParamMap({}), queryParamMap: convertToParamMap({}) } } }
       ]
@@ -988,6 +993,39 @@ describe('PerfisComponent', () => {
       '/menu/teams',
       '/menu/communities'
     ]);
+  });
+
+  it('does not request authenticated memberships for another player', () => {
+    sportsTeams.joined.calls.reset();
+    groups.mine.calls.reset();
+    routeParams.next(convertToParamMap({ username: 'ana' }));
+    fixture.detectChanges();
+    expect(sportsTeams.joined).not.toHaveBeenCalled();
+    expect(groups.mine).not.toHaveBeenCalled();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.profile-real-memberships')).toBeNull();
+  });
+
+  it('lists confirmed own teams and communities with real detail links', () => {
+    component.currentUsername = 'ana';
+    sportsTeams.joined.and.returnValue(of([{
+      id: 42, name: 'Equipa Confirmada', slug: 'equipa-confirmada',
+      sport: 'Futebol', location: null, description: null, ownerProfileId: 1,
+      feedEnabled: true, chatEnabled: true
+    }]));
+    groups.mine.and.returnValue(of([{
+      id: 17, name: 'Comunidade Confirmada', description: null, sport: 'Futebol',
+      photoUrl: null, visibility: 'PUBLIC', rankingsEnabled: false,
+      ownerUsername: 'ana', myRole: 'MEMBER', memberCount: 2,
+      createdAt: '2026-01-01', members: []
+    }]));
+    routeParams.next(convertToParamMap({ username: 'ana' }));
+    fixture.detectChanges();
+    expect(sportsTeams.joined).toHaveBeenCalled();
+    expect(groups.mine).toHaveBeenCalled();
+    const links = (fixture.nativeElement as HTMLElement)
+      .querySelectorAll<HTMLAnchorElement>('.profile-real-memberships a');
+    expect(Array.from(links).map(link => link.getAttribute('href')))
+      .toEqual(['/menu/teams/42','/menu/communities/17']);
   });
 
   it('recognizes the authenticated profile regardless of username capitalization', () => {
