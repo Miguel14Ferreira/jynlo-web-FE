@@ -146,6 +146,56 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   communities: CommunityGroup[] = [];
   invites: CommunityInvite[] = [];
   selected?: CommunityGroup;
+  communityFollowState:{count:number;following:boolean}|null=null;
+  communityFollowBusy=false;
+  communityFollowError='';
+  private communityFollowRequest=0;
+
+  loadCommunityFollow(id:number):void {
+    const request=++this.communityFollowRequest;
+    this.communityFollowState=null;
+    this.communityFollowError='';
+    this.communityFollowBusy=false;
+    this.communityService.followerState(id).pipe(timeout(12000)).subscribe({
+      next:state=>{
+        if(request!==this.communityFollowRequest || this.selected?.id!==id)return;
+        this.communityFollowState=state;
+      },
+      error:()=>{
+        if(request!==this.communityFollowRequest || this.selected?.id!==id)return;
+        this.communityFollowError='Não foi possível carregar os seguidores.';
+      }
+    });
+  }
+
+  toggleCommunityFollow():void {
+    const current=this.selected;
+    const previous=this.communityFollowState;
+    if(!current||current.visibility!=='PUBLIC'||!previous||this.communityFollowBusy)return;
+    const id=current.id,request=++this.communityFollowRequest;
+    this.communityFollowBusy=true;
+    this.communityFollowError='';
+    const action=previous.following
+      ? this.communityService.unfollowCommunity(id)
+      : this.communityService.followCommunity(id);
+    action.pipe(timeout(12000)).subscribe({
+      next:state=>{
+        if(request!==this.communityFollowRequest||this.selected?.id!==id)return;
+        this.communityFollowState=state;
+        this.communityFollowBusy=false;
+      },
+      error:()=>{
+        if(request!==this.communityFollowRequest||this.selected?.id!==id)return;
+        this.communityFollowBusy=false;
+        this.communityFollowError='Não foi possível confirmar a alteração.';
+        // Never optimistically change a follow count after an uncertain request.
+        this.communityFollowState=null;
+        this.loadCommunityFollow(id);
+      }
+    });
+  }
+
+
   speedTournamentPresent = false;
   private speedTournamentLookupVersion = 0;
   readonly sportsCatalog = SPORTS_CATALOG;
@@ -2683,6 +2733,8 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       next: full => {
         if (openVersion !== this.communityOpenRequestVersion) return;
         this.selected = full;
+        if(full.visibility==='PUBLIC')this.loadCommunityFollow(full.id);
+        else {this.communityFollowRequest++;this.communityFollowState=null;}
         this.resetSeasonManagementState();
         this.loadStandaloneSpeedTournament(full);
         this.resetHistoricalLinks();
@@ -6039,6 +6091,8 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
         this.competitionRequestVersion = (this.competitionRequestVersion || 0) + 1;
         this.communitySessionsRequestVersion = (this.communitySessionsRequestVersion || 0) + 1;
         this.selected = community;
+        if(community.visibility==='PUBLIC')this.loadCommunityFollow(community.id);
+        else {this.communityFollowRequest++;this.communityFollowState=null;}
         this.cancelCloseSeason();
         this.resetSeasonManagementState();
         this.activeTab = 'home';
