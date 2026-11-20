@@ -42,6 +42,8 @@ import { InboxSharePickerComponent } from './inbox-share-picker.component';
 import { InboxHistorySearchComponent } from './inbox-history-search.component';
 import { InboxConversationListComponent, InboxListFormatters } from './inbox-conversation-list.component';
 import { findCuratedGifs } from './curated-gifs';
+import { InboxStoryCardComponent } from './inbox-story-card.component';
+import { storyIdFromChatText } from './inbox-story-share';
 
 export const VOICE_NOTE_MAX_DURATION_MS = 5 * 60_000;
 const VOICE_NOTE_AUDIO_BITRATE = 48_000;
@@ -49,7 +51,7 @@ const VOICE_NOTE_AUDIO_BITRATE = 48_000;
 @Component({
   selector: 'app-messages-center',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, ChatReactionsComponent, GiphyEmbedComponent, InboxConversationListComponent, InboxEmojiGifPickerComponent, InboxShareMenuComponent, InboxSharePickerComponent, InboxHistorySearchComponent, ChatImageInViewDirective],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, ChatReactionsComponent, GiphyEmbedComponent, InboxConversationListComponent, InboxEmojiGifPickerComponent, InboxShareMenuComponent, InboxSharePickerComponent, InboxHistorySearchComponent, ChatImageInViewDirective, InboxStoryCardComponent],
   templateUrl: './messages-center.component.html',
   styleUrls: ['./messages-center.component.css', './messages-center-premium.component.css', './messages-center-v3-finish.css', './messages-center-embedded.css'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -2272,8 +2274,10 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     if (!this.sending && !this.deliveryUncertain) this.selectedShare = null;
   }
   readSharedMessage(text: string) { return readSharedMessage(text); }
+  storyIdFromChatText(text: string | null | undefined): number | null { return storyIdFromChatText(text); }
   displayMessagePreview(value: string | null | undefined): string {
     if (!value) return '';
+    if (storyIdFromChatText(value)!==null) return 'Story partilhada';
     const shared = readSharedMessage(value);
     if (shared) return t('chat.shareType.' + shared.kind) + ': ' + shared.title;
     // Reserved GIPHY envelopes must never appear as raw JSON in previews,
