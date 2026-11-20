@@ -669,7 +669,10 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.subscriptions.add(this.realtime.connected$.subscribe(connected => {
       if (connected && document.visibilityState === 'visible') this.read(true,true);
     }));
-    this.subscriptions.add(interval(10000).subscribe(() => {
+    // WebSocket invalidation is authoritative while connected.
+    // This occasional reconciliation is a safety net after missed events,
+    // not the transport used to deliver new messages.
+    this.subscriptions.add(interval(60000).subscribe(() => {
       if (document.visibilityState === 'visible') this.read(true,true);
     }));
     this.subscriptions.add(merge(fromEvent(window, 'focus'),
