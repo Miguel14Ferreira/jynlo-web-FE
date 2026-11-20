@@ -507,7 +507,7 @@
                   <h3>Comunidades</h3>
                   <div class="profile-membership-grid">
                     @for (group of ownVerifiedCommunities; track group.id) {
-                      <a routerLink="/menu/communities" [queryParams]="{ communityId: group.id }"
+                      <a [routerLink]="['/menu/communities', group.id]"
                          class="profile-membership-card">
                         <strong>{{ group.name }}</strong>
                         <span>{{ group.sport || 'Comunidade desportiva' }}</span>
