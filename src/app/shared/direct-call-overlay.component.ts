@@ -109,13 +109,16 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
             </div>
           </header>
           <div class="call-info">
-            <div class="call-avatar" aria-hidden="true">
-              @if (profilePhoto(call.peer); as photo) {
-                <img [src]="photo" alt="" referrerpolicy="no-referrer" (error)="hideBrokenPhoto(call.peer)">
-              } @else { {{ call.peer.slice(0,1).toUpperCase() }} }
-            </div>
+            <button type="button" class="call-peer-profile" (click)="openPeerProfile(call.peer)"
+              [attr.aria-label]="'Ver perfil de ' + call.peer" [title]="'Ver perfil de ' + call.peer">
+              <span class="call-avatar" aria-hidden="true">
+                @if (profilePhoto(call.peer); as photo) {
+                  <img [src]="photo" alt="" referrerpolicy="no-referrer" (error)="hideBrokenPhoto(call.peer)">
+                } @else { {{ call.peer.slice(0,1).toUpperCase() }} }
+              </span>
+              <span class="call-peer-name">{{ call.peer }}</span>
+            </button>
             <div class="call-summary">
-              <h2>{{ call.peer }}</h2>
               <p class="call-phase" role="status">
                 <span class="call-status-dot" [class.call-status-connected]="call.phase === 'active'"></span>
                 {{ (call.phase === 'dialing' ? 'calls.ringing' :
@@ -718,6 +721,12 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
     .call-brand-dot{font-size:.62rem;color:#4de3be}
     .call-kind{color:#e0eef4;font-weight:650}
     .call-info{justify-content:center;gap:12px;margin:8px 0 2px;min-height:55px}
+    .call-peer-profile{display:inline-flex;align-items:center;gap:12px;min-width:0;padding:3px 6px;
+      border:1px solid transparent;border-radius:12px;background:transparent;color:#ecfcf9;
+      cursor:pointer;font:inherit;text-align:left}
+    .call-peer-profile:hover{background:#ffffff12;border-color:#69d6c166}
+    .call-peer-profile:focus-visible{outline:3px solid #83ffdf;outline-offset:2px}
+    .call-peer-name{font-size:clamp(1.12rem,2.2vw,1.42rem);font-weight:750;overflow-wrap:anywhere}
     .call-avatar{display:grid;place-items:center;flex:0 0 auto;width:50px;height:50px;
       border-radius:50%;background:#303f50;color:#e0fff8;font-size:1.25rem;font-weight:850;overflow:hidden}
     .call-incoming-avatar img,.call-avatar img,.connect-wait-avatar img,.connect-contact-avatar img{
@@ -1286,6 +1295,14 @@ export class DirectCallOverlayComponent implements OnDestroy {
     if(!this.calls.state$.value)return;
     this.showCallChat=!this.showCallChat;
     if(this.showCallChat){this.settingsOpen=false;this.inviteOpen=false;}
+  }
+
+  /** Keep the LiveKit room connected while visiting the person's full profile. */
+  openPeerProfile(peer: string): void {
+    const username=peer.trim();
+    if (!username || !this.calls.state$.value || !this.router) return;
+    this.minimize();
+    void this.router.navigate(['/menu/perfis',username]);
   }
 
   openChat(peer: string): void {
