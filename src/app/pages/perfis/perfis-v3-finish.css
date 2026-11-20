@@ -603,3 +603,37 @@
     font-size:.78rem;min-height:38px;
   }
 }
+
+
+/* Finalized individual awards only: no inferred trophies or competition rankings. */
+:host .community-page.profile-page-open .profile-individual-titles{
+  display:grid;gap:15px;margin:22px 0;padding:19px;
+  background:linear-gradient(125deg,#123744,#092735);
+  border:1px solid rgba(73,204,187,.38);border-radius:17px;
+}
+:host .community-page.profile-page-open .profile-individual-titles-heading h2{
+  margin:5px 0;font-size:1.12rem;color:#e6fff7;
+}
+:host .community-page.profile-page-open .profile-individual-titles-heading p{
+  margin:0;color:#a6d0d2;font-size:.83rem;
+}
+:host .community-page.profile-page-open .profile-individual-titles-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:11px;
+}
+:host .community-page.profile-page-open .profile-individual-title-card{
+  display:grid;align-content:start;gap:5px;padding:15px;
+  min-height:136px;border:1px solid rgba(84,188,171,.35);border-radius:12px;
+  background:#103743;text-decoration:none;color:#eafff8;
+}
+:host .community-page.profile-page-open .profile-individual-title-card:hover{
+  border-color:#6de4cb;background:#154552;
+}
+:host .community-page.profile-page-open .profile-individual-title-card:focus-visible{
+  outline:2px solid #9dffe6;outline-offset:3px;
+}
+:host .community-page.profile-page-open .profile-individual-title-icon{font-size:1.4rem}
+:host .community-page.profile-page-open .profile-individual-title-card strong{font-size:.94rem}
+:host .community-page.profile-page-open .profile-individual-title-card span:not(.profile-individual-title-icon),
+:host .community-page.profile-page-open .profile-individual-title-card small{
+  font-size:.78rem;color:#abcfd1;
+}
