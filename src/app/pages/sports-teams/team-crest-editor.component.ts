@@ -100,7 +100,7 @@ export class TeamCrestEditorComponent {
   year = new Date().getFullYear().toString();
   error = '';
   get initials(): string {
-    return (this.customInitials.trim() || this.teamName.split(/\\s+/).filter(Boolean).map(s => s[0]).join(''))
+    return (this.customInitials.trim() || this.teamName.split(/\s+/).filter(Boolean).map(s => s[0]).join(''))
       .replace(/[^A-Za-z0-9À-ÿ]/g,'').toUpperCase().slice(0,4) || 'J';
   }
   get symbolLabel(): string {
@@ -115,7 +115,7 @@ export class TeamCrestEditorComponent {
     if (this.disabled || typeof document==='undefined') return;
     this.error='';
     const year = this.year.trim();
-    if (!/^\\d{4}$/.test(year)) { this.error='Indica um ano com quatro algarismos.'; return; }
+    if (!/^\d{4}$/.test(year)) { this.error='Indica um ano com quatro algarismos.'; return; }
     const canvas=document.createElement('canvas');
     canvas.width=512;canvas.height=512;
     const ctx=canvas.getContext('2d');
