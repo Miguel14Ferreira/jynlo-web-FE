@@ -1,5 +1,4 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { SimpleChange } from '@angular/core';
 import { of, Subject, throwError } from 'rxjs';
 import { SocialStoriesService } from '../../services/social-stories.service';
 import { SocialStory } from '../model/social-story';
