@@ -45,7 +45,7 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
         <p *ngIf="!refreshingApplications && !teamsVerified">Ainda não foi possível confirmar as equipas que geres.</p>
         <label for="choose-team-for-competition">Equipa que se candidata</label>
         <select id="choose-team-for-competition" [disabled]="!teamsVerified || saving"
-                [ngModel]="selectedTeam" (ngModelChange)="selectedTeam=$event">
+                [ngModel]="selectedTeam" (ngModelChange)="selectTeam($event)">
           <option [ngValue]="null">Selecionar equipa</option>
           <option *ngFor="let team of mine" [ngValue]="team.id">{{team.name}}</option>
         </select>
@@ -61,11 +61,12 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
           <span><strong>{{team.name}}</strong> · Equipamento oficial</span>
         </div>
       </section>
-      <section class="results">
+      <p *ngIf="!loading && !searchError && competitions.length" class="result-count" role="status">{{competitions.length}} {{competitions.length===1?'competição encontrada':'competições encontradas'}}</p>
+      <section class="results" aria-label="Competições encontradas">
         <article class="card" *ngFor="let item of competitions">
-          <small>{{item.type==='TOURNAMENT'?'Torneio':'Campeonato'}} · {{item.communityName}}</small>
+          <div class="competition-meta"><span class="competition-type">{{item.type==='TOURNAMENT'?'Torneio':'Campeonato'}}</span><span class="competition-community">{{item.communityName}}</span></div>
           <h2>{{item.name}}</h2>
-          <p>{{item.sport || 'Modalidade não indicada'}}</p>
+          <p class="competition-sport">{{item.sport || 'Modalidade não indicada'}}</p>
           <p *ngIf="!item.applicationsOpen" role="status">Candidaturas encerradas</p>
           <button type="button" [disabled]="saving || !item.applicationsOpen || !selectedTeam || !teamsVerified || !applicationsVerified || hasApplication(item,selectedTeam)"
                   (click)="apply(item)">{{applicationLabel(item,selectedTeam) || (saving?'A enviar…':'Pedir participação')}}</button>
@@ -115,8 +116,15 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
     .team-discover .selected-team-kit .kit-diagonal:after{background:linear-gradient(125deg,
       var(--shirt-primary) 0 36%,var(--shirt-secondary) 36% 55%,var(--shirt-primary) 55% 100%)}
 
+    .team-discover .result-count{font-size:.9rem;font-weight:700;color:#96dace}
     .team-discover .results{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,265px),1fr));gap:.9rem}
-    .team-discover .results .card{display:grid;align-content:start;gap:.65rem}
+    .team-discover .results .card{display:grid;align-content:start;gap:.65rem;transition:border-color .18s,transform .18s}
+    .team-discover .results .card:hover{border-color:#49baae!important;transform:translateY(-2px)}
+    .team-discover .competition-meta{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+    .team-discover .competition-type{border:1px solid #2f9f91;background:#0c504d;color:#b6ffec;border-radius:999px;padding:.2rem .65rem;font-size:.74rem;font-weight:800}
+    .team-discover .competition-community{font-size:.82rem;color:#b3cfdb;overflow-wrap:anywhere}
+    .team-discover .competition-sport{font-size:.9rem;font-weight:700;color:#e0f8f5!important}
+    @media(prefers-reduced-motion:reduce){.team-discover .results .card{transition:none}.team-discover .results .card:hover{transform:none}}
     .team-discover .results .card button{justify-self:start}
     .team-discover .error,.team-discover [role="alert"]{color:#ffb7bc;border-left:3px solid #eb9198;padding:.35rem .65rem}
     .team-discover .create-team-link{border:1px solid #337e8e;border-radius:10px;padding:.5rem .8rem}
@@ -133,6 +141,10 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
   private readonly requestTimeout=12000;
   failedLogoUrl:string|null=null;
   get selectedTeamIdentity(){return this.mine.find(team=>team.id===this.selectedTeam)||null;}
+  selectTeam(teamId:number|null):void{
+    this.selectedTeam=teamId;
+    this.failedLogoUrl=null;
+  }
   get selectedTeamLogo():string|null{
     const logo=this.teams.logoSrc(this.selectedTeamIdentity?.logoUrl);
     return logo && logo!==this.failedLogoUrl ?logo:null;
