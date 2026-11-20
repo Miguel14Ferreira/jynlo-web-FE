@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthenticationService } from '../../services/authethication.service';
-import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
 import { Subscription, interval, fromEvent, merge, timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -47,22 +47,22 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
         </button>
       </div>
     </div>
-    <nav class="team-tabs" aria-label="Secções da equipa">
-      <button type="button" [attr.aria-current]="activeTab === 'OVERVIEW' ? 'page' : null"
+    <nav #teamTabs class="team-tabs" aria-label="Secções da equipa">
+      <button type="button" data-team-tab="OVERVIEW" [attr.aria-current]="activeTab === 'OVERVIEW' ? 'page' : null"
         [class.selected]="activeTab === 'OVERVIEW'" (click)="selectTab('OVERVIEW')">Visão geral</button>
-      <button type="button" [attr.aria-current]="activeTab === 'SQUAD' ? 'page' : null"
+      <button type="button" data-team-tab="SQUAD" [attr.aria-current]="activeTab === 'SQUAD' ? 'page' : null"
         [class.selected]="activeTab === 'SQUAD'" (click)="selectTab('SQUAD')">Plantel</button>
-      <button type="button" [attr.aria-current]="activeTab === 'COMMUNITIES' ? 'page' : null"
+      <button type="button" data-team-tab="COMMUNITIES" [attr.aria-current]="activeTab === 'COMMUNITIES' ? 'page' : null"
         [class.selected]="activeTab === 'COMMUNITIES'" (click)="selectTab('COMMUNITIES')">Comunidades</button>
-      <button type="button" [attr.aria-current]="activeTab === 'TROPHIES' ? 'page' : null"
+      <button type="button" data-team-tab="TROPHIES" [attr.aria-current]="activeTab === 'TROPHIES' ? 'page' : null"
         [class.selected]="activeTab === 'TROPHIES'" (click)="selectTab('TROPHIES')">🏆 Troféus</button>
-      <button type="button" [attr.aria-current]="activeTab === 'FEED' ? 'page' : null"
+      <button type="button" data-team-tab="FEED" [attr.aria-current]="activeTab === 'FEED' ? 'page' : null"
         [class.selected]="activeTab === 'FEED'" (click)="selectTab('FEED')">Publicações</button>
-      <button type="button" [attr.aria-current]="activeTab === 'CHAT' ? 'page' : null"
+      <button type="button" data-team-tab="CHAT" [attr.aria-current]="activeTab === 'CHAT' ? 'page' : null"
         [class.selected]="activeTab === 'CHAT'" (click)="selectTab('CHAT')">Mensagens</button>
-      <button *ngIf="isOwner && rosterVerified" type="button" [attr.aria-current]="activeTab === 'CHALLENGES' ? 'page' : null"
+      <button *ngIf="isOwner && rosterVerified" type="button" data-team-tab="CHALLENGES" [attr.aria-current]="activeTab === 'CHALLENGES' ? 'page' : null"
         [class.selected]="activeTab === 'CHALLENGES'" (click)="selectTab('CHALLENGES')">Desafios</button>
-      <button *ngIf="isOwner && rosterVerified" type="button" [attr.aria-current]="activeTab === 'SETTINGS' ? 'page' : null"
+      <button *ngIf="isOwner && rosterVerified" type="button" data-team-tab="SETTINGS" [attr.aria-current]="activeTab === 'SETTINGS' ? 'page' : null"
         [class.selected]="activeTab === 'SETTINGS'" (click)="selectTab('SETTINGS')">Identidade e gestão</button>
     </nav>
     <p *ngIf="feedback" role="status" class="team-feedback">{{feedback}}</p>
@@ -306,11 +306,25 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   playerAvatarSrc(url:string|null|undefined):string|null{return this.api.playerAvatarSrc(url);}
   logoSrc(url:string|null|undefined):string|null{return this.api.logoSrc(url);}
   activeTab: 'OVERVIEW' | 'SQUAD' | 'COMMUNITIES' | 'TROPHIES' | 'FEED' | 'CHAT' | 'CHALLENGES' | 'SETTINGS' = 'OVERVIEW';
+  @ViewChild('teamTabs') private teamTabs?:ElementRef<HTMLElement>;
+  private revealSelectedTeamTab(tab:SportsTeamDetailComponent['activeTab']):void {
+    const rail=this.teamTabs?.nativeElement;
+    const button=rail?.querySelector<HTMLElement>('[data-team-tab="'+tab+'"]');
+    if(!rail||!button)return;
+    const railRect=rail.getBoundingClientRect(),buttonRect=button.getBoundingClientRect();
+    // A direct dashboard shortcut must not leave its selected tab hidden offscreen.
+    if(buttonRect.left>=railRect.left&&buttonRect.right<=railRect.right)return;
+    const next=rail.scrollLeft+buttonRect.left-railRect.left-16;
+    const left=Math.max(0,next);
+    if(typeof rail.scrollTo==='function')rail.scrollTo({left,behavior:'smooth'});
+    else rail.scrollLeft=left;
+  }
   private trophiesRequestedForTeam:number|null=null;
   get trophiesVerified():boolean{return this.trophiesRequestedForTeam===this.team?.id && !this.historyLoading && !this.honoursLoading && !this.historyError && !this.honoursError;}
   selectTab(tab:SportsTeamDetailComponent['activeTab']):void {
     if((tab==='SETTINGS'||tab==='CHALLENGES')&&(!this.isOwner||!this.rosterVerified))return;
     this.activeTab=tab;
+    this.revealSelectedTeamTab(tab);
     if(tab==='TROPHIES')this.loadTrophies();
   }
   retryTrophies():void {
