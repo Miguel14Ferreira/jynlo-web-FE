@@ -371,7 +371,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   private feedMentionSequence=0;
   onCommunityFeedDraftChanged(draft:string):void {
     if(this.feedMentionTimer)clearTimeout(this.feedMentionTimer);
-    const term=/(?:^|\\s)@([\\p{L}\\p{N}_.-]{2,32})$/u.exec(draft)?.[1]||'';
+    const term=/(?:^|\s)@([\p{L}\p{N}_.-]{2,32})$/u.exec(draft)?.[1]||'';
     const sequence=++this.feedMentionSequence;
     this.feedMentionMatches=[];this.feedMentionBusy=!!term;
     if(!term)return;
@@ -389,12 +389,12 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   }
   chooseCommunityFeedMention(username:string):void {
     if(!this.feedMentionMatches.some(profile=>profile.username===username))return;
-    this.feedDraft=this.feedDraft.replace(/@([\\p{L}\\p{N}_.-]{2,32})$/u,'@'+username)+' ';
+    this.feedDraft=this.feedDraft.replace(/@([\p{L}\p{N}_.-]{2,32})$/u,'@'+username)+' ';
     this.feedMentionSequence++;this.feedMentionMatches=[];this.feedMentionBusy=false;
   }
   communityMentionParts(value:string):Array<{text:string;username:string|null}> {
     const parts:Array<{text:string;username:string|null}>=[];
-    const pattern=/(^|\\s)(@[\\p{L}\\p{N}_.-]{2,32})/gu;
+    const pattern=/(^|\s)(@[\p{L}\p{N}_.-]{2,32})/gu;
     let index=0,match:RegExpExecArray|null;
     while((match=pattern.exec(value))!==null){
       const start=match.index+match[1].length;
