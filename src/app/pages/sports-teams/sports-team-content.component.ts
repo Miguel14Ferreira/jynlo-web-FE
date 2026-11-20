@@ -53,7 +53,7 @@ import { CommunityProfile } from '../model/community-profile';
           <span *ngIf="olderError" role="status">{{olderError}}</span>
         </div>
         <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry" [class.team-feed-comment]="isFeedComment(item)" [class.team-own-message]="kind === 'chat' && item.canEdit" [class.team-removed-message]="item.deleted"
-          [class.team-actions-expanded]="activeActionMessageId === item.id">
+          [class.team-actions-expanded]="activeActionMessageId === item.id" [attr.data-team-message-id]="item.id" tabindex="-1">
           <div class="team-entry-header">
             <a class="team-entry-avatar team-avatar-link" [routerLink]="['/menu/perfis', item.username]" [attr.aria-label]="'Abrir perfil de @' + item.username">
               <img *ngIf="authorAvatarSrc(item) && !brokenAuthorAvatars.has(item.id)"
@@ -63,7 +63,8 @@ import { CommunityProfile } from '../model/community-profile';
             <div class="team-entry-meta"><a class="team-author-link" [routerLink]="['/menu/perfis',item.username]" [attr.aria-label]="'Abrir perfil de @' + item.username">@{{item.username}}</a>
               <time>{{item.createdAt | date:'dd/MM/yyyy HH:mm'}}</time></div>
           </div>
-          <p *ngIf="item.replyToId" class="team-content-reply">↳ {{replyPreview(item.replyToId)}}</p>
+          <button *ngIf="item.replyToId" type="button" class="team-content-reply team-reply-jump"
+             (click)="jumpToReply(item.replyToId)" [attr.aria-label]="'Ver mensagem original: ' + replyPreview(item.replyToId)">↳ {{replyPreview(item.replyToId)}}</button>
           <p *ngIf="item.deleted">{{kind === 'chat' ? 'Mensagem eliminada' : 'Publicação eliminada'}}</p>
           <p *ngIf="!item.deleted" class="team-content-body"><ng-container *ngFor="let piece of bodyMentionParts(item.body)">
             <a *ngIf="piece.username; else plainTeamText" class="team-inline-mention"
@@ -139,10 +140,12 @@ import { CommunityProfile } from '../model/community-profile';
             <p class="team-content-note">A comentar publicação de @{{item.username}}</p>
             <ng-container [ngTemplateOutlet]="teamComposer"></ng-container>
           </div>
-          <form *ngIf="editingId === item.id" (ngSubmit)="saveEdit(item)">
-            <textarea name="editBody" [(ngModel)]="editingDraft" maxlength="2000" [disabled]="sending"></textarea>
-            <button type="submit" [disabled]="sending || !editingDraft.trim()">Guardar</button>
-            <button type="button" (click)="editingId = null">Cancelar</button>
+          <form *ngIf="editingId === item.id" (ngSubmit)="saveEdit(item)" class="team-inline-edit" aria-label="Editar mensagem">
+            <textarea name="editBody" [(ngModel)]="editingDraft" maxlength="2000" [disabled]="sending" (keydown.escape)="editingId = null"></textarea>
+            <div class="team-inline-edit-actions">
+              <button type="button" class="team-edit-cancel" [disabled]="sending" (click)="editingId = null">Cancelar</button>
+              <button type="submit" class="team-edit-save" [disabled]="sending || !editingDraft.trim() || editingDraft.trim() === item.body.trim()">{{sending ? 'A guardar…' : '✓ Guardar'}}</button>
+            </div>
           </form>
         </article>
       </div>
@@ -150,9 +153,11 @@ import { CommunityProfile } from '../model/community-profile';
       <ng-container *ngIf="kind === 'chat'" [ngTemplateOutlet]="teamComposer"></ng-container>
       </ng-container>
       <ng-template #teamComposer>
-      <div *ngIf="replyTargetId" class="team-content-note">
-        {{kind === 'chat' ? 'A responder a' : 'A comentar'}} {{replyPreview(replyTargetId)}}
-        <button type="button" (click)="cancelReply()">Cancelar resposta</button>
+      <div *ngIf="replyTargetId" class="team-reply-composer" role="status">
+        <span class="team-reply-mark" aria-hidden="true">↩</span>
+        <span class="team-reply-details"><strong>{{kind === 'chat' ? 'A responder' : 'A comentar'}}</strong>
+          <span>{{replyPreview(replyTargetId)}}</span></span>
+        <button type="button" class="team-reply-dismiss" (click)="cancelReply()" aria-label="Cancelar resposta" title="Cancelar resposta">×</button>
       </div>
       <form (ngSubmit)="send()" class="team-content-editor">
         <label [for]="'team-content-' + kind + '-' + teamId">
@@ -419,6 +424,32 @@ import { CommunityProfile } from '../model/community-profile';
     .team-feed-mode .team-content-actions{padding-top:.4rem;border-top:1px solid #34697755}
     .team-feed-mode .team-feed-comment{box-shadow:none}
     .team-content-entry button{touch-action:manipulation}
+    .team-reply-jump{display:block;width:100%;text-align:left;cursor:pointer;
+      color:#b9f4e7;border:0;border-left:3px solid #42d4bd;padding:.45rem .65rem;
+      font:inherit;font-size:.8rem;white-space:normal;overflow-wrap:anywhere}
+    .team-reply-jump:hover{background:#18515c}
+    .team-reply-composer{display:flex;align-items:center;gap:.65rem;min-width:0;
+      padding:.65rem .8rem;background:#103e4a;border-left:3px solid #43e4c2;
+      border-radius:10px;color:#dffcf5}
+    .team-reply-mark{font-size:1.1rem;color:#55e7ca}
+    .team-reply-details{flex:1;min-width:0;display:grid;gap:2px}
+    .team-reply-details strong{font-size:.78rem;color:#71f2db}
+    .team-reply-details span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.8rem;color:#b8d9df}
+    .team-reply-dismiss{display:grid;place-items:center;flex:none;width:32px;height:32px;
+      color:#d9fdf6;background:transparent;border:0;border-radius:8px;font-size:1.3rem;cursor:pointer}
+    .team-reply-dismiss:hover{background:#255661}
+    .team-inline-edit{padding:.7rem;border:1px solid #388f87;border-radius:12px;background:#0a323d}
+    .team-inline-edit textarea{width:100%;box-sizing:border-box;resize:vertical;border-radius:9px;padding:.7rem;line-height:1.5}
+    .team-inline-edit-actions{display:flex;justify-content:flex-end;gap:.5rem}
+    .team-inline-edit-actions button{padding:.5rem .9rem;min-height:36px;
+      border-radius:9px;border:1px solid #3c7d86;cursor:pointer;font-weight:700}
+    .team-inline-edit-actions .team-edit-cancel{background:transparent;color:#cee8e6}
+    .team-inline-edit-actions .team-edit-save{background:#43e4c2;color:#06313b;border-color:#43e4c2}
+    .team-inline-edit-actions button:disabled{opacity:.45;cursor:not-allowed}
+    .team-chat-mode .team-content-editor{padding:.7rem .85rem;gap:.55rem}
+    .team-chat-mode .team-content-editor>label{font-size:.76rem;color:#abcfd1}
+    .team-chat-mode .team-content-editor textarea{min-height:48px;max-height:160px}
+    .team-chat-mode .team-composer-footer>button{margin-left:auto}
     .team-content-actions button:focus-visible,.team-reactions button:focus-visible{
       outline:2px solid #78f9dc;outline-offset:2px}
     .team-feed-mode .team-content-entry{max-width:100%}
@@ -1293,6 +1324,15 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.feedRootDraft='';this.feedRootFiles=[];
     }
     this.replyTargetId=null;
+  }
+  jumpToReply(id:number|null):void {
+    if(id===null)return;
+    const pane=this.historyPane?.nativeElement;
+    if(!pane)return;
+    const target=Array.from(pane.querySelectorAll<HTMLElement>('[data-team-message-id]'))
+      .find(element=>element.dataset['teamMessageId']===String(id));
+    if(target){target.scrollIntoView({block:'nearest',behavior:'smooth'});target.focus({preventScroll:true});}
+    else this.error='A mensagem original já não está no histórico carregado.';
   }
   reply(entry:TeamContentEntry):void {
     if(entry.deleted||this.sending)return;
