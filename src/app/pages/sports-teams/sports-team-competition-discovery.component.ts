@@ -125,6 +125,7 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
   `]
 })
 export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
+  readonly sportsCatalog=SPORTS_CATALOG;
   query='';sport='';selectedTeam:number|null=null;mine:SportsTeam[]=[];
   competitions:OpenTeamCompetition[]=[];applications:TeamCompetitionApplication[]=[];
   error='';notice='';loading=false;saving=false;searchError=false;
