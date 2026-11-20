@@ -54,7 +54,7 @@ describe('PerfisComponent', () => {
     routeParams = new BehaviorSubject(convertToParamMap({}));
     service = jasmine.createSpyObj<CommunityService>(
       'CommunityService',
-      ['searchProfiles', 'findProfiles', 'sendFriendRequest', 'reportUser', 'userBlockStatus', 'blockUser', 'unblockUser', 'discoverProfiles', 'friends', 'publicProfile', 'publicAffiliations', 'publicIndividualTitles', 'friendshipStatus']
+      ['searchProfiles', 'findProfiles', 'sendFriendRequest', 'reportUser', 'userBlockStatus', 'blockUser', 'unblockUser', 'discoverProfiles', 'friends', 'publicProfile', 'publicAffiliations', 'publicIndividualTitles', 'publicCompletedParticipations', 'friendshipStatus']
     );
     service.searchProfiles.and.returnValue(of([profile]));
     service.findProfiles.and.returnValue(of([profile]));
@@ -64,6 +64,7 @@ describe('PerfisComponent', () => {
     service.publicProfile.and.returnValue(of(profile));
     service.publicAffiliations.and.returnValue(of({ teams: [], communities: [] }));
     service.publicIndividualTitles.and.returnValue(of([]));
+    service.publicCompletedParticipations.and.returnValue(of([]));
     service.sendFriendRequest.and.returnValue(of({}));
     service.reportUser.and.returnValue(of(void 0));
     service.userBlockStatus.and.returnValue(of({ blocked: false }));
@@ -1040,6 +1041,37 @@ describe('PerfisComponent', () => {
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement)
       .querySelector('.profile-individual-titles')).toBeNull();
+  });
+
+  it('separates confirmed participation from an officially awarded individual title', () => {
+    service.publicCompletedParticipations.and.returnValue(of([{
+      tournamentId: 41, tournamentName: 'Liga de Ténis',
+      communityId: 17, communityName: 'Liga de Lisboa',
+      sport: 'Ténis', completedAt: '2026-10-20T10:00:00Z',
+      individualChampion: false
+    }, {
+      tournamentId: 42, tournamentName: 'Open de Padel',
+      communityId: 17, communityName: 'Liga de Lisboa',
+      sport: 'Padel', completedAt: '2026-10-20T10:00:00Z',
+      individualChampion: true
+    }]));
+    routeParams.next(convertToParamMap({username:'ana'}));
+    fixture.detectChanges();
+    expect(service.publicCompletedParticipations).toHaveBeenCalledWith('ana');
+    const rows = (fixture.nativeElement as HTMLElement)
+      .querySelectorAll<HTMLAnchorElement>('.profile-competition-participation');
+    expect(rows.length).toBe(2);
+    expect(rows[0].textContent).toContain('Participação confirmada');
+    expect(rows[1].textContent).toContain('Campeão individual');
+    expect(rows[1].getAttribute('href')).toBe('/menu/communities/17');
+  });
+
+  it('does not show competitive results if the verified history is unavailable', () => {
+    service.publicCompletedParticipations.and.returnValue(throwError(() => ({status:403})));
+    routeParams.next(convertToParamMap({username:'ana'}));
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement)
+      .querySelector('.profile-competition-participations')).toBeNull();
   });
 
   it('does not request authenticated memberships for another player', () => {
