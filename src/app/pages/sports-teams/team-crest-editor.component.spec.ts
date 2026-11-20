@@ -45,6 +45,67 @@ describe('TeamCrestEditorComponent', () => {
     expect(component.shape).toBe('circle');
   });
 
+  it('creates, duplicates, reorders and removes separate editable layers',()=>{
+    const component=TestBed.createComponent(TeamCrestEditorComponent).componentInstance;
+    component.addLayer('symbol');
+    expect(component.layers.length).toBe(1);
+    const firstId=component.layers[0].id;
+    component.layers[0].symbol='cycling';
+    component.addLayer('text');
+    component.layers[1].text='LISBOA';
+    component.moveLayerOrder(-1);
+    expect(component.layers[0].text).toBe('LISBOA');
+    component.duplicateLayer();
+    expect(component.layers.length).toBe(3);
+    expect(new Set(component.layers.map(l=>l.id)).size).toBe(3);
+    component.removeLayer();
+    expect(component.layers.length).toBe(2);
+    component.selectedLayerId=firstId;
+    component.removeLayer();
+    expect(component.layers.length).toBe(1);
+  });
+
+  it('reopens version-one designs without changing their existing appearance',()=>{
+    const component=TestBed.createComponent(TeamCrestEditorComponent).componentInstance;
+    const original={version:1,shape:'circle',symbol:'ball',pattern:'hoops',
+      primary:'#112233',secondary:'#445566',textColor:'#FFFFFF',borderColor:'#223344',
+      patternOpacity:40,borderWidth:8,symbolSize:60,symbolY:140,
+      showInitials:true,innerBorder:false,initialsSize:30,initialsY:220,
+      customInitials:'ABC',caption:''};
+    component.savedDesign=JSON.stringify(original);
+    expect(component.shape).toBe('circle');
+    expect(component.layers).toEqual([]);
+    component.addLayer('text');
+    component.savedDesign=JSON.stringify(original);
+    expect(component.layers).toEqual([]);
+  });
+
+  it('reopens version-two layer projects and resets stale layers for another team',()=>{
+    const component=TestBed.createComponent(TeamCrestEditorComponent).componentInstance;
+    const original={version:2,shape:'hex',symbol:'none',pattern:'stripes',
+      primary:'#112233',secondary:'#445566',textColor:'#FFFFFF',borderColor:'#223344',
+      patternOpacity:40,borderWidth:8,symbolSize:60,symbolY:140,
+      showInitials:false,innerBorder:false,initialsSize:30,initialsY:220,
+      customInitials:'',caption:'',layers:[
+        {id:'layer-3',kind:'text',text:'CLUBE',symbol:'star',x:111,y:175,
+         size:42,rotation:-25,color:'#FFBB33',opacity:75}]};
+    component.savedDesign=JSON.stringify(original);
+    expect(component.layers.length).toBe(1);
+    expect(component.layers[0].rotation).toBe(-25);
+    expect(component.layers[0].x).toBe(111);
+    component.addLayer('symbol');
+    expect(component.layers[1].id).toBe('layer-4');
+    component.savedDesign=null;
+    expect(component.layers).toEqual([]);
+    expect(component.loadedFromTeam).toBeFalse();
+  });
+
+  it('enforces the six-layer limit even when adding multiple symbols',()=>{
+    const component=TestBed.createComponent(TeamCrestEditorComponent).componentInstance;
+    for(let i=0;i<9;i++)component.addLayer('symbol');
+    expect(component.layers.length).toBe(6);
+  });
+
   it('does not export when disabled', () => {
     const fixture=TestBed.createComponent(TeamCrestEditorComponent);
     const component=fixture.componentInstance;
