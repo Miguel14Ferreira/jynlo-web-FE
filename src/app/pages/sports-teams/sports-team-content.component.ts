@@ -117,14 +117,14 @@ import { CommunityProfile } from '../model/community-profile';
                 [attr.aria-label]="'Escolher reação à publicação de @' + item.username"
                 (click)="toggleFeedReactionPicker(item.id)">☺ Reagir</button>
             </ng-container>
-            <div class="team-emoji-picker" *ngIf="feedReactionPickerId === item.id">
+            <ng-container *ngIf="kind === 'feed'">            <div class="team-emoji-picker" *ngIf="feedReactionPickerId === item.id">
               <button type="button" *ngFor="let emoji of emojis" [disabled]="reactionBusyId !== null"
                 [class.selected]="reactionsById[item.id]?.mine === emoji"
                 [attr.aria-pressed]="reactionsById[item.id]?.mine === emoji"
                 (click)="react(item, emoji)">{{emoji}}
                 <small *ngIf="(reactionsById[item.id]?.counts?.[emoji] || 0) > 0">{{reactionsById[item.id]?.counts?.[emoji] || 0}}</small>
               </button>
-            </div>
+            </div></ng-container>
           </div>
           <button type="button" *ngIf="kind === 'chat' && !item.deleted"
             class="team-message-mobile-actions" [attr.aria-expanded]="activeActionMessageId === item.id"
@@ -134,6 +134,13 @@ import { CommunityProfile } from '../model/community-profile';
             [attr.aria-label]="'Ações de @' + item.username">
             <button *ngIf="kind === 'chat'" type="button" (click)="toggleFeedReactionPicker(item.id)"
               [disabled]="reactionBusyId !== null" title="Reagir" aria-label="Reagir à mensagem">☺</button>
+            <div *ngIf="kind === 'chat' && feedReactionPickerId === item.id"
+              class="team-emoji-picker team-hover-emoji-picker" role="group" aria-label="Escolher reação">
+              <button type="button" *ngFor="let emoji of emojis" [disabled]="reactionBusyId !== null"
+                [class.selected]="reactionsById[item.id]?.mine === emoji"
+                [attr.aria-pressed]="reactionsById[item.id]?.mine === emoji"
+                (click)="react(item, emoji)">{{emoji}}</button>
+            </div>
             <button type="button" (click)="reply(item)" [disabled]="sending" [attr.aria-label]="kind === 'chat' ? 'Responder à mensagem' : 'Comentar publicação'" [title]="kind === 'chat' ? 'Responder' : 'Comentar'">↩ <span>{{kind === 'chat' ? 'Responder' : 'Comentar'}}</span></button>
             <button type="button" *ngIf="item.canEdit" [disabled]="sending" (click)="beginEdit(item)" [attr.aria-label]="kind === 'chat' ? 'Editar mensagem' : 'Editar publicação'" title="Editar">✎ <span>Editar</span></button>
             <button type="button" *ngIf="item.canManage" [disabled]="sending" (click)="remove(item)" [attr.aria-label]="kind === 'chat' ? 'Eliminar mensagem' : 'Eliminar publicação'" title="Eliminar">× <span>Eliminar</span></button>
@@ -288,6 +295,10 @@ import { CommunityProfile } from '../model/community-profile';
     .team-chat-mode .team-emoji-picker button{display:grid;place-items:center;min-width:34px;min-height:34px;
       border:0;background:transparent;border-radius:8px;padding:4px}
     .team-chat-mode .team-emoji-picker button:hover{background:#24636a}
+    .team-chat-mode .team-content-actions .team-hover-emoji-picker{
+      position:absolute;top:calc(100% + 7px);right:0;z-index:25;
+      flex-wrap:nowrap;max-width:min(94vw,350px)}
+    .team-chat-mode .team-content-actions:has(.team-hover-emoji-picker){z-index:35}
     .team-chat-mode .team-reactions>.team-react-trigger{display:none}
     .team-chat-mode .team-reactions{min-height:0;margin-top:0}
     .team-chat-mode .team-reactions:empty{display:none}
