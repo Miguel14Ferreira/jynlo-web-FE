@@ -5,6 +5,17 @@ import { environment } from 'src/environment/environment';
 
 /** Global team identity, not the existing community-scoped permanent-team record. */
 export type TeamKitPattern = 'PLAIN' | 'STRIPES' | 'DIAGONAL' | 'HOOPS' | 'HALVES' | 'CHEVRON';
+export type TeamKitKind = 'PRIMARY' | 'ALTERNATE' | 'TRAINING';
+export interface TeamKitVariant {
+  type: 'ALTERNATE' | 'TRAINING';
+  primary: string;
+  secondary: string;
+  pattern: TeamKitPattern;
+  garment: string;
+  accent: string;
+  playerName: string;
+  playerNumber: string;
+}
 export interface SportsTeam {
   id: number;
   slug: string;
@@ -23,6 +34,7 @@ export interface SportsTeam {
   kitAccent?: string | null;
   kitPlayerName?: string | null;
   kitPlayerNumber?: string | null;
+  kitVariants?: TeamKitVariant[] | null;
 }
 
 export interface CreateSportsTeam {
@@ -247,7 +259,7 @@ export class SportsTeamsService {
     return this.http.delete<void>(this.url+'/'+id+'/'+kind+'/'+contentId);
   }
   setKit(id:number, primary:string|null, secondary:string|null,pattern:TeamKitPattern='PLAIN',
-    options?:{garment:string;accent:string;playerName:string;playerNumber:string}):Observable<SportsTeam> {
+    options?:{garment:string;accent:string;playerName:string;playerNumber:string;variants?:TeamKitVariant[]}):Observable<SportsTeam> {
     return this.http.put<SportsTeam>(this.url+'/'+id+'/kit',{primary,secondary,pattern,
       ...(options?options:{})});
   }
