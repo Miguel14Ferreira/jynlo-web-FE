@@ -501,25 +501,46 @@ select.jynlo-native-select--open:focus-visible {
   .reset-page .password-field button{min-height:44px;}
 }
 
-/* Jynlo close controls: show only the X, never a circular badge.
-   Keep the existing button dimensions so touch targets remain accessible. */
-button[class*="close-button" i]:has(svg),
-button[class*="close-btn" i]:has(svg),
-button[class*="close-icon" i]:has(svg),
-button[aria-label^="Fechar" i]:has(svg),
-button[aria-label^="Close" i]:has(svg) {
+/* All dismiss controls use a naked ×/icon, never a bordered square or circle.
+   The old selector applied only to buttons containing SVG, so plain text ×
+   buttons retained their inherited border/background. Keep focus and tap size. */
+button[class*="close-button" i],
+button[class*="close-btn" i],
+button[class*="close-icon" i],
+button[class*="modal-close" i],
+button[class*="dialog-close" i],
+button[class*="panel-close" i],
+button[class*="dismiss-button" i],
+button[aria-label="Fechar" i],
+button[aria-label="Fechar janela" i],
+button[aria-label="Fechar painel" i],
+button[aria-label="Close" i],
+button[aria-label="Close dialog" i] {
   background: transparent !important;
+  background-image: none !important;
   border: 0 !important;
   border-radius: 0 !important;
   box-shadow: none !important;
+  outline-offset: 3px;
 }
-button[class*="close-button" i]:has(svg):hover,
-button[class*="close-btn" i]:has(svg):hover,
-button[class*="close-icon" i]:has(svg):hover,
-button[aria-label^="Fechar" i]:has(svg):hover,
-button[aria-label^="Close" i]:has(svg):hover {
+button:is([class*="close-button" i],[class*="close-btn" i],
+  [class*="close-icon" i],[class*="modal-close" i],
+  [class*="dialog-close" i],[class*="panel-close" i],
+  [class*="dismiss-button" i],
+  [aria-label="Fechar" i],[aria-label="Fechar janela" i],
+  [aria-label="Fechar painel" i],[aria-label="Close" i],
+  [aria-label="Close dialog" i]):is(:hover,:active,:focus) {
   background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
   box-shadow: none !important;
+}
+button:is([class*="close-button" i],[class*="close-btn" i],
+  [class*="close-icon" i],[class*="modal-close" i],
+  [class*="dialog-close" i],[class*="panel-close" i],
+  [class*="dismiss-button" i],[aria-label="Fechar" i],
+  [aria-label="Close" i]):focus-visible {
+  outline: 2px solid #8effdf !important;
 }
 
 /* Shared, centered session form alerts. Keep the form behind the modal so
