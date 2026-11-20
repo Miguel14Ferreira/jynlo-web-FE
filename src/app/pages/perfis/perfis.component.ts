@@ -17,7 +17,7 @@ import { SocialFeedService } from '../../services/social-feed.service';
 import { SocialStoriesService } from '../../services/social-stories.service';
 import { SocialStory } from '../model/social-story';
 import { FollowStatus, FollowProfile } from '../model/follow';
-import { CommunityService, FriendshipStatus, ProfileSearchFilters } from '../../services/community.service';
+import { CommunityService, FriendshipStatus, ProfileSearchFilters, PublicProfileAffiliations } from '../../services/community.service';
 import { AuthenticationService } from '../../services/authethication.service';
 import { ReliabilityService } from '../../services/reliability.service';
 import { SocialGraphService } from '../../services/social-graph.service';
@@ -46,6 +46,9 @@ export class PerfisComponent implements OnInit, OnDestroy {
   private profileSubscription?: Subscription;
   private detailSubscription?: Subscription;
   private membershipSubscription?: Subscription;
+  private publicMembershipSubscription?: Subscription;
+  publicAffiliations: PublicProfileAffiliations | null = null;
+  publicAffiliationsLoading = false;
   ownVerifiedTeams: SportsTeam[] = [];
   ownVerifiedCommunities: CommunityGroup[] = [];
   ownMembershipLoading = false;
@@ -441,6 +444,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.profileSubscription?.unsubscribe();
     this.detailSubscription?.unsubscribe();
     this.membershipSubscription?.unsubscribe();
+    this.publicMembershipSubscription?.unsubscribe();
     this.blockStatusSubscription?.unsubscribe();
     this.friendshipSubscription?.unsubscribe();
     this.postsSubscription?.unsubscribe();
@@ -597,6 +601,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.sentInvites.clear();
     this.selectedProfile = profile;
     this.loadOwnMemberships(profile);
+    this.loadPublicAffiliations(profile);
     this.expandedPost = null;
     // Never flash content from a previously viewed profile while permissions load.
     this.postsSubscription?.unsubscribe();
@@ -639,6 +644,35 @@ export class PerfisComponent implements OnInit, OnDestroy {
           this.selectedFollowStatus = followStatus;
         })
     );
+  }
+
+  private loadPublicAffiliations(profile: CommunityProfile): void {
+    this.publicMembershipSubscription?.unsubscribe();
+    this.publicAffiliations = null;
+    this.publicAffiliationsLoading = false;
+    if (this.isOwnProfile(profile)) return;
+    this.publicAffiliationsLoading = true;
+    this.publicMembershipSubscription = this.communityService.publicAffiliations(profile.username)
+      .pipe(timeout(10000), finalize(() => {
+        if (this.selectedProfile?.username.toLowerCase() === profile.username.toLowerCase())
+          this.publicAffiliationsLoading = false;
+      }))
+      .subscribe({
+        next: affiliations => {
+          if (this.selectedProfile?.username.toLowerCase() !== profile.username.toLowerCase()) return;
+          this.publicAffiliations = {
+            teams: (affiliations.teams || []).filter(team => Number.isSafeInteger(team.id) && team.id > 0),
+            communities: (affiliations.communities || []).filter(group =>
+              Number.isSafeInteger(group.id) && group.id > 0)
+          };
+        },
+        error: () => {
+          // Fail closed. A denied or unavailable public projection must not
+          // fall back to /mine, roster searches or guessed affiliations.
+          if (this.selectedProfile?.username.toLowerCase() === profile.username.toLowerCase())
+            this.publicAffiliations = null;
+        }
+      });
   }
 
   private loadOwnMemberships(profile: CommunityProfile): void {
@@ -759,6 +793,9 @@ export class PerfisComponent implements OnInit, OnDestroy {
 
   closeProfile(): void {
     this.membershipSubscription?.unsubscribe();
+    this.publicMembershipSubscription?.unsubscribe();
+    this.publicAffiliations = null;
+    this.publicAffiliationsLoading = false;
     this.ownMembershipLoading = false;
     this.ownMembershipError = false;
     this.ownVerifiedTeams = [];
