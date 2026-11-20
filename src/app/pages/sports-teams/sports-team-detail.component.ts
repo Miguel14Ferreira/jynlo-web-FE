@@ -324,15 +324,17 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
               </div>
               <fieldset class="team-pattern-options" [disabled]="brandingSaving" aria-label="Desenho do equipamento">
                 <legend>Modelo de camisola</legend>
-                <button *ngFor="let option of kitPatterns" type="button"
-                  [class.chosen]="kitPattern === option.id"
-                  [attr.aria-pressed]="kitPattern === option.id"
-                  (click)="kitPattern = option.id">
-                  <span class="team-shirt pattern-sample" [class]="'team-shirt pattern-sample kit-' + option.id.toLowerCase()"
-                    [style.--shirt-primary]="kitPrimary" [style.--shirt-secondary]="kitSecondary" aria-hidden="true"></span>
-                  <span>{{option.label}}</span>
-                  <small *ngIf="kitPattern === option.id">Selecionado</small>
-                </button>
+                <div class="team-pattern-grid">
+                  <button *ngFor="let option of kitPatterns" type="button"
+                    [class.chosen]="kitPattern === option.id"
+                    [attr.aria-pressed]="kitPattern === option.id"
+                    (click)="kitPattern = option.id">
+                    <span class="team-shirt pattern-sample" [class]="'team-shirt pattern-sample kit-' + option.id.toLowerCase()"
+                      [style.--shirt-primary]="kitPrimary" [style.--shirt-secondary]="kitSecondary" aria-hidden="true"></span>
+                    <span>{{option.label}}</span>
+                    <small *ngIf="kitPattern === option.id">Selecionado</small>
+                  </button>
+                </div>
               </fieldset>
               <p class="team-kit-save-hint">As alterações só ficam oficiais depois de guardares o equipamento.</p>
               <button type="button" class="team-branding-save" [disabled]="brandingSaving" (click)="saveTeamKit()">
