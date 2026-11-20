@@ -102,13 +102,16 @@
             <span class="story-create-stage-label">Pré-visualização 9:16 · 24 horas</span>
           </div>
           <div class="story-create-tools">
-            @if (groups.length > 0) {
+            @if (groups.length > 0 || ownedTeams.length > 0) {
               <div class="story-field">
                 <label for="storyAudience">{{ 'stories.publishAs' | t }}</label>
                 <select id="storyAudience" [(ngModel)]="communityId" [disabled]="uploading">
                   <option value="">{{ 'stories.personal' | t }}</option>
                   @for (group of groups; track group.id) {
                     <option [value]="group.id">{{ group.name }} ({{ 'stories.community' | t }})</option>
+                  }
+                  @for (team of ownedTeams; track team.id) {
+                    <option [value]="'team:' + team.id">{{ team.name }} (Equipa)</option>
                   }
                 </select>
               </div>
@@ -376,7 +379,7 @@
           @if (feedback) {
             <p class="story-feedback" role="status">{{ feedback }}</p>
           }
-          @if (story.communityId === null && !story.canDelete) {
+          @if (story.communityId === null && story.teamId == null && !story.canDelete) {
             <form class="story-reply-row" (submit)="$event.preventDefault(); replyToStory()">
               <input type="text" [(ngModel)]="replyText" name="storyReply" maxlength="500"
                 [attr.aria-label]="'stories.replyTo' | t"
@@ -401,7 +404,7 @@
             </form>
           } @else {
             <div class="story-owner-row">
-              <span>{{ story.communityName || ('stories.yourStory' | t) }}</span>
+              <span>{{ story.teamName || story.communityName || ('stories.yourStory' | t) }}</span>
               @if (isStoryAuthor(story)) {
                 <button type="button" class="story-owner-share" (click)="openAudience()"
                   aria-label="Ver quem viu esta Story">👁 {{ audienceData ? audienceData.viewCount + ' visualizações' : 'Quem viu' }}</button>
