@@ -172,7 +172,11 @@ export class TeamCrestEditorComponent {
   @Input() teamName='';
   @Input() disabled=false;
   @Input() set savedDesign(raw:string|null|undefined) {
-    if(!raw)return;
+    if(!raw){
+      if(this.loadedFromTeam)this.reset();
+      this.loadedFromTeam=false;
+      return;
+    }
     try {
       const design=JSON.parse(raw) as TeamCrestDesign;
       if(design.version!==1 || !['shield','rounded','circle','hex','diamond','square','oval','banner'].includes(design.shape))return;
@@ -223,7 +227,7 @@ export class TeamCrestEditorComponent {
   }
   get initials():string {
     return (this.customInitials.trim() || this.teamName.split(/\s+/).filter(Boolean).map(s=>s[0]).join(''))
-      .replace(/[^A-Za-z0-9À-ÿ]/g,'').toUpperCase().slice(0,5)||'J';
+      .replace(/[^\p{L}0-9]/gu,'').toUpperCase().slice(0,5)||'J';
   }
   get footerText():string{return this.caption.trim().slice(0,22);}
   get symbolLabel():string {
@@ -257,7 +261,7 @@ export class TeamCrestEditorComponent {
     if(this.disabled||typeof document==='undefined')return;
     this.error='';
     // The server enforces the same bounded schema, so reject invalid edits locally first.
-    if(!/^[A-Za-zÀ-ÿ0-9]{0,5}$/.test(this.customInitials)
+    if(!/^[\p{L}0-9]{0,5}$/u.test(this.customInitials)
       || this.caption.length>22 || /[\x00-\x1F]/.test(this.caption)){
       this.error='Verifica as iniciais (até cinco caracteres) e o texto inferior.';
       return;
