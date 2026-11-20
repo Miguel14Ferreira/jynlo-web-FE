@@ -277,6 +277,9 @@ type KitDesign = Omit<TeamKitVariant,'type'>;
               [class.selected]="activeKitKind===choice.id"
               (click)="switchKit(choice.id)">{{choice.label}}</button>
           </div>
+          <button type="button" *ngIf="activeKitKind!=='PRIMARY'"
+            class="team-kit-remove-variant" [disabled]="brandingSaving"
+            (click)="removeCurrentVariant()">Eliminar desenho {{activeKitKind==='ALTERNATE'?'alternativo':'de treino'}}</button>
           <div class="team-kit-editor-heading">
             <div><h3>Desenhar equipamento</h3>
               <p>Escolhe o modelo e as cores. Vê o resultado em grande antes de guardar.</p></div>
@@ -609,6 +612,14 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
       secondary:type==='ALTERNATE'?base.primary:base.secondary,
       playerName:'',playerNumber:''
     });
+  }
+  removeCurrentVariant():void {
+    if(this.activeKitKind==='PRIMARY'||this.brandingSaving)return;
+    const type=this.activeKitKind;
+    this.kitVariants=this.kitVariants.filter(variant=>variant.type!==type);
+    this.activeKitKind='PRIMARY';
+    if(this.primaryKitDraft)this.showKitDraft(this.primaryKitDraft);
+    this.feedback='Conjunto retirado do desenho. Guarda os equipamentos para confirmar.';
   }
   private loadKitCollection(team:SportsTeam):void {
     this.primaryKitDraft={
