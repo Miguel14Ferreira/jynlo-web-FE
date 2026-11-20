@@ -36,6 +36,8 @@ import { FormsModule } from '@angular/forms';
               <option value="shield">Escudo</option>
               <option value="circle">Circular</option>
               <option value="hex">Hexagonal</option>
+              <option value="diamond">Losango</option>
+              <option value="rounded">Escudo arredondado</option>
             </select>
           </label>
           <label>Símbolo
@@ -45,6 +47,9 @@ import { FormsModule } from '@angular/forms';
               <option value="bolt">⚡ Energia</option>
               <option value="trophy">🏆 Troféu</option>
               <option value="letter">Iniciais</option>
+              <option value="crown">♛ Coroa</option>
+              <option value="flame">🔥 Chama</option>
+              <option value="heart">♥ Coração</option>
             </select>
           </label>
           <label>Iniciais
@@ -92,8 +97,8 @@ export class TeamCrestEditorComponent {
   @Input() teamName = '';
   @Input() disabled = false;
   @Output() generated = new EventEmitter<File>();
-  shape: 'shield'|'circle'|'hex' = 'shield';
-  symbol: 'ball'|'star'|'bolt'|'trophy'|'letter' = 'ball';
+  shape: 'shield'|'circle'|'hex'|'diamond'|'rounded' = 'shield';
+  symbol: 'ball'|'star'|'bolt'|'trophy'|'letter'|'crown'|'flame'|'heart' = 'ball';
   primary = '#0D7169';
   secondary = '#F5FFFF';
   customInitials = '';
@@ -104,11 +109,13 @@ export class TeamCrestEditorComponent {
       .replace(/[^A-Za-z0-9À-ÿ]/g,'').toUpperCase().slice(0,4) || 'J';
   }
   get symbolLabel(): string {
-    return {ball:'⚽',star:'★',bolt:'⚡',trophy:'🏆',letter:'◆'}[this.symbol];
+    return {ball:'⚽',star:'★',bolt:'⚡',trophy:'🏆',letter:'◆',crown:'♛',flame:'🔥',heart:'♥'}[this.symbol];
   }
   get shieldPath(): string {
     if (this.shape==='circle') return 'M160 23 A142 142 0 1 1 159.99 23 Z';
     if (this.shape==='hex') return 'M160 17 L286 89 L286 252 L160 333 L34 252 L34 89 Z';
+    if (this.shape==='diamond') return 'M160 15 L297 169 L160 345 L23 169 Z';
+    if (this.shape==='rounded') return 'M68 27 H252 Q288 27 288 66 V209 Q276 287 160 339 Q44 287 32 209 V66 Q32 27 68 27 Z';
     return 'M42 34 H278 V207 Q269 284 160 340 Q51 284 42 207 Z';
   }
   save():void {
