@@ -390,6 +390,17 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       });
     },250);
   }
+  onCommunityMentionKeydown(event:KeyboardEvent):void {
+    if(!this.feedMentionOpen || event.isComposing)return;
+    if(event.key==='Escape'){
+      event.preventDefault();
+      if(this.feedMentionTimer)clearTimeout(this.feedMentionTimer);
+      this.feedMentionSequence++;this.feedMentionMatches=[];this.feedMentionBusy=false;this.feedMentionOpen=false;
+    } else if(event.key==='Enter' && !event.shiftKey){
+      event.preventDefault();
+      if(this.feedMentionMatches.length)this.chooseCommunityFeedMention(this.feedMentionMatches[0].username);
+    }
+  }
   chooseCommunityFeedMention(username:string):void {
     if(!this.feedMentionMatches.some(profile=>profile.username===username))return;
     this.feedDraft=this.feedDraft.replace(/@([\p{L}\p{N}_.-]{0,32})$/u,'@'+username)+' ';
