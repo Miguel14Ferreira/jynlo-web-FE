@@ -162,7 +162,9 @@ import { CommunityProfile } from '../model/community-profile';
             <button type="button" role="option" *ngFor="let person of mentionOptions"
               [disabled]="sending" (mousedown)="$event.preventDefault()"
               (click)="chooseMention(person.username)" [attr.aria-label]="'Mencionar @' + person.username">
-              <span class="team-mention-avatar" aria-hidden="true">{{person.username.slice(0,1).toUpperCase()}}</span>
+              <span class="team-mention-avatar" aria-hidden="true">{{person.username.slice(0,1).toUpperCase()}}
+                <img *ngIf="person.profilePicUrl" [src]="person.profilePicUrl" alt="" loading="lazy">
+              </span>
               <span class="team-mention-person"><strong>{{person.fullName || person.nickname || person.username}}</strong>
                 <small>@{{person.username}}</small></span>
             </button>
