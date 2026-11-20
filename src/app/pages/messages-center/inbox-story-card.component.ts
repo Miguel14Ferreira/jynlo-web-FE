@@ -13,23 +13,21 @@ import { SocialStoriesService } from '../../services/social-stories.service';
   template:`
     <div class="inbox-story-card" aria-label="Story partilhada">
       @if(story && !unavailable) {
-        <a class="inbox-story-link" [routerLink]="['/menu/feed']" [queryParams]="{story:story.id}"
-           aria-label="Ver Story partilhada">
-          <div class="inbox-story-media">
-            @if(story.video) {
-              <video [src]="story.mediaUrl" controls playsinline preload="metadata"
-                aria-label="Vídeo da Story"></video>
-            } @else {
-              <img [src]="story.mediaUrl" [alt]="story.altText || 'Imagem da Story'"
-                loading="lazy" (error)="markUnavailable()" />
-            }
-          </div>
-          <div class="inbox-story-info">
-            <strong>Story de @{{story.authorUsername}}</strong>
-            @if(story.caption) {<span>{{story.caption}}</span>}
-            <small>Ver Story ↗</small>
-          </div>
-        </a>
+        <div class="inbox-story-media">
+          @if(story.video) {
+            <video [src]="story.mediaUrl" controls playsinline preload="metadata"
+              aria-label="Vídeo da Story"></video>
+          } @else {
+            <img [src]="story.mediaUrl" [alt]="story.altText || 'Imagem da Story'"
+              loading="lazy" (error)="markUnavailable()" />
+          }
+        </div>
+        <div class="inbox-story-info">
+          <strong>Story de @{{story.authorUsername}}</strong>
+          @if(story.caption) {<span>{{story.caption}}</span>}
+          <a class="inbox-story-link" [routerLink]="['/menu/feed']"
+            [queryParams]="{story:story.id}">Ver Story ↗</a>
+        </div>
       } @else if(loading) {
         <div class="inbox-story-status" role="status">A carregar Story…</div>
       } @else {
@@ -43,13 +41,13 @@ import { SocialStoriesService } from '../../services/social-stories.service';
   styles:[`
     .inbox-story-card{width:min(100%,320px);border:1px solid #53bca65e;border-radius:14px;
       background:#092f38;overflow:hidden;color:#e8fff7;box-sizing:border-box}
-    .inbox-story-link{display:block;color:inherit;text-decoration:none}
+    .inbox-story-link{display:inline-flex;align-self:start;color:#88f5dc;font-weight:800;text-decoration:none}
     .inbox-story-link:focus-visible{outline:3px solid #93ffe5;outline-offset:-3px}
     .inbox-story-media{height:220px;display:grid;place-items:center;background:#061c29}
     .inbox-story-media img,.inbox-story-media video{display:block;width:100%;height:100%;object-fit:contain}
     .inbox-story-info{display:grid;gap:5px;padding:12px 14px;min-width:0}
     .inbox-story-info strong,.inbox-story-info span{overflow-wrap:anywhere}
-    .inbox-story-info small{color:#88f5dc;font-weight:800}
+
     .inbox-story-status{display:grid;gap:6px;padding:17px 16px;color:#c6dbd9;line-height:1.45}
     .inbox-story-unavailable{border-left:3px solid #56bcae}
     .inbox-story-unavailable strong{color:#e7fff5}
