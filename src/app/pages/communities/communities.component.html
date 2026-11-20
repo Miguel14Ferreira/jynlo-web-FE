@@ -600,20 +600,30 @@
                   <label class="community-feed-text-label" for="community-feed-text">
                     {{ 'communities.timelineFeedPlaceholder' | t }}
                   </label>
-                  <textarea id="community-feed-text" name="community-feed-text" rows="3" maxlength="1000"
-                            [(ngModel)]="feedDraft" (ngModelChange)="onCommunityFeedDraftChanged($event)"
-                            [disabled]="timelineSending"
-                            [placeholder]="'communities.timelineFeedPlaceholder' | t"></textarea>
-                  @if (feedMentionMatches.length || feedMentionBusy) {
-                    <div class="community-feed-mentions" role="listbox" aria-label="Identificar utilizador">
-                      @if (feedMentionBusy) { <span>A procurar perfis…</span> }
-                      @for (person of feedMentionMatches; track person.username) {
-                        <button type="button" [disabled]="timelineSending" (click)="chooseCommunityFeedMention(person.username)">
-                          <strong>@{{person.username}}</strong><small>{{person.fullName || person.nickname || ''}}</small>
-                        </button>
-                      }
-                    </div>
-                  }
+                  <div class="community-feed-mention-anchor">
+                    <textarea id="community-feed-text" name="community-feed-text" rows="3" maxlength="1000"
+                              [(ngModel)]="feedDraft" (ngModelChange)="onCommunityFeedDraftChanged($event)"
+                              [disabled]="timelineSending"
+                              [placeholder]="'communities.timelineFeedPlaceholder' | t"></textarea>
+                    @if (feedMentionOpen) {
+                      <div class="community-feed-mentions" role="listbox" aria-label="Sugestões de pessoas">
+                        <div class="community-feed-mention-heading"><span aria-hidden="true">@</span> Identificar pessoa</div>
+                        @if (feedMentionBusy) { <span class="community-feed-mention-status">A procurar pessoas…</span> }
+                        @for (person of feedMentionMatches; track person.username) {
+                          <button type="button" role="option" [disabled]="timelineSending"
+                            (mousedown)="$event.preventDefault()"
+                            (click)="chooseCommunityFeedMention(person.username)">
+                            <span class="community-feed-mention-avatar" aria-hidden="true">{{person.username.slice(0,1).toUpperCase()}}</span>
+                            <span class="community-feed-mention-person"><strong>{{person.fullName || person.nickname || person.username}}</strong>
+                              <small>@{{person.username}}</small></span>
+                          </button>
+                        }
+                        @if (!feedMentionBusy && !feedMentionMatches.length) {
+                          <span class="community-feed-mention-status">Escreve o nome ou username para encontrar pessoas.</span>
+                        }
+                      </div>
+                    }
+                  </div>
                   @if (feedImagePreview) {
                     <div class="community-feed-media-preview">
                       <img [src]="feedImagePreview" [alt]="'feed.imagePreviewAlt' | t">
