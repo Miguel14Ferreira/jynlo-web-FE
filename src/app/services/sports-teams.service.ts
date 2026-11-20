@@ -121,6 +121,16 @@ export class SportsTeamsService {
 
   constructor(private readonly http: HttpClient) {}
 
+  followerState(id:number):Observable<{count:number;following:boolean}> {
+    return this.http.get<{count:number;following:boolean}>(this.url+'/'+id+'/followers');
+  }
+  followTeam(id:number):Observable<{count:number;following:boolean}> {
+    return this.http.put<{count:number;following:boolean}>(this.url+'/'+id+'/followers/me',{});
+  }
+  unfollowTeam(id:number):Observable<{count:number;following:boolean}> {
+    return this.http.delete<{count:number;following:boolean}>(this.url+'/'+id+'/followers/me');
+  }
+
   members(id: number): Observable<SportsTeamMember[]> {
     return this.http.get<SportsTeamMember[]>(this.url + '/' + id + '/members');
   }
