@@ -128,9 +128,11 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   private communityChatSyncTimer?: ReturnType<typeof setInterval>;
   private readonly onCommunityChatResume = (): void => {
     if (document.visibilityState !== 'visible' || !this.selected
-        || this.activeTab !== 'chat' || this.timelineLoading) return;
+        || !['feed','chat'].includes(this.activeTab) || this.timelineLoading
+        || this.timelineSending) return;
     // Reconcile missed events when a suspended tab becomes visible again.
-    this.loadTimeline();
+    // Keep the existing feed visible during a background refresh.
+    this.loadTimeline(this.activeTab === 'feed');
   };
   private readonly jwtHelper = new JwtHelperService();
 
@@ -874,17 +876,20 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
 
 
 
-  loadTimeline(): void {
+  loadTimeline(silent = false): void {
     if (!this.selected || (this.activeTab !== 'feed' && this.activeTab !== 'chat')) return;
+    if (silent && (this.timelineLoading || this.timelineSending)) return;
     const communityId = this.selected.id;
     const kind = this.timelineKind;
     const version = ++this.timelineRequestVersion;
-    this.timelineLoading = true;
+    if (!silent) {
+      this.timelineLoading = true;
+      this.timelineError = '';
+    }
     if (kind === 'CHAT') this.chatEventsDuringLoad?.clear();
-    this.timelineError = '';
     this.timelineService.list(communityId, kind)
       .pipe(timeout(10_000), finalize(() => {
-        if (version === this.timelineRequestVersion) this.timelineLoading = false;
+        if (version === this.timelineRequestVersion && !silent) this.timelineLoading = false;
       }))
       .subscribe({
         next: entries => {
@@ -913,7 +918,9 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
           }
         },
         error: () => {
-          if (version === this.timelineRequestVersion) this.timelineError = t('communities.timelineLoadError');
+          if (version === this.timelineRequestVersion && !silent)
+            this.timelineError = t('communities.timelineLoadError');
+          // A background outage must never replace a verified feed with an error.
         }
       });
   }
@@ -2111,11 +2118,12 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     }));
     window.addEventListener('focus', this.onCommunityChatResume);
     document.addEventListener('visibilitychange', this.onCommunityChatResume);
-    // Backup for missed socket frames: foreground chat only, no manual refresh.
+    // Keep the chat and feed fresh while visible, without a manual refresh button.
     this.communityChatSyncTimer = setInterval(() => {
-      if (!this.selected || this.activeTab !== 'chat' || this.timelineLoading
+      if (!this.selected || !['chat','feed'].includes(this.activeTab)
+          || this.timelineLoading || this.timelineSending
           || document.visibilityState !== 'visible') return;
-      this.loadTimeline();
+      this.loadTimeline(this.activeTab === 'feed');
     }, 30_000);
   }
 
