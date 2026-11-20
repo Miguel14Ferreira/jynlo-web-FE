@@ -231,3 +231,16 @@
 .community-follow-control button[aria-pressed=true]{background:#153f4d;border-color:#518d8d}
 .community-follow-control button:disabled{opacity:.5;cursor:wait}
 .community-follow-control button:focus-visible{outline:3px solid #9bffdf;outline-offset:2px}
+
+.community-feed-mentions{display:grid;gap:3px;max-height:235px;overflow:auto;
+ border:1px solid #4db3a5;border-radius:12px;padding:8px;background:#072b38}
+.community-feed-mentions button{min-height:42px;display:flex;align-items:center;gap:12px;
+ border:0;border-radius:8px;padding:8px 12px;text-align:left;background:transparent;
+ color:#f3fffd;cursor:pointer;font:inherit}
+.community-feed-mentions button strong,.community-feed-mention-link{color:#75f4d8;font-weight:800}
+.community-feed-mentions button small{color:#b1d8d8}
+.community-feed-mentions button:hover,.community-feed-mentions button:focus-visible{background:#175364;outline:2px solid #7cebd8}
+.community-feed-mention-link{text-decoration:none}
+.community-feed-mention-link:hover{text-decoration:underline}
+.community-feed-mention-link:focus-visible{outline:2px solid #7cebd8;outline-offset:2px}
+.community-feed-body{white-space:pre-wrap;overflow-wrap:anywhere}
