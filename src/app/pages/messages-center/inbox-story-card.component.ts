@@ -57,6 +57,8 @@ import { SocialStoriesService } from '../../services/social-stories.service';
 })
 export class InboxStoryCardComponent implements OnChanges,OnDestroy {
   @Input({required:true}) storyId=0;
+  /** A Story cannot be newer than the message used to share it. */
+  @Input() sharedAt:string|null=null;
   story:SocialStory|null=null;
   loading=true;
   unavailable=false;
@@ -70,6 +72,12 @@ export class InboxStoryCardComponent implements OnChanges,OnDestroy {
     if(this.expiration!==undefined)clearTimeout(this.expiration);
     this.story=null;this.unavailable=false;this.loading=true;
     if(!Number.isSafeInteger(this.storyId)||this.storyId<=0){this.markUnavailable();return;}
+    const sentAt=this.sharedAt?Date.parse(this.sharedAt):NaN;
+    // All Jynlo Stories expire within 24h. If a message is older than
+    // that, its Story has necessarily expired. Never issue a doomed API GET.
+    if(Number.isFinite(sentAt)&&Date.now()-sentAt>=24*60*60*1000){
+      this.markUnavailable();return;
+    }
     // Never leave an expired or unreachable Story indefinitely in a loading state.
     this.fetch=this.stories.get(this.storyId).pipe(timeout(5000)).subscribe({
       next:story=>{
