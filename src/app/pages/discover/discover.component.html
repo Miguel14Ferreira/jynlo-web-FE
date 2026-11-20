@@ -73,7 +73,7 @@
         (click)="setCategory('all')">{{ 'discover.explore.all' | t }}</button>
       <button type="button" [class.is-active]="activeTab === 'venues'" [attr.aria-pressed]="activeTab === 'venues'"
         (click)="setCategory('venues')">{{ 'discover.explore.venues' | t }}
-        @if (initialized && !venuesLoadError) {
+        @if (initialized && !loadingVenues && !venuesLoadError) {
           <span class="explore-tab-count" [attr.title]="venuesHasMore ? ('discover.where.moreResults' | t) : null">
             {{ venues.length }}{{ venuesHasMore ? '+' : '' }}
           </span>
@@ -81,18 +81,18 @@
       </button>
       <button type="button" [class.is-active]="activeTab === 'sessions'" [attr.aria-pressed]="activeTab === 'sessions'"
         (click)="setCategory('sessions')">{{ 'discover.explore.sessions' | t }}
-        @if (initialized && !sessionsLoadError) { <span class="explore-tab-count">{{ sessions.length }}</span> }
+        @if (initialized && !loadingSessions && !sessionsLoadError) { <span class="explore-tab-count">{{ sessions.length }}</span> }
       </button>
       <button type="button" [class.is-active]="activeTab === 'people'" [attr.aria-pressed]="activeTab === 'people'"
         (click)="setCategory('people')">{{ 'discover.explore.people' | t }}
-        @if (initialized && !peopleLoadError) { <span class="explore-tab-count">{{ people.length }}</span> }
+        @if (initialized && !loadingDiscoveryPeople && !peopleLoadError) { <span class="explore-tab-count">{{ people.length }}</span> }
       </button>
       <button type="button" [class.is-active]="activeTab === 'communities'" [attr.aria-pressed]="activeTab === 'communities'"
         (click)="setCategory('communities')">{{ 'discover.explore.communities' | t }}</button>
     </nav>
 
     @if (loading) {
-      <div class="state-card">{{ 'discover.loading' | t }}</div>
+      <div class="state-card" role="status">{{ 'discover.loading' | t }}</div>
     }
 
     @if (!loading && (venuesLoadError || sessionsLoadError || peopleLoadError)) {
@@ -117,6 +117,9 @@
 
       @if (activeTab === 'all') {
         <section class="explore-spotlight" aria-labelledby="explore-spotlight-heading">
+          @if (loadingSessions) {
+            <p class="explore-partial-loading" role="status">{{ 'discover.loading' | t }}</p>
+          }
           <div class="explore-spotlight-copy">
             <p class="explore-spotlight-kicker">{{ 'discover.explore.spotlightKicker' | t }}</p>
             <h2 id="explore-spotlight-heading">
@@ -173,7 +176,10 @@
         <span>{{ 'discover.explore.refineHint' | t }}</span>
       </div>
 
-      @if (activeTab === 'venues' && !venuesLoadError) {
+      @if (activeTab === 'venues' && loadingVenues) {
+        <div class="state-card" role="status">{{ 'discover.loading' | t }}</div>
+      }
+      @if (activeTab === 'venues' && !loadingVenues && !venuesLoadError) {
         <section class="explore-map-panel" [attr.aria-label]="'discover.explore.mapSection' | t">
           <div class="explore-map-header">
             <div>
@@ -311,6 +317,9 @@
             }
           </div>
 
+          @if (loadingSessions) {
+            <div class="state-card" role="status">{{ 'discover.loading' | t }}</div>
+          } @else {
           <div class="jynlo-session-view-toggle" role="group" aria-label="Visualização das sessões">
             <button type="button" [class.is-selected]="sessionView === 'map'"
               [attr.aria-pressed]="sessionView === 'map'" (click)="setSessionView('map')">⌖ Mapa</button>
@@ -395,6 +404,7 @@
             </button>
           }
 
+          }
           <a class="pillar-action jynlo-action jynlo-action--neutral" routerLink="/menu/events"
              [queryParams]="{ sport: sport.trim() || null, city: location.trim() || null }">
             {{ 'discover.when.action' | t }} <span>→</span>
@@ -419,12 +429,12 @@
                 [placeholder]="'discover.who.searchPlaceholder' | t"
                 autocomplete="off">
               <button type="submit" class="jynlo-action jynlo-action--neutral"
-                [disabled]="loading || loadingPeople || playerName.trim().length === 1">
+                [disabled]="loadingPeople || playerName.trim().length === 1">
                 {{ (loadingPeople ? 'discover.who.searching' : 'discover.who.search') | t }}
               </button>
               @if (playerName) {
                 <button type="button" class="jynlo-action jynlo-action--neutral"
-                  (click)="clearPlayerName()" [disabled]="loading || loadingPeople">
+                  (click)="clearPlayerName()" [disabled]="loadingPeople">
                   {{ 'events.clear' | t }}
                 </button>
               }
@@ -438,7 +448,9 @@
             }
           </form>
 
-          @if (topPeople.length === 0) {
+          @if (loadingDiscoveryPeople) {
+            <div class="state-card" role="status">{{ 'discover.loading' | t }}</div>
+          } @else if (topPeople.length === 0) {
             <div class="pillar-empty people-empty">
               <strong>{{ 'discover.who.emptyTitle' | t }}</strong>
               <span>{{ (appliedPlayerName ? 'discover.who.emptyNameText' : 'discover.who.emptyText') | t }}</span>
