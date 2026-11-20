@@ -16,6 +16,7 @@ import { LocalParticipant, RemoteParticipant, Track } from 'livekit-client';
       <!-- Microphones and screen audio use separate elements. Keeping every
            camera video silent permits mobile autoplay without muting speech. -->
       <video #video autoplay playsinline [muted]="true" [hidden]="!hasVideo"
+        (loadedmetadata)="resumeVideoPlayback()" (canplay)="resumeVideoPlayback()"
         [attr.aria-label]="label"></video>
       @if (!hasVideo) {
         @if (avatarUrl && !avatarFailed) {
@@ -145,7 +146,11 @@ export class CallParticipantTileComponent implements AfterViewChecked, OnDestroy
       if (this.attachedVideoElement) this.lastVideo?.detach(this.attachedVideoElement);
       this.lastVideo=nextVideo;
       this.attachedVideoElement=video ?? null;
-      if (video) nextVideo?.attach(video);
+      if (video) {
+        video.muted = true;
+        nextVideo?.attach(video);
+        if (nextVideo) this.resumeVideoPlayback();
+      }
     }
     // Camera/screen streams are visual only. All remote sound is attached to
     // separate audio elements below; a silent video can autoplay on mobile
@@ -181,6 +186,20 @@ export class CallParticipantTileComponent implements AfterViewChecked, OnDestroy
       this.attachedScreenAudioElement=screenAudio ?? null;
       if (screenAudio) nextScreenAudio?.attach(screenAudio);
     }
+  }
+
+  /** LiveKit attaches the media stream after the video element is mounted.
+   * A browser can miss autoplay when the stream is assigned after mount,
+   * so explicitly start silent camera/screen playback on attachment and
+   * again once metadata/canplay fires. Never touch microphone audio here. */
+  resumeVideoPlayback(): void {
+    const element=this.videoElement?.nativeElement;
+    if (!element || !this.activeVideo) return;
+    element.muted=true;
+    try {
+      const playback=element.play();
+      void playback?.catch(() => { /* A later canplay or user gesture may recover autoplay. */ });
+    } catch { /* Keep the call active if the browser rejects playback. */ }
   }
 
   /** Must be invoked from a real click/tap to satisfy Safari/iOS audio
