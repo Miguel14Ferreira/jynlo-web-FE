@@ -26,6 +26,31 @@ describe('Jynlo story shares in inbox',()=>{
     expect(storyIdFromChatText('Outra mensagem\nhttps://d24sports.com/menu/feed?story=9')).toBe(9);
   });
 
+  it('marks stories shared more than 24 hours ago unavailable without calling the API',()=>{
+    const api=jasmine.createSpyObj<SocialStoriesService>('SocialStoriesService',['get']);
+    const card=new InboxStoryCardComponent(api);
+    card.storyId=9;
+    card.sharedAt=new Date(Date.now()-25*60*60*1000).toISOString();
+    card.ngOnChanges();
+    expect(card.loading).toBeFalse();
+    expect(card.unavailable).toBeTrue();
+    expect(card.story).toBeNull();
+    expect(api.get).not.toHaveBeenCalled();
+    card.ngOnDestroy();
+  });
+
+  it('still loads recently shared stories through the authorized API',()=>{
+    const api=jasmine.createSpyObj<SocialStoriesService>('SocialStoriesService',['get']);
+    api.get.and.returnValue(of(story));
+    const card=new InboxStoryCardComponent(api);
+    card.storyId=9;
+    card.sharedAt=new Date().toISOString();
+    card.ngOnChanges();
+    expect(api.get).toHaveBeenCalledOnceWith(9);
+    expect(card.story?.id).toBe(9);
+    card.ngOnDestroy();
+  });
+
   it('shows verified media while active and does not show expired media',()=>{
     const api=jasmine.createSpyObj<SocialStoriesService>('SocialStoriesService',['get']);
     api.get.and.returnValue(of(story));
