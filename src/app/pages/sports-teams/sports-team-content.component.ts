@@ -63,7 +63,12 @@ import { CommunityProfile } from '../model/community-profile';
               <time>{{item.createdAt | date:'dd/MM/yyyy HH:mm'}}</time></div>
           </div>
           <p *ngIf="item.replyToId" class="team-content-reply">↳ {{replyPreview(item.replyToId)}}</p>
-          <p>{{item.deleted ? (kind === 'chat' ? 'Mensagem eliminada' : 'Publicação eliminada') : item.body}}</p>
+          <p *ngIf="item.deleted">{{kind === 'chat' ? 'Mensagem eliminada' : 'Publicação eliminada'}}</p>
+          <p *ngIf="!item.deleted" class="team-content-body"><ng-container *ngFor="let piece of bodyMentionParts(item.body)">
+            <a *ngIf="piece.username; else plainTeamText" class="team-inline-mention"
+              [routerLink]="['/menu/perfis',piece.username]" [attr.aria-label]="'Abrir perfil de @' + piece.username">{{piece.text}}</a>
+            <ng-template #plainTeamText>{{piece.text}}</ng-template>
+          </ng-container></p>
           <div class="team-private-files" *ngIf="!item.deleted && item.attachments?.length">
             <div *ngFor="let file of item.attachments" class="team-file-card">
               <p>📎 {{file.filename}} ({{(file.size/1024/1024) | number:'1.1-1'}} MB)</p>
@@ -204,6 +209,10 @@ import { CommunityProfile } from '../model/community-profile';
     .team-reactions button.selected {border-color:#48ecd1;background:#17565a}
     .team-reactions button:disabled {opacity:.55;cursor:not-allowed}
     .team-reactions small {color:#cffff5;margin-left:.2rem}
+    .team-content-body{white-space:pre-wrap;overflow-wrap:anywhere}
+    .team-inline-mention{color:#70f5d3;text-decoration:none;font-weight:800}
+    .team-inline-mention:hover{text-decoration:underline}
+    .team-inline-mention:focus-visible{outline:2px solid #7af7dc;outline-offset:2px}
     .team-avatar-link{text-decoration:none;cursor:pointer;transition:box-shadow .15s,transform .15s}
     .team-avatar-link:hover{box-shadow:0 0 0 3px #55eac681;transform:scale(1.05)}
     .team-avatar-link:focus-visible{outline:3px solid #76f6da;outline-offset:3px}
@@ -722,7 +731,20 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     }
     return this.feedParentIds.has(item.replyToId);
   }
-  replyPreview(id:number|null):string {
+  bodyMentionParts(value:string):Array<{text:string;username:string|null}> {
+    const parts:Array<{text:string;username:string|null}>=[];
+    const tokens=/(^|\s)(@[\p{L}\p{N}_.-]{2,32})/gu;
+    let position=0,match:RegExpExecArray|null;
+    while((match=tokens.exec(value))!==null){
+      const start=match.index+match[1].length;
+      if(start>position)parts.push({text:value.slice(position,start),username:null});
+      parts.push({text:match[2],username:match[2].slice(1)});
+      position=start+match[2].length;
+    }
+    if(position<value.length)parts.push({text:value.slice(position),username:null});
+    return parts.length?parts:[{text:value,username:null}];
+  }
+    replyPreview(id:number|null):string {
     const original=(this.searchActive?this.searchResults:[]).find(item=>item.id===id)
       || this.feedCombined.find(item=>item.id===id)
       || this.items.find(item=>item.id===id);
