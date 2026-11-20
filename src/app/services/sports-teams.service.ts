@@ -19,6 +19,10 @@ export interface SportsTeam {
   kitPrimary?: string | null;
   kitSecondary?: string | null;
   kitPattern?: TeamKitPattern | null;
+  kitGarment?: string | null;
+  kitAccent?: string | null;
+  kitPlayerName?: string | null;
+  kitPlayerNumber?: string | null;
 }
 
 export interface CreateSportsTeam {
@@ -242,8 +246,10 @@ export class SportsTeamsService {
   deleteContent(id:number, kind:TeamContentKind, contentId:number): Observable<void> {
     return this.http.delete<void>(this.url+'/'+id+'/'+kind+'/'+contentId);
   }
-  setKit(id:number, primary:string|null, secondary:string|null,pattern:TeamKitPattern='PLAIN'):Observable<SportsTeam> {
-    return this.http.put<SportsTeam>(this.url+'/'+id+'/kit',{primary,secondary,pattern});
+  setKit(id:number, primary:string|null, secondary:string|null,pattern:TeamKitPattern='PLAIN',
+    options?:{garment:string;accent:string;playerName:string;playerNumber:string}):Observable<SportsTeam> {
+    return this.http.put<SportsTeam>(this.url+'/'+id+'/kit',{primary,secondary,pattern,
+      ...(options?options:{})});
   }
   uploadLogo(id:number,file:File):Observable<SportsTeam> {
     const form=new FormData();
