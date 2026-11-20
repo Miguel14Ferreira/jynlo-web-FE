@@ -29,6 +29,44 @@ describe('Team conversation synchronization', () => {
     component.kind='chat';
   });
 
+  it('keeps team chat search tucked away until requested and clears stale results when closed',()=>{
+    expect(component.searchOpen).toBeFalse();
+    component.toggleSearchPanel();
+    expect(component.searchOpen).toBeTrue();
+    component.searchTerm='jogo';
+    component.searchActive=true;
+    component.searchResults=[entry(10,7)];
+    component.toggleSearchPanel();
+    expect(component.searchOpen).toBeFalse();
+    expect(component.searchActive).toBeFalse();
+    expect(component.searchResults).toEqual([]);
+    expect(component.searchTerm).toBe('');
+  });
+
+  it('cancels delayed search results when the search panel is closed',()=>{
+    const pending=new Subject<TeamContentEntry[]>();
+    api.searchContent.and.returnValue(pending.asObservable());
+    component.toggleSearchPanel();
+    component.searchTerm='treino';
+    component.search();
+    expect(component.searching).toBeTrue();
+    component.toggleSearchPanel();
+    pending.next([entry(12,7)]);
+    pending.complete();
+    expect(component.searchActive).toBeFalse();
+    expect(component.searchResults).toEqual([]);
+    expect(component.searchOpen).toBeFalse();
+  });
+
+  it('resets the team content search panel when switching teams',()=>{
+    component.toggleSearchPanel();
+    component.searchTerm='futebol';
+    api.content.and.returnValue(of([]));
+    component.ngOnChanges({teamId:new SimpleChange(7,8,false)});
+    expect(component.searchOpen).toBeFalse();
+    expect(component.searchTerm).toBe('');
+  });
+
   it('ignores a late attachment capability response after membership is revoked',()=>{
     const pending=new Subject<{available:boolean}>();
     api.attachmentsAvailable.and.returnValue(pending.asObservable());
