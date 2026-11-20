@@ -305,6 +305,11 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
                   [attr.fill]="kitSecondary" stroke="#ffffff" stroke-opacity=".6" stroke-width="2"/>
                 <path *ngIf="kitGarment==='jersey'||kitGarment==='polo'" d="M91 126 57 146 M229 126 263 146 M91 290 Q160 312 229 290"
                   fill="none" [attr.stroke]="kitSecondary" stroke-width="6" stroke-opacity=".8"/>
+                <g *ngIf="kitSide==='back'" text-anchor="middle" fill="#ffffff" stroke="#09232a" stroke-width="0.8" paint-order="stroke"
+                   font-family="Arial,sans-serif" font-weight="900">
+                  <text x="160" y="113" font-size="19">{{kitPlayerName.slice(0,14).toUpperCase()}}</text>
+                  <text x="160" y="225" font-size="100">{{kitPlayerNumber.slice(0,2)}}</text>
+                </g>
               </svg>
               <div class="team-kit-preview-caption">
                 <strong>{{ kitLabel(kitPattern) }}</strong>
@@ -315,13 +320,21 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
               </div>
             </div>
             <div class="team-kit-config">
+              <div role="group" aria-label="Visualizar frente ou costas" class="team-kit-side-controls">
+                <button type="button" [attr.aria-pressed]="kitSide==='front'" (click)="kitSide='front'">Frente</button>
+                <button type="button" [attr.aria-pressed]="kitSide==='back'" (click)="kitSide='back'">Costas</button>
+              </div>
+              <div *ngIf="kitSide==='back'" class="team-kit-back-fields">
+                <label>Nome ilustrativo <input [(ngModel)]="kitPlayerName" maxlength="14" placeholder="ATLETA" [disabled]="brandingSaving"></label>
+                <label>Número ilustrativo <input [(ngModel)]="kitPlayerNumber" maxlength="2" inputmode="numeric" pattern="[0-9]*" placeholder="10" [disabled]="brandingSaving"></label>
+              </div>
               <label class="team-garment-control">Tipo de equipamento — pré-visualização
                 <select [(ngModel)]="kitGarment" [disabled]="brandingSaving">
                   <option value="jersey">Camisola de jogo</option><option value="singlet">Singlet / atletismo</option>
                   <option value="vest">Colete de treino</option><option value="polo">Polo / golfe</option>
                   <option value="cycling">Jersey de ciclismo</option><option value="rashguard">Rashguard / combate</option>
                 </select></label>
-              <p class="team-kit-save-hint">A silhueta é uma simulação visual. As cores e o padrão são guardados como identidade oficial.</p>
+              <p class="team-kit-save-hint">A silhueta, o nome e o número são apenas simulações. Só as duas cores e o padrão ficam oficialmente guardados.</p>
               <div class="team-kit-color-row">
                 <label>Cor principal <input type="color" [(ngModel)]="kitPrimary" [disabled]="brandingSaving"></label>
                 <label>Cor secundária <input type="color" [(ngModel)]="kitSecondary" [disabled]="brandingSaving"></label>
@@ -537,6 +550,9 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   isOwner=false;busy=false;featureSaving=false;deletingTeam=false;feedback='';
   kitPrimary='#16caba';kitSecondary='#f2fafc';kitPattern:TeamKitPattern='PLAIN';brandingSaving=false;
   kitGarment='jersey';
+  kitSide:'front'|'back'='front';
+  kitPlayerName='ATLETA';
+  kitPlayerNumber='10';
   recommendedGarment(sport:string|null|undefined):string {
     const value=(sport||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
     if(/basquet|basket|atlet|corrida|running|triat|netball/.test(value))return 'singlet';
