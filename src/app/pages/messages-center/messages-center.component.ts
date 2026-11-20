@@ -1620,24 +1620,34 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   }
     mentionMatches:CommunityProfile[]=[];
   mentionLoading=false;
+  mentionOpen=false;
   private mentionQueryVersion=0;
   private mentionTimer:ReturnType<typeof setTimeout>|null=null;
   private draftMention():string {
-    return /(?:^|\s)@([\p{L}\p{N}_.-]{2,32})$/u.exec(this.draft)?.[1] || '';
+    return /(?:^|\s)@([\p{L}\p{N}_.-]{0,32})$/u.exec(this.draft)?.[1] || '';
+  }
+  dismissMention(event:Event):void {
+    if(!this.mentionOpen)return;
+    event.preventDefault();
+    this.mentionQueryVersion++;
+    if(this.mentionTimer)clearTimeout(this.mentionTimer);
+    this.mentionMatches=[];this.mentionLoading=false;this.mentionOpen=false;
   }
   selectMention(username:string):void {
     if(!this.mentionMatches.some(profile=>profile.username===username))return;
-    this.draft=this.draft.replace(/@([\p{L}\p{N}_.-]{2,32})$/u,'@'+username)+' ';
-    this.mentionMatches=[];this.mentionLoading=false;this.mentionQueryVersion++;
+    this.draft=this.draft.replace(/@([\p{L}\p{N}_.-]{0,32})$/u,'@'+username)+' ';
+    this.mentionMatches=[];this.mentionLoading=false;this.mentionOpen=false;this.mentionQueryVersion++;
     this.onTypingInput();
   }
   onTypingInput(): void {
     if(this.mentionTimer)clearTimeout(this.mentionTimer);
+    const match=/(?:^|\s)@([\p{L}\p{N}_.-]{0,32})$/u.exec(this.draft);
     const term=this.draftMention(),version=++this.mentionQueryVersion;
-    this.mentionMatches=[];this.mentionLoading=!!term;
-    if(term && this.selected){
+    this.mentionOpen=!!match && !!this.selected;
+    this.mentionMatches=[];this.mentionLoading=this.mentionOpen;
+    if(this.mentionOpen){
       this.mentionTimer=setTimeout(()=>{
-        this.contacts.searchProfiles(term).subscribe({
+        (term ? this.contacts.searchProfiles(term) : this.contacts.findProfiles({})).subscribe({
           next:profiles=>{if(version!==this.mentionQueryVersion)return;
             this.mentionMatches=profiles.filter(p=>p.username&&p.username.toLowerCase().includes(term.toLowerCase())).slice(0,8);
             this.mentionLoading=false;},
@@ -2520,6 +2530,11 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   onComposerEnter(event: Event): void {
     const keyboard = event as KeyboardEvent;
     if (keyboard.shiftKey || keyboard.isComposing || keyboard.keyCode === 229) return;
+    if(this.mentionOpen){
+      keyboard.preventDefault();
+      if(this.mentionMatches.length)this.selectMention(this.mentionMatches[0].username);
+      return;
+    }
     keyboard.preventDefault();
     this.sendMessage();
   }
