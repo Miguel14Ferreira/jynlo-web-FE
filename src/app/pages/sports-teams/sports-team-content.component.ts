@@ -643,7 +643,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   mentionOpen=false;
   private mentionTimer:ReturnType<typeof setTimeout>|null=null;
   private mentionVersion=0;
-  private mentionQuery='';
+  mentionQuery='';
   onMentionDraftChange(text:string):void {
     if(this.mentionTimer)clearTimeout(this.mentionTimer);
     const match=/(?:^|\s)@([\p{L}\p{N}_.-]{0,32})$/u.exec(text);
