@@ -5368,10 +5368,18 @@
                       <a class="community-member-profile" [routerLink]="['/menu/perfis',member.username]"
                          [attr.aria-label]="'Abrir perfil de @' + member.username"
                          [title]="'Ver perfil de @' + member.username">
-                        <span class="community-member-avatar" aria-hidden="true">{{(member.fullName || member.username).slice(0,1).toUpperCase()}}</span>
+                        <span class="community-member-avatar" aria-hidden="true">
+                          @if (communityFeedAvatar(member.username); as avatar) {
+                            <img [src]="avatar" alt="" loading="lazy">
+                          } @else {
+                            {{ (member.fullName || member.username).slice(0,1).toUpperCase() }}
+                          }
+                        </span>
                         <span class="community-member-identity">
                           <strong>{{ member.fullName || member.username }}</strong>
-                          <span>@{{ member.username }} · {{ member.role }}</span>
+                          <span class="community-member-handle">@{{ member.username }}</span>
+                          <span class="community-member-role" [class.is-owner]="member.role === 'OWNER'"
+                            [class.is-admin]="member.role === 'ADMIN'">{{ member.role }}</span>
                         </span>
                         <span class="community-member-open" aria-hidden="true">↗</span>
                       </a>
