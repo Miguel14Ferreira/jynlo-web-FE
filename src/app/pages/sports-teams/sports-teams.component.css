@@ -209,3 +209,7 @@ textarea{min-height:105px;resize:vertical}
 @media(prefers-reduced-motion:reduce){
   .team-card:hover,#explorar-equipas .team-card:hover{transform:none;}
 }
+
+.create-form select{width:100%;min-width:0;box-sizing:border-box;border:1px solid #257a88;border-radius:11px;color:#eefefa;background:#082b39;padding:.85rem;font:inherit;min-height:46px;cursor:pointer}
+.create-form select:focus-visible{outline:2px solid #52e2c8;outline-offset:1px}
+.create-form select option{background:#082b39;color:#eefefa}
