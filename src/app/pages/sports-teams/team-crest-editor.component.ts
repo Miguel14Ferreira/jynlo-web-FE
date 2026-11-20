@@ -2,7 +2,16 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-/** Sport-neutral badge designer. Exports a self-contained PNG via the protected team logo API. */
+/** Editable, versioned project; the SVG is drawn locally, never injected from stored HTML. */
+export interface TeamCrestDesign {
+  version:1;
+  shape:string;symbol:string;pattern:string;
+  primary:string;secondary:string;textColor:string;borderColor:string;
+  patternOpacity:number;borderWidth:number;symbolSize:number;symbolY:number;
+  showInitials:boolean;innerBorder:boolean;initialsSize:number;initialsY:number;
+  customInitials:string;caption:string;
+}
+/** Sport-neutral badge designer. Exports a PNG and its editable model atomically. */
 @Component({
   standalone: true,
   selector: 'app-team-crest-editor',
@@ -44,7 +53,7 @@ import { FormsModule } from '@angular/forms';
             <text *ngIf="footerText" x="160" y="286" dominant-baseline="central" text-anchor="middle"
               font-size="16" font-weight="750" [attr.fill]="textColor" font-family="Arial,sans-serif">{{footerText}}</text>
           </svg>
-          <p>Pré-visualização em tempo real</p>
+          <p>{{loadedFromTeam?'Projeto guardado reaberto para edição':'Pré-visualização em tempo real'}}</p>
         </div>
         <div class="crest-fields">
           <div class="crest-wide" role="group" aria-label="Modelos rápidos de emblema">
@@ -162,12 +171,40 @@ import { FormsModule } from '@angular/forms';
 export class TeamCrestEditorComponent {
   @Input() teamName='';
   @Input() disabled=false;
-  @Output() generated=new EventEmitter<File>();
+  @Input() set savedDesign(raw:string|null|undefined) {
+    if(!raw)return;
+    try {
+      const design=JSON.parse(raw) as TeamCrestDesign;
+      if(design.version!==1 || !['shield','rounded','circle','hex','diamond','square','oval','banner'].includes(design.shape))return;
+      this.applyDesign(design);
+      this.loadedFromTeam=true;
+    } catch { this.error='Não foi possível reabrir o desenho guardado.'; }
+  }
+  @Output() generated=new EventEmitter<{file:File;design:string}>();
+  loadedFromTeam=false;
   shape='shield';symbol='none';pattern='none';
   primary='#0D7169';secondary='#F5FFFF';textColor='#FFFFFF';borderColor='#F5FFFF';
   patternOpacity=30;borderWidth=8;symbolSize=76;symbolY=145;
   showInitials=true;innerBorder=true;initialsSize=30;initialsY=225;
   customInitials='';caption='';error='';
+  private snapshot():TeamCrestDesign {
+    return {version:1,shape:this.shape,symbol:this.symbol,pattern:this.pattern,
+      primary:this.primary,secondary:this.secondary,textColor:this.textColor,
+      borderColor:this.borderColor,patternOpacity:this.patternOpacity,borderWidth:this.borderWidth,
+      symbolSize:this.symbolSize,symbolY:this.symbolY,showInitials:this.showInitials,
+      innerBorder:this.innerBorder,initialsSize:this.initialsSize,initialsY:this.initialsY,
+      customInitials:this.customInitials,caption:this.caption};
+  }
+  private applyDesign(value:TeamCrestDesign):void {
+    this.shape=value.shape;this.symbol=value.symbol;this.pattern=value.pattern;
+    this.primary=value.primary;this.secondary=value.secondary;
+    this.textColor=value.textColor;this.borderColor=value.borderColor;
+    this.patternOpacity=value.patternOpacity;this.borderWidth=value.borderWidth;
+    this.symbolSize=value.symbolSize;this.symbolY=value.symbolY;
+    this.showInitials=value.showInitials;this.innerBorder=value.innerBorder;
+    this.initialsSize=value.initialsSize;this.initialsY=value.initialsY;
+    this.customInitials=value.customInitials;this.caption=value.caption;
+  }
   readonly presets=[
     {id:'classic',label:'Clássico'},{id:'minimal',label:'Minimalista'},
     {id:'modern',label:'Moderno'},{id:'retro',label:'Retro'},
@@ -260,7 +297,8 @@ export class TeamCrestEditorComponent {
     }
     canvas.toBlob(blob=>{
       if(!blob){this.error='Não foi possível criar o PNG.';return;}
-      this.generated.emit(new File([blob],'emblema-jynlo.png',{type:'image/png'}));
+      this.generated.emit({file:new File([blob],'emblema-jynlo.png',{type:'image/png'}),
+        design:JSON.stringify(this.snapshot())});
     },'image/png');
   }
 }
