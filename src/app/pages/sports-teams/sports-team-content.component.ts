@@ -47,7 +47,7 @@ import { CommunityProfile } from '../model/community-profile';
       <p *ngIf="!loading && !searchActive && !items.length && !error" class="team-content-note">
         {{kind === 'chat' ? 'Ainda não existem mensagens nesta equipa.' : 'Ainda não há publicações.'}}
       </p>
-      <div #historyPane class="team-content-history" aria-live="polite" (scroll)="onHistoryScroll()">
+      <div #historyPane class="team-content-history" [attr.aria-label]="kind === 'chat' ? 'Histórico de mensagens da equipa' : 'Publicações da equipa'" aria-live="polite" (scroll)="onHistoryScroll()">
         <div *ngIf="kind === 'feed' && !searchActive && (hasOlderPosts || olderLoading || olderError)" class="team-history-more">
           <button type="button" [disabled]="olderLoading || loading || sending" (click)="loadOlderPosts()">
             {{olderLoading ? 'A carregar publicações…' : 'Ver publicações anteriores'}}
@@ -95,10 +95,6 @@ import { CommunityProfile } from '../model/community-profile';
           <small *ngIf="item.editedAt && !item.deleted">Editada</small>
           <div class="team-reactions" *ngIf="!item.deleted" [attr.aria-label]="kind === 'chat' ? 'Reações à mensagem' : 'Reações à publicação'">
             <ng-container *ngIf="kind === 'chat'">
-              <button type="button" class="team-react-trigger" [disabled]="reactionBusyId !== null"
-                [attr.aria-expanded]="feedReactionPickerId === item.id"
-                [attr.aria-label]="'Adicionar reação à mensagem de @' + item.username"
-                (click)="toggleFeedReactionPicker(item.id)">☺ <span>Reagir</span></button>
               <button type="button" *ngFor="let emoji of emojis" class="team-reaction-summary"
                 [hidden]="!reactionsById[item.id]?.counts?.[emoji]"
                 [disabled]="reactionBusyId !== null"
@@ -191,7 +187,7 @@ import { CommunityProfile } from '../model/community-profile';
               <span class="team-mention-person"><strong>{{person.fullName || person.nickname || person.username}}</strong>
                 <small>@{{person.username}}</small></span>
             </button>
-            <span *ngIf="!mentionBusy && !mentionOptions.length" class="team-mention-status">Escreve o nome ou @username para encontrar alguém.</span>
+            <span *ngIf="!mentionBusy && !mentionOptions.length" class="team-mention-status">{{mentionQuery ? 'Nenhum perfil encontrado.' : 'Escreve o nome ou username para encontrar alguém.'}}</span>
           </div>
         </div>
         <div *ngIf="attachmentsEnabled" class="team-upload-selector">
@@ -655,10 +651,10 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const version=++this.mentionVersion;
     this.mentionOpen=!!match;
     this.mentionOptions=[];this.mentionQuery=term;
-    this.mentionBusy=!!match;
-    if(!match)return;
+    this.mentionBusy=!!match && term.length > 0;
+    if(!match || !term)return;
     this.mentionTimer=setTimeout(()=>{
-      (term ? this.profiles.searchProfiles(term) : this.profiles.findProfiles({})).subscribe({
+      this.profiles.searchProfiles(term).subscribe({
         next:people=>{if(version!==this.mentionVersion||this.accessRevoked)return;
           this.mentionOptions=people.filter(p=>p.username && (!term || [p.username,p.fullName,p.nickname].some(value=>value?.toLowerCase().includes(term.toLowerCase())))).slice(0,5);
           this.mentionBusy=false;},
