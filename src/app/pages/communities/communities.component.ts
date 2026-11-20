@@ -125,7 +125,6 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   private readonly readSync = inject(ChatReadSyncService);
   private readonly tournamentCatalog = inject(CommunityTournamentsService);
   private readonly chatSubscriptions = new Subscription();
-  private communityChatSyncTimer?: ReturnType<typeof setInterval>;
   private readonly onCommunityChatResume = (): void => {
     if (document.visibilityState !== 'visible' || !this.selected
         || !['feed','chat'].includes(this.activeTab) || this.timelineLoading
@@ -311,6 +310,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   activeTab: CommunityTab = 'home';
   timelineEntries: CommunityTimelineEntry[] = [];
   timelineLoading = false;
+  private feedSyncInFlight = false;
   timelineSending = false;
   timelineDeletingId: number | null = null;
   timelineError = '';
@@ -496,7 +496,6 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   }
 
   ngOnDestroy(): void {
-    if (this.communityChatSyncTimer) clearInterval(this.communityChatSyncTimer);
     window.removeEventListener('focus', this.onCommunityChatResume);
     document.removeEventListener('visibilitychange', this.onCommunityChatResume);
     if (this.inviteSuggestTimer) clearTimeout(this.inviteSuggestTimer);
@@ -878,18 +877,21 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
 
   loadTimeline(silent = false): void {
     if (!this.selected || (this.activeTab !== 'feed' && this.activeTab !== 'chat')) return;
-    if (silent && (this.timelineLoading || this.timelineSending)) return;
+    if (silent && (this.timelineLoading || this.timelineSending || this.feedSyncInFlight)) return;
     const communityId = this.selected.id;
     const kind = this.timelineKind;
     const version = ++this.timelineRequestVersion;
     if (!silent) {
       this.timelineLoading = true;
       this.timelineError = '';
-    }
+    } else this.feedSyncInFlight = true;
     if (kind === 'CHAT') this.chatEventsDuringLoad?.clear();
     this.timelineService.list(communityId, kind)
       .pipe(timeout(10_000), finalize(() => {
-        if (version === this.timelineRequestVersion && !silent) this.timelineLoading = false;
+        if (version === this.timelineRequestVersion) {
+          if (silent) this.feedSyncInFlight = false;
+          else this.timelineLoading = false;
+        }
       }))
       .subscribe({
         next: entries => {
@@ -2107,24 +2109,24 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     this.chatSubscriptions.add(this.realtimeService.communityMessages$.subscribe(
       entry => this.onCommunityChatRealtime(entry)
     ));
+    // Feed updates are pushed after a committed change, never polled on a timer.
+    // The event contains no private post data; refresh via authorized HTTP history.
+    this.chatSubscriptions.add(this.realtimeService.communityFeedInvalidated$.subscribe(id => {
+      if (this.selected?.id === id && this.activeTab === 'feed')
+        this.loadTimeline(true);
+    }));
     this.chatSubscriptions.add(this.realtimeService.connected$.subscribe(connected => {
       const reconnected = connected && !this.chatRealtimeConnected;
       this.chatRealtimeConnected = connected;
       if (connected) {
         this.chatEverConnected = true;
-        // Recover missed events after reconnection, but only for the open chat.
-        if (reconnected && this.selected && this.activeTab === 'chat') this.loadTimeline();
+        // Recover missed events after reconnecting for the active conversation or feed.
+        if (reconnected && this.selected && ['chat','feed'].includes(this.activeTab))
+          this.loadTimeline(this.activeTab === 'feed');
       }
     }));
     window.addEventListener('focus', this.onCommunityChatResume);
     document.addEventListener('visibilitychange', this.onCommunityChatResume);
-    // Keep the chat and feed fresh while visible, without a manual refresh button.
-    this.communityChatSyncTimer = setInterval(() => {
-      if (!this.selected || !['chat','feed'].includes(this.activeTab)
-          || this.timelineLoading || this.timelineSending
-          || document.visibilityState !== 'visible') return;
-      this.loadTimeline(this.activeTab === 'feed');
-    }, 30_000);
   }
 
   detailMode(): boolean {
