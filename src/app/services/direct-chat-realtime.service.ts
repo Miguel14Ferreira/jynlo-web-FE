@@ -55,6 +55,7 @@ interface ChatSocketEnvelope {
   read?: InboxOwnReadEvent;
   type?: string;
   groupId?: number;
+  communityId?: number;
   teamId?: number;
   kind?: 'chat' | 'feed';
   message?: DirectChatMessage | SessionMessage | CommunityTimelineEntry | PrivateGroupMessage;
@@ -128,6 +129,7 @@ export class DirectChatRealtimeService {
   private readonly ownReadSubject = new Subject<InboxOwnReadEvent>();
   private readonly connectedSubject = new BehaviorSubject<boolean>(false);
   private readonly socialFeedInvalidatedSubject = new Subject<void>();
+  private readonly communityFeedInvalidatedSubject = new Subject<number>();
   private readonly personalLiveInvalidatedSubject = new Subject<void>();
 
   readonly messages$ = this.messageSubject.asObservable();
@@ -143,6 +145,7 @@ export class DirectChatRealtimeService {
   readonly ownReads$ = this.ownReadSubject.asObservable();
   readonly connected$ = this.connectedSubject.asObservable();
   readonly socialFeedInvalidated$ = this.socialFeedInvalidatedSubject.asObservable();
+  readonly communityFeedInvalidated$ = this.communityFeedInvalidatedSubject.asObservable();
   readonly personalLiveInvalidated$ = this.personalLiveInvalidatedSubject.asObservable();
 
   connect(): void {
@@ -222,6 +225,12 @@ export class DirectChatRealtimeService {
 
         if (envelope.type === 'PERSONAL_LIVE_INVALIDATED') {
           this.personalLiveInvalidatedSubject.next();
+          return;
+        }
+
+        if (envelope.type === 'COMMUNITY_FEED_INVALIDATED') {
+          if (Number.isSafeInteger(envelope.communityId) && (envelope.communityId ?? 0)>0)
+            this.communityFeedInvalidatedSubject.next(envelope.communityId!);
           return;
         }
 
