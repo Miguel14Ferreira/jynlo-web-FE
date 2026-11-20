@@ -34,7 +34,29 @@ import {DirectChatMessage} from '../pages/model/direct-chat';
       @if (message.replyToText && !message.deletedAt) {
        <span class="call-chat-quote">↳ {{message.replyToText}}</span>
       }
-      <p>{{message.deletedAt?'Mensagem removida':(message.text || (message.attachmentName || (message.attachments?.length?'Anexo partilhado':'Mensagem')))}}</p>
+      @if (message.deletedAt) {
+       <p>Mensagem removida</p>
+      } @else {
+       @if (message.text) { <p>{{message.text}}</p> }
+       @if (message.id; as messageId) {
+        @for (attachment of messageAttachments(message); track attachment.index) {
+         @if (isImage(attachment.mimeType)) {
+          @if (attachmentUrl(messageId,attachment.index); as url) {
+           <a [href]="url" target="_blank" rel="noopener" [attr.aria-label]="'Abrir imagem ' + attachment.filename">
+            <img class="call-chat-image" [src]="url" [alt]="attachment.filename" loading="lazy">
+           </a>
+          } @else {
+           <span class="call-chat-attachment-state">{{attachmentFailed(messageId,attachment.index)?'Imagem indisponível':'A carregar imagem…'}}</span>
+          }
+         } @else {
+          <button type="button" class="call-chat-file" (click)="openAttachment(messageId,attachment.index,attachment.filename)">
+           📎 {{attachment.filename}}
+          </button>
+         }
+        }
+       }
+       @if (!message.text && !messageAttachments(message).length) { <p>Mensagem</p> }
+      }
       <time>{{messageTime(message)}}</time>
      </article>
     }
@@ -65,6 +87,9 @@ import {DirectChatMessage} from '../pages/model/direct-chat';
    background:#173d4b;display:grid;gap:4px;overflow-wrap:anywhere}
   .call-chat-bubble.is-mine{align-self:flex-end;background:#11616a}
   .call-chat-bubble p{margin:0;font-size:.82rem;line-height:1.45;white-space:pre-wrap}
+  .call-chat-image{display:block;width:100%;max-width:260px;max-height:240px;object-fit:contain;border-radius:8px;background:#071e2a}
+  .call-chat-attachment-state{color:#c9d8db;font-size:.74rem}
+  .call-chat-file{padding:5px;border:0;background:transparent;color:#c7fff1;text-align:left;overflow-wrap:anywhere;cursor:pointer}
   .call-chat-bubble small{color:#93f4da;font-size:.7rem;font-weight:800}
   .call-chat-bubble time{color:#b4cdd2;font-size:.64rem;text-align:right}
   .call-chat-quote{font-size:.71rem;color:#c2d8df;border-left:2px solid #8df4d8;padding-left:6px}
@@ -97,6 +122,12 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
  /** Keep only recently acknowledged sends while the server read catches up. */
  private readonly locallyConfirmed=new Map<number,{message:DirectChatMessage;at:number}>();
  private pollTimer:ReturnType<typeof setInterval>|null=null;
+ /** Attachment URLs are ephemeral and scoped to the active authenticated peer. */
+ private readonly mediaUrls=new Map<string,string>();
+ private readonly mediaFailures=new Set<string>();
+ private readonly mediaRequests=new Map<string,Subscription>();
+ private mediaPeer='';
+ private mediaEpoch=0;
  private realtimeSubscription:Subscription|null=null;
  constructor(private readonly chat:DirectChatService,private readonly realtime:DirectChatRealtimeService){}
  ngOnInit():void{
@@ -111,7 +142,7 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
   this.refresh(false);
  }
  ngOnChanges():void{
-  this.generation++;this.loadingNow=false;this.pendingRefresh=false;
+  this.generation++;this.clearMedia();this.loadingNow=false;this.pendingRefresh=false;
   this.messages=[];this.draft='';this.error='';this.syncWarning='';this.accessRevoked=false;
   // An in-flight request belongs to the previous conversation. Its completion
   // is generation-guarded, so it must not keep the next peer's composer locked.
@@ -120,7 +151,7 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
   if(this.pollTimer)this.refresh(false);
  }
  ngOnDestroy():void{
-  this.generation++;
+  this.generation++;this.clearMedia();
   if(this.pollTimer)clearInterval(this.pollTimer);
   this.realtimeSubscription?.unsubscribe();
   this.locallyConfirmed.clear();
@@ -149,12 +180,13 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
     }
     // A deletion or redaction on the server takes precedence over the old UI.
     this.messages=[...messages.values()].sort((a,b)=>(a.id||0)-(b.id||0)).slice(-60);
+    this.syncAttachments();
     this.syncWarning='';
    },
    error:(e:unknown)=>{
     if(version!==this.generation||this.peer!==peer)return;
     if(e instanceof HttpErrorResponse&&[401,403,404,410].includes(e.status)){
-     this.messages=[];this.draft='';this.locallyConfirmed.clear();this.accessRevoked=true;
+     this.messages=[];this.draft='';this.locallyConfirmed.clear();this.clearMedia();this.accessRevoked=true;
      this.error='Já não tens acesso ao chat deste contacto.';
     }else this.syncWarning='Não foi possível sincronizar as mensagens. O histórico pode estar desatualizado.';
    },
@@ -166,6 +198,74 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
   if(!this.loadingNow)return;
   this.loadingNow=false;this.loading=false;
   if(this.pendingRefresh){this.pendingRefresh=false;this.refresh(true);}
+ }
+ private mediaKey(messageId:number,index:number):string { return messageId+':'+index; }
+ isImage(mime:string|null|undefined):boolean { return !!mime && mime.toLowerCase().startsWith('image/'); }
+ messageAttachments(message:DirectChatMessage):{index:number;filename:string;mimeType:string;size:number}[] {
+  if(message.deletedAt||!message.id)return [];
+  if(message.attachments?.length)return message.attachments.filter(a=>Number.isSafeInteger(a.index)&&a.index>=0);
+  return message.attachmentName ? [{index:0,filename:message.attachmentName,
+   mimeType:message.attachmentMimeType||'application/octet-stream',size:message.attachmentSize||0}] : [];
+ }
+ attachmentUrl(messageId:number,index:number):string|null {
+  return this.mediaUrls.get(this.mediaKey(messageId,index))||null;
+ }
+ attachmentFailed(messageId:number,index:number):boolean {
+  return this.mediaFailures.has(this.mediaKey(messageId,index));
+ }
+ private clearMedia():void {
+  this.mediaEpoch++;
+  for(const request of this.mediaRequests.values())request.unsubscribe();
+  this.mediaRequests.clear();
+  for(const url of this.mediaUrls.values())URL.revokeObjectURL(url);
+  this.mediaUrls.clear();this.mediaFailures.clear();this.mediaPeer='';
+ }
+ private syncAttachments():void {
+  if(!this.peer||this.accessRevoked)return;
+  if(this.mediaPeer!==this.peer){this.clearMedia();this.mediaPeer=this.peer;}
+  const keep=new Set<string>();
+  for(const message of this.messages){
+   if(!message.id||message.deletedAt)continue;
+   for(const file of this.messageAttachments(message)){
+    const key=this.mediaKey(message.id,file.index);
+    keep.add(key);
+    if(!this.isImage(file.mimeType)||this.mediaUrls.has(key)||this.mediaFailures.has(key)||this.mediaRequests.has(key))continue;
+    const peer=this.peer,epoch=this.mediaEpoch;
+    const request=this.chat.downloadAttachmentAt(peer,message.id,file.index).subscribe({
+     next:blob=>{
+      if(epoch!==this.mediaEpoch||this.peer!==peer)return;
+      if(!blob.type.startsWith('image/')){this.mediaFailures.add(key);return;}
+      const url=URL.createObjectURL(blob);
+      if(epoch!==this.mediaEpoch||this.peer!==peer){URL.revokeObjectURL(url);return;}
+      this.mediaUrls.set(key,url);
+     },
+     error:()=>{if(epoch===this.mediaEpoch&&peer===this.peer)this.mediaFailures.add(key);}
+    });
+    this.mediaRequests.set(key,request);
+    request.add(()=>this.mediaRequests.delete(key));
+   }
+  }
+  for(const [key,url] of this.mediaUrls){
+   if(!keep.has(key)){URL.revokeObjectURL(url);this.mediaUrls.delete(key);}
+  }
+  for(const [key,request] of this.mediaRequests){
+   if(!keep.has(key)){request.unsubscribe();this.mediaRequests.delete(key);}
+  }
+  for(const key of this.mediaFailures){if(!keep.has(key))this.mediaFailures.delete(key);}
+ }
+ openAttachment(messageId:number,index:number,filename:string):void {
+  if(!this.peer||this.accessRevoked)return;
+  const peer=this.peer,epoch=this.mediaEpoch;
+  this.chat.downloadAttachmentAt(peer,messageId,index).subscribe({
+   next:blob=>{
+    if(epoch!==this.mediaEpoch||peer!==this.peer)return;
+    const url=URL.createObjectURL(blob);
+    const anchor=document.createElement('a');
+    anchor.href=url;anchor.download=filename||'anexo';anchor.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+   },
+   error:()=>{if(epoch===this.mediaEpoch)this.error='Não foi possível obter o anexo.';}
+  });
  }
  isMine(message:DirectChatMessage):boolean{
   // An authenticated direct conversation has only the peer and the viewer.
@@ -193,6 +293,7 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
     this.locallyConfirmed.set(message.id!,{message,at:Date.now()});
     this.messages=this.messages.some(item=>item.id===message.id)?this.messages:
      [...this.messages,message].sort((a,b)=>(a.id||0)-(b.id||0)).slice(-60);
+    this.syncAttachments();
     if(this.draft.trim()===body)this.draft='';
     this.refresh(true);
    },
