@@ -1,0 +1,31 @@
+# Fails fast when a commit on develop would not build. Render deploys
+# desporto24-preview from every develop commit; with Render's auto-deploy set
+# to "After CI checks pass", this check also stops a broken build from deploying.
+name: Jynlo FE develop build
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fe-develop-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
