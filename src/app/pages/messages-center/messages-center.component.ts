@@ -12,6 +12,7 @@ import { ConversationMuteService, MutedConversation, isConversationMuted } from 
 
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { CommunityService } from '../../services/community.service';
+import type { CommunityProfile } from '../model/community-profile';
 import { CommunityGroupsService } from '../../services/community-groups.service';
 import { SessionService } from '../../services/session.service';
 import { DirectChatService } from '../../services/direct-chat.service';
@@ -605,6 +606,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   ngOnDestroy(): void {
+    if(this.mentionTimer)clearTimeout(this.mentionTimer);
+    this.mentionQueryVersion++;
     this.recentThreadCache.clear();
     ++this.mutationVersion;
     this.typing.destroy();
@@ -1599,7 +1602,33 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.replyingTo = null;
   }
 
+  mentionMatches:CommunityProfile[]=[];
+  mentionLoading=false;
+  private mentionQueryVersion=0;
+  private mentionTimer:ReturnType<typeof setTimeout>|null=null;
+  private draftMention():string {
+    return /(?:^|\s)@([\p{L}\p{N}_.-]{2,32})$/u.exec(this.draft)?.[1] || '';
+  }
+  selectMention(username:string):void {
+    if(!this.mentionMatches.some(profile=>profile.username===username))return;
+    this.draft=this.draft.replace(/@([\p{L}\p{N}_.-]{2,32})$/u,'@'+username)+' ';
+    this.mentionMatches=[];this.mentionLoading=false;this.mentionQueryVersion++;
+    this.onTypingInput();
+  }
   onTypingInput(): void {
+    if(this.mentionTimer)clearTimeout(this.mentionTimer);
+    const term=this.draftMention(),version=++this.mentionQueryVersion;
+    this.mentionMatches=[];this.mentionLoading=!!term;
+    if(term && this.selected){
+      this.mentionTimer=setTimeout(()=>{
+        this.contacts.findProfiles({name:term}).subscribe({
+          next:profiles=>{if(version!==this.mentionQueryVersion)return;
+            this.mentionMatches=profiles.filter(p=>p.username&&p.username.toLowerCase().includes(term.toLowerCase())).slice(0,8);
+            this.mentionLoading=false;},
+          error:()=>{if(version===this.mentionQueryVersion){this.mentionMatches=[];this.mentionLoading=false;}}
+        });
+      },250);
+    }
     const conversation = this.selected;
     if (!conversation) return;
     this.typing.input(conversation.kind, conversation.id, this.draft, this.canSendMessage());
