@@ -15,6 +15,11 @@ export interface FriendshipStatus {
   pendingRequest: boolean;
 }
 
+export interface PublicProfileAffiliations {
+  teams: Array<{id:number;name:string;sport:string|null}>;
+  communities: Array<{id:number;name:string;sport:string|null}>;
+}
+
 export interface ProfileSearchFilters {
   name?: string;
   sport?: string;
@@ -76,6 +81,12 @@ export class CommunityService {
   publicProfile(username: string): Observable<CommunityProfile> {
     return this.http.get<CommunityProfile>(
       this.profileUrl + '/' + encodeURIComponent(username)
+    );
+  }
+
+  publicAffiliations(username: string): Observable<PublicProfileAffiliations> {
+    return this.http.get<PublicProfileAffiliations>(
+      this.profileUrl + '/' + encodeURIComponent(username) + '/public-affiliations'
     );
   }
 
