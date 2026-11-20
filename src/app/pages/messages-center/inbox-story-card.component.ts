@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, timeout } from 'rxjs';
 import { SocialStory } from '../model/social-story';
 import { SocialStoriesService } from '../../services/social-stories.service';
 
@@ -70,7 +70,8 @@ export class InboxStoryCardComponent implements OnChanges,OnDestroy {
     if(this.expiration!==undefined)clearTimeout(this.expiration);
     this.story=null;this.unavailable=false;this.loading=true;
     if(!Number.isSafeInteger(this.storyId)||this.storyId<=0){this.markUnavailable();return;}
-    this.fetch=this.stories.get(this.storyId).subscribe({
+    // Never leave an expired or unreachable Story indefinitely in a loading state.
+    this.fetch=this.stories.get(this.storyId).pipe(timeout(5000)).subscribe({
       next:story=>{
         if(version!==this.generation)return;
         const expiry=Date.parse(story.expiresAt);
