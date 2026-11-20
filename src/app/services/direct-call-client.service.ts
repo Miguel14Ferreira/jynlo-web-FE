@@ -3,7 +3,8 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { BehaviorSubject, filter, firstValueFrom, Subscription, TimeoutError, timeout } from 'rxjs';
-import { ConnectionQuality, MediaDeviceFailure, Room, RoomEvent, Track } from 'livekit-client';
+import { ConnectionQuality, LocalVideoTrack, MediaDeviceFailure, Room, RoomEvent, Track } from 'livekit-client';
+import { BackgroundProcessor, supportsBackgroundProcessors } from '@livekit/track-processors';
 import { environment } from 'src/environment/environment';
 import { DirectCallEvent, DirectChatRealtimeService } from './direct-chat-realtime.service';
 import { DirectCallToneService } from './direct-call-tone.service';
@@ -11,6 +12,7 @@ import { appTranslate } from '../i18n/i18n.service';
 
 export type CallPhase = 'incoming' | 'dialing' | 'connecting' | 'active' | 'error';
 export type CallMedia = 'voice' | 'video';
+export type CallBackground = 'none' | 'blur' | 'jynlo';
 export type CallAvailabilityStatus = 'idle' | 'checking' | 'ready' | 'notConfigured'
   | 'invalidCredentials' | 'providerUnavailable' | 'requestFailed';
 export interface DirectCallState {
@@ -63,6 +65,11 @@ export class DirectCallClientService implements OnDestroy {
   readonly selectedDevices$ = new BehaviorSubject<Partial<Record<MediaDeviceKind, string>>>({});
   readonly connectionQuality$ = new BehaviorSubject<'unknown'|'excellent'|'good'|'poor'|'lost'>('unknown');
   readonly busyMedia$ = new BehaviorSubject<boolean>(false);
+  readonly backgroundMode$ = new BehaviorSubject<CallBackground>('none');
+  readonly backgroundBusy$ = new BehaviorSubject<boolean>(false);
+  readonly backgroundError$ = new BehaviorSubject<string | null>(null);
+  private backgroundTrack: LocalVideoTrack | null = null;
+  private backgroundProcessor: ReturnType<typeof BackgroundProcessor> | null = null;
   readonly screenShareEnabled$ = new BehaviorSubject<boolean>(false);
   readonly screenShareFeedback$ = new BehaviorSubject<string | null>(null);
   readonly members$ = new BehaviorSubject<CallMembership>({participants:[],pending:[]});
@@ -521,6 +528,60 @@ export class DirectCallClientService implements OnDestroy {
     return kind==='camera' ? 'calls.cameraAccessError' : 'calls.microphoneAccessError';
   }
 
+  /** Virtual backgrounds are composited on the PUBLISHED local camera track,
+   * so remote members see the exact same background. Screen sharing is untouched. */
+  get backgroundSupported(): boolean {
+    return typeof window !== 'undefined' && supportsBackgroundProcessors();
+  }
+
+  private async applyBackground(room: Room, mode: CallBackground): Promise<void> {
+    const publication=[...room.localParticipant.videoTrackPublications.values()].find(pub =>
+      pub.source===Track.Source.Camera && !!pub.track && !pub.isMuted);
+    const track=publication?.track as LocalVideoTrack | undefined;
+    if (!track) throw new Error('No active camera publication');
+    if (mode!=='none' && !this.backgroundSupported) throw new Error('Background effects unsupported');
+    if (track!==this.backgroundTrack || !this.backgroundProcessor) {
+      if (mode==='none') {
+        this.backgroundTrack=null;
+        this.backgroundProcessor=null;
+        return;
+      }
+      const processor=BackgroundProcessor({mode:'disabled'});
+      await track.setProcessor(processor);
+      if (room!==this.room) return;
+      this.backgroundTrack=track;
+      this.backgroundProcessor=processor;
+    }
+    const processor=this.backgroundProcessor;
+    if (!processor) return;
+    if (mode==='blur') await processor.switchTo({mode:'background-blur',blurRadius:10});
+    else if (mode==='jynlo') await processor.switchTo({
+      mode:'virtual-background',
+      imagePath:new URL('assets/jynlo-connect-background.svg',document.baseURI).href
+    });
+    else await processor.switchTo({mode:'disabled'});
+    if (room===this.room) this.mediaChanged$.next(this.mediaChanged$.value+1);
+  }
+
+  async setBackground(mode: CallBackground): Promise<void> {
+    const room=this.room;
+    if (!room || this.backgroundBusy$.value || !['none','blur','jynlo'].includes(mode)) return;
+    if (mode!=='none' && !this.backgroundSupported) {
+      this.backgroundError$.next('Os fundos virtuais não são suportados neste navegador.');
+      return;
+    }
+    this.backgroundBusy$.next(true);
+    this.backgroundError$.next(null);
+    try {
+      if (this.state$.value?.cameraEnabled) await this.applyBackground(room,mode);
+      if (room===this.room) this.backgroundMode$.next(mode);
+    } catch {
+      if (room===this.room) this.backgroundError$.next('Não foi possível aplicar o fundo. Verifica a câmara ou tenta novamente.');
+    } finally {
+      this.backgroundBusy$.next(false);
+    }
+  }
+
   /** A resolved capture attempt still needs a published video track. */
   private assertCameraPublished(room: Room): void {
     const publications=room.localParticipant.videoTrackPublications;
@@ -600,7 +661,14 @@ export class DirectCallClientService implements OnDestroy {
     try {
       if (enabled) {
         await this.enableCameraWithFallback(room);
+        // An effect failure cannot turn off a working camera.
+        if (this.backgroundMode$.value!=='none') {
+          try { await this.applyBackground(room,this.backgroundMode$.value); }
+          catch { this.backgroundError$.next('Não foi possível restaurar o fundo virtual.'); }
+        }
       } else {
+        this.backgroundTrack=null;
+        this.backgroundProcessor=null;
         await room.localParticipant.setCameraEnabled(false);
       }
       if (room===this.room) {
