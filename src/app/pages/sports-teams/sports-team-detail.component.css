@@ -428,3 +428,13 @@
     width: 100%;
   }
 }
+
+/* Public follow controls never expose private squad content. */
+.team-social-follow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0 4px}
+.team-social-follow span{color:#c5e9e1;font-size:.82rem}
+.team-social-follow strong{color:#65f0c6;font-size:1.05rem}
+.team-social-follow button{border:1px solid #61dabe;background:#145c59;color:#eefff9;
+  border-radius:11px;padding:9px 16px;font:inherit;font-size:.79rem;font-weight:800;cursor:pointer}
+.team-social-follow button[aria-pressed=true]{background:#193b49;border-color:#6b9c9a}
+.team-social-follow button:disabled{opacity:.55;cursor:wait}
+.team-social-follow button:focus-visible{outline:3px solid #9dffe0;outline-offset:2px}
