@@ -148,6 +148,23 @@ describe('Chat WebSocket identity and reconnection', () => {
     ]);
   });
 
+  it('delivers only valid authenticated community feed invalidations immediately', () => {
+    const listener = jasmine.createSpy('communityFeed');
+    service.communityFeedInvalidated$.subscribe(listener);
+    service.connect();
+    const socket=RealtimeFakeSocket.sockets[0];
+    socket.open();
+    socket.receive({type:'COMMUNITY_FEED_INVALIDATED',communityId:7});
+    expect(listener).not.toHaveBeenCalled();
+    socket.receive({type:'AUTHENTICATED'});
+    for(const value of [0,-1,7.2,'7',null]) {
+      socket.receive({type:'COMMUNITY_FEED_INVALIDATED',communityId:value});
+    }
+    expect(listener).not.toHaveBeenCalled();
+    socket.receive({type:'COMMUNITY_FEED_INVALIDATED',communityId:7});
+    expect(listener).toHaveBeenCalledOnceWith(7);
+  });
+
   it('signals personal-live updates only after WebSocket authentication', () => {
     const received = jasmine.createSpy('liveUpdated');
     service.personalLiveInvalidated$.subscribe(received);
