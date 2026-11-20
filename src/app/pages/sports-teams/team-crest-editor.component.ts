@@ -256,6 +256,12 @@ export class TeamCrestEditorComponent {
   save():void {
     if(this.disabled||typeof document==='undefined')return;
     this.error='';
+    // The server enforces the same bounded schema, so reject invalid edits locally first.
+    if(!/^[A-Za-zÀ-ÿ0-9]{0,5}$/.test(this.customInitials)
+      || this.caption.length>22 || /[\x00-\x1F]/.test(this.caption)){
+      this.error='Verifica as iniciais (até cinco caracteres) e o texto inferior.';
+      return;
+    }
     const canvas=document.createElement('canvas');
     canvas.width=512;canvas.height=576;
     const ctx=canvas.getContext('2d');
@@ -295,10 +301,11 @@ export class TeamCrestEditorComponent {
       ctx.font='750 16px Arial, sans-serif';
       ctx.fillText(this.footerText,160,286,245);
     }
+    const editableDesign=JSON.stringify(this.snapshot());
     canvas.toBlob(blob=>{
       if(!blob){this.error='Não foi possível criar o PNG.';return;}
       this.generated.emit({file:new File([blob],'emblema-jynlo.png',{type:'image/png'}),
-        design:JSON.stringify(this.snapshot())});
+        design:editableDesign});
     },'image/png');
   }
 }
