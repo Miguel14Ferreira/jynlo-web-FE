@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Subscription, interval, fromEvent, merge, timeout } from 'rxjs';
+import { Subscription, interval, fromEvent, merge, timeout, retry, timer, throwError } from 'rxjs';
 import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionState } from '../../services/sports-teams.service';
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
 import { CommunityService } from '../../services/community.service';
@@ -705,7 +705,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
 
   constructor(private readonly api: SportsTeamsService,
     private readonly realtime: DirectChatRealtimeService,
-    private readonly profiles: CommunityService) {}
+    private readonly profiles: CommunityService,
+    private readonly cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.read(false);
@@ -934,7 +935,16 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const writeVersion = this.writeVersion;
     this.readingGeneration = version;
     if (!silent) {this.loading=true;this.error='';}
-    this.api.content(this.teamId,this.kind).pipe(timeout(12000)).subscribe({
+    // Opening a conversation must never depend on pressing Search or Retry.
+    // Retry one transient initial GET automatically; never retry 401/403/409.
+    this.api.content(this.teamId,this.kind).pipe(
+      timeout(12000),
+      retry({count: silent ? 0 : 1, delay: failure => {
+        if(failure instanceof HttpErrorResponse && failure.status >= 400 && failure.status < 500)
+          return throwError(() => failure);
+        return timer(450);
+      }})
+    ).subscribe({
       next:items => {
         if(version!==this.generation || writeVersion!==this.writeVersion
             || requestId!==this.readRequestId)return;
@@ -976,19 +986,22 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         this.reconcileOlderPosts();
         this.revalidateVisibleSearch();
         if(wasBlocked)this.checkAttachmentsAvailable();
+        this.cdr.markForCheck();
       },
       error:(failure:unknown) => {
         if(version!==this.generation || writeVersion!==this.writeVersion
             || requestId!==this.readRequestId)return;
         if(this.blockUnavailable(failure))return;
         if(silent)this.syncError='A sincronização falhou. O histórico pode estar desatualizado.';
-        else this.error='A conversa está a demorar a responder. Tenta novamente.';
+        else this.error='Não foi possível carregar automaticamente. Podes tentar novamente.';
+        this.cdr.markForCheck();
       }
     }).add(() => {
       if(requestId!==this.readRequestId)return;
       this.readingGeneration=null;
       if(version===this.generation && !silent)this.loading=false;
       if(this.readQueued){this.readQueued=false;this.read(true);}
+      this.cdr.markForCheck();
     });
   }
 
