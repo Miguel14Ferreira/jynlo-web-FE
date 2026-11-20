@@ -1460,3 +1460,28 @@ h1 {
 }
 .profile-privacy-rules p { margin: 0; line-height: 1.5; }
 .profile-privacy-rules strong { color: #d9fffa; }
+
+
+/* The profile is a gateway to discovery, never a claim that a player belongs
+   to a particular team or community. */
+.community-page.profile-page-open .profile-discovery-links{
+  display:grid;gap:14px;margin:22px 0 28px;padding:17px 19px;
+  border:1px solid rgba(67,200,183,.37);border-radius:17px;
+  background:linear-gradient(130deg,#102f3e,#0b2937);
+}
+.community-page.profile-page-open .profile-discovery-intro{display:grid;gap:4px}
+.community-page.profile-page-open .profile-discovery-intro strong{font-size:1rem;color:#effffb}
+.community-page.profile-page-open .profile-discovery-intro span{font-size:.84rem;color:#a9cbd0}
+.community-page.profile-page-open .profile-discovery-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.community-page.profile-page-open .profile-discovery-actions a{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  min-height:47px;min-width:0;padding:10px 12px;box-sizing:border-box;
+  border:1px solid #397d81;border-radius:11px;background:#123d4a;
+  color:#dcfff6;font-size:.85rem;font-weight:800;text-align:center;text-decoration:none;
+}
+.community-page.profile-page-open .profile-discovery-actions a:hover{background:#17535b;border-color:#57c8b8}
+.community-page.profile-page-open .profile-discovery-actions a:focus-visible{outline:2px solid #8dffe3;outline-offset:3px}
+@media(max-width:760px){
+  .community-page.profile-page-open .profile-discovery-actions{grid-template-columns:1fr}
+  .community-page.profile-page-open .profile-discovery-actions a{justify-content:flex-start}
+}
