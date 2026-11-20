@@ -9,6 +9,7 @@ import { CommunityService } from '../../services/community.service';
 import { CommunityGroupsService } from '../../services/community-groups.service';
 import { SessionService } from '../../services/session.service';
 import { SocialGraphService } from '../../services/social-graph.service';
+import { ReliabilityService } from '../../services/reliability.service';
 import { SocialFeedService } from '../../services/social-feed.service';
 import { SocialStoriesService } from '../../services/social-stories.service';
 import { ProfilePrivacyService } from '../../services/profile-privacy.service';
@@ -953,6 +954,26 @@ describe('PerfisComponent', () => {
     expect(edit?.textContent).toContain(t('profile.edit.title'));
     expect(fixture.nativeElement.querySelector('.profile-relation-note')).toBeNull();
     expect(fixture.nativeElement.querySelector('.profile-primary-actions')?.children.length).toBe(0);
+  });
+
+  it('shows follower status even when profile activity is still loading', () => {
+    const pendingActivity = new Subject<any>();
+    const reliability = TestBed.inject(ReliabilityService);
+    const activity = spyOn(reliability, 'activity').and.returnValue(pendingActivity.asObservable());
+    routeParams.next(convertToParamMap({ username: 'ana' }));
+    fixture.detectChanges();
+
+    expect(activity).toHaveBeenCalledWith('ana');
+    expect(component.selectedFollowStatus?.followers).toBe(3);
+    expect(component.selectedActivity).toBeUndefined();
+
+    pendingActivity.next({
+      activitiesCompleted: 1, peoplePlayedWith: 2, sportsPractised: 1,
+      eventsCreated: 0, participantsMobilized: 0, communitiesJoined: 0,
+      achievements: []
+    });
+    pendingActivity.complete();
+    expect(component.selectedActivity?.activitiesCompleted).toBe(1);
   });
 
   it('recognizes the authenticated profile regardless of username capitalization', () => {
