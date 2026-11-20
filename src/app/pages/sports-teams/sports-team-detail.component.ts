@@ -9,11 +9,12 @@ import { PublicTeamCommunity,TeamCommunityMembership,TeamCommunityMembershipsSer
 import { SportsTeam, SportsTeamMember, SportsTeamsService, SportsTeamPlayerCandidate, TeamPendingPlayerInvitation, TeamCompetitionHistory, TeamChampionshipHonour, TeamKitPattern } from '../../services/sports-teams.service';
 import { SportsTeamContentComponent } from './sports-team-content.component';
 import { SportsTeamChallengesComponent } from './sports-team-challenges.component';
+import { TeamCrestEditorComponent } from './team-crest-editor.component';
 
 @Component({
   standalone: true,
   selector: 'app-sports-team-detail',
-  imports: [CommonModule, RouterLink, FormsModule, SportsTeamContentComponent, SportsTeamChallengesComponent],
+  imports: [CommonModule, RouterLink, FormsModule, SportsTeamContentComponent, SportsTeamChallengesComponent, TeamCrestEditorComponent],
   template: `
   <main class="team-detail" *ngIf="team as t; else state">
     <a class="team-back" routerLink="/menu/teams">← Voltar às equipas</a>
@@ -236,6 +237,7 @@ import { SportsTeamChallengesComponent } from './sports-team-challenges.componen
           <div><h2>Identidade da equipa</h2><p>Logótipo e cores oficiais, visíveis no perfil e nos cartões.</p></div>
           <span>Responsável</span>
         </div>
+        <app-team-crest-editor [teamName]="t.name" [disabled]="brandingSaving" (generated)="saveGeneratedCrest($event)"></app-team-crest-editor>
         <div class="team-branding-controls">
           <label class="team-upload">Adicionar ou mudar logótipo
             <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" [disabled]="brandingSaving"
@@ -420,6 +422,26 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         this.kitPattern=updated.kitPattern||'PLAIN';
         this.feedback='Equipamento guardado.';this.render();},
       error:()=>{this.brandingSaving=false;this.feedback='Não foi possível confirmar o equipamento. Consulta a equipa antes de repetir.';this.render();}
+    });
+  }
+  saveGeneratedCrest(file:File):void {
+    if(!this.team||!this.isOwner||!this.rosterVerified||this.brandingSaving)return;
+    if(file.type!== 'image/png'||file.size<1||file.size>this.maxTeamLogoBytes){
+      this.feedback='O emblema gerado não é válido.';return;
+    }
+    const teamId=this.team.id;
+    this.brandingSaving=true;this.feedback='';
+    this.api.uploadLogo(teamId,file).pipe(timeout(30000)).subscribe({
+      next:updated=>{
+        if(this.team?.id!==teamId)return;
+        this.team=updated;this.logoBroken=false;this.api.rememberTeam(updated);
+        this.brandingSaving=false;this.feedback='Emblema Jynlo criado e guardado.';this.render();
+      },
+      error:()=>{
+        if(this.team?.id!==teamId)return;
+        this.brandingSaving=false;
+        this.feedback='Não foi possível confirmar o emblema. Consulta a equipa antes de repetir.';this.render();
+      }
     });
   }
   uploadTeamLogo(event:Event):void {
