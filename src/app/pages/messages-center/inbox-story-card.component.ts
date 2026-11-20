@@ -16,7 +16,7 @@ import { SocialStoriesService } from '../../services/social-stories.service';
         <div class="inbox-story-media">
           @if(story.video) {
             <video [src]="story.mediaUrl" controls playsinline preload="metadata"
-              aria-label="Vídeo da Story"></video>
+              (error)="markUnavailable()" aria-label="Vídeo da Story"></video>
           } @else {
             <img [src]="story.mediaUrl" [alt]="story.altText || 'Imagem da Story'"
               loading="lazy" (error)="markUnavailable()" />
