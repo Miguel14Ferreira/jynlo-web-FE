@@ -178,7 +178,9 @@ import { CommunityProfile } from '../model/community-profile';
           <div *ngIf="mentionOpen" class="team-mention-options" role="listbox" aria-label="Sugestões de pessoas">
             <div class="team-mention-title"><span aria-hidden="true">@</span> Identificar pessoa</div>
             <span *ngIf="mentionBusy" class="team-mention-status">A procurar pessoas…</span>
-            <button type="button" role="option" *ngFor="let person of mentionOptions"
+            <button type="button" role="option" *ngFor="let person of mentionOptions; let index=index"
+              [attr.aria-selected]="mentionActiveIndex===index"
+              [class.team-mention-active]="mentionActiveIndex===index"
               [disabled]="sending" (mousedown)="$event.preventDefault()"
               (click)="chooseMention(person.username)" [attr.aria-label]="'Mencionar @' + person.username">
               <span class="team-mention-avatar" aria-hidden="true">{{person.username.slice(0,1).toUpperCase()}}
@@ -639,6 +641,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   private feedParentIds=new Set<number>();
   draft = '';
   mentionOptions:CommunityProfile[]=[];
+  mentionActiveIndex=0;
   mentionBusy=false;
   mentionOpen=false;
   private mentionTimer:ReturnType<typeof setTimeout>|null=null;
@@ -650,14 +653,14 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const term=match?.[1]||'';
     const version=++this.mentionVersion;
     this.mentionOpen=!!match;
-    this.mentionOptions=[];this.mentionQuery=term;
+    this.mentionOptions=[];this.mentionActiveIndex=0;this.mentionQuery=term;
     this.mentionBusy=!!match && term.length > 0;
     if(!match || !term)return;
     this.mentionTimer=setTimeout(()=>{
       this.profiles.searchProfiles(term).subscribe({
         next:people=>{if(version!==this.mentionVersion||this.accessRevoked)return;
-          this.mentionOptions=people.filter(p=>p.username && (!term || [p.username,p.fullName,p.nickname].some(value=>value?.toLowerCase().includes(term.toLowerCase())))).slice(0,5);
-          this.mentionBusy=false;},
+          this.mentionOptions=people.filter(p=>p.username && [p.username,p.fullName,p.nickname].some(value=>value?.toLowerCase().includes(term.toLowerCase()))).slice(0,5);
+          this.mentionActiveIndex=0;this.mentionBusy=false;},
         error:()=>{if(version===this.mentionVersion){this.mentionOptions=[];this.mentionBusy=false;}}
       });
     },250);
@@ -666,6 +669,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     if(!this.mentionOptions.some(p=>p.username===username))return;
     this.draft=this.draft.replace(/@([\p{L}\p{N}_.-]{0,32})$/u,'@'+username)+' ';
     this.mentionOptions=[];this.mentionBusy=false;this.mentionOpen=false;this.mentionVersion++;
+    this.mentionActiveIndex=0;this.mentionQuery='';
+    this.teamComposerInput?.nativeElement.focus();
   }
   error = '';
   syncError = '';
@@ -690,6 +695,9 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.hasOlderPosts=false;this.olderLoading=false;this.olderError='';
     this.olderReconcileInFlight=false;this.olderReconcileAt=0;this.olderReconcileOffset=0;
     this.draft='';this.replyTargetId=null;
+    if(this.mentionTimer)clearTimeout(this.mentionTimer);
+    this.mentionVersion++;this.mentionOpen=false;this.mentionBusy=false;
+    this.mentionOptions=[];this.mentionQuery='';this.mentionActiveIndex=0;
     this.brokenAuthorAvatars.clear();this.collapsedFeedPosts.clear();
     this.feedRootDraft='';this.feedRootFiles=[];this.feedCommentDrafts.clear();
     this.nearLatest=true;this.unseenBelow=false;
@@ -745,7 +753,10 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       this.items = [];this.olderEntries=[];this.feedCombined=[];
       this.hasOlderPosts=false;this.olderLoading=false;this.olderError='';
       this.olderReconcileInFlight=false;this.olderReconcileAt=0;this.olderReconcileOffset=0;
-      this.error = '';this.syncError = '';this.draft = '';this.mentionVersion++;this.mentionOptions=[];this.mentionBusy=false;
+      this.error = '';this.syncError = '';this.draft = '';
+      if(this.mentionTimer)clearTimeout(this.mentionTimer);
+      this.mentionVersion++;this.mentionOptions=[];this.mentionBusy=false;
+      this.mentionOpen=false;this.mentionQuery='';this.mentionActiveIndex=0;
       this.brokenAuthorAvatars.clear();this.collapsedFeedPosts.clear();
       this.nearLatest=true;this.unseenBelow=false;
       this.replyTargetId = null;this.editingId = null;this.editingDraft='';
@@ -1010,6 +1021,12 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   onComposerKeydown(event:KeyboardEvent):void {
+    if(this.mentionOpen && this.mentionOptions.length && (event.key==='ArrowDown'||event.key==='ArrowUp')){
+      event.preventDefault();
+      const delta=event.key==='ArrowDown'?1:-1;
+      this.mentionActiveIndex=(this.mentionActiveIndex+delta+this.mentionOptions.length)%this.mentionOptions.length;
+      return;
+    }
     if(event.key==='Escape' && this.mentionOpen){
       event.preventDefault();
       if(this.mentionTimer)clearTimeout(this.mentionTimer);
@@ -1018,7 +1035,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     }
     if(event.key==='Enter' && this.mentionOpen && !event.shiftKey && !event.isComposing){
       event.preventDefault();
-      if(this.mentionOptions.length)this.chooseMention(this.mentionOptions[0].username);
+      if(this.mentionOptions.length)this.chooseMention(this.mentionOptions[this.mentionActiveIndex]?.username || this.mentionOptions[0].username);
       return;
     }
     if(this.kind!=='chat'||event.key!=='Enter'||event.shiftKey||event.altKey||
