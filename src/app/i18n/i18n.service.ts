@@ -1569,6 +1569,7 @@ const PT: Dictionary = {
   'profileData.participantsMobilized': 'Participantes mobilizados',
   'profileData.communitiesJoined': 'Comunidades',
   'profileData.achievements': 'Conquistas',
+  'profileData.showAllAchievements': 'Ver todas as conquistas',
   'profileData.trustKicker': 'Confiança',
   'profileData.accountKicker': 'Conta',
   'profileData.privateData': 'Dados privados',
