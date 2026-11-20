@@ -4,6 +4,7 @@ import { timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { SportsTeam, SportsTeamsService } from '../../services/sports-teams.service';
+import { SPORTS_CATALOG } from '../../shared/sports-catalog';
 import { OpenTeamCompetition, TeamCompetitionApplication,
   TeamCompetitionApplicationsService } from '../../services/team-competition-applications.service';
 
@@ -18,7 +19,12 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
       <p>Encontra competições públicas com candidaturas abertas e pede participação como responsável de uma equipa.</p>
       <div class="filters">
         <label>Nome ou comunidade<input [(ngModel)]="query" maxlength="80" (keyup.enter)="search()"/></label>
-        <label>Modalidade<input [(ngModel)]="sport" maxlength="80" (keyup.enter)="search()"/></label>
+        <label>Modalidade
+          <select [(ngModel)]="sport" aria-label="Filtrar modalidade">
+            <option value="">Todas as modalidades</option>
+            <option *ngFor="let item of sportsCatalog" [value]="item">{{item}}</option>
+          </select>
+        </label>
         <button type="button" (click)="search()">Pesquisar</button>
       </div>
       <p *ngIf="error" role="alert" class="error">{{error}}</p>
