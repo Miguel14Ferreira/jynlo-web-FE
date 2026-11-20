@@ -543,6 +543,27 @@ button:is([class*="close-button" i],[class*="close-btn" i],
   outline: 2px solid #8effdf !important;
 }
 
+/* Also cover text-only dismiss icons whose semantic label includes a context
+   (e.g. 'Fechar chat', 'Close story'), not only an exact 'Fechar'. */
+button:is([aria-label^="Fechar " i],[aria-label^="Close " i],
+  [title="Fechar" i],[title^="Fechar " i],
+  [title="Close" i],[title^="Close " i],
+  [class~="close" i]) {
+  background:transparent !important;
+  background-image:none !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+button:is([aria-label^="Fechar " i],[aria-label^="Close " i],
+  [title="Fechar" i],[title^="Fechar " i],
+  [title="Close" i],[title^="Close " i],
+  [class~="close" i]):is(:hover,:active,:focus) {
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+
 /* Shared, centered session form alerts. Keep the form behind the modal so
    validation errors cannot be overlooked at the top of a long page. */
 .jynlo-form-alert-overlay {
