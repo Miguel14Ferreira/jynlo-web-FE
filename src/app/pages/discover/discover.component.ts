@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, Optional } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, catchError, finalize, forkJoin, map, of, retry, timeout } from 'rxjs';
+import { Observable, catchError, finalize, map, of, retry, timeout } from 'rxjs';
 
 import { AuthenticationService } from '../../services/authethication.service';
 import { CommunityService } from '../../services/community.service';
@@ -136,6 +136,9 @@ export class DiscoverComponent implements OnInit {
   private nearbyRequestId = 0;
 
   loading = false;
+  loadingVenues = false;
+  loadingSessions = false;
+  loadingDiscoveryPeople = false;
   initialized = false;
   loadError = false;
   venuesLoadError = false;
@@ -352,73 +355,82 @@ export class DiscoverComponent implements OnInit {
 
     const sport = this.sport.trim();
     const location = this.location.trim();
-
     this.loading = true;
+    this.loadingVenues = true;
+    this.loadingSessions = true;
+    this.loadingDiscoveryPeople = true;
     this.loadError = false;
     this.venuesLoadError = false;
     this.sessionsLoadError = false;
     this.peopleLoadError = false;
     this.venuesHasMore = false;
+    // No results from a previous filter may be presented as matching new criteria.
+    this.venues = [];
+    this.sessions = [];
+    this.people = [];
+    this.topVenueResults = [];
+    this.topSessionResults = [];
+    this.topPeopleResults = [];
 
-    forkJoin({
-      venues: this.withRecovery(
-        this.nearbyVenuePosition
-          ? this.venueService.search(
-              undefined, sport || undefined,
-              this.nearbyVenuePosition.latitude, this.nearbyVenuePosition.longitude,
-              this.nearbyVenueRadiusKm).pipe(map(venues => ({ venues, hasMore: false })))
-          // The regular preview uses the bounded catalogue; never imply its page is the total.
-          : this.venueService.suggest(undefined, location || undefined, sport || undefined, 0)
-              .pipe(map(page => ({ venues: page.venues, hasMore: page.hasMore }))),
-        { venues: [] as Venue[], hasMore: false }, 'venues', requestId
-      ),
-      sessions: this.withRecovery(
-        this.sessionService.discover({
-          sport: sport || undefined,
-          city: this.nearbyPosition || this.mapSearchPosition ? undefined : location || undefined,
-          latitude: this.mapSearchPosition?.latitude ?? this.nearbyPosition?.latitude,
-          longitude: this.mapSearchPosition?.longitude ?? this.nearbyPosition?.longitude,
-          radiusKm: this.mapSearchPosition ? this.mapSearchRadiusKm
-            : this.nearbyPosition ? this.nearbyRadiusKm : undefined,
-          // Include FULL sessions so players can discover their waitlists.
-          // The card only shows a join shortcut when participation is viable.
-          availability: undefined,
-          sort: this.nearbyPosition || this.mapSearchPosition ? 'distance' : 'date'
-        }),
-        [] as SessionSummary[], 'sessions', requestId
-      ),
-      people: this.withRecovery(
-        this.peopleRequest(sport, location),
-        [] as CommunityProfile[], 'people', requestId
-      )
-    })
-      .pipe(finalize(() => {
-        if (requestId === this.searchRequestId) {
-          this.loading = false;
-          this.initialized = true;
-        }
-      }))
-      .subscribe(({ venues, sessions, people }) => {
-        if (requestId !== this.searchRequestId) return;
-        // The API now ranks the entire paginated catalogue before slicing;
-        // do not re-rank within page 0 or disturb GPS distance ordering.
-        this.venues = venues.venues;
-        this.venuesHasMore = venues.hasMore;
-        this.topVenueResults = venues.venues.slice(0, 4);
-        this.sessions = sessions;
-        this.discoveredCustomSports = [...new Set([
-          ...this.discoveredCustomSports,
-          ...sessions.map(session => session.sport).filter(name =>
-            !!name && !this.sportsCatalog.includes(name))
-        ])].slice(-40);
-        this.topSessionResults = sessions.slice(0, 4);
-        if (peopleRequestId === this.peopleRequestId) {
-          this.people = people;
-          this.topPeopleResults = people.slice(0, 4);
-        }
-      });
+    // Each result family settles independently. A slow venues endpoint must
+    // never delay sessions or people, and old requests cannot replace new data.
+    const settle = (area: 'venues' | 'sessions' | 'people'): void => {
+      if (requestId !== this.searchRequestId) return;
+      if (area === 'venues') this.loadingVenues = false;
+      if (area === 'sessions') this.loadingSessions = false;
+      if (area === 'people') this.loadingDiscoveryPeople = false;
+      this.loading = false;
+      this.initialized = true;
+    };
+
+    this.withRecovery(
+      this.nearbyVenuePosition
+        ? this.venueService.search(
+            undefined, sport || undefined,
+            this.nearbyVenuePosition.latitude, this.nearbyVenuePosition.longitude,
+            this.nearbyVenueRadiusKm).pipe(map(venues => ({ venues, hasMore: false })))
+        : this.venueService.suggest(undefined, location || undefined, sport || undefined, 0)
+            .pipe(map(page => ({ venues: page.venues, hasMore: page.hasMore }))),
+      { venues: [] as Venue[], hasMore: false }, 'venues', requestId
+    ).pipe(finalize(() => settle('venues'))).subscribe(result => {
+      if (requestId !== this.searchRequestId) return;
+      this.venues = result.venues;
+      this.venuesHasMore = result.hasMore;
+      this.topVenueResults = result.venues.slice(0, 4);
+    });
+
+    this.withRecovery(
+      this.sessionService.discover({
+        sport: sport || undefined,
+        city: this.nearbyPosition || this.mapSearchPosition ? undefined : location || undefined,
+        latitude: this.mapSearchPosition?.latitude ?? this.nearbyPosition?.latitude,
+        longitude: this.mapSearchPosition?.longitude ?? this.nearbyPosition?.longitude,
+        radiusKm: this.mapSearchPosition ? this.mapSearchRadiusKm
+          : this.nearbyPosition ? this.nearbyRadiusKm : undefined,
+        availability: undefined,
+        sort: this.nearbyPosition || this.mapSearchPosition ? 'distance' : 'date'
+      }),
+      [] as SessionSummary[], 'sessions', requestId
+    ).pipe(finalize(() => settle('sessions'))).subscribe(sessions => {
+      if (requestId !== this.searchRequestId) return;
+      this.sessions = sessions;
+      this.discoveredCustomSports = [...new Set([
+        ...this.discoveredCustomSports,
+        ...sessions.map(session => session.sport).filter(name =>
+          !!name && !this.sportsCatalog.includes(name))
+      ])].slice(-40);
+      this.topSessionResults = sessions.slice(0, 4);
+    });
+
+    this.withRecovery(
+      this.peopleRequest(sport, location),
+      [] as CommunityProfile[], 'people', requestId
+    ).pipe(finalize(() => settle('people'))).subscribe(people => {
+      if (requestId !== this.searchRequestId || peopleRequestId !== this.peopleRequestId) return;
+      this.people = people;
+      this.topPeopleResults = people.slice(0, 4);
+    });
   }
-
 
   /** Offer controlled, explicit filter relaxation only after a genuine empty search. */
   broadenVenueSearch(filter: 'sport' | 'city' | 'all'): void {
