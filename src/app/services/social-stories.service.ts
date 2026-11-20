@@ -45,11 +45,13 @@ export class SocialStoriesService {
     showTime?: boolean;
     locationLabel?: string;
     taggedUsernames?: string;
-  }): Observable<SocialStory> {
+  }, teamId?: number | null): Observable<SocialStory> {
     const body = new FormData();
     body.append('caption', caption.trim());
     body.append(file.type.startsWith('video/') ? 'video' : 'image', file);
+    if (communityId !== null && teamId != null) throw new Error('Uma Story só pode pertencer a uma entidade.');
     if (communityId !== null) body.append('communityId', String(communityId));
+    if (teamId != null) body.append('teamId', String(teamId));
     if (options) {
       body.append('textPosition', options.textPosition);
       body.append('textScale', options.textScale);
