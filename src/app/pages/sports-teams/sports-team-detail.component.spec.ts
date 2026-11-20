@@ -39,6 +39,34 @@ describe('Jynlo team profile — audit of real actions',()=>{
   component.ngOnInit();
  });
  afterEach(()=>component.ngOnDestroy());
+ it('keeps a tab selected from the team dashboard visible in the horizontal navigation',()=>{
+  const rail=document.createElement('nav');
+  rail.scrollLeft=0;
+  Object.defineProperty(rail,'getBoundingClientRect',{value:()=>({left:0,right:260})});
+  const button=document.createElement('button');
+  button.dataset['teamTab']='FEED';
+  Object.defineProperty(button,'getBoundingClientRect',{value:()=>({left:480,right:575})});
+  rail.appendChild(button);
+  const scroll=jasmine.createSpy('scrollTo');
+  Object.defineProperty(rail,'scrollTo',{value:scroll,configurable:true});
+  (component as any).teamTabs={nativeElement:rail};
+  component.selectTab('FEED');
+  expect(component.activeTab).toBe('FEED');
+  expect(scroll).toHaveBeenCalledOnceWith({left:464,behavior:'smooth'});
+ });
+ it('does not scroll the team navigation when the selected tab is already visible',()=>{
+  const rail=document.createElement('nav');
+  Object.defineProperty(rail,'getBoundingClientRect',{value:()=>({left:0,right:400})});
+  const button=document.createElement('button');
+  button.dataset['teamTab']='CHAT';
+  Object.defineProperty(button,'getBoundingClientRect',{value:()=>({left:40,right:180})});
+  rail.appendChild(button);
+  const scroll=jasmine.createSpy('scrollTo');
+  Object.defineProperty(rail,'scrollTo',{value:scroll,configurable:true});
+  (component as any).teamTabs={nativeElement:rail};
+  component.selectTab('CHAT');
+  expect(scroll).not.toHaveBeenCalled();
+ });
  it('renders known public team data before a slow detail request finishes',()=>{
   const later=new Subject<SportsTeam>();
   api.rememberedTeam.and.returnValue(team);
