@@ -613,7 +613,9 @@
                           <button type="button" role="option" [disabled]="timelineSending"
                             (mousedown)="$event.preventDefault()"
                             (click)="chooseCommunityFeedMention(person.username)">
-                            <span class="community-feed-mention-avatar" aria-hidden="true">{{person.username.slice(0,1).toUpperCase()}}</span>
+                            <span class="community-feed-mention-avatar" aria-hidden="true">{{person.username.slice(0,1).toUpperCase()}}
+                              @if(person.profilePicUrl){<img [src]="person.profilePicUrl" alt="" loading="lazy">}
+                            </span>
                             <span class="community-feed-mention-person"><strong>{{person.fullName || person.nickname || person.username}}</strong>
                               <small>@{{person.username}}</small></span>
                           </button>
