@@ -54,7 +54,7 @@ describe('PerfisComponent', () => {
     routeParams = new BehaviorSubject(convertToParamMap({}));
     service = jasmine.createSpyObj<CommunityService>(
       'CommunityService',
-      ['searchProfiles', 'findProfiles', 'sendFriendRequest', 'reportUser', 'userBlockStatus', 'blockUser', 'unblockUser', 'discoverProfiles', 'friends', 'publicProfile', 'publicAffiliations', 'friendshipStatus']
+      ['searchProfiles', 'findProfiles', 'sendFriendRequest', 'reportUser', 'userBlockStatus', 'blockUser', 'unblockUser', 'discoverProfiles', 'friends', 'publicProfile', 'publicAffiliations', 'publicIndividualTitles', 'friendshipStatus']
     );
     service.searchProfiles.and.returnValue(of([profile]));
     service.findProfiles.and.returnValue(of([profile]));
@@ -63,6 +63,7 @@ describe('PerfisComponent', () => {
     service.friendshipStatus.and.returnValue(of({ friends: false, pendingRequest: false }));
     service.publicProfile.and.returnValue(of(profile));
     service.publicAffiliations.and.returnValue(of({ teams: [], communities: [] }));
+    service.publicIndividualTitles.and.returnValue(of([]));
     service.sendFriendRequest.and.returnValue(of({}));
     service.reportUser.and.returnValue(of(void 0));
     service.userBlockStatus.and.returnValue(of({ blocked: false }));
@@ -1016,6 +1017,29 @@ describe('PerfisComponent', () => {
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement)
       .querySelector('.profile-real-memberships')).toBeNull();
+  });
+
+  it('shows only official individual titles returned for the selected player', () => {
+    service.publicIndividualTitles.and.returnValue(of([{
+      tournamentId: 42, tournamentName: 'Open Ténis',
+      communityId: 17, communityName: 'Liga de Lisboa',
+      sport: 'Ténis', completedAt: '2026-10-20T10:00:00Z'
+    }]));
+    routeParams.next(convertToParamMap({username:'ana'}));
+    fixture.detectChanges();
+    expect(service.publicIndividualTitles).toHaveBeenCalledWith('ana');
+    const card=(fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLAnchorElement>('.profile-individual-title-card');
+    expect(card?.getAttribute('href')).toBe('/menu/communities/17');
+    expect(card?.textContent).toContain('Open Ténis');
+  });
+
+  it('fails closed when official competition titles cannot be verified', () => {
+    service.publicIndividualTitles.and.returnValue(throwError(() => ({status:403})));
+    routeParams.next(convertToParamMap({username:'ana'}));
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement)
+      .querySelector('.profile-individual-titles')).toBeNull();
   });
 
   it('does not request authenticated memberships for another player', () => {
