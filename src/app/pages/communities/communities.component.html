@@ -5366,8 +5366,7 @@
                   @for (member of selected.members; track member.profileId) {
                     <div class="member-row">
                       <a class="community-member-profile" [routerLink]="['/menu/perfis',member.username]"
-                         [attr.aria-label]="'Abrir perfil de @' + member.username"
-                         [title]="'Ver perfil de @' + member.username">
+                         [attr.aria-label]="'Abrir perfil de @' + member.username">
                         <span class="community-member-avatar" aria-hidden="true">
                           @if (communityFeedAvatar(member.username); as avatar) {
                             <img [src]="avatar" alt="" loading="lazy">
