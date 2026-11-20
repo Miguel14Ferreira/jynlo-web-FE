@@ -176,6 +176,29 @@ describe('DiscoverComponent', () => {
     }
   });
 
+  it('starts discovery immediately instead of waiting for a slow profile', () => {
+    const delayedProfile = new Subject<CommunityProfile>();
+    communityService.publicProfile.and.returnValue(delayedProfile.asObservable());
+    const before = sessionService.discover.calls.count();
+    const page = TestBed.createComponent(DiscoverComponent);
+    page.detectChanges();
+
+    expect(sessionService.discover.calls.count()).toBe(before + 1);
+    expect(page.componentInstance.initialized).toBeTrue();
+    expect(page.componentInstance.loading).toBeFalse();
+
+    delayedProfile.next({
+      username: 'miguel', fullName: 'Miguel', nickname: null,
+      country: 'Portugal', location: null, favoriteSports: null,
+      bio: null, skillLevel: null, availability: null, age: 37,
+      profilePicUrl: null, joinDateDisplay: null
+    });
+    delayedProfile.complete();
+    // No favorites means no identical duplicate API search.
+    expect(sessionService.discover.calls.count()).toBe(before + 1);
+    page.destroy();
+  });
+
   it('keeps manually entered filters if the profile arrives after editing', () => {
     const delayedProfile = new Subject<CommunityProfile>();
     communityService.publicProfile.and.returnValue(delayedProfile.asObservable());
@@ -199,6 +222,9 @@ describe('DiscoverComponent', () => {
 
     expect(page.componentInstance.sport).toBe('Ténis');
     expect(page.componentInstance.location).toBe('Sintra');
+    // The delayed profile must not kick off a second search or overwrite
+    // the filters typed by the user. Submitting remains an explicit action.
+    page.componentInstance.search();
     expect(venueService.suggest).toHaveBeenCalledWith(undefined, 'Sintra', 'Ténis', 0);
     page.destroy();
   });
