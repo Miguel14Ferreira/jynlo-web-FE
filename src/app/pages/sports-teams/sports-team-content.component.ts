@@ -153,6 +153,7 @@ import { CommunityProfile } from '../model/community-profile';
         <div class="team-mention-anchor">
           <textarea [id]="'team-content-' + kind + '-' + teamId" name="body"
             [(ngModel)]="draft" maxlength="2000" [disabled]="sending"
+            [attr.aria-expanded]="mentionOpen" [attr.aria-haspopup]="'listbox'"
             (ngModelChange)="onMentionDraftChange($event)" (keydown)="onComposerKeydown($event)"
             (paste)="onComposerPaste($event)"
             [placeholder]="kind === 'chat' ? 'Escreve uma mensagem…' : 'Partilha novidades com o plantel…'"></textarea>
@@ -854,6 +855,17 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   onComposerKeydown(event:KeyboardEvent):void {
+    if(event.key==='Escape' && this.mentionOpen){
+      event.preventDefault();
+      if(this.mentionTimer)clearTimeout(this.mentionTimer);
+      this.mentionVersion++;this.mentionOpen=false;this.mentionBusy=false;this.mentionOptions=[];
+      return;
+    }
+    if(event.key==='Enter' && this.mentionOpen && !event.shiftKey && !event.isComposing){
+      event.preventDefault();
+      if(this.mentionOptions.length)this.chooseMention(this.mentionOptions[0].username);
+      return;
+    }
     if(this.kind!=='chat'||event.key!=='Enter'||event.shiftKey||event.altKey||
        event.ctrlKey||event.metaKey||event.isComposing)return;
     event.preventDefault();
