@@ -549,3 +549,19 @@
  .team-hero-crest{width:65px;height:65px;flex:none}
  .team-hero-stats span{flex:1 1 125px}
 }
+
+/* Social panels use the same clean hierarchy as the community feed. */
+.team-feature-title{display:flex;align-items:center;justify-content:space-between;gap:12px;
+ padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid #39858b55}
+.team-feature-title h2{margin:0!important;font-size:1.15rem}
+.team-feature-settings{position:relative;margin-left:auto}
+.team-feature-settings summary{list-style:none;display:inline-flex;align-items:center;
+ gap:7px;min-height:36px;padding:6px 10px;border:1px solid #3c7d81;border-radius:10px;
+ background:#0d3846;color:#bcece2;font-size:.78rem;font-weight:750;cursor:pointer}
+.team-feature-settings summary::-webkit-details-marker{display:none}
+.team-feature-settings summary:hover{background:#17505a}
+.team-feature-settings summary:focus-visible{outline:2px solid #8bffe3;outline-offset:3px}
+.team-feature-settings[open]>button{position:absolute;right:0;top:calc(100% + 5px);
+ z-index:20;white-space:nowrap;background:#0e4150;box-shadow:0 10px 22px #001b27aa}
+.team-grid>section.team-feature{padding:clamp(14px,2.1vw,23px)}
+@media(max-width:480px){.team-feature-settings summary span{display:none}}
