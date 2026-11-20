@@ -220,3 +220,14 @@
 @media(max-width:600px) {
   .community-feed-auto-sync {white-space:normal;font-size:.75rem}
 }
+
+/* Following is a public subscription; it does not confer group membership. */
+.community-follow-control{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 8px}
+.community-follow-count{color:#c8ebe4;font-size:.82rem}
+.community-follow-count strong{color:#5ceabc;font-weight:900;font-size:1rem}
+.community-follow-control button{border:1px solid #56bfa5;border-radius:11px;
+  padding:9px 14px;background:#14665c;color:#f0fff8;font:inherit;
+  font-size:.8rem;font-weight:850;cursor:pointer}
+.community-follow-control button[aria-pressed=true]{background:#153f4d;border-color:#518d8d}
+.community-follow-control button:disabled{opacity:.5;cursor:wait}
+.community-follow-control button:focus-visible{outline:3px solid #9bffdf;outline-offset:2px}
