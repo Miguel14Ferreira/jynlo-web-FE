@@ -6,10 +6,12 @@ import { Subscription, interval, fromEvent, merge, timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PublicTeamCommunity,TeamCommunityMembership,TeamCommunityMembershipsService } from '../../services/team-community-memberships.service';
-import { SportsTeam, SportsTeamMember, SportsTeamsService, SportsTeamPlayerCandidate, TeamPendingPlayerInvitation, TeamCompetitionHistory, TeamChampionshipHonour, TeamKitPattern } from '../../services/sports-teams.service';
+import { SportsTeam, SportsTeamMember, SportsTeamsService, SportsTeamPlayerCandidate, TeamPendingPlayerInvitation, TeamCompetitionHistory, TeamChampionshipHonour, TeamKitPattern, TeamKitKind, TeamKitVariant } from '../../services/sports-teams.service';
 import { SportsTeamContentComponent } from './sports-team-content.component';
 import { SportsTeamChallengesComponent } from './sports-team-challenges.component';
 import { TeamCrestEditorComponent } from './team-crest-editor.component';
+
+type KitDesign = Omit<TeamKitVariant,'type'>;
 
 @Component({
   standalone: true,
@@ -268,6 +270,13 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
           <button type="button" *ngIf="t.logoUrl" (click)="removeTeamLogo()" [disabled]="brandingSaving">Remover logótipo</button>
         </div>
         <section class="team-kit-editor" aria-label="Editor de equipamentos">
+          <div class="team-kit-collection" role="group" aria-label="Selecionar conjunto de equipamento">
+            <button type="button" *ngFor="let choice of kitKinds"
+              [disabled]="brandingSaving"
+              [attr.aria-pressed]="activeKitKind===choice.id"
+              [class.selected]="activeKitKind===choice.id"
+              (click)="switchKit(choice.id)">{{choice.label}}</button>
+          </div>
           <div class="team-kit-editor-heading">
             <div><h3>Desenhar equipamento</h3>
               <p>Escolhe o modelo e as cores. Vê o resultado em grande antes de guardar.</p></div>
@@ -555,6 +564,65 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   kitSide:'front'|'back'='front';
   kitPlayerName='ATLETA';
   kitPlayerNumber='10';
+  readonly kitKinds:ReadonlyArray<{id:TeamKitKind;label:string}>=[
+    {id:'PRIMARY',label:'Principal'},
+    {id:'ALTERNATE',label:'Alternativo'},
+    {id:'TRAINING',label:'Treino'}
+  ];
+  activeKitKind:TeamKitKind='PRIMARY';
+  kitVariants:TeamKitVariant[]=[];
+  private primaryKitDraft:KitDesign|null=null;
+
+  private currentKitDraft():KitDesign {
+    return {
+      primary:this.kitPrimary,secondary:this.kitSecondary,pattern:this.kitPattern,
+      garment:this.kitGarment,accent:this.kitAccent,
+      playerName:this.kitPlayerName,playerNumber:this.kitPlayerNumber
+    };
+  }
+  private showKitDraft(design:KitDesign):void {
+    this.kitPrimary=design.primary;this.kitSecondary=design.secondary;
+    this.kitPattern=design.pattern;this.kitGarment=design.garment;
+    this.kitAccent=design.accent;this.kitPlayerName=design.playerName;
+    this.kitPlayerNumber=design.playerNumber;
+  }
+  private stashKitDraft():void {
+    const design=this.currentKitDraft();
+    if(this.activeKitKind==='PRIMARY') {
+      this.primaryKitDraft=design;
+      return;
+    }
+    const variant:TeamKitVariant={type:this.activeKitKind,...design};
+    this.kitVariants=[
+      ...this.kitVariants.filter(v=>v.type!==this.activeKitKind),variant
+    ];
+  }
+  switchKit(type:TeamKitKind):void {
+    if(this.brandingSaving||this.activeKitKind===type)return;
+    this.stashKitDraft();
+    this.activeKitKind=type;
+    const design=type==='PRIMARY'?this.primaryKitDraft:this.kitVariants.find(v=>v.type===type);
+    const base=this.primaryKitDraft||this.currentKitDraft();
+    this.showKitDraft(design||{
+      ...base,
+      primary:type==='ALTERNATE'?base.secondary:base.primary,
+      secondary:type==='ALTERNATE'?base.primary:base.secondary,
+      playerName:'',playerNumber:''
+    });
+  }
+  private loadKitCollection(team:SportsTeam):void {
+    this.primaryKitDraft={
+      primary:team.kitPrimary||'#16caba',secondary:team.kitSecondary||'#f2fafc',
+      pattern:team.kitPattern||'PLAIN',
+      garment:team.kitGarment||this.recommendedGarment(team.sport),
+      accent:team.kitAccent||'#FFFFFF',
+      playerName:team.kitPlayerName||'',playerNumber:team.kitPlayerNumber||''
+    };
+    this.kitVariants=(team.kitVariants||[]).filter(v=>
+      v.type==='ALTERNATE'||v.type==='TRAINING').map(v=>({...v}));
+    this.activeKitKind='PRIMARY';
+    this.showKitDraft(this.primaryKitDraft);
+  }
   recommendedGarment(sport:string|null|undefined):string {
     const value=(sport||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
     if(/basquet|basket|atlet|corrida|running|triat|netball/.test(value))return 'singlet';
@@ -584,29 +652,40 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   private readonly maxTeamLogoBytes=5*1024*1024;
   saveTeamKit():void {
     if(!this.team||!this.isOwner||this.brandingSaving)return;
-    const playerName=this.kitPlayerName.trim();
-    const playerNumber=this.kitPlayerNumber.trim();
-    if(playerName.length>14 || (playerName && !/^[\\p{L}0-9 .'-]+$/u.test(playerName))){
+    this.stashKitDraft();
+    const variants=this.kitVariants.map(v=>({...v,
+      playerName:v.playerName.trim(),playerNumber:v.playerNumber.trim()}));
+    const primary=this.primaryKitDraft!;
+    const all=[primary,...variants];
+    if(all.some(v=>v.playerName.length>14 ||
+      (v.playerName && !/^[\\p{L}0-9 .'-]+$/u.test(v.playerName)))){
       this.feedback='Nome inválido: usa até 14 letras, números, espaços, pontos, hífenes ou apóstrofos.';
       return;
     }
-    if(playerNumber && !/^[0-9]{1,2}$/.test(playerNumber)){
+    if(all.some(v=>v.playerNumber && !/^[0-9]{1,2}$/.test(v.playerNumber))){
       this.feedback='Número inválido: indica um ou dois algarismos.';
       return;
     }
+    const teamId=this.team.id;
     this.brandingSaving=true;this.feedback='';
-    this.api.setKit(this.team.id,this.kitPrimary,this.kitSecondary,this.kitPattern,{
-      garment:this.kitGarment,accent:this.kitAccent,
-      playerName,playerNumber
+    this.api.setKit(teamId,primary.primary,primary.secondary,primary.pattern,{
+      garment:primary.garment,accent:primary.accent,
+      playerName:primary.playerName.trim(),playerNumber:primary.playerNumber.trim(),
+      variants
     }).pipe(timeout(15000)).subscribe({
-      next:updated=>{this.team=updated;this.brandingSaving=false;this.api.rememberTeam(updated);
-        this.kitPattern=updated.kitPattern||'PLAIN';
-        this.kitGarment=updated.kitGarment||'jersey';
-        this.kitAccent=updated.kitAccent||'#FFFFFF';
-        this.kitPlayerName=updated.kitPlayerName||'';
-        this.kitPlayerNumber=updated.kitPlayerNumber||'';
-        this.feedback='Identidade do equipamento guardada.';this.render();},
-      error:()=>{this.brandingSaving=false;this.feedback='Não foi possível confirmar o equipamento. Consulta a equipa antes de repetir.';this.render();}
+      next:updated=>{
+        if(this.team?.id!==teamId)return;
+        const selected=this.activeKitKind;
+        this.team=updated;this.brandingSaving=false;this.api.rememberTeam(updated);
+        this.loadKitCollection(updated);
+        this.switchKit(selected);
+        this.feedback='Equipamentos principal, alternativo e de treino guardados.';this.render();
+      },
+      error:()=>{
+        if(this.team?.id!==teamId)return;
+        this.brandingSaving=false;
+        this.feedback='Não foi possível confirmar os equipamentos. Consulta a equipa antes de repetir.';this.render();
+      }
     });
   }
   saveGeneratedCrest(file:File):void {
@@ -903,13 +982,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
       next: team => {
         this.team = team;
         this.logoBroken=false;
-        this.kitPrimary=team.kitPrimary||'#16caba';
-        this.kitSecondary=team.kitSecondary||'#f2fafc';
-        this.kitPattern=team.kitPattern||'PLAIN';
-        this.kitGarment=team.kitGarment||this.recommendedGarment(team.sport);
-        this.kitAccent=team.kitAccent||'#FFFFFF';
-        this.kitPlayerName=team.kitPlayerName??'';
-        this.kitPlayerNumber=team.kitPlayerNumber??'';
+        this.loadKitCollection(team);
         this.render();
         this.loadCommunities();
         // Trophy/history requests are unnecessary on the initial squad screen.
