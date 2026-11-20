@@ -260,7 +260,8 @@ import { CommunityProfile } from '../model/community-profile';
       align-items:center;gap:11px;padding:7px 10px;text-align:left;background:transparent;
       border:0;border-radius:9px;color:#f1fffa;font-weight:500;cursor:pointer}
     .team-content-editor .team-mention-options button:hover,
-    .team-content-editor .team-mention-options button:focus-visible{background:#1c4f59;outline:2px solid #47caaa}
+    .team-content-editor .team-mention-options button:focus-visible,
+    .team-content-editor .team-mention-options button.team-mention-active{background:#1c4f59;outline:2px solid #47caaa}
     .team-mention-avatar{display:grid;place-items:center;flex:none;width:34px;height:34px;
       border-radius:50%;background:#226a70;color:#e4fff7;font-weight:850}
     .team-mention-avatar{position:relative;overflow:hidden}
