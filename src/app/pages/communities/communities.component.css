@@ -1701,13 +1701,3 @@ input,textarea,select {
 }
 .community-chat-compose-meta small { font-size: .76rem; line-height: 1.35; }
 .community-chat-compose-meta small:last-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
-
-/* The community feed stays synchronized without a redundant manual refresh button. */
-.community-feed-auto-sync {
-  display:inline-flex;align-items:center;gap:.45rem;align-self:center;
-  color:#a8e8d9;font-size:.8rem;font-weight:750;white-space:nowrap;
-}
-.community-feed-auto-sync > span {color:#4de0b9;font-size:.7rem}
-@media(max-width:600px) {
-  .community-feed-auto-sync {white-space:normal;font-size:.75rem}
-}
