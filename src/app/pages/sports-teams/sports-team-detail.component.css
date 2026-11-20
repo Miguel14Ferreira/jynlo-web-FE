@@ -700,3 +700,15 @@
 .team-garment-control{display:grid;gap:6px;color:#def9ef;font-size:.8rem;font-weight:750}
 .team-kit-side-controls button:focus-visible,.team-kit-back-fields input:focus-visible,.team-garment-control select:focus-visible{outline:2px solid #72f2d6;outline-offset:2px}
 @media(max-width:440px){.team-kit-back-fields{grid-template-columns:1fr}}
+
+/* A single kit studio switches between three independent, accessible design slots. */
+.team-kit-collection{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 16px}
+.team-kit-collection button{min-height:45px;padding:10px 6px;border-radius:12px;
+  background:#103846;border:1px solid #387879;color:#d3f3ee;
+  font-size:.86rem;font-weight:800;cursor:pointer;transition:background .16s,border-color .16s}
+.team-kit-collection button.selected,.team-kit-collection button[aria-pressed="true"]{
+  background:linear-gradient(125deg,#35cdb4,#6ff0cf);color:#062e32;border-color:#69f6d2}
+.team-kit-collection button:focus-visible{outline:3px solid #a9ffe7;outline-offset:2px}
+.team-kit-collection button:disabled{opacity:.6;cursor:wait}
+@media(max-width:460px){.team-kit-collection{gap:5px}.team-kit-collection button{font-size:.76rem;padding:8px 3px;min-height:44px}}
+@media(prefers-reduced-motion:reduce){.team-kit-collection button{transition:none}}
