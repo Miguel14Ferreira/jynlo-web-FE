@@ -484,3 +484,14 @@
  .team-kit-config .team-pattern-options button{min-height:75px;flex-direction:row;justify-content:flex-start;gap:1rem;padding:.6rem 1rem}
  .team-kit-config .team-pattern-options button small{margin-left:auto}
  .team-kit-config .team-pattern-options .pattern-sample{width:48px;height:48px}}
+
+/* Community-style member cards: entire avatar targets open the player profile. */
+.team-member-profile-link{display:grid;place-items:center;text-decoration:none;cursor:pointer;
+ transition:box-shadow .17s ease,transform .17s ease;flex:none}
+.team-member-profile-link:hover{box-shadow:0 0 0 3px #51e7c883;transform:translateY(-1px)}
+.team-member-profile-link:focus-visible{outline:3px solid #7df7df;outline-offset:3px}
+.team-roster .team-member{border:1px solid #3f918c70;border-radius:14px;
+ background:linear-gradient(135deg,#123d4a,#082c3c);padding:.8rem}
+.team-roster .team-member:hover{border-color:#48c5ac}
+.team-member-identity a{color:#7bedd8;text-decoration:none;font-weight:800}
+.team-member-identity a:hover{text-decoration:underline}
