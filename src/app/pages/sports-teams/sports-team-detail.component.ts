@@ -37,6 +37,16 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
           [style.--shirt-secondary]="t.kitSecondary || '#f2fafc'" aria-hidden="true"></span>
         <span>Equipamento · {{ kitLabel(t.kitPattern || 'PLAIN') }}</span>
       </div>
+      <div class="team-social-follow" aria-label="Seguidores da equipa">
+        @if (followerState; as state) {
+          <span><strong>{{state.count}}</strong> {{state.count===1 ? 'seguidor' : 'seguidores'}}</span>
+          <button type="button" [disabled]="followBusy" [attr.aria-pressed]="state.following"
+            (click)="toggleTeamFollow()">{{followBusy?'A atualizar…':state.following?'A seguir ✓':'Seguir equipa +'}}</button>
+        } @else if (followError) {
+          <span role="status">{{followError}}</span>
+          <button type="button" (click)="loadTeamFollowers()">Tentar novamente</button>
+        }
+      </div>
       <div class="team-hero-stats">
         <span><strong>{{rosterVerified ? members.length : '—'}}</strong> Jogadores</span>
         <span><strong>{{communitiesVerified ? activeCommunities.length : '—'}}</strong> Comunidades</span>
@@ -303,6 +313,37 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   private rosterRequest = 0;
   private rosterLoading = false;
   team: SportsTeam | null = null;
+  followerState:{count:number;following:boolean}|null=null;
+  followBusy=false;
+  followError='';
+  private followRequest=0;
+  loadTeamFollowers():void {
+    const id=this.team?.id;
+    if(!id)return;
+    const serial=++this.followRequest;
+    this.followError='';
+    this.api.followerState(id).pipe(timeout(12000)).subscribe({
+      next:state=>{if(this.team?.id!==id||serial!==this.followRequest)return;
+        this.followerState=state;this.render();},
+      error:()=>{if(this.team?.id!==id||serial!==this.followRequest)return;
+        this.followerState=null;this.followError='Seguidores temporariamente indisponíveis.';this.render();}
+    });
+  }
+  toggleTeamFollow():void {
+    if(!this.team||!this.followerState||this.followBusy)return;
+    const id=this.team.id;
+    const follows=this.followerState.following;
+    const serial=++this.followRequest;
+    this.followBusy=true;this.followError='';
+    const call=follows?this.api.unfollowTeam(id):this.api.followTeam(id);
+    call.pipe(timeout(12000)).subscribe({
+      next:state=>{if(this.team?.id!==id||serial!==this.followRequest)return;
+        this.followerState=state;this.followBusy=false;this.render();},
+      error:()=>{if(this.team?.id!==id||serial!==this.followRequest)return;
+        this.followBusy=false;this.followError='Não foi possível confirmar a alteração.';this.loadTeamFollowers();}
+    });
+  }
+
   logoBroken=false;
   brokenPlayerAvatars=new Set<number>();
   playerAvatarSrc(url:string|null|undefined):string|null{return this.api.playerAvatarSrc(url);}
@@ -726,6 +767,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         // Trophy/history requests are unnecessary on the initial squad screen.
         // Load them once, when the user actually opens the trophies tab.
         if(this.activeTab==='TROPHIES')this.loadTrophies();
+        this.loadTeamFollowers();
         this.refreshRoster();
       },
       error: () => {this.error = 'Não foi possível confirmar os dados da equipa. Tenta abrir novamente.';this.render();}
