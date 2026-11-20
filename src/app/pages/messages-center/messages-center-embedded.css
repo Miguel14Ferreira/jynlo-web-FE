@@ -10,3 +10,19 @@
  .inbox-embedded .inbox-layout { height:min(75dvh,740px); min-height:420px; }
  .inbox-embedded .inbox-detail { border-radius:13px; }
 }
+
+/* Unified community/direct messages: keep the mention picker inside the composer. */
+.inbox-mention-picker{display:grid;gap:3px;max-height:240px;overflow:auto;
+ padding:8px;border:1px solid #409d9b;background:#092937;border-radius:12px;
+ box-shadow:0 12px 28px #00131eb0}
+.inbox-mention-choice{display:flex;gap:12px;align-items:center;width:100%;padding:9px 12px;
+ text-align:left;color:#effff9;background:transparent;border:0;border-radius:8px;cursor:pointer}
+.inbox-mention-choice strong{color:#63ecc9}
+.inbox-mention-choice span{font-size:.82rem;color:#add7d7}
+.inbox-mention-choice:hover,.inbox-mention-choice:focus-visible{background:#13505a;outline:2px solid #6ff1d3;outline-offset:0}
+.inbox-mention-loading{padding:10px;color:#c4e6e3;font-size:.84rem}
+.inbox-mention-body{white-space:pre-wrap;overflow-wrap:anywhere}
+.inbox-mention-link{border:0;background:transparent;color:#7df8d8;font:inherit;font-weight:800;
+ cursor:pointer;text-decoration:none;padding:0;vertical-align:baseline}
+.inbox-mention-link:hover{text-decoration:underline}
+.inbox-mention-link:focus-visible{outline:2px solid #76f6df;outline-offset:2px;border-radius:3px}
