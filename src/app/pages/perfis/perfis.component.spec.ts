@@ -1065,7 +1065,7 @@ describe('PerfisComponent', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('a.profile-edit-action')).toBeNull();
   });
 
-  it('keeps edit profile private to the owner and achievements collapsed by default', () => {
+  it('keeps edit profile private to the owner and showcases verified achievements', () => {
     component.profilePage = true;
     component.selectedProfile = { ...profile, username: 'ana' };
     component.selectedActivity = {
@@ -1077,16 +1077,31 @@ describe('PerfisComponent', () => {
     fixture.detectChanges();
     let root: HTMLElement = fixture.nativeElement;
     expect(root.querySelector('a.profile-edit-action')).toBeNull();
-    const disclosure = root.querySelector('details.public-achievements-disclosure') as HTMLDetailsElement;
-    expect(disclosure).toBeTruthy();
-    expect(disclosure.open).toBeFalse();
-    expect(disclosure.querySelectorAll('.public-achievements > span').length).toBe(2);
+    expect(root.querySelectorAll('.profile-achievement-preview > .profile-achievement-badge').length).toBe(2);
+    expect(root.querySelector('details.public-achievements-disclosure')).toBeNull();
 
     (component.isOwnProfile as jasmine.Spy).and.returnValue(true);
     fixture.detectChanges();
     root = fixture.nativeElement;
     expect(root.querySelector('a.profile-edit-action')?.getAttribute('href')).toBe('/menu/alterardados');
     expect(root.querySelector('.profile-invite-trigger')).toBeNull();
+  });
+
+  it('shows three earned achievements immediately and keeps additional ones collapsed', () => {
+    component.profilePage = true;
+    component.selectedProfile = { ...profile };
+    component.selectedActivity = {
+      activitiesCompleted: 12, peoplePlayedWith: 4, sportsPractised: 3,
+      eventsCreated: 3, participantsMobilized: 16, communitiesJoined: 2,
+      achievements: ['FIRST_ACTIVITY','TEN_ACTIVITIES','EXPLORER','ORGANIZER']
+    };
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelectorAll('.profile-achievement-preview > .profile-achievement-badge').length).toBe(3);
+    const remainder = root.querySelector('details.public-achievements-disclosure') as HTMLDetailsElement;
+    expect(remainder).toBeTruthy();
+    expect(remainder.open).toBeFalse();
+    expect(remainder.querySelectorAll('.profile-achievement-remainder > .profile-achievement-badge').length).toBe(1);
   });
 
   it('shows the chat instead of another request when the server confirms friendship', () => {
