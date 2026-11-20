@@ -27,6 +27,7 @@ export interface SportsTeam {
   feedEnabled: boolean;
   chatEnabled: boolean;
   logoUrl?: string | null;
+  crestDesign?: string | null;
   kitPrimary?: string | null;
   kitSecondary?: string | null;
   kitPattern?: TeamKitPattern | null;
@@ -263,9 +264,10 @@ export class SportsTeamsService {
     return this.http.put<SportsTeam>(this.url+'/'+id+'/kit',{primary,secondary,pattern,
       ...(options?options:{})});
   }
-  uploadLogo(id:number,file:File):Observable<SportsTeam> {
+  uploadLogo(id:number,file:File,crestDesign?:string):Observable<SportsTeam> {
     const form=new FormData();
     form.append('logo',file,file.name);
+    if(crestDesign)form.append('crestDesign',crestDesign);
     return this.http.put<SportsTeam>(this.url+'/'+id+'/logo',form);
   }
   removeLogo(id:number):Observable<SportsTeam> {
