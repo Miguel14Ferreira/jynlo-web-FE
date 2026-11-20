@@ -610,22 +610,26 @@ export class PerfisComponent implements OnInit, OnDestroy {
     // Never infer permission from a failed or pending block-status request.
     this.checkProfileBlockStatus(profile.username);
 
-    this.detailSubscription = forkJoin({
-      activity: this.reliabilityService.activity(profile.username)
-        .pipe(timeout(10_000), catchError(() => of(undefined))),
-      followStatus: this.socialGraphService.status(profile.username)
+    // Public activity and follow state are independent. A slow activity service
+    // must not delay follower counts or relationship controls (or vice versa).
+    // The combined subscription still cancels both when navigating away.
+    this.detailSubscription = new Subscription();
+    this.detailSubscription.add(
+      this.reliabilityService.activity(profile.username)
         .pipe(timeout(10_000), catchError(() => of(undefined)))
-    }).subscribe({
-      next: ({ activity, followStatus }) => {
-        if (this.selectedProfile?.username !== profile.username) return;
-        this.selectedActivity = activity;
-        this.selectedFollowStatus = followStatus;
-      },
-      error: () => {
-        if (this.selectedProfile?.username !== profile.username) return;
-        this.actionError = t('community.profileDetailsError');
-      }
-    });
+        .subscribe(activity => {
+          if (this.selectedProfile?.username !== profile.username) return;
+          this.selectedActivity = activity;
+        })
+    );
+    this.detailSubscription.add(
+      this.socialGraphService.status(profile.username)
+        .pipe(timeout(10_000), catchError(() => of(undefined)))
+        .subscribe(followStatus => {
+          if (this.selectedProfile?.username !== profile.username) return;
+          this.selectedFollowStatus = followStatus;
+        })
+    );
   }
 
   checkProfileBlockStatus(username: string): void {
