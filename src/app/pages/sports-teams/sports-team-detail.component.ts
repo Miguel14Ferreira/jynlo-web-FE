@@ -302,9 +302,9 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
                 </g>
                 <path [attr.d]="kitGarmentPath" fill="none" stroke="#eafffa" stroke-opacity=".65" stroke-width="2.5"/>
                 <path *ngIf="kitGarment==='jersey'||kitGarment==='polo'" d="M112 30 Q126 57 160 57 Q194 57 208 30 L196 20 Q160 43 124 20Z"
-                  [attr.fill]="kitSecondary" stroke="#ffffff" stroke-opacity=".6" stroke-width="2"/>
+                  [attr.fill]="kitAccent" stroke="#ffffff" stroke-opacity=".6" stroke-width="2"/>
                 <path *ngIf="kitGarment==='jersey'||kitGarment==='polo'" d="M91 126 57 146 M229 126 263 146 M91 290 Q160 312 229 290"
-                  fill="none" [attr.stroke]="kitSecondary" stroke-width="6" stroke-opacity=".8"/>
+                  fill="none" [attr.stroke]="kitAccent" stroke-width="6" stroke-opacity=".8"/>
                 <g *ngIf="kitSide==='back'" text-anchor="middle" fill="#ffffff" stroke="#09232a" stroke-width="0.8" paint-order="stroke"
                    font-family="Arial,sans-serif" font-weight="900">
                   <text x="160" y="113" font-size="19">{{kitPlayerName.slice(0,14).toUpperCase()}}</text>
@@ -334,10 +334,11 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
                   <option value="vest">Colete de treino</option><option value="polo">Polo / golfe</option>
                   <option value="cycling">Jersey de ciclismo</option><option value="rashguard">Rashguard / combate</option>
                 </select></label>
-              <p class="team-kit-save-hint">A silhueta, o nome e o número são apenas simulações. Só as duas cores e o padrão ficam oficialmente guardados.</p>
+              <p class="team-kit-save-hint">O tipo de peça, as cores, o padrão, o nome e o número são guardados na equipa. O nome e número são exemplos de personalização, não dados de cada atleta.</p>
               <div class="team-kit-color-row">
                 <label>Cor principal <input type="color" [(ngModel)]="kitPrimary" [disabled]="brandingSaving"></label>
                 <label>Cor secundária <input type="color" [(ngModel)]="kitSecondary" [disabled]="brandingSaving"></label>
+                <label>Cor de destaque <input type="color" [(ngModel)]="kitAccent" [disabled]="brandingSaving"></label>
               </div>
               <fieldset class="team-pattern-options" [disabled]="brandingSaving" aria-label="Desenho do equipamento">
                 <legend>Padrão de cores</legend>
@@ -550,6 +551,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   isOwner=false;busy=false;featureSaving=false;deletingTeam=false;feedback='';
   kitPrimary='#16caba';kitSecondary='#f2fafc';kitPattern:TeamKitPattern='PLAIN';brandingSaving=false;
   kitGarment='jersey';
+  kitAccent='#FFFFFF';
   kitSide:'front'|'back'='front';
   kitPlayerName='ATLETA';
   kitPlayerNumber='10';
@@ -583,10 +585,18 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   saveTeamKit():void {
     if(!this.team||!this.isOwner||this.brandingSaving)return;
     this.brandingSaving=true;this.feedback='';
-    this.api.setKit(this.team.id,this.kitPrimary,this.kitSecondary,this.kitPattern).pipe(timeout(15000)).subscribe({
+    this.api.setKit(this.team.id,this.kitPrimary,this.kitSecondary,this.kitPattern,{
+      garment:this.kitGarment,accent:this.kitAccent,
+      playerName:this.kitPlayerName.trim().slice(0,14),
+      playerNumber:this.kitPlayerNumber.trim()
+    }).pipe(timeout(15000)).subscribe({
       next:updated=>{this.team=updated;this.brandingSaving=false;this.api.rememberTeam(updated);
         this.kitPattern=updated.kitPattern||'PLAIN';
-        this.feedback='Equipamento guardado.';this.render();},
+        this.kitGarment=updated.kitGarment||'jersey';
+        this.kitAccent=updated.kitAccent||'#FFFFFF';
+        this.kitPlayerName=updated.kitPlayerName||'';
+        this.kitPlayerNumber=updated.kitPlayerNumber||'';
+        this.feedback='Identidade do equipamento guardada.';this.render();},
       error:()=>{this.brandingSaving=false;this.feedback='Não foi possível confirmar o equipamento. Consulta a equipa antes de repetir.';this.render();}
     });
   }
@@ -887,7 +897,10 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         this.kitPrimary=team.kitPrimary||'#16caba';
         this.kitSecondary=team.kitSecondary||'#f2fafc';
         this.kitPattern=team.kitPattern||'PLAIN';
-        this.kitGarment=this.recommendedGarment(team.sport);
+        this.kitGarment=team.kitGarment||this.recommendedGarment(team.sport);
+        this.kitAccent=team.kitAccent||'#FFFFFF';
+        this.kitPlayerName=team.kitPlayerName??'';
+        this.kitPlayerNumber=team.kitPlayerNumber??'';
         this.render();
         this.loadCommunities();
         // Trophy/history requests are unnecessary on the initial squad screen.
