@@ -490,7 +490,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.mentionBusy=!!term;
     if(!term)return;
     this.mentionTimer=setTimeout(()=>{
-      this.profiles.findProfiles({name:term}).subscribe({
+      this.profiles.searchProfiles(term).subscribe({
         next:people=>{if(version!==this.mentionVersion||this.accessRevoked)return;
           this.mentionOptions=people.filter(p=>p.username&&p.username.toLowerCase().includes(term.toLowerCase())).slice(0,8);
           this.mentionBusy=false;},
