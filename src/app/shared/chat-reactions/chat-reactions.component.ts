@@ -19,6 +19,7 @@ let reactionPickerSequence = 0;
   imports: [CommonModule, TranslatePipe],
   // The bubble can reserve room only when reaction badges exist.
   host: {
+    '[class.toolbar-mode]': 'toolbarMode',
     '[class.has-reactions]': 'entries.length > 0',
     '[class.is-picker-open]': 'expanded',
     '[class.is-details-open]': 'detailsOpen'
@@ -194,6 +195,12 @@ let reactionPickerSequence = 0;
   `,
   styles: [`
     :host {display:block;min-width:0;}
+    :host(.toolbar-mode){position:relative;display:inline-flex;align-items:center;flex:none;}
+    :host(.toolbar-mode) .chat-reactions{align-items:center;max-width:none;}
+    :host(.toolbar-mode) .reaction-badges{flex-wrap:nowrap;}
+    :host(.toolbar-mode) .reaction-picker{position:absolute;right:0;top:calc(100% + 10px);z-index:100;
+      min-width:max-content;max-width:min(90vw,320px);box-shadow:0 12px 30px #0009;}
+    :host(.toolbar-mode) .reaction-open{border:0;background:transparent;width:32px;height:32px;}
     .chat-reactions {display:flex;flex-direction:column;align-items:flex-start;
       gap:7px;width:max-content;max-width:100%;font:inherit;}
     :host(.own-reaction) .chat-reactions {align-items:flex-end;}
@@ -307,6 +314,7 @@ export class ChatReactionsComponent implements OnInit, OnChanges, OnDestroy {
   @Input() conversationId!: string | number;
   @Input() messageId!: number;
   @Input() disabled = false;
+  @Input() toolbarMode = false;
   @ViewChild('reactionToggle') private reactionToggle?: ElementRef<HTMLButtonElement>;
   @ViewChild('detailsClose') private detailsClose?: ElementRef<HTMLButtonElement>;
   @ViewChild('reactionChoice') private reactionChoice?: ElementRef<HTMLButtonElement>;
