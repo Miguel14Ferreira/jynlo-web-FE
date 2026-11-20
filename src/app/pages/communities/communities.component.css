@@ -1701,17 +1701,3 @@ input,textarea,select {
 }
 .community-chat-compose-meta small { font-size: .76rem; line-height: 1.35; }
 .community-chat-compose-meta small:last-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
-
-/* Make the entire member identity discoverable and clickable, not plain text. */
-.member-row .community-member-profile{display:flex;align-items:center;gap:12px;flex:1 1 190px;
- min-width:0;padding:5px 4px;color:#effefa;text-decoration:none;border-radius:11px;
- transition:background .15s ease}
-.member-row .community-member-profile:hover{background:#164451}
-.member-row .community-member-profile:focus-visible{outline:2px solid #72f3da;outline-offset:3px}
-.member-row .community-member-avatar{display:grid;place-items:center;flex:none;width:40px;height:40px;
- background:#1a6668;color:#eafffb;font-weight:850;border-radius:50%}
-.member-row .community-member-identity{display:grid;gap:3px;min-width:0}
-.member-row .community-member-identity strong{font-size:.91rem;overflow-wrap:anywhere}
-.member-row .community-member-identity span{color:#a2d9d9}
-.member-row .community-member-open{margin-left:auto;color:#74e9cb;font-size:1.1rem;opacity:.65}
-.member-row .community-member-profile:hover .community-member-open{opacity:1}
