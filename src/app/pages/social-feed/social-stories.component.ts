@@ -11,6 +11,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
 import { appTranslate as t, I18nService } from '../../i18n/i18n.service';
 import { DirectChatService } from '../../services/direct-chat.service';
 import { CommunityGroupsService } from '../../services/community-groups.service';
+import { SportsTeamsService, SportsTeam } from '../../services/sports-teams.service';
 import { SocialStoriesService, type StoryAudience } from '../../services/social-stories.service';
 import { CommunityGroup } from '../model/community-group';
 import { SocialStory } from '../model/social-story';
@@ -55,6 +56,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   mineLoading = true;
   mineError = '';
   groups: CommunityGroup[] = [];
+  ownedTeams: SportsTeam[] = [];
   loading = true;
   composerOpen = false;
   uploading = false;
@@ -362,11 +364,11 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   }
 
   storyLabel(story: SocialStory): string {
-    return story.communityName || '@' + story.authorUsername.replace(/^@/, '');
+    return story.teamName || story.communityName || '@' + story.authorUsername.replace(/^@/, '');
   }
 
   storyAvatar(story: SocialStory): string | null {
-    return this.media(story.communityId !== null ? story.communityPhotoUrl : story.avatarUrl);
+    return this.media(story.teamId != null ? story.teamLogoUrl : story.communityId !== null ? story.communityPhotoUrl : story.avatarUrl);
   }
 
   private startViewer(story: SocialStory): void {
@@ -530,7 +532,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   // A failed or ambiguous delivery is never auto-retried to avoid duplicate messages.
   replyToStory(reaction?: string): void {
     const story = this.activeStory;
-    if (!story || story.communityId !== null || story.canDelete || this.replying) return;
+    if (!story || story.communityId !== null || story.teamId != null || story.canDelete || this.replying) return;
     if (reaction === '❤️' && this.heartReactionsSent.has(story.id)) return;
     const text = (reaction || this.replyText).trim();
     if (!text || text.length > 500) return;
@@ -562,6 +564,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     private readonly directChat: DirectChatService,
     private readonly changeDetector: ChangeDetectorRef,
     private readonly communities: CommunityGroupsService,
+    private readonly teamsService: SportsTeamsService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly i18n: I18nService,
@@ -577,6 +580,11 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     });
     this.reload();
     this.loadMine();
+    this.teamsService.mine().pipe(
+      timeout(10000),
+      catchError(() => of([] as SportsTeam[])),
+      takeUntil(this.destroyed)
+    ).subscribe(teams => {this.ownedTeams=teams;this.changeDetector.markForCheck();});
     this.communities.mine().pipe(
       timeout(10000),
       catchError(() => of([] as CommunityGroup[])),
@@ -617,17 +625,18 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
       if (seen.has(entry.id)) continue;
       seen.add(entry.id);
       if (Date.parse(entry.expiresAt) <= Date.now()) continue;
-      const key = entry.communityId === null
+      const key = entry.teamId != null ? 'team:' + entry.teamId
+        : entry.communityId === null
         ? 'person:' + entry.authorUsername.toLowerCase()
         : 'group:' + entry.communityId;
       let group = ordered.get(key);
       if (!group) {
         group = {
           key,
-          name: entry.communityId !== null
-            ? (entry.communityName || entry.displayName)
+          name: entry.teamId != null ? (entry.teamName || entry.displayName)
+            : entry.communityId !== null ? (entry.communityName || entry.displayName)
             : '@' + entry.authorUsername.replace(/^@/, ''),
-          avatar: this.media(entry.communityPhotoUrl || entry.avatarUrl),
+          avatar: this.media(entry.teamLogoUrl || entry.communityPhotoUrl || entry.avatarUrl),
           stories: []
         };
         ordered.set(key, group);
@@ -791,8 +800,11 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
       this.publishError = 'Escolhe uma localização real das sugestões ou limpa o campo.';
       return;
     }
-    const group = this.communityId ? Number(this.communityId) : null;
+    const isTeam=this.communityId.startsWith('team:');
+    const teamId=isTeam?Number(this.communityId.slice(5)):null;
+    const group=!this.communityId||isTeam?null:Number(this.communityId);
     if (group !== null && !this.groups.some(item => item.id === group)) return;
+    if (isTeam && (teamId===null || !Number.isSafeInteger(teamId) || !this.ownedTeams.some(item => item.id===teamId))) return;
     this.uploading = true;
     this.error = '';
     this.publishError = '';
@@ -811,7 +823,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
       showTime: this.storyShowTime,
       locationLabel: this.storyLocation.trim(),
       taggedUsernames: this.storyTaggedProfiles.map(profile => profile.username).join(',')
-    }).pipe(
+    }, teamId).pipe(
       timeout(90000),
       finalize(() => this.uploading = false),
       takeUntil(this.destroyed)
