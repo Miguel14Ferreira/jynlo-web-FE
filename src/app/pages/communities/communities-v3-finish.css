@@ -232,12 +232,26 @@
 .community-follow-control button:disabled{opacity:.5;cursor:wait}
 .community-follow-control button:focus-visible{outline:3px solid #9bffdf;outline-offset:2px}
 
-.community-feed-mentions{display:grid;gap:3px;max-height:235px;overflow:auto;
- border:1px solid #4db3a5;border-radius:12px;padding:8px;background:#072b38}
-.community-feed-mentions button{min-height:42px;display:flex;align-items:center;gap:12px;
- border:0;border-radius:8px;padding:8px 12px;text-align:left;background:transparent;
- color:#f3fffd;cursor:pointer;font:inherit}
-.community-feed-mentions button strong,.community-feed-mention-link{color:#75f4d8;font-weight:800}
+.community-feed-mention-anchor{position:relative;min-width:0;isolation:isolate}
+.community-feed-mention-anchor>textarea{display:block;width:100%;box-sizing:border-box}
+.community-feed-mentions{position:absolute;z-index:70;bottom:calc(100% + 8px);left:0;
+ width:min(390px,100%);max-height:290px;overflow-y:auto;display:grid;gap:2px;
+ padding:6px;background:#122e3b;border:1px solid #426e7b;border-radius:13px;
+ box-shadow:0 14px 38px #0009;text-align:left}
+.community-feed-mention-heading{padding:9px 12px;color:#aacdd2;font-size:.76rem;font-weight:850}
+.community-feed-mention-heading>span{display:inline-grid;place-items:center;width:23px;height:23px;
+ margin-right:7px;border-radius:7px;background:#1b706b;color:#b8ffe8}
+.community-feed-mentions button{display:flex;align-items:center;gap:11px;width:100%;min-height:54px;
+ text-align:left;border:0;border-radius:9px;padding:7px 10px;color:#effff9;
+ background:transparent;cursor:pointer;font:inherit}
+.community-feed-mentions button:hover,.community-feed-mentions button:focus-visible{background:#1c4f59;outline:2px solid #47caaa}
+.community-feed-mention-avatar{display:grid;place-items:center;width:35px;height:35px;flex:none;
+ border-radius:50%;background:#226a70;color:#eafffa;font-weight:850}
+.community-feed-mention-person{display:grid;min-width:0;gap:2px}
+.community-feed-mention-person strong{font-size:.87rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.community-feed-mention-person small{font-size:.77rem;color:#9fc4ce}
+.community-feed-mention-status{padding:9px 12px;color:#b8d5d8;font-size:.78rem}
+.community-feed-mention-link{color:#75f4d8;font-weight:800}
 .community-feed-mentions button small{color:#b1d8d8}
 .community-feed-mentions button:hover,.community-feed-mentions button:focus-visible{background:#175364;outline:2px solid #7cebd8}
 .community-feed-mention-link{text-decoration:none}
