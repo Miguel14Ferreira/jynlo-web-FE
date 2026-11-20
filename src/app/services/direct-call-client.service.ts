@@ -4,7 +4,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { BehaviorSubject, filter, firstValueFrom, Subscription, TimeoutError, timeout } from 'rxjs';
 import { ConnectionQuality, LocalVideoTrack, MediaDeviceFailure, Room, RoomEvent, Track } from 'livekit-client';
-import { BackgroundProcessor, supportsBackgroundProcessors } from '@livekit/track-processors';
+import type { BackgroundProcessor } from '@livekit/track-processors';
 import { environment } from 'src/environment/environment';
 import { DirectCallEvent, DirectChatRealtimeService } from './direct-chat-realtime.service';
 import { DirectCallToneService } from './direct-call-tone.service';
@@ -531,7 +531,8 @@ export class DirectCallClientService implements OnDestroy {
   /** Virtual backgrounds are composited on the PUBLISHED local camera track,
    * so remote members see the exact same background. Screen sharing is untouched. */
   get backgroundSupported(): boolean {
-    return typeof window !== 'undefined' && supportsBackgroundProcessors();
+    return typeof window !== 'undefined' && 'MediaStreamTrackProcessor' in window
+      && 'MediaStreamTrackGenerator' in window;
   }
 
   private async applyBackground(room: Room, mode: CallBackground): Promise<void> {
@@ -540,13 +541,17 @@ export class DirectCallClientService implements OnDestroy {
     const track=publication?.track as LocalVideoTrack | undefined;
     if (!track) throw new Error('No active camera publication');
     if (mode!=='none' && !this.backgroundSupported) throw new Error('Background effects unsupported');
+    // Load heavy segmentation/vision libraries only after the user enables an effect.
+    // Calls without virtual backgrounds must not pay the initial bundle cost.
+    const processors = mode==='none' ? null : await import('@livekit/track-processors');
+    if (processors && !processors.supportsBackgroundProcessors()) throw new Error('Background effects unsupported');
     if (track!==this.backgroundTrack || !this.backgroundProcessor) {
       if (mode==='none') {
         this.backgroundTrack=null;
         this.backgroundProcessor=null;
         return;
       }
-      const processor=BackgroundProcessor({mode:'disabled'});
+      const processor=processors!.BackgroundProcessor({mode:'disabled'});
       await track.setProcessor(processor);
       if (room!==this.room) return;
       this.backgroundTrack=track;
