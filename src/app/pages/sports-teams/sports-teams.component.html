@@ -23,7 +23,12 @@
       <div class="section-heading"><div><p class="eyebrow">COMEÇA A JOGAR</p><h2>Criar nova equipa</h2><p>Escolhe o nome, a modalidade e a localização. Podes completar a identidade da equipa mais tarde.</p></div><button type="button" class="icon-close" (click)="toggleCreate()" aria-label="Fechar criação">×</button></div>
       <form (ngSubmit)="create()" #teamForm="ngForm" class="create-form">
         <label>Nome da equipa <input name="name" [(ngModel)]="draft.name" placeholder="Ex.: Amigos da Bola" required maxlength="100"></label>
-        <label>Modalidade <input name="sport" [(ngModel)]="draft.sport" placeholder="Ex.: Futebol" maxlength="100"></label>
+        <label>Modalidade
+          <select name="sport" [(ngModel)]="draft.sport" aria-label="Escolher modalidade">
+            <option value="">Selecionar modalidade (opcional)</option>
+            <option *ngFor="let item of sportsCatalog" [value]="item">{{ item }}</option>
+          </select>
+        </label>
         <label>Localização <input name="location" [(ngModel)]="draft.location" placeholder="Ex.: Lisboa" maxlength="100"></label>
         <label class="full">Descrição <textarea name="description" [(ngModel)]="draft.description" placeholder="Conta um pouco sobre a tua equipa..." maxlength="500"></textarea></label>
         <div class="form-footer"><small>O feed e o chat ficam disponíveis para os membros confirmados. O responsável pode gerir ambos.</small><button type="submit" class="action action-primary" [disabled]="saving || teamForm.invalid">{{ saving ? 'A criar…' : 'Criar equipa' }}</button></div>
