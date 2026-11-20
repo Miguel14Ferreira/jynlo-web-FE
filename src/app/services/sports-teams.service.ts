@@ -34,6 +34,8 @@ export interface SportsTeamMember {
   username: string;
   role: 'OWNER' | 'PLAYER';
   profilePicUrl?: string | null;
+  fullName?: string | null;
+  bio?: string | null;
 }
 export interface SportsTeamInvitation {
   teamId: number;
