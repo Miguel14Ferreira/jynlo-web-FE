@@ -976,6 +976,20 @@ describe('PerfisComponent', () => {
     expect(component.selectedActivity?.activitiesCompleted).toBe(1);
   });
 
+  it('links the profile to discover, teams and communities without inventing memberships', () => {
+    component.profilePage = true;
+    component.selectedProfile = { ...profile };
+    fixture.detectChanges();
+    const panel = (fixture.nativeElement as HTMLElement).querySelector('.profile-discovery-links');
+    expect(panel).toBeTruthy();
+    const links = Array.from(panel!.querySelectorAll('a')) as HTMLAnchorElement[];
+    expect(links.map(link => link.getAttribute('href'))).toEqual([
+      '/menu/discover?sport=Padel&city=Lisboa',
+      '/menu/teams',
+      '/menu/communities'
+    ]);
+  });
+
   it('recognizes the authenticated profile regardless of username capitalization', () => {
     component.currentUsername = 'tmf14';
     component.profilePage = true;
