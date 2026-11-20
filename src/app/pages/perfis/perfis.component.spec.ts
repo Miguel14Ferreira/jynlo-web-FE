@@ -1592,7 +1592,7 @@ describe('PerfisComponent', () => {
     expect(root.querySelector('.profile-hero > .detail-actions')).toBeTruthy();
     expect(root.querySelectorAll('.profile-meta > .profile-meta-card').length).toBe(5);
     expect(root.querySelectorAll('.profile-meta .profile-stat-icon svg').length).toBe(5);
-    expect(root.querySelectorAll('.public-activity-grid > .profile-activity-card').length).toBe(4);
+    expect(root.querySelectorAll('.public-activity-grid > .profile-activity-card').length).toBe(6);
     expect(root.querySelectorAll('.public-activity-grid svg').length).toBe(4);
     expect(root.querySelector('.profile-invite-trigger')).toBeTruthy();
     expect(root.querySelector('.profile-safety summary')).toBeTruthy();
