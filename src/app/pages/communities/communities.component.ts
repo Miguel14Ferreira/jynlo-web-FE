@@ -382,7 +382,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       (term ? this.profileService.searchProfiles(term) : this.profileService.findProfiles({})).subscribe({
         next:profiles=>{if(sequence!==this.feedMentionSequence)return;
           this.feedMentionMatches=profiles.filter(profile=>
-            !!profile.username&&(!term || [profile.username,profile.fullName,profile.nickname].some(value=>value?.toLowerCase().includes(term.toLowerCase())))).slice(0,8);
+            !!profile.username&&(!term || [profile.username,profile.fullName,profile.nickname].some(value=>value?.toLowerCase().includes(term.toLowerCase())))).slice(0,5);
           this.feedMentionBusy=false;},
         error:()=>{if(sequence===this.feedMentionSequence){
           this.feedMentionMatches=[];this.feedMentionBusy=false;
