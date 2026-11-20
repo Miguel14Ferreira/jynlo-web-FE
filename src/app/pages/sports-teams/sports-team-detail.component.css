@@ -712,3 +712,9 @@
 .team-kit-collection button:disabled{opacity:.6;cursor:wait}
 @media(max-width:460px){.team-kit-collection{gap:5px}.team-kit-collection button{font-size:.76rem;padding:8px 3px;min-height:44px}}
 @media(prefers-reduced-motion:reduce){.team-kit-collection button{transition:none}}
+
+.team-kit-remove-variant{display:block;max-width:100%;margin:-5px 0 14px auto;
+  padding:9px 12px;border:1px solid #b77d87;border-radius:9px;
+  color:#ffdfe1;background:#3f2834;font-weight:750;cursor:pointer}
+.team-kit-remove-variant:focus-visible{outline:2px solid #ffe4ef;outline-offset:2px}
+.team-kit-remove-variant:disabled{opacity:.55;cursor:not-allowed}
