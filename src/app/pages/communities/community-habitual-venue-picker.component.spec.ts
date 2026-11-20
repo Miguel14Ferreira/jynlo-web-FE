@@ -52,6 +52,29 @@ describe('Community habitual venue picker', () => {
     return {component, venues, groups, cdr, zone};
   }
 
+  it('embeds the saved catalogue venue on the community home even while not editing', () => {
+    const {component, venues} = setup();
+    component.community = {...group, defaultVenueId: 55, defaultVenueName: 'Campo Municipal'};
+    component.ngOnChanges({ community: {
+      previousValue: null, currentValue: component.community, firstChange: true, isFirstChange: () => true
+    } });
+    expect(component.editing).toBeFalse();
+    expect(venues.get).toHaveBeenCalledWith(55);
+    expect(component.savedMapPreviewUrl).toBeTruthy();
+    expect(component.savedMapLink).toContain('38.71,-9.13');
+  });
+
+  it('embeds saved GPS coordinates without searching for another venue', () => {
+    const {component, venues} = setup();
+    component.community = {...group, habitualLocationSource: 'GPS',
+      habitualLatitude: 38.71, habitualLongitude: -9.13};
+    component.ngOnChanges({ community: {
+      previousValue: null, currentValue: component.community, firstChange: true, isFirstChange: () => true
+    } });
+    expect(venues.get).not.toHaveBeenCalled();
+    expect(component.savedMapPreviewUrl).toBeTruthy();
+  });
+
   it('opens a catalogue venue detail without silently making it the default', () => {
     const {component, venues, groups} = setup();
     component.query = 'campo';
