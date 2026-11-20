@@ -1485,3 +1485,33 @@ h1 {
   .community-page.profile-page-open .profile-discovery-actions{grid-template-columns:1fr}
   .community-page.profile-page-open .profile-discovery-actions a{justify-content:flex-start}
 }
+
+
+/* Verified memberships appear only on the authenticated owner's profile. */
+.community-page.profile-page-open .profile-real-memberships{
+  display:grid;gap:12px;margin:24px 0;padding:19px;
+  border:1px solid rgba(55,203,184,.35);border-radius:16px;
+  background:linear-gradient(145deg,#092d3c,#092633);
+}
+.community-page.profile-page-open .profile-membership-heading h2{
+  margin:0;color:#edfffc;font-size:1.13rem;
+}
+.community-page.profile-page-open .profile-membership-heading p,
+.community-page.profile-page-open .profile-membership-state{
+  margin:5px 0 0;color:#acd0d6;font-size:.85rem;
+}
+.community-page.profile-page-open .profile-real-memberships h3{
+  margin:5px 0 0;font-size:.88rem;color:#9cfff0;
+}
+.community-page.profile-page-open .profile-membership-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:9px;
+}
+.community-page.profile-page-open .profile-membership-card{
+  display:grid;gap:4px;min-height:60px;padding:13px 15px;
+  border:1px solid #3a7381;border-radius:12px;background:#123a49;
+  color:#e7fff8;text-decoration:none;
+}
+.community-page.profile-page-open .profile-membership-card strong{font-size:.9rem}
+.community-page.profile-page-open .profile-membership-card span{color:#a5d4d6;font-size:.77rem}
+.community-page.profile-page-open .profile-membership-card:hover{background:#145360;border-color:#48cdb7}
+.community-page.profile-page-open .profile-membership-card:focus-visible{outline:2px solid #8cffe3;outline-offset:2px}
