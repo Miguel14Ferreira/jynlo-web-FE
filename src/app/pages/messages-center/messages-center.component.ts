@@ -1604,10 +1604,10 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.replyingTo = null;
   }
 
-  readonly mentionTokenPattern=/(^|\\s)(@[\\p{L}\\p{N}_.-]{2,32})/gu;
+  readonly mentionTokenPattern=/(^|\s)(@[\p{L}\p{N}_.-]{2,32})/gu;
   messageMentionParts(value:string):Array<{text:string;username:string|null}> {
     const result:Array<{text:string;username:string|null}>=[];
-    const regex=/(^|\\s)(@[\\p{L}\\p{N}_.-]{2,32})/gu;
+    const regex=/(^|\s)(@[\p{L}\p{N}_.-]{2,32})/gu;
     let index=0,match:RegExpExecArray|null;
     while((match=regex.exec(value))!==null){
       const start=match.index+match[1].length;
