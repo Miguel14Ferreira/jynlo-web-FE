@@ -455,6 +455,12 @@
                     (click)="toggleMessageActions(message.id)">···</button>
                   <div class="inbox-message-actions" role="toolbar"
                     [attr.aria-label]="'Ações da mensagem de @' + message.sender">
+                    @if (message.id > 0) {
+                      <app-chat-reactions class="inbox-toolbar-reactions"
+                        [class.own-reaction]="isMine(message)" [toolbarMode]="true"
+                        [kind]="conversation.kind" [conversationId]="conversation.id"
+                        [messageId]="message.id" [disabled]="!composerAllowed"></app-chat-reactions>
+                    }
                     <button type="button" class="inbox-reply-action"
                       [disabled]="sending || deliveryUncertain || !composerAllowed || mutationPending"
                       (click)="replyToMessage(message)">
@@ -483,12 +489,6 @@
                   }
                 }
               </article>
-              @if (!message.deletedAt && message.id > 0) {
-                <app-chat-reactions class="inbox-reaction-under-message"
-                  [class.own-reaction]="isMine(message)"
-                  [kind]="conversation.kind" [conversationId]="conversation.id"
-                  [messageId]="message.id" [disabled]="!composerAllowed"></app-chat-reactions>
-              }
             }
           </div>
           @if (!historicalPreview && !previewLoading && !previewError && newMessagesPending > 0) {
