@@ -3,12 +3,48 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { BehaviorSubject, filter, firstValueFrom, Subscription, TimeoutError, timeout } from 'rxjs';
-import { ConnectionQuality, LocalVideoTrack, MediaDeviceFailure, Room, RoomEvent, Track } from 'livekit-client';
+import type { LocalVideoTrack, Room, Track } from 'livekit-client';
 import type { BackgroundProcessor } from '@livekit/track-processors';
 import { environment } from 'src/environment/environment';
 import { DirectCallEvent, DirectChatRealtimeService } from './direct-chat-realtime.service';
 import { DirectCallToneService } from './direct-call-tone.service';
 import { appTranslate } from '../i18n/i18n.service';
+
+/**
+ * LiveKit (~1 MB) is loaded only when a call actually needs it, so it stays
+ * out of the initial bundle that every visitor downloads. Type-only imports
+ * above are erased at build time.
+ */
+type LiveKitModule = typeof import('livekit-client');
+let liveKitModule: LiveKitModule | null = null;
+let liveKitLoading: Promise<LiveKitModule> | null = null;
+
+export function loadLiveKit(): Promise<LiveKitModule> {
+  if (liveKitModule) return Promise.resolve(liveKitModule);
+  if (!liveKitLoading) {
+    liveKitLoading = import('livekit-client')
+      .then(module => (liveKitModule = module))
+      .catch(error => { liveKitLoading = null; throw error; });
+  }
+  return liveKitLoading;
+}
+
+/**
+ * Same string values as LiveKit's Track.Source enum, available without
+ * loading the library (comparisons work on rooms created before or after).
+ */
+const TrackSource = {
+  Camera: 'camera',
+  Microphone: 'microphone',
+  ScreenShare: 'screen_share',
+  ScreenShareAudio: 'screen_share_audio',
+} as unknown as Pick<typeof Track.Source, 'Camera'|'Microphone'|'ScreenShare'|'ScreenShareAudio'>;
+
+/** Only valid once loadLiveKit() resolved (every Room exists after that). */
+function lk(): LiveKitModule {
+  if (!liveKitModule) throw new Error('LiveKit is not loaded yet');
+  return liveKitModule;
+}
 
 export type CallPhase = 'incoming' | 'dialing' | 'connecting' | 'active' | 'error';
 export type CallMedia = 'voice' | 'video';
@@ -258,6 +294,8 @@ export class DirectCallClientService implements OnDestroy {
     // Unlock Web Audio while the outgoing call click still has user activation;
     // the HTTP response and subsequent LiveKit connect are asynchronous.
     this.tones.prime();
+    // Download LiveKit in parallel with the call request; join() awaits it.
+    void loadLiveKit().catch(() => {});
     const version = ++this.generation;
     const callerToken = localStorage.getItem('t');
     try {
@@ -480,9 +518,9 @@ export class DirectCallClientService implements OnDestroy {
   private markUnexpectedLocalTrackLoss(source: Track.Source): void {
     const state=this.state$.value;
     if (!state || this.busyMedia$.value) return;
-    if (source===Track.Source.Camera && state.cameraEnabled) {
+    if (source===TrackSource.Camera && state.cameraEnabled) {
       this.update({cameraEnabled:false,error:'calls.cameraMissing'});
-    } else if (source===Track.Source.Microphone && state.micEnabled) {
+    } else if (source===TrackSource.Microphone && state.micEnabled) {
       this.update({micEnabled:false,error:'calls.microphoneMissing'});
     }
   }
@@ -500,12 +538,12 @@ export class DirectCallClientService implements OnDestroy {
     if (!state) return;
     if (state.cameraEnabled && local.videoTrackPublications &&
         ![...local.videoTrackPublications.values()].some(pub =>
-          pub.source === Track.Source.Camera && !!pub.track && !pub.isMuted)) {
+          pub.source === TrackSource.Camera && !!pub.track && !pub.isMuted)) {
       this.update({cameraEnabled:false,error:'calls.cameraMissing'});
     }
     if (state.micEnabled && local.audioTrackPublications &&
         ![...local.audioTrackPublications.values()].some(pub =>
-          pub.source === Track.Source.Microphone && !!pub.track && !pub.isMuted)) {
+          pub.source === TrackSource.Microphone && !!pub.track && !pub.isMuted)) {
       this.update({micEnabled:false,error:'calls.microphoneMissing'});
     }
   }
@@ -514,13 +552,15 @@ export class DirectCallClientService implements OnDestroy {
   private mediaFailure(error: unknown, kind: 'camera'|'microphone'): string {
     const name=error && typeof error==='object' && 'name' in error
       ? String((error as {name:unknown}).name) : '';
-    const failure=MediaDeviceFailure.getFailure(error);
+    // Before LiveKit loads only the browser error name is available.
+    const devices=liveKitModule?.MediaDeviceFailure;
+    const failure=devices ? devices.getFailure(error) : undefined;
     const prefix=kind==='camera' ? 'calls.camera' : 'calls.microphone';
-    if (failure===MediaDeviceFailure.PermissionDenied
+    if ((devices && failure===devices.PermissionDenied)
       || ['NotAllowedError','PermissionDeniedError','SecurityError'].includes(name)) return prefix+'Denied';
-    if (failure===MediaDeviceFailure.NotFound
+    if ((devices && failure===devices.NotFound)
       || ['NotFoundError','DevicesNotFoundError'].includes(name)) return prefix+'Missing';
-    if (failure===MediaDeviceFailure.DeviceInUse
+    if ((devices && failure===devices.DeviceInUse)
       || ['NotReadableError','TrackStartError'].includes(name)) return prefix+'Busy';
     if (['OverconstrainedError','ConstraintNotSatisfiedError'].includes(name)) return kind==='camera' ? 'calls.cameraConstraints' : prefix+'InvalidDevice';
     if (name==='CAMERA_PUBLICATION_FAILED') return 'calls.cameraPublicationFailed';
@@ -537,7 +577,7 @@ export class DirectCallClientService implements OnDestroy {
 
   private async applyBackground(room: Room, mode: CallBackground): Promise<void> {
     const publication=[...room.localParticipant.videoTrackPublications.values()].find(pub =>
-      pub.source===Track.Source.Camera && !!pub.track && !pub.isMuted);
+      pub.source===TrackSource.Camera && !!pub.track && !pub.isMuted);
     const track=publication?.track as LocalVideoTrack | undefined;
     if (!track) throw new Error('No active camera publication');
     if (mode!=='none' && !this.backgroundSupported) throw new Error('Background effects unsupported');
@@ -592,7 +632,7 @@ export class DirectCallClientService implements OnDestroy {
     const publications=room.localParticipant.videoTrackPublications;
     // Some deterministic test doubles don't implement publication collections.
     if (publications && ![...publications.values()].some(pub =>
-      pub.source===Track.Source.Camera && !!pub.track && !pub.isMuted
+      pub.source===TrackSource.Camera && !!pub.track && !pub.isMuted
       && pub.track.mediaStreamTrack?.readyState !== 'ended'))
       throw {name:'CAMERA_PUBLICATION_FAILED'};
   }
@@ -610,7 +650,7 @@ export class DirectCallClientService implements OnDestroy {
     // video or a newly connected video call starts, never from background events.
     const publications=room.localParticipant.videoTrackPublications;
     if (publications) {
-      const cameras=[...publications.values()].filter(pub=>pub.source===Track.Source.Camera);
+      const cameras=[...publications.values()].filter(pub=>pub.source===TrackSource.Camera);
       const healthy=cameras.some(pub=>!!pub.track && !pub.isMuted
         && pub.track.mediaStreamTrack?.readyState !== 'ended');
       if (cameras.length && !healthy) {
@@ -725,7 +765,7 @@ export class DirectCallClientService implements OnDestroy {
 
   private hasLiveLocalScreenShare(room: Room): boolean {
     return [...room.localParticipant.videoTrackPublications.values()].some(pub =>
-      pub.source===Track.Source.ScreenShare && !!pub.track && !pub.isMuted
+      pub.source===TrackSource.ScreenShare && !!pub.track && !pub.isMuted
       && pub.track.mediaStreamTrack?.readyState !== 'ended');
   }
 
@@ -816,7 +856,7 @@ export class DirectCallClientService implements OnDestroy {
         // A failed hardware switch must not infer camera state from the number
         // of publications (which may include a screen share or muted tracks).
         const cameraPublished = [...(room.localParticipant.videoTrackPublications?.values() || [])]
-          .some(pub => pub.source===Track.Source.Camera && !!pub.track && !pub.isMuted);
+          .some(pub => pub.source===TrackSource.Camera && !!pub.track && !pub.isMuted);
         this.update({
           cameraEnabled:kind==='videoinput'
             ? cameraPublished || (!!this.state$.value?.cameraEnabled &&
@@ -858,7 +898,7 @@ export class DirectCallClientService implements OnDestroy {
 
   /** Factory for deterministic LiveKit integration tests without real hardware. */
   private createRoom(): Room {
-    return new Room({adaptiveStream:true,dynacast:true});
+    return new (lk().Room)({adaptiveStream:true,dynacast:true});
   }
 
   /**
@@ -884,13 +924,16 @@ export class DirectCallClientService implements OnDestroy {
   }
 
   private async join(session: CallSession, version: number): Promise<void> {
+    await loadLiveKit();
+    // The call may have ended while the LiveKit chunk was downloading.
+    if (version !== this.generation) return;
     const room=this.createRoom();
     this.room=room;
     // A camera published after joining (or a fresh screen-share track) needs
     // an immediate view refresh on the publishing browser as well.
-    room.on(RoomEvent.LocalTrackPublished, (publication) => {
+    room.on(lk().RoomEvent.LocalTrackPublished, (publication) => {
       if (room!==this.room) return;
-      if (publication.source===Track.Source.ScreenShare) {
+      if (publication.source===TrackSource.ScreenShare) {
         this.screenShareEnabled$.next(this.hasLiveLocalScreenShare(room));
         if (this.screenShareEnabled$.value) this.screenShareFeedback$.next(null);
       }
@@ -903,13 +946,13 @@ export class DirectCallClientService implements OnDestroy {
       if (room === this.room && version === this.generation)
         this.mediaChanged$.next(this.mediaChanged$.value+1);
     };
-    room.on(RoomEvent.TrackPublished, refreshRoomMedia);
-    room.on(RoomEvent.TrackUnpublished, refreshRoomMedia);
-    room.on(RoomEvent.TrackSubscribed, refreshRoomMedia);
-    room.on(RoomEvent.TrackUnsubscribed, refreshRoomMedia);
-    room.on(RoomEvent.TrackSubscriptionFailed, refreshRoomMedia);
-    room.on(RoomEvent.ActiveSpeakersChanged, refreshRoomMedia);
-    room.on(RoomEvent.TrackMuted, (publication, participant) => {
+    room.on(lk().RoomEvent.TrackPublished, refreshRoomMedia);
+    room.on(lk().RoomEvent.TrackUnpublished, refreshRoomMedia);
+    room.on(lk().RoomEvent.TrackSubscribed, refreshRoomMedia);
+    room.on(lk().RoomEvent.TrackUnsubscribed, refreshRoomMedia);
+    room.on(lk().RoomEvent.TrackSubscriptionFailed, refreshRoomMedia);
+    room.on(lk().RoomEvent.ActiveSpeakersChanged, refreshRoomMedia);
+    room.on(lk().RoomEvent.TrackMuted, (publication, participant) => {
       if (room!==this.room) return;
       this.mediaChanged$.next(this.mediaChanged$.value+1);
       // A spontaneous local mute is not the same as a user clicking Mute.
@@ -917,30 +960,30 @@ export class DirectCallClientService implements OnDestroy {
           && !this.transportReconnecting)
         this.markUnexpectedLocalTrackLoss(publication.source);
     });
-    room.on(RoomEvent.TrackUnmuted, () => {
+    room.on(lk().RoomEvent.TrackUnmuted, () => {
       if (room===this.room) this.mediaChanged$.next(this.mediaChanged$.value+1);
     });
-    room.on(RoomEvent.LocalTrackUnpublished, (publication) => {
+    room.on(lk().RoomEvent.LocalTrackUnpublished, (publication) => {
       if (room!==this.room) return;
       this.mediaChanged$.next(this.mediaChanged$.value+1);
-      if (publication.source===Track.Source.ScreenShare)
+      if (publication.source===TrackSource.ScreenShare)
         this.screenShareEnabled$.next(this.hasLiveLocalScreenShare(room));
       else if (!this.busyMedia$.value && !this.transportReconnecting)
         this.markUnexpectedLocalTrackLoss(publication.source);
     });
-    room.on(RoomEvent.ConnectionQualityChanged, (quality, participant) => {
+    room.on(lk().RoomEvent.ConnectionQualityChanged, (quality, participant) => {
       if (room!==this.room || participant!==room.localParticipant) return;
-      const status=quality===ConnectionQuality.Excellent ? 'excellent'
-        : quality===ConnectionQuality.Good ? 'good'
-        : quality===ConnectionQuality.Poor ? 'poor'
-        : quality===ConnectionQuality.Lost ? 'lost' : 'unknown';
+      const status=quality===lk().ConnectionQuality.Excellent ? 'excellent'
+        : quality===lk().ConnectionQuality.Good ? 'good'
+        : quality===lk().ConnectionQuality.Poor ? 'poor'
+        : quality===lk().ConnectionQuality.Lost ? 'lost' : 'unknown';
       this.connectionQuality$.next(status);
     });
-    room.on(RoomEvent.AudioPlaybackStatusChanged, () => {
+    room.on(lk().RoomEvent.AudioPlaybackStatusChanged, () => {
       if (this.room === room)
         this.audioPlaybackBlocked$.next(room.canPlaybackAudio === false);
     });
-    room.on(RoomEvent.ParticipantConnected, () => {
+    room.on(lk().RoomEvent.ParticipantConnected, () => {
       if (this.room===room && version===this.generation) {
         this.clearPeerExitTimer();
         this.update({phase:'active'});
@@ -948,7 +991,7 @@ export class DirectCallClientService implements OnDestroy {
         this.mediaChanged$.next(this.mediaChanged$.value + 1);
       }
     });
-    room.on(RoomEvent.ParticipantDisconnected, () => {
+    room.on(lk().RoomEvent.ParticipantDisconnected, () => {
       if (this.room!==room || version!==this.generation) return;
       // LiveKit also emits this event when a peer performs a full WebRTC
       // reconnect. Don't terminate the server call before it rejoins.
@@ -967,14 +1010,14 @@ export class DirectCallClientService implements OnDestroy {
           this.failConnection(session,version,'calls.peerDisconnected');
       },20_000);
     });
-    room.on(RoomEvent.Reconnecting, () => {
+    room.on(lk().RoomEvent.Reconnecting, () => {
       if (this.room!==room || version!==this.generation) return;
       this.transportReconnecting=true;
       this.connectionQuality$.next('unknown');
       this.update({phase:'connecting'});
       this.mediaChanged$.next(this.mediaChanged$.value+1);
     });
-    room.on(RoomEvent.Reconnected, () => {
+    room.on(lk().RoomEvent.Reconnected, () => {
       if (this.room!==room || version!==this.generation) return;
       this.transportReconnecting=false;
       this.connectionQuality$.next('unknown');
@@ -990,7 +1033,7 @@ export class DirectCallClientService implements OnDestroy {
       void this.refreshDevices();
       this.refreshMembers();
     });
-    room.on(RoomEvent.Disconnected, () => {
+    room.on(lk().RoomEvent.Disconnected, () => {
       if (this.room===room) this.failConnection(session,version,'calls.connectionLost');
     });
     try {
@@ -1075,6 +1118,8 @@ export class DirectCallClientService implements OnDestroy {
       if (!Number.isFinite(expiresAt) || expiresAt<=Date.now()) return;
       this.state$.next({id:call.callId,peer:call.caller,media:call.media,
         phase:'incoming',expiresAt,micEnabled:false,cameraEnabled:false});
+      // Fetch LiveKit while it rings so answering connects without delay.
+      void loadLiveKit().catch(() => {});
       this.notifyBackgroundIncoming(call);
       this.scheduleExpiry(call.callId,expiresAt);
       return;
