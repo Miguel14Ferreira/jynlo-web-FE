@@ -603,6 +603,8 @@
                   <div class="community-feed-mention-anchor">
                     <textarea id="community-feed-text" name="community-feed-text" rows="3" maxlength="1000"
                               [(ngModel)]="feedDraft" (ngModelChange)="onCommunityFeedDraftChanged($event)"
+                              (keydown)="onCommunityMentionKeydown($event)"
+                              [attr.aria-expanded]="feedMentionOpen" [attr.aria-haspopup]="'listbox'"
                               [disabled]="timelineSending"
                               [placeholder]="'communities.timelineFeedPlaceholder' | t"></textarea>
                     @if (feedMentionOpen) {
