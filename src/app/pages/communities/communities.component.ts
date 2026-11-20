@@ -367,16 +367,19 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   feedDraft = '';
   feedMentionMatches:CommunityProfile[]=[];
   feedMentionBusy=false;
+  feedMentionOpen=false;
   private feedMentionTimer:ReturnType<typeof setTimeout>|null=null;
   private feedMentionSequence=0;
   onCommunityFeedDraftChanged(draft:string):void {
     if(this.feedMentionTimer)clearTimeout(this.feedMentionTimer);
-    const term=/(?:^|\s)@([\p{L}\p{N}_.-]{2,32})$/u.exec(draft)?.[1]||'';
+    const match=/(?:^|\s)@([\p{L}\p{N}_.-]{0,32})$/u.exec(draft);
+    const term=match?.[1]||'';
     const sequence=++this.feedMentionSequence;
-    this.feedMentionMatches=[];this.feedMentionBusy=!!term;
-    if(!term)return;
+    this.feedMentionOpen=!!match;
+    this.feedMentionMatches=[];this.feedMentionBusy=!!match;
+    if(!match)return;
     this.feedMentionTimer=setTimeout(()=>{
-      this.profileService.searchProfiles(term).subscribe({
+      (term ? this.profileService.searchProfiles(term) : this.profileService.findProfiles({})).subscribe({
         next:profiles=>{if(sequence!==this.feedMentionSequence)return;
           this.feedMentionMatches=profiles.filter(profile=>
             !!profile.username&&profile.username.toLowerCase().includes(term.toLowerCase())).slice(0,8);
@@ -389,8 +392,8 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   }
   chooseCommunityFeedMention(username:string):void {
     if(!this.feedMentionMatches.some(profile=>profile.username===username))return;
-    this.feedDraft=this.feedDraft.replace(/@([\p{L}\p{N}_.-]{2,32})$/u,'@'+username)+' ';
-    this.feedMentionSequence++;this.feedMentionMatches=[];this.feedMentionBusy=false;
+    this.feedDraft=this.feedDraft.replace(/@([\p{L}\p{N}_.-]{0,32})$/u,'@'+username)+' ';
+    this.feedMentionSequence++;this.feedMentionMatches=[];this.feedMentionBusy=false;this.feedMentionOpen=false;
   }
   communityMentionParts(value:string):Array<{text:string;username:string|null}> {
     const parts:Array<{text:string;username:string|null}>=[];
