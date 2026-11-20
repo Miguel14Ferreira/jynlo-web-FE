@@ -308,6 +308,18 @@ export class CommunityGroupsService {
     );
   }
 
+  followerState(id:number):Observable<{count:number;following:boolean}> {
+    return this.http.get<{count:number;following:boolean}>(this.url+'/'+id+'/followers');
+  }
+
+  followCommunity(id:number):Observable<{count:number;following:boolean}> {
+    return this.http.put<{count:number;following:boolean}>(this.url+'/'+id+'/followers/me',{});
+  }
+
+  unfollowCommunity(id:number):Observable<{count:number;following:boolean}> {
+    return this.http.delete<{count:number;following:boolean}>(this.url+'/'+id+'/followers/me');
+  }
+
   get(id: number): Observable<CommunityGroup> {
     return this.http.get<CommunityGroup>(this.url + '/' + id);
   }
