@@ -537,6 +537,14 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   isOwner=false;busy=false;featureSaving=false;deletingTeam=false;feedback='';
   kitPrimary='#16caba';kitSecondary='#f2fafc';kitPattern:TeamKitPattern='PLAIN';brandingSaving=false;
   kitGarment='jersey';
+  recommendedGarment(sport:string|null|undefined):string {
+    const value=(sport||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    if(/basquet|basket|atlet|corrida|running|triat|netball/.test(value))return 'singlet';
+    if(/cicl|cycling|btt|mountain bike|pista sprint/.test(value))return 'cycling';
+    if(/golf|golfe/.test(value))return 'polo';
+    if(/jiu|judo|luta|wrestling|mma|muay|kickbox|boxe|combat|karate/.test(value))return 'rashguard';
+    return 'jersey';
+  }
   garmentLabel(type:string):string{return ({jersey:'de camisola',singlet:'de singlet',vest:'de colete',polo:'de polo',cycling:'de jersey de ciclismo',rashguard:'de rashguard'} as Record<string,string>)[type]||'de equipamento';}
   get kitGarmentPath():string {
     switch(this.kitGarment){
@@ -863,6 +871,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         this.kitPrimary=team.kitPrimary||'#16caba';
         this.kitSecondary=team.kitSecondary||'#f2fafc';
         this.kitPattern=team.kitPattern||'PLAIN';
+        this.kitGarment=this.recommendedGarment(team.sport);
         this.render();
         this.loadCommunities();
         // Trophy/history requests are unnecessary on the initial squad screen.
