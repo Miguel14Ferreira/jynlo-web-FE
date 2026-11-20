@@ -1602,7 +1602,21 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.replyingTo = null;
   }
 
-  mentionMatches:CommunityProfile[]=[];
+  readonly mentionTokenPattern=/(^|\\s)(@[\\p{L}\\p{N}_.-]{2,32})/gu;
+  messageMentionParts(value:string):Array<{text:string;username:string|null}> {
+    const result:Array<{text:string;username:string|null}>=[];
+    const regex=/(^|\\s)(@[\\p{L}\\p{N}_.-]{2,32})/gu;
+    let index=0,match:RegExpExecArray|null;
+    while((match=regex.exec(value))!==null){
+      const start=match.index+match[1].length;
+      if(start>index)result.push({text:value.slice(index,start),username:null});
+      result.push({text:match[2],username:match[2].slice(1)});
+      index=start+match[2].length;
+    }
+    if(index<value.length)result.push({text:value.slice(index),username:null});
+    return result.length?result:[{text:value,username:null}];
+  }
+    mentionMatches:CommunityProfile[]=[];
   mentionLoading=false;
   private mentionQueryVersion=0;
   private mentionTimer:ReturnType<typeof setTimeout>|null=null;
