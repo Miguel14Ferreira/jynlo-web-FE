@@ -200,7 +200,12 @@ let reactionPickerSequence = 0;
     :host(.toolbar-mode) .reaction-badges{flex-wrap:nowrap;}
     :host(.toolbar-mode) .reaction-picker{position:absolute;right:0;top:calc(100% + 10px);z-index:100;
       min-width:max-content;max-width:min(90vw,320px);box-shadow:0 12px 30px #0009;}
-    :host(.toolbar-mode) .reaction-open{border:0;background:transparent;width:32px;height:32px;}
+    :host(.toolbar-mode) .reaction-open{border:0;background:transparent;width:34px;height:34px;padding:0;}
+     :host(.toolbar-mode) .reaction-open>span:first-child{display:grid;place-items:center;
+       width:25px;height:25px;border-radius:50%;background:#f7fafb;color:#153946;
+       font-size:1.18rem;font-weight:800;line-height:1;box-shadow:0 1px 4px #0004;}
+     :host(.toolbar-mode) .reaction-open:hover>span:first-child,
+     :host(.toolbar-mode) .reaction-open:focus-visible>span:first-child{background:#b4ffeb;color:#053a3d;}
     .chat-reactions {display:flex;flex-direction:column;align-items:flex-start;
       gap:7px;width:max-content;max-width:100%;font:inherit;}
     :host(.own-reaction) .chat-reactions {align-items:flex-end;}
