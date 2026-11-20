@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environment/environment';
 
 /** Global team identity, not the existing community-scoped permanent-team record. */
-export type TeamKitPattern = 'PLAIN' | 'STRIPES' | 'DIAGONAL';
+export type TeamKitPattern = 'PLAIN' | 'STRIPES' | 'DIAGONAL' | 'HOOPS' | 'HALVES' | 'CHEVRON';
 export interface SportsTeam {
   id: number;
   slug: string;
