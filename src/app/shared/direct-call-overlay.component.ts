@@ -521,6 +521,33 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                     <p role="status">Não foram encontrados dispositivos. Confirma as permissões no navegador.</p>
                   }
                 }
+                <div class="call-background-settings" role="group" aria-label="Fundo da câmara">
+                  <strong>Fundo da câmara</strong>
+                  <div class="call-background-choices">
+                    <button type="button" [disabled]="(calls.backgroundBusy$ | async) || (calls.busyMedia$ | async)"
+                      [class.is-active]="(calls.backgroundMode$ | async) === 'none'"
+                      [attr.aria-pressed]="(calls.backgroundMode$ | async) === 'none'"
+                      (click)="calls.setBackground('none')">Original</button>
+                    <button type="button" [disabled]="!calls.backgroundSupported || (calls.backgroundBusy$ | async) || (calls.busyMedia$ | async)"
+                      [class.is-active]="(calls.backgroundMode$ | async) === 'blur'"
+                      [attr.aria-pressed]="(calls.backgroundMode$ | async) === 'blur'"
+                      (click)="calls.setBackground('blur')">Desfocar</button>
+                    <button type="button" class="call-background-jynlo"
+                      [disabled]="!calls.backgroundSupported || (calls.backgroundBusy$ | async) || (calls.busyMedia$ | async)"
+                      [class.is-active]="(calls.backgroundMode$ | async) === 'jynlo'"
+                      [attr.aria-pressed]="(calls.backgroundMode$ | async) === 'jynlo'"
+                      (click)="calls.setBackground('jynlo')">
+                      <img src="assets/jynlo-connect-background.svg" alt="" loading="lazy"> Jynlo Connect
+                    </button>
+                  </div>
+                  @if (!calls.backgroundSupported) {
+                    <small>Este navegador não suporta fundos virtuais. A câmara normal continua disponível.</small>
+                  }
+                  @if (calls.backgroundError$ | async; as backgroundError) {
+                    <p class="call-background-error" role="alert">{{ backgroundError }}</p>
+                  }
+                  @if ((calls.backgroundBusy$ | async)) { <small role="status">A aplicar fundo…</small> }
+                </div>
                 <p>{{ 'calls.devicesHelp' | t }}</p>
               </div>
             }
@@ -532,6 +559,13 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
     }
   `,
   styles: [`
+    .call-background-settings{display:grid;gap:8px;margin:12px 0;padding:11px;border:1px solid #396b72;border-radius:12px;background:#082b37}
+    .call-background-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+    .call-background-choices button{display:grid;align-content:center;justify-items:center;gap:5px;min-height:51px;padding:7px;border:1px solid #47747b;border-radius:9px;background:#123b48;color:#e6fff8;cursor:pointer;font:inherit;font-size:.74rem}
+    .call-background-choices button.is-active{border-color:#57f2c0;box-shadow:inset 0 0 0 1px #57f2c0}
+    .call-background-choices button:disabled{opacity:.45;cursor:not-allowed}
+    .call-background-jynlo img{height:35px;max-width:100%;border-radius:4px;object-fit:cover}
+    .call-background-error{color:#ffb8be;font-size:.77rem}
     :host{display:contents}
     /* Persistent, route-independent, non-modal incoming invitation.
        The rest of the website remains clickable until the user answers. */
