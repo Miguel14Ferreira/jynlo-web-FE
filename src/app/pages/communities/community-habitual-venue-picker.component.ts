@@ -485,6 +485,7 @@ export class CommunityHabitualVenuePickerComponent implements OnChanges, OnDestr
 
   ngOnDestroy(): void {
     ++this.revision;
+    this.savedMapRequest?.unsubscribe();
     this.searchRequest?.unsubscribe();
     this.subs.unsubscribe();
   }
