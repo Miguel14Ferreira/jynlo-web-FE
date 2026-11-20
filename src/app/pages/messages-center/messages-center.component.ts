@@ -186,6 +186,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.closeSharePicker();
     this.closeAttachmentMenu();
     ++this.mutationVersion;
+    this.openMessageActionsId=null;
     this.cancelMessageMutation();
     this.closeEmojiPicker();
     this.cancelVoiceRecording();
