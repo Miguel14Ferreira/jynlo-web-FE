@@ -851,25 +851,33 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
     .connect-camera-focus-hit:hover span,.connect-camera-focus-hit:focus-visible span,
     .connect-camera-maximize:hover,.connect-camera-maximize:focus-visible{
       outline:2px solid #70ecd3;outline-offset:2px;background:#205a63}
-    .connect-participants--camera-focus{display:flex;align-content:flex-start;
-      flex-wrap:wrap;gap:10px}
+    /* The enlarged video consumes the remaining call viewport; thumbnails
+       occupy a fixed bottom rail instead of creating nested vertical scroll. */
+    .call-panel:has(.connect-participants--camera-focus){
+      height:calc(100dvh - 20px);max-height:calc(100dvh - 20px)}
+    .connect-participants--camera-focus{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr));
+      grid-template-rows:minmax(0,1fr) minmax(90px,115px);
+      grid-auto-rows:0;align-content:stretch;gap:10px;overflow:hidden}
     .connect-participants--camera-focus .connect-camera-slot{
-      flex:0 0 clamp(135px,19vw,210px);height:120px;min-height:120px;order:1}
+      height:100%;min-height:0;min-width:0;grid-row:2}
     .connect-participants--camera-focus .connect-camera-slot.is-focused{
-      flex:1 0 100%;height:clamp(250px,52vh,650px);order:0}
+      grid-column:1/-1;grid-row:1;height:100%;min-height:0}
     .connect-participants--camera-zoom .connect-camera-slot.is-focused{
       position:fixed;inset:10px;z-index:9000;height:auto!important;
-      width:auto;max-width:none;border-radius:17px;background:#091f2c;
-      box-shadow:0 0 0 100vmax #000c}
+      width:auto;max-width:none;min-height:0;border-radius:17px;background:#091f2c;
+      box-shadow:0 0 0 100vmax #000c;overflow:hidden}
     .connect-participants--camera-zoom .connect-camera-slot.is-focused
       .connect-camera-focus-hit span{top:15px;right:15px}
     .connect-participants--camera-zoom .connect-camera-slot.is-focused
       .connect-camera-maximize{top:15px;right:59px}
     @media(max-width:600px){
+      .connect-participants--camera-focus{
+        grid-template-rows:minmax(0,1fr) minmax(72px,95px)}
       .connect-participants--camera-focus .connect-camera-slot.is-focused{
-        height:clamp(220px,45dvh,470px)}
+        height:100%;min-height:0}
       .connect-participants--camera-focus .connect-camera-slot{
-        flex-basis:calc(50% - 6px);height:105px;min-height:105px}
+        height:100%;min-height:0}
     }
 
     /* Presentations use a dedicated stage and a compact camera filmstrip.
