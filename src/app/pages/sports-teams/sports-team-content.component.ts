@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Subscription, interval, fromEvent, merge } from 'rxjs';
+import { Subscription, interval, fromEvent, merge, timeout } from 'rxjs';
 import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionState } from '../../services/sports-teams.service';
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
 import { CommunityService } from '../../services/community.service';
@@ -1000,7 +1000,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const operation=uploads.length
       ? this.api.uploadContentFiles(this.teamId,this.kind,uploads,text,submittedReply)
       : this.api.sendContent(this.teamId,this.kind,text,submittedReply);
-    operation.subscribe({
+    operation.pipe(timeout(20000)).subscribe({
       next:item => {
         if(version!==this.generation||this.accessRevoked)return;
         if(!this.items.some(previous=>previous.id===item.id))
@@ -1018,7 +1018,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       },
       error:failure => {
         if(version===this.generation&&!this.accessRevoked&&!this.blockUnavailable(failure))
-          this.error='Envio não confirmado. Consulta o histórico antes de repetir.';
+          this.error='Envio não confirmado. Verifica o histórico antes de tentares novamente.';
       }
     }).add(() => {if(version===this.generation){this.sending=false;this.read(true);}});
   }
