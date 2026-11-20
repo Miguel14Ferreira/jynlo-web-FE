@@ -1637,7 +1637,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.mentionMatches=[];this.mentionLoading=!!term;
     if(term && this.selected){
       this.mentionTimer=setTimeout(()=>{
-        this.contacts.findProfiles({name:term}).subscribe({
+        this.contacts.searchProfiles(term).subscribe({
           next:profiles=>{if(version!==this.mentionQueryVersion)return;
             this.mentionMatches=profiles.filter(p=>p.username&&p.username.toLowerCase().includes(term.toLowerCase())).slice(0,8);
             this.mentionLoading=false;},
