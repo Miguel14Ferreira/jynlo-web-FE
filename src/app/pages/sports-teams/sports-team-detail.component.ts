@@ -276,11 +276,9 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
           <div class="team-kit-designer">
             <div class="team-kit-preview-stage">
               <svg class="team-kit-big-shirt" viewBox="0 0 320 336" role="img"
-                   [attr.aria-label]="'Pré-visualização da camisola ' + kitLabel(kitPattern) + ', cor principal ' + kitPrimary + ', cor secundária ' + kitSecondary">
+                   [attr.aria-label]="'Pré-visualização ' + garmentLabel(kitGarment) + ', padrão ' + kitLabel(kitPattern)">
                 <defs>
-                  <clipPath id="jynloTeamKitOutline">
-                    <path d="M112 30 77 42 24 93 57 146 91 126 91 290 Q160 312 229 290 L229 126 263 146 296 93 243 42 208 30
-                      Q194 57 160 57 Q126 57 112 30Z"/>
+                  <clipPath id="jynloTeamKitOutline"><path [attr.d]="kitGarmentPath"/>
                   </clipPath>
                   <linearGradient id="jynloTeamKitShading" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0" stop-color="#ffffff" stop-opacity=".22"/>
@@ -302,11 +300,10 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
                   <path *ngIf="kitPattern === 'CHEVRON'" d="M-20 65 160 226 340 65 340 112 160 274 -20 112Z" [attr.fill]="kitSecondary"/>
                   <rect x="0" y="0" width="320" height="336" fill="url(#jynloTeamKitShading)"/>
                 </g>
-                <path d="M112 30 77 42 24 93 57 146 91 126 91 290 Q160 312 229 290 L229 126 263 146 296 93 243 42 208 30
-                  Q194 57 160 57 Q126 57 112 30Z" fill="none" stroke="#eafffa" stroke-opacity=".65" stroke-width="2.5"/>
-                <path d="M112 30 Q126 57 160 57 Q194 57 208 30 L196 20 Q160 43 124 20Z"
+                <path [attr.d]="kitGarmentPath" fill="none" stroke="#eafffa" stroke-opacity=".65" stroke-width="2.5"/>
+                <path *ngIf="kitGarment==='jersey'||kitGarment==='polo'" d="M112 30 Q126 57 160 57 Q194 57 208 30 L196 20 Q160 43 124 20Z"
                   [attr.fill]="kitSecondary" stroke="#ffffff" stroke-opacity=".6" stroke-width="2"/>
-                <path d="M91 126 57 146 M229 126 263 146 M91 290 Q160 312 229 290"
+                <path *ngIf="kitGarment==='jersey'||kitGarment==='polo'" d="M91 126 57 146 M229 126 263 146 M91 290 Q160 312 229 290"
                   fill="none" [attr.stroke]="kitSecondary" stroke-width="6" stroke-opacity=".8"/>
               </svg>
               <div class="team-kit-preview-caption">
@@ -318,12 +315,19 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
               </div>
             </div>
             <div class="team-kit-config">
+              <label class="team-garment-control">Tipo de equipamento — pré-visualização
+                <select [(ngModel)]="kitGarment" [disabled]="brandingSaving">
+                  <option value="jersey">Camisola de jogo</option><option value="singlet">Singlet / atletismo</option>
+                  <option value="vest">Colete de treino</option><option value="polo">Polo / golfe</option>
+                  <option value="cycling">Jersey de ciclismo</option><option value="rashguard">Rashguard / combate</option>
+                </select></label>
+              <p class="team-kit-save-hint">A silhueta é uma simulação visual. As cores e o padrão são guardados como identidade oficial.</p>
               <div class="team-kit-color-row">
                 <label>Cor principal <input type="color" [(ngModel)]="kitPrimary" [disabled]="brandingSaving"></label>
                 <label>Cor secundária <input type="color" [(ngModel)]="kitSecondary" [disabled]="brandingSaving"></label>
               </div>
               <fieldset class="team-pattern-options" [disabled]="brandingSaving" aria-label="Desenho do equipamento">
-                <legend>Modelo de camisola</legend>
+                <legend>Padrão de cores</legend>
                 <div class="team-pattern-grid">
                   <button *ngFor="let option of kitPatterns" type="button"
                     [class.chosen]="kitPattern === option.id"
@@ -532,6 +536,18 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   }
   isOwner=false;busy=false;featureSaving=false;deletingTeam=false;feedback='';
   kitPrimary='#16caba';kitSecondary='#f2fafc';kitPattern:TeamKitPattern='PLAIN';brandingSaving=false;
+  kitGarment='jersey';
+  garmentLabel(type:string):string{return ({jersey:'de camisola',singlet:'de singlet',vest:'de colete',polo:'de polo',cycling:'de jersey de ciclismo',rashguard:'de rashguard'} as Record<string,string>)[type]||'de equipamento';}
+  get kitGarmentPath():string {
+    switch(this.kitGarment){
+      case 'singlet':return 'M114 32 Q135 57 160 58 Q185 57 206 32 L247 58 L231 111 L223 292 Q160 311 97 292 L89 111 L73 58 Z';
+      case 'vest':return 'M118 32 Q136 57 160 57 Q184 57 202 32 L239 56 L222 125 L222 294 Q160 311 98 294 L98 125 L81 56 Z';
+      case 'polo':return 'M112 30 77 42 24 93 57 146 91 126 91 290 Q160 312 229 290 L229 126 263 146 296 93 243 42 208 30 Q194 57 160 57 Q126 57 112 30Z';
+      case 'cycling':return 'M112 30 76 42 27 91 57 143 91 124 90 282 Q160 298 230 282 L229 124 263 143 293 91 244 42 208 30 Q194 57 160 57 Q126 57 112 30Z';
+      case 'rashguard':return 'M110 30 76 42 25 97 57 150 91 126 91 296 Q160 308 229 296 L229 126 263 150 295 97 244 42 210 30 Q194 57 160 57 Q126 57 110 30Z';
+      default:return 'M112 30 77 42 24 93 57 146 91 126 91 290 Q160 312 229 290 L229 126 263 146 296 93 243 42 208 30 Q194 57 160 57 Q126 57 112 30Z';
+    }
+  }
   readonly kitPatterns:ReadonlyArray<{id:TeamKitPattern;label:string}>=[
     {id:'PLAIN',label:'Lisa'},{id:'STRIPES',label:'Riscas verticais'},{id:'DIAGONAL',label:'Faixa diagonal'},
     {id:'HOOPS',label:'Riscas horizontais'},{id:'HALVES',label:'Metades'},{id:'CHEVRON',label:'V frontal'}
