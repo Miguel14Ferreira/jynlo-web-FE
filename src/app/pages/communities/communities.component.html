@@ -569,11 +569,9 @@
                     <h3>{{ 'communities.timelineFeedTitle' | t }}</h3>
                     <p>{{ 'communities.timelineFeedHint' | t }}</p>
                   </div>
-                  <button type="button" class="secondary-action jynlo-action jynlo-action--neutral community-feed-refresh"
-                          [disabled]="timelineLoading" (click)="loadTimeline()">
-                    <span aria-hidden="true">↻</span>
-                    {{ 'communities.timelineRefresh' | t }}
-                  </button>
+                  <span class="community-feed-auto-sync" aria-label="Publicações atualizadas automaticamente">
+                    <span aria-hidden="true">●</span> Atualização automática
+                  </span>
                 </div>
 
                 <form class="community-timeline-form community-feed-composer" (ngSubmit)="sendTimeline()">
