@@ -88,7 +88,9 @@ describe('Jynlo team profile — audit of real actions',()=>{
   api.setKit.and.returnValue(of(updated));
   component.kitPrimary='#1144aa';component.kitSecondary='#ffffff';
   component.saveTeamKit();
-  expect(api.setKit).toHaveBeenCalledOnceWith(5,'#1144aa','#ffffff','PLAIN');
+  expect(api.setKit).toHaveBeenCalledOnceWith(5,'#1144aa','#ffffff','PLAIN',jasmine.objectContaining({
+    garment:'jersey',accent:'#FFFFFF',variants:[]
+  }));
   expect(component.team?.kitPrimary).toBe('#1144AA');
   expect(component.brandingSaving).toBeFalse();
   expect(api.rememberTeam).toHaveBeenCalledOnceWith(updated);
@@ -99,10 +101,50 @@ describe('Jynlo team profile — audit of real actions',()=>{
   component.kitPattern='STRIPES';
   component.kitPrimary='#123456';component.kitSecondary='#f0f0f0';
   component.saveTeamKit();
-  expect(api.setKit).toHaveBeenCalledOnceWith(5,'#123456','#f0f0f0','STRIPES');
+  expect(api.setKit).toHaveBeenCalledOnceWith(5,'#123456','#f0f0f0','STRIPES',jasmine.objectContaining({variants:[]}));
   expect(component.kitPattern).toBe('STRIPES');
   expect(component.team?.kitPattern).toBe('STRIPES');
-  expect(component.kitPatterns.map(x=>x.id)).toEqual(['PLAIN','STRIPES','DIAGONAL']);
+  expect(component.kitPatterns.map(x=>x.id)).toEqual(['PLAIN','STRIPES','DIAGONAL','HOOPS','HALVES','CHEVRON']);
+ });
+ it('keeps three kit drafts independent and submits secondary equipment variants',()=>{
+  const updated={...team,kitPrimary:'#16caba',kitSecondary:'#f2fafc',kitPattern:'PLAIN' as const,
+    kitVariants:[{type:'ALTERNATE' as const,primary:'#224488',secondary:'#f2fafc',
+      pattern:'HOOPS' as const,garment:'singlet',accent:'#FFFFFF',playerName:'ANA',playerNumber:'9'}]};
+  api.setKit.and.returnValue(of(updated));
+  component.switchKit('ALTERNATE');
+  component.kitPrimary='#224488';
+  component.kitPattern='HOOPS';
+  component.kitGarment='singlet';
+  component.kitPlayerName='ANA';
+  component.kitPlayerNumber='9';
+  component.switchKit('PRIMARY');
+  expect(component.kitPrimary).toBe('#16caba');
+  component.switchKit('ALTERNATE');
+  expect(component.kitPrimary).toBe('#224488');
+  component.saveTeamKit();
+  const request=api.setKit.calls.mostRecent().args;
+  expect(request[1]).toBe('#16caba');
+  expect(request[4]?.variants?.[0]).toEqual(jasmine.objectContaining({
+    type:'ALTERNATE',primary:'#224488',pattern:'HOOPS',garment:'singlet',playerNumber:'9'
+  }));
+  expect(component.team?.kitVariants?.[0].playerName).toBe('ANA');
+ });
+ it('lets captain remove a training design without disturbing primary kit',()=>{
+  component.switchKit('TRAINING');
+  component.kitPrimary='#ff0000';
+  component.switchKit('PRIMARY');
+  expect(component.kitVariants.length).toBe(1);
+  component.switchKit('TRAINING');
+  component.removeCurrentVariant();
+  expect(component.kitVariants).toEqual([]);
+  expect(component.activeKitKind).toBe('PRIMARY');
+  expect(component.kitPrimary).toBe('#16caba');
+ });
+ it('refuses invalid printing fields before sending a kit update',()=>{
+  component.kitPlayerNumber='ABC';
+  component.saveTeamKit();
+  expect(api.setKit).not.toHaveBeenCalled();
+  expect(component.feedback).toContain('Número inválido');
  });
  it('does not let non-owners change a kit or upload a crest',()=>{
   component.isOwner=false;
