@@ -565,3 +565,17 @@
  z-index:20;white-space:nowrap;background:#0e4150;box-shadow:0 10px 22px #001b27aa}
 .team-grid>section.team-feature{padding:clamp(14px,2.1vw,23px)}
 @media(max-width:480px){.team-feature-settings summary span{display:none}}
+
+/* Match the lighter community navigation: no large filled pill per tab. */
+.team-tabs{display:flex;align-items:center;gap:clamp(4px,1.2vw,18px);
+  padding:0 4px;margin:1rem 0 1.35rem;border:0;border-bottom:1px solid #397b8069;
+  border-radius:0;background:transparent;scroll-snap-type:x proximity}
+.team-tabs button{position:relative;flex:0 0 auto;min-height:46px;padding:11px 12px;
+  border:0;border-radius:0;background:transparent;color:#b8d3d6;
+  font-size:.86rem;font-weight:750;box-shadow:none;transition:color .15s,background .15s}
+.team-tabs button:hover:not(.selected){background:#123e4955;color:#e9fff9}
+.team-tabs button.selected{color:#73f4d8;background:transparent;box-shadow:none}
+.team-tabs button.selected::after{content:"";position:absolute;bottom:0;left:10px;
+  right:10px;height:3px;border-radius:3px 3px 0 0;background:#43e4c2}
+.team-tabs button:focus-visible{outline:2px solid #80f4db;outline-offset:-3px}
+@media(max-width:600px){.team-tabs{gap:1px}.team-tabs button{padding-inline:10px;font-size:.81rem}}
