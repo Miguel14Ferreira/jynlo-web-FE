@@ -53,3 +53,8 @@ test('community and profile links get their own share pages', () => {
   // Only crawlers are rewritten; people keep getting the app.
   assert.equal(config.split('try_files /index.html =404;').length, 4);
 });
+
+test('the sitemap comes from the backend', () => {
+  assert.ok(config.includes('location = /sitemap.xml {'));
+  assert.ok(config.includes('rewrite ^ /api/public/sitemap.xml last;'));
+});

@@ -71,6 +71,12 @@ server {
         try_files /index.html =404;
     }
 
+    # The sitemap is built by the backend (public pages + every venue), through the /api/ proxy above.
+    # The static src/sitemap.xml stays as the fallback for hosts without nginx.
+    location = /sitemap.xml {
+        rewrite ^ /api/public/sitemap.xml last;
+    }
+
     # Serve fresh HTML after security releases, while assets remain cacheable.
     location = /index.html {
         expires -1;
