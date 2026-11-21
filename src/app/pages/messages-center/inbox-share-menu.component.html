@@ -1,3 +1,8 @@
+@if (pollAvailable) {
+  <button type="button" class="inbox-share-menu-poll" (click)="pollRequested.emit()">
+    📊 {{ 'chat.poll.menu' | t }}
+  </button>
+}
 @if (callUpAvailable) {
   <button type="button" class="inbox-share-menu-callup" (click)="callUpRequested.emit()">
     📣 {{ 'chat.callUp.menu' | t }}
