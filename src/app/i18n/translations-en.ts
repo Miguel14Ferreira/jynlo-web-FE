@@ -1760,7 +1760,7 @@ export const EN: Record<string, string> = {
   'availability.progress': '{{answered}} of {{members}} answered',
   'availability.canCount': '{{count}} yes',
   'availability.maybeCount': '{{count}} maybe',
-  'availability.noCount': '{{count}} can’t',
+  'availability.noCount': '{{count}} no',
   'availability.yes': 'I can',
   'availability.maybe': 'Maybe',
   'availability.no': 'I can’t',
