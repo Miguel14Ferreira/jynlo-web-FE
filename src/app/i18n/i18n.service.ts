@@ -5340,6 +5340,7 @@ const PT: Dictionary = {
   'groups.subtitle': 'Conversa com os teus amigos num espaço privado.',
   'groups.create': 'Criar grupo',
   'groups.members': 'membros',
+  'groups.unread': 'mensagens por ler',
   'groups.addMembers': 'Adicionar membros',
   'groups.changePhoto': 'Alterar fotografia',
   'groups.uploadingPhoto': 'A enviar fotografia…',

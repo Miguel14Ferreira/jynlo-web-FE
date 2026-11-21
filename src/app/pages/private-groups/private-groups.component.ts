@@ -12,6 +12,7 @@ import { FriendSummary } from '../model/friend-summary';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { environment } from 'src/environment/environment';
+import { InboxApiService } from '../../services/inbox-api.service';
 
 @Component({
   selector:'app-private-groups',
@@ -47,6 +48,8 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
   muteLoading = false;
   muteError = '';
   hasMore=false;
+  /** Unread per group, from the server read cursors (same numbers as the app). */
+  unread=new Map<number,number>();
   private currentRequest=0;
   private subscriptions=new Subscription();
   readonly me:string;
@@ -54,7 +57,8 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
   constructor(private api:PrivateGroupService,private contact:CommunityService,
     private realtime:DirectChatRealtimeService,private auth:AuthenticationService,
     private router:Router,private route:ActivatedRoute,
-    private conversationMutes:ConversationMuteService){
+    private conversationMutes:ConversationMuteService,
+    private inboxApi:InboxApiService){
     this.me=(auth.loggedInPerfilname||'').toLowerCase();
   }
 
@@ -67,6 +71,7 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
     this.subscriptions.add(this.realtime.groupMessages$.subscribe(message=>{
       if(this.selected?.id===message.groupId && !this.messages.some(old=>old.id===message.id)){
         this.messages=[...this.messages,message];
+        if(document.visibilityState==='visible')this.markSeen(message.groupId,[message]);
       }
       this.refreshGroups(false);
     }));
@@ -99,6 +104,7 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
       next:groups=>{
         this.groups=groups;
         this.loading=false;
+        this.refreshUnread();
         this.error='';
         const requested=Number(this.route.snapshot.queryParamMap.get('id'));
         if(Number.isSafeInteger(requested)&&requested>0){
@@ -113,6 +119,34 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
       },
       error:()=>{if(initial){this.error=t('groups.loadError');this.loading=false;}}
     });
+  }
+
+  unreadFor(group:PrivateGroup):number{
+    return this.selected?.id===group.id?0:(this.unread.get(group.id)||0);
+  }
+
+  private refreshUnread():void{
+    const ids=this.groups.map(g=>g.id).filter(id=>Number.isSafeInteger(id)&&id>0);
+    if(!ids.length){this.unread=new Map();return;}
+    this.inboxApi.privateGroupSummaries(ids).subscribe({
+      next:items=>{
+        const next=new Map<number,number>();
+        for(const item of items||[]){
+          const id=Number(item.id);
+          if(item.kind==='private'&&ids.includes(id)&&Number.isSafeInteger(item.unreadCount)&&item.unreadCount>0)next.set(id,item.unreadCount);
+        }
+        this.unread=next;
+      },
+      error:()=>{/* Keep the last known counts. */}
+    });
+  }
+
+  /** Messages shown on screen move the server read cursor (badges on the app and here). */
+  private markSeen(groupId:number,items:PrivateGroupMessage[]):void{
+    const newest=items.reduce((max,m)=>Math.max(max,m.id||0),0);
+    if(newest<=0)return;
+    this.unread.delete(groupId);
+    this.inboxApi.markPrivateGroupRead(groupId,newest).subscribe({error:()=>{}});
   }
 
   get selectedMuted(): boolean {
@@ -144,6 +178,7 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
       next:items=>{
         if(this.currentRequest!==ticket)return;
         this.messages=items;this.loadingMessages=false;this.hasMore=items.length>=50;
+        this.markSeen(group.id,items);
       },
       error:()=>{
         if(this.currentRequest!==ticket)return;
