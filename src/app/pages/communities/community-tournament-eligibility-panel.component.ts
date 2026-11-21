@@ -11,6 +11,15 @@ import { CommunityTournamentEligibilityService, TournamentEligibilityOverview } 
   standalone: true,
   imports: [CommonModule, TranslatePipe],
   template: `
+    @if (allClear) {
+      <!-- Nothing to act on: one quiet line instead of a full panel. -->
+      <div class="eligibility-clear" role="status">
+        <span aria-hidden="true">✓</span>
+        <span>{{ 'communities.tournaments.eligibility.allClear' | t }}</span>
+        <small>{{ 'communities.tournaments.eligibility.checkedAt' | t }} {{ overview!.checkedAt | date:'dd/MM HH:mm' }}</small>
+        <button type="button" class="eligibility-clear-refresh" (click)="reload()" [disabled]="loading">{{ 'communities.tournaments.eligibility.refresh' | t }}</button>
+      </div>
+    } @else {
     <section class="eligibility-panel" aria-labelledby="eligibility-title">
       <div class="eligibility-header">
         <h4 id="eligibility-title">{{ 'communities.tournaments.eligibility.title' | t }}</h4>
@@ -41,6 +50,7 @@ import { CommunityTournamentEligibilityService, TournamentEligibilityOverview } 
           {{ 'communities.tournaments.eligibility.disclaimer' | t }}</small>
       }
     </section>
+    }
   `,
   styles: [`
     .eligibility-panel { border:1px solid var(--border-color,#77889955); border-radius:14px; padding:1rem; margin:1rem 0; }
@@ -50,6 +60,9 @@ import { CommunityTournamentEligibilityService, TournamentEligibilityOverview } 
     .eligibility-panel p { margin:.7rem 0; }
     .eligibility-panel li { margin:.35rem 0; }
     .eligibility-panel small { opacity:.75; }
+    .eligibility-clear { display:flex; align-items:center; flex-wrap:wrap; gap:.5rem; margin:.5rem 0 1rem; padding:.55rem .8rem; border:1px solid #3fd8b440; border-radius:12px; background:#0b5a4a26; color:#bff7e6; font-size:.86rem; }
+    .eligibility-clear small { opacity:.7; }
+    .eligibility-clear-refresh { margin-left:auto; background:none; border:0; color:#6ff0d4; font-weight:800; cursor:pointer; padding:.35rem .4rem; }
   `]
 })
 export class CommunityTournamentEligibilityPanelComponent implements OnChanges, OnDestroy {
@@ -57,6 +70,11 @@ export class CommunityTournamentEligibilityPanelComponent implements OnChanges, 
   @Input({ required: true }) tournamentId!: number;
   @Input() entryType?: TournamentEligibilityOverview['entryType'];
   overview: TournamentEligibilityOverview | null = null;
+
+  /** Loaded, no error and nobody suspended: show the compact confirmation. */
+  get allClear(): boolean {
+    return !this.loading && !this.error && !!this.overview && this.overview.ineligibleEntries.length === 0;
+  }
   loading = false;
   error = '';
   private revision = 0;

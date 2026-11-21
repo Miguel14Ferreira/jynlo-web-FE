@@ -1355,7 +1355,7 @@ h1 {
 .session-player-chip__status{
   display:inline-flex;align-items:center;min-height:24px;
   padding:3px 8px;border-radius:999px;white-space:normal;
-  font-size:.63rem;font-weight:850;letter-spacing:.035em;line-height:1.2;
+  font-size:.72rem;font-weight:850;letter-spacing:.035em;line-height:1.2;
   color:#70f9d8;background:rgba(25,222,181,.13);
 }
 .session-player-chip--member .session-player-chip__status{
@@ -1596,7 +1596,7 @@ h1 {
   display:inline-flex;align-items:center;justify-content:center;
   max-width:100%;min-height:25px;padding:4px 7px;
   border-radius:7px;background:rgba(73,167,220,.16);
-  color:#c2eeff;font-size:.64rem;letter-spacing:.015em;
+  color:#c2eeff;font-size:.72rem;letter-spacing:.015em;
   line-height:1.2;font-weight:800;text-align:center;
 }
 .session-player-card--guest .session-player-card__badge {
@@ -1616,7 +1616,7 @@ h1 {
 @media(max-width:620px) {
   .session-participant-list {grid-template-columns:1fr;}
   .session-participant-list > .session-player-card {min-height:64px;padding:10px;}
-  .session-player-card__badge {font-size:.62rem;}
+  .session-player-card__badge {font-size:.72rem;}
 }
 @media(prefers-reduced-motion:reduce) {
   .session-participant-list > .session-player-card {transition:none;}

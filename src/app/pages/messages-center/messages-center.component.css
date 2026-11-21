@@ -86,7 +86,7 @@
 .inbox-attachment { display:grid; gap:8px; min-width:0; margin-top:10px; }
 .inbox-attachment-button { display:flex; gap:9px; align-items:center; min-width:0; border:1px solid #628f91; border-radius:12px; padding:11px; background:#133845; color:#e5faf8; text-align:left; font:inherit; font-size:.8rem; cursor:pointer; }
 .inbox-attachment-button span:nth-child(2) { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.inbox-attachment-button small { flex:none; color:#a4dacf; font-size:.68rem; }
+.inbox-attachment-button small { flex:none; color:#a4dacf; font-size:.72rem; }
 .inbox-attachment-image { display:block; max-width:min(100%,400px); max-height:300px; object-fit:contain; border-radius:12px; background:#0d2732; }
 /* WhatsApp-inspired unified picker, recoloured for Concept One. */
 .inbox-emoji-controls { position:relative;display:flex;gap:8px;align-items:center; }
@@ -105,7 +105,7 @@
 .inbox-giphy-message img { display:block;width:100%;max-height:260px;object-fit:contain;
   border-radius:11px;background:#102a36; }
 .inbox-giphy-message p { margin:3px 0;color:#eafaf7;overflow-wrap:anywhere; }
-.inbox-giphy-message a { align-self:flex-end;font-size:.69rem;color:#b0e4d8;
+.inbox-giphy-message a { align-self:flex-end;font-size:.72rem;color:#b0e4d8;
   text-decoration:none; }
 .inbox-giphy-message a:hover { text-decoration:underline; }
 .inbox-giphy-draft img { width:45px;height:40px;object-fit:cover;border-radius:7px; }
@@ -278,11 +278,11 @@
 }
 .inbox-voice-mute:hover { filter:brightness(1.3); }
 .inbox-attachment:has(.inbox-voice-inline) { width:min(345px, 100%); }
-.inbox-gif-trigger { flex:none;min-width:40px;color:#bde9dd;font-size:.68rem;font-weight:850;letter-spacing:.03em; }
+.inbox-gif-trigger { flex:none;min-width:40px;color:#bde9dd;font-size:.72rem;font-weight:850;letter-spacing:.03em; }
 @media (max-width:600px) {
   .inbox-attachment:has(.inbox-voice-inline) { width:100%; }
   .inbox-voice-inline { min-width:0; gap:7px; padding:4px 6px; }
-  .inbox-voice-clock { font-size:.67rem; }
+  .inbox-voice-clock { font-size:.72rem; }
 }
 
 .inbox-composer-retry {
@@ -293,7 +293,7 @@
 .inbox-composer-retry:focus-visible { outline:2px solid #adffe8; outline-offset:2px; }
 
 /* Edits and tombstones keep a stable message bubble and original delivery ID. */
-.inbox-message-edited { color:#a7d4c9;font-size:.67rem;font-style:italic; }
+.inbox-message-edited { color:#a7d4c9;font-size:.72rem;font-style:italic; }
 .inbox-message-deleted { color:#a9bfca;font-style:italic;font-size:.84rem; }
 .inbox-message-actions { display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
 .inbox-mutation-trigger { border:0;background:transparent;color:#a9e6d7;

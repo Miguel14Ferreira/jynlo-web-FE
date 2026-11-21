@@ -16,7 +16,7 @@
   flex: 0 0 auto; padding: .75rem 1rem; border-bottom: 1px solid rgba(148,163,184,.18);
 }
 .story-create-header h3 { font-size: 1rem; font-weight: 750; margin: .1rem 0; }
-.story-create-kicker { display: block; color: #5eead4; font-size: .67rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 800; }
+.story-create-kicker { display: block; color: #5eead4; font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 800; }
 .story-create-close { display: grid; place-items: center; font-size: 1.7rem; width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(148,163,184,.17); color: white; cursor: pointer; }
 .story-create-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, .8fr); gap: 0; min-height: 0; overflow: auto; }
 .story-create-stage {

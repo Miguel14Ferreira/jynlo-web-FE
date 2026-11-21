@@ -180,7 +180,7 @@
 :host .tournaments .team-group-fixtures-preview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:8px;}
 :host .tournaments .team-group-fixture-preview{display:grid;gap:7px;min-width:0;padding:10px;border:1px solid rgba(92,198,170,.33);border-radius:10px;background:rgba(9,53,64,.75);color:#e5fff4;font:inherit;text-align:left;cursor:pointer;}
 :host .tournaments .team-group-fixture-preview:hover{border-color:#8cf5c7;background:rgba(23,95,79,.73);}
-:host .tournaments .team-group-fixture-preview>small{color:#a5d9cc;font-size:.69rem;}
+:host .tournaments .team-group-fixture-preview>small{color:#a5d9cc;font-size:.72rem;}
 :host .tournaments .team-group-fixture-preview>span{display:flex;align-items:center;gap:6px;min-width:0;font-size:.77rem;}
 :host .tournaments .team-group-fixture-preview>span strong{min-width:0;flex:1;overflow-wrap:anywhere;font-weight:730;}
 :host .tournaments .team-group-fixture-preview>span b{flex:none;font-variant-numeric:tabular-nums;color:#9effcb;}
@@ -213,7 +213,7 @@
 :host .tournaments .team-page-quick-nav .team-page-quick-next{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-color:rgba(126,239,171,.7);background:rgba(25,106,74,.49);}
 :host .tournaments .team-page-quick-next span{font-size:.71rem;color:#b4e5d1;}
 :host .tournaments .team-page-quick-next strong{overflow-wrap:anywhere;}
-:host .tournaments .team-page-quick-next small{font-size:.69rem;color:#a8f1cc;}
+:host .tournaments .team-page-quick-next small{font-size:.72rem;color:#a8f1cc;}
 :host .tournaments .team-page-content:focus,:host .tournaments .team-page-performance:focus,:host .tournaments .team-page-group-overview:focus{outline:none;}
 :host .tournaments .team-page-content,:host .tournaments .team-page-performance,:host .tournaments .team-page-group-overview{scroll-margin-top:80px;}
 @media(max-width:650px){:host .tournaments .team-page-quick-nav .team-page-quick-next{margin-left:0;width:100%;}}
@@ -228,7 +228,7 @@
 
 /* Verified group-of-origin links in the first published knockout round. */
 :host .tournaments .team-knockout-team-main{display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-width:0;}
-:host .tournaments .team-knockout-group-origin{padding:3px 6px;border:1px solid rgba(109,210,182,.45);border-radius:7px;background:rgba(21,93,79,.48);color:#bff9df;font:inherit;font-size:.68rem;white-space:nowrap;cursor:pointer;}
+:host .tournaments .team-knockout-group-origin{padding:3px 6px;border:1px solid rgba(109,210,182,.45);border-radius:7px;background:rgba(21,93,79,.48);color:#bff9df;font:inherit;font-size:.72rem;white-space:nowrap;cursor:pointer;}
 :host .tournaments .team-knockout-group-origin:hover{background:rgba(32,125,100,.7);}
 :host .tournaments .team-knockout-group-origin:focus-visible{outline:2px solid #b4ffe9;outline-offset:2px;}
 

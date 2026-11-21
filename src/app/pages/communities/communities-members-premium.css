@@ -8,7 +8,7 @@
 .members-block .community-member-identity{display:flex;align-items:center;flex-wrap:wrap;column-gap:10px;row-gap:4px;min-width:0}
 .members-block .community-member-identity strong{flex-basis:100%;font-size:.97rem;overflow-wrap:anywhere}
 .members-block .community-member-handle{color:#9fc9d6;font-size:.8rem}
-.members-block .community-member-role{display:inline-flex;align-items:center;border:1px solid #397d8d;border-radius:999px;padding:3px 9px;color:#bce4e7;background:#153c4a;font-size:.68rem;font-weight:800;letter-spacing:.04em}
+.members-block .community-member-role{display:inline-flex;align-items:center;border:1px solid #397d8d;border-radius:999px;padding:3px 9px;color:#bce4e7;background:#153c4a;font-size:.72rem;font-weight:800;letter-spacing:.04em}
 .members-block .community-member-role.is-owner{color:#ffe3a4;border-color:#9e7f3b;background:#4a3c1c}
 .members-block .community-member-role.is-admin{color:#a2f8df;border-color:#268b7e;background:#124f4b}
 .members-block .community-member-open{margin-left:auto;color:#73e2d0;font-size:1.1rem}
