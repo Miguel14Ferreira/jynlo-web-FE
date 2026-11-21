@@ -366,11 +366,14 @@
 
                 @if ((selected.type === 'TEAM_MEMBER_INVITE'
                       || selected.type === 'TEAM_ADMIN_TRANSFER'
-                      || selected.type === 'TEAM_ADMIN_ASSIGNED')
+                      || selected.type === 'TEAM_ADMIN_ASSIGNED'
+                      || selected.type === 'TOURNAMENT_RESULT'
+                      || selected.type === 'TOURNAMENT_LEADER')
                     && selected.communityId !== null && selected.communityId !== undefined) {
                   <button type="button" class="primary-action jynlo-action jynlo-action--primary"
                     (click)="openTeamCompetition(selected)">
-                    {{ 'notifications.team.openCompetition' | t }}
+                    {{ (selected.type === 'TOURNAMENT_RESULT' || selected.type === 'TOURNAMENT_LEADER'
+                      ? 'notifications.tournament.open' : 'notifications.team.openCompetition') | t }}
                   </button>
                 }
 

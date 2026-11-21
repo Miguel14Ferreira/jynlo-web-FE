@@ -34,7 +34,8 @@ export class NotificationsComponent implements OnInit {
     'COMMUNITY_INVITE', 'COMMUNITY_JOIN_REQUEST', 'COMMUNITY_JOIN_ACCEPTED',
     'COMMUNITY_JOIN_REJECTED', 'SESSION_INVITE', 'WAITLIST_PROMOTED',
     'SESSION_REMOVED', 'SESSION_CANCELLED', 'SESSION_MEETING_POINT_UPDATED',
-    'SESSION_POST_GAME_REVIEW',
+    'SESSION_POST_GAME_REVIEW', 'SESSION_REMINDER',
+    'TOURNAMENT_RESULT', 'TOURNAMENT_LEADER',
     'ATTENDANCE_DISPUTE_ACCEPTED', 'ATTENDANCE_DISPUTE_REJECTED',
     'TEAM_MEMBER_INVITE', 'TEAM_ADMIN_TRANSFER', 'TEAM_ADMIN_ASSIGNED',
     'CHAT_MESSAGE', 'VENUE_EDIT_DECISION', 'SOCIAL_POST_LIKED',
@@ -489,7 +490,8 @@ export class NotificationsComponent implements OnInit {
   }
 
   openTeamCompetition(notification: AppNotification): void {
-    if (!['TEAM_MEMBER_INVITE', 'TEAM_ADMIN_TRANSFER', 'TEAM_ADMIN_ASSIGNED']
+    if (!['TEAM_MEMBER_INVITE', 'TEAM_ADMIN_TRANSFER', 'TEAM_ADMIN_ASSIGNED',
+          'TOURNAMENT_RESULT', 'TOURNAMENT_LEADER']
             .includes(notification.type || '')
         || !this.validCompetitionLinkId(notification.communityId)) return;
     const params: Record<string, number | string> = { tab: 'tournaments' };
@@ -706,6 +708,9 @@ export class NotificationsComponent implements OnInit {
       case 'TEAM_MEMBER_INVITE':
       case 'TEAM_ADMIN_TRANSFER':
       case 'TEAM_ADMIN_ASSIGNED':
+      case 'SESSION_REMINDER':
+      case 'TOURNAMENT_RESULT':
+      case 'TOURNAMENT_LEADER':
         return t('notifications.preferences.type.' + notification.type);
       case 'COMMUNITY_INVITE':
         return t('notification.communityInvite');
