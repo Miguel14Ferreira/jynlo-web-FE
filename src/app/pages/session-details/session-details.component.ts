@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AfterViewChecked, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, NgZone, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { isSessionSkillLevel, sessionSkillLevelLabel, sessionSkillLevelOptions } from '../../shared/session-skill-level';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { catchError, concatMap, finalize, forkJoin, from, map, mergeMap, of, retry, Subscription, TimeoutError, timeout, toArray } from 'rxjs';
 
@@ -650,6 +651,34 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     this.meetingPointEditing = false;
     this.meetingPointDraft = '';
     this.meetingPointError = '';
+  }
+
+  levelSaving = false;
+  levelError = '';
+  readonly levelOptions = sessionSkillLevelOptions('sessionLevel.ALL');
+  levelLabel(level: string | null | undefined): string { return sessionSkillLevelLabel(level); }
+
+  get canEditLevel(): boolean {
+    return !!this.session && this.isCreator()
+      && (this.session.status === 'OPEN' || this.session.status === 'FULL');
+  }
+
+  changeLevel(value: string): void {
+    if (!this.session || !this.sessionId || this.levelSaving || !this.canEditLevel) return;
+    const level = isSessionSkillLevel(value) ? value : null;
+    if (level === (this.session.skillLevel ?? null)) return;
+    const sessionId = this.sessionId;
+    this.levelSaving = true;
+    this.levelError = '';
+    this.sessionService.updateSkillLevel(sessionId, level)
+      .pipe(timeout(10000), finalize(() => this.levelSaving = false))
+      .subscribe({
+        next: detail => {
+          if (this.sessionId !== sessionId || !this.session) return;
+          this.session = { ...this.session, skillLevel: detail?.skillLevel ?? level };
+        },
+        error: () => { this.levelError = t('sessionLevel.saveError'); }
+      });
   }
 
   saveMeetingPoint(): void {

@@ -17,6 +17,7 @@ import { SPORTS_CATALOG } from '../../shared/sports-catalog';
 import { suggestedMinimumPlayers } from '../../shared/session-minimum-players';
 import { JynloSelectOption } from '../../shared/jynlo-select/jynlo-select.component';
 import { MAINLAND_PORTUGAL_DISTRICTS, SEARCH_ALL_DISTRICTS } from '../../shared/portugal-districts';
+import { sessionSkillLevelOptions } from '../../shared/session-skill-level';
 
 @Component({
   selector: 'app-events2',
@@ -28,6 +29,8 @@ import { MAINLAND_PORTUGAL_DISTRICTS, SEARCH_ALL_DISTRICTS } from '../../shared/
 export class Events2Component implements OnInit, OnDestroy {
   sport = '';
   playFormat: 'INDIVIDUAL' | 'PAIRS' = 'INDIVIDUAL';
+  /** '' = all levels welcome. */
+  skillLevel: '' | 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' = '';
   gameDate = '';
   city = '';
   address = '';
@@ -731,6 +734,10 @@ export class Events2Component implements OnInit, OnDestroy {
     this.applyPresetById(value === '' ? null : Number(value));
   }
 
+  get skillLevelChoices(): JynloSelectOption[] {
+    return sessionSkillLevelOptions('sessionLevel.ALL');
+  }
+
   get playFormatChoices(): JynloSelectOption[] {
     return [
       {value: 'INDIVIDUAL', label: t('createSession.playFormatIndividual')},
@@ -1090,6 +1097,7 @@ export class Events2Component implements OnInit, OnDestroy {
       sport: this.sport.trim(),
       airsoftGameType: this.sport === 'Airsoft' ? (this.airsoftGameType || null) : null,
       ...(this.selectedPlayFormat ? { playFormat: this.selectedPlayFormat } : {}),
+      skillLevel: this.skillLevel || null,
       gameDate: new Date(this.gameDate).toISOString(),
       city: this.city.trim(),
       address: this.address.trim() || (this.hasCoordinates

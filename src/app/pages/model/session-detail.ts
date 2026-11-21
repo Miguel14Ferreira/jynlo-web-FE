@@ -27,6 +27,8 @@ export interface SessionDetail extends SessionSummary {
   /** Server-controlled eligibility: never infer from participant count alone. */
   teamBalanceSupported?: boolean;
   playFormat?: 'INDIVIDUAL' | 'PAIRS' | 'TEAMS' | null;
+  /** Level the session is aimed at; null = all levels. */
+  skillLevel?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | null;
   canSharePublicly?: boolean;
   registrationOpeningMode?: 'IMMEDIATE' | 'SCHEDULED' | 'MANUAL' | null;
   registrationOpensAt?: string | null;

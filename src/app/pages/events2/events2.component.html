@@ -307,6 +307,16 @@
           </label>
         }
 
+        <label class="session-level-field">
+          <span>{{ 'sessionLevel.label' | t }}</span>
+          <app-jynlo-select name="skillLevel" class="create-premium-select"
+            [options]="skillLevelChoices" [(ngModel)]="skillLevel"
+            [ariaLabel]="'sessionLevel.label' | t"
+            [blocked]="loading" [disabled]="loading">
+          </app-jynlo-select>
+          <small>{{ 'sessionLevel.createHint' | t }}</small>
+        </label>
+
         <label>
           <span>{{ 'createSession.dateTime' | t }} *</span>
           <input

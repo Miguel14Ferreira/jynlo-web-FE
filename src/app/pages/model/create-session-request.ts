@@ -4,6 +4,7 @@ export interface CreateSessionRequest {
   airsoftGameType?: 'SKIRMISH' | 'MILSIM' | 'CAPTURE_THE_FLAG' | null;
   /** Optional for legacy API clients; server infers safe default. */
   playFormat?: 'INDIVIDUAL' | 'PAIRS' | 'TEAMS';
+  skillLevel?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | null;
   gameDate: string;
   city: string;
   address: string;
