@@ -31,7 +31,9 @@
 .er-badge{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:#135e59;color:#a0ffe3;font-weight:900}
 .is-leader .er-badge{background:#8a6a1f;color:#fff3c4}
 .er-athlete{display:block;color:#f4fffb;overflow-wrap:anywhere}
-.er-meta{display:block;margin-top:2px;color:#a9c8cf;font-weight:500;font-size:.75rem}
+.er-meta{display:block;margin-top:2px;color:#a9c8cf;font-weight:500;font-size:.75rem;line-height:1.5}
+.er-meta span{white-space:nowrap}
+.er-best{margin-top:2px;color:#d8f3ee;font-weight:600;font-size:.8rem;font-variant-numeric:tabular-nums}
 .er-narrow{display:none}
 .er-entries{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .er-entries li{display:grid;grid-template-columns:minmax(0,1fr) minmax(6rem,9rem) auto;gap:8px;align-items:center}
@@ -44,12 +46,17 @@
 .er-results{list-style:none;margin:8px 0;padding:0;display:grid;gap:4px}
 .er-results li{display:grid;grid-template-columns:2.4rem minmax(0,1fr) 4.2rem;gap:8px;align-items:center;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.03);font-variant-numeric:tabular-nums}
 .er-place{font-weight:900;color:#a0ffe3}
-.er-result-name{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 10px;font-weight:700;overflow-wrap:anywhere;min-width:0}
-.er-result-name small{font-weight:500;color:#c5dcdf;font-size:.85rem}
+.er-result-name{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 10px;font-weight:700;overflow-wrap:anywhere;min-width:0}
+.er-result-name small{font-weight:500;color:#c5dcdf;font-size:.85rem;font-variant-numeric:tabular-nums}
 .er-pts{text-align:right;color:#6ff0d4;font-weight:800}
 @media (max-width:560px){
   .er-wide{display:none}
-  .er-narrow{display:inline}
+  .er-narrow{display:block}
+  .er-pos{width:2.1rem}
+  .er-table th,.er-table td{padding:10px 4px}
+  /* Results: always name on one line, time below, so every row looks the same. */
+  .er-result-name{display:grid;gap:2px}
+  .er-results li{grid-template-columns:2.1rem minmax(0,1fr) 3.9rem;padding:8px}
   .er-entries li{grid-template-columns:minmax(0,1fr) 7.5rem}
   .er-dnf{grid-column:1/-1}
 }

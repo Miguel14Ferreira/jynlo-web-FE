@@ -70,7 +70,8 @@
               <td class="er-pos"><span class="er-badge">{{ row.position }}</span></td>
               <th scope="row">
                 <span class="er-athlete">{{ row.name }}</span>
-                <small class="er-meta">{{ counted(row.events, 'event') }} · {{ counted(row.wins, 'win') }} · {{ counted(row.podiums, 'podium') }}@if (kind !== 'POSITION' && row.best !== null) {<span class="er-narrow"> · {{ value(row.best) }}</span>}</small>
+                @if (kind !== 'POSITION' && row.best !== null) {<small class="er-narrow er-best">{{ (kind === 'TIME' ? 'eventRanking.bestTime' : 'eventRanking.bestScore') | t }}: {{ value(row.best) }}</small>}
+                <small class="er-meta"><span>{{ counted(row.events, 'event') }}</span> · <span>{{ counted(row.wins, 'win') }}</span> · <span>{{ counted(row.podiums, 'podium') }}</span></small>
               </th>
               @if (kind !== 'POSITION') { <td class="er-wide">{{ value(row.best) }}</td> }
               <td class="er-num"><strong>{{ row.points }}</strong></td>

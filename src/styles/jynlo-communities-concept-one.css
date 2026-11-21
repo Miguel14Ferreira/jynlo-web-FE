@@ -2443,3 +2443,17 @@ body .communities-page .community-photo-editor-modes button:disabled {
   cursor: wait;
   opacity: .55;
 }
+
+/* Phones: the tournaments tab nests 4 bordered cards (page → detail → tab → tournament),
+   leaving ~260px for content at 390px. Flatten the outer frames only here. */
+@media (max-width: 560px) {
+  body .communities-page .community-detail:has(app-community-tournaments) {
+    padding-inline: 6px !important;
+  }
+  body .communities-page .community-tab-panel:has(app-community-tournaments) {
+    padding-inline: 0 !important;
+    border-inline: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+}
