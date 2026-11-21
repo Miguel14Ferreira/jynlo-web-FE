@@ -39,7 +39,6 @@ import { CommunitySeasonFilterComponent } from './community-season-filter.compon
 import { CommunityPhotoCoverComponent } from './community-photo-cover.component';
 import { ChatReactionsComponent } from '../../shared/chat-reactions/chat-reactions.component';
 import { MessagesCenterComponent } from '../messages-center/messages-center.component';
-import { CommunityTournamentsComponent } from './community-tournaments.component';
 import { EventRankingPanelComponent } from './event-ranking-panel.component';
 import { CommunityTeamsPanelComponent } from './community-teams-panel.component';
 import { GlobalTeamEnrollmentComponent } from './global-team-enrollment.component';
@@ -62,9 +61,10 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
-    CommunitiesComponent, CommunityCreateComponent, CommunityInviteStepComponent,
-    CommunityTournamentsComponent
+    CommunitiesComponent, CommunityCreateComponent, CommunityInviteStepComponent
   ],
+  // The tournaments tab (the largest screen of the site) is standalone and is
+  // imported only when the tab opens (CommunitiesComponent.tournamentsView).
   imports: [CommonModule, FormsModule, RouterModule.forChild(routes), TranslatePipe, ChatReactionsComponent, KartingPodiumComponent, KartingPalmaresComponent, KartingRaceTableComponent,
     CompetitionGuideComponent, CompetitionFormatChooserComponent, CommunityLivePanelComponent, CommunityDiscoveryPitchComponent, CommunityPerformanceInsightsComponent, CommunityTabsComponent, CommunitySessionCardComponent, CommunityOverviewStatsComponent, AvailabilityPanelComponent, CommunityLeaderHighlightComponent, CommunityFeatureSettingsComponent, CommunityDisciplinePanelComponent, CommunityTournamentSuspensionsComponent, CommunityTournamentEligibilityPanelComponent, CommunityWhatsAppShareComponent, CommunitySportManagementComponent, CommunityActiveSeasonCardComponent, CommunitySeasonTrophiesComponent, CommunityStatLeadersComponent, CommunitySpecializedStatsComponent, CommunityStatsTableComponent, CommunityRankingTableComponent, CommunityPendingInvitesComponent, CommunitySwitchComponent, CommunityCompetitionSettingsComponent, CommunityRankingVisibilityComponent, CommunitySeasonCreateFormComponent, CommunitySeasonFilterComponent, CommunityPhotoCoverComponent,
     TournamentClassificationNoteComponent, RaceStandingsCardComponent,
