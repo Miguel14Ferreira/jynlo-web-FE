@@ -988,7 +988,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isSafeInteger(id) || id <= 0) {this.error = 'Equipa inválida.'; return;}
     // Chat alerts open the team straight on its chat.
-    const requestedTab = this.route.snapshot.queryParamMap.get('tab');
+    const requestedTab = this.route.snapshot.queryParamMap?.get('tab') ?? null;
     if (requestedTab === 'chat') this.activeTab = 'CHAT';
     else if (requestedTab === 'feed') this.activeTab = 'FEED';
     // Paint the public team identity instantly when opened from a team card.
