@@ -14,11 +14,12 @@ import { appTranslate as t } from '../../i18n/i18n.service';
 import { environment } from 'src/environment/environment';
 import { InboxApiService } from '../../services/inbox-api.service';
 import { AvailabilityPanelComponent } from '../../shared/availability-panel/availability-panel.component';
+import { ChatReactionsComponent } from '../../shared/chat-reactions/chat-reactions.component';
 
 @Component({
   selector:'app-private-groups',
   standalone:true,
-  imports:[CommonModule,FormsModule,RouterLink,TranslatePipe,AvailabilityPanelComponent],
+  imports:[CommonModule,FormsModule,RouterLink,TranslatePipe,AvailabilityPanelComponent,ChatReactionsComponent],
   templateUrl:'./private-groups.component.html',
   styleUrls:['./private-groups.component.css'],
   changeDetection:ChangeDetectionStrategy.Eager
@@ -76,8 +77,10 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
       }
       this.refreshGroups(false);
     }));
-    this.subscriptions.add(this.realtime.groupUpdates$.subscribe(()=>{
+    this.subscriptions.add(this.realtime.groupUpdates$.subscribe(groupId=>{
       this.refreshGroups(false);
+      // Edits and deletions arrive as PRIVATE_GROUP_UPDATED: reload the open thread's latest page.
+      if(this.selected?.id===groupId)this.reloadLatest(groupId);
     }));
     this.subscriptions.add(this.route.queryParamMap.subscribe(params=>{
       const from=params.get('from')||'';
@@ -180,6 +183,10 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
         if(this.currentRequest!==ticket)return;
         this.messages=items;this.loadingMessages=false;this.hasMore=items.length>=50;
         this.markSeen(group.id,items);
+        this.api.attachmentsAvailable(group.id).subscribe({
+          next:r=>{if(this.selected?.id===group.id)this.filesAvailable=r?.available===true;},
+          error:()=>{this.filesAvailable=false;}
+        });
       },
       error:()=>{
         if(this.currentRequest!==ticket)return;
@@ -207,16 +214,136 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
     const group=this.selected,text=this.draft.trim();
     if(!group||!text||text.length>2000||this.busy)return;
     this.busy=true;this.groupError='';
-    this.api.send(group.id,text).subscribe({
+    this.api.send(group.id,text,this.replyTarget?.id).subscribe({
       next:message=>{
         if(this.selected?.id===group.id&&!this.messages.some(old=>old.id===message.id)){
           this.messages=[...this.messages,message];
         }
-        this.draft='';this.busy=false;
+        this.draft='';this.busy=false;this.replyTarget=null;
       },
       error:()=>{this.groupError=t('groups.sendError');this.busy=false;}
     });
   }
+
+  // ---- Same message actions as the other chats --------------------------
+  replyTarget:PrivateGroupMessage|null=null;
+  editing:PrivateGroupMessage|null=null;
+  editText='';
+  filesAvailable=false;
+  pendingFiles:File[]=[];
+  caption='';
+  searchOpen=false;
+  searchTerm='';
+  searchResults:PrivateGroupMessage[]=[];
+  searching=false;
+
+  private reloadLatest(groupId:number):void{
+    const ticket=this.currentRequest;
+    this.api.messages(groupId).subscribe({
+      next:items=>{
+        if(this.currentRequest!==ticket||this.selected?.id!==groupId)return;
+        const byId=new Map(this.messages.map(m=>[m.id,m] as const));
+        for(const item of items)byId.set(item.id,item);
+        this.messages=[...byId.values()].sort((a,b)=>a.id-b.id);
+      },
+      error:()=>{}
+    });
+  }
+  isMine(message:PrivateGroupMessage):boolean{return message.sender.toLowerCase()===this.me;}
+  canEdit(message:PrivateGroupMessage):boolean{
+    if(message.deleted||!this.isMine(message)||message.attachments?.length)return false;
+    if(!message.text?.trim()||message.text.startsWith('[JYNLO:GIPHY:1]'))return false;
+    const created=Date.parse(message.createdAt);
+    return Number.isFinite(created)&&Date.now()-created<=15*60*1000;
+  }
+  canDelete(message:PrivateGroupMessage):boolean{return !message.deleted&&(this.isMine(message)||this.isCreator);}
+  quote(message:PrivateGroupMessage):{sender:string;text:string}|null{
+    if(!message.replyToId)return null;
+    const original=this.messages.find(m=>m.id===message.replyToId);
+    if(!original)return {sender:'',text:t('groups.earlierMessage')};
+    if(original.deleted)return {sender:original.sender,text:t('groups.deletedMessage')};
+    const text=(original.text||'').trim()||original.attachments?.[0]?.filename||'📎';
+    return {sender:original.sender,text:text.length>120?text.slice(0,120)+'…':text};
+  }
+  locationUrl(text:string|null|undefined):string|null{
+    const match=/https:\/\/www\.google\.com\/maps\?q=-?\d{1,2}\.\d{1,6},-?\d{1,3}\.\d{1,6}/.exec(text||'');
+    return match?match[0]:null;
+  }
+  onlyFile(message:PrivateGroupMessage):boolean{
+    return !!message.attachments?.length&&(!message.text||message.text.startsWith('📎 '));
+  }
+  startReply(message:PrivateGroupMessage):void{this.editing=null;this.replyTarget=message;}
+  startEdit(message:PrivateGroupMessage):void{if(!this.canEdit(message))return;this.replyTarget=null;this.editing=message;this.editText=message.text;}
+  saveEdit():void{
+    const group=this.selected,editing=this.editing,text=this.editText.trim();
+    if(!group||!editing||!text||text.length>2000||this.busy)return;
+    this.busy=true;this.groupError='';
+    this.api.edit(group.id,editing.id,text).subscribe({
+      next:updated=>{this.messages=this.messages.map(m=>m.id===updated.id?updated:m);this.editing=null;this.editText='';this.busy=false;},
+      error:e=>{this.groupError=e?.status===409?t('groups.editTooLate'):t('groups.editError');this.busy=false;}
+    });
+  }
+  removeMessage(message:PrivateGroupMessage):void{
+    const group=this.selected;
+    if(!group||!this.canDelete(message)||this.busy||!globalThis.confirm?.(t('groups.deleteConfirm')))return;
+    this.busy=true;this.groupError='';
+    this.api.deleteMessage(group.id,message.id).subscribe({
+      next:()=>{this.messages=this.messages.map(m=>m.id===message.id?{...m,deleted:true,text:'',attachments:[]}:m);this.busy=false;},
+      error:()=>{this.groupError=t('groups.deleteError');this.busy=false;}
+    });
+  }
+  chooseFiles(event:Event):void{
+    const input=event.target as HTMLInputElement;
+    const files=Array.from(input.files||[]);
+    input.value='';
+    const allowed=/^(image\/(jpeg|png|webp|gif)|video\/(mp4|webm)|application\/pdf)$/;
+    const next=[...this.pendingFiles,...files.filter(f=>allowed.test(f.type))].slice(0,4);
+    if(next.length<this.pendingFiles.length+files.length)this.groupError=t('groups.filesLimit');
+    this.pendingFiles=next;
+  }
+  removePending(index:number):void{this.pendingFiles=this.pendingFiles.filter((_,i)=>i!==index);}
+  sendFiles():void{
+    const group=this.selected;
+    if(!group||!this.pendingFiles.length||this.busy)return;
+    this.busy=true;this.groupError='';
+    this.api.upload(group.id,this.pendingFiles,this.caption,this.replyTarget?.id).subscribe({
+      next:message=>{
+        if(!this.messages.some(m=>m.id===message.id))this.messages=[...this.messages,message];
+        this.pendingFiles=[];this.caption='';this.replyTarget=null;this.busy=false;
+      },
+      error:e=>{this.groupError=e?.status===413?t('groups.filesTooLarge'):t('groups.filesError');this.busy=false;}
+    });
+  }
+  openAttachment(message:PrivateGroupMessage,index:number):void{
+    const group=this.selected;
+    if(!group)return;
+    this.api.download(group.id,message.id,index).subscribe({
+      next:blob=>{
+        const url=URL.createObjectURL(blob);
+        globalThis.open?.(url,'_blank','noopener');
+        setTimeout(()=>URL.revokeObjectURL(url),60_000);
+      },
+      error:()=>{this.groupError=t('groups.fileOpenError');}
+    });
+  }
+  shareLocation():void{
+    if(!globalThis.navigator?.geolocation){this.groupError=t('groups.locationError');return;}
+    navigator.geolocation.getCurrentPosition(
+      p=>{const url='https://www.google.com/maps?q='+p.coords.latitude.toFixed(5)+','+p.coords.longitude.toFixed(5);
+        this.draft=[this.draft.trim(),url].filter(Boolean).join('\n');},
+      ()=>{this.groupError=t('groups.locationError');},
+      {enableHighAccuracy:false,timeout:15000,maximumAge:60000});
+  }
+  runSearch():void{
+    const group=this.selected,q=this.searchTerm.trim();
+    if(!group||q.length<2)return;
+    this.searching=true;
+    this.api.search(group.id,q).subscribe({
+      next:items=>{this.searchResults=items;this.searching=false;},
+      error:()=>{this.searchResults=[];this.searching=false;this.groupError=t('groups.searchError');}
+    });
+  }
+  closeSearch():void{this.searchOpen=false;this.searchTerm='';this.searchResults=[];}
 
   openCreate(initial=''):void{
     this.showCreate=true;this.showAdd=false;this.showRename=false;this.title='';

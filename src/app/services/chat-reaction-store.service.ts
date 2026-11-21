@@ -5,7 +5,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environment/environment';
 import { ChatReactionEvent, DirectChatRealtimeService } from './direct-chat-realtime.service';
 
-export type ChatReactionKind = 'direct' | 'session' | 'community';
+export type ChatReactionKind = 'direct' | 'session' | 'community' | 'private';
 export interface ChatReactionSummary {
   messageId: number;
   counts: Record<string, number>;
