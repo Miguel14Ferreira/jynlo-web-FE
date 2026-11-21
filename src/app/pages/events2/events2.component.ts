@@ -277,11 +277,11 @@ export class Events2Component implements OnInit, OnDestroy {
     } else if (!checked) {
       this.shareCommunityIds = this.shareCommunityIds.filter(groupId => groupId !== id);
       if (this.shareCommunityIds.length === 0) {
-        // Community-only recurrence and call-up settings should not silently
-        // return when the organiser selects a community again.
-        this.recurrence = 'NONE';
-        this.recurrenceOccurrences = 4;
-        this.setWeeklySessionsPerWeek(1);
+        // Call-up settings are community-only. Repetition stays, within the
+        // shorter independent limit.
+        if (this.plannedSessions > this.maxPlannedSessions) {
+          this.recurrenceOccurrences = Math.max(2, this.maxRecurrenceCycles);
+        }
         this.registrationOpeningMode = 'IMMEDIATE';
         this.registrationOpensAt = '';
       }
@@ -572,11 +572,9 @@ export class Events2Component implements OnInit, OnDestroy {
     if (s.seasonGame && this.canMarkSeasonGame) this.toggleSeasonGame(true);
     // A preset may refer to groups the organiser has since left. Do not
     // retain hidden group-only settings that could reappear on later selection.
-    this.recurrence = this.communitySessionSelected ? (s.recurrence || 'NONE') : 'NONE';
-    this.recurrenceOccurrences = this.communitySessionSelected
-      ? (s.recurrenceOccurrences || 4) : 4;
-    this.setWeeklySessionsPerWeek(this.communitySessionSelected
-      ? (s.weeklySessionsPerWeek || 1) : 1);
+    this.recurrence = s.recurrence || 'NONE';
+    this.setWeeklySessionsPerWeek(s.weeklySessionsPerWeek || 1);
+    this.recurrenceOccurrences = Math.min(s.recurrenceOccurrences || 4, Math.max(2, this.maxRecurrenceCycles));
     // A weekly template retains its recurrence pattern, not any previous dates.
     this.gameDate = '';
     this.additionalWeeklyGameDates = Array.from({length: this.weeklySessionsPerWeek - 1}, () => '');
@@ -699,9 +697,19 @@ export class Events2Component implements OnInit, OnDestroy {
       * (this.recurrence === 'WEEKLY' ? this.weeklySessionsPerWeek : 1);
   }
 
+  /** Repetition is offered when organising a game, and always inside communities. */
+  get effectiveRecurrence(): 'NONE' | 'WEEKLY' | 'BIWEEKLY' {
+    return !this.findPlayersMode || this.communitySessionSelected ? this.recurrence : 'NONE';
+  }
+
+  /** Communities plan up to 52 games; independent organisers up to 12 (about three months). */
+  get maxPlannedSessions(): number {
+    return this.communitySessionSelected ? 52 : 12;
+  }
+
   get maxRecurrenceCycles(): number {
     return this.recurrence === 'WEEKLY'
-      ? Math.floor(52 / this.weeklySessionsPerWeek) : 52;
+      ? Math.floor(this.maxPlannedSessions / this.weeklySessionsPerWeek) : this.maxPlannedSessions;
   }
 
   registrationOpeningMode: 'IMMEDIATE' | 'SCHEDULED' | 'MANUAL' = 'IMMEDIATE';
@@ -1112,13 +1120,13 @@ export class Events2Component implements OnInit, OnDestroy {
       longitude: this.hasCoordinates ? this.longitude : null,
       communityId: this.communityId,
       venueId: this.selectedVenueId,
-      recurrence: this.communitySessionSelected ? this.recurrence : 'NONE',
-      recurrenceOccurrences: this.communitySessionSelected && this.recurrence !== 'NONE'
+      recurrence: this.effectiveRecurrence,
+      recurrenceOccurrences: this.effectiveRecurrence !== 'NONE'
         ? Number(this.recurrenceOccurrences)
         : null,
-      additionalWeeklyGameDates: this.communitySessionSelected && this.recurrence === 'WEEKLY'
+      additionalWeeklyGameDates: this.effectiveRecurrence === 'WEEKLY'
         ? this.additionalWeeklyGameDates.map(value => new Date(value).toISOString()) : [],
-      recurrenceTimeZone: this.communitySessionSelected && this.recurrence !== 'NONE'
+      recurrenceTimeZone: this.effectiveRecurrence !== 'NONE'
         ? Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC' : null,
       registrationOpeningMode: this.communitySessionSelected ? this.registrationOpeningMode : 'IMMEDIATE',
       registrationOpensAt: this.communitySessionSelected && this.registrationOpeningMode === 'SCHEDULED'
@@ -2075,14 +2083,14 @@ export class Events2Component implements OnInit, OnDestroy {
       }
     }
 
-    if (this.communitySessionSelected && this.recurrence !== 'NONE') {
+    if (this.effectiveRecurrence !== 'NONE') {
       const occurrences = Number(this.recurrenceOccurrences);
       if (!Number.isInteger(occurrences) || occurrences < 2
-          || occurrences > 52) {
-        return t('feedback.create.recurrenceOccurrencesRange');
+          || occurrences > this.maxPlannedSessions) {
+        return t('feedback.create.recurrenceOccurrencesRange', { max: this.maxPlannedSessions });
       }
-      if (occurrences > this.maxRecurrenceCycles || this.plannedSessions > 52) {
-        return t('feedback.create.recurrenceTotalRange');
+      if (occurrences > this.maxRecurrenceCycles || this.plannedSessions > this.maxPlannedSessions) {
+        return t('feedback.create.recurrenceTotalRange', { max: this.maxPlannedSessions });
       }
     }
 
