@@ -88,3 +88,13 @@ describe('event ranking helpers', () => {
     expect(tournamentCreationModelForEvent('Golfe', true, null)).not.toBe('EVENT_RANKING');
   });
 });
+
+describe('EventRankingPanelComponent wording', () => {
+  beforeAll(async () => { await preloadEnglishTranslations(); });
+  it('uses singular and plural counts', () => {
+    const c = Object.create(EventRankingPanelComponent.prototype) as EventRankingPanelComponent;
+    localStorage.setItem('d24-language', 'pt');
+    expect(c.counted(1, 'event')).toBe('1 prova');
+    expect(c.counted(2, 'win')).toBe('2 vitórias');
+  });
+});

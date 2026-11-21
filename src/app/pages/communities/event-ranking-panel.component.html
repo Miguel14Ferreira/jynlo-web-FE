@@ -4,7 +4,7 @@
   } @else if (overview) {
     <div class="er-head">
       <div>
-        <h5>🏅 {{ 'eventRanking.title' | t }}</h5>
+        <h4 class="er-title">🏅 {{ 'eventRanking.title' | t }}</h4>
         <p class="t-muted">{{ 'eventRanking.explain' | t:{ kind: kindLabel(kind) } }}</p>
       </div>
       <p class="er-points t-muted">
@@ -57,32 +57,27 @@
     }
 
     @if (overview.table.length) {
-      <div class="standings-scroll">
-        <table class="team-standings-table er-table">
-          <thead><tr>
-            <th scope="col">#</th>
-            <th scope="col">{{ 'eventRanking.athlete' | t }}</th>
-            <th scope="col">{{ 'eventRanking.events' | t }}</th>
-            <th scope="col">{{ 'eventRanking.wins' | t }}</th>
-            <th scope="col">{{ 'eventRanking.podiums' | t }}</th>
-            @if (kind !== 'POSITION') { <th scope="col">{{ (kind === 'TIME' ? 'eventRanking.bestTime' : 'eventRanking.bestScore') | t }}</th> }
-            <th scope="col">Pts</th>
-          </tr></thead>
-          <tbody>
-            @for (row of overview.table; track row.participantId) {
-              <tr [class.is-leader]="row.position === 1">
-                <td>{{ row.position }}</td>
-                <th scope="row">{{ row.name }}</th>
-                <td>{{ row.events }}</td>
-                <td>{{ row.wins }}</td>
-                <td>{{ row.podiums }}</td>
-                @if (kind !== 'POSITION') { <td>{{ value(row.best) }}</td> }
-                <td><strong>{{ row.points }}</strong></td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+      <table class="er-table">
+        <thead><tr>
+          <th scope="col" class="er-pos">#</th>
+          <th scope="col">{{ 'eventRanking.athlete' | t }}</th>
+          @if (kind !== 'POSITION') { <th scope="col" class="er-wide">{{ (kind === 'TIME' ? 'eventRanking.bestTime' : 'eventRanking.bestScore') | t }}</th> }
+          <th scope="col" class="er-num">Pts</th>
+        </tr></thead>
+        <tbody>
+          @for (row of overview.table; track row.participantId) {
+            <tr [class.is-leader]="row.position === 1">
+              <td class="er-pos"><span class="er-badge">{{ row.position }}</span></td>
+              <th scope="row">
+                <span class="er-athlete">{{ row.name }}</span>
+                <small class="er-meta">{{ counted(row.events, 'event') }} · {{ counted(row.wins, 'win') }} · {{ counted(row.podiums, 'podium') }}@if (kind !== 'POSITION' && row.best !== null) {<span class="er-narrow"> · {{ value(row.best) }}</span>}</small>
+              </th>
+              @if (kind !== 'POSITION') { <td class="er-wide">{{ value(row.best) }}</td> }
+              <td class="er-num"><strong>{{ row.points }}</strong></td>
+            </tr>
+          }
+        </tbody>
+      </table>
     } @else {
       <p class="t-muted">{{ (overview.participants.length ? 'eventRanking.noEvents' : 'eventRanking.noParticipants') | t }}</p>
     }
@@ -130,7 +125,7 @@
     }
 
     @if (overview.events.length) {
-      <h6 class="er-subtitle">{{ 'eventRanking.eventsTitle' | t }}</h6>
+      <h5 class="er-subtitle">{{ 'eventRanking.eventsTitle' | t }}</h5>
       <ul class="er-events">
         @for (event of overview.events; track event.id) {
           <li>
@@ -144,9 +139,9 @@
               <ol class="er-results">
                 @for (r of event.results; track r.participantId) {
                   <li>
-                    <span>{{ r.didNotFinish ? '—' : r.place + '.º' }}</span>
-                    <span class="er-name">{{ r.name }}</span>
-                    <span>{{ r.didNotFinish ? ('eventRanking.dnf' | t) : (kind === 'POSITION' ? '' : value(r.value)) }}</span>
+                    <span class="er-place">{{ r.didNotFinish ? '—' : r.place + '.º' }}</span>
+                    <span class="er-result-name">{{ r.name }}
+                      <small>{{ r.didNotFinish ? ('eventRanking.dnf' | t) : (kind === 'POSITION' ? '' : value(r.value)) }}</small></span>
                     <span class="er-pts">{{ r.points }} pts</span>
                   </li>
                 }
