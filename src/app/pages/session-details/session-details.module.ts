@@ -7,6 +7,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
 import { SessionDetailsComponent } from './session-details.component';
 import { ChatReactionsComponent } from '../../shared/chat-reactions/chat-reactions.component';
 import { SessionPaymentsPanelComponent } from './session-payments-panel.component';
+import { PreviousUnpaidWarningComponent } from './previous-unpaid-warning.component';
 
 const routes: Routes = [
   { path: '', component: SessionDetailsComponent }
@@ -14,6 +15,6 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [SessionDetailsComponent],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule.forChild(routes), TranslatePipe, ChatReactionsComponent, SessionPaymentsPanelComponent]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule.forChild(routes), TranslatePipe, ChatReactionsComponent, SessionPaymentsPanelComponent, PreviousUnpaidWarningComponent]
 })
 export class SessionDetailsModule {}

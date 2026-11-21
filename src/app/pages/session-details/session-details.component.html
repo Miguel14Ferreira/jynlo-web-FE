@@ -1170,6 +1170,7 @@
                 }
               </div>
               @if (isCreator() && session.registrationOpeningMode === 'MANUAL') {
+                <app-previous-unpaid-warning [sessionId]="session.id"></app-previous-unpaid-warning>
                 <button type="button" class="primary-action jynlo-action jynlo-action--primary"
                   (click)="openCallup()" [disabled]="actionLoading">
                   {{ actionLoading ? ('common.processing' | t) : ('sessionDetail.openCallup' | t) }}

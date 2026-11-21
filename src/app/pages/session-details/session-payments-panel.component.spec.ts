@@ -62,3 +62,32 @@ describe('SessionPaymentsPanelComponent', () => {
     expect(service.get).toHaveBeenCalledTimes(1);
   });
 });
+
+import { PreviousUnpaidWarningComponent } from './previous-unpaid-warning.component';
+import { provideRouter } from '@angular/router';
+
+describe('PreviousUnpaidWarningComponent', () => {
+  it('lists who still owes the previous game', () => {
+    const service = jasmine.createSpyObj<SessionPaymentService>('SessionPaymentService', ['previousUnpaid']);
+    service.previousUnpaid.and.returnValue(of({ sessionId: 6, gameDate: null, sport: 'Futsal', unpaid: ['rui', 'bea'] }));
+    TestBed.configureTestingModule({ imports: [PreviousUnpaidWarningComponent],
+      providers: [{ provide: SessionPaymentService, useValue: service }, provideRouter([])] });
+    const fixture = TestBed.createComponent(PreviousUnpaidWarningComponent);
+    fixture.componentRef.setInput('sessionId', 7);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('rui, bea');
+    expect(el.querySelector('a')?.getAttribute('href')).toBe('/menu/events/6');
+  });
+
+  it('stays hidden when nobody owes the previous game', () => {
+    const service = jasmine.createSpyObj<SessionPaymentService>('SessionPaymentService', ['previousUnpaid']);
+    service.previousUnpaid.and.returnValue(of({ sessionId: 6, gameDate: null, sport: 'Futsal', unpaid: [] }));
+    TestBed.configureTestingModule({ imports: [PreviousUnpaidWarningComponent],
+      providers: [{ provide: SessionPaymentService, useValue: service }, provideRouter([])] });
+    const fixture = TestBed.createComponent(PreviousUnpaidWarningComponent);
+    fixture.componentRef.setInput('sessionId', 7);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent?.trim()).toBe('');
+  });
+});
