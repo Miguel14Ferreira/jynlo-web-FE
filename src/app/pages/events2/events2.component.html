@@ -374,7 +374,7 @@
         </div>
       }
 
-      @if (communitySessionSelected) {
+      @if (!findPlayersMode || communitySessionSelected) {
         <div class="form-grid">
           <label>
             <span>{{ 'createSession.recurrence' | t }}</span>
@@ -409,8 +409,8 @@
                 [max]="maxRecurrenceCycles"
                 [disabled]="loading">
               <small>{{ recurrence === 'WEEKLY'
-                ? ('createSession.recurrenceWeeksDynamicHint' | t:{ max: maxRecurrenceCycles })
-                : ('createSession.recurrenceOccurrencesHint' | t) }}</small>
+                ? ('createSession.recurrenceWeeksDynamicHint' | t:{ max: maxRecurrenceCycles, total: maxPlannedSessions })
+                : ('createSession.recurrenceOccurrencesHint' | t:{ max: maxPlannedSessions }) }}</small>
             </label>
           }
         </div>

@@ -594,7 +594,7 @@ describe('Events2Component', () => {
     expect(component.presetMessage).toBeTruthy();
   });
 
-  it('drops recurring and scheduled call-ups from a preset when its community is no longer available', () => {
+  it('keeps the repetition but drops scheduled call-ups from a preset whose community is gone', () => {
     component.sport = 'Futsal';
     component.presetName = 'Treino da comunidade antiga';
     presetService.create.and.callFake((name, settings) => of({
@@ -611,13 +611,14 @@ describe('Events2Component', () => {
     component.applyPresetById(27);
 
     expect(component.shareCommunityIds).toEqual([]);
-    expect(component.recurrence).toBe('NONE');
-    expect(component.recurrenceOccurrences).toBe(4);
-    expect(component.weeklySessionsPerWeek).toBe(1);
+    // Independent organisers can repeat a game, up to 12 sessions: 2 per week → 6 weeks.
+    expect(component.recurrence).toBe('WEEKLY');
+    expect(component.weeklySessionsPerWeek).toBe(2);
+    expect(component.recurrenceOccurrences).toBe(6);
     expect(component.registrationOpeningMode).toBe('IMMEDIATE');
     expect(component.registrationOpensAt).toBe('');
 
-    // Adding a new community must not revive the previous group's schedule.
+    // Adding a new community must not revive the previous group's call-up.
     component.communities = [{
       id: 12, name: 'Grupo novo', myRole: 'MEMBER', sport: 'Futsal',
       description: null, photoUrl: null, visibility: 'PRIVATE',
@@ -625,7 +626,6 @@ describe('Events2Component', () => {
       createdAt: '', members: []
     } as any];
     component.toggleCommunityShare(12, true);
-    expect(component.recurrence).toBe('NONE');
     expect(component.registrationOpeningMode).toBe('IMMEDIATE');
   });
 
@@ -1671,7 +1671,7 @@ describe('Events2Component', () => {
       }), undefined);
   });
 
-  it('resets hidden repeat and call-up choices when the last community is removed', () => {
+  it('clamps the repetition to 12 games and resets call-ups when the last community is removed', () => {
     component.communities = [{
       id: 12, name: 'Futebol de sábado', myRole: 'MEMBER',
       description: null, sport: 'Futebol', photoUrl: null,
@@ -1689,15 +1689,15 @@ describe('Events2Component', () => {
     component.toggleCommunityShare(12, false);
 
     expect(component.communitySessionSelected).toBeFalse();
-    expect(component.recurrence).toBe('NONE');
-    expect(component.recurrenceOccurrences).toBe(4);
-    expect(component.weeklySessionsPerWeek).toBe(1);
+    expect(component.recurrence).toBe('WEEKLY');
+    expect(component.weeklySessionsPerWeek).toBe(2);
+    expect(component.recurrenceOccurrences).toBe(6);
+    expect(component.plannedSessions).toBe(12);
     expect(component.registrationOpeningMode).toBe('IMMEDIATE');
     expect(component.registrationOpensAt).toBe('');
 
     component.toggleCommunityShare(12, true);
     expect(component.communitySessionSelected).toBeTrue();
-    expect(component.recurrence).toBe('NONE');
     expect(component.registrationOpeningMode).toBe('IMMEDIATE');
   });
 
@@ -1721,7 +1721,7 @@ describe('Events2Component', () => {
     expect(component.registrationOpeningMode).toBe('MANUAL');
   });
 
-  it('hides repeat options again and sends a public one-off session after deselecting communities', () => {
+  it('keeps repeat options but hides call-ups after deselecting communities', () => {
     component.communities = [12].map(id => ({
       id, name: 'Grupo ' + id, myRole: 'MEMBER', description: null, sport: 'Futebol',
       photoUrl: null, visibility: 'PRIVATE', rankingsEnabled: false,
@@ -1734,7 +1734,7 @@ describe('Events2Component', () => {
     component.toggleCommunityShare(12, false);
     fixture.detectChanges();
     expect(component.communitySessionSelected).toBeFalse();
-    expect(fixture.nativeElement.querySelector('app-jynlo-select[name="recurrence"]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('app-jynlo-select[name="recurrence"]')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('app-jynlo-select[name="registrationOpeningMode"]')).toBeNull();
     component.sport = 'Futebol';
     component.gameDate = '2099-10-15T18:00';
@@ -1743,7 +1743,7 @@ describe('Events2Component', () => {
     component.createSession();
     expect(sessionService.create).toHaveBeenCalledWith(
       jasmine.objectContaining({
-        communityShareIds: [], recurrence: 'NONE',
+        communityShareIds: [], recurrence: 'WEEKLY', recurrenceOccurrences: 4,
         registrationOpeningMode: 'IMMEDIATE'
       }), undefined);
   });
