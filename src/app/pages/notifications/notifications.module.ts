@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { NotificationsComponent } from './notifications.component';
+import { NearbyAlertsPanelComponent } from './nearby-alerts-panel.component';
 
 // Keep this feature out of the public application's initial JavaScript bundle.
 @NgModule({
@@ -13,6 +14,7 @@ import { NotificationsComponent } from './notifications.component';
     FormsModule,
     ReactiveFormsModule,
     TranslatePipe,
+    NearbyAlertsPanelComponent,
     RouterModule.forChild([{ path: '', component: NotificationsComponent }])
   ]
 })

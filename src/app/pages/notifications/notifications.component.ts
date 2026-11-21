@@ -35,7 +35,7 @@ export class NotificationsComponent implements OnInit {
     'COMMUNITY_JOIN_REJECTED', 'SESSION_INVITE', 'WAITLIST_PROMOTED',
     'SESSION_REMOVED', 'SESSION_CANCELLED', 'SESSION_MEETING_POINT_UPDATED',
     'SESSION_POST_GAME_REVIEW', 'SESSION_REMINDER',
-    'TOURNAMENT_RESULT', 'TOURNAMENT_LEADER', 'PAYMENT_REMINDER',
+    'TOURNAMENT_RESULT', 'TOURNAMENT_LEADER', 'PAYMENT_REMINDER', 'NEARBY_SESSION',
     'ATTENDANCE_DISPUTE_ACCEPTED', 'ATTENDANCE_DISPUTE_REJECTED',
     'TEAM_MEMBER_INVITE', 'TEAM_ADMIN_TRANSFER', 'TEAM_ADMIN_ASSIGNED',
     'CHAT_MESSAGE', 'VENUE_EDIT_DECISION', 'SOCIAL_POST_LIKED',
@@ -718,6 +718,7 @@ export class NotificationsComponent implements OnInit {
       case 'TOURNAMENT_RESULT':
       case 'TOURNAMENT_LEADER':
       case 'PAYMENT_REMINDER':
+      case 'NEARBY_SESSION':
         return t('notifications.preferences.type.' + notification.type);
       case 'COMMUNITY_INVITE':
         return t('notification.communityInvite');
