@@ -52,4 +52,10 @@ describe('NearbyAlertsPanelComponent', () => {
     component.search = 'tenis';
     expect(component.suggestions).not.toContain('Ténis');
   });
+
+  it('can forget the saved place', () => {
+    component.choosePlace(component.places[0]);
+    component.forgetPlace();
+    expect(component.draft).toEqual(jasmine.objectContaining({ enabled: false, latitude: null, longitude: null, placeLabel: null }));
+  });
 });

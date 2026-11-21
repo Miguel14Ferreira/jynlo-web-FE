@@ -104,6 +104,11 @@ export class NearbyAlertsPanelComponent implements OnInit {
     this.patch({ latitude: place.latitude, longitude: place.longitude, placeLabel: place.label });
   }
 
+  /** Turns alerts off and clears the place; saved with the next "Guardar". */
+  forgetPlace(): void {
+    this.patch({ enabled: false, latitude: null, longitude: null, placeLabel: null });
+  }
+
   /** One reading, only on this explicit click, rounded to about 1 km. */
   useMyPosition(): void {
     if (this.locating || !globalThis.navigator?.geolocation) {
