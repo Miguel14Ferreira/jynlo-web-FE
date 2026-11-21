@@ -183,3 +183,13 @@
 .inbox-callup-choices span{font-size:.82rem;color:#bfe0dc}
 .inbox-callup-create{justify-self:start;color:#6ff0d4;font-weight:800;text-decoration:none}
 .inbox-callup-alone{margin:4px 0 0;color:#ffd79a;font-size:.84rem}
+
+/* Sondagem editor */
+.inbox-poll-field{display:grid;gap:4px;font-size:.82rem;color:#bfe0dc}
+.inbox-poll-editor input{width:100%;font-size:.95rem;font-weight:400;box-sizing:border-box;min-height:42px;padding:8px 10px;border:1px solid #3fd8b455;border-radius:10px;background:#0a3340;color:#effffb;font-family:inherit}
+.inbox-poll-editor input:focus-visible{outline:none;border-color:#6ff0d4}
+.inbox-poll-option-row{display:flex;gap:6px;align-items:center}
+.inbox-poll-option-row button{flex:0 0 36px;min-height:36px;border:0;border-radius:50%;background:#ffffff14;color:#e8fff7;cursor:pointer}
+.inbox-poll-add{justify-self:start;border:0;background:none;color:#6ff0d4;font-weight:800;cursor:pointer;padding:4px 0}
+.inbox-poll-use{min-height:44px;border:0;border-radius:12px;background:#22c55e;color:#062018;font-weight:800;cursor:pointer}
+.inbox-poll-draft-edit{border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;padding:0;flex:1}

@@ -17,6 +17,15 @@ export interface ChatReactionEvent {
   emoji: string | null;
 }
 
+/** Poll counts only: the server never says who voted for what. */
+export interface ChatPollEvent {
+  kind: 'session' | 'community';
+  conversationId: string;
+  messageId: number;
+  counts: number[];
+  total: number;
+}
+
 export interface DirectCallEvent {
   callId: string;
   caller: string;
@@ -50,6 +59,7 @@ export interface ChatTypingEvent {
 interface ChatSocketEnvelope {
   typing?: ChatTypingEvent;
   reaction?: ChatReactionEvent;
+  poll?: ChatPollEvent;
   call?: DirectCallEvent;
   receipt?: DirectChatReadReceiptEvent;
   read?: InboxOwnReadEvent;
@@ -120,6 +130,7 @@ export class DirectChatRealtimeService {
   private readonly sessionMessageSubject = new Subject<SessionMessage>();
   private readonly communityMessageSubject = new Subject<CommunityTimelineEntry>();
   private readonly reactionSubject = new Subject<ChatReactionEvent>();
+  private readonly pollSubject = new Subject<ChatPollEvent>();
   private readonly callSubject = new Subject<DirectCallEvent>();
   private readonly groupMessageSubject = new Subject<PrivateGroupMessage>();
   private readonly groupUpdateSubject = new Subject<number>();
@@ -136,6 +147,7 @@ export class DirectChatRealtimeService {
   readonly sessionMessages$ = this.sessionMessageSubject.asObservable();
   readonly communityMessages$ = this.communityMessageSubject.asObservable();
   readonly reactions$ = this.reactionSubject.asObservable();
+  readonly polls$ = this.pollSubject.asObservable();
   readonly calls$ = this.callSubject.asObservable();
   readonly groupMessages$ = this.groupMessageSubject.asObservable();
   readonly groupUpdates$ = this.groupUpdateSubject.asObservable();
@@ -267,6 +279,16 @@ export class DirectChatRealtimeService {
               && ['RINGING', 'ACTIVE', 'DECLINED', 'ENDED', 'MEMBERS_CHANGED', 'LEFT'].includes(call.status)) {
             this.callSubject.next(call);
           }
+          return;
+        }
+
+        if (envelope.type === 'CHAT_POLL_CHANGED' && envelope.poll) {
+          const poll = envelope.poll;
+          if ((poll.kind === 'session' || poll.kind === 'community')
+              && typeof poll.conversationId === 'string'
+              && Number.isSafeInteger(poll.messageId) && poll.messageId > 0
+              && Array.isArray(poll.counts) && poll.counts.length <= 6
+              && poll.counts.every(count => Number.isSafeInteger(count) && count >= 0)) this.pollSubject.next(poll);
           return;
         }
 

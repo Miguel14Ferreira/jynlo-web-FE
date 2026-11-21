@@ -303,6 +303,9 @@
                     <p class="inbox-story-share-caption">{{ sharedStory.caption }}</p>
                   }
                   <app-inbox-story-card [storyId]="sharedStory.id" [sharedAt]="message.createdAt"></app-inbox-story-card>
+                } @else if (pollKind() && readPoll(message.text); as poll) {
+                  <app-inbox-poll-card [poll]="poll" [kind]="pollKind()!" [conversationId]="pollConversationId()"
+                    [messageId]="message.id"></app-inbox-poll-card>
                 } @else if (readCallUp(message.text); as callUpId) {
                   <app-inbox-callup-card [sessionId]="callUpId" [viewer]="viewerUsername"></app-inbox-callup-card>
                 } @else if (readSharedMessage(message.text); as shared) {
@@ -539,6 +542,17 @@
             } @else if (!composerAccessLoading && !composerAllowed && !previewLoading && !previewError) {
               <p class="inbox-compose-locked" role="status">{{ 'inbox.cannotWrite' | t }}</p>
             }
+            @if (selectedPoll; as poll) {
+              <div class="inbox-attachment-draft inbox-share-draft">
+                <span aria-hidden="true">📊</span>
+                <button type="button" class="inbox-poll-draft-edit" (click)="openPollEditor()">{{ 'chat.poll.title' | t }}: {{ poll.question }}</button>
+                <button type="button" [disabled]="sending || deliveryUncertain"
+                  (click)="removeSelectedPoll()">{{ 'chat.attachmentRemove' | t }}</button>
+              </div>
+              @if (draft.trim().length > 0) {
+                <p class="inbox-callup-alone" role="note">{{ 'chat.poll.sentAlone' | t }}</p>
+              }
+            }
             @if (selectedCallUp; as callUp) {
               <div class="inbox-attachment-draft inbox-share-draft">
                 <span aria-hidden="true">📣</span>
@@ -702,7 +716,40 @@
                         (fileRequested)="closeAttachmentMenu(); attachmentFile.click()"
                         [callUpAvailable]="callUpAvailable()"
                         (callUpRequested)="openCallUpPicker()"
+                        [pollAvailable]="pollAvailable()"
+                        (pollRequested)="openPollEditor()"
                         (shareRequested)="openSharePicker()"></div>
+                    }
+                    @if (pollEditorOpen) {
+                      <section class="inbox-share-picker inbox-callup-picker inbox-poll-editor" role="dialog"
+                        [attr.aria-label]="'chat.poll.createTitle' | t">
+                        <div class="inbox-callup-picker-head">
+                          <strong>📊 {{ 'chat.poll.createTitle' | t }}</strong>
+                          <button type="button" (click)="closePollEditor()" [attr.aria-label]="'chat.poll.close' | t">✕</button>
+                        </div>
+                        <label class="inbox-poll-field">
+                          <span>{{ 'chat.poll.question' | t }}</span>
+                          <input type="text" [value]="pollQuestion" [attr.maxlength]="pollMaxQuestion"
+                            [placeholder]="'chat.poll.questionPlaceholder' | t"
+                            (input)="pollQuestion = $any($event.target).value; pollInvalid = false">
+                        </label>
+                        @for (option of pollOptions; track trackPollOption($index); let i = $index) {
+                          <div class="inbox-poll-option-row">
+                            <input type="text" [value]="option" [attr.maxlength]="pollMaxOption"
+                              [attr.aria-label]="'chat.poll.option' | t:{n: i + 1}"
+                              [placeholder]="'chat.poll.option' | t:{n: i + 1}"
+                              (input)="setPollOption(i, $any($event.target).value); pollInvalid = false">
+                            @if (pollOptions.length > 2) {
+                              <button type="button" (click)="removePollOption(i)" [attr.aria-label]="'chat.poll.removeOption' | t">✕</button>
+                            }
+                          </div>
+                        }
+                        @if (pollOptions.length < pollMaxOptions) {
+                          <button type="button" class="inbox-poll-add" (click)="addPollOption()">{{ 'chat.poll.addOption' | t }}</button>
+                        }
+                        @if (pollInvalid) { <p role="alert">{{ 'chat.poll.invalid' | t }}</p> }
+                        <button type="button" class="inbox-poll-use" (click)="usePoll()">{{ 'chat.poll.use' | t }}</button>
+                      </section>
                     }
                     @if (callUpPickerOpen) {
                       <section class="inbox-share-picker inbox-callup-picker" role="dialog"

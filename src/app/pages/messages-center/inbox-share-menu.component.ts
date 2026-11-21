@@ -12,4 +12,6 @@ export class InboxShareMenuComponent {
   @Output() shareRequested = new EventEmitter<void>();
   @Input() callUpAvailable = false;
   @Output() callUpRequested = new EventEmitter<void>();
+  @Input() pollAvailable = false;
+  @Output() pollRequested = new EventEmitter<void>();
 }
