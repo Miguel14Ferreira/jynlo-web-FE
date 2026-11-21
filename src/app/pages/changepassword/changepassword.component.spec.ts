@@ -21,8 +21,7 @@ describe('ChangepasswordComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      declarations: [ChangepasswordComponent],
-      imports: TEST_IMPORTS,
+      imports: [...TEST_IMPORTS, ChangepasswordComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: MyProfileService, useValue: service },

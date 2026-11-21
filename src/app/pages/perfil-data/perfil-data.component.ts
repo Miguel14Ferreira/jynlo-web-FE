@@ -1,3 +1,7 @@
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { finalize, of, catchError, retry, timeout } from 'rxjs';
@@ -17,7 +21,8 @@ import { calculateProfileCompletion, ProfileCompletion, ProfileCompletionItem } 
   templateUrl: './perfil-data.component.html',
   styleUrls: ['./perfil-data.component.css', './perfil-data-v3-finish.css'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe]
 })
 export class PerfilDataComponent implements OnInit {
   profile?: MyProfile;

@@ -15,8 +15,7 @@ describe('ForgotpComponent', () => {
     auth.initiatePasswordReset.and.returnValue(of({ message: 'Email enviado' } as any));
 
     await TestBed.configureTestingModule({
-      declarations: [ForgotpComponent],
-      imports: TEST_IMPORTS,
+      imports: [...TEST_IMPORTS, ForgotpComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: AuthenticationService, useValue: auth }

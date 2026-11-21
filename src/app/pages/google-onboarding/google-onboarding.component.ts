@@ -1,3 +1,8 @@
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { JynloSelectComponent } from '../../shared/jynlo-select/jynlo-select.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -14,7 +19,8 @@ import { safeLoginReturnUrl } from '../../shared/safe-login-return-url';
   templateUrl: './google-onboarding.component.html',
   styleUrls: ['./google-onboarding.component.css'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, JynloSelectComponent]
 })
 export class GoogleOnboardingComponent implements OnInit {
   credential = '';

@@ -1,3 +1,6 @@
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { HttpErrorResponse } from '@angular/common/http';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
@@ -12,7 +15,8 @@ import { safeLoginReturnUrl } from '../../shared/safe-login-return-url';
   templateUrl: './login-mfa.component.html',
   styleUrls: ['./login-mfa.component.css'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, TranslatePipe]
 })
 export class LoginMFAComponent implements OnInit, OnDestroy {
   code = '';

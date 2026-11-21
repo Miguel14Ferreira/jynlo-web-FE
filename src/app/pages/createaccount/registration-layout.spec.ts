@@ -5,8 +5,7 @@ import { TEST_IMPORTS, TEST_PROVIDERS } from '../../testing/test-providers';
 describe('Registration layout alignment', () => {
   it('aligns fields and keeps native and custom controls the same height', async () => {
     await TestBed.configureTestingModule({
-      declarations: [CreateaccountComponent],
-      imports: TEST_IMPORTS,
+      imports: [...TEST_IMPORTS, CreateaccountComponent],
       providers: TEST_PROVIDERS
     }).compileComponents();
 

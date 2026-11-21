@@ -16,8 +16,7 @@ describe('Forgotp2Component', () => {
     auth.confirmPasswordReset.and.returnValue(of({ message: 'Atualizada' } as any));
 
     await TestBed.configureTestingModule({
-      declarations: [Forgotp2Component],
-      imports: TEST_IMPORTS,
+      imports: [...TEST_IMPORTS, Forgotp2Component],
       providers: [
         ...TEST_PROVIDERS,
         {
