@@ -1,3 +1,8 @@
+@if (callUpAvailable) {
+  <button type="button" class="inbox-share-menu-callup" (click)="callUpRequested.emit()">
+    📣 {{ 'chat.callUp.menu' | t }}
+  </button>
+}
 <button type="button" [disabled]="!attachmentControlsReady"
                           (click)="fileRequested.emit()">
                           📄 {{ 'chat.shareFile' | t }}

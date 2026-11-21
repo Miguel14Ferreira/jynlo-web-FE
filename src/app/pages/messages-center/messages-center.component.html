@@ -303,6 +303,8 @@
                     <p class="inbox-story-share-caption">{{ sharedStory.caption }}</p>
                   }
                   <app-inbox-story-card [storyId]="sharedStory.id" [sharedAt]="message.createdAt"></app-inbox-story-card>
+                } @else if (readCallUp(message.text); as callUpId) {
+                  <app-inbox-callup-card [sessionId]="callUpId" [viewer]="viewerUsername"></app-inbox-callup-card>
                 } @else if (readSharedMessage(message.text); as shared) {
                   <div class="inbox-shared-card">
                     <span class="inbox-shared-card-kind">{{ ('chat.shareType.' + shared.kind) | t }}</span>
@@ -537,6 +539,17 @@
             } @else if (!composerAccessLoading && !composerAllowed && !previewLoading && !previewError) {
               <p class="inbox-compose-locked" role="status">{{ 'inbox.cannotWrite' | t }}</p>
             }
+            @if (selectedCallUp; as callUp) {
+              <div class="inbox-attachment-draft inbox-share-draft">
+                <span aria-hidden="true">📣</span>
+                <span>{{ 'chat.callUp.title' | t }}: {{ callUp.title }} · {{ callUp.subtitle }}</span>
+                <button type="button" [disabled]="sending || deliveryUncertain"
+                  (click)="removeSelectedCallUp()">{{ 'chat.attachmentRemove' | t }}</button>
+              </div>
+              @if (draft.trim().length > 0) {
+                <p class="inbox-callup-alone" role="note">{{ 'chat.callUp.sentAlone' | t }}</p>
+              }
+            }
             @if (selectedShare; as share) {
               <div class="inbox-attachment-draft inbox-share-draft">
                 <span aria-hidden="true">↗</span>
@@ -687,7 +700,36 @@
                         [attr.aria-label]="'chat.shareMenu' | t"
                         [attachmentControlsReady]="attachmentControlsReady"
                         (fileRequested)="closeAttachmentMenu(); attachmentFile.click()"
+                        [callUpAvailable]="callUpAvailable()"
+                        (callUpRequested)="openCallUpPicker()"
                         (shareRequested)="openSharePicker()"></div>
+                    }
+                    @if (callUpPickerOpen) {
+                      <section class="inbox-share-picker inbox-callup-picker" role="dialog"
+                        [attr.aria-label]="'chat.callUp.pickerTitle' | t">
+                        <div class="inbox-callup-picker-head">
+                          <strong>📣 {{ 'chat.callUp.pickerTitle' | t }}</strong>
+                          <button type="button" (click)="closeCallUpPicker()" [attr.aria-label]="'chat.callUp.close' | t">✕</button>
+                        </div>
+                        <p>{{ 'chat.callUp.pickerHelp' | t }}</p>
+                        @if (callUpLoading) {
+                          <p role="status">{{ 'chat.callUp.loading' | t }}</p>
+                        } @else if (callUpError) {
+                          <p role="alert">{{ 'chat.callUp.pickerError' | t }}</p>
+                        } @else if (callUpChoices.length === 0) {
+                          <p>{{ 'chat.callUp.pickerEmpty' | t }}</p>
+                          <a class="inbox-callup-create" routerLink="/menu/createEvent">{{ 'chat.callUp.createSession' | t }}</a>
+                        } @else {
+                          <ul class="inbox-callup-choices">
+                            @for (choice of callUpChoices; track choice.id) {
+                              <li><button type="button" (click)="selectCallUp(choice)">
+                                <strong>{{ choice.title }}</strong><span>{{ choice.subtitle }}</span>
+                              </button></li>
+                            }
+                          </ul>
+                          <a class="inbox-callup-create" routerLink="/menu/createEvent">{{ 'chat.callUp.createSession' | t }}</a>
+                        }
+                      </section>
                     }
                     @if (sharePickerOpen) {
                       <section app-inbox-share-picker class="inbox-share-picker" role="dialog"
