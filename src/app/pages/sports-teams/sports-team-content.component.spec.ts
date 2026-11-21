@@ -4,10 +4,13 @@ import { of, Subject, throwError } from 'rxjs';
 import { SportsTeamContentComponent } from './sports-team-content.component';
 import { SportsTeamsService, TeamContentEntry } from '../../services/sports-teams.service';
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
+import { ChangeDetectorRef } from '@angular/core';
+import { CommunityService } from '../../services/community.service';
 
 describe('Team conversation synchronization', () => {
   let api: jasmine.SpyObj<SportsTeamsService>;
   let realtime: jasmine.SpyObj<DirectChatRealtimeService>;
+  let profiles: jasmine.SpyObj<CommunityService>;
   let component: SportsTeamContentComponent;
   const entry = (id:number, teamId:number, body='Olá'): TeamContentEntry => ({
     id, teamId, body, username:'tester', createdAt:'2026-11-16T00:00:00Z',
@@ -24,7 +27,11 @@ describe('Team conversation synchronization', () => {
     api.reactions.and.returnValue(of({}));
     // All tests reconcile older pages unless explicitly testing a delayed or denied response.
     api.feedEntries.and.returnValue(of([]));
-    component=new SportsTeamContentComponent(api,realtime);
+    // Mention search (profiles) and OnPush change detection were added to the component.
+    profiles=jasmine.createSpyObj<CommunityService>('CommunityService',['searchProfiles']);
+    profiles.searchProfiles.and.returnValue(of([]));
+    component=new SportsTeamContentComponent(api,realtime,profiles,
+      jasmine.createSpyObj<ChangeDetectorRef>('ChangeDetectorRef',['markForCheck','detectChanges']));
     component.teamId=7;
     component.kind='chat';
   });
