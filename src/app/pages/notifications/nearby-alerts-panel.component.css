@@ -1,0 +1,16 @@
+.nearby-alerts { display: grid; gap: 14px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--jynlo-border, rgba(255,255,255,.14)); }
+.nearby-alerts h3 { margin: 0; font-size: 1.1rem; }
+.nearby-alerts fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 10px; }
+.nearby-alerts legend { font-weight: 800; margin-bottom: 6px; }
+.nearby-alerts__note { margin: 0; opacity: .8; font-size: .9rem; line-height: 1.4; }
+.nearby-alerts__switch { display: flex; gap: 10px; align-items: center; font-weight: 800; min-height: 44px; }
+.nearby-alerts__switch input { width: 20px; height: 20px; }
+.nearby-alerts__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.nearby-chip { min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--jynlo-border, rgba(255,255,255,.24));
+  background: transparent; color: inherit; font-weight: 700; cursor: pointer; }
+.nearby-chip--on { background: var(--jynlo-mint, #7AE5C5); border-color: var(--jynlo-mint, #7AE5C5); color: #051824; }
+.nearby-chip:disabled { opacity: .5; cursor: default; }
+.nearby-chip:focus-visible { outline: 2px solid var(--jynlo-mint, #7AE5C5); outline-offset: 2px; }
+.nearby-alerts__search { min-height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--jynlo-border, rgba(255,255,255,.24));
+  background: transparent; color: inherit; max-width: 420px; }
+.nearby-alerts__actions { display: flex; gap: 10px; flex-wrap: wrap; }

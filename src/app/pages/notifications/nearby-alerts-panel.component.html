@@ -1,0 +1,82 @@
+<section class="nearby-alerts" aria-labelledby="nearby-alerts-title">
+  <h3 id="nearby-alerts-title">{{ 'nearbyAlerts.title' | t }}</h3>
+  <p class="nearby-alerts__note">{{ 'nearbyAlerts.description' | t }}</p>
+
+  @if (loading) { <p role="status">{{ 'nearbyAlerts.loading' | t }}</p> }
+  @if (error) {
+    <p role="alert" class="preferences-error">{{ error }}
+      @if (!draft) { <button type="button" class="secondary-button" (click)="load()">{{ 'common.retry' | t }}</button> }
+    </p>
+  }
+
+  @if (draft; as prefs) {
+    <label class="nearby-alerts__switch">
+      <input type="checkbox" [ngModel]="prefs.enabled" (ngModelChange)="patch({ enabled: $event })" [disabled]="saving">
+      <span>{{ 'nearbyAlerts.enabled' | t }}</span>
+    </label>
+
+    <fieldset>
+      <legend>{{ 'nearbyAlerts.place' | t }}</legend>
+      <p class="nearby-alerts__note">
+        @if (prefs.latitude === null) { {{ 'nearbyAlerts.noPlace' | t }} }
+        @else { {{ 'nearbyAlerts.chosen' | t: { place: prefs.placeLabel || '—' } }} }
+        {{ 'nearbyAlerts.privacy' | t }}
+      </p>
+      <div class="nearby-alerts__chips">
+        @for (place of places; track place.label) {
+          <button type="button" class="nearby-chip" [class.nearby-chip--on]="isPlace(place)" [attr.aria-pressed]="isPlace(place)"
+            [disabled]="saving" (click)="choosePlace(place)">{{ place.label }}</button>
+        }
+      </div>
+      <button type="button" class="secondary-button" [disabled]="saving || locating" (click)="useMyPosition()">
+        {{ (locating ? 'nearbyAlerts.locating' : 'nearbyAlerts.useMyPosition') | t }}
+      </button>
+      @if (prefs.latitude !== null) {
+        <button type="button" class="secondary-button" [disabled]="saving" (click)="forgetPlace()">{{ 'nearbyAlerts.forget' | t }}</button>
+      }
+    </fieldset>
+
+    <fieldset>
+      <legend>{{ 'nearbyAlerts.radius' | t }}</legend>
+      <div class="nearby-alerts__chips">
+        @for (km of radii; track km) {
+          <button type="button" class="nearby-chip" [class.nearby-chip--on]="prefs.radiusKm === km" [attr.aria-pressed]="prefs.radiusKm === km"
+            [disabled]="saving" (click)="patch({ radiusKm: km })">{{ km }} km</button>
+        }
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>{{ 'nearbyAlerts.sports' | t }}</legend>
+      <p class="nearby-alerts__note">{{ (prefs.sports.length ? 'nearbyAlerts.someSports' : 'nearbyAlerts.allSports') | t: { max: maxSports } }}</p>
+      @if (prefs.sports.length) {
+        <div class="nearby-alerts__chips">
+          @for (sport of prefs.sports; track sport) {
+            <button type="button" class="nearby-chip nearby-chip--on" [disabled]="saving" (click)="toggleSport(sport)"
+              [attr.aria-label]="('nearbyAlerts.removeSport' | t: { sport: sport })">{{ sport }} ×</button>
+          }
+        </div>
+      }
+      <input type="search" class="nearby-alerts__search" [(ngModel)]="search" [placeholder]="'nearbyAlerts.searchSport' | t"
+        [attr.aria-label]="'nearbyAlerts.searchSport' | t" [disabled]="saving || prefs.sports.length >= maxSports">
+      @if (suggestions.length) {
+        <div class="nearby-alerts__chips">
+          @for (sport of suggestions; track sport) {
+            <button type="button" class="nearby-chip" [disabled]="saving" (click)="toggleSport(sport)">{{ sport }}</button>
+          }
+        </div>
+      }
+    </fieldset>
+
+    @if (problem) { <p role="alert" class="preferences-error">{{ problem }}</p> }
+    @if (success) { <p role="status" class="preferences-success">{{ success }}</p> }
+    <div class="nearby-alerts__actions">
+      <button type="button" class="primary-button" [disabled]="saving || !dirty || !!problem" (click)="save()">
+        {{ (saving ? 'nearbyAlerts.saving' : 'nearbyAlerts.save') | t }}
+      </button>
+      @if (dirty) {
+        <button type="button" class="secondary-button" [disabled]="saving" (click)="discard()">{{ 'nearbyAlerts.discard' | t }}</button>
+      }
+    </div>
+  }
+</section>
