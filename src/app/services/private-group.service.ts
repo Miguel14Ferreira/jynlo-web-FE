@@ -10,8 +10,10 @@ export interface PrivateGroup {
   id: number; title: string; creatorUsername: string; createdAt: string;
   members: PrivateGroupMember[]; photoUrl?: string | null;
 }
+export interface PrivateGroupAttachment { index: number; filename: string; mimeType: string; size: number | null; }
 export interface PrivateGroupMessage {
   id: number; groupId: number; sender: string; text: string; createdAt: string;
+  replyToId?: number | null; editedAt?: string | null; deleted?: boolean; attachments?: PrivateGroupAttachment[];
 }
 
 /** All operations are authenticated; backend rechecks membership for each call. */
@@ -42,7 +44,29 @@ export class PrivateGroupService {
       params:beforeId?{beforeId}:{}
     });
   }
-  send(id:number,text:string):Observable<PrivateGroupMessage> {
-    return this.http.post<PrivateGroupMessage>(this.base+'/'+id+'/messages',{text});
+  send(id:number,text:string,replyToId?:number|null):Observable<PrivateGroupMessage> {
+    return this.http.post<PrivateGroupMessage>(this.base+'/'+id+'/messages',{text,replyToId:replyToId??null});
+  }
+  edit(id:number,messageId:number,text:string):Observable<PrivateGroupMessage> {
+    return this.http.put<PrivateGroupMessage>(this.base+'/'+id+'/messages/'+messageId,{text});
+  }
+  deleteMessage(id:number,messageId:number):Observable<void> {
+    return this.http.delete<void>(this.base+'/'+id+'/messages/'+messageId);
+  }
+  search(id:number,q:string):Observable<PrivateGroupMessage[]> {
+    return this.http.get<PrivateGroupMessage[]>(this.base+'/'+id+'/messages/search',{params:{q}});
+  }
+  attachmentsAvailable(id:number):Observable<{available:boolean}> {
+    return this.http.get<{available:boolean}>(this.base+'/'+id+'/messages/attachments/availability');
+  }
+  upload(id:number,files:File[],caption:string,replyToId?:number|null):Observable<PrivateGroupMessage> {
+    const body=new FormData();
+    for(const file of files)body.append('files',file,file.name);
+    if(caption.trim())body.append('caption',caption.trim());
+    if(replyToId)body.append('replyToMessageId',String(replyToId));
+    return this.http.post<PrivateGroupMessage>(this.base+'/'+id+'/messages/attachments',body);
+  }
+  download(id:number,messageId:number,index:number):Observable<Blob> {
+    return this.http.get(this.base+'/'+id+'/messages/'+messageId+'/attachments/'+index,{responseType:'blob'});
   }
 }

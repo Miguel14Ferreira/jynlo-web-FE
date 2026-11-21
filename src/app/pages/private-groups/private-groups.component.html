@@ -84,6 +84,21 @@
          }
        </div>
        <app-availability-panel kind="private" [targetId]="group.id"></app-availability-panel>
+       <div class="group-search">
+         @if (!searchOpen) {
+           <button type="button" class="group-header-button" (click)="searchOpen=true">⌕ {{ 'groups.search' | t }}</button>
+         } @else {
+           <form (ngSubmit)="runSearch()" class="group-search-form">
+             <input name="groupSearch" [(ngModel)]="searchTerm" minlength="2" maxlength="80" [attr.aria-label]="'groups.search' | t"
+               [placeholder]="'groups.searchPlaceholder' | t">
+             <button type="submit" [disabled]="searching || searchTerm.trim().length < 2">{{ 'groups.search' | t }}</button>
+             <button type="button" (click)="closeSearch()">{{ 'common.close' | t }}</button>
+           </form>
+           @for (hit of searchResults; track hit.id) {
+             <p class="group-search-hit"><strong>{{ hit.sender }}</strong> · {{ hit.createdAt | date:'dd/MM HH:mm' }} — {{ hit.text }}</p>
+           }
+         }
+       </div>
        <div class="group-message-list" role="log" aria-live="polite">
          @if (loadingMessages) {<p role="status">{{ 'common.loading' | t }}</p>}
          @if (hasMore) {
@@ -94,14 +109,64 @@
          @for (message of messages; track message.id) {
            <article class="group-bubble" [class.mine]="message.sender.toLowerCase()===me">
              <a [routerLink]="['/menu/perfis',message.sender]">{{ message.sender }}</a>
-             <p>{{ message.text }}</p>
-             <time>{{ message.createdAt | date:'dd/MM HH:mm' }}</time>
+             @if (quote(message); as q) {
+               <blockquote class="group-quote">{{ q.sender ? q.sender + ': ' : '' }}{{ q.text }}</blockquote>
+             }
+             @if (message.deleted) {
+               <p class="group-deleted">{{ 'groups.deletedMessage' | t }}</p>
+             } @else if (!onlyFile(message)) {
+               <p>{{ message.text }}</p>
+             }
+             @if (!message.deleted) {
+               @for (file of message.attachments || []; track file.index) {
+                 <button type="button" class="group-file" (click)="openAttachment(message, file.index)">📎 {{ file.filename }}</button>
+               }
+               @if (locationUrl(message.text); as url) {
+                 <a class="group-file" [href]="url" target="_blank" rel="noopener noreferrer">📍 {{ 'groups.openLocation' | t }}</a>
+               }
+               <div class="group-actions">
+                 <button type="button" (click)="startReply(message)">↩ {{ 'groups.reply' | t }}</button>
+                 @if (canEdit(message)) { <button type="button" (click)="startEdit(message)">{{ 'groups.edit' | t }}</button> }
+                 @if (canDelete(message)) { <button type="button" (click)="removeMessage(message)">{{ 'groups.delete' | t }}</button> }
+               </div>
+               <app-chat-reactions kind="private" [conversationId]="message.groupId" [messageId]="message.id"></app-chat-reactions>
+             }
+             <time>{{ message.createdAt | date:'dd/MM HH:mm' }}@if (message.editedAt && !message.deleted) { · {{ 'groups.edited' | t }} }</time>
            </article>
          } @empty {
            @if(!loadingMessages){<p class="group-empty">{{ 'groups.noMessages' | t }}</p>}
          }
        </div>
        @if(groupError){<p role="alert" class="group-error">{{ groupError }}</p>}
+       @if (editing) {
+         <form class="group-edit" (ngSubmit)="saveEdit()">
+           <label for="group-edit-text">{{ 'groups.editHint' | t }}</label>
+           <textarea id="group-edit-text" name="editText" [(ngModel)]="editText" rows="2" maxlength="2000"></textarea>
+           <button type="submit" [disabled]="busy || !editText.trim()">{{ 'groups.saveEdit' | t }}</button>
+           <button type="button" (click)="editing=null">{{ 'common.cancel' | t }}</button>
+         </form>
+       }
+       @if (replyTarget) {
+         <p class="group-replying">↩ {{ replyTarget.sender }}: {{ (replyTarget.text || '📎') | slice:0:120 }}
+           <button type="button" (click)="replyTarget=null" [attr.aria-label]="'common.cancel' | t">×</button></p>
+       }
+       @if (pendingFiles.length) {
+         <div class="group-pending">
+           @for (file of pendingFiles; track $index) {
+             <span>📎 {{ file.name }} <button type="button" (click)="removePending($index)" [attr.aria-label]="('groups.removeFile' | t) + ': ' + file.name">×</button></span>
+           }
+           <input name="caption" [(ngModel)]="caption" maxlength="2000" [placeholder]="'groups.caption' | t" [attr.aria-label]="'groups.caption' | t">
+           <button type="button" [disabled]="busy" (click)="sendFiles()">{{ 'groups.sendFiles' | t }}</button>
+         </div>
+       }
+       <div class="group-tools">
+         @if (filesAvailable) {
+           <input #groupFiles type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,application/pdf"
+             class="group-photo-input" (change)="chooseFiles($event)" [attr.aria-label]="'groups.attach' | t">
+           <button type="button" class="group-header-button" [disabled]="busy || pendingFiles.length >= 4" (click)="groupFiles.click()">📎 {{ 'groups.attach' | t }}</button>
+         }
+         <button type="button" class="group-header-button" (click)="shareLocation()">📍 {{ 'groups.shareLocation' | t }}</button>
+       </div>
        <form class="group-compose" (ngSubmit)="send()">
          <textarea name="draft" [(ngModel)]="draft" rows="2" maxlength="2000"
            [placeholder]="'groups.messagePlaceholder' | t"></textarea>
