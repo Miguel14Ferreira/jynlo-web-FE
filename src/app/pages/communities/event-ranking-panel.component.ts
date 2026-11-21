@@ -102,6 +102,11 @@ export class EventRankingPanelComponent implements OnChanges, OnDestroy {
     }));
   }
 
+  /** "1 prova" / "2 provas" (and wins, podiums). */
+  counted(n: number, unit: 'event' | 'win' | 'podium'): string {
+    return t('eventRanking.count.' + unit + (n === 1 ? '.one' : '.many'), { n });
+  }
+
   kindLabel(kind: EventRankingKind): string { return t('eventRanking.kind.' + kind); }
   value(value: number | null): string { return formatEventValue(value, this.kind); }
 
