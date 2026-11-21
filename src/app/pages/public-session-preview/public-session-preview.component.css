@@ -339,7 +339,7 @@ h1 {
 .guest-confirmed-player strong{font-size:.84rem;overflow-wrap:anywhere;min-width:0}
 .guest-confirmed-player small{
   padding:3px 8px;border-radius:999px;color:#75fbdc;background:rgba(28,233,185,.12);
-  font-size:.64rem;font-weight:850;letter-spacing:.035em;line-height:1.25;
+  font-size:.72rem;font-weight:850;letter-spacing:.035em;line-height:1.25;
 }
 .guest-confirmed-player--account small{color:#b4e5ff;background:rgba(71,166,228,.17)}
 .guest-confirmed-roster-error{font-size:.84rem;color:#ffbdc0}

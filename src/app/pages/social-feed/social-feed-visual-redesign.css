@@ -35,7 +35,7 @@
   text-wrap:balance;color:#fff;
 }
 :host .feed-v3-shell .feed-v3-welcome .subtitle {max-width:48ch;font-size:clamp(.89rem,1.16vw,1.03rem);line-height:1.55;margin:12px 0 0;}
-:host .feed-v3-shell .feed-v3-greeting {letter-spacing:.16em;font-size:.69rem;font-weight:850;margin-bottom:12px;}
+:host .feed-v3-shell .feed-v3-greeting {letter-spacing:.16em;font-size:.72rem;font-weight:850;margin-bottom:12px;}
 :host .feed-v3-shell .feed-hero-actions {display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:23px;}
 :host .feed-v3-shell .feed-hero-actions .feed-hero-cta.jynlo-premium-btn {
   align-self:auto;min-height:46px;padding:11px 19px;border:0;border-radius:13px;
@@ -59,7 +59,7 @@
   border-radius:50%;box-shadow:0 0 0 27px #13d6c00b,0 0 0 55px #13d6c009;
 }
 :host .feed-v3-shell .feed-hero-art span {font-size:clamp(1.9rem,3vw,3.1rem);font-weight:950;letter-spacing:.07em;color:#63ffe1;z-index:1;}
-:host .feed-v3-shell .feed-hero-art small {font-size:.58rem;letter-spacing:.14em;white-space:nowrap;color:#b6ffed;z-index:1;}
+:host .feed-v3-shell .feed-hero-art small {font-size:.72rem;letter-spacing:.14em;white-space:nowrap;color:#b6ffed;z-index:1;}
 :host .feed-v3-shell .jynlo-feed-quick-actions {
   display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:11px;margin:0;
 }

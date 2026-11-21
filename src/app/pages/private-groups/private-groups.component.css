@@ -112,7 +112,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .group-invite-heading-copy {min-width:0;}
 .group-invite-kicker {
   display:block;margin-bottom:7px;color:#7ee5d2;
-  font-size:.69rem;letter-spacing:.1em;font-weight:850;text-transform:uppercase;
+  font-size:.72rem;letter-spacing:.1em;font-weight:850;text-transform:uppercase;
 }
 .group-invite-modal h2 {font-size:1.38rem;letter-spacing:-.025em;line-height:1.2;}
 .group-invite-heading-copy p {

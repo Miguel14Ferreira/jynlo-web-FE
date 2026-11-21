@@ -216,7 +216,7 @@
   padding: .22rem .4rem;
   background: rgba(74,222,128,.07);
   color: #bbf7d0;
-  font-size: .64rem;
+  font-size: .72rem;
   font-weight: 800;
 }
 
@@ -702,7 +702,7 @@ button.pillar-action {
   line-height: 1.35; font-size: .75rem; color: #a7bfce;
 }
 .tags { margin-top: .4rem; }
-.tags span { font-size: .68rem; color: #abf7d5; background: #1d493f; }
+.tags span { font-size: .72rem; color: #abf7d5; background: #1d493f; }
 .session-card {
   flex-direction: row; align-items: flex-start; gap: .75rem;
   min-height: 120px;

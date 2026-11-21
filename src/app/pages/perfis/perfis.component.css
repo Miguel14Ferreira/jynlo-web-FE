@@ -383,7 +383,7 @@ h1 {
 
 .public-activity-grid span {
   color: #94a3b8;
-  font-size: .68rem;
+  font-size: .72rem;
 }
 
 .public-achievements {
@@ -976,7 +976,7 @@ h1 {
   .community-page.profile-page-open .social-summary{gap:6px;margin-top:11px}
   .community-page.profile-page-open .social-summary>div{padding:7px 9px;gap:6px}
   .community-page.profile-page-open .social-summary strong{font-size:.98rem}
-  .community-page.profile-page-open .social-summary span{font-size:.69rem}
+  .community-page.profile-page-open .social-summary span{font-size:.72rem}
   .community-page.profile-page-open .detail-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
   .community-page.profile-page-open .detail-actions>.jynlo-action,
   .community-page.profile-page-open .detail-actions>.friend-status,

@@ -821,7 +821,7 @@ h1 {
 
 .comment-heading span {
   color: #64748b;
-  font-size: .68rem;
+  font-size: .72rem;
 }
 
 .comment-copy p {
@@ -979,7 +979,7 @@ h1 {
   flex-wrap: wrap; gap: 1rem; padding: 1rem; margin-top: 1rem; border-radius: .95rem;
   border: 1px solid rgba(0,230,118,.23); background: rgba(0,230,118,.07); }
 .week-recruit-copy { flex: 1 1 210px; display: grid; gap: .3rem; }
-.week-recruit-label { text-transform: uppercase; font-size: .69rem; letter-spacing: .09em;
+.week-recruit-label { text-transform: uppercase; font-size: .72rem; letter-spacing: .09em;
   color: #86efac; font-weight: 800; }
 .week-recruit-copy strong { font-size: 1.1rem; color: #f8fafc; }
 .week-recruit-copy p { margin: 0; max-width: 410px; color: #cbd5e1; font-size: .8rem; line-height: 1.45; }

@@ -8,7 +8,7 @@
 .stories-heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
 .stories-heading h2 { margin: .2rem 0; font-size: 1.2rem; }
 .stories-heading p, .stories-empty { font-size: .85rem; color: #b8ceda; margin: .1rem 0; }
-.stories-eyebrow { color: #7dd3fc; letter-spacing: .15em; text-transform: uppercase; font-size: .68rem; font-weight: 700; }
+.stories-eyebrow { color: #7dd3fc; letter-spacing: .15em; text-transform: uppercase; font-size: .72rem; font-weight: 700; }
 /* Reuse the shared Concept One action system instead of orange one-off CTAs. */
 .story-add-action span { font-size: 1.3rem; margin-right: .15rem; }
 .story-rail { display: flex; align-items: start; gap: .85rem; overflow-x: auto; padding: 1.15rem 0 .2rem; min-height: 8rem; }
@@ -17,7 +17,7 @@
 .story-ring img, .story-placeholder { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 .story-placeholder { display: flex; justify-content: center; align-items: center; background: #31556b; font-size: 1.5rem; font-weight: 700; }
 .story-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; font-size: .8rem; }
-.story-bubble small { color: #9db6c7; font-size: .66rem; }
+.story-bubble small { color: #9db6c7; font-size: .72rem; }
 .story-bubble:focus-visible, .story-add-action:focus-visible { outline: 2px solid #7dd3fc; outline-offset: 3px; }
 .story-composer { display: grid; gap: .65rem; margin-top: .85rem; padding: 1rem; border-radius: .9rem; background: rgba(3, 13, 26, .48); }
 .story-field { display: grid; gap: .45rem; }
@@ -325,7 +325,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 :host .stories-heading {align-items:center;gap:15px;}
 :host .stories-heading h2 {font-size:1.14rem;letter-spacing:-.025em;margin:3px 0;}
 :host .stories-heading p {font-size:.8rem;line-height:1.4;}
-:host .stories-eyebrow {color:#44ecd0;font-size:.63rem;letter-spacing:.15em;}
+:host .stories-eyebrow {color:#44ecd0;font-size:.72rem;letter-spacing:.15em;}
 :host .story-rail {
   min-height:0;gap:12px;padding:13px 0 3px;
   align-items:flex-start;scrollbar-width:thin;scrollbar-color:#296d71 transparent;
@@ -348,7 +348,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   display:block;width:100%;font-size:.73rem;line-height:1.2;font-weight:700;
   text-overflow:ellipsis;overflow:hidden;white-space:nowrap;
 }
-:host .story-rail .story-bubble small {font-size:.64rem;}
+:host .story-rail .story-bubble small {font-size:.72rem;}
 :host .story-rail .stories-empty {
   min-height:0;margin:4px 0 9px;color:#acd3d4;font-size:.82rem;
 }

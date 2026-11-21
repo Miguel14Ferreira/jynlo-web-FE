@@ -46,7 +46,7 @@
 .inbox-side-heading p {margin:0;color:#b9d4df;font-size:.79rem;line-height:1.55;max-width:38ch;}
 .inbox-connection {flex:0 1 auto;min-width:0;gap:8px;padding:8px 11px;
   border-color:rgba(74,163,152,.3);background:rgba(11,54,58,.6);
-  color:#c1efe5;font-size:.68rem;font-weight:650;line-height:1.3;
+  color:#c1efe5;font-size:.72rem;font-weight:650;line-height:1.3;
   white-space:normal;}
 .inbox-connection-dot {flex:none;width:7px;height:7px;}
 .inbox-connection-label {min-width:0;max-width:none;white-space:normal;overflow-wrap:break-word;}
@@ -66,7 +66,7 @@
   scrollbar-width:none;gap:5px;padding:2px 0;margin-top:13px;
 }
 .inbox-filters::-webkit-scrollbar {display:none;}
-.inbox-filters button {flex:0 0 auto;padding:7px 10px;font-size:.68rem;
+.inbox-filters button {flex:0 0 auto;padding:7px 10px;font-size:.72rem;
   border-radius:999px;border-color:#3a6274;background:#132f41;color:#c5dce3;}
 .inbox-filters button.active,.inbox-filters button:hover {
   border-color:var(--inbox-accent);background:var(--inbox-accent);color:#053336;
@@ -140,7 +140,7 @@
   border-color:#138a80;border-radius:17px 17px 6px 17px;}
 .inbox-bubble-meta {gap:9px;justify-content:flex-start;align-items:center;}
 .inbox-bubble-meta strong {font-size:.75rem;color:#49e4ca;}
-.inbox-bubble-meta time {position:absolute;bottom:8px;right:13px;font-size:.64rem;color:#a7cbd3;}
+.inbox-bubble-meta time {position:absolute;bottom:8px;right:13px;font-size:.72rem;color:#a7cbd3;}
 .inbox-bubble:has(.inbox-read-check) .inbox-bubble-meta time {right:41px;}
 .inbox-read-check {position:absolute;bottom:6px;right:15px;font-size:.84rem;color:#a7cbd3;}
 .inbox-read-check.is-read {color:#52d9f4;}
@@ -191,7 +191,7 @@
 .inbox-voice-trigger:hover:not(:disabled) {
   background:#1e5862;border-color:#386c73;}
 .inbox-composer-bottom {justify-content:flex-end;}
-.inbox-composer-bottom span {font-size:.63rem;color:#8eafb9;}
+.inbox-composer-bottom span {font-size:.72rem;color:#8eafb9;}
 .inbox-composer-bottom >span {display:block;margin-left:auto;}
 .inbox-composer .inbox-reply-banner,.inbox-composer .inbox-compose-locked,
 .inbox-composer .inbox-attachment-draft,.inbox-composer >audio {
@@ -199,7 +199,7 @@
 @media(max-width:1050px){
   .inbox-layout {grid-template-columns:minmax(310px,37%) minmax(0,1fr);}
   .inbox-side-heading h1 {font-size:1.43rem;}
-  .inbox-connection {font-size:.65rem;}
+  .inbox-connection {font-size:.72rem;}
   .inbox-bubble {max-width:86%;}
   .inbox-composer {padding:11px;}
 }
@@ -316,7 +316,7 @@
   width: fit-content;
   margin: 0 0 .55rem;
   color: #55ebbb;
-  font-size: .64rem;
+  font-size: .72rem;
   font-weight: 900;
   letter-spacing: .13em;
   line-height: 1.1;
