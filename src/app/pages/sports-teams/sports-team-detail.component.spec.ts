@@ -20,7 +20,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
   router=jasmine.createSpyObj<Router>('Router',['navigate']);
   router.navigate.and.returnValue(Promise.resolve(true));
   api=jasmine.createSpyObj<SportsTeamsService>('SportsTeamsService',
-   ['detail','mine','members','honours','history','findPlayers','invite','remove','teamPendingInvitations','rememberedTeam','setKit','uploadLogo','removeLogo','rememberTeam','deleteEmptyTeam','forgetTeam','playerAvatarSrc']);
+   ['detail','mine','members','honours','history','findPlayers','invite','remove','teamPendingInvitations','rememberedTeam','setKit','uploadLogo','removeLogo','rememberTeam','deleteEmptyTeam','forgetTeam','playerAvatarSrc','followerState','followTeam','setFeatures','logoSrc']);
   community=jasmine.createSpyObj<TeamCommunityMembershipsService>('TeamCommunityMembershipsService',
    ['teamCommunities','discover','request','respond','remove']);
   auth=jasmine.createSpyObj<AuthenticationService>('AuthenticationService',['isLoggedIn']);
@@ -33,6 +33,8 @@ describe('Jynlo team profile — audit of real actions',()=>{
   api.teamPendingInvitations.and.returnValue(of([]));
   api.honours.and.returnValue(of([]));
   api.history.and.returnValue(of([]));
+  // The team page also shows followers (public count + whether I follow).
+  api.followerState.and.returnValue(of({count:0,following:false}));
   community.teamCommunities.and.returnValue(of([]));
   const route={snapshot:{paramMap:{get:()=>String(team.id)}}} as unknown as ActivatedRoute;
   component=new SportsTeamDetailComponent(route,api,community,auth,{detectChanges:()=>{}} as any,router);
@@ -178,7 +180,7 @@ describe('Jynlo team profile — audit of real actions',()=>{
   api.setKit.and.returnValue(throwError(()=>Error('timeout')));
   component.saveTeamKit();
   expect(component.brandingSaving).toBeFalse();
-  expect(component.feedback).toContain('Não foi possível confirmar o equipamento');
+  expect(component.feedback).toContain('Não foi possível confirmar os equipamentos');
  });
  it('sorts the verified squad with the captain first and allows local name filtering',()=>{
   component.members=[

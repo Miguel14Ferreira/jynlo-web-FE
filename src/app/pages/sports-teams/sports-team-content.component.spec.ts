@@ -668,6 +668,9 @@ describe('Team conversation synchronization', () => {
     const first=new Subject<TeamContentEntry[]>();
     const second=new Subject<TeamContentEntry[]>();
     api.content.and.returnValues(first.asObservable(),second.asObservable());
+    // A follow-up read is reserved only once history is on screen (a pending
+    // initial GET already covers reconnect notices on an empty conversation).
+    component.items=[entry(1,7)];
     component.read(false);
     component.read(true);
     expect(api.content).toHaveBeenCalledTimes(1);
