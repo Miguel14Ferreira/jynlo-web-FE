@@ -1,4 +1,5 @@
-import { NgModule } from '@angular/core';
+import { ClientErrorHandler } from './client-error-handler';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -62,5 +63,5 @@ import { JynloSelectComponent } from './shared/jynlo-select/jynlo-select.compone
     JynloSelectComponent,
     VenueSportsBadgesComponent,
         ProfileQuickViewComponent,
-        VenueSportsBadgesComponent], providers: [AuthenticationGuard, AuthenticationService, { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }, provideHttpClient(withXhr(), withInterceptorsFromDi())] })
+        VenueSportsBadgesComponent], providers: [AuthenticationGuard, AuthenticationService, { provide: ErrorHandler, useClass: ClientErrorHandler }, { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }, provideHttpClient(withXhr(), withInterceptorsFromDi())] })
 export class AppModule { }
