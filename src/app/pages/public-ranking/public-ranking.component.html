@@ -1,0 +1,82 @@
+<section class="pt-page">
+  <div class="pt-shell">
+    @if (loading) {
+      <p class="pt-muted" role="status">{{ 'publicRanking.loading' | t }}</p>
+    } @else if (notFound) {
+      <div class="pt-card">
+        <h1>{{ 'publicRanking.notFoundTitle' | t }}</h1>
+        <p class="pt-muted">{{ 'publicRanking.notFoundText' | t }}</p>
+        <a routerLink="/home" class="pt-cta">{{ 'publicTournament.discover' | t }}</a>
+      </div>
+    } @else if (failed && !page) {
+      <div class="pt-card">
+        <p>{{ 'publicTournament.error' | t }}</p>
+        <button type="button" class="pt-cta" (click)="load(null)">{{ 'publicTournament.retry' | t }}</button>
+      </div>
+    } @else if (page) {
+      <div class="pt-hero">
+        <span class="pt-status is-live">{{ 'publicRanking.kicker' | t }}</span>
+        <h1>{{ page.communityName }}</h1>
+        <p class="pt-muted">
+          @if (page.sport) { {{ page.sport }} }
+          @if (page.sport && selectedSeasonName()) { · }
+          @if (selectedSeasonName()) { {{ selectedSeasonName() }} }
+        </p>
+        @if (page.seasons.length > 1) {
+          <label class="pt-season">
+            <span class="pt-muted">{{ 'publicRanking.season' | t }}</span>
+            <select [value]="page.selectedSeasonId ?? ''" (change)="selectSeason($any($event.target).value)">
+              @for (season of page.seasons; track season.id) {
+                <option [value]="season.id">{{ season.name }}{{ season.active ? ' ●' : '' }}</option>
+              }
+            </select>
+          </label>
+        }
+      </div>
+
+      <div class="pt-card">
+        <h2>{{ 'publicRanking.table' | t }}</h2>
+        @if (page.table.length) {
+          <div class="pt-table-wrap">
+            <table class="pt-table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col" class="pt-name">{{ 'publicTournament.player' | t }}</th>
+                  <th scope="col" [attr.title]="'publicTournament.playedLong' | t">J</th>
+                  <th scope="col" [attr.title]="'publicTournament.wonLong' | t">V</th>
+                  <th scope="col" class="pt-wide" [attr.title]="'publicTournament.drawnLong' | t">E</th>
+                  <th scope="col" class="pt-wide" [attr.title]="'publicTournament.lostLong' | t">D</th>
+                  <th scope="col" [attr.title]="'publicRanking.winRateLong' | t">%V</th>
+                  <th scope="col" class="pt-points">Pts</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of page.table; track row.position + row.name) {
+                  <tr [class.is-first]="row.position === 1">
+                    <td>{{ row.position }}</td>
+                    <td class="pt-name">{{ row.name }}</td>
+                    <td>{{ row.games }}</td>
+                    <td>{{ row.wins }}</td>
+                    <td class="pt-wide">{{ row.draws }}</td>
+                    <td class="pt-wide">{{ row.losses }}</td>
+                    <td>{{ row.winRate | number:'1.0-0' }}%</td>
+                    <td class="pt-points">{{ row.points }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="pt-muted">{{ 'publicRanking.empty' | t }}</p>
+        }
+      </div>
+
+      <div class="pt-card pt-join">
+        <h2>{{ 'publicTournament.joinTitle' | t }}</h2>
+        <p class="pt-muted">{{ 'publicTournament.joinText' | t }}</p>
+        <a routerLink="/login/registerNewUser" class="pt-cta">{{ 'publicTournament.joinCta' | t }}</a>
+      </div>
+    }
+  </div>
+</section>

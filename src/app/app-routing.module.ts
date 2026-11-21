@@ -40,6 +40,7 @@ const routes: Routes = [
   // Sessions are short-lived, so they are not indexed; they still need a share title.
   {path:'sessions/:id',component:PublicSessionPreviewComponent,data:{seo:{index:false}}},
   // Opt-in shareable tournament table and results, readable without an account.
+  {path:'classificacao/:id',loadComponent:() => import('./pages/public-ranking/public-ranking.component').then(m => m.PublicRankingComponent),data:{seo:{index:false}}},
   {path:'torneio/:id',loadComponent:() => import('./pages/public-tournament/public-tournament.component').then(m => m.PublicTournamentComponent),data:{seo:{index:false}}},
   // The same venue details page can be read by visitors. The authenticated route
   // below still exposes photo uploads, community contributions and suggestions.

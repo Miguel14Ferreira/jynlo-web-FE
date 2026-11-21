@@ -29,3 +29,5 @@
 .pt-cta{display:inline-block;border:0;cursor:pointer;color:#062018;background:#3fd8b4;font-weight:900;text-decoration:none;padding:12px 22px;border-radius:999px;font-size:1rem}
 @media (max-width:480px){.pt-wide{display:none}}
 @media (max-width:760px){.pt-page{padding:7rem 1rem 3rem}}
+.pt-season{display:flex;gap:8px;align-items:center;margin-top:6px}
+.pt-season select{min-height:40px;padding:0 10px;border-radius:10px;border:1px solid rgba(63,216,180,.35);background:#0a3340;color:#effffb;font:inherit}

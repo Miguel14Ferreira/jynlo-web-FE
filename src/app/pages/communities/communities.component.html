@@ -4976,6 +4976,9 @@
                     </div>
                   </div>
 
+                  @if (selected?.id) {
+                    <app-community-public-ranking-share [communityId]="selected!.id" [canManage]="canManage()"></app-community-public-ranking-share>
+                  }
                   @if (showLegacyMatchRanking) {
                     <app-community-ranking-visibility
                       [showAll]="showAllStandings"
