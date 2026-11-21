@@ -1712,6 +1712,7 @@ const PT: Dictionary = {
   'notifications.viewMeetingPoint': 'Ver ponto de encontro',
   'notifications.viewParticipationStatus': 'Ver estado da inscrição',
   'notifications.openChat': 'Abrir conversa',
+  'notifications.openGroup': 'Abrir grupo',
   'notifications.blockAccess': 'Bloquear acessos',
   'notifications.blockAccessTitle': 'Bloquear temporariamente os acessos à conta?',
   'notifications.blockAccessText': 'Isto invalida as sessões atuais e impede novos acessos. Vais receber um email para definires uma nova palavra-passe e desbloqueares a conta.',

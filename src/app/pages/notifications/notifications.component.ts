@@ -538,6 +538,12 @@ export class NotificationsComponent implements OnInit {
     void this.router.navigate(['/menu/venues', notification.venueId]);
   }
 
+  openGroup(notification: AppNotification): void {
+    const id = Number(notification.privateGroupId);
+    if (!Number.isSafeInteger(id) || id <= 0) return;
+    void this.router.navigate(['/menu/groups'], { queryParams: { id } });
+  }
+
   openChat(notification: AppNotification): void {
     if (!notification.relatedUsername) {
       return;
