@@ -18,6 +18,8 @@ export interface SessionPayments {
   lastReminderAt: string | null;
 }
 
+export interface PreviousUnpaid { sessionId: number | null; gameDate: string | null; sport: string | null; unpaid: string[]; }
+
 /** MB WAY goes straight to the organiser; Jynlo only keeps "who already paid". */
 @Injectable({ providedIn: 'root' })
 export class SessionPaymentService {
@@ -32,6 +34,9 @@ export class SessionPaymentService {
   }
   setMethod(sessionId: number, method: 'MBWAY' | 'IN_PERSON' | null, phone: string | null): Observable<SessionPayments> {
     return this.http.put<SessionPayments>(this.url(sessionId) + '/method', { method, phone });
+  }
+  previousUnpaid(sessionId: number): Observable<PreviousUnpaid> {
+    return this.http.get<PreviousUnpaid>(this.url(sessionId) + '/previous-unpaid');
   }
   remind(sessionId: number): Observable<SessionPayments> {
     return this.http.post<SessionPayments>(this.url(sessionId) + '/remind', {});
