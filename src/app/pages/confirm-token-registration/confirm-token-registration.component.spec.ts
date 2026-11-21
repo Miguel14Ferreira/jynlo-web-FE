@@ -19,8 +19,7 @@ describe('ConfirmTokenRegistrationComponent', () => {
     auth.confirmRegistration.and.returnValue(of({ message: 'Conta ativada' } as any));
 
     await TestBed.configureTestingModule({
-      declarations: [ConfirmTokenRegistrationComponent],
-      imports: TEST_IMPORTS,
+      imports: [...TEST_IMPORTS, ConfirmTokenRegistrationComponent],
       providers: [
         ...TEST_PROVIDERS,
         {

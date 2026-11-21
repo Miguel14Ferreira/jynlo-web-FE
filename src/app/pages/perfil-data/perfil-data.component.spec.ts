@@ -67,8 +67,7 @@ describe('PerfilDataComponent', () => {
     }));
 
     await TestBed.configureTestingModule({
-      declarations: [PerfilDataComponent],
-      imports: TEST_IMPORTS,
+      imports: [...TEST_IMPORTS, PerfilDataComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: MyProfileService, useValue: profileService },

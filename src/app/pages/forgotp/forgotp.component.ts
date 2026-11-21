@@ -1,3 +1,7 @@
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { HttpErrorResponse } from '@angular/common/http';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
@@ -10,7 +14,8 @@ import { AuthenticationService } from '../../services/authethication.service';
   templateUrl: './forgotp.component.html',
   styleUrls: ['./forgotp.component.css'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe]
 })
 export class ForgotpComponent {
   email = '';

@@ -1,3 +1,7 @@
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy } from '@angular/core';
 import { finalize, timeout } from 'rxjs';
@@ -12,7 +16,8 @@ type ContactField = 'name' | 'email' | 'category' | 'problem';
   templateUrl: './contact.component.html',
   styleUrls: ['./contact.component.css'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe]
 })
 export class ContactComponent implements OnDestroy {
   name = '';

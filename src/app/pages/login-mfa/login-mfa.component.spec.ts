@@ -35,8 +35,7 @@ describe('LoginMFAComponent', () => {
     }));
 
     await TestBed.configureTestingModule({
-      declarations: [LoginMFAComponent],
-      imports: TEST_IMPORTS,
+      imports: [...TEST_IMPORTS, LoginMFAComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: AuthenticationService, useValue: auth }

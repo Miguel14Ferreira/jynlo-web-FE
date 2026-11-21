@@ -20,8 +20,7 @@ describe('CreateaccountComponent', () => {
     auth.resendRegistrationConfirmation.and.returnValue(of({ message: 'Email reenviado' } as any));
 
     await TestBed.configureTestingModule({
-      declarations: [CreateaccountComponent],
-      imports: TEST_IMPORTS,
+      imports: [...TEST_IMPORTS, CreateaccountComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: AuthenticationService, useValue: auth },

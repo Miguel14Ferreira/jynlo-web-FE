@@ -1,3 +1,6 @@
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { HttpErrorResponse } from '@angular/common/http';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
@@ -11,7 +14,8 @@ import { AuthenticationService } from '../../services/authethication.service';
   templateUrl: './forgotp2.component.html',
   styleUrls: ['./forgotp2.component.css'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, TranslatePipe]
 })
 export class Forgotp2Component implements OnInit {
   token = '';

@@ -1,3 +1,7 @@
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
@@ -5,7 +9,8 @@ import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
     templateUrl: './about.component.html',
     styleUrls: ['./about.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe]
 })
 export class AboutComponent implements OnInit {
   dark!:boolean;

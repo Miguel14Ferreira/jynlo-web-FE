@@ -16,8 +16,7 @@ describe('ContactComponent', () => {
     service.submitWithImages.and.returnValue(of({ message: 'Recebido' } as any));
 
     await TestBed.configureTestingModule({
-      declarations: [ContactComponent],
-      imports: TEST_IMPORTS,
+      imports: [...TEST_IMPORTS, ContactComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: FeedbackService, useValue: service }

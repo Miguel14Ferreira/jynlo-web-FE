@@ -1,3 +1,8 @@
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { JynloSelectComponent } from '../../shared/jynlo-select/jynlo-select.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
@@ -14,7 +19,8 @@ import { registrationSessionId, registrationCommunityId, rememberRegistrationDes
   templateUrl: './createaccount.component.html',
   styleUrls: ['./createaccount.component.css'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, JynloSelectComponent]
 })
 export class CreateaccountComponent {
   username = '';
