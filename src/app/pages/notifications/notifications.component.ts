@@ -544,6 +544,12 @@ export class NotificationsComponent implements OnInit {
     void this.router.navigate(['/menu/groups'], { queryParams: { id } });
   }
 
+  openTeamChat(notification: AppNotification): void {
+    const id = Number(notification.sportsTeamId);
+    if (!Number.isSafeInteger(id) || id <= 0) return;
+    void this.router.navigate(['/menu/teams', id], { queryParams: { tab: 'chat' } });
+  }
+
   /** "Quem pode?" lives on the group or the community page. */
   openAvailability(notification: AppNotification): void {
     if (notification.type !== 'AVAILABILITY_REQUEST' && notification.type !== 'AVAILABILITY_REMINDER') return;

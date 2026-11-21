@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, Subject, tap } from 'rxjs';
 import { environment } from 'src/environment/environment';
 
-export type MutableConversationKind = 'direct' | 'community' | 'session' | 'private';
+export type MutableConversationKind = 'direct' | 'community' | 'session' | 'private' | 'team';
 export interface MutedConversation { kind: MutableConversationKind; id: string; }
 
 /**

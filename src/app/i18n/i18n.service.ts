@@ -1771,6 +1771,7 @@ const PT: Dictionary = {
   'availability.no': 'Não posso',
   'availability.createGame': 'Criar jogo na melhor opção',
   'availability.close': 'Fechar pedido',
+  'notifications.openTeamChat': 'Abrir chat da equipa',
   'notifications.openAvailability': 'Responder: quem pode?',
   'notifications.openGroup': 'Abrir grupo',
   'notifications.blockAccess': 'Bloquear acessos',

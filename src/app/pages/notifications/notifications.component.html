@@ -346,7 +346,12 @@
                     {{ 'notifications.openGroup' | t }}
                   </button>
                 }
-                @if (selected.type === 'CHAT_MESSAGE' && selected.relatedUsername && !selected.privateGroupId) {
+                @if (selected.type === 'CHAT_MESSAGE' && selected.sportsTeamId) {
+                  <button type="button" class="primary-action jynlo-action jynlo-action--primary" (click)="openTeamChat(selected)">
+                    {{ 'notifications.openTeamChat' | t }}
+                  </button>
+                }
+                @if (selected.type === 'CHAT_MESSAGE' && selected.relatedUsername && !selected.privateGroupId && !selected.sportsTeamId) {
                   <button type="button" class="primary-action jynlo-action jynlo-action--primary" (click)="openChat(selected)">
                     {{ 'notifications.openChat' | t }}
                   </button>
