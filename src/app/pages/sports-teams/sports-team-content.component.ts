@@ -9,12 +9,15 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
 import { CommunityService } from '../../services/community.service';
 import { CommunityProfile } from '../model/community-profile';
 import { InboxApiService } from '../../services/inbox-api.service';
+import { PollComposerComponent } from '../../shared/poll-composer/poll-composer.component';
+import { InboxPollCardComponent } from '../messages-center/inbox-poll-card.component';
+import { readPoll } from '../messages-center/poll-message';
 import { ConversationMuteService, isConversationMuted } from '../../services/conversation-mute.service';
 
 @Component({
   selector: 'app-sports-team-content',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, PollComposerComponent, InboxPollCardComponent],
   template: `
     <div class="team-content" [class.team-chat-mode]="kind === 'chat'" [class.team-feed-mode]="kind === 'feed'">
       <ng-container *ngIf="!accessRevoked; else accessRevokedState">
@@ -74,7 +77,9 @@ import { ConversationMuteService, isConversationMuted } from '../../services/con
           <button *ngIf="item.replyToId" type="button" class="team-content-reply team-reply-jump"
              (click)="jumpToReply(item.replyToId)" [attr.aria-label]="'Ver mensagem original: ' + replyPreview(item.replyToId)">↳ {{replyPreview(item.replyToId)}}</button>
           <p *ngIf="item.deleted">{{kind === 'chat' ? 'Mensagem eliminada' : 'Publicação eliminada'}}</p>
-          <p *ngIf="!item.deleted" class="team-content-body"><ng-container *ngFor="let piece of bodyMentionParts(item.body)">
+          <app-inbox-poll-card *ngIf="!item.deleted && kind === 'chat' && readPoll(item.body) as poll" [poll]="poll" kind="team"
+            [conversationId]="'' + teamId" [messageId]="item.id"></app-inbox-poll-card>
+          <p *ngIf="!item.deleted && !(kind === 'chat' && readPoll(item.body))" class="team-content-body"><ng-container *ngFor="let piece of bodyMentionParts(item.body)">
             <a *ngIf="piece.username; else plainTeamText" class="team-inline-mention"
               [routerLink]="['/menu/perfis',piece.username]" [attr.aria-label]="'Abrir perfil de @' + piece.username">{{piece.text}}</a>
             <ng-template #plainTeamText>{{piece.text}}</ng-template>
@@ -170,6 +175,8 @@ import { ConversationMuteService, isConversationMuted } from '../../services/con
           <span>{{replyPreview(replyTargetId)}}</span></span>
         <button type="button" class="team-reply-dismiss" (click)="cancelReply()" aria-label="Cancelar resposta" title="Cancelar resposta">×</button>
       </div>
+      <button *ngIf="kind === 'chat'" type="button" class="team-search-toggle" [disabled]="sending" (click)="pollOpen = !pollOpen">📊 Sondagem</button>
+      <app-poll-composer *ngIf="kind === 'chat' && pollOpen" (send)="sendPoll($event)" (closed)="pollOpen = false"></app-poll-composer>
       <form (ngSubmit)="send()" class="team-content-editor">
         <label [for]="'team-content-' + kind + '-' + teamId">
           {{kind === 'chat' ? 'Mensagem' : replyTargetId ? 'Comentário' : 'Nova publicação'}}
@@ -731,6 +738,19 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     private readonly cdr: ChangeDetectorRef,
     private readonly inbox: InboxApiService,
     private readonly mutes: ConversationMuteService) {}
+
+  /** Team chats are group chats: polls are sent as their own message. */
+  pollOpen = false;
+  readonly readPoll = readPoll;
+  sendPoll(text: string): void {
+    if (this.kind !== 'chat' || this.sending || this.accessRevoked) return;
+    this.pollOpen = false;
+    this.sending = true; this.error = '';
+    this.api.sendContent(this.teamId, this.kind, text, null).pipe(timeout(20000)).subscribe({
+      next: item => { if (!this.items.some(p => p.id === item.id)) this.items = [...this.items, item].sort((a, b) => a.id - b.id); },
+      error: () => { this.error = 'Não foi possível enviar a sondagem.'; },
+    }).add(() => { this.sending = false; this.cdr.markForCheck(); });
+  }
 
   /** Per-conversation mute and read cursor for the team chat, like the other chats. */
   chatMuted = false;

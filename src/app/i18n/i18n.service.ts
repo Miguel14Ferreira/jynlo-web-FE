@@ -753,6 +753,7 @@ const PT: Dictionary = {
   'chat.poll.addOption': '+ Adicionar opção',
   'chat.poll.removeOption': 'Remover opção',
   'chat.poll.use': 'Usar sondagem',
+  'chat.poll.send': 'Enviar sondagem',
   'chat.poll.close': 'Fechar',
   'chat.poll.invalid': 'Escreve a pergunta e pelo menos 2 opções diferentes.',
   'chat.poll.sentAlone': 'A sondagem é enviada sozinha. Apaga o texto ou envia-o numa mensagem à parte.',

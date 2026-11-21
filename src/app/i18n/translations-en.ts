@@ -747,6 +747,7 @@ export const EN: Record<string, string> = {
   'chat.poll.addOption': '+ Add option',
   'chat.poll.removeOption': 'Remove option',
   'chat.poll.use': 'Use poll',
+  'chat.poll.send': 'Send poll',
   'chat.poll.close': 'Close',
   'chat.poll.invalid': 'Write the question and at least 2 different options.',
   'chat.poll.sentAlone': 'The poll is sent on its own. Clear the text or send it separately.',
