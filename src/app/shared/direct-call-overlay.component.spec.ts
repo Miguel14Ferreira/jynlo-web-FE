@@ -362,8 +362,11 @@ describe('Global incoming call popup', () => {
     fixture.detectChanges();
     const input=fixture.nativeElement.querySelector('#connect-invite-name') as HTMLInputElement;
     expect(input).toBeTruthy();
+    // Forms register ngModel on the next microtask; then type like a user
+    // (the OnPush overlay updates through ngModelChange).
+    await Promise.resolve();
     input.value='carlos';
-    fixture.componentInstance.inviteUsername = 'carlos';
+    input.dispatchEvent(new Event('input'));
     fixture.detectChanges();
     (fixture.nativeElement.querySelector('.connect-invite-form button') as HTMLButtonElement).click();
     // The call clock intentionally runs continuously, so whenStable() never
@@ -425,9 +428,13 @@ describe('Global incoming call popup', () => {
   it('opens the conversation without hanging up and keeps the call minimized', () => {
     state.next({...invitation(), phase:'active', startedAt:Date.now()});
     fixture.detectChanges();
+    // The chat button opens the in-call chat; the full conversation opens from there.
     const chatButton = fixture.nativeElement.querySelector('.connect-chat-button') as HTMLButtonElement;
     expect(chatButton).toBeTruthy();
     chatButton.click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.showCallChat).toBeTrue();
+    (fixture.nativeElement.querySelector('.call-chat-full') as HTMLButtonElement).click();
     expect(fixture.componentInstance.minimized).toBeTrue();
     expect(navigate).toHaveBeenCalledOnceWith(['/menu/messages'], {
       queryParams: {kind:'direct', id:'beatriz'}
@@ -501,7 +508,7 @@ describe('Global incoming call popup', () => {
     state.next({...invitation('voice'),phase:'active',startedAt:Date.now()});
     fixture.detectChanges();
     const button = fixture.nativeElement.querySelector('.connect-chat-button') as HTMLButtonElement;
-    expect(button.getAttribute('aria-label')).toContain('sem terminar a chamada');
+    expect(button.getAttribute('aria-label')).toBe('Mostrar chat da chamada');
     (fixture.nativeElement.querySelector('.connect-minimize') as HTMLButtonElement).click();
     fixture.detectChanges();
     const compact = fixture.nativeElement.querySelector('.connect-mini-chat') as HTMLButtonElement;

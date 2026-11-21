@@ -1,6 +1,17 @@
 import { of, Subject, throwError, BehaviorSubject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MessagesCenterComponent, VOICE_NOTE_MAX_DURATION_MS } from './messages-center.component';
+import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
+
+/** The component injects Router (contact profiles); build it inside an injection context. */
+function createCenter(...args: ConstructorParameters<typeof MessagesCenterComponent>): MessagesCenterComponent {
+  return TestBed.runInInjectionContext(() => new MessagesCenterComponent(...args));
+}
+function provideTestRouter(): void {
+  TestBed.configureTestingModule({ providers: [{ provide: Router,
+    useValue: jasmine.createSpyObj<Router>('Router', ['navigate', 'navigateByUrl']) }] });
+}
 import {
   InboxConversation, InboxMessage, inboxKey, matchesInboxSearch,
   mergeInboxMessages, orderInbox
@@ -21,6 +32,7 @@ const message = (key: string, id: number, sender = 'beta'): InboxMessage => ({
 });
 
 describe('Unified Jynlo message center', () => {
+  beforeEach(() => provideTestRouter());
   let component: MessagesCenterComponent;
   let friends: jasmine.SpyObj<CommunityService>;
   let communities: jasmine.SpyObj<CommunityGroupsService>;
@@ -73,7 +85,7 @@ describe('Unified Jynlo message center', () => {
       id: 41, sport: 'Futsal', city: 'Cacém', gameDate: '2026-11-01T10:00:00Z',
       joined: true, status: 'OPEN'
     } as any));
-    component = new MessagesCenterComponent(friends, communities, sessions, direct, timeline, realtime, inboxApi);
+    component = createCenter(friends, communities, sessions, direct, timeline, realtime, inboxApi);
     (component as any).currentUsername = 'ana';
     // Older isolated tests construct a session chat without calling loadInbox().
     (component as any).sessionKickoffs.set(41, Date.now() + 3600_000);
@@ -162,16 +174,16 @@ describe('Unified Jynlo message center', () => {
     expect(component.selectedAttachment).toBeNull();
   });
 
-  it('opens a quoted author with the existing private profile quick-view, never for blank names', () => {
-    const quick = jasmine.createSpyObj('ProfileQuickViewService', ['open', 'close']);
-    (component as any).profilePeek = quick;
-    component.openContact('bea');
-    expect(quick.open).toHaveBeenCalledOnceWith('bea');
-    expect(component.contactPreviewOpen).toBeTrue();
+  it('opens a quoted author on their profile page, never for blank or unsafe names', () => {
+    const router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    router.navigate.and.resolveTo(true);
+    component.openContact('@bea');
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/menu/perfis', 'bea']);
 
     component.openContact('');
     component.openContact(null);
-    expect(quick.open).toHaveBeenCalledTimes(1);
+    component.openContact('../admin');
+    expect(router.navigate).toHaveBeenCalledTimes(1);
   });
 
   it('closes contact information when switching to another private conversation', () => {
@@ -2213,7 +2225,7 @@ describe('Unified Jynlo message center', () => {
       { id: 16, gameDate: active, status: 'CANCELLED', sport: 'Padel', city: 'Lisboa' }
     ], joined: [], waitlisted: [] } as any));
     sessions.messages.and.returnValue(of([]));
-    component = new MessagesCenterComponent(friends, communities, sessions, direct, timeline,
+    component = createCenter(friends, communities, sessions, direct, timeline,
       realtime, inboxApi, { snapshot: { queryParamMap: { get: (key: string) =>
         key === 'kind' ? 'session' : key === 'id' ? '14' : null } } } as any);
     component.loadInbox();
@@ -2230,7 +2242,7 @@ describe('Unified Jynlo message center', () => {
       { username: 'bea', fullName: 'Bea' }, { username: 'ana', fullName: 'Ana' }
     ] as any));
     direct.recentHistory.and.returnValue(of({ content: [], last: true } as any));
-    component = new MessagesCenterComponent(friends, communities, sessions, direct, timeline,
+    component = createCenter(friends, communities, sessions, direct, timeline,
       realtime, inboxApi, { queryParamMap: params.asObservable() } as any);
     component.ngOnInit();
     expect(component.selectedKey).toBe('direct:bea');
@@ -2260,7 +2272,7 @@ describe('Unified Jynlo message center', () => {
     friends.friends.and.returnValue(of([]));
     direct.info.and.returnValue(of({chatBlocked:false, whoBlocked:null}));
     direct.recentHistory.and.returnValue(of({content:[], last:true}));
-    component = new MessagesCenterComponent(friends, communities, sessions, direct, timeline,
+    component = createCenter(friends, communities, sessions, direct, timeline,
       realtime, inboxApi, { snapshot: { queryParamMap: { get: (key: string) =>
         key === 'kind' ? 'direct' : key === 'id' ? 'new-player' : null } } } as any);
     component.loadInbox();
@@ -2272,7 +2284,7 @@ describe('Unified Jynlo message center', () => {
   it('never opens a non-friend deep link when the backend denies contact', () => {
     friends.friends.and.returnValue(of([]));
     direct.info.and.returnValue(throwError(() => new HttpErrorResponse({status:403})));
-    component = new MessagesCenterComponent(friends, communities, sessions, direct, timeline,
+    component = createCenter(friends, communities, sessions, direct, timeline,
       realtime, inboxApi, { snapshot: { queryParamMap: { get: (key: string) =>
         key === 'kind' ? 'direct' : key === 'id' ? 'stranger' : null } } } as any);
     component.loadInbox();
@@ -2283,7 +2295,7 @@ describe('Unified Jynlo message center', () => {
   });
 
   it('does not invent a conversation from a forged or expired deep link', () => {
-    component = new MessagesCenterComponent(friends, communities, sessions, direct, timeline,
+    component = createCenter(friends, communities, sessions, direct, timeline,
       realtime, inboxApi, { snapshot: { queryParamMap: { get: (key: string) =>
         key === 'kind' ? 'session' : key === 'id' ? '999' : null } } } as any);
     component.loadInbox();
@@ -3311,7 +3323,7 @@ describe('Unified Jynlo message center', () => {
         id:92,username1:'ana',username2:'bea',
         text:'A mesma mensagem sem reenvio',date:new Date().toISOString(),dataDisplay:null
       }]} as any));
-      const reloaded=new MessagesCenterComponent(friends,communities,sessions,direct,
+      const reloaded=createCenter(friends,communities,sessions,direct,
         timeline,realtime,inboxApi);
       reloaded.ngOnInit();
       try {
@@ -3353,7 +3365,7 @@ describe('Unified Jynlo message center', () => {
       component.ngOnDestroy();
       direct.recentHistory.and.returnValue(
         throwError(()=>new HttpErrorResponse({status:503})));
-      const reloaded=new MessagesCenterComponent(friends,communities,sessions,direct,
+      const reloaded=createCenter(friends,communities,sessions,direct,
         timeline,realtime,inboxApi);
       reloaded.ngOnInit();
       try {
@@ -3466,6 +3478,7 @@ describe('Unified Jynlo message center', () => {
 });
 
 describe('Direct chat confirmed read status', () => {
+  beforeEach(() => provideTestRouter());
   // Intentionally tested without a DOM renderer: these are authorization
   // and state-race contracts for the inbox, not visual snapshot tests.
   let inbox: MessagesCenterComponent;
@@ -3504,7 +3517,7 @@ describe('Direct chat confirmed read status', () => {
       communityMessages$:new Subject<any>().asObservable(),
       sessionMessages$:new Subject<any>().asObservable(),
       connect:()=>{}} as unknown as DirectChatRealtimeService;
-    inbox = new MessagesCenterComponent(friends,communities,sessions,
+    inbox = createCenter(friends,communities,sessions,
       direct,timeline,realtime,api);
     (inbox as any).currentUsername = 'ana';
     (inbox as any).receiptSessionToken = browserToken;

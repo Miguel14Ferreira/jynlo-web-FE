@@ -142,10 +142,11 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
             </div>
           }
           @if (showCallChat && call.phase !== 'error') {
-            <aside class="call-chat-dock" aria-label="Chat privado da chamada">
+            <aside class="call-chat-dock" [attr.aria-label]="'calls.callChat' | t">
               <app-direct-call-chat-panel [peer]="call.peer"></app-direct-call-chat-panel>
-              <button type="button" class="call-chat-full" (click)="openChat(call.peer)">
-                Abrir conversa completa
+              <button type="button" class="call-chat-full" (click)="openChat(call.peer)"
+                [attr.aria-label]="'calls.openChatKeepCall' | t">
+                {{ 'calls.openFullChat' | t }}
               </button>
             </aside>
           }
@@ -397,7 +398,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                 }
                 <button type="button" class="connect-chat-button"
                   (click)="toggleCallChat()" [attr.aria-expanded]="showCallChat"
-                   [attr.aria-label]="showCallChat?'Ocultar chat da chamada':'Mostrar chat da chamada'">
+                   [attr.aria-label]="(showCallChat?'calls.hideCallChat':'calls.showCallChat') | t">
                   <svg class="call-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5Z"/></svg> Chat
                 </button>
                 <button type="button" class="call-settings-button"

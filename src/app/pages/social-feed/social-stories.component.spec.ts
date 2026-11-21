@@ -323,7 +323,7 @@ describe('SocialStoriesComponent', () => {
       textColor: 'white', textBackground: 'dark', textFont: 'modern',
       altText: '', showTime: false,
       locationLabel: 'Campo de Benfica, Lisboa', taggedUsernames: 'ana'
-    });
+    }, null);
     expect(component.storyLocation).toBe('');
     expect(component.storyTaggedProfiles).toEqual([]);
     component.showStory(component.mineEntries[0]);
@@ -352,7 +352,7 @@ describe('SocialStoriesComponent', () => {
     expect(preview.style.color).toBe('rgb(2, 6, 23)');
     component.publish();
     expect(api.publish).toHaveBeenCalledWith(jasmine.any(File), 'Vamos jogar!', null,
-      jasmine.objectContaining({textColor:'black',textBackground:'light',textFont:'classic'}));
+      jasmine.objectContaining({textColor:'black',textBackground:'light',textFont:'classic'}), null);
     component.showStory(component.mineEntries[0]);
     fixture.detectChanges();
     const rendered = (fixture.nativeElement as HTMLElement).querySelector('.story-caption') as HTMLElement;
@@ -377,7 +377,7 @@ describe('SocialStoriesComponent', () => {
       textX: 50, textY: 74, textRotation: 0, textZoom: 1,
       textColor: 'white', textBackground: 'dark', textFont: 'modern',
       altText: 'Jogadores num campo de futebol', showTime: true, locationLabel: '', taggedUsernames: ''
-    });
+    }, null);
     expect(component.mineEntries[0].id).toBe(123);
     expect(component.storyAltText).toBe('');
     expect(component.storyShowTime).toBeFalse();
@@ -423,7 +423,7 @@ describe('SocialStoriesComponent', () => {
       textX:32,textY:41,textRotation:38,textZoom:1.6}));
     component.publish();
     expect(api.publish).toHaveBeenCalledWith(jasmine.any(File), 'Golo de bicicleta!', null,
-      jasmine.objectContaining({textX:32,textY:41,textRotation:38,textZoom:1.6}));
+      jasmine.objectContaining({textX:32,textY:41,textRotation:38,textZoom:1.6}), null);
     expect(component.storyTextPlacement).toEqual({x:50,y:74,rotation:0,scale:1});
     component.showStory(component.mineEntries[0]);
     fixture.detectChanges();
@@ -453,7 +453,7 @@ describe('SocialStoriesComponent', () => {
       textX: 50, textY: 74, textRotation: 0, textZoom: 1,
       textColor: 'white', textBackground: 'dark', textFont: 'modern',
       altText: '', showTime: false, locationLabel: '', taggedUsernames: ''
-    });
+    }, null);
     expect(component.composerOpen).toBeTrue();
     expect(component.file).toBe(photo);
     expect(component.caption).toBe('Treino');

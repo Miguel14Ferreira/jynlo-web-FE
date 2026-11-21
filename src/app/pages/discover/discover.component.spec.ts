@@ -8,6 +8,7 @@ import { CommunityService } from '../../services/community.service';
 import { SessionService } from '../../services/session.service';
 import { VenueService } from '../../services/venue.service';
 import { CommunityProfile } from '../model/community-profile';
+import { Venue } from '../model/venue';
 
 describe('DiscoverComponent', () => {
   let component: DiscoverComponent;
