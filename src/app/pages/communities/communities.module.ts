@@ -39,6 +39,7 @@ import { CommunityPhotoCoverComponent } from './community-photo-cover.component'
 import { ChatReactionsComponent } from '../../shared/chat-reactions/chat-reactions.component';
 import { MessagesCenterComponent } from '../messages-center/messages-center.component';
 import { CommunityTournamentsComponent } from './community-tournaments.component';
+import { EventRankingPanelComponent } from './event-ranking-panel.component';
 import { CommunityTeamsPanelComponent } from './community-teams-panel.component';
 import { GlobalTeamEnrollmentComponent } from './global-team-enrollment.component';
 import { CompetitionTeamSearchComponent } from './competition-team-search.component';
@@ -66,6 +67,6 @@ const routes: Routes = [
   imports: [CommonModule, FormsModule, RouterModule.forChild(routes), TranslatePipe, ChatReactionsComponent, KartingPodiumComponent, KartingPalmaresComponent, KartingRaceTableComponent,
     CompetitionGuideComponent, CompetitionFormatChooserComponent, CommunityLivePanelComponent, CommunityDiscoveryPitchComponent, CommunityPerformanceInsightsComponent, CommunityTabsComponent, CommunitySessionCardComponent, CommunityOverviewStatsComponent, CommunityLeaderHighlightComponent, CommunityFeatureSettingsComponent, CommunityDisciplinePanelComponent, CommunityTournamentSuspensionsComponent, CommunityTournamentEligibilityPanelComponent, CommunityWhatsAppShareComponent, CommunitySportManagementComponent, CommunityActiveSeasonCardComponent, CommunitySeasonTrophiesComponent, CommunityStatLeadersComponent, CommunitySpecializedStatsComponent, CommunityStatsTableComponent, CommunityRankingTableComponent, CommunityPendingInvitesComponent, CommunitySwitchComponent, CommunityCompetitionSettingsComponent, CommunityRankingVisibilityComponent, CommunitySeasonCreateFormComponent, CommunitySeasonFilterComponent, CommunityPhotoCoverComponent,
     TournamentClassificationNoteComponent, RaceStandingsCardComponent,
-    MessagesCenterComponent, CommunityHabitualVenuePickerComponent, CompetitionTeamSearchComponent, TeamCompetitionApplicationsComponent, CommunityTeamsPanelComponent, GlobalTeamEnrollmentComponent, TournamentPublicShareComponent, CommunityPublicRankingShareComponent]
+    MessagesCenterComponent, CommunityHabitualVenuePickerComponent, CompetitionTeamSearchComponent, TeamCompetitionApplicationsComponent, CommunityTeamsPanelComponent, GlobalTeamEnrollmentComponent, TournamentPublicShareComponent, CommunityPublicRankingShareComponent, EventRankingPanelComponent]
 })
 export class CommunitiesModule {}

@@ -534,7 +534,7 @@ describe('Community tournaments management', () => {
       'teamAdministration', 'teamInvitationStatus', 'declineTeamInvitation', 'pendingTeamInvitations', 'revokeTeamInvitation',
       'transferTeamAdministration', 'respondTeamAdministration', 'cancelTeamAdministrationTransfer',
       'generateTeamSchedule', 'teamMatches', 'teamProfileMatches', 'recordTeamResult', 'teamStandings', 'teamGroups', 'completeTeam',
-      'createRaceChampionship', 'raceOverview', 'linkRace', 'unlinkRace', 'setRacePoints',
+      'createRaceChampionship', 'createEventRanking', 'raceOverview', 'linkRace', 'unlinkRace', 'setRacePoints',
       'createTimedChampionship', 'createCanoeChampionship', 'createRowingChampionship', 'createTrackChampionship', 'timedOverview', 'linkTimedRound', 'unlinkTimedRound',
       'createMeasuredChampionship', 'measuredOverview', 'linkMeasuredRound', 'unlinkMeasuredRound',
       'completeRaceChampionship', 'inlineSpeedOverview', 'resolveInlineSpeedTieBreak', 'recordInlineSpeedTrial'
@@ -2369,8 +2369,12 @@ describe('Community tournaments management', () => {
     expect(component.creationReadiness).toBe('READY');
 
     component.chooseSport('Triatlo');
+    expect(component.selectedSportCreationModel).toBe('EVENT_RANKING');
+    expect(component.creationReadiness).toBe('READY');
+    expect(component.creationSportNoticeKey).toBeNull();
+
+    component.chooseSport('Yoga');
     expect(component.creationReadiness).toBe('UNAVAILABLE');
-    expect(component.creationSportNoticeKey).toBe('communities.tournaments.creationRaceNotice');
 
     component.chooseSport('Futebol');
     expect(component.creationReadiness).toBe('READY');
@@ -2411,7 +2415,8 @@ describe('Community tournaments management', () => {
     expect(component.creationSportNoticeKey).toBe('communities.tournaments.creationDuelNotice');
 
     component.chooseSport('Golfe');
-    expect(component.creationSportNoticeKey).toBe('communities.tournaments.creationPerformanceNotice');
+    expect(component.selectedSportCreationModel).toBe('EVENT_RANKING');
+    expect(component.creationSportNoticeKey).toBeNull();
 
     component.sportDraft = '';
     expect(component.creationSportNoticeKey).toBeNull();
@@ -2625,8 +2630,21 @@ describe('Community tournaments management', () => {
     for (const sport of ['Canoagem', 'Triatlo']) {
       component.chooseSport(sport);
       expect(component.isRaceChampionshipDraft).toBeFalse();
-      expect(component.isSportFormatSupported).toBeFalse();
+      // Offered as a generic "classificação por provas" instead.
+      expect(component.isEventRankingDraft).toBeTrue();
     }
+  });
+
+  it('creates a classificação por provas for individual sports without a dedicated engine', async () => {
+    component.startIndividualCreation();
+    component.nameDraft = 'Circuito de Golfe';
+    component.chooseSport('Golfe');
+    expect(component.isEventRankingDraft).toBeTrue();
+    expect(component.isSportFormatSupported).toBeTrue();
+    api.createEventRanking.and.returnValue(of({ ...draft, id: 140, name: 'Circuito de Golfe', sport: 'Golfe', scoringMode: 'EVENT_RANKING' }));
+    await component.create();
+    expect(api.createEventRanking).toHaveBeenCalledOnceWith(7, 'Circuito de Golfe', 'Golfe');
+    expect(api.create).not.toHaveBeenCalled();
   });
 
   it('does not enable race championships for unsupported event rules', () => {

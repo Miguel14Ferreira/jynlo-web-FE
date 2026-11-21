@@ -3300,6 +3300,14 @@ export class CommunityTournamentsComponent implements OnChanges {
       : (sport || t('communities.tournaments.classificationUi.raceFallback'));
   }
 
+  /** Generic "classificação por provas" for individual sports without a dedicated engine. */
+  get isEventRankingDraft(): boolean {
+    return !this.showTeamCreate && this.selectedSportCreationModel === 'EVENT_RANKING';
+  }
+  get isEventRankingCompetition(): boolean {
+    return this.selected?.scoringMode === 'EVENT_RANKING';
+  }
+
   get isRaceCompetition(): boolean {
     return this.selected?.scoringMode === 'RACE_POINTS';
   }
@@ -5214,7 +5222,23 @@ export class CommunityTournamentsComponent implements OnChanges {
       && this.standings.standings.every(row => row.played === players - 1);
   }
 
-  loadTournaments(reset = false): void {
+  /** Event-ranking panel changed status (first event / completed): refresh the header in place. */
+  refreshSelectedTournament(): void {
+    const selected = this.selected;
+    if (!selected || !this.community?.id) return;
+    this.api.details(this.community.id, selected.id).pipe(timeout(12000)).subscribe({
+      next: detail => {
+        if (this.selected?.id !== detail.id) return;
+        Object.assign(this.selected, detail);
+        const listed = this.tournaments.find(item => item.id === detail.id);
+        if (listed && listed !== this.selected) Object.assign(listed, detail);
+        this.changeDetector.markForCheck();
+      },
+      error: () => undefined
+    });
+  }
+
+    loadTournaments(reset = false): void {
     if (!this.community?.id || this.loading) return;
     const communityId = this.community.id;
     const revision = ++this.listRevision;
@@ -6728,12 +6752,15 @@ export class CommunityTournamentsComponent implements OnChanges {
       this.showError(t('communities.tournaments.organizerUi.individualUnsupported'));
       return;
     }
-    if (!this.isRaceChampionshipDraft && !this.isInlineSpeedDraft && !this.isTimedDraft && !this.isMeasuredDraft && !this.validPointRules) {
+    if (!this.isRaceChampionshipDraft && !this.isInlineSpeedDraft && !this.isTimedDraft && !this.isMeasuredDraft
+        && !this.isEventRankingDraft && !this.validPointRules) {
       this.showError(t('communities.tournaments.organizerUi.invalidPoints'));
       return;
     }
     const scoringMode = this.classificationProfile.scoringMode;
-    const createRequest = this.selectedSportCreationModel==='ROWING_BEST_TIME'
+    const createRequest = this.isEventRankingDraft
+      ? this.api.createEventRanking(this.community.id, name, this.sportDraft)
+      : this.selectedSportCreationModel==='ROWING_BEST_TIME'
       ? this.api.createRowingChampionship(this.community.id,name,
           this.eventDisciplineDraft as 'SINGLE_500'|'SINGLE_1000'|'SINGLE_2000')
       : this.selectedSportCreationModel==='CANOE_BEST_TIME'

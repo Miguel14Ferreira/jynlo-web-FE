@@ -21,7 +21,7 @@ export interface CommunityTournament {
   eventDiscipline?: string | null;
   // Older individual competitions may omit these fields in cached responses.
   entryType?: 'INDIVIDUAL' | 'TEAM';
-  scoringMode?: 'CHESS_HALF_POINTS' | 'RACE_POINTS' | 'SWIM_BEST_TIME' | 'CANOE_BEST_TIME' | 'ROWING_BEST_TIME' | 'FIELD_BEST_MARK' | 'TRACK_BEST_TIME' | 'RELAY_BEST_TIME' | null;
+  scoringMode?: 'CHESS_HALF_POINTS' | 'RACE_POINTS' | 'SWIM_BEST_TIME' | 'CANOE_BEST_TIME' | 'ROWING_BEST_TIME' | 'FIELD_BEST_MARK' | 'TRACK_BEST_TIME' | 'RELAY_BEST_TIME' | 'GOLF_GROSS_STROKES' | 'EVENT_RANKING' | null;
   playersPerTeam?: number | null;
   roundRobinLegs?: 1 | 2;
   teamTieBreakPriority?: TeamTieBreakPriority;

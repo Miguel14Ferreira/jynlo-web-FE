@@ -57,7 +57,7 @@ describe('Tournament capabilities for all 122 modalities', () => {
 
   it('retains existing numeric team and individual tournament creation paths', () => {
     const models: readonly TournamentCreationModel[] = [
-      'NUMERIC_INDIVIDUAL', 'NUMERIC_TEAM', 'RACE_POINTS', 'INLINE_SPEED', 'SWIM_BEST_TIME', 'CANOE_BEST_TIME', 'ROWING_BEST_TIME', 'FIELD_BEST_MARK', 'TRACK_BEST_TIME', 'RELAY_BEST_TIME', 'UNAVAILABLE'
+      'NUMERIC_INDIVIDUAL', 'NUMERIC_TEAM', 'RACE_POINTS', 'INLINE_SPEED', 'SWIM_BEST_TIME', 'CANOE_BEST_TIME', 'ROWING_BEST_TIME', 'FIELD_BEST_MARK', 'TRACK_BEST_TIME', 'RELAY_BEST_TIME', 'EVENT_RANKING', 'UNAVAILABLE'
     ];
     for (const sport of SPORTS_CATALOG) {
       const cap = tournamentSportCapabilities(sport);

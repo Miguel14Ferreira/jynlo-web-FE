@@ -8,7 +8,8 @@ import { isRaceChampionshipSport } from '../../services/community-tournaments.se
  */
 export type TournamentCreationModel =
   | 'NUMERIC_INDIVIDUAL' | 'NUMERIC_TEAM'
-  | 'RACE_POINTS' | 'INLINE_SPEED' | 'SWIM_BEST_TIME' | 'CANOE_BEST_TIME' | 'ROWING_BEST_TIME' | 'FIELD_BEST_MARK' | 'TRACK_BEST_TIME' | 'RELAY_BEST_TIME' | 'UNAVAILABLE';
+  | 'RACE_POINTS' | 'INLINE_SPEED' | 'SWIM_BEST_TIME' | 'CANOE_BEST_TIME' | 'ROWING_BEST_TIME' | 'FIELD_BEST_MARK' | 'TRACK_BEST_TIME' | 'RELAY_BEST_TIME'
+  | 'EVENT_RANKING' | 'UNAVAILABLE';
 
 export interface TournamentSportCapabilities {
   family: CommunitySportFormat | 'unknown';
@@ -69,5 +70,10 @@ export function tournamentCreationModelForEvent(
     if (eventType === 'TRACK_RELAY') return 'UNAVAILABLE';
     return capabilities.individual;
   }
-  return team ? capabilities.team : capabilities.individual;
+  if (team) return capabilities.team;
+  // Every other competitive individual sport can run a "classificação por provas"
+  // (time, score/mark/judges' score or positions per event). Not for activities.
+  if (capabilities.individual === 'UNAVAILABLE'
+      && capabilities.family !== 'activity' && capabilities.family !== 'unknown') return 'EVENT_RANKING';
+  return capabilities.individual;
 }
