@@ -17,6 +17,13 @@ import { ChatReadSyncService } from '../../services/chat-read-sync.service';
 import { SessionMessage } from '../model/session-message';
 import { TEST_IMPORTS, TEST_PROVIDERS } from '../../testing/test-providers';
 import { ChatReactionsStubComponent } from '../../testing/chat-reactions-stub.component';
+import { Component as NgComponent, Input as NgInput } from '@angular/core';
+
+@NgComponent({ selector: 'app-session-payments-panel', standalone: true, template: '' })
+class SessionPaymentsPanelStubComponent {
+  @NgInput() sessionId!: number;
+  @NgInput() priceAmount: number | null = null;
+}
 import { I18nService, appTranslate as t } from '../../i18n/i18n.service';
 
 describe('SessionDetailsComponent', () => {
@@ -206,7 +213,7 @@ describe('SessionDetailsComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [SessionDetailsComponent],
-      imports: [...TEST_IMPORTS, ChatReactionsStubComponent],
+      imports: [...TEST_IMPORTS, ChatReactionsStubComponent, SessionPaymentsPanelStubComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: ChatReadSyncService, useValue: readSync },

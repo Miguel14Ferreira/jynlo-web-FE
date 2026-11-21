@@ -1,0 +1,45 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { environment } from 'src/environment/environment';
+
+export interface SessionPaymentPlayer {
+  username: string; profilePicUrl: string | null; claimedAt: string | null; confirmedAt: string | null;
+}
+export interface SessionPayments {
+  priceAmount: number | null;
+  organiser: boolean;
+  method: 'MBWAY' | 'IN_PERSON' | null;
+  mbwayPhone: string | null;
+  me: { claimedAt: string | null; confirmedAt: string | null } | null;
+  confirmedCount: number;
+  playerCount: number;
+  players: SessionPaymentPlayer[];
+  lastReminderAt: string | null;
+}
+
+/** MB WAY goes straight to the organiser; Jynlo only keeps "who already paid". */
+@Injectable({ providedIn: 'root' })
+export class SessionPaymentService {
+  constructor(private readonly http: HttpClient) {}
+
+  private url(sessionId: number): string {
+    return environment.apiUrl + '/api/sessions/' + sessionId + '/payments';
+  }
+
+  get(sessionId: number): Observable<SessionPayments> {
+    return this.http.get<SessionPayments>(this.url(sessionId));
+  }
+  setMethod(sessionId: number, method: 'MBWAY' | 'IN_PERSON' | null, phone: string | null): Observable<SessionPayments> {
+    return this.http.put<SessionPayments>(this.url(sessionId) + '/method', { method, phone });
+  }
+  remind(sessionId: number): Observable<SessionPayments> {
+    return this.http.post<SessionPayments>(this.url(sessionId) + '/remind', {});
+  }
+  claim(sessionId: number, paid: boolean): Observable<SessionPayments> {
+    return this.http.put<SessionPayments>(this.url(sessionId) + '/me', { paid });
+  }
+  confirm(sessionId: number, username: string, paid: boolean): Observable<SessionPayments> {
+    return this.http.put<SessionPayments>(this.url(sessionId) + '/players/' + encodeURIComponent(username), { paid });
+  }
+}
