@@ -355,19 +355,22 @@ describe('NavbarComponent', () => {
 
     const menu = nav.querySelector('details.account-menu');
     expect(menu?.querySelector('a[href="/menu/my-sessions"]')).toBeTruthy();
-    expect(menu?.querySelector('a[href="/menu/communities"]')).toBeFalsy();
+    // On phones the bottom tab bar keeps five destinations; Communities moves to the menu (mobile only).
+    expect(menu?.querySelector('a.mobile-only-link[href="/menu/communities"]')).toBeTruthy();
+    expect(nav.querySelectorAll(':scope > a.nav-tab').length).toBe(5);
     expect(menu?.querySelector('a[href="/menu/messages"]')).toBeTruthy();
     expect(menu?.querySelector('.account-menu__panel a[href="/menu/perfis/bea"]')).toBeTruthy();
     expect(menu?.querySelector('.language-switch')).toBeTruthy();
     expect(menu?.querySelector('.logout-action')).toBeTruthy();
   });
 
-  it('keeps a single direct Communities link when authenticated', () => {
+  it('keeps a single desktop Communities link when authenticated', () => {
     component.authenticated = true;
     fixture.detectChanges();
 
     const nav: HTMLElement = fixture.nativeElement.querySelector('.site-nav__links');
-    const links = Array.from(nav.querySelectorAll<HTMLAnchorElement>('a[href="/menu/communities"]'));
+    const links = Array.from(nav.querySelectorAll<HTMLAnchorElement>('a[href="/menu/communities"]'))
+      .filter(link => !link.classList.contains('mobile-only-link'));
     expect(links.length).toBe(1);
     expect(links[0].classList.contains('nav-communities-link')).toBeTrue();
     expect(links[0].closest('.account-menu')).toBeNull();

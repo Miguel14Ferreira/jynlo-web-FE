@@ -227,3 +227,14 @@
     width:100%;
   }
 }
+
+/* Mobile: the title row stacks as a column, so the desktop flex-basis (210px)
+   became a fixed height and left an empty block above the actions. */
+@media(max-width:650px){
+  :host .detail-page.jynlo-session-detail-premium .title-row > div:first-child {
+    flex:0 0 auto;
+  }
+  :host .detail-page.jynlo-session-detail-premium .session-top-actions .join-now {
+    width:100%;min-height:48px;font-size:1rem;
+  }
+}

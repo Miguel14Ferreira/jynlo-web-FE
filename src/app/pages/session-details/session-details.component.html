@@ -93,7 +93,7 @@
             </div>
             <div class="badges">
               <span [class.session-status-cancelled]="session.status === 'CANCELLED'">
-                {{ session.status === 'CANCELLED' ? ('mySessions.statusCancelled' | t) : session.status }}
+                {{ ('session.status.' + session.status) | t }}
               </span>
               @if (session.privateGame) {
                 <span>{{ 'events.private' | t }}</span>
@@ -227,10 +227,18 @@
               }
             }
             @if (canJoinSession()) {
-              <button type="button" class="join-shortcut" (click)="scrollToParticipation()">
-                {{ isFull() ? ('sessionDetail.viewWaitlist' | t) : ('sessionDetail.viewJoin' | t) }}
-                <span aria-hidden="true">↓</span>
-              </button>
+              @if (session.privateGame) {
+                <!-- Private sessions need the password field in the participation panel. -->
+                <button type="button" class="join-shortcut join-now" (click)="scrollToParticipation()">
+                  {{ joinButtonLabel() }}
+                  <span aria-hidden="true">↓</span>
+                </button>
+              } @else {
+                <button type="button" class="join-shortcut join-now" [disabled]="actionLoading"
+                        (click)="joinSession()">
+                  {{ joinButtonLabel() }}
+                </button>
+              }
             }
             @if (canSharePostGameMoment()) {
               <a class="postgame-action jynlo-action jynlo-action--neutral" routerLink="/menu/feed"

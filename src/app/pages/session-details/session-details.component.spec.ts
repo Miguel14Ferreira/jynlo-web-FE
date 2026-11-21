@@ -2355,9 +2355,10 @@ describe('SessionDetailsComponent', () => {
     expect(fixture.nativeElement.querySelector('.manual-share-link')).toBeNull();
   });
 
-  it('scrolls to the join action without navigating away from the session', () => {
+  it('joins a public session directly from the top action without navigating away', () => {
     component.session = {
       ...session,
+      privateGame: false,
       gameDate: new Date(Date.now() + 3600_000).toISOString()
     };
     fixture.detectChanges();
@@ -2365,24 +2366,44 @@ describe('SessionDetailsComponent', () => {
     const shortcut = fixture.nativeElement.querySelector('.join-shortcut') as HTMLButtonElement;
     const participation = fixture.nativeElement.querySelector('#session-participation') as HTMLElement;
     const scroll = spyOn(participation, 'scrollIntoView');
+    const join = spyOn(component, 'joinSession');
     const urlBefore = window.location.href;
 
     expect(shortcut).not.toBeNull();
     expect(shortcut.type).toBe('button');
     expect(shortcut.getAttribute('href')).toBeNull();
-    expect(shortcut.textContent).toContain('Ver inscrição');
+    expect(shortcut.textContent).toContain(component.joinButtonLabel());
     expect(participation.querySelector('.join-controls .primary-action')).not.toBeNull();
 
     shortcut.click();
 
-    expect(scroll).toHaveBeenCalledOnceWith({ behavior: 'smooth', block: 'start' });
+    expect(join).toHaveBeenCalledTimes(1);
+    expect(scroll).not.toHaveBeenCalled();
     expect(window.location.href).toBe(urlBefore);
+  });
+
+  it('scrolls to the password field for a private session instead of joining', () => {
+    component.session = {
+      ...session,
+      privateGame: true,
+      gameDate: new Date(Date.now() + 3600_000).toISOString()
+    };
+    fixture.detectChanges();
+
+    const shortcut = fixture.nativeElement.querySelector('.join-shortcut') as HTMLButtonElement;
+    const participation = fixture.nativeElement.querySelector('#session-participation') as HTMLElement;
+    const scroll = spyOn(participation, 'scrollIntoView');
+
+    shortcut.click();
+
+    expect(scroll).toHaveBeenCalledOnceWith({ behavior: 'smooth', block: 'start' });
     expect(sessionService.join).not.toHaveBeenCalled();
   });
 
-  it('should point to the waitlist for a full session', () => {
+  it('should offer the waitlist directly for a full session', () => {
     component.session = {
       ...session,
+      privateGame: false,
       status: 'FULL',
       participantCount: 4,
       gameDate: new Date(Date.now() + 3600_000).toISOString()
@@ -2390,15 +2411,12 @@ describe('SessionDetailsComponent', () => {
     fixture.detectChanges();
 
     const shortcut = fixture.nativeElement.querySelector('.join-shortcut') as HTMLButtonElement;
-    const participation = fixture.nativeElement.querySelector('#session-participation') as HTMLElement;
-    const scroll = spyOn(participation, 'scrollIntoView');
-    const urlBefore = window.location.href;
+    const join = spyOn(component, 'joinSession');
     expect(shortcut.textContent).toContain('lista de espera');
 
     shortcut.click();
 
-    expect(scroll).toHaveBeenCalledOnceWith({ behavior: 'smooth', block: 'start' });
-    expect(window.location.href).toBe(urlBefore);
+    expect(join).toHaveBeenCalledTimes(1);
   });
 
   it('should not show a join shortcut when a session is closed or already joined', () => {
