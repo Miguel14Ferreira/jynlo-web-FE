@@ -13,11 +13,12 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { environment } from 'src/environment/environment';
 import { InboxApiService } from '../../services/inbox-api.service';
+import { AvailabilityPanelComponent } from '../../shared/availability-panel/availability-panel.component';
 
 @Component({
   selector:'app-private-groups',
   standalone:true,
-  imports:[CommonModule,FormsModule,RouterLink,TranslatePipe],
+  imports:[CommonModule,FormsModule,RouterLink,TranslatePipe,AvailabilityPanelComponent],
   templateUrl:'./private-groups.component.html',
   styleUrls:['./private-groups.component.css'],
   changeDetection:ChangeDetectionStrategy.Eager

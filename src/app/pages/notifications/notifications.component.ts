@@ -32,7 +32,7 @@ export class NotificationsComponent implements OnInit {
   // while routine profile updates no longer generate inbox notifications.
   readonly preferenceTypes = [
     'COMMUNITY_INVITE', 'COMMUNITY_JOIN_REQUEST', 'COMMUNITY_JOIN_ACCEPTED',
-    'COMMUNITY_JOIN_REJECTED', 'SESSION_INVITE', 'WAITLIST_PROMOTED',
+    'COMMUNITY_JOIN_REJECTED', 'SESSION_INVITE', 'AVAILABILITY_REQUEST', 'AVAILABILITY_REMINDER', 'WAITLIST_PROMOTED',
     'SESSION_REMOVED', 'SESSION_CANCELLED', 'SESSION_MEETING_POINT_UPDATED',
     'SESSION_POST_GAME_REVIEW', 'SESSION_REMINDER',
     'TOURNAMENT_RESULT', 'TOURNAMENT_LEADER', 'PAYMENT_REMINDER', 'NEARBY_SESSION',
@@ -544,6 +544,18 @@ export class NotificationsComponent implements OnInit {
     void this.router.navigate(['/menu/groups'], { queryParams: { id } });
   }
 
+  /** "Quem pode?" lives on the group or the community page. */
+  openAvailability(notification: AppNotification): void {
+    if (notification.type !== 'AVAILABILITY_REQUEST' && notification.type !== 'AVAILABILITY_REMINDER') return;
+    if (notification.privateGroupId) {
+      this.openGroup(notification);
+      return;
+    }
+    if (this.validCompetitionLinkId(notification.communityId)) {
+      void this.router.navigate(['/menu/communities', notification.communityId]);
+    }
+  }
+
   openChat(notification: AppNotification): void {
     if (!notification.relatedUsername) {
       return;
@@ -719,6 +731,8 @@ export class NotificationsComponent implements OnInit {
       case 'TOURNAMENT_LEADER':
       case 'PAYMENT_REMINDER':
       case 'NEARBY_SESSION':
+      case 'AVAILABILITY_REQUEST':
+      case 'AVAILABILITY_REMINDER':
         return t('notifications.preferences.type.' + notification.type);
       case 'COMMUNITY_INVITE':
         return t('notification.communityInvite');
