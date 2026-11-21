@@ -56,6 +56,21 @@ server {
         try_files /index.html =404;
     }
 
+    # Shared community and profile links get their own preview card, in the same way.
+    location ~ ^/menu/communities/[0-9]+/?$ {
+        if ($link_preview_bot) {
+            rewrite ^/menu/communities/([0-9]+)/?$ /api/share/communities/$1 last;
+        }
+        try_files /index.html =404;
+    }
+
+    location ~ ^/menu/perfis/[A-Za-z0-9._-]+/?$ {
+        if ($link_preview_bot) {
+            rewrite ^/menu/perfis/([A-Za-z0-9._-]+)/?$ /api/share/profiles/$1 last;
+        }
+        try_files /index.html =404;
+    }
+
     # Serve fresh HTML after security releases, while assets remain cacheable.
     location = /index.html {
         expires -1;

@@ -46,3 +46,10 @@ test('session links are routed to the share page without a second backend proxy'
   const upstream = 'proxy_pass ' + '$' + '{BACKEND_UPSTREAM};';
   assert.equal(config.split(upstream).length, 3);
 });
+
+test('community and profile links get their own share pages', () => {
+  assert.ok(config.includes('rewrite ^/menu/communities/([0-9]+)/?$ /api/share/communities/$1 last;'));
+  assert.ok(config.includes('rewrite ^/menu/perfis/([A-Za-z0-9._-]+)/?$ /api/share/profiles/$1 last;'));
+  // Only crawlers are rewritten; people keep getting the app.
+  assert.equal(config.split('try_files /index.html =404;').length, 4);
+});
