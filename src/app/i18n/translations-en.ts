@@ -1794,6 +1794,7 @@ export const EN: Record<string, string> = {
   'groups.filesError': 'Could not send the files.',
   'groups.fileOpenError': 'Could not open the file.',
   'groups.locationError': 'Could not get your location.',
+  'session.playAgain': 'Play again',
   'notifications.openAvailability': 'Answer: who can play?',
   'notifications.blockAccess': 'Block account access',
   'notifications.blockAccessTitle': 'Temporarily block access to your account?',

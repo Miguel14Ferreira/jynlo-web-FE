@@ -994,11 +994,16 @@ export class Events2Component implements OnInit, OnDestroy {
     return maximum - confirmed;
   }
 
+  /** Previous session to copy invites from ("Jogar outra vez"), if any. */
+  repeatFrom: number | null = null;
+
   ngOnInit(): void {
     this.minDate = this.toLocalDateTimeValue(new Date());
     this.loadPresets();
 
     const params = this.route.snapshot.queryParamMap;
+    const repeatFrom = Number(params.get('repeatFrom'));
+    this.repeatFrom = Number.isSafeInteger(repeatFrom) && repeatFrom > 0 ? repeatFrom : null;
     const communityId = Number(params.get('community'));
     if (!Number.isFinite(communityId) || communityId <= 0) {
       const requestedSport = (params.get('sport') || '').trim();
@@ -1159,10 +1164,19 @@ export class Events2Component implements OnInit, OnDestroy {
       .subscribe({
         // Every creator sees an appropriate share dialog on first entry.
         // Community/private links stay authenticated; public preview is never invented.
-        next: session => this.router.navigate(
-          ['/menu/events', session.id],
-          { queryParams: { created: 1 } }
-        ),
+        next: session => {
+          const open = (invited?: number) => this.router.navigate(
+            ['/menu/events', session.id],
+            { queryParams: invited === undefined ? { created: 1 } : { created: 1, invitedAgain: invited } }
+          );
+          // "Jogar outra vez": invite last time's players once the new session exists.
+          if (this.repeatFrom) {
+            this.sessionService.inviteFromPrevious(session.id, this.repeatFrom).pipe(timeout(15_000)).subscribe({
+              next: summary => void open(summary.invited),
+              error: () => void open(),
+            });
+          } else void open();
+        },
         error: error => {
           this.errorMessage = this.errorFrom(
             error,

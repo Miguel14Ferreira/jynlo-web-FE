@@ -2532,6 +2532,24 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     );
   }
 
+  /** "Jogar outra vez": same sport, city and time next week, then invite the same players. */
+  repeatParams(): Record<string, string | number> {
+    const session = this.session;
+    if (!session) return {};
+    const params: Record<string, string | number> = { repeatFrom: session.id };
+    if (session.sport) params['sport'] = session.sport;
+    if (session.city) params['city'] = session.city;
+    const original = session.gameDate ? new Date(session.gameDate) : null;
+    if (original && !Number.isNaN(original.getTime())) {
+      const next = new Date(original.getTime());
+      do next.setDate(next.getDate() + 7); while (next.getTime() < Date.now() + 60 * 60_000);
+      const pad = (n: number) => String(n).padStart(2, '0');
+      params['when'] = `${next.getFullYear()}-${pad(next.getMonth() + 1)}-${pad(next.getDate())}T${pad(next.getHours())}:${pad(next.getMinutes())}`;
+    }
+    if (session.communityId) params['community'] = session.communityId;
+    return params;
+  }
+
   isCreator(): boolean {
     if (!this.session?.creatorUsername || !this.currentUsername) {
       return false;
