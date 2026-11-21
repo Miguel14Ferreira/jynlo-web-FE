@@ -475,6 +475,7 @@ const PT: Dictionary = {
   'nav.venues': 'Recintos',
   'nav.activities': 'Sessões',
   'nav.communities': 'Comunidades',
+  'communities.tournamentsLoadError': 'Não foi possível abrir as competições. Verifica a ligação e recarrega a página.',
   'firstSteps.title': "Primeiros passos",
   'firstSteps.heading': "O que gostas de jogar?",
   'firstSteps.text': "Escolhe até 10 modalidades e a tua cidade. Abrimos Explorar já com os teus jogos, e quem procura parceiros na tua modalidade passa a encontrar-te. Podes mudar tudo no perfil.",

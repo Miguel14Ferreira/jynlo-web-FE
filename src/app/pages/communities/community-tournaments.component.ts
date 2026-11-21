@@ -1,3 +1,19 @@
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { CommunityTournamentEligibilityPanelComponent } from './community-tournament-eligibility-panel.component';
+import { CompetitionFormatChooserComponent } from './competition-format-chooser.component';
+import { CompetitionGuideComponent } from './competition-guide.component';
+import { CompetitionTeamSearchComponent } from './competition-team-search.component';
+import { EventRankingPanelComponent } from './event-ranking-panel.component';
+import { KartingPalmaresComponent } from './karting-palmares.component';
+import { KartingPodiumComponent } from './karting-podium.component';
+import { KartingRaceTableComponent } from './karting-race-table.component';
+import { RaceStandingsCardComponent } from './race-standings-card.component';
+import { TeamCompetitionApplicationsComponent } from './team-competition-applications.component';
+import { TournamentClassificationNoteComponent } from './tournament-classification-note.component';
+import { TournamentPublicShareComponent } from './tournament-public-share.component';
 import { ChampionshipTeamAdministrator, ChampionshipPendingTeamInvitation, ChampionshipTeamPlayer, ChampionshipFixtureGoal, ChampionshipOwnedLeagueTable, ChampionshipFixtureCard, ChampionshipLeaguePlayerStats, ChampionshipFixtureSubstitution, ChampionshipFixtureLineupPlayer } from '../../services/community-championships.service';
 import { CommunityChampionshipsService, ChampionshipOwnedEvent, ChampionshipOwnedEventTeam, ChampionshipOwnedLeagueFixture, ChampionshipCupOpeningRound, ChampionshipOwnedEventFormat, CommunityChampionship, CommunityChampionshipStandings, CommunityChampionshipTeams, CommunityChampionshipHonours, CommunityPermanentTeams } from '../../services/community-championships.service';
 import { championshipTeamProfile, ChampionshipTeamProfile } from './community-championship-team-profile';
@@ -45,7 +61,8 @@ interface TournamentTeamAdministrationState {
   selector: 'app-community-tournaments',
   templateUrl: './community-tournaments.component.html',
   styleUrls: ['./community-tournaments.component.css', './community-tournaments-v3-finish.css', './community-tournaments-team-journey.css', './community-team-honours-timeline.css', './community-competitions-dashboard.css', './community-team-autonomy.css', './community-championship-round-centre.css'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, CommunityTournamentEligibilityPanelComponent, CompetitionFormatChooserComponent, CompetitionGuideComponent, CompetitionTeamSearchComponent, EventRankingPanelComponent, KartingPalmaresComponent, KartingPodiumComponent, KartingRaceTableComponent, RaceStandingsCardComponent, TeamCompetitionApplicationsComponent, TournamentClassificationNoteComponent, TournamentPublicShareComponent]
 })
 export class CommunityTournamentsComponent implements OnChanges {
   @Input({ required: true }) community!: CommunityGroup;

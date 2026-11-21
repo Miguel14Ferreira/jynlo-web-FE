@@ -469,6 +469,7 @@ export const EN: Record<string, string> = {
   'nav.venues': 'Venues',
   'nav.activities': 'Sessions',
   'nav.communities': 'Communities',
+  'communities.tournamentsLoadError': 'Could not open the competitions. Check your connection and reload the page.',
   'firstSteps.title': "First steps",
   'firstSteps.heading': "What do you like to play?",
   'firstSteps.text': "Pick up to 10 sports and your city. We open Explore with your games, and people looking for partners in your sport can find you. You can change everything in your profile.",

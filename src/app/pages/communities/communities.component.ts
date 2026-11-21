@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { AfterViewChecked, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, Type, ViewChild, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -358,6 +358,37 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   errorMessage = '';
 
   activeTab: CommunityTab = 'home';
+
+  /** The tournaments tab is the largest screen of the site: its code is downloaded only when opened. */
+  private readonly tournamentsComponent = signal<Type<unknown> | null>(null);
+  readonly tournamentsLoadFailed = signal(false);
+  private tournamentsLoading = false;
+  private tournamentsInputsCache: { key: string; value: Record<string, unknown> } | null = null;
+  get tournamentsView(): Type<unknown> | null {
+    const loaded = this.tournamentsComponent();
+    if (!loaded && !this.tournamentsLoading && !this.tournamentsLoadFailed()) {
+      this.tournamentsLoading = true;
+      import('./community-tournaments.component')
+        .then(m => this.tournamentsComponent.set(m.CommunityTournamentsComponent))
+        .catch(() => this.tournamentsLoadFailed.set(true))
+        .finally(() => { this.tournamentsLoading = false; });
+    }
+    return loaded;
+  }
+  retryTournaments(): void { this.tournamentsLoadFailed.set(false); }
+  get tournamentsInputs(): Record<string, unknown> {
+    const value = {
+      community: this.selected, invitedTournamentId: this.invitedTournamentId,
+      requestedChampionshipId: this.requestedChampionshipId, requestedChampionshipTeamId: this.requestedChampionshipTeamId,
+      invitedTeamId: this.invitedTeamId, teamPageId: this.tournamentTeamPageId, requestedFixtureId: this.tournamentFixtureId
+    };
+    const key = [this.selected?.id, ...Object.values(value).slice(1)].join('|');
+    // Same object while nothing changed, so the tab is not re-rendered on every check.
+    if (this.tournamentsInputsCache?.key !== key || this.tournamentsInputsCache.value['community'] !== this.selected) {
+      this.tournamentsInputsCache = { key, value };
+    }
+    return this.tournamentsInputsCache.value;
+  }
   timelineEntries: CommunityTimelineEntry[] = [];
   timelineLoading = false;
   private feedSyncInFlight = false;

@@ -865,13 +865,14 @@
 
             @if (activeTab === 'tournaments') {
               <section class="community-tab-panel">
-                <app-community-tournaments [community]="selected"
-                   [invitedTournamentId]="invitedTournamentId"
-                   [requestedChampionshipId]="requestedChampionshipId"
-                   [requestedChampionshipTeamId]="requestedChampionshipTeamId"
-                   [invitedTeamId]="invitedTeamId"
-                   [teamPageId]="tournamentTeamPageId"
-                   [requestedFixtureId]="tournamentFixtureId"></app-community-tournaments>
+                @if (tournamentsView; as view) {
+                  <ng-container *ngComponentOutlet="view; inputs: tournamentsInputs"></ng-container>
+                } @else if (tournamentsLoadFailed()) {
+                  <p class="community-tab-loading" role="alert" style="margin:24px 0;text-align:center">{{ 'communities.tournamentsLoadError' | t }}
+                    <button type="button" class="jynlo-action" (click)="retryTournaments()">{{ 'common.retry' | t }}</button></p>
+                } @else {
+                  <p class="community-tab-loading" role="status" style="margin:24px 0;text-align:center;opacity:.75">{{ 'common.loading' | t }}</p>
+                }
               </section>
             }
 
