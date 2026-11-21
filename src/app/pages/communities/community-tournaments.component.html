@@ -2305,6 +2305,8 @@
               <app-tournament-classification-note kind="inline"></app-tournament-classification-note>
             } @else if (isRaceChampionshipDraft) {
               <app-tournament-classification-note kind="race" [raceSport]="raceSportLabel(sportDraft)"></app-tournament-classification-note>
+            } @else if (isEventRankingDraft) {
+              <p class="create-event-ranking-hint">🏅 {{ 'eventRanking.createHint' | t }}</p>
             } @else if (!isTimedDraft && !isMeasuredDraft) {
             <details class="create-advanced-rules">
               <summary>
@@ -2396,7 +2398,7 @@
             (click)="showIndividualCreate = false; showTeamCreate = false; showGuide = true">{{ 'communities.tournaments.createUi.back' | t }}</button>
         <button type="button" class="t-btn t-btn-primary"
           [disabled]="busy || !isSportFormatSupported
-            || (teamFormatDraft !== 'KNOCKOUT' && !validPointRules && !isInlineSpeedDraft)
+            || (teamFormatDraft !== 'KNOCKOUT' && !validPointRules && !isInlineSpeedDraft && !isEventRankingDraft)
             || nameDraft.trim().length < 2 || !sportDraft
 "
           (click)="showTeamCreate ? createTeamCompetition() : create()">
@@ -2404,6 +2406,7 @@
               : (showTeamCreate ? ('communities.tournaments.createUi.createButtonTeams' | t)
                   : (isInlineSpeedDraft ? ('communities.inlineSpeed.createButton' | t)
                     : (isRaceChampionshipDraft ? ('communities.karting.createButton' | t)
+                    : isEventRankingDraft ? ('eventRanking.createButton' | t)
                     : ('communities.tournaments.createUi.createButtonIndividual' | t)))) }}
         </button>
         </div>
@@ -3391,7 +3394,9 @@
                 <p>{{ 'communities.tournaments.detailUi.tiePriority' | t:{criterion:teamTieBreakLabel(selected.teamTieBreakPriority)} }}</p>
               }
             } @else {
-              @if (isInlineSpeedCompetition) {
+              @if (isEventRankingCompetition) {
+                <p>{{ 'eventRanking.title' | t }}</p>
+              } @else if (isInlineSpeedCompetition) {
                 <p>{{ 'communities.inlineSpeed.detailSummary' | t }}</p>
               } @else if (isMeasuredCompetition) {
                 <p>{{ 'communities.fieldTournament.title' | t }}</p>
@@ -4721,6 +4726,13 @@
               }
               }
             }
+          }
+        } @else if (isEventRankingCompetition) {
+          @if (!isMember) {
+            <div class="notice notice-info" role="status">{{ 'communities.tournaments.individualUi.joinNotice' | t }}</div>
+          } @else {
+            <app-event-ranking-panel [communityId]="community.id" [tournament]="selected" [isMember]="isMember"
+              [canManage]="canManage" [myUsername]="myUsername" (changed)="refreshSelectedTournament()"></app-event-ranking-panel>
           }
         } @else if (isInlineSpeedCompetition) {
           @if (!isMember) {

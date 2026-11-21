@@ -1,0 +1,23 @@
+.er{display:grid;gap:12px}
+.er-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:flex-start}
+.er-head h5{margin:0 0 4px}
+.er-points{margin:0;font-size:.85rem}
+.er-link{border:0;background:none;color:#6ff0d4;font-weight:800;cursor:pointer;padding:0 4px}
+.er-kind,.er-form{display:grid;gap:8px;padding:12px;border-radius:14px;border:1px solid rgba(63,216,180,.3);background:rgba(63,216,180,.05)}
+.er-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.er-grow{flex:1 1 14rem}
+.er-form label{display:grid;gap:4px;font-size:.85rem;font-weight:700}
+.er-form input[type=text],.er-form input[type=date]{min-height:42px;padding:0 10px;border-radius:10px;border:1px solid rgba(63,216,180,.35);background:#0a3340;color:#effffb;font:inherit;font-weight:400}
+.er-roster{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.er-entries{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.er-entries li{display:grid;grid-template-columns:minmax(6rem,1fr) minmax(6rem,9rem) auto;gap:8px;align-items:center}
+.er-entries input[type=text]{width:100%;box-sizing:border-box}
+.er-dnf{display:flex!important;grid-auto-flow:column;align-items:center;gap:4px;font-weight:600!important;white-space:nowrap}
+.er-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.er-subtitle{margin:6px 0 0}
+.er-events{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.er-event-head{width:100%;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:inherit;font:inherit;text-align:left;cursor:pointer}
+.er-results{list-style:none;margin:6px 0;padding:0;display:grid;gap:4px}
+.er-results li{display:grid;grid-template-columns:2.6rem 1fr auto 4.5rem;gap:8px;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.03);font-variant-numeric:tabular-nums}
+.er-pts{text-align:right;color:#6ff0d4;font-weight:800}
+@media (max-width:520px){.er-entries li{grid-template-columns:1fr 7rem}.er-dnf{grid-column:1/-1}}

@@ -58,6 +58,13 @@ export class CommunityTournamentsService {
   }
 
 
+  /** "Classificação por provas": events ranked by time, score or position, points by place. */
+  createEventRanking(communityId: number, name: string, sport: string): Observable<CommunityTournament> {
+    return this.http.post<CommunityTournament>(this.url(communityId), {
+      name, sport, entryType: 'INDIVIDUAL', format: 'LEAGUE', scoringMode: 'EVENT_RANKING'
+    });
+  }
+
   /** Uses the generic rounds-based classification; not federation rulebooks. */
   createRaceChampionship(communityId: number, name: string,
                          sport: RaceChampionshipSport, eventType?: string | null): Observable<CommunityTournament> {
