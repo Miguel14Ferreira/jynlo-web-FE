@@ -312,3 +312,5 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     max-height:36px;
   }
 }
+
+.group-unread{margin-left:auto;min-width:22px;height:22px;padding:0 7px;border-radius:999px;background:#2ee6c8;color:#04212a;font-size:12px;font-weight:800;display:inline-grid;place-items:center}

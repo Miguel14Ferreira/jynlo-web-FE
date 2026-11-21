@@ -21,6 +21,9 @@
            @else {👥}
          </span>
          <span><strong>{{ group.title }}</strong><small>{{ group.members.length }} {{ 'groups.members' | t }}</small></span>
+            @if (unreadFor(group); as count) {
+              <span class="group-unread" [attr.aria-label]="count + ' ' + ('groups.unread' | t)">{{ count > 99 ? '99+' : count }}</span>
+            }
        </button>
      } @empty {
        @if (!loading) { <p class="group-empty">{{ 'groups.empty' | t }}</p> }

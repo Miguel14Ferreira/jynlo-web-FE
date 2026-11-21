@@ -76,4 +76,15 @@ export class InboxApiService {
       kind: conversation.kind, id: conversation.id, lastSeenMessageId
     });
   }
+
+  /** Private group chats share the same server read cursors (kind=private). */
+  privateGroupSummaries(groupIds: number[]): Observable<Array<Omit<InboxSummary, 'kind'> & { kind: 'private' }>> {
+    return this.http.post<Array<Omit<InboxSummary, 'kind'> & { kind: 'private' }>>(this.url + '/summaries', {
+      conversations: groupIds.slice(0, 150).map(id => ({ kind: 'private', id: String(id) }))
+    });
+  }
+
+  markPrivateGroupRead(groupId: number, lastSeenMessageId: number): Observable<unknown> {
+    return this.http.put(this.url + '/read', { kind: 'private', id: String(groupId), lastSeenMessageId });
+  }
 }
