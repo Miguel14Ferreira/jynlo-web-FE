@@ -340,7 +340,12 @@
                           (click)="openSocialFeed()">{{ 'notifications.social.openFeed' | t }}</button>
                 }
 
-                @if (selected.type === 'CHAT_MESSAGE' && selected.relatedUsername) {
+                @if (selected.type === 'CHAT_MESSAGE' && selected.privateGroupId) {
+                  <button type="button" class="primary-action jynlo-action jynlo-action--primary" (click)="openGroup(selected)">
+                    {{ 'notifications.openGroup' | t }}
+                  </button>
+                }
+                @if (selected.type === 'CHAT_MESSAGE' && selected.relatedUsername && !selected.privateGroupId) {
                   <button type="button" class="primary-action jynlo-action jynlo-action--primary" (click)="openChat(selected)">
                     {{ 'notifications.openChat' | t }}
                   </button>

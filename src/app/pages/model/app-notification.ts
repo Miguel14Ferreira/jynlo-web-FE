@@ -30,6 +30,8 @@ export interface AppNotification {
   venueId?: number | null;
   venueEditSuggestionId?: number | null;
   relatedUsername: string | null;
+  /** Private group chat a group message alert opens. */
+  privateGroupId?: number | null;
   read: boolean;
   username: string;
 }
