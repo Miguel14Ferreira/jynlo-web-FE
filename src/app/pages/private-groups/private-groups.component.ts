@@ -15,11 +15,14 @@ import { environment } from 'src/environment/environment';
 import { InboxApiService } from '../../services/inbox-api.service';
 import { AvailabilityPanelComponent } from '../../shared/availability-panel/availability-panel.component';
 import { ChatReactionsComponent } from '../../shared/chat-reactions/chat-reactions.component';
+import { PollComposerComponent } from '../../shared/poll-composer/poll-composer.component';
+import { InboxPollCardComponent } from '../messages-center/inbox-poll-card.component';
+import { readPoll } from '../messages-center/poll-message';
 
 @Component({
   selector:'app-private-groups',
   standalone:true,
-  imports:[CommonModule,FormsModule,RouterLink,TranslatePipe,AvailabilityPanelComponent,ChatReactionsComponent],
+  imports:[CommonModule,FormsModule,RouterLink,TranslatePipe,AvailabilityPanelComponent,ChatReactionsComponent,PollComposerComponent,InboxPollCardComponent],
   templateUrl:'./private-groups.component.html',
   styleUrls:['./private-groups.component.css'],
   changeDetection:ChangeDetectionStrategy.Eager
@@ -236,6 +239,19 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
   searchTerm='';
   searchResults:PrivateGroupMessage[]=[];
   searching=false;
+  pollOpen=false;
+  readonly readPoll=readPoll;
+
+  /** Private groups are group chats: polls are sent as their own message. */
+  sendPoll(text:string):void{
+    const group=this.selected;
+    if(!group||this.busy)return;
+    this.busy=true;this.groupError='';this.pollOpen=false;
+    this.api.send(group.id,text).subscribe({
+      next:message=>{if(!this.messages.some(m=>m.id===message.id))this.messages=[...this.messages,message];this.busy=false;},
+      error:()=>{this.groupError=t('groups.sendError');this.busy=false;}
+    });
+  }
 
   private reloadLatest(groupId:number):void{
     const ticket=this.currentRequest;
@@ -252,7 +268,7 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
   isMine(message:PrivateGroupMessage):boolean{return message.sender.toLowerCase()===this.me;}
   canEdit(message:PrivateGroupMessage):boolean{
     if(message.deleted||!this.isMine(message)||message.attachments?.length)return false;
-    if(!message.text?.trim()||message.text.startsWith('[JYNLO:GIPHY:1]'))return false;
+    if(!message.text?.trim()||message.text.startsWith('[JYNLO:GIPHY:1]')||message.text.startsWith('[JYNLO:POLL:'))return false;
     const created=Date.parse(message.createdAt);
     return Number.isFinite(created)&&Date.now()-created<=15*60*1000;
   }

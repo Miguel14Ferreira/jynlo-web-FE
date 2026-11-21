@@ -114,6 +114,8 @@
              }
              @if (message.deleted) {
                <p class="group-deleted">{{ 'groups.deletedMessage' | t }}</p>
+             } @else if (readPoll(message.text); as poll) {
+               <app-inbox-poll-card [poll]="poll" kind="private" [conversationId]="'' + message.groupId" [messageId]="message.id"></app-inbox-poll-card>
              } @else if (!onlyFile(message)) {
                <p>{{ message.text }}</p>
              }
@@ -166,7 +168,11 @@
            <button type="button" class="group-header-button" [disabled]="busy || pendingFiles.length >= 4" (click)="groupFiles.click()">📎 {{ 'groups.attach' | t }}</button>
          }
          <button type="button" class="group-header-button" (click)="shareLocation()">📍 {{ 'groups.shareLocation' | t }}</button>
+         <button type="button" class="group-header-button" [disabled]="busy" (click)="pollOpen = !pollOpen">📊 {{ 'chat.poll.title' | t }}</button>
        </div>
+       @if (pollOpen) {
+         <app-poll-composer (send)="sendPoll($event)" (closed)="pollOpen = false"></app-poll-composer>
+       }
        <form class="group-compose" (ngSubmit)="send()">
          <textarea name="draft" [(ngModel)]="draft" rows="2" maxlength="2000"
            [placeholder]="'groups.messagePlaceholder' | t"></textarea>

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environment/environment';
 
-export type ChatPollKind = 'session' | 'community';
+export type ChatPollKind = 'session' | 'community' | 'private' | 'team';
 export interface ChatPollResult { messageId: number; counts: number[]; total: number; mine: number | null; }
 
 @Injectable({ providedIn: 'root' })
