@@ -1,3 +1,4 @@
+import { Component } from '@angular/core';
 import { preloadEnglishTranslations } from '../../i18n/i18n.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
@@ -8,6 +9,10 @@ import { NotificationApiService } from '../../services/notification-api.service'
 import { SessionService } from '../../services/session.service';
 import { AuthenticationService } from '../../services/authethication.service';
 import { TEST_IMPORTS, TEST_PROVIDERS } from '../../testing/test-providers';
+
+// The nearby-alerts panel has its own spec; here it is a placeholder without HTTP.
+@Component({ selector: 'app-nearby-alerts-panel', standalone: true, template: '' })
+class NearbyAlertsPanelStubComponent {}
 
 describe('NotificationsComponent', () => {
   // Production preloads the English chunk before appTranslate runs. Reproduce
@@ -103,7 +108,7 @@ describe('NotificationsComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [NotificationsComponent],
-      imports: TEST_IMPORTS,
+      imports: [...TEST_IMPORTS, NearbyAlertsPanelStubComponent],
       providers: [
         ...TEST_PROVIDERS,
         {
