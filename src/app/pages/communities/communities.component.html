@@ -5378,7 +5378,7 @@
                           <strong>{{ member.fullName || member.username }}</strong>
                           <span class="community-member-handle">@{{ member.username }}</span>
                           <span class="community-member-role" [class.is-owner]="member.role === 'OWNER'"
-                            [class.is-admin]="member.role === 'ADMIN'">{{ member.role }}</span>
+                            [class.is-admin]="member.role === 'ADMIN'">{{ ('communities.role.' + (member.role || '').toLowerCase()) | t }}</span>
                         </span>
                         <span class="community-member-open" aria-hidden="true">↗</span>
                       </a>

@@ -606,3 +606,26 @@ button:is([aria-label^="Fechar " i],[aria-label^="Close " i],
 }
 .session-details-preset small { color: #afced2; line-height: 1.45; }
 .session-details-preset p { margin: 0; color: #5eead4; font-size: .82rem; }
+
+/* Mobile page headers: several pages give the header's text block a desktop
+   flex-basis (300-370px). When the header stacks as a column on phones, that
+   basis becomes a fixed height and leaves an empty block before the content. */
+@media (max-width: 760px) {
+  .page-header > div:first-child,
+  .dashboard-header > div:first-child,
+  .competition-dashboard-header > div {
+    flex-basis: auto !important;
+  }
+}
+
+/* Keep page content clear of the mobile bottom tab bar (see navbar). */
+@media (max-width: 900px) {
+  body:has(.site-nav--authed) {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+  /* The links row left the top header (about 42px shorter); pages were laid
+     out for the taller header, so pull the routed page up by the same amount. */
+  body:has(.site-nav--authed) app-root > router-outlet + * {
+    margin-top: -42px;
+  }
+}

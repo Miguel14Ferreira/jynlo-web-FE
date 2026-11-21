@@ -26,3 +26,7 @@
 .home-page a:focus-visible,.home-page button:focus-visible {outline:2px solid #98f7df;outline-offset:3px;}
 @media(max-width:850px){.hero {grid-template-columns:1fr;}.hero h1 {font-size:clamp(2.75rem,10vw,4.3rem);}}
 @media(prefers-reduced-motion:reduce){.home-page a,.home-page button {transition:none;}}
+
+/* Line icons replace the emoji set so the home page matches the navigation icons. */
+.home-icon { display:inline-block; vertical-align:-3px; flex:0 0 auto; color:var(--c1-teal, #2ee6c6); }
+.pillar-icon { display:inline-flex; align-items:center; justify-content:center; }
