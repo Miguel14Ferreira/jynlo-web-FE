@@ -19,5 +19,7 @@ export interface SessionSummary {
   joinedByViewer?: boolean;
   waitlistedByViewer?: boolean;
   recurrenceSeriesId?: string | null;
+  /** Level the session is aimed at; null = all levels. */
+  skillLevel?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | null;
   status: string;
 }

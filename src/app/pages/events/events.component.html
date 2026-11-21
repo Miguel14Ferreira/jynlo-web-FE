@@ -131,6 +131,14 @@
         <input type="checkbox" name="freeOnly" [(ngModel)]="freeOnly">
         <span>{{ 'events.freeOnly' | t }}</span>
       </label>
+      <label class="level-filter">
+        <span>{{ 'sessionLevel.label' | t }}</span>
+        <select name="skillLevel" [(ngModel)]="skillLevel" [attr.aria-label]="'sessionLevel.label' | t">
+          @for (option of skillLevelOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </label>
         </div>
       </div>
 
@@ -243,6 +251,9 @@
               <strong>{{ session.city }}</strong>
               @if (session.distanceKm !== null) {
                 <small>📍 {{ session.distanceKm | number:'1.1-1' }} km</small>
+              }
+              @if (session.skillLevel) {
+                <small class="session-level-tag">🎯 {{ levelLabel(session.skillLevel) }}</small>
               }
             </div>
 

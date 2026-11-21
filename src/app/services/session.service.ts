@@ -38,6 +38,8 @@ export interface SessionSearchFilters {
   availability?: string;
   privateGame?: boolean;
   freeOnly?: boolean;
+  /** Shows sessions at this level and those open to all levels. */
+  skillLevel?: string;
   sort?: string;
   latitude?: number;
   longitude?: number;
@@ -209,6 +211,9 @@ export class SessionService {
     if (filters.freeOnly !== undefined) {
       params = params.set('freeOnly', String(filters.freeOnly));
     }
+    if (filters.skillLevel) {
+      params = params.set('skillLevel', filters.skillLevel);
+    }
     if (filters.sort) {
       params = params.set('sort', filters.sort);
     }
@@ -263,6 +268,11 @@ export class SessionService {
     return this.http.patch<SessionDetail>(
       this.baseUrl + '/' + id + '/capacity', null,
       { params: new HttpParams().set('maxParticipants', String(maxParticipants)) });
+  }
+
+  /** Organiser-only: level the session is aimed at (null = all levels). */
+  updateSkillLevel(id: number, skillLevel: string | null): Observable<SessionDetail> {
+    return this.http.patch<SessionDetail>(this.baseUrl + '/' + id + '/skill-level', { skillLevel });
   }
 
   /** Private organiser-only update; the backend enforces ownership and timing. */

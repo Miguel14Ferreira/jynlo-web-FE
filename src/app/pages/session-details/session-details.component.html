@@ -98,8 +98,23 @@
               @if (session.privateGame) {
                 <span>{{ 'events.private' | t }}</span>
               }
+              <span class="session-level-badge">🎯 {{ levelLabel(session.skillLevel) }}</span>
             </div>
           </div>
+          @if (canEditLevel) {
+            <div class="session-level-edit">
+              <label>
+                <span>{{ 'sessionLevel.label' | t }}</span>
+                <select [value]="session.skillLevel || ''" [disabled]="levelSaving"
+                  (change)="changeLevel($any($event.target).value)">
+                  @for (option of levelOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+              </label>
+              @if (levelError) { <small role="alert">{{ levelError }}</small> }
+            </div>
+          }
 
           @if (sessionContext && (sessionContext.communities.length > 0 || sessionContext.seasonGame)) {
             <section class="session-community-context" [attr.aria-label]="'sessionDetail.contextTitle' | t">

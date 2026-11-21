@@ -6,6 +6,7 @@ import { SessionSummary } from '../model/session-summary';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { SessionService } from '../../services/session.service';
 import { SPORTS_CATALOG } from '../../shared/sports-catalog';
+import { sessionSkillLevelLabel, sessionSkillLevelOptions } from '../../shared/session-skill-level';
 
 @Component({
   selector: 'app-events',
@@ -32,6 +33,9 @@ export class EventsComponent implements OnInit, OnDestroy {
   city = '';
   availableOnly = false;
   freeOnly = false;
+  /** '' = any level; otherwise sessions at that level plus those open to all levels. */
+  skillLevel = '';
+  readonly skillLevelOptions = sessionSkillLevelOptions('sessionLevel.any');
   sort = 'date';
 
   showAdvancedFilters = false;
@@ -107,6 +111,7 @@ export class EventsComponent implements OnInit, OnDestroy {
       city: this.city,
       availability: this.availableOnly ? 'available' : undefined,
       freeOnly: this.freeOnly ? true : undefined,
+      skillLevel: this.skillLevel || undefined,
       sort: this.sort,
       latitude: this.nearbyActive && this.latitude !== null ? this.latitude : undefined,
       longitude: this.nearbyActive && this.longitude !== null ? this.longitude : undefined,
@@ -282,12 +287,15 @@ export class EventsComponent implements OnInit, OnDestroy {
       part(value.getMinutes());
   }
 
+  levelLabel(level: string | null | undefined): string { return sessionSkillLevelLabel(level); }
+
   clearFilters(): void {
     this.quickDate = '';
     this.sport = '';
     this.city = '';
     this.availableOnly = false;
     this.freeOnly = false;
+    this.skillLevel = '';
     this.fromDateTime = '';
     this.toDateTime = '';
     this.minPrice = null;
