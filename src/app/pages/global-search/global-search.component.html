@@ -1,0 +1,37 @@
+<main class="gsearch">
+  <h1>{{ 'search.title' | t }}</h1>
+  <label class="gsearch__box">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input type="search" [ngModel]="query" (ngModelChange)="changed($event)" maxlength="80" autofocus
+      [placeholder]="'search.placeholder' | t" [attr.aria-label]="'search.title' | t">
+    @if (loading) { <span class="gsearch__spinner" aria-hidden="true"></span> }
+  </label>
+  @if (!cleaned) { <p class="gsearch__hint">{{ 'search.hint' | t }}</p> }
+  @if (view?.failed?.length) {
+    <p class="gsearch__error" role="alert">{{ 'search.failed' | t }} @for (f of view!.failed; track f; let last = $last) {{{ f | t }}{{ last ? '.' : ', ' }}}</p>
+  }
+  @if (view && !loading && total === 0) { <p class="gsearch__empty">{{ 'search.empty' | t }} «{{ cleaned }}».</p> }
+  @if (view) {
+    <ng-container *ngTemplateOutlet="section; context: {title: 'search.people', items: view.people}"></ng-container>
+    <ng-container *ngTemplateOutlet="section; context: {title: 'search.sessions', items: view.sessions}"></ng-container>
+    <ng-container *ngTemplateOutlet="section; context: {title: 'search.communities', items: view.communities}"></ng-container>
+    <ng-container *ngTemplateOutlet="section; context: {title: 'search.teams', items: view.teams}"></ng-container>
+    <ng-container *ngTemplateOutlet="section; context: {title: 'search.venues', items: view.venues}"></ng-container>
+  }
+</main>
+
+<ng-template #section let-title="title" let-items="items">
+  @if (items.length) {
+    <section class="gsearch__section">
+      <h2>{{ title | t }}</h2>
+      @for (hit of items; track $index) {
+        <a class="gsearch__row" [routerLink]="hit.link">
+          @if (hit.image) { <img class="gsearch__avatar" [src]="hit.image" alt=""> }
+          @else { <span class="gsearch__avatar" aria-hidden="true">{{ hit.title.slice(0, 1).toUpperCase() }}</span> }
+          <span class="gsearch__text"><strong>{{ hit.title }}</strong>@if (hit.subtitle) {<small>{{ hit.subtitle }}</small>}</span>
+          <span aria-hidden="true" class="gsearch__chev">›</span>
+        </a>
+      }
+    </section>
+  }
+</ng-template>

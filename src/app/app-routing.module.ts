@@ -80,6 +80,7 @@ const routes: Routes = [
   {path:'login/MFAauthentication', component: LoginMFAComponent},
   {path:'menu', redirectTo:'/menu/feed', pathMatch:'full'},
   {path:'menu/friendList',loadChildren:() => import('./pages/friends/friends.module').then(m => m.FriendsModule),canActivate:[AuthenticationGuard]},
+  {path:'menu/search',loadComponent:() => import('./pages/global-search/global-search.component').then(m => m.GlobalSearchComponent),canActivate:[AuthenticationGuard],data:{seo:{index:false}}},
   {path:'menu/messages',loadComponent:() => import('./pages/messages-center/messages-center.component').then(m => m.MessagesCenterComponent),canActivate:[AuthenticationGuard]},
   {path:'menu/groups',loadComponent:() => import('./pages/private-groups/private-groups.component').then(m => m.PrivateGroupsComponent),canActivate:[AuthenticationGuard]},
   {path:'menu/friendList/chat/:username',canActivate:[AuthenticationGuard,legacyPrivateChatRedirect],children:[]},
