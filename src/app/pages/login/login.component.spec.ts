@@ -17,7 +17,7 @@ describe('LoginComponent', () => {
     queryParamMap = convertToParamMap({});
     auth = jasmine.createSpyObj<AuthenticationService>(
       'AuthenticationService',
-      ['login', 'hasValidToken', 'saveToken', 'googleConfig', 'resendRegistrationConfirmation']
+      ['login', 'hasValidToken', 'saveToken', 'googleConfig', 'resendRegistrationConfirmation', 'terminarSessao', 'logOut']
     );
     auth.hasValidToken.and.returnValue(false);
     auth.googleConfig.and.returnValue(of({ clientId: '' }));
@@ -56,6 +56,30 @@ describe('LoginComponent', () => {
   });
 
   afterEach(() => sessionStorage.clear());
+
+  it('switch account: a signed-in user chooses to continue or sign in with another account', () => {
+    auth.hasValidToken.and.returnValue(true);
+    (auth as unknown as { loggedInPerfilname: string }).loggedInPerfilname = 'miguel';
+    auth.terminarSessao.and.returnValue(of(undefined));
+    queryParamMap = convertToParamMap({ switch: '1' });
+    (router.navigateByUrl as jasmine.Spy).calls.reset();
+    component.ngOnInit();
+    expect(component.switchingFrom).toBe('miguel');
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+
+    component.signInWithAnotherAccount();
+    expect(auth.terminarSessao).toHaveBeenCalled();
+    expect(auth.logOut).toHaveBeenCalled();
+    expect(component.switchingFrom).toBeNull();
+  });
+
+  it('without switch=1 a signed-in user still goes straight back', () => {
+    auth.hasValidToken.and.returnValue(true);
+    (router.navigateByUrl as jasmine.Spy).calls.reset();
+    component.ngOnInit();
+    expect(component.switchingFrom).toBeNull();
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/menu/feed');
+  });
 
   it('declares POST and accessible password toggle', () => {
     const form = fixture.nativeElement.querySelector('.login-card form') as HTMLFormElement;

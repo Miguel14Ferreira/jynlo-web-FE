@@ -38,6 +38,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
   private resendCooldownTimer?: ReturnType<typeof setInterval>;
 
   private returnUrl = '/menu/feed';
+  /** Shown instead of the form when a signed-in user asks to switch account. */
+  switchingFrom: string | null = null;
+  switchingOut = false;
 
   constructor(
     private router: Router,
@@ -57,8 +60,31 @@ export class LoginComponent implements OnInit, AfterViewInit {
     sessionStorage.removeItem('auth-error-message');
 
     if (this.authenticationService.hasValidToken()) {
+      // "Trocar de conta": let the user choose instead of silently going back to the feed.
+      if (this.route.snapshot.queryParamMap.get('switch') === '1') {
+        this.switchingFrom = this.authenticationService.loggedInPerfilname || '';
+        return;
+      }
       this.router.navigateByUrl(this.returnUrl);
     }
+  }
+
+  continueCurrentAccount(): void {
+    this.router.navigateByUrl(this.returnUrl);
+  }
+
+  /** Ends the server session (refresh cookie) and clears this browser before showing the form. */
+  signInWithAnotherAccount(): void {
+    if (this.switchingOut) return;
+    this.switchingOut = true;
+    const finish = () => {
+      this.authenticationService.logOut();
+      this.switchingFrom = null;
+      this.switchingOut = false;
+      this.username = '';
+      this.password = '';
+    };
+    this.authenticationService.terminarSessao().pipe(timeout(10_000)).subscribe({ next: finish, error: finish });
   }
 
   get loginContextKey(): string {

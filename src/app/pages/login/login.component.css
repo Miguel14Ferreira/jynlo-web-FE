@@ -267,3 +267,8 @@
   outline: 2px solid #9effe8;
   outline-offset: 2px;
 }
+
+.login-switch{display:grid;gap:10px;padding:16px;border-radius:14px;border:1px solid rgba(46,230,200,.35);background:rgba(46,230,200,.06)}
+.login-switch p{margin:0}
+.login-card-body{display:contents}
+.login-card-body[hidden]{display:none}

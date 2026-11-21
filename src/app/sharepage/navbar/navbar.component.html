@@ -72,6 +72,7 @@
               <span>/</span>
               <button type="button" [class.active-language]="i18n.currentLanguage === 'en'" (click)="setLanguage('en')">EN</button>
             </div>
+            <a routerLink="/login" [queryParams]="{ switch: 1 }" (click)="closeAccountMenu()">{{ 'menu.switchAccount' | t }}</a>
             <button type="button" class="logout-action jynlo-action jynlo-action--danger" [disabled]="loggingOut" (click)="logout()">
               {{ loggingOut ? ('menu.loggingOut' | t) : ('menu.logout' | t) }}
             </button>

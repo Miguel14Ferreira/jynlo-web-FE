@@ -11,6 +11,19 @@
         <h2>{{ 'login.title' | t }}</h2>
       </div>
 
+      @if (switchingFrom !== null) {
+        <div class="login-switch" role="status">
+          <strong>{{ 'login.switch.title' | t }}</strong>
+          <p>{{ 'login.switch.text' | t:{ username: switchingFrom } }}</p>
+          <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="switchingOut" (click)="continueCurrentAccount()">
+            {{ 'login.switch.continue' | t:{ username: switchingFrom } }}
+          </button>
+          <button type="button" class="jynlo-action jynlo-action--neutral" [disabled]="switchingOut" (click)="signInWithAnotherAccount()">
+            {{ switchingOut ? ('login.switch.signingOut' | t) : ('login.switch.other' | t) }}
+          </button>
+        </div>
+      }
+      <div class="login-card-body" [hidden]="switchingFrom !== null">
       @if (loginContextKey) {
         <div class="login-context" role="status">{{ loginContextKey | t }}</div>
       }
@@ -98,6 +111,7 @@
       <div class="login-links">
         <a routerLink="/login/resetPassword">{{ 'login.forgot' | t }}</a>
         <a routerLink="/login/registerNewUser" queryParamsHandling="preserve">{{ 'login.create' | t }}</a>
+      </div>
       </div>
     </div>
   </div>
