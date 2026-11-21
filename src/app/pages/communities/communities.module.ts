@@ -6,6 +6,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { CommunityCreateComponent } from '../community-create/community-create.component';
 import { CommunityHabitualVenuePickerComponent } from './community-habitual-venue-picker.component';
+import { TournamentPublicShareComponent } from './tournament-public-share.component';
 import { CommunityInviteStepComponent } from '../community-create/community-invite-step.component';
 import { CommunitiesComponent } from './communities.component';
 import { CommunityDiscoveryPitchComponent } from './community-discovery-pitch.component';
@@ -64,6 +65,6 @@ const routes: Routes = [
   imports: [CommonModule, FormsModule, RouterModule.forChild(routes), TranslatePipe, ChatReactionsComponent, KartingPodiumComponent, KartingPalmaresComponent, KartingRaceTableComponent,
     CompetitionGuideComponent, CompetitionFormatChooserComponent, CommunityLivePanelComponent, CommunityDiscoveryPitchComponent, CommunityPerformanceInsightsComponent, CommunityTabsComponent, CommunitySessionCardComponent, CommunityOverviewStatsComponent, CommunityLeaderHighlightComponent, CommunityFeatureSettingsComponent, CommunityDisciplinePanelComponent, CommunityTournamentSuspensionsComponent, CommunityTournamentEligibilityPanelComponent, CommunityWhatsAppShareComponent, CommunitySportManagementComponent, CommunityActiveSeasonCardComponent, CommunitySeasonTrophiesComponent, CommunityStatLeadersComponent, CommunitySpecializedStatsComponent, CommunityStatsTableComponent, CommunityRankingTableComponent, CommunityPendingInvitesComponent, CommunitySwitchComponent, CommunityCompetitionSettingsComponent, CommunityRankingVisibilityComponent, CommunitySeasonCreateFormComponent, CommunitySeasonFilterComponent, CommunityPhotoCoverComponent,
     TournamentClassificationNoteComponent, RaceStandingsCardComponent,
-    MessagesCenterComponent, CommunityHabitualVenuePickerComponent, CompetitionTeamSearchComponent, TeamCompetitionApplicationsComponent, CommunityTeamsPanelComponent, GlobalTeamEnrollmentComponent]
+    MessagesCenterComponent, CommunityHabitualVenuePickerComponent, CompetitionTeamSearchComponent, TeamCompetitionApplicationsComponent, CommunityTeamsPanelComponent, GlobalTeamEnrollmentComponent, TournamentPublicShareComponent]
 })
 export class CommunitiesModule {}
