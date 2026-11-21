@@ -6,12 +6,16 @@ import { SportsTeamsService, TeamContentEntry } from '../../services/sports-team
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { CommunityService } from '../../services/community.service';
+import { InboxApiService } from '../../services/inbox-api.service';
+import { ConversationMuteService } from '../../services/conversation-mute.service';
 
 describe('Team conversation synchronization', () => {
   let api: jasmine.SpyObj<SportsTeamsService>;
   let realtime: jasmine.SpyObj<DirectChatRealtimeService>;
   let profiles: jasmine.SpyObj<CommunityService>;
   let component: SportsTeamContentComponent;
+  let inbox: jasmine.SpyObj<InboxApiService>;
+  let mutes: jasmine.SpyObj<ConversationMuteService>;
   const entry = (id:number, teamId:number, body='Olá'): TeamContentEntry => ({
     id, teamId, body, username:'tester', createdAt:'2026-11-16T00:00:00Z',
     replyToId:null, editedAt:null, deleted:false, canManage:true, canEdit:true,
@@ -30,8 +34,13 @@ describe('Team conversation synchronization', () => {
     // Mention search (profiles) and OnPush change detection were added to the component.
     profiles=jasmine.createSpyObj<CommunityService>('CommunityService',['searchProfiles']);
     profiles.searchProfiles.and.returnValue(of([]));
+    inbox=jasmine.createSpyObj<InboxApiService>('InboxApiService',['markTeamChatRead']);
+    inbox.markTeamChatRead.and.returnValue(of({}));
+    mutes=jasmine.createSpyObj<ConversationMuteService>('ConversationMuteService',['list','set']);
+    mutes.list.and.returnValue(of([]));
+    mutes.set.and.returnValue(of({kind:'team',id:'7'}));
     component=new SportsTeamContentComponent(api,realtime,profiles,
-      jasmine.createSpyObj<ChangeDetectorRef>('ChangeDetectorRef',['markForCheck','detectChanges']));
+      jasmine.createSpyObj<ChangeDetectorRef>('ChangeDetectorRef',['markForCheck','detectChanges']),inbox,mutes);
     component.teamId=7;
     component.kind='chat';
   });
@@ -1104,5 +1113,17 @@ describe('Team conversation synchronization', () => {
     delayed.next([old]);delayed.complete();
     expect(component.searchActive).toBeFalse();
     expect(component.searchResults).toEqual([]);
+  });
+
+  it('mutes and unmutes the team chat as a "team" conversation',()=>{
+    component.toggleChatMute();
+    expect(mutes.set).toHaveBeenCalledWith('team',7,true);
+    expect(component.chatMuted).toBeTrue();
+  });
+
+  it('moves the read cursor to the newest message shown, once',()=>{
+    (component as unknown as {markChatRead(items:TeamContentEntry[]):void}).markChatRead([entry(3,7),entry(9,7)]);
+    (component as unknown as {markChatRead(items:TeamContentEntry[]):void}).markChatRead([entry(9,7)]);
+    expect(inbox.markTeamChatRead).toHaveBeenCalledOnceWith(7,9);
   });
 });

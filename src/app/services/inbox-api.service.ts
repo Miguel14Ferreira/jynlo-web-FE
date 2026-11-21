@@ -84,6 +84,11 @@ export class InboxApiService {
     });
   }
 
+  /** Team chats share the same server read cursors (kind=team). */
+  markTeamChatRead(teamId: number, lastSeenMessageId: number): Observable<unknown> {
+    return this.http.put(this.url + '/read', { kind: 'team', id: String(teamId), lastSeenMessageId });
+  }
+
   markPrivateGroupRead(groupId: number, lastSeenMessageId: number): Observable<unknown> {
     return this.http.put(this.url + '/read', { kind: 'private', id: String(groupId), lastSeenMessageId });
   }

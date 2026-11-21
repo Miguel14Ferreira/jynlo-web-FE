@@ -32,6 +32,8 @@ export interface AppNotification {
   relatedUsername: string | null;
   /** Private group chat a group message alert opens. */
   privateGroupId?: number | null;
+  /** Sports team whose chat this alert opens. */
+  sportsTeamId?: number | null;
   read: boolean;
   username: string;
 }

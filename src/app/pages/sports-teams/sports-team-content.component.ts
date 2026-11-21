@@ -8,6 +8,8 @@ import { SportsTeamsService, TeamContentEntry, TeamContentKind, TeamReactionStat
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
 import { CommunityService } from '../../services/community.service';
 import { CommunityProfile } from '../model/community-profile';
+import { InboxApiService } from '../../services/inbox-api.service';
+import { ConversationMuteService, isConversationMuted } from '../../services/conversation-mute.service';
 
 @Component({
   selector: 'app-sports-team-content',
@@ -20,6 +22,10 @@ import { CommunityProfile } from '../model/community-profile';
         <div class="team-content-heading-icon" aria-hidden="true">{{kind === 'chat' ? '💬' : '📰'}}</div>
         <div class="team-heading-copy"><h3>{{kind === 'chat' ? 'Conversa do plantel' : 'Publicações da equipa'}}</h3>
           <p class="team-content-note">Só os membros confirmados podem participar. Atualização automática.</p></div>
+        <button *ngIf="kind === 'chat'" class="team-search-toggle" type="button" [disabled]="chatMuteBusy" (click)="toggleChatMute()"
+          [attr.aria-label]="chatMuted ? 'Ativar avisos do chat da equipa' : 'Silenciar o chat da equipa'">
+          {{chatMuted ? '🔕 Ativar avisos' : '🔔 Silenciar'}}
+        </button>
         <button class="team-search-toggle" type="button" (click)="toggleSearchPanel()"
           [attr.aria-expanded]="searchOpen" [attr.aria-controls]="'team-search-panel-' + kind + '-' + teamId"
           [attr.aria-label]="searchOpen ? 'Fechar pesquisa' : 'Pesquisar nesta ' + (kind === 'chat' ? 'conversa' : 'equipa')">
@@ -722,10 +728,41 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   constructor(private readonly api: SportsTeamsService,
     private readonly realtime: DirectChatRealtimeService,
     private readonly profiles: CommunityService,
-    private readonly cdr: ChangeDetectorRef) {}
+    private readonly cdr: ChangeDetectorRef,
+    private readonly inbox: InboxApiService,
+    private readonly mutes: ConversationMuteService) {}
+
+  /** Per-conversation mute and read cursor for the team chat, like the other chats. */
+  chatMuted = false;
+  chatMuteBusy = false;
+  private lastMarkedRead = 0;
+  private loadChatMute(): void {
+    if (this.kind !== 'chat') return;
+    this.mutes.list().subscribe({
+      next: list => { this.chatMuted = isConversationMuted(list, 'team', this.teamId); this.cdr.markForCheck(); },
+      error: () => {},
+    });
+  }
+  toggleChatMute(): void {
+    if (this.kind !== 'chat' || this.chatMuteBusy) return;
+    this.chatMuteBusy = true;
+    const next = !this.chatMuted;
+    this.mutes.set('team', this.teamId, next).subscribe({
+      next: () => { this.chatMuted = next; this.chatMuteBusy = false; this.cdr.markForCheck(); },
+      error: () => { this.chatMuteBusy = false; this.syncError = 'Não foi possível alterar o silêncio desta conversa.'; this.cdr.markForCheck(); },
+    });
+  }
+  private markChatRead(items: TeamContentEntry[]): void {
+    if (this.kind !== 'chat') return;
+    const newest = items.reduce((id, item) => Math.max(id, item.id), 0);
+    if (newest <= this.lastMarkedRead) return;
+    this.lastMarkedRead = newest;
+    this.inbox.markTeamChatRead(this.teamId, newest).subscribe({ error: () => { this.lastMarkedRead = 0; } });
+  }
 
   ngOnInit(): void {
     this.read(false);
+    this.loadChatMute();
     // ngOnChanges has already started the attachment capability check for
     // the initial required inputs. Avoid a duplicate authenticated request.
     this.realtime.connect();
@@ -978,6 +1015,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         if(this.kind==='chat'&&!this.nearLatest&&oldLatest>0&&newLatest>oldLatest)
           this.unseenBelow=true;
         this.items=items;
+        this.markChatRead(items);
         if(this.kind==='feed'){
           this.olderEntries=this.olderEntries.filter(old=>!items.some(item=>item.id===old.id));
           this.feedCombined=[...this.olderEntries,...items];

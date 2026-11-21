@@ -1766,6 +1766,7 @@ export const EN: Record<string, string> = {
   'availability.no': 'I can’t',
   'availability.createGame': 'Create game at the best option',
   'availability.close': 'Close request',
+  'notifications.openTeamChat': 'Open team chat',
   'notifications.openAvailability': 'Answer: who can play?',
   'notifications.blockAccess': 'Block account access',
   'notifications.blockAccessTitle': 'Temporarily block access to your account?',
