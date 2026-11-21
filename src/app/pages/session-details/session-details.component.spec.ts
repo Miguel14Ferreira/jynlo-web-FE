@@ -1483,11 +1483,13 @@ describe('SessionDetailsComponent', () => {
     const outlookUrl = component.outlookCalendarUrl();
 
     expect(googleUrl).toContain('calendar.google.com/calendar/render');
-    expect(googleUrl).toContain('dates=20261001T180000Z');
+    // Start AND end (90 min): Google ignores a start-only range.
+    expect(decodeURIComponent(googleUrl ?? '')).toContain('dates=20261001T180000Z/20261001T193000Z');
     expect(decodeURIComponent(googleUrl ?? '')).toContain('location=Lisboa');
 
     expect(outlookUrl).toContain('outlook.live.com/calendar');
     expect(decodeURIComponent(outlookUrl ?? '')).toContain('startdt=2026-10-01T18:00:00.000Z');
+    expect(decodeURIComponent(outlookUrl ?? '')).toContain('enddt=2026-10-01T19:30:00.000Z');
     expect(decodeURIComponent(outlookUrl ?? '')).toContain('location=Lisboa');
   });
 
@@ -1501,7 +1503,8 @@ describe('SessionDetailsComponent', () => {
     const ics = component.calendarIcsContent();
 
     expect(ics).toContain('DTSTART:20261001T180000Z');
-    expect(ics).toContain('SUMMARY:Desporto24 — Padel');
+    expect(ics).toContain('DTEND:20261001T193000Z');
+    expect(ics).toContain('SUMMARY:Jynlo — Padel');
     expect(ics).toContain('LOCATION:Rua do Campo\\, 10');
   });
 

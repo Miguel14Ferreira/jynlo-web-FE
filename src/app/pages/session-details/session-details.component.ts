@@ -3236,7 +3236,8 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     const params = new URLSearchParams({
       action: 'TEMPLATE',
       text: this.calendarTitle(),
-      dates: this.calendarStartUtc(),
+      // Google needs start AND end; without the end the date is not filled in.
+      dates: this.calendarStartUtc() + '/' + this.calendarEndUtc(),
       details: this.calendarDescription(),
       location: this.calendarLocation()
     });
@@ -3254,6 +3255,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       rru: 'addevent',
       subject: this.calendarTitle(),
       startdt: new Date(this.session.gameDate).toISOString(),
+      enddt: this.calendarEnd().toISOString(),
       body: this.calendarDescription(),
       location: this.calendarLocation()
     });
@@ -3266,19 +3268,20 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       return null;
     }
 
-    const uid = `session-${this.session.id}@desporto24`;
+    const uid = `session-${this.session.id}@jynlo`;
     const dtStamp = this.toIcsUtc(new Date());
     const dtStart = this.toIcsUtc(new Date(this.session.gameDate));
 
     return [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
-      'PRODID:-//Desporto24//Session Calendar//PT',
+      'PRODID:-//Jynlo//Session Calendar//PT',
       'CALSCALE:GREGORIAN',
       'BEGIN:VEVENT',
       `UID:${uid}`,
       `DTSTAMP:${dtStamp}`,
       `DTSTART:${dtStart}`,
+      `DTEND:${this.toIcsUtc(this.calendarEnd())}`,
       `SUMMARY:${this.escapeIcs(this.calendarTitle())}`,
       `DESCRIPTION:${this.escapeIcs(this.calendarDescription())}`,
       `LOCATION:${this.escapeIcs(this.calendarLocation())}`,
@@ -3302,14 +3305,14 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     const anchor = document.createElement('a');
 
     anchor.href = url;
-    anchor.download = `desporto24-session-${this.session.id}.ics`;
+    anchor.download = `jynlo-sessao-${this.session.id}.ics`;
     anchor.click();
 
     URL.revokeObjectURL(url);
   }
 
   private calendarTitle(): string {
-    return `Desporto24 — ${this.session?.sport ?? 'Sessão'}`;
+    return `Jynlo — ${this.session?.sport ?? 'Sessão'}`;
   }
 
   private calendarDescription(): string {
@@ -3317,7 +3320,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       ? ` Criada por ${this.session.creatorUsername}.`
       : '';
 
-    return `Sessão de ${this.session?.sport ?? 'desporto'} no Desporto24.${creator}`;
+    return `Sessão de ${this.session?.sport ?? 'desporto'} na Jynlo.${creator}`;
   }
 
   /** The session endpoint supplies profile photos only to authorised attendees. */
@@ -3504,6 +3507,15 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
 
   private calendarStartUtc(): string {
     return this.toIcsUtc(new Date(this.session?.gameDate ?? ''));
+  }
+
+  /** Sessions have no stored duration: 90 minutes by default (same as the app). */
+  private calendarEnd(): Date {
+    return new Date(new Date(this.session?.gameDate ?? '').getTime() + 90 * 60_000);
+  }
+
+  private calendarEndUtc(): string {
+    return this.toIcsUtc(this.calendarEnd());
   }
 
   private toIcsUtc(date: Date): string {
