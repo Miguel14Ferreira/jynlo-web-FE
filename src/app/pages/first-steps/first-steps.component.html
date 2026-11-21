@@ -1,0 +1,24 @@
+<main class="fsteps">
+  <p class="fsteps__eyebrow">{{ 'firstSteps.title' | t }}</p>
+  <h1>{{ 'firstSteps.heading' | t }}</h1>
+  <p class="fsteps__text">{{ 'firstSteps.text' | t }}</p>
+  @if (error) { <p class="fsteps__error" role="alert">{{ error | t }}</p> }
+  @if (loading) { <p class="fsteps__text">…</p> }
+  @else {
+    <input type="search" class="fsteps__input" [(ngModel)]="filter" maxlength="40" [placeholder]="'firstSteps.filter' | t" [attr.aria-label]="'firstSteps.filter' | t">
+    <div class="fsteps__chips">
+      @for (sport of choices; track sport) {
+        <button type="button" class="fsteps__chip" [class.fsteps__chip--on]="isOn(sport)" [attr.aria-pressed]="isOn(sport)" (click)="toggle(sport)">
+          @if (isOn(sport)) { ✓ }{{ sport }}
+        </button>
+      }
+    </div>
+    <p class="fsteps__count">{{ selected.length }}/{{ max }}</p>
+    <label class="fsteps__label" for="fsteps-city">{{ 'firstSteps.city' | t }}</label>
+    <input id="fsteps-city" class="fsteps__input" [(ngModel)]="city" maxlength="120" placeholder="Porto" autocomplete="address-level2">
+    <div class="fsteps__actions">
+      <button type="button" class="fsteps__save" (click)="save()" [disabled]="busy || !selected.length">{{ (busy ? 'firstSteps.saving' : 'firstSteps.save') | t }}</button>
+      <button type="button" class="fsteps__later" (click)="later()" [disabled]="busy">{{ 'firstSteps.later' | t }}</button>
+    </div>
+  }
+</main>

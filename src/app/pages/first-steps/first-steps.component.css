@@ -1,0 +1,16 @@
+.fsteps { max-width: 680px; margin: 0 auto; padding: calc(64px + 26px) 16px 64px; display: grid; gap: 14px; color: #eef7f5; }
+.fsteps h1 { margin: 0; font-size: 1.8rem; font-weight: 900; }
+.fsteps__eyebrow { margin: 0; color: #2ae0ca; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.fsteps__text, .fsteps__count { margin: 0; color: #b5c9d1; line-height: 1.5; }
+.fsteps__count { font-size: .8rem; }
+.fsteps__error { margin: 0; color: #ffb4a8; }
+.fsteps__input { width: 100%; min-height: 48px; border-radius: 12px; padding: 0 14px; box-sizing: border-box; font-size: 1rem; }
+.fsteps__label { font-weight: 800; margin-top: 4px; }
+.fsteps__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.fsteps__chip { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.05); color: #eef7f5; font: inherit; font-weight: 700; cursor: pointer; }
+.fsteps__chip--on { border-color: #2ae0ca; background: rgba(42,224,202,.16); color: #2ae0ca; }
+.fsteps__actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.fsteps__save, .fsteps__later { min-height: 48px; padding: 0 22px; border-radius: 999px; font: inherit; font-weight: 800; cursor: pointer; }
+.fsteps__save { background: #2ae0ca; color: #062b31; border: 0; }
+.fsteps__save:disabled { opacity: .55; cursor: default; }
+.fsteps__later { background: transparent; color: #eef7f5; border: 1px solid rgba(255,255,255,.2); }

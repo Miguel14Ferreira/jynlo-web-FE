@@ -1,3 +1,4 @@
+import { FirstStepsPromptComponent } from '../first-steps/first-steps-prompt.component';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -21,6 +22,7 @@ import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/ven
     TranslatePipe,
     VenueSportsBadgesComponent,
     SocialStoriesComponent,
+    FirstStepsPromptComponent,
     MovableTextComponent,
     PersonalLiveRoomComponent,
     RouterModule.forChild([{ path: '', component: SocialFeedComponent }])
