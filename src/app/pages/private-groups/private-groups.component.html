@@ -83,6 +83,7 @@
            </div>
          }
        </div>
+       <app-availability-panel kind="private" [targetId]="group.id"></app-availability-panel>
        <div class="group-message-list" role="log" aria-live="polite">
          @if (loadingMessages) {<p role="status">{{ 'common.loading' | t }}</p>}
          @if (hasMore) {

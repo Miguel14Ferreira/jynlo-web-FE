@@ -352,6 +352,13 @@
                   </button>
                 }
 
+                @if ((selected.type === 'AVAILABILITY_REQUEST' || selected.type === 'AVAILABILITY_REMINDER')
+                    && (selected.privateGroupId || selected.communityId)) {
+                  <button type="button" class="primary-action jynlo-action jynlo-action--primary" (click)="openAvailability(selected)">
+                    {{ 'notifications.openAvailability' | t }}
+                  </button>
+                }
+
                 @if (selected.type === 'COMMUNITY_INVITE') {
                   <button type="button" class="primary-action jynlo-action jynlo-action--primary" (click)="openCommunityInvite(selected)">
                     {{ 'notifications.openCommunityInvite' | t }}

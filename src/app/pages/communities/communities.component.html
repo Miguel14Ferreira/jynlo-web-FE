@@ -881,6 +881,9 @@
 
             @if (!competitionLoading && activeTab === 'home') {
               <section class="community-tab-panel">
+                @if (selected.myRole) {
+                  <app-availability-panel kind="community" [targetId]="selected.id" [communityId]="selected.id"></app-availability-panel>
+                }
                 <app-community-overview-stats
                   [memberCount]="selected.memberCount"
                   [sports]="communitySports(selected)"

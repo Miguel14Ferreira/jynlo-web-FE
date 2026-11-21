@@ -1,0 +1,66 @@
+<section class="availability" aria-labelledby="availability-title-{{ kind }}-{{ targetId }}">
+  <div class="availability__head">
+    <h3 id="availability-title-{{ kind }}-{{ targetId }}">{{ 'availability.title' | t }}</h3>
+    @if (!creating) {
+      <button type="button" class="availability__primary" [disabled]="busy" (click)="openForm()">＋ {{ 'availability.ask' | t }}</button>
+    }
+  </div>
+  @if (error) { <p role="alert" class="availability__error">{{ error }}</p> }
+
+  @if (creating) {
+    <div class="availability__card">
+      <label class="availability__label" for="availability-when-{{ targetId }}">{{ 'availability.proposeUpTo' | t: { max: maxSlots } }}</label>
+      <div class="availability__row">
+        <input id="availability-when-{{ targetId }}" type="datetime-local" [(ngModel)]="when" [min]="minWhen" [disabled]="busy || slots.length >= maxSlots">
+        <button type="button" class="availability__primary" [disabled]="busy || slots.length >= maxSlots" (click)="addSlot()">{{ 'availability.add' | t }}</button>
+      </div>
+      @for (slot of slots; track slot) {
+        <div class="availability__slot-row">
+          <strong>{{ label(slot) }}</strong>
+          <button type="button" class="availability__remove" (click)="removeSlot(slot)" [attr.aria-label]="('availability.remove' | t) + ': ' + label(slot)">×</button>
+        </div>
+      }
+      <input type="text" [(ngModel)]="note" maxlength="200" [placeholder]="'availability.notePlaceholder' | t" [attr.aria-label]="'availability.note' | t">
+      @if (formError) { <p role="alert" class="availability__error">{{ formError }}</p> }
+      <div class="availability__row">
+        <button type="button" class="availability__primary" [disabled]="busy || !slots.length" (click)="submit()">
+          {{ (busy ? 'availability.sending' : 'availability.send') | t }}</button>
+        <button type="button" class="availability__ghost" [disabled]="busy" (click)="cancel()">{{ 'common.cancel' | t }}</button>
+      </div>
+    </div>
+  }
+
+  @for (request of requests; track request.id) {
+    <article class="availability__card">
+      <p class="availability__meta">
+        {{ request.mine ? ('availability.youAsked' | t) : ('availability.asks' | t: { name: request.creator }) }}
+        · {{ 'availability.progress' | t: { answered: request.answered, members: request.members } }}
+      </p>
+      @if (request.note) { <p class="availability__note">{{ request.note }}</p> }
+      @for (slot of request.slots; track slot.id) {
+        <div class="availability__slot">
+          <strong>{{ label(slot.startsAt) }} @if (best(request)?.id === slot.id) { <span aria-label="★">★</span> }</strong>
+          <p class="availability__meta">
+            {{ 'availability.canCount' | t: { count: slot.yes.length } }}@if (slot.yes.length) {: {{ slot.yes.join(', ') }}}
+            @if (slot.maybe.length) { · {{ 'availability.maybeCount' | t: { count: slot.maybe.length } }} }
+            @if (slot.no) { · {{ 'availability.noCount' | t: { count: slot.no } }} }
+          </p>
+          <div class="availability__row" role="group" [attr.aria-label]="label(slot.startsAt)">
+            @for (a of answers; track a.value) {
+              <button type="button" class="availability__chip" [class.availability__chip--on]="slot.mine === a.value"
+                [attr.aria-pressed]="slot.mine === a.value" [disabled]="busy" (click)="answer(request, slot, a.value)">{{ a.key | t }}</button>
+            }
+          </div>
+        </div>
+      }
+      @if (request.mine) {
+        <div class="availability__row">
+          @if (best(request)) {
+            <button type="button" class="availability__primary" (click)="createGame(request)">{{ 'availability.createGame' | t }}</button>
+          }
+          <button type="button" class="availability__ghost" [disabled]="busy" (click)="close(request)">{{ 'availability.close' | t }}</button>
+        </div>
+      }
+    </article>
+  }
+</section>

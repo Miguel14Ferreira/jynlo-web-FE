@@ -1025,6 +1025,12 @@ export class Events2Component implements OnInit, OnDestroy {
       }
     }
 
+    // "Quem pode?" opens creation with the chosen local date and time.
+    const when = params.get('when') || '';
+    if (/^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d$/.test(when) && Date.parse(when) > Date.now()) {
+      this.gameDate = when;
+    }
+
     if (this.sportSelected) this.loadVenues();
 
     this.creationMode = params.get('intent') === 'findPlayers' ? 'COMPLETE' : 'START';
