@@ -463,6 +463,7 @@ export const EN: Record<string, string> = {
   'nav.contact': 'Contact',
   'nav.login': 'Sign in',
   'nav.register': 'Create account',
+  'nav.create': 'Create',
   'nav.feed': 'Feed',
   'nav.discover': 'Explore',
   'nav.venues': 'Venues',
@@ -2108,7 +2109,7 @@ export const EN: Record<string, string> = {
   'communities.competitionSettings': 'Configuration',
   'communities.tournaments.eligibility.title': 'Player eligibility',
   'communities.tournaments.eligibility.refresh': 'Refresh check',
-  'communities.tournaments.eligibility.description': 'Check registrations and teams before the match. This check includes players suspended after registering and does not change past results.',
+  'communities.tournaments.eligibility.description': 'Before each match, check whether any registered player is suspended.',
   'communities.tournaments.eligibility.loading': 'Checking existing registrations…',
   'communities.tournaments.eligibility.suspendedCount': '{{count}} suspended player(s) are registered in this tournament.',
   'communities.tournaments.eligibility.team': 'team',
@@ -5877,5 +5878,9 @@ export const EN: Record<string, string> = {
   'status.lateCancelShort': 'Cancelled late',
   'session.joinProcessing': 'Processing...',
   'session.joinWaitlist': 'Join waitlist',
-  'session.join': 'Join session'
+  'session.join': 'Join session',
+  'session.status.OPEN': 'Open',
+  'session.status.FULL': 'Full',
+  'session.status.CANCELLED': 'Cancelled',
+  'session.status.COMPLETED': 'Completed'
 };

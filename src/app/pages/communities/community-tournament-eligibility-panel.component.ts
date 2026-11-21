@@ -14,7 +14,7 @@ import { CommunityTournamentEligibilityService, TournamentEligibilityOverview } 
     <section class="eligibility-panel" aria-labelledby="eligibility-title">
       <div class="eligibility-header">
         <h4 id="eligibility-title">{{ 'communities.tournaments.eligibility.title' | t }}</h4>
-        <button type="button" (click)="reload()" [disabled]="loading">{{ 'communities.tournaments.eligibility.refresh' | t }}</button>
+        <button type="button" class="jynlo-action jynlo-action--neutral" (click)="reload()" [disabled]="loading">{{ 'communities.tournaments.eligibility.refresh' | t }}</button>
       </div>
       <p>{{ 'communities.tournaments.eligibility.description' | t }}</p>
       @if (loading) {

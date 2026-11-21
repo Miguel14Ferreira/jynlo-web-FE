@@ -3429,7 +3429,7 @@
                     [disabled]="busy" (click)="confirmAction = null">{{ 'communities.tournaments.finalUi.cancel' | t }}</button>
                 </div>
               } @else {
-                <button type="button" class="t-btn t-btn-danger-outline"
+                <button type="button" class="t-btn t-btn-danger-outline competition-delete-trigger"
                   [disabled]="busy" (click)="confirmAction = 'delete'">{{ 'communities.tournaments.detailUi.deleteAction' | t }}</button>
               }
             }

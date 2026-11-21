@@ -896,3 +896,6 @@
 :host .tournaments .team-knockout-incoming-link:focus-visible{outline:2px solid #acffde;outline-offset:2px;}
 :host .tournaments .team-knockout-next:focus-visible,
 :host .tournaments .team-fixture:focus-visible{outline:2px solid #a2ffe0;outline-offset:-2px;}
+
+/* Keep the destructive action visually apart from Atualizar. */
+.competition-delete-trigger { margin-top: 14px; }

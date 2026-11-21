@@ -275,7 +275,7 @@
               @if (session.privateGame) {
                 <span class="private-badge">🔒 {{ 'events.private' | t }}</span>
               } @else {
-                <span class="status">● {{ session.status }}</span>
+                <span class="status">● {{ ('session.status.' + session.status) | t }}</span>
               }
             </div>
 

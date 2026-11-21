@@ -469,6 +469,7 @@ const PT: Dictionary = {
   'nav.contact': 'Contacto',
   'nav.login': 'Entrar',
   'nav.register': 'Criar conta',
+  'nav.create': 'Criar',
   'nav.feed': 'Feed',
   'nav.discover': 'Explorar',
   'nav.venues': 'Recintos',
@@ -1864,7 +1865,7 @@ const PT: Dictionary = {
   'communities.removeMember': 'Remover',
   'communities.transferOwnership': 'Transferir ownership',
   'communities.transferOwnershipHint': 'O novo Owner tem de ser membro da comunidade. Tu passas automaticamente a Admin.',
-  'communities.newOwnerPlaceholder': 'Username do novo Owner',
+  'communities.newOwnerPlaceholder': 'Nome de utilizador do novo responsável',
   'communities.transfer': 'Transferir',
   'communities.leave': 'Sair da comunidade',
   'communities.deleteTitle': 'Eliminar comunidade',
@@ -1876,8 +1877,8 @@ const PT: Dictionary = {
   'communities.deleting': 'A eliminar...',
   'communities.deleteBlocked': 'O servidor não conseguiu concluir a eliminação em segurança. Nenhum dado foi apagado. Tenta novamente.',
   'communities.deleteFailed': 'Não foi possível eliminar a comunidade. Tenta novamente.',
-  'communities.role.owner': 'Owner',
-  'communities.role.admin': 'Admin',
+  'communities.role.owner': 'Criador',
+  'communities.role.admin': 'Administrador',
   'communities.role.member': 'Membro',
   'communities.tabsLabel': 'Navegação da comunidade',
   'communities.chatColumnTitle': 'Conversa da comunidade',
@@ -2114,7 +2115,7 @@ const PT: Dictionary = {
   'communities.competitionSettings': 'Configuração',
   'communities.tournaments.eligibility.title': 'Elegibilidade dos jogadores',
   'communities.tournaments.eligibility.refresh': 'Atualizar verificação',
-  'communities.tournaments.eligibility.description': 'Confirma as inscrições e equipas antes do jogo. Esta consulta inclui jogadores suspensos depois de já estarem inscritos e não modifica resultados antigos.',
+  'communities.tournaments.eligibility.description': 'Antes de cada jogo, confirma se algum jogador inscrito está suspenso.',
   'communities.tournaments.eligibility.loading': 'A verificar inscrições existentes…',
   'communities.tournaments.eligibility.suspendedCount': '{{count}} jogador(es) suspenso(s) constam deste torneio.',
   'communities.tournaments.eligibility.team': 'equipa',
@@ -5879,7 +5880,11 @@ const PT: Dictionary = {
   'status.lateCancelShort': 'Cancelou tarde',
   'session.joinProcessing': 'A processar...',
   'session.joinWaitlist': 'Entrar na lista de espera',
-  'session.join': 'Juntar-me à sessão'
+  'session.join': 'Juntar-me à sessão',
+  'session.status.OPEN': 'Aberta',
+  'session.status.FULL': 'Completa',
+  'session.status.CANCELLED': 'Cancelada',
+  'session.status.COMPLETED': 'Terminada'
 };
 
 
