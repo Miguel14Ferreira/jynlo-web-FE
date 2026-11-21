@@ -3428,6 +3428,7 @@
             }
           </div>
         </header>
+        <app-tournament-public-share [communityId]="community.id" [tournamentId]="selected.id" [canManage]="canManage"></app-tournament-public-share>
 
         @if (canManage) {
           <app-community-tournament-eligibility-panel

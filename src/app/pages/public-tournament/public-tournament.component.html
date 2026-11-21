@@ -1,0 +1,100 @@
+<section class="pt-page">
+  <div class="pt-shell">
+
+    @if (loading) {
+      <p class="pt-muted" role="status">{{ 'publicTournament.loading' | t }}</p>
+    } @else if (notFound) {
+      <div class="pt-card">
+        <h1>{{ 'publicTournament.notFoundTitle' | t }}</h1>
+        <p class="pt-muted">{{ 'publicTournament.notFoundText' | t }}</p>
+        <a routerLink="/home" class="pt-cta">{{ 'publicTournament.discover' | t }}</a>
+      </div>
+    } @else if (failed) {
+      <div class="pt-card">
+        <p>{{ 'publicTournament.error' | t }}</p>
+        <button type="button" class="pt-cta" (click)="retry()">{{ 'publicTournament.retry' | t }}</button>
+      </div>
+    } @else if (page) {
+      <div class="pt-hero">
+        <span class="pt-status" [class.is-live]="page.status === 'IN_PROGRESS'">{{ statusKey(page.status) | t }}</span>
+        <h1>{{ page.name }}</h1>
+        <p class="pt-muted">
+          @if (page.sport) { {{ page.sport }} }
+          @if (page.sport && page.communityName) { · }
+          @if (page.communityName) { {{ page.communityName }} }
+        </p>
+        @if (page.champion) {
+          <p class="pt-champion">🏆 {{ 'publicTournament.champion' | t:{ name: page.champion } }}</p>
+        }
+        <p class="pt-muted">{{ 'publicTournament.progress' | t:{ done: completedGames(), total: page.games.length } }}</p>
+      </div>
+
+      @if (page.table.length) {
+        <div class="pt-card">
+          <h2>{{ 'publicTournament.table' | t }}</h2>
+          <div class="pt-table-wrap">
+            <table class="pt-table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col" class="pt-name">{{ (page.entryType === 'TEAM' ? 'publicTournament.team' : 'publicTournament.player') | t }}</th>
+                  <th scope="col" [attr.title]="'publicTournament.playedLong' | t">J</th>
+                  <th scope="col" class="pt-wide" [attr.title]="'publicTournament.wonLong' | t">V</th>
+                  <th scope="col" class="pt-wide" [attr.title]="'publicTournament.drawnLong' | t">E</th>
+                  <th scope="col" class="pt-wide" [attr.title]="'publicTournament.lostLong' | t">D</th>
+                  <th scope="col" [attr.title]="'publicTournament.diffLong' | t">DG</th>
+                  <th scope="col" class="pt-points">Pts</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of page.table; track row.position + row.name) {
+                  <tr [class.is-first]="row.position === 1 && row.played > 0">
+                    <td>{{ row.position }}</td>
+                    <td class="pt-name">{{ row.name }}</td>
+                    <td>{{ row.played }}</td>
+                    <td class="pt-wide">{{ row.won }}</td>
+                    <td class="pt-wide">{{ row.drawn }}</td>
+                    <td class="pt-wide">{{ row.lost }}</td>
+                    <td>{{ row.goalDifference > 0 ? '+' : '' }}{{ row.goalDifference }}</td>
+                    <td class="pt-points">{{ row.points }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+
+      @if (rounds.length) {
+        <div class="pt-card">
+          <h2>{{ 'publicTournament.games' | t }}</h2>
+          @for (round of rounds; track round.group + ':' + round.round) {
+            <h3>
+              @if (round.group) { {{ 'publicTournament.group' | t:{ group: round.group } }} · }
+              {{ 'publicTournament.round' | t:{ round: round.round } }}
+            </h3>
+            <ul class="pt-games">
+              @for (game of round.games; track $index) {
+                <li>
+                  <span class="pt-team pt-home">{{ game.home }}</span>
+                  <span class="pt-score" [class.is-pending]="game.status !== 'COMPLETED'">
+                    @if (game.status === 'COMPLETED') { {{ game.homeScore }} – {{ game.awayScore }} } @else { vs }
+                  </span>
+                  <span class="pt-team">{{ game.away }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      } @else {
+        <p class="pt-muted">{{ 'publicTournament.noGames' | t }}</p>
+      }
+
+      <div class="pt-card pt-join">
+        <h2>{{ 'publicTournament.joinTitle' | t }}</h2>
+        <p class="pt-muted">{{ 'publicTournament.joinText' | t }}</p>
+        <a routerLink="/login/registerNewUser" class="pt-cta">{{ 'publicTournament.joinCta' | t }}</a>
+      </div>
+    }
+  </div>
+</section>
