@@ -19,6 +19,9 @@ import { TEST_IMPORTS, TEST_PROVIDERS } from '../../testing/test-providers';
 import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/venue-sports-badges.component';
 import { MovableTextComponent } from './movable-text.component';
 
+@Component({ selector: 'app-first-steps-prompt', standalone: true, template: '' })
+class StubFirstStepsPromptComponent {}
+
 @Component({ selector: 'app-social-stories', standalone: true, template: '' })
 class StubStoriesComponent {}
 
@@ -65,7 +68,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
 
     await TestBed.configureTestingModule({
       declarations: [SocialFeedComponent],
-      imports: [...TEST_IMPORTS, StubStoriesComponent, VenueSportsBadgesComponent, MovableTextComponent, ProtectedMediaDirective],
+      imports: [...TEST_IMPORTS, StubStoriesComponent, StubFirstStepsPromptComponent, VenueSportsBadgesComponent, MovableTextComponent, ProtectedMediaDirective],
       providers: [
         ...TEST_PROVIDERS,
         { provide: AuthenticationService, useValue: auth },
