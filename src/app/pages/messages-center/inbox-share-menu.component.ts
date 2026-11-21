@@ -10,4 +10,6 @@ export class InboxShareMenuComponent {
   @Input() attachmentControlsReady = false;
   @Output() fileRequested = new EventEmitter<void>();
   @Output() shareRequested = new EventEmitter<void>();
+  @Input() callUpAvailable = false;
+  @Output() callUpRequested = new EventEmitter<void>();
 }

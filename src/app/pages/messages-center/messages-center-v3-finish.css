@@ -168,3 +168,18 @@
 :host .inbox-page.jynlo-secondary :is(input,textarea,select){box-sizing:border-box;max-width:100%}
 @media(max-width:680px){:host .inbox-page.jynlo-secondary .inbox-shell{max-width:100%;min-width:0}}
 @media(prefers-reduced-motion:reduce){:host .inbox-page.jynlo-secondary *, :host .inbox-page.jynlo-secondary *::before, :host .inbox-page.jynlo-secondary *::after{transition-duration:.01ms;animation-duration:.01ms}}
+
+/* Convocatória picker and composer hint */
+.inbox-callup-picker{position:absolute;right:0;bottom:calc(100% + 10px);z-index:35;display:grid;gap:10px;
+  width:min(380px,calc(100vw - 40px));max-height:min(460px,65vh);overflow:auto;padding:12px;box-sizing:border-box;
+  background:#152e38;border:1px solid #4e8584;border-radius:14px;color:#effffb;box-shadow:0 20px 48px #000a}
+@media(max-width:600px){.inbox-callup-picker{position:fixed;left:12px;right:12px;width:auto;bottom:150px;max-height:55vh}}
+.inbox-callup-picker-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.inbox-callup-picker-head button{min-width:36px;min-height:36px;border:0;border-radius:50%;background:#ffffff14;color:#e8fff7;cursor:pointer}
+.inbox-callup-picker p{margin:0;color:#bfe0dc;font-size:.86rem;line-height:1.4}
+.inbox-callup-choices{list-style:none;margin:0;padding:0;display:grid;gap:8px;max-height:260px;overflow:auto}
+.inbox-callup-choices button{width:100%;display:grid;gap:2px;text-align:left;padding:10px 12px;min-height:48px;border:1px solid #3fd8b440;border-radius:12px;background:#0a3340;color:#e8fff7;cursor:pointer}
+.inbox-callup-choices button:hover,.inbox-callup-choices button:focus-visible{border-color:#6ff0d4;outline:none}
+.inbox-callup-choices span{font-size:.82rem;color:#bfe0dc}
+.inbox-callup-create{justify-self:start;color:#6ff0d4;font-weight:800;text-decoration:none}
+.inbox-callup-alone{margin:4px 0 0;color:#ffd79a;font-size:.84rem}

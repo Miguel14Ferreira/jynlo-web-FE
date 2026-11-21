@@ -44,6 +44,8 @@ import { InboxHistorySearchComponent } from './inbox-history-search.component';
 import { InboxConversationListComponent, InboxListFormatters } from './inbox-conversation-list.component';
 import { findCuratedGifs } from './curated-gifs';
 import { InboxStoryCardComponent } from './inbox-story-card.component';
+import { InboxCallUpCardComponent } from './inbox-callup-card.component';
+import { CallUpChoice, encodeCallUp, readCallUp } from './callup-message';
 import { storyIdFromChatText, storyShareFromChatText } from './inbox-story-share';
 
 export const VOICE_NOTE_MAX_DURATION_MS = 5 * 60_000;
@@ -52,7 +54,7 @@ const VOICE_NOTE_AUDIO_BITRATE = 48_000;
 @Component({
   selector: 'app-messages-center',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, ChatReactionsComponent, GiphyEmbedComponent, InboxConversationListComponent, InboxEmojiGifPickerComponent, InboxShareMenuComponent, InboxSharePickerComponent, InboxHistorySearchComponent, ChatImageInViewDirective, InboxStoryCardComponent],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, ChatReactionsComponent, GiphyEmbedComponent, InboxConversationListComponent, InboxEmojiGifPickerComponent, InboxShareMenuComponent, InboxSharePickerComponent, InboxHistorySearchComponent, ChatImageInViewDirective, InboxStoryCardComponent, InboxCallUpCardComponent],
   templateUrl: './messages-center.component.html',
   styleUrls: ['./messages-center.component.css', './messages-center-premium.component.css', './messages-center-v3-finish.css', './messages-center-embedded.css'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -183,6 +185,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.setSelectedAttachment(null);
     this.selectedGif = null;
     this.selectedShare = null;
+    this.selectedCallUp = null;
     this.closeSharePicker();
     this.closeAttachmentMenu();
     ++this.mutationVersion;
@@ -232,6 +235,13 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   // GIPHY media is NOT copied to R2: only validated CDN URLs travel as chat text.
   selectedGif: GifChoice | null = null;
   selectedShare: ShareChoice | null = null;
+  /** Convocatória: one of my upcoming sessions, sent as its own message. */
+  selectedCallUp: CallUpChoice | null = null;
+  callUpPickerOpen = false;
+  callUpLoading = false;
+  callUpError = false;
+  callUpChoices: CallUpChoice[] = [];
+  private callUpVersion = 0;
   attachmentMenuOpen = false;
   sharePickerOpen = false;
   sharePickerLoading = false;
@@ -985,6 +995,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.setSelectedAttachment(null);
     this.selectedGif = null;
     this.selectedShare = null;
+    this.selectedCallUp = null;
     this.closeSharePicker();
     this.closeAttachmentMenu();
     this.attachmentReady = false;
@@ -1030,6 +1041,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.setSelectedAttachment(null);
     this.selectedGif = null;
     this.selectedShare = null;
+    this.selectedCallUp = null;
     this.clearAttachmentRetry();
     this.attachmentReady = false;
     ++this.attachmentViewVersion;
@@ -1589,11 +1601,13 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       && this.composerAllowed && !this.composerAccessLoading
       && !this.previewLoading && !this.previewError && !this.sending && !this.deliveryUncertain
       && !this.deliveryChecking && !this.voiceRecording && !this.voiceFinalizing
-      && (this.draft.trim().length > 0 || !!this.selectedShare
+      && (this.draft.trim().length > 0 || !!this.selectedShare || !!this.selectedCallUp
           || (this.attachmentControlsReady && (!!this.selectedAttachment || !!this.selectedGif)))
       && this.draft.trim().length <= 2000
       && (!this.selectedGif || !!encodeGiphyText(this.selectedGif, this.draft.trim()))
-      && (!this.selectedShare || !!encodeShareMessage(this.selectedShare, this.draft.trim())));
+      && (!this.selectedShare || !!encodeShareMessage(this.selectedShare, this.draft.trim()))
+      // A call-up is an exact envelope: it travels alone, without a caption.
+      && (!this.selectedCallUp || (this.draft.trim().length === 0 && !!encodeCallUp(this.selectedCallUp.id))));
   }
 
   replyToMessage(message: InboxMessage): void {
@@ -1765,6 +1779,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     }
     this.selectedGif = null;
     this.selectedShare = null;
+    this.selectedCallUp = null;
     this.closeAttachmentMenu();
     this.composerError = '';
     this.closeEmojiPicker();
@@ -2325,6 +2340,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
         || !this.shareChoices.some(item => item.kind === choice.kind && item.id === choice.id)
         || !encodeShareMessage(choice,this.draft.trim())) return;
     this.selectedShare = choice;
+    this.selectedCallUp = null;
     this.setSelectedAttachment(null);
     this.selectedGif = null;
     this.clearVoicePreview();
@@ -2335,12 +2351,58 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     if (!this.sending && !this.deliveryUncertain) this.selectedShare = null;
   }
   readSharedMessage(text: string) { return readSharedMessage(text); }
+  readCallUp(text: string | null | undefined) { return readCallUp(text); }
+  get viewerUsername(): string { return this.currentUsername; }
+  /** Call-ups make sense where a group answers: direct and community chats. */
+  callUpAvailable(): boolean {
+    return !!this.selected && (this.selected.kind === 'direct' || this.selected.kind === 'community');
+  }
+  openCallUpPicker(): void {
+    if (!this.callUpAvailable() || !this.canEditDraft() || !this.isAttachmentIdentityCurrent()) return;
+    this.closeAttachmentMenu();
+    this.closeSharePicker();
+    this.callUpPickerOpen = true;
+    this.callUpLoading = true;
+    this.callUpError = false;
+    const version = ++this.callUpVersion;
+    const selectedKey = this.selectedKey;
+    this.sessions.mine().pipe(timeout(10000)).subscribe({
+      next: mine => {
+        if (!this.callUpPickerOpen || version !== this.callUpVersion || selectedKey !== this.selectedKey) return;
+        this.callUpChoices = (mine.created || [])
+          .filter(session => ['OPEN','FULL'].includes(session.status)
+            && Number.isFinite(Date.parse(session.gameDate)) && Date.parse(session.gameDate) > Date.now())
+          .sort((a, b) => Date.parse(a.gameDate) - Date.parse(b.gameDate))
+          .map(session => ({ id: session.id, title: session.sport + ' · ' + session.city,
+            subtitle: new Date(session.gameDate).toLocaleString('pt-PT',
+              { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+              + ' · ' + session.participantCount + '/' + session.maxParticipants }));
+        this.callUpLoading = false;
+      },
+      error: () => { if (version === this.callUpVersion) { this.callUpLoading = false; this.callUpError = true; } }
+    });
+  }
+  closeCallUpPicker(): void { this.callUpPickerOpen = false; this.callUpVersion++; }
+  selectCallUp(choice: CallUpChoice): void {
+    if (!this.callUpPickerOpen || !this.callUpChoices.some(item => item.id === choice.id)) return;
+    this.selectedCallUp = choice;
+    this.selectedShare = null;
+    this.selectedGif = null;
+    this.setSelectedAttachment(null);
+    this.clearVoicePreview();
+    this.composerError = '';
+    this.closeCallUpPicker();
+  }
+  removeSelectedCallUp(): void {
+    if (!this.sending && !this.deliveryUncertain) this.selectedCallUp = null;
+  }
   storyShareFromChatText(text: string | null | undefined) { return storyShareFromChatText(text); }
   displayMessagePreview(value: string | null | undefined): string {
     if (!value) return '';
     if (storyIdFromChatText(value)!==null) return 'Story partilhada';
     const shared = readSharedMessage(value);
     if (shared) return t('chat.shareType.' + shared.kind) + ': ' + shared.title;
+    if (readCallUp(value) !== null) return '📣 ' + t('chat.callUp.title');
     // Reserved GIPHY envelopes must never appear as raw JSON in previews,
     // including historic malformed envelopes that cannot be rendered as media.
     const media = chatMediaPreviewKind(value);
@@ -2504,6 +2566,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     }
     this.selectedGif = choice;
     this.selectedShare = null;
+    this.selectedCallUp = null;
     this.setSelectedAttachment(null);
     this.clearVoicePreview();
     this.composerError = '';
@@ -2570,7 +2633,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     const caption = this.draft.trim();
     // Server sends the same synthesized text for an attachment without a caption.
     const name = file?.name.replace(/\\/g, '/').split('/').pop()?.replace(/[\\x00-\\x1f\\x7f]/g, '').trim().slice(-160);
-    const text = this.selectedShare ? encodeShareMessage(this.selectedShare, caption)
+    const text = this.selectedCallUp ? encodeCallUp(this.selectedCallUp.id)
+      : this.selectedShare ? encodeShareMessage(this.selectedShare, caption)
       : this.selectedGif ? encodeGiphyText(this.selectedGif, caption)
       : file && !caption ? '📎 ' + (name || 'anexo') : caption;
     const replyId = this.replyingTo?.key === key ? this.replyingTo.id : null;
@@ -2657,6 +2721,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
         this.setSelectedAttachment(null);
         this.selectedGif = null;
         this.selectedShare = null;
+        this.selectedCallUp = null;
+    this.selectedCallUp = null;
         this.clearVoicePreview();
         if (unchangedComposition) {
           this.draft = '';
