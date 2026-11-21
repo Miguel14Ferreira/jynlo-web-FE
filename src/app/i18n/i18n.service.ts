@@ -1799,6 +1799,7 @@ const PT: Dictionary = {
   'groups.filesError': 'Não foi possível enviar os ficheiros.',
   'groups.fileOpenError': 'Não foi possível abrir o ficheiro.',
   'groups.locationError': 'Não foi possível obter a localização.',
+  'session.playAgain': 'Jogar outra vez',
   'notifications.openAvailability': 'Responder: quem pode?',
   'notifications.openGroup': 'Abrir grupo',
   'notifications.blockAccess': 'Bloquear acessos',

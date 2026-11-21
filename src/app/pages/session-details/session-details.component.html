@@ -2053,6 +2053,10 @@
                   @if (session.status === 'COMPLETED' && (session.joined || isCreator())) {
                     <a class="jynlo-action jynlo-action--primary" routerLink="/menu/feed"
                       [queryParams]="{momentSession:session.id}">Partilhar um momento</a>
+                    @if (isCreator()) {
+                      <a class="jynlo-action jynlo-action--neutral" routerLink="/menu/createEvent"
+                        [queryParams]="repeatParams()">{{ 'session.playAgain' | t }}</a>
+                    }
                   } @else if (session.status !== 'COMPLETED') {
                     <span class="session-memories-hint">A partilha das recordações abre depois do jogo.</span>
                   }

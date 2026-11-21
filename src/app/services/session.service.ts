@@ -143,6 +143,12 @@ export class SessionService {
     return this.http.get<SessionContext>(this.baseUrl + '/' + id + '/context');
   }
 
+  /** "Jogar outra vez": invite the players of one of my previous sessions into a new one. */
+  inviteFromPrevious(sessionId: number, previousSessionId: number) {
+    return this.http.post<{ invited: number; skipped: number }>(
+      this.baseUrl + '/' + sessionId + '/invites/from-session/' + previousSessionId, {});
+  }
+
   postGameCommunities(id: number): Observable<PostGameCommunitySuggestion[]> {
     return this.http.get<PostGameCommunitySuggestion[]>(
       this.baseUrl + '/' + id + '/post-game-communities');
