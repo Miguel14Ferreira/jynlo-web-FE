@@ -1488,6 +1488,10 @@
           }
 
 
+          @if ((session.joined || isCreator()) && session.priceAmount > 0) {
+            <app-session-payments-panel [sessionId]="session.id" [priceAmount]="session.priceAmount"></app-session-payments-panel>
+          }
+
           @if (session.joined || isCreator()) {
             <section id="session-participants" class="session-participants-panel">
               <div class="session-participants-header">
