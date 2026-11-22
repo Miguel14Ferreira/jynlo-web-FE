@@ -3,6 +3,18 @@
   "framework": "angular",
   "buildCommand": "npm run build",
   "outputDirectory": "dist/desporto24",
+  "git": {
+    "deploymentEnabled": {
+      "feat/**": false,
+      "fix/**": false,
+      "perf/**": false,
+      "chore/**": false,
+      "docs/**": false,
+      "test/**": false,
+      "refactor/**": false,
+      "ci/**": false
+    }
+  },
   "rewrites": [
     {
       "source": "/sessions/:id(\\d+)",

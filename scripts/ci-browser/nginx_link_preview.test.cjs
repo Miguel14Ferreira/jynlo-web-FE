@@ -75,3 +75,11 @@ test('Vercel sends the same crawlers to the same share pages, before the app fal
   const robots = require('node:fs').readFileSync(require('node:path').join(__dirname, '../../src/robots.txt'), 'utf8');
   assert.match(robots, /Sitemap: https:\/\/api\.d24sports\.com\/api\/public\/sitemap\.xml/);
 });
+
+test('Vercel publishes develop and master, never work branches (daily build limit)', () => {
+  const vercel = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '../../vercel.json'), 'utf8'));
+  const off = vercel.git.deploymentEnabled;
+  for (const branch of ['develop', 'master', 'main']) assert.notEqual(off[branch], false, branch);
+  assert.ok(!Object.keys(off).some(glob => glob === '*' || glob === '**'), 'a catch-all would also stop develop');
+  for (const glob of ['feat/**', 'fix/**', 'perf/**', 'chore/**']) assert.equal(off[glob], false, glob);
+});
