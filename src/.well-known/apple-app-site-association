@@ -1,0 +1,22 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["M5L2Q879XK.com.jynlo.app"],
+        "components": [
+          { "/": "/sessions/*", "comment": "Jogos partilhados e links de convidado" },
+          { "/": "/menu/events/*" },
+          { "/": "/menu/communities/*" },
+          { "/": "/menu/teams/claim/*", "comment": "Convite pessoal do plantel" },
+          { "/": "/posts/*" },
+          { "/": "/venues/*" },
+          { "/": "/login/resetPassword/*" },
+          { "/": "/login/registerNewUser/confirmTokenRegistration/*" }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["M5L2Q879XK.com.jynlo.app"]
+  }
+}
