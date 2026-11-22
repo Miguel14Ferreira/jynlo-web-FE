@@ -48,6 +48,7 @@ const routes: Routes = [
   {path:'login',component:LoginComponent},
   {path:'login/registerNewUser',loadComponent:() => import('./pages/createaccount/createaccount.component').then(m => m.CreateaccountComponent),canActivate:[GuestOnlyGuard]},
   {path:'login/google/complete-profile',loadComponent:() => import('./pages/google-onboarding/google-onboarding.component').then(m => m.GoogleOnboardingComponent),canActivate:[GuestOnlyGuard]},
+  {path:'menu/create',loadComponent:() => import('./pages/create-hub/create-hub.component').then(m => m.CreateHubComponent),canActivate:[AuthenticationGuard]},
   {path:'menu/createEvent',loadChildren:() => import('./pages/events2/create-event.module').then(m => m.CreateEventModule),canActivate:[AuthenticationGuard]},
   {path:'menu/createEvent/menu', redirectTo:'menu',pathMatch:'full'},
   {path:'login/registerNewUser/login', redirectTo:'login',pathMatch:'full'},

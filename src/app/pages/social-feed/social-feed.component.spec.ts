@@ -2086,3 +2086,24 @@ describe('SocialFeedComponent "Publicar em"', () => {
     expect(teams.uploadContentFiles).toHaveBeenCalledWith(3, 'feed', [file], '', null);
   });
 });
+
+describe('SocialFeedComponent compose link', () => {
+  it('opens the post composer when coming from "Criar → Publicação"', () => {
+    const auth = jasmine.createSpyObj<AuthenticationService>('AuthenticationService', ['isLoggedIn']);
+    auth.isLoggedIn.and.returnValue(true);
+    const component = new SocialFeedComponent(
+      {} as SocialFeedService, {} as SessionService, auth,
+      { snapshot: { queryParamMap: convertToParamMap({ compose: 'post' }) }, queryParamMap: of(convertToParamMap({ compose: 'post' })) } as unknown as ActivatedRoute,
+      {} as Router, {} as CommunityService);
+    spyOn(component, 'load');
+    spyOn<any>(component, 'loadHiddenFeedEntries');
+    spyOn(component, 'openPostComposer');
+    spyOn<any>(component, 'connectLiveCounters');
+    spyOn<any>(component, 'loadSuggestedPeople');
+    spyOn<any>(component, 'preparePostGameMoment');
+    spyOn<any>(component, 'prepareNewSessionShare');
+    spyOn<any>(component, 'loadCompletedSessions');
+    try { component.ngOnInit(); } catch { /* other init steps need real services */ }
+    expect(component.openPostComposer).toHaveBeenCalled();
+  });
+});
