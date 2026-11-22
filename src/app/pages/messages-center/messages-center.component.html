@@ -325,7 +325,7 @@
                   <p class="inbox-mention-body">@for (part of messageMentionParts(displayMessagePreview(message.text)); track $index) {
                     @if (part.username) {
                       <button type="button" class="inbox-mention-link"
-                        [attr.aria-label]="'Ver perfil de @' + part.username"
+                        [attr.aria-label]="('Ver perfil de @{{username}}' | t:{username: part.username})"
                         (click)="openContact(part.username)">{{part.text}}</button>
                     } @else {<span>{{part.text}}</span>}
                   }</p>
@@ -374,12 +374,12 @@
                         <video class="inbox-attachment-video" [src]="videoUrl" controls preload="metadata"
                           [attr.aria-label]="message.attachmentName"></video>
                         <button type="button" class="inbox-attachment-button"
-                          (click)="openAttachment(message)">Fechar vídeo</button>
+                          (click)="openAttachment(message)">{{ 'Fechar vídeo' | t }}</button>
                       } @else {
                         <button type="button" class="inbox-attachment-button"
                           [disabled]="attachmentLoading.has(message.id)"
                           (click)="openAttachment(message)">
-                          🎬 {{ message.attachmentName }} · {{ attachmentLoading.has(message.id) ? 'A carregar…' : 'Ver vídeo' }}
+                          🎬 {{ message.attachmentName }} · {{ attachmentLoading.has(message.id) ? ('A carregar…' | t) : ('Ver vídeo' | t) }}
                         </button>
                       }
                     } @else if (isAudioAttachment(message)) {
@@ -387,7 +387,7 @@
                         <audio [src]="audioUrl" controls preload="metadata"
                           [attr.aria-label]="message.attachmentName"></audio>
                         <button type="button" class="inbox-attachment-button"
-                          (click)="openAttachment(message)">Fechar áudio</button>
+                          (click)="openAttachment(message)">{{ 'Fechar áudio' | t }}</button>
                       } @else {
                         <button type="button" class="inbox-attachment-button"
                           [disabled]="attachmentLoading.has(message.id)"
@@ -427,7 +427,7 @@
                     }
                   </div>
                   @if (message.attachments?.length) {
-                    <div class="inbox-attachment-gallery" aria-label="Ficheiros adicionais">
+                    <div class="inbox-attachment-gallery" [attr.aria-label]="'Ficheiros adicionais' | t">
                       @for (asset of message.attachments; track asset.index) {
                         @if (asset.index > 0) {
                           <div class="inbox-extra-attachment">
@@ -443,8 +443,8 @@
                             <button type="button" class="inbox-attachment-button"
                               [disabled]="extraAttachmentLoading.has(extraAttachmentKey(message, asset.index))"
                               (click)="openExtraAttachment(message, asset)">
-                              {{ extraAttachmentPreviews.has(extraAttachmentKey(message, asset.index)) ? 'Fechar' :
-                                extraAttachmentLoading.has(extraAttachmentKey(message, asset.index)) ? 'A carregar…' : 'Abrir' }}
+                              {{ extraAttachmentPreviews.has(extraAttachmentKey(message, asset.index)) ? ('Fechar' | t) :
+                                extraAttachmentLoading.has(extraAttachmentKey(message, asset.index)) ? ('A carregar…' | t) : ('Abrir' | t) }}
                               {{ asset.filename }}
                             </button>
                           </div>
@@ -455,11 +455,11 @@
                 }
                 @if (!message.deletedAt) {
                   <button type="button" class="inbox-message-more"
-                    [attr.aria-label]="'Mostrar ações da mensagem de @' + message.sender"
+                    [attr.aria-label]="('Mostrar ações da mensagem de @{{sender}}' | t:{sender: message.sender})"
                     [attr.aria-expanded]="openMessageActionsId === message.id"
                     (click)="toggleMessageActions(message.id)">···</button>
                   <div class="inbox-message-actions" role="toolbar"
-                    [attr.aria-label]="'Ações da mensagem de @' + message.sender">
+                    [attr.aria-label]="('Ações da mensagem de @{{sender}}' | t:{sender: message.sender})">
                     @if (message.id > 0) {
                       <app-chat-reactions class="inbox-toolbar-reactions"
                         [class.own-reaction]="isMine(message)" [toolbarMode]="true"
@@ -629,7 +629,7 @@
               }
             }
             @if (extraSelectedAttachments.length) {
-              <div class="inbox-multi-draft" aria-label="Ficheiros adicionais prontos a enviar">
+              <div class="inbox-multi-draft" [attr.aria-label]="'Ficheiros adicionais prontos a enviar' | t">
                 @for (item of extraSelectedAttachments; track item.file; let i = $index) {
                   <div class="inbox-attachment-draft">
                     @if (item.url && item.file.type.startsWith('image/')) {
@@ -641,10 +641,10 @@
                     } @else { <span aria-hidden="true">📎</span> }
                     <span>{{ item.file.name }}</span>
                     <button type="button" [disabled]="sending || deliveryUncertain"
-                      (click)="removeExtraSelectedAttachment(i)">Remover</button>
+                      (click)="removeExtraSelectedAttachment(i)">{{ 'Remover' | t }}</button>
                   </div>
                 }
-                <small>{{ selectedChatFiles.length }}/{{ maxChatFiles }} ficheiros · 40 MB no total</small>
+                <small>{{ '{{selectedChatFilesCount}}/{{maxChatFiles}} ficheiros · 40 MB no total' | t:{selectedChatFilesCount: (selectedChatFiles.length), maxChatFiles: (maxChatFiles)} }}</small>
               </div>
             }
             <div class="inbox-compose-toolbar">
@@ -658,9 +658,9 @@
                   (keydown.enter)="onComposerEnter($event)" (keydown.escape)="dismissMention($event)"
                   (paste)="onComposerPaste($event)"></textarea>
                 @if(mentionOpen) {
-                  <div class="inbox-mention-picker" role="listbox" aria-label="Sugestões de pessoas">
-                    <div class="inbox-mention-heading"><span aria-hidden="true">@</span> Identificar pessoa</div>
-                    @if(mentionLoading){<span class="inbox-mention-loading">A procurar pessoas…</span>}
+                  <div class="inbox-mention-picker" role="listbox" [attr.aria-label]="'Sugestões de pessoas' | t">
+                    <div class="inbox-mention-heading"><span aria-hidden="true">@</span> {{ 'Identificar pessoa' | t }}</div>
+                    @if(mentionLoading){<span class="inbox-mention-loading">{{ 'A procurar pessoas…' | t }}</span>}
                     @for(person of mentionMatches; track person.username){
                       <button type="button" role="option" class="inbox-mention-choice"
                         (mousedown)="$event.preventDefault()" [attr.aria-label]="'Mencionar @' + person.username"
@@ -673,7 +673,7 @@
                       </button>
                     }
                     @if(!mentionLoading && !mentionMatches.length){
-                      <span class="inbox-mention-loading">Escreve um nome ou username para encontrar pessoas.</span>
+                      <span class="inbox-mention-loading">{{ 'Escreve um nome ou username para encontrar pessoas.' | t }}</span>
                     }
                   </div>
                 }

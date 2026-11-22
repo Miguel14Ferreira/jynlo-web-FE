@@ -7,36 +7,36 @@
     <app-social-stories></app-social-stories>
 
     @if (personalLiveNotice) {
-      <section class="feed-live-community" role="status" aria-label="Estado da transmissão">
+      <section class="feed-live-community" role="status" [attr.aria-label]="'Estado da transmissão' | t">
         <div class="feed-live-heading">
-          <strong>Direto terminado</strong>
+          <strong>{{ 'Direto terminado' | t }}</strong>
           <span>{{personalLiveNotice}}</span>
         </div>
         <button type="button" class="jynlo-premium-btn jynlo-premium-btn--quiet"
-          (click)="personalLiveNotice=''">Fechar aviso</button>
+          (click)="personalLiveNotice=''">{{ 'Fechar aviso' | t }}</button>
       </section>
     }
 
     @if (personalLiveError && !personalLiveRoom) {
-      <section class="feed-live-community" aria-label="Estado do direto partilhado" role="status">
+      <section class="feed-live-community" [attr.aria-label]="'Estado do direto partilhado' | t" role="status">
         <div class="feed-live-heading">
-          <strong>Não foi possível abrir o direto</strong>
+          <strong>{{ 'Não foi possível abrir o direto' | t }}</strong>
           <span>{{ personalLiveError }}</span>
         </div>
         <button type="button" class="jynlo-premium-btn jynlo-premium-btn--quiet"
-          (click)="refreshPersonalLive()">Voltar a procurar diretos</button>
+          (click)="refreshPersonalLive()">{{ 'Voltar a procurar diretos' | t }}</button>
       </section>
     }
 
     @if (personalLiveEvents.length) {
-      <section class="feed-live-community" aria-label="Diretos pessoais na Jynlo">
-        <div class="feed-live-heading"><strong>● Diretos das pessoas</strong>
-          <span>Transmissões sem comunidade</span></div>
+      <section class="feed-live-community" [attr.aria-label]="'Diretos pessoais na Jynlo' | t">
+        <div class="feed-live-heading"><strong>{{ '● Diretos das pessoas' | t }}</strong>
+          <span>{{ 'Transmissões sem comunidade' | t }}</span></div>
         <div class="feed-live-list">
           @for (stream of personalLiveEvents; track stream.id) {
             <article class="feed-live-entry">
               <div><strong>{{ stream.title }}</strong><small>@{{ stream.username }}</small></div>
-              <button type="button" (click)="watchPersonalLive(stream)">Assistir ao direto</button>
+              <button type="button" (click)="watchPersonalLive(stream)">{{ 'Assistir ao direto' | t }}</button>
             </article>
           }
         </div>
@@ -44,9 +44,9 @@
     }
 
     @if (publicLiveEvents.length) {
-      <section class="feed-live-community" aria-label="Transmissões em direto das comunidades">
-        <div class="feed-live-heading"><strong><span aria-hidden="true">●</span> Em direto na Jynlo</strong>
-          <span>Jogos e treinos das tuas comunidades</span></div>
+      <section class="feed-live-community" [attr.aria-label]="'Transmissões em direto das comunidades' | t">
+        <div class="feed-live-heading"><strong><span aria-hidden="true">●</span> {{ 'Em direto na Jynlo' | t }}</strong>
+          <span>{{ 'Jogos e treinos das tuas comunidades' | t }}</span></div>
         <div class="feed-live-list">
           @for (stream of publicLiveEvents; track stream.event.id) {
             <article class="feed-live-entry">
@@ -54,7 +54,7 @@
                 <small>{{ stream.communityName }}</small></div>
               <a [routerLink]="['/menu/communities']"
                  [queryParams]="{ community: stream.event.communityId, tab: 'feed' }">
-                Assistir ao direto
+                {{ 'Assistir ao direto' | t }}
               </a>
             </article>
           }
@@ -62,7 +62,7 @@
       </section>
     }
 
-    <section class="feed-create-entry" aria-label="Partilhar um momento">
+    <section class="feed-create-entry" [attr.aria-label]="'Partilhar um momento' | t">
       <button type="button" class="feed-create-prompt" (click)="openPostComposer()">
         <span class="feed-create-avatar" aria-hidden="true">
           @if (myWeekProfile && suggestedProfileImage(myWeekProfile); as avatar) {
@@ -71,31 +71,31 @@
             {{ (currentUsername || 'J').charAt(0).toUpperCase() }}
           }
         </span>
-        <span>Em que estás a pensar? Partilha um momento desportivo...</span>
+        <span>{{ 'Em que estás a pensar? Partilha um momento desportivo...' | t }}</span>
       </button>
       <div class="feed-entry-live-action">
           <button type="button" (click)="openLiveComposer()">
-            <span aria-hidden="true">●</span> Iniciar direto
+            <span aria-hidden="true">●</span> {{ 'Iniciar direto' | t }}
           </button>
-          <small>Em direto para a Jynlo — sem comunidade obrigatória</small>
+          <small>{{ 'Em direto para a Jynlo — sem comunidade obrigatória' | t }}</small>
         </div>
     </section>
 
     @if (postShareFriendsOpen) {
       <div class="feed-confirm-backdrop" (click)="closePostFriendShare()">
         <section class="feed-confirm-dialog feed-friends-share-dialog" role="dialog" aria-modal="true"
-          aria-label="Enviar publicação a amigos" (click)="$event.stopPropagation()">
+          [attr.aria-label]="'Enviar publicação a amigos' | t" (click)="$event.stopPropagation()">
           <div class="feed-friends-share-header">
-            <h3>Enviar a amigos da Jynlo</h3>
+            <h3>{{ 'Enviar a amigos da Jynlo' | t }}</h3>
             <button type="button" [disabled]="postShareSendingTo !== null"
-              (click)="closePostFriendShare()" aria-label="Fechar">×</button>
+              (click)="closePostFriendShare()" [attr.aria-label]="'Fechar' | t">×</button>
           </div>
-          <label for="feed-share-friend-query">Pesquisar amigo</label>
+          <label for="feed-share-friend-query">{{ 'Pesquisar amigo' | t }}</label>
           <input id="feed-share-friend-query" type="search" [(ngModel)]="postShareSearch"
-            placeholder="Nome ou utilizador">
-          @if (postShareLoadingFriends) { <p>A carregar amigos…</p> }
+            [placeholder]="'Nome ou utilizador' | t">
+          @if (postShareLoadingFriends) { <p>{{ 'A carregar amigos…' | t }}</p> }
           @if (!postShareLoadingFriends && !filteredPostShareFriends.length) {
-            <p>Nenhum amigo encontrado.</p>
+            <p>{{ 'Nenhum amigo encontrado.' | t }}</p>
           }
           <div class="feed-friends-share-results">
             @for (friend of filteredPostShareFriends; track friend.username) {
@@ -103,7 +103,7 @@
                 <span><strong>{{ friend.fullName || friend.username }}</strong><small>@{{ friend.username }}</small></span>
                 <button type="button" [disabled]="postShareSendingTo !== null"
                   (click)="sendPostToFriend(friend)">
-                  {{ postShareSendingTo === friend.username ? 'A enviar…' : 'Enviar' }}
+                  {{ postShareSendingTo === friend.username ? ('A enviar…' | t) : ('Enviar' | t) }}
                 </button>
               </div>
             }
@@ -160,19 +160,19 @@
         <section class="feed-confirm-dialog" role="alertdialog" aria-modal="true"
                  aria-labelledby="feed-cancel-session-title" aria-describedby="feed-cancel-session-description"
                  (click)="$event.stopPropagation()">
-          <h3 id="feed-cancel-session-title">Cancelar sessão?</h3>
+          <h3 id="feed-cancel-session-title">{{ 'Cancelar sessão?' | t }}</h3>
           <p id="feed-cancel-session-description">
-            Vais cancelar a tua sessão de {{ (sessionToCancel.sport | sportName) || 'desporto' }}
+            {{ 'Vais cancelar a tua sessão de {{sport}}' | t:{sport: ((sessionToCancel.sport | sportName) || 'desporto')} }}
             @if (sessionToCancel.gameDate) { de {{ sessionToCancel.gameDate | date:'dd/MM/yyyy' }} }.
             Os participantes deixarão de poder inscrever-se. Esta ação não pode ser anulada.
           </p>
           @if (actionError) { <p class="feedback error-feedback" role="alert">{{ actionError }}</p> }
           <div class="feed-confirm-actions">
             <button type="button" [disabled]="cancellingSessionId !== null"
-                    (click)="dismissCancelSession()">Manter sessão</button>
+                    (click)="dismissCancelSession()">{{ 'Manter sessão' | t }}</button>
             <button type="button" class="feed-confirm-danger" [disabled]="cancellingSessionId !== null"
                     (click)="confirmCancelSession(sessionToCancel)">
-              {{ cancellingSessionId !== null ? 'A cancelar…' : 'Sim, cancelar sessão' }}
+              {{ cancellingSessionId !== null ? ('A cancelar…' | t) : ('Sim, cancelar sessão' | t) }}
             </button>
           </div>
         </section>
@@ -184,14 +184,14 @@
         <section class="feed-confirm-dialog" role="alertdialog" aria-modal="true"
                  aria-labelledby="feed-delete-title" aria-describedby="feed-delete-description"
                  (click)="$event.stopPropagation()">
-          <h3 id="feed-delete-title">Apagar publicação?</h3>
-          <p id="feed-delete-description">Esta publicação e os seus anexos serão eliminados. Não é possível anular esta ação.</p>
+          <h3 id="feed-delete-title">{{ 'Apagar publicação?' | t }}</h3>
+          <p id="feed-delete-description">{{ 'Esta publicação e os seus anexos serão eliminados. Não é possível anular esta ação.' | t }}</p>
           <div class="feed-confirm-actions">
             <button type="button" [disabled]="deletingPostId !== null"
-                    (click)="cancelDeletePost()">Cancelar</button>
+                    (click)="cancelDeletePost()">{{ 'Cancelar' | t }}</button>
             <button type="button" class="feed-confirm-danger" [disabled]="deletingPostId !== null"
                     (click)="deletePost(postToDelete)">
-              {{ deletingPostId !== null ? 'A apagar…' : 'Sim, apagar' }}
+              {{ deletingPostId !== null ? ('A apagar…' | t) : ('Sim, apagar' | t) }}
             </button>
           </div>
         </section>
@@ -201,14 +201,14 @@
     <div class="feed-post-dialog-backdrop" [class.feed-post-dialog-visible]="postComposerOpen"
          [attr.aria-hidden]="postComposerOpen ? null : 'true'"
          (click)="closePostComposer()"></div>
-    <section class="composer" role="dialog" aria-modal="true" aria-label="Criar publicação"
+    <section class="composer" role="dialog" aria-modal="true" [attr.aria-label]="'Criar publicação' | t"
       [attr.aria-busy]="posting ? 'true' : null"
       [class.feed-post-dialog-open]="postComposerOpen"
       [attr.aria-hidden]="postComposerOpen ? null : 'true'"
       [attr.inert]="postComposerOpen ? null : ''">
       <div class="feed-post-dialog-header">
-        <strong class="feed-post-dialog-title">Criar publicação</strong>
-        <button type="button" aria-label="Fechar publicação" class="feed-post-dialog-close"
+        <strong class="feed-post-dialog-title">{{ 'Criar publicação' | t }}</strong>
+        <button type="button" [attr.aria-label]="'Fechar publicação' | t" class="feed-post-dialog-close"
                 [disabled]="posting" (click)="closePostComposer()">
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
             <path d="M5 5 19 19M19 5 5 19" fill="none" stroke="currentColor"
@@ -226,7 +226,7 @@
             }
           </span>
           <div><strong>{{ currentUsername }}</strong>
-            <small>Partilhar com a comunidade Jynlo</small>
+            <small>{{ 'Partilhar com a comunidade Jynlo' | t }}</small>
           </div>
         </div>
         <span>{{ postContent.length }}/1000</span>
@@ -271,17 +271,17 @@
         rows="3"
         [disabled]="posting"
         [placeholder]="'feed.sharePlaceholder' | t"></textarea>
-      <p class="composer-caption-optional">Descrição opcional — podes publicar apenas fotografias ou vídeos.</p>
-      <label class="composer-place-label" for="feed-post-location">Localização (opcional)</label>
+      <p class="composer-caption-optional">{{ 'Descrição opcional — podes publicar apenas fotografias ou vídeos.' | t }}</p>
+      <label class="composer-place-label" for="feed-post-location">{{ 'Localização (opcional)' | t }}</label>
       <div class="composer-location-search">
         <input id="feed-post-location" class="composer-place-input" type="search"
                [(ngModel)]="postLocation" (ngModelChange)="onPostLocationQuery($event)"
                maxlength="160" autocomplete="off" [disabled]="posting"
                aria-controls="post-location-results" [attr.aria-expanded]="postLocationOpen"
-               placeholder="Pesquisa Benfica, Lisboa ou outro local real">
+               [placeholder]="'Pesquisa Benfica, Lisboa ou outro local real' | t">
         @if (postLocationOpen) {
           <div id="post-location-results" class="composer-location-results">
-            @if (postLocationLoading) { <p role="status">A pesquisar locais reais…</p> }
+            @if (postLocationLoading) { <p role="status">{{ 'A pesquisar locais reais…' | t }}</p> }
             @for (place of postRealPlaces; track place.id) {
               <button type="button" (click)="selectPostRealPlace(place)">
                 <span aria-hidden="true">📍</span>
@@ -292,10 +292,10 @@
             @if (postRealPlaces.length && postRealPlaces[0].provider === 'google') {
               <div class="place-google-attribution">
                 <img src="https://maps.gstatic.com/mapfiles/api-3/images/powered-by-google-on-white3.png"
-                  alt="Powered by Google" width="120" height="16">
+                  [alt]="'Powered by Google' | t" width="120" height="16">
               </div>
             } @else {
-              <small class="place-attribution">Localizações de <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo / GeoNames</a> e <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a></small>
+              <small class="place-attribution">{{ 'Localizações de' | t }} <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">{{ 'Open-Meteo / GeoNames' | t }}</a> e <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">{{ 'OpenStreetMap' | t }}</a></small>
             }
           </div>
         }
@@ -303,15 +303,15 @@
       <button type="button" class="composer-tag-trigger"
               [attr.aria-expanded]="postTagSearchOpen"
               [disabled]="posting" (click)="openPostTagSearch()">
-        <span aria-hidden="true">@</span> Identificar pessoas
+        <span aria-hidden="true">@</span> {{ 'Identificar pessoas' | t }}
       </button>
       @if (postTagSearchOpen) {
         <div class="composer-tag-picker">
-          <label for="post-tag-query">Pesquisar amigos</label>
+          <label for="post-tag-query">{{ 'Pesquisar amigos' | t }}</label>
           <input id="post-tag-query" type="search" [(ngModel)]="postTagQuery"
                  (ngModelChange)="searchPostTags($event)" autocomplete="off"
-                 placeholder="Nome ou utilizador">
-          @if (postTagSearchLoading) { <p>A procurar perfis…</p> }
+                 [placeholder]="'Nome ou utilizador' | t">
+          @if (postTagSearchLoading) { <p>{{ 'A procurar perfis…' | t }}</p> }
           @for (profile of postTagSuggestions; track profile.username) {
             <button type="button" (click)="tagPostProfile(profile)">
               @if (suggestedProfileImage(profile); as avatar) {
@@ -323,23 +323,23 @@
             </button>
           }
           @if (!postTagSearchLoading && !postTagSuggestions.length) {
-            <p>{{ postTagQuery.trim().replace('@', '').length < 3 ? 'Escreve pelo menos 3 caracteres para procurar.' : 'Nenhum perfil encontrado.' }}</p>
+            <p>{{ postTagQuery.trim().replace('@', '').length < 3 ? ('Escreve pelo menos 3 caracteres para procurar.' | t) : ('Nenhum perfil encontrado.' | t) }}</p>
           }
         </div>
       }
 
       @if (postImagePreview || postVideoPreview || postGallery.length) {
         <div class="composer-media" [class.composer-media--single]="postImagePreview || postVideoPreview || postGallery.length === 1"
-          aria-label="Pré-visualização dos anexos">
+          [attr.aria-label]="'Pré-visualização dos anexos' | t">
           <div class="composer-media-heading">
             <div class="composer-media-title">
-              <strong>Fotografias e vídeos</strong>
-              <span>{{ postGallery.length || 1 }} {{ (postGallery.length || 1) === 1 ? 'ficheiro selecionado' : 'ficheiros selecionados' }}</span>
+              <strong>{{ 'Fotografias e vídeos' | t }}</strong>
+              <span>{{ postGallery.length || 1 }} {{ (postGallery.length || 1) === 1 ? ('ficheiro selecionado' | t) : ('ficheiros selecionados' | t) }}</span>
             </div>
             @if (postGallery.length) {
               <button type="button" class="composer-media-clear"
                 [disabled]="posting" (click)="clearPostGallery()">
-                Remover todos
+                {{ 'Remover todos' | t }}
               </button>
             }
           </div>
@@ -352,13 +352,13 @@
               <div class="composer-media-item-footer">
                 <button type="button" class="composer-photo-edit-btn"
                         [disabled]="posting" (click)="openPhotoTextEditor(-1)">
-                  <span aria-hidden="true">Aa</span> Escrever na fotografia
+                  <span aria-hidden="true">{{ 'Aa' | t }}</span> {{ 'Escrever na fotografia' | t }}
                 </button>
-                <span class="composer-media-name" [title]="postImageFile?.name">{{ postImageFile?.name || 'Fotografia' }}</span>
+                <span class="composer-media-name" [title]="postImageFile?.name">{{ postImageFile?.name || ('Fotografia' | t) }}</span>
                 <button type="button" class="composer-media-remove"
                   [disabled]="posting" (click)="removePostImage()"
-                  [attr.aria-label]="'Remover ' + (postImageFile?.name || 'fotografia')">
-                  Remover
+                  [attr.aria-label]="('Remover {{name}}' | t:{name: (postImageFile?.name || ('fotografia' | t))})">
+                  {{ 'Remover' | t }}
                 </button>
               </div>
             </div>
@@ -371,18 +371,18 @@
                   [attr.aria-label]="'feed.videoPreviewAlt' | t"></video>
               </div>
               <div class="composer-media-item-footer">
-                <span class="composer-media-name" [title]="postVideoFile?.name">{{ postVideoFile?.name || 'Vídeo' }}</span>
+                <span class="composer-media-name" [title]="postVideoFile?.name">{{ postVideoFile?.name || ('Vídeo' | t) }}</span>
                 <button type="button" class="composer-media-remove"
                   [disabled]="posting" (click)="removePostVideo()"
-                  [attr.aria-label]="'Remover ' + (postVideoFile?.name || 'vídeo')">
-                  Remover
+                  [attr.aria-label]="('Remover {{name}}' | t:{name: (postVideoFile?.name || ('vídeo' | t))})">
+                  {{ 'Remover' | t }}
                 </button>
               </div>
             </div>
           }
 
           @if (postGallery.length) {
-            <div class="composer-album" role="region" aria-label="Fotografias e vídeos selecionados"
+            <div class="composer-album" role="region" [attr.aria-label]="'Fotografias e vídeos selecionados' | t"
                  (touchstart)="onComposerGalleryTouchStart($event)"
                  (touchend)="onComposerGalleryTouchEnd($event)">
               <div class="composer-album-stage">
@@ -398,9 +398,9 @@
                 }
                 @if (postGallery.length > 1) {
                   <button type="button" class="composer-album-arrow composer-album-prev"
-                    [disabled]="posting" (click)="shiftPostGallery(-1)" aria-label="Fotografia anterior">‹</button>
+                    [disabled]="posting" (click)="shiftPostGallery(-1)" [attr.aria-label]="'Fotografia anterior' | t">‹</button>
                   <button type="button" class="composer-album-arrow composer-album-next"
-                    [disabled]="posting" (click)="shiftPostGallery(1)" aria-label="Fotografia seguinte">›</button>
+                    [disabled]="posting" (click)="shiftPostGallery(1)" [attr.aria-label]="'Fotografia seguinte' | t">›</button>
                   <span class="composer-album-count">{{ postGalleryIndex + 1 }} / {{ postGallery.length }}</span>
                 }
               </div>
@@ -408,20 +408,20 @@
                 <strong class="composer-media-name">{{ postGallery[postGalleryIndex].file.name }}</strong>
                 @if (postGallery[postGalleryIndex].file.type.startsWith('image/')) {
                   <button type="button" class="composer-photo-edit-btn" [disabled]="posting"
-                    (click)="openPhotoTextEditor(postGalleryIndex)">Aa Editar fotografia</button>
+                    (click)="openPhotoTextEditor(postGalleryIndex)">{{ 'Aa Editar fotografia' | t }}</button>
                 }
                 <button type="button" [disabled]="posting" (click)="removePostGalleryItem(postGalleryIndex)">
-                  Remover
+                  {{ 'Remover' | t }}
                 </button>
               </div>
-              <div class="composer-album-dots" aria-label="Selecionar fotografia ou vídeo">
+              <div class="composer-album-dots" [attr.aria-label]="'Selecionar fotografia ou vídeo' | t">
                 @for (item of postGallery; track item.url; let i = $index) {
                   <button type="button" [class.active]="i === postGalleryIndex"
-                    [attr.aria-label]="'Ver anexo ' + (i + 1)" [attr.aria-current]="i === postGalleryIndex ? 'true' : null"
+                    [attr.aria-label]="('Ver anexo {{v}}' | t:{v: (i + 1)})" [attr.aria-current]="i === postGalleryIndex ? 'true' : null"
                     (click)="showPostGallery(i)"></button>
                 }
               </div>
-              <small>Desliza ou utiliza as setas para ver todas as imagens, sem cortes.</small>
+              <small>{{ 'Desliza ou utiliza as setas para ver todas as imagens, sem cortes.' | t }}</small>
             </div>
           }
         </div>
@@ -436,7 +436,7 @@
         }
       </div>
       <div class="composer-actions">
-        <div class="composer-media-tools" role="group" aria-label="Adicionar fotografias e vídeos">
+        <div class="composer-media-tools" role="group" [attr.aria-label]="'Adicionar fotografias e vídeos' | t">
           <label class="image-picker jynlo-action jynlo-premium-btn jynlo-premium-btn--quiet" [class.disabled]="posting">
             <input type="file" accept="image/jpeg,image/png,image/webp"
               [disabled]="posting" (change)="onPostImageChange($event)">
@@ -453,7 +453,7 @@
             <input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
               [disabled]="posting" (change)="onPostGalleryChange($event)">
             <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="6" width="13" height="13" rx="2"/><path d="M8 3h10a3 3 0 0 1 3 3v11"/><path d="m5 16 3-3 3 3 2-2 3 3"/></svg>
-            <span>Álbum (até 6)</span>
+            <span>{{ 'Álbum (até 6)' | t }}</span>
           </label>
         </div>
         <button
@@ -465,24 +465,24 @@
         </button>
         @if (posting) {
           <p class="composer-publish-status" role="status" aria-live="polite">
-            A enviar para a Jynlo. Mantém este ecrã aberto até a publicação ser confirmada.
+            {{ 'A enviar para a Jynlo. Mantém este ecrã aberto até a publicação ser confirmada.' | t }}
           </p>
         }
       </div>
       @if (photoTextEditorIndex !== null) {
-        <section class="feed-photo-text-editor" aria-label="Escrever na fotografia">
+        <section class="feed-photo-text-editor" [attr.aria-label]="'Escrever na fotografia' | t">
           <header>
-            <strong>Escrever na fotografia</strong>
+            <strong>{{ 'Escrever na fotografia' | t }}</strong>
             <button type="button" [disabled]="photoTextSaving"
-                    (click)="closePhotoTextEditor()" aria-label="Fechar edição">×</button>
+                    (click)="closePhotoTextEditor()" [attr.aria-label]="'Fechar edição' | t">×</button>
           </header>
-          <label for="feed-photo-overlay-text">Texto a colocar sobre a fotografia</label>
+          <label for="feed-photo-overlay-text">{{ 'Texto a colocar sobre a fotografia' | t }}</label>
           <textarea id="feed-photo-overlay-text" [(ngModel)]="photoTextDraft"
                     maxlength="120" rows="2" [disabled]="photoTextSaving"
-                    placeholder="Ex.: Grande jogo com a equipa!"></textarea>
+                    [placeholder]="'Ex.: Grande jogo com a equipa!' | t"></textarea>
           <div class="feed-photo-direct-stage" [style.aspect-ratio]="photoTextAspect"
-               aria-label="Arrastar a fotografia para mover, usar as pegas para rodar ou redimensionar">
-            <img [src]="photoTextPreview" alt="Pré-visualização da fotografia"
+               [attr.aria-label]="'Arrastar a fotografia para mover, usar as pegas para rodar ou redimensionar' | t">
+            <img [src]="photoTextPreview" [alt]="'Pré-visualização da fotografia' | t"
               [style.transform]="'translate(' + photoImageX + '%, ' + photoImageY + '%) rotate(' + photoImageRotation + 'deg) scale(' + photoImageZoom + ')'"
               (pointerdown)="beginPhotoGesture($event, 'move')"
               (pointermove)="movePhotoGesture($event)"
@@ -492,56 +492,56 @@
               (pointermove)="movePhotoGesture($event)"
               (pointerup)="finishPhotoGesture($event)"
               (pointercancel)="finishPhotoGesture($event)"
-              aria-label="Rodar fotografia">↻</button>
+              [attr.aria-label]="'Rodar fotografia' | t">↻</button>
             <button class="feed-photo-image-resize" type="button"
               (pointerdown)="beginPhotoGesture($event, 'zoom')"
               (pointermove)="movePhotoGesture($event)"
               (pointerup)="finishPhotoGesture($event)"
               (pointercancel)="finishPhotoGesture($event)"
-              aria-label="Redimensionar fotografia">↘</button>
+              [attr.aria-label]="'Redimensionar fotografia' | t">↘</button>
             <app-movable-text [text]="photoTextDraft" [placement]="photoTextPlacement"
               [color]="photoTextColor" [background]="photoTextBackdrop"
               [fontFamily]="photoTextFontFamily"
               (placementChange)="photoTextPlacement = $event"></app-movable-text>
           </div>
-          <p class="feed-photo-overlay-hint">Arrasta a fotografia ou o texto com o rato. As pegas ↻ e ↘ permitem rodar e redimensionar cada elemento.</p>
+          <p class="feed-photo-overlay-hint">{{ 'Arrasta a fotografia ou o texto com o rato. As pegas ↻ e ↘ permitem rodar e redimensionar cada elemento.' | t }}</p>
           <button type="button" class="feed-photo-reset" [disabled]="photoTextSaving"
-            (click)="resetPhotoEditor()">↺ Repor fotografia original</button>
+            (click)="resetPhotoEditor()">{{ '↺ Repor fotografia original' | t }}</button>
           <div class="feed-photo-image-tools">
-            <label for="feed-photo-image-rotation">Rodar fotografia ({{ photoImageRotation }}°)</label>
+            <label for="feed-photo-image-rotation">{{ 'Rodar fotografia ({{photoImageRotation}}°)' | t:{photoImageRotation: (photoImageRotation)} }}</label>
             <input id="feed-photo-image-rotation" type="range" min="-180" max="180" step="1"
               [(ngModel)]="photoImageRotation" [disabled]="photoTextSaving">
-            <label for="feed-photo-image-zoom">Tamanho da fotografia ({{ photoImageZoom * 100 | number:'1.0-0' }}%)</label>
+            <label for="feed-photo-image-zoom">{{ 'Tamanho da fotografia ({{photoImageZoom}}%)' | t:{photoImageZoom: (photoImageZoom * 100 | number:'1.0-0')} }}</label>
             <input id="feed-photo-image-zoom" type="range" min=".5" max="2" step=".05"
               [(ngModel)]="photoImageZoom" [disabled]="photoTextSaving">
           </div>
-          <label for="feed-photo-overlay-ink">Cor do texto</label>
+          <label for="feed-photo-overlay-ink">{{ 'Cor do texto' | t }}</label>
           <select id="feed-photo-overlay-ink" [(ngModel)]="photoTextInk"
                   [disabled]="photoTextSaving">
-            <option value="white">Branco</option>
-            <option value="yellow">Amarelo</option>
-            <option value="black">Preto</option>
+            <option value="white">{{ 'Branco' | t }}</option>
+            <option value="yellow">{{ 'Amarelo' | t }}</option>
+            <option value="black">{{ 'Preto' | t }}</option>
           </select>
-          <p class="feed-photo-overlay-hint">O texto é incorporado na imagem enviada, mantendo-se visível para todos.</p>
-          <label for="feed-photo-overlay-background">Fundo do texto</label>
+          <p class="feed-photo-overlay-hint">{{ 'O texto é incorporado na imagem enviada, mantendo-se visível para todos.' | t }}</p>
+          <label for="feed-photo-overlay-background">{{ 'Fundo do texto' | t }}</label>
           <select id="feed-photo-overlay-background" [(ngModel)]="photoTextBackground" [disabled]="photoTextSaving">
-            <option value="dark">Escuro</option>
-            <option value="light">Claro</option>
-            <option value="none">Sem fundo</option>
+            <option value="dark">{{ 'Escuro' | t }}</option>
+            <option value="light">{{ 'Claro' | t }}</option>
+            <option value="none">{{ 'Sem fundo' | t }}</option>
           </select>
-          <label for="feed-photo-overlay-font">Tipo de letra</label>
+          <label for="feed-photo-overlay-font">{{ 'Tipo de letra' | t }}</label>
           <select id="feed-photo-overlay-font" [(ngModel)]="photoTextFont" [disabled]="photoTextSaving">
-            <option value="modern">Moderno</option>
-            <option value="classic">Clássico</option>
-            <option value="mono">Monoespaçado</option>
+            <option value="modern">{{ 'Moderno' | t }}</option>
+            <option value="classic">{{ 'Clássico' | t }}</option>
+            <option value="mono">{{ 'Monoespaçado' | t }}</option>
           </select>
           @if (photoTextError) { <p role="alert">{{ photoTextError }}</p> }
           <div class="feed-photo-editor-actions">
-            <button type="button" [disabled]="photoTextSaving" (click)="closePhotoTextEditor()">Cancelar</button>
+            <button type="button" [disabled]="photoTextSaving" (click)="closePhotoTextEditor()">{{ 'Cancelar' | t }}</button>
             <button type="button" class="jynlo-action jynlo-action--primary"
                     [disabled]="photoTextSaving || (!photoTextDraft.trim() && photoImageRotation === 0 && photoImageZoom === 1 && photoImageX === 0 && photoImageY === 0)"
                     (click)="savePhotoText()">
-              {{ photoTextSaving ? 'A aplicar…' : 'Guardar edição da fotografia' }}
+              {{ photoTextSaving ? ('A aplicar…' | t) : ('Guardar edição da fotografia' | t) }}
             </button>
           </div>
         </section>
@@ -562,7 +562,7 @@
            routerLink="/menu/my-sessions">{{ 'week.allMyGames' | t }} <span aria-hidden="true">↗</span></a>
       </div>
       <div class="week-hub-grid">
-        <article class="week-hub-card" aria-label="Os teus próximos jogos">
+        <article class="week-hub-card" [attr.aria-label]="'Os teus próximos jogos' | t">
           <div class="week-card-heading"><span aria-hidden="true">▦</span><h3>{{ 'week.upcoming' | t }}</h3></div>
           @if (myWeekGamesLoading) {
             <p class="week-muted" role="status">{{ 'week.loading' | t }}</p>
@@ -598,7 +598,7 @@
           }
           <a class="week-card-link" routerLink="/menu/my-sessions">{{ 'week.allMyGames' | t }} →</a>
         </article>
-        <article class="week-hub-card" aria-label="Jogos a precisar de jogadores">
+        <article class="week-hub-card" [attr.aria-label]="'Jogos a precisar de jogadores' | t">
           <div class="week-card-heading"><span aria-hidden="true">✦</span><h3>{{ 'week.openSlots' | t }}</h3></div>
           @if ((loadingSessions || myWeekGamesLoading) && myWeekOffers.length === 0) {
             <p class="week-muted" role="status">{{ 'week.loading' | t }}</p>
@@ -649,7 +649,7 @@
 
     @if (!loading && !errorMessage && items.length > 0) {
       @if (attendanceGroups.length > 0) {
-        <section class="feed-attendance-digest" aria-label="Atividade de sessões">
+        <section class="feed-attendance-digest" [attr.aria-label]="'Atividade de sessões' | t">
           @for (group of displayedAttendanceGroups; track group.sessionId) {
             <div class="feed-attendance-row">
               <span class="feed-attendance-icon" aria-hidden="true">✓</span>
@@ -679,25 +679,25 @@
         </section>
       }
       @if (recentlyPublishedPostId) {
-        <section class="feed-hide-feedback" role="status" aria-label="Publicação confirmada">
-          <span>Publicação confirmada! Já está no teu feed.</span>
-          <button type="button" (click)="focusPublishedPost()">Ver publicação</button>
-          <button type="button" (click)="recentlyPublishedPostId = null" aria-label="Fechar confirmação">Fechar</button>
+        <section class="feed-hide-feedback" role="status" [attr.aria-label]="'Publicação confirmada' | t">
+          <span>{{ 'Publicação confirmada! Já está no teu feed.' | t }}</span>
+          <button type="button" (click)="focusPublishedPost()">{{ 'Ver publicação' | t }}</button>
+          <button type="button" (click)="recentlyPublishedPostId = null" [attr.aria-label]="'Fechar confirmação' | t">{{ 'Fechar' | t }}</button>
         </section>
       }
       @if (recentlyCancelledSession) {
-        <section class="feed-hide-feedback feed-cancelled-notice" role="status" aria-label="Cancelamento da sessão confirmado">
+        <section class="feed-hide-feedback feed-cancelled-notice" role="status" [attr.aria-label]="'Cancelamento da sessão confirmado' | t">
           <div>
-            <strong>Sessão cancelada com sucesso.</strong>
+            <strong>{{ 'Sessão cancelada com sucesso.' | t }}</strong>
             <p>{{ cancellationShareNotice }}</p>
-            <label for="feed-cancelled-session-message">Aviso para participantes externos (WhatsApp ou SMS)</label>
+            <label for="feed-cancelled-session-message">{{ 'Aviso para participantes externos (WhatsApp ou SMS)' | t }}</label>
             <textarea id="feed-cancelled-session-message" readonly rows="3"
                       [value]="cancellationShareText" (focus)="$any($event.target).select()"
                       (click)="$any($event.target).select()"></textarea>
           </div>
-          <button type="button" (click)="shareCancelledSessionNotice()">Partilhar aviso</button>
+          <button type="button" (click)="shareCancelledSessionNotice()">{{ 'Partilhar aviso' | t }}</button>
           <button type="button" (click)="recentlyCancelledSession = null; cancellationShareNotice = ''"
-                  aria-label="Fechar aviso de cancelamento">Fechar</button>
+                  [attr.aria-label]="'Fechar aviso de cancelamento' | t">{{ 'Fechar' | t }}</button>
         </section>
       }
       @if (recentlyHiddenFeedEntry) {
@@ -707,31 +707,31 @@
                   (click)="undoHideFromMyFeed()">{{ 'common.undo' | t }}</button>
         </div>
       }
-      <section class="feed-hidden-manager" aria-label="Gerir publicações ocultas">
+      <section class="feed-hidden-manager" [attr.aria-label]="'Gerir publicações ocultas' | t">
         <button type="button" class="jynlo-action jynlo-action--neutral"
                 [attr.aria-expanded]="hiddenPostsPanelOpen"
                 (click)="toggleHiddenPostsPanel()">
-          {{ hiddenPostsPanelOpen ? 'Fechar publicações ocultas' : 'Gerir publicações ocultas' }}
+          {{ hiddenPostsPanelOpen ? ('Fechar publicações ocultas' | t) : ('Gerir publicações ocultas' | t) }}
         </button>
         @if (hiddenPostsPanelOpen) {
           <div class="feed-hidden-manager-list">
             @if (hiddenPostsLoading) {
-              <p role="status">A carregar publicações ocultas…</p>
+              <p role="status">{{ 'A carregar publicações ocultas…' | t }}</p>
             } @else if (hiddenPostsError) {
               <p role="alert">{{ hiddenPostsError }}</p>
             } @else if (!hiddenPostsList.length) {
-              <p>Não tens publicações ocultas nesta conta.</p>
+              <p>{{ 'Não tens publicações ocultas nesta conta.' | t }}</p>
             } @else {
               @for (hidden of hiddenPostsList; track hidden.postId) {
                 <article class="feed-hidden-manager-row">
                   <div>
                     <strong>{{ hidden.authorDisplayName }}</strong>
-                    <p>{{ hidden.content || 'Publicação com fotografia ou vídeo' }}</p>
+                    <p>{{ hidden.content || ('Publicação com fotografia ou vídeo' | t) }}</p>
                   </div>
                   <button type="button" class="jynlo-action jynlo-action--neutral"
                           [disabled]="restoringHiddenPostId !== null"
                           (click)="restoreHiddenPostFromPanel(hidden.postId!)">
-                    {{ restoringHiddenPostId === hidden.postId ? 'A repor…' : 'Voltar a mostrar' }}
+                    {{ restoringHiddenPostId === hidden.postId ? ('A repor…' | t) : ('Voltar a mostrar' | t) }}
                   </button>
                 </article>
               }
@@ -761,7 +761,7 @@
                   <span>@{{ item.authorUsername }} · {{ feedCreatedWhen(item.createdAt) }} · {{ item.createdAt | date:'HH:mm' }}</span>
                   @if (item.location) {
                     <a class="feed-post-place" [href]="'https://www.google.com/maps/search/?api=1&query=' + encodeLocation(item.location)"
-                      target="_blank" rel="noopener noreferrer" [attr.aria-label]="'Ver ' + item.location + ' no mapa'">
+                      target="_blank" rel="noopener noreferrer" [attr.aria-label]="('Ver {{location}} no mapa' | t:{location: item.location})">
                       📍 {{ item.location }}
                     </a>
                   }
@@ -791,7 +791,7 @@
               @if (item.type === 'POST' && item.authorUsername === currentUsername) {
                 <button type="button" class="jynlo-action jynlo-action--neutral"
                         [disabled]="savingPostId !== null" (click)="beginEditPost(item)"
-                        aria-label="Editar descrição, localização e anexos">Editar publicação</button>
+                        [attr.aria-label]="'Editar descrição, localização e anexos' | t">{{ 'Editar publicação' | t }}</button>
                 <button
                   type="button"
                   class="delete-post jynlo-action jynlo-action--danger jynlo-premium-btn jynlo-premium-btn--danger jynlo-premium-btn--small"
@@ -804,48 +804,48 @@
 
             @if (item.type === 'POST') {
               @if (editingPostId === item.postId) {
-                <div class="feed-post-edit" aria-label="Editar publicação">
-                  <label [attr.for]="'edit-post-caption-' + item.postId">Descrição</label>
+                <div class="feed-post-edit" [attr.aria-label]="'Editar publicação' | t">
+                  <label [attr.for]="'edit-post-caption-' + item.postId">{{ 'Descrição' | t }}</label>
                   <textarea [id]="'edit-post-caption-' + item.postId" rows="3" maxlength="1000"
                             [(ngModel)]="editingPostContent" [disabled]="savingPostId !== null"></textarea>
-                  <label [attr.for]="'edit-post-location-' + item.postId">Localização (opcional)</label>
+                  <label [attr.for]="'edit-post-location-' + item.postId">{{ 'Localização (opcional)' | t }}</label>
                   <input [id]="'edit-post-location-' + item.postId" maxlength="160"
                          [(ngModel)]="editingPostLocation" [disabled]="savingPostId !== null">
                   <div class="feed-edit-media-block">
-                    <strong>Fotografias e vídeos</strong>
-                    <p>Escolhe manter os anexos atuais, substituí-los ou removê-los.</p>
+                    <strong>{{ 'Fotografias e vídeos' | t }}</strong>
+                    <p>{{ 'Escolhe manter os anexos atuais, substituí-los ou removê-los.' | t }}</p>
                     @if (!editingPostReplaceMedia) {
-                      <small>Os anexos publicados serão mantidos.</small>
+                      <small>{{ 'Os anexos publicados serão mantidos.' | t }}</small>
                     } @else if (editingPostReplacementFiles.length) {
                       <ul>
                         @for (file of editingPostReplacementFiles; track $index) {
                           <li>{{ file.name }} · {{ file.size / (1024 * 1024) | number:'1.1-1' }} MB</li>
                         }
                       </ul>
-                      <small>Os novos ficheiros substituem todos os anexos anteriores.</small>
+                      <small>{{ 'Os novos ficheiros substituem todos os anexos anteriores.' | t }}</small>
                     } @else {
-                      <small>Todos os anexos serão removidos ao guardar.</small>
+                      <small>{{ 'Todos os anexos serão removidos ao guardar.' | t }}</small>
                     }
                     <div class="feed-edit-media-actions">
                       <label class="feed-edit-file-picker">
-                        Substituir anexos
+                        {{ 'Substituir anexos' | t }}
                         <input type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
                           multiple [disabled]="savingPostId !== null"
                           (change)="selectEditPostMedia($event)">
                       </label>
                       <button type="button" [disabled]="savingPostId !== null"
-                        (click)="keepEditPostMedia()">Manter atuais</button>
+                        (click)="keepEditPostMedia()">{{ 'Manter atuais' | t }}</button>
                       <button type="button" [disabled]="savingPostId !== null"
-                        (click)="removeEditPostMedia()">Remover anexos</button>
+                        (click)="removeEditPostMedia()">{{ 'Remover anexos' | t }}</button>
                     </div>
                     @if (editingPostMediaError) { <p role="alert">{{ editingPostMediaError }}</p> }
                   </div>
                   <div class="feed-post-edit-actions">
                     <button type="button" class="jynlo-action jynlo-action--neutral"
-                            [disabled]="savingPostId !== null" (click)="cancelEditPost()">Cancelar</button>
+                            [disabled]="savingPostId !== null" (click)="cancelEditPost()">{{ 'Cancelar' | t }}</button>
                     <button type="button" class="jynlo-action jynlo-action--primary"
                             [disabled]="savingPostId !== null" (click)="savePostEdit(item)">
-                      {{ savingPostId === item.postId ? 'A guardar…' : 'Guardar alterações' }}
+                      {{ savingPostId === item.postId ? ('A guardar…' | t) : ('Guardar alterações' | t) }}
                     </button>
                   </div>
                 </div>
@@ -856,7 +856,7 @@
               @if (mediaForPost(item); as postMedia) {
                 @if (postMedia.length > 0) {
                   <div class="feed-post-carousel"
-                       [attr.aria-label]="'Álbum de ' + item.authorDisplayName"
+                       [attr.aria-label]="('Álbum de {{authorDisplayName}}' | t:{authorDisplayName: item.authorDisplayName})"
                        (keydown)="onPostMediaKeydown($event, item)"
                        (touchstart)="onPostMediaTouchStart($event, item)"
                        (touchend)="onPostMediaTouchEnd($event, item)">
@@ -866,14 +866,14 @@
                           <video class="feed-post-carousel-video"
                                  [jynloProtectedSrc]="resolvePostMedia(selectedMedia.url)"
                                  controls playsinline preload="metadata"
-                                 [attr.aria-label]="'Vídeo ' + (selectedPostMediaIndex(item) + 1) + ' de ' + postMedia.length">
+                                 [attr.aria-label]="('Vídeo {{v}} de {{length}}' | t:{v: (selectedPostMediaIndex(item) + 1), length: postMedia.length})">
                           </video>
                         } @else {
                           <button type="button" class="feed-media-open feed-post-carousel-image"
                                   (click)="openPostMedia(item, selectedPostMediaIndex(item))"
-                                  [attr.aria-label]="'Ampliar fotografia ' + (selectedPostMediaIndex(item) + 1) + ' de ' + postMedia.length">
+                                  [attr.aria-label]="('Ampliar fotografia {{v}} de {{length}}' | t:{v: (selectedPostMediaIndex(item) + 1), length: postMedia.length})">
                             <img class="post-image" [jynloProtectedSrc]="resolvePostMedia(selectedMedia.url)"
-                                 [alt]="'Fotografia ' + (selectedPostMediaIndex(item) + 1) + ' de ' + item.authorDisplayName"
+                                 [alt]="('Fotografia {{v}} de {{authorDisplayName}}' | t:{v: (selectedPostMediaIndex(item) + 1), authorDisplayName: item.authorDisplayName})"
                                  loading="lazy">
                           </button>
                         }
@@ -885,22 +885,22 @@
                         <button type="button" class="feed-post-carousel-prev"
                                 [disabled]="selectedPostMediaIndex(item) === 0"
                                 (click)="shiftPostMedia(item, -1)"
-                                aria-label="Fotografia ou vídeo anterior">‹</button>
+                                [attr.aria-label]="'Fotografia ou vídeo anterior' | t">‹</button>
                         <button type="button" class="feed-post-carousel-next"
                                 [disabled]="selectedPostMediaIndex(item) === postMedia.length - 1"
                                 (click)="shiftPostMedia(item, 1)"
-                                aria-label="Fotografia ou vídeo seguinte">›</button>
+                                [attr.aria-label]="'Fotografia ou vídeo seguinte' | t">›</button>
                       }
                     </div>
                     @if (postMedia.length > 1) {
-                      <div class="feed-post-carousel-dots" role="group" aria-label="Escolher fotografia ou vídeo">
+                      <div class="feed-post-carousel-dots" role="group" [attr.aria-label]="'Escolher fotografia ou vídeo' | t">
                         @for (media of postMedia; track $index; let mediaIndex = $index) {
                           <button type="button"
                                   [class.is-active]="selectedPostMediaIndex(item) === mediaIndex"
                                   [attr.aria-current]="selectedPostMediaIndex(item) === mediaIndex ? 'true' : null"
-                                  [attr.aria-label]="'Mostrar anexo ' + (mediaIndex + 1) + ' de ' + postMedia.length"
+                                  [attr.aria-label]="('Mostrar anexo {{v}} de {{length}}' | t:{v: (mediaIndex + 1), length: postMedia.length})"
                                   (click)="setPostMediaIndex(item, mediaIndex)">
-                            <span class="sr-only">{{ media.mimeType.startsWith('video/') ? 'Vídeo' : 'Fotografia' }}</span>
+                            <span class="sr-only">{{ media.mimeType.startsWith('video/') ? ('Vídeo' | t) : ('Fotografia' | t) }}</span>
                           </button>
                         }
                       </div>
@@ -982,16 +982,16 @@
                 </button>
                 @if (item.type === 'POST' && item.postId != null) {
                   <button type="button" class="feed-post-reaction" (click)="shareFeedPost(item)"
-                     aria-label="Partilhar publicação" title="Partilhar publicação">
+                     [attr.aria-label]="'Partilhar publicação' | t" [title]="'Partilhar publicação' | t">
                     <svg class="feed-ui-icon" viewBox="0 0 24 24" width="18" height="18"
                       fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                       <path d="M22 2 11 13M22 2l-7 20-4-9-9-4Z"></path>
                     </svg>
-                    Partilhar
+                    {{ 'Partilhar' | t }}
                   </button>
                   <button type="button" class="feed-post-reaction"
-                    (click)="openPostFriendShare(item)" aria-label="Enviar publicação aos meus amigos">
-                    <span aria-hidden="true">✉</span> Amigos
+                    (click)="openPostFriendShare(item)" [attr.aria-label]="'Enviar publicação aos meus amigos' | t">
+                    <span aria-hidden="true">✉</span> {{ 'Amigos' | t }}
                   </button>
                 }
 
@@ -1008,10 +1008,10 @@
               </div>
               @if (postShareTargetId === item.postId && item.type === 'POST') {
                 <div class="feed-share-copy feed-share-copy--below" role="status">
-                  <span>{{ postShareMessage || 'Link da publicação' }}</span>
-                  <input [value]="postShareLink" readonly aria-label="Link para partilhar publicação"
+                  <span>{{ postShareMessage || ('Link da publicação' | t) }}</span>
+                  <input [value]="postShareLink" readonly [attr.aria-label]="'Link para partilhar publicação' | t"
                     (focus)="$any($event.target).select()" (click)="$any($event.target).select()">
-                  <button type="button" (click)="postShareTargetId = null" aria-label="Fechar ligação">×</button>
+                  <button type="button" (click)="postShareTargetId = null" [attr.aria-label]="'Fechar ligação' | t">×</button>
                 </div>
               }
 
@@ -1047,24 +1047,24 @@
                           <div class="comment-inline-editor">
                             <textarea [(ngModel)]="editingCommentDraft" maxlength="500" rows="2"
                               [disabled]="savingCommentId !== null"
-                              [attr.aria-label]="'Editar comentário de ' + comment.authorDisplayName"></textarea>
+                              [attr.aria-label]="('Editar comentário de {{authorDisplayName}}' | t:{authorDisplayName: comment.authorDisplayName})"></textarea>
                             <button type="button" (click)="saveCommentEdit(item.postId,comment)"
-                              [disabled]="savingCommentId !== null || !editingCommentDraft.trim()">Guardar</button>
-                            <button type="button" (click)="cancelCommentEdit()" [disabled]="savingCommentId !== null">Cancelar</button>
+                              [disabled]="savingCommentId !== null || !editingCommentDraft.trim()">{{ 'Guardar' | t }}</button>
+                            <button type="button" (click)="cancelCommentEdit()" [disabled]="savingCommentId !== null">{{ 'Cancelar' | t }}</button>
                           </div>
                         } @else {
                           <p>{{ comment.content }}</p>
                         }
-                        @if (comment.editedAt) { <small class="comment-edited">Editado</small> }
+                        @if (comment.editedAt) { <small class="comment-edited">{{ 'Editado' | t }}</small> }
                         <div class="comment-interactions">
                           <button type="button" (click)="toggleCommentLike(item.postId,comment)"
                             [disabled]="likingCommentId !== null" [class.active]="comment.likedByMe"
                             [attr.aria-pressed]="!!comment.likedByMe"
-                            [attr.aria-label]="comment.likedByMe ? 'Retirar gosto no comentário' : 'Gostar do comentário'">
+                            [attr.aria-label]="comment.likedByMe ? ('Retirar gosto no comentário' | t) : ('Gostar do comentário' | t)">
                             <span aria-hidden="true">♥</span> {{ comment.likeCount || 0 }}
                           </button>
                           @if (comment.authorUsername === currentUsername && editingCommentId !== comment.id) {
-                            <button type="button" (click)="beginCommentEdit(comment)">Editar</button>
+                            <button type="button" (click)="beginCommentEdit(comment)">{{ 'Editar' | t }}</button>
                           }
                         </div>
                       </div>
@@ -1298,8 +1298,8 @@
                       class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small"
                       [disabled]="checkingCancelSessionId !== null || cancellingSessionId !== null"
                       (click)="requestCancelSession(item)"
-                      [attr.aria-label]="'Cancelar a minha sessão de ' + (item.sport || 'desporto')">
-                      {{ checkingCancelSessionId === item.sessionId ? 'A verificar…' : 'Cancelar sessão' }}
+                      [attr.aria-label]="('Cancelar a minha sessão de {{sport}}' | t:{sport: (item.sport || 'desporto')})">
+                      {{ checkingCancelSessionId === item.sessionId ? ('A verificar…' | t) : ('Cancelar sessão' | t) }}
                     </button>
                   }
                 </div>
@@ -1422,26 +1422,26 @@
   @if (expandedMedia.length) {
     <div class="feed-lightbox" (click)="closePostMedia()">
       <section class="feed-lightbox-dialog" role="dialog" aria-modal="true"
-               aria-label="Fotografias e vídeos da publicação" (click)="$event.stopPropagation()">
+               [attr.aria-label]="'Fotografias e vídeos da publicação' | t" (click)="$event.stopPropagation()">
         <header class="feed-lightbox-toolbar">
           <span>{{ expandedMediaIndex + 1 }} / {{ expandedMedia.length }}</span>
-          <button type="button" (click)="closePostMedia()" aria-label="Fechar visualização">×</button>
+          <button type="button" (click)="closePostMedia()" [attr.aria-label]="'Fechar visualização' | t">×</button>
         </header>
         <div class="feed-lightbox-stage">
           @if (expandedMedia.length > 1) {
             <button type="button" class="feed-lightbox-arrow" (click)="changePostMedia(-1)"
-                    aria-label="Anterior">‹</button>
+                    [attr.aria-label]="'Anterior' | t">‹</button>
           }
           @if (expandedMedia[expandedMediaIndex].mimeType.startsWith('video/')) {
             <video [jynloProtectedSrc]="resolvePostMedia(expandedMedia[expandedMediaIndex].url)"
-                   controls playsinline preload="metadata" aria-label="Vídeo ampliado"></video>
+                   controls playsinline preload="metadata" [attr.aria-label]="'Vídeo ampliado' | t"></video>
           } @else {
             <img [jynloProtectedSrc]="resolvePostMedia(expandedMedia[expandedMediaIndex].url)"
-                 alt="Fotografia completa da publicação">
+                 [alt]="'Fotografia completa da publicação' | t">
           }
           @if (expandedMedia.length > 1) {
             <button type="button" class="feed-lightbox-arrow" (click)="changePostMedia(1)"
-                    aria-label="Seguinte">›</button>
+                    [attr.aria-label]="'Seguinte' | t">›</button>
           }
         </div>
       </section>
@@ -1450,17 +1450,17 @@
 
   @if (likersPostId !== null) {
     <div class="feed-likers-overlay" (click)="closeLikers()">
-      <section class="feed-likers-dialog" role="dialog" aria-modal="true" aria-label="Pessoas que gostaram"
+      <section class="feed-likers-dialog" role="dialog" aria-modal="true" [attr.aria-label]="'Pessoas que gostaram' | t"
                (click)="$event.stopPropagation()">
-        <header><h3>Pessoas que gostaram</h3>
-          <button type="button" (click)="closeLikers()" aria-label="Fechar">×</button>
+        <header><h3>{{ 'Pessoas que gostaram' | t }}</h3>
+          <button type="button" (click)="closeLikers()" [attr.aria-label]="'Fechar' | t">×</button>
         </header>
         @if (likersLoading) {
           <p role="status">{{ 'home.preview.loading' | t }}</p>
         } @else if (likersError) {
           <p role="alert">{{ 'home.preview.loadError' | t }}</p>
         } @else if (!likersList.length) {
-          <p>Ainda não há gostos.</p>
+          <p>{{ 'Ainda não há gostos.' | t }}</p>
         } @else {
           @for (person of likersList; track person.username) {
             <a class="feed-liker-person" [routerLink]="['/menu/perfis', person.username]"

@@ -7,7 +7,7 @@
     @if (attachmentControlsReady) {
       <button type="button" role="tab" [attr.aria-selected]="tab === 'gif'"
         [class.active]="tab === 'gif'"
-        (click)="tabSelected.emit('gif')">GIF</button>
+        (click)="tabSelected.emit('gif')">{{ 'GIF' | t }}</button>
     }
     <button type="button" class="inbox-picker-close"
       [attr.aria-label]="'chat.pickerClose' | t"
@@ -74,7 +74,7 @@
         <span aria-hidden="true">↑</span> {{ 'chat.gifUpload' | t }}
       </button>
       @if (gifAvailable) {
-        <a href="https://giphy.com" target="_blank" rel="noopener noreferrer">Powered by GIPHY</a>
+        <a href="https://giphy.com" target="_blank" rel="noopener noreferrer">{{ 'Powered by GIPHY' | t }}</a>
       }
     </footer>
   }

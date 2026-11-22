@@ -409,8 +409,8 @@
             <select name="nearbyRadiusMeters" [(ngModel)]="nearbyRadiusMeters">
               <option [ngValue]="250">250 m</option>
               <option [ngValue]="500">500 m</option>
-              <option [ngValue]="1000">1 km</option>
-              <option [ngValue]="2000">2 km</option>
+              <option [ngValue]="1000">{{ '1 km' | t }}</option>
+              <option [ngValue]="2000">{{ '2 km' | t }}</option>
             </select>
           </label>
     

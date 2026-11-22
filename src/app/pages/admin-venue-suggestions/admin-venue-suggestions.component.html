@@ -59,7 +59,7 @@
               <span>{{ 'venue.admin.pending' | t }} #{{ suggestion.id }}</span>
               <h2>{{ suggestion.venue.name }}</h2>
             </div>
-            <button type="button" class="admin-venue-close" [disabled]="updatingId !== null" (click)="close()" aria-label="Fechar">×</button>
+            <button type="button" class="admin-venue-close" [disabled]="updatingId !== null" (click)="close()" [attr.aria-label]="'Fechar' | t">×</button>
           </header>
           <dl class="admin-venue-info">
             <div><dt>{{ 'venue.detail.city' | t }}</dt><dd>{{ suggestion.venue.city }} / {{ suggestion.venue.district || '—' }}</dd></div>

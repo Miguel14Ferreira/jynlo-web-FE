@@ -47,7 +47,7 @@
       <p class="state error" role="alert">{{ communityLimitError | t }}</p>
     }
     @if (selectedCommunityLimitPlayer && communityLimitQuota) {
-      <section class="role-confirmation admin-editor" role="group" aria-label="Limite de comunidades">
+      <section class="role-confirmation admin-editor" role="group" [attr.aria-label]="'Limite de comunidades' | t">
         <h2>{{ 'adminPlayers.communityLimitTitle' | t:{ name: selectedCommunityLimitPlayer.username } }}</h2>
         <p>{{ 'adminPlayers.communityLimitUsage' | t:{ count: communityLimitQuota.owned, limit: communityLimitQuota.limit } }}</p>
         <div class="admin-editor__field">

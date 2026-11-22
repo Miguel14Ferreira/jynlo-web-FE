@@ -32,13 +32,13 @@
   }
 
   @if (hasHabitualVenue && savedMapPreviewUrl) {
-    <div class="community-saved-map" aria-label="Localização do recinto habitual">
-      <iframe [src]="savedMapPreviewUrl" title="Mapa do recinto habitual"
+    <div class="community-saved-map" [attr.aria-label]="'Localização do recinto habitual' | t">
+      <iframe [src]="savedMapPreviewUrl" [title]="'Mapa do recinto habitual' | t"
               loading="lazy" referrerpolicy="no-referrer-when-downgrade"
               allowfullscreen></iframe>
       @if (savedMapLink) {
         <a [href]="savedMapLink" target="_blank" rel="noopener noreferrer"
-           class="community-venue-text-link">Abrir no Google Maps ↗</a>
+           class="community-venue-text-link">{{ 'Abrir no Google Maps ↗' | t }}</a>
       }
     </div>
   }

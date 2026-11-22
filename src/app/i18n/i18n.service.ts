@@ -6228,7 +6228,7 @@ export function prepareInitialTranslations(): Promise<void> {
 
 export function appTranslate(
   key: string,
-  params?: Record<string, string | number>
+  params?: Record<string, string | number | null | undefined>
 ): string {
   const language: AppLanguage =
     typeof localStorage !== 'undefined' && localStorage.getItem('d24-language') === 'en'
@@ -6238,7 +6238,7 @@ export function appTranslate(
   let value = dictionary[key] ?? PT[key] ?? key;
 
   for (const [name, replacement] of Object.entries(params ?? {})) {
-    value = value.replaceAll('{{' + name + '}}', String(replacement));
+    value = value.replaceAll('{{' + name + '}}', String(replacement ?? ''));
   }
 
   return value;
@@ -6285,7 +6285,7 @@ export class I18nService {
     this.languageChangeSubject.next(language);
   }
 
-  translate(key: string, params?: Record<string, string | number>): string {
+  translate(key: string, params?: Record<string, string | number | null | undefined>): string {
     // Both standalone and NgModule translation pipes must resolve the same
     // selected locale as appTranslate(). Never retain a stale constructor-time
     // language in a lazily loaded view such as Feed > Stories.

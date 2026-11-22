@@ -62,7 +62,7 @@
           <th scope="col" class="er-pos">#</th>
           <th scope="col">{{ 'eventRanking.athlete' | t }}</th>
           @if (kind !== 'POSITION') { <th scope="col" class="er-wide">{{ (kind === 'TIME' ? 'eventRanking.bestTime' : 'eventRanking.bestScore') | t }}</th> }
-          <th scope="col" class="er-num">Pts</th>
+          <th scope="col" class="er-num">{{ 'Pts' | t }}</th>
         </tr></thead>
         <tbody>
           @for (row of overview.table; track row.participantId) {
@@ -143,7 +143,7 @@
                     <span class="er-place">{{ r.didNotFinish ? '—' : r.place + '.º' }}</span>
                     <span class="er-result-name">{{ r.name }}
                       <small>{{ r.didNotFinish ? ('eventRanking.dnf' | t) : (kind === 'POSITION' ? '' : value(r.value)) }}</small></span>
-                    <span class="er-pts">{{ r.points }} pts</span>
+                    <span class="er-pts">{{ '{{points}} pts' | t:{points: (r.points)} }}</span>
                   </li>
                 }
               </ol>

@@ -23,8 +23,8 @@
           <td>
             <span class="karting-race-position"
               [class.is-status]="driver.raceDisqualified || !validFinishPosition(driver.finishPosition)">
-              {{ driver.raceDisqualified ? 'DSQ'
-                : (driver.finishPosition == null ? 'DNF' : (validFinishPosition(driver.finishPosition) ? driver.finishPosition + '.º' : '—')) }}
+              {{ driver.raceDisqualified ? ('DSQ' | t)
+                : (driver.finishPosition == null ? ('DNF' | t) : (validFinishPosition(driver.finishPosition) ? driver.finishPosition + '.º' : '—')) }}
             </span>
           </td>
           <td class="karting-race-driver">
