@@ -3,21 +3,28 @@ import { Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AuthenticationService } from '../../services/authethication.service';
 import { FirstStepsService, firstStepsChoices } from '../../services/first-steps.service';
-import { FirstStepsComponent } from './first-steps.component';
+import { FirstStepsComponent, suggestedCommunities } from './first-steps.component';
+import { CommunityGroupsService } from '../../services/community-groups.service';
 import { FirstStepsPromptComponent } from './first-steps-prompt.component';
 
 describe('First steps', () => {
   let steps: jasmine.SpyObj<FirstStepsService>;
+  let communities: jasmine.SpyObj<CommunityGroupsService>;
   beforeEach(() => {
     steps = jasmine.createSpyObj('FirstStepsService', ['get', 'save', 'catalog', 'skipped', 'skip']);
     steps.catalog.and.returnValue(of(['Andebol', 'Futebol', 'Padel', 'Xadrez']));
     steps.get.and.returnValue(of({ favoriteSports: [], location: 'Braga', needed: true }));
     steps.save.and.returnValue(of({ favoriteSports: ['Padel'], location: 'Porto', needed: false }));
     steps.skipped.and.returnValue(false);
+    communities = jasmine.createSpyObj('CommunityGroupsService', ['mine', 'search', 'followCommunity', 'unfollowCommunity']);
+    communities.mine.and.returnValue(of([]));
+    communities.search.and.returnValue(of({ communities: [], page: 0, hasMore: false } as any));
+    communities.followCommunity.and.returnValue(of({ count: 1, following: true }));
     TestBed.configureTestingModule({
       imports: [FirstStepsComponent, FirstStepsPromptComponent],
       providers: [provideRouter([]), { provide: FirstStepsService, useValue: steps },
-        { provide: AuthenticationService, useValue: { loggedInPerfilname: 'ana' } }]
+        { provide: AuthenticationService, useValue: { loggedInPerfilname: 'ana' } },
+        { provide: CommunityGroupsService, useValue: communities }]
     });
   });
 
@@ -66,5 +73,33 @@ describe('First steps', () => {
     steps.get.and.returnValue(throwError(() => new Error('x')));
     const b = TestBed.createComponent(FirstStepsPromptComponent); b.detectChanges();
     expect(b.componentInstance.visible).toBeFalse();
+  });
+
+  it('after saving, suggests public communities in the chosen sports before exploring', () => {
+    communities.mine.and.returnValue(of([{ id: 9 } as any]));
+    communities.search.and.returnValue(of({ communities: [
+      { id: 9, name: 'Já sou membro', visibility: 'PUBLIC' },
+      { id: 3, name: 'Padel Porto', visibility: 'PUBLIC', sport: 'Padel', description: null },
+      { id: 4, name: 'Privada', visibility: 'PRIVATE' }], page: 0, hasMore: false } as any));
+    const fixture = TestBed.createComponent(FirstStepsComponent);
+    const router = TestBed.inject(Router);
+    spyOn(router, 'navigate').and.resolveTo(true);
+    fixture.detectChanges();
+    const c = fixture.componentInstance;
+    c.toggle('Padel');
+    c.save();
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(c.suggestions?.map(group => group.id)).toEqual([3]);
+    c.toggleFollow(3);
+    expect(communities.followCommunity).toHaveBeenCalledWith(3);
+    expect(c.isFollowed(3)).toBeTrue();
+    c.finish();
+    expect(router.navigate).toHaveBeenCalledWith(['/menu/discover'], { queryParams: { sport: 'Padel', city: 'Braga' } });
+  });
+
+  it('interleaves sports and skips duplicates', () => {
+    const a = [{ id: 1, visibility: 'PUBLIC' }, { id: 3, visibility: 'PUBLIC' }];
+    const b = [{ id: 4, visibility: 'PUBLIC' }, { id: 1, visibility: 'PUBLIC' }];
+    expect(suggestedCommunities([a, b] as any, [], 8).map((g: any) => g.id)).toEqual([1, 4, 3]);
   });
 });

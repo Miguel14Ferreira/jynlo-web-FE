@@ -1,3 +1,28 @@
+@if (suggestions) {
+<main class="fsteps">
+  <p class="fsteps__eyebrow">{{ 'PRIMEIROS PASSOS · 2 DE 2' | t }}</p>
+  <h1>{{ 'Comunidades para ti' | t }}</h1>
+  <p class="fsteps__text">{{ 'Segue as que te interessam para acompanhares as novidades delas. Para entrar, abre a página de cada uma.' | t }}</p>
+  @if (error) { <p class="fsteps__error" role="alert">{{ error | t }}</p> }
+  <ul class="fsteps__communities">
+    @for (group of suggestions; track group.id) {
+      <li>
+        <a [routerLink]="['/menu/communities', group.id]">
+          <strong>{{ group.name }}</strong>
+          <span>{{ group.sport ? (group.sport | sportName) : '' }}{{ group.sport && group.description ? ' · ' : '' }}{{ group.description }}</span>
+        </a>
+        <button type="button" class="fsteps__chip" [class.fsteps__chip--on]="isFollowed(group.id)" [attr.aria-pressed]="isFollowed(group.id)"
+                [disabled]="followBusy !== null" (click)="toggleFollow(group.id)">
+          {{ (isFollowed(group.id) ? '✓ A seguir' : 'Seguir') | t }}
+        </button>
+      </li>
+    }
+  </ul>
+  <div class="fsteps__actions">
+    <button type="button" class="fsteps__save" (click)="finish()" [disabled]="followBusy !== null">{{ 'Concluir e explorar' | t }}</button>
+  </div>
+</main>
+} @else {
 <main class="fsteps">
   <p class="fsteps__eyebrow">{{ 'firstSteps.title' | t }}</p>
   <h1>{{ 'firstSteps.heading' | t }}</h1>
@@ -22,3 +47,4 @@
     </div>
   }
 </main>
+}

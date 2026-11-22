@@ -8057,4 +8057,11 @@ export const EN: Record<string, string> = {
   'Numa comunidade tua, no separador Torneios': 'In one of your communities, in the Tournaments tab',
   'Sugerir recinto': 'Suggest a venue',
   'Acrescenta um espaço desportivo à Jynlo': 'Add a sports venue to Jynlo',
+  'PRIMEIROS PASSOS · 2 DE 2': "FIRST STEPS · 2 OF 2",
+  'Comunidades para ti': "Communities for you",
+  'Segue as que te interessam para acompanhares as novidades delas. Para entrar, abre a página de cada uma.': "Follow the ones you like to keep up with their news. To join, open each one's page.",
+  '✓ A seguir': "✓ Following",
+  'Seguir': "Follow",
+  'Concluir e explorar': "Finish and explore",
+  'Não foi possível seguir a comunidade. Tenta novamente.': "Could not follow the community. Please try again.",
 };
