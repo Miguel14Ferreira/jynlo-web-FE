@@ -955,16 +955,16 @@
                   @if (sessionPolicyError) { <p role="alert" class="community-session-policy-error">{{ sessionPolicyError }}</p> }
                 </section>
 
-                <section class="community-session-policy" aria-labelledby="community-posting-policy-title">
+                <section class="community-session-policy" style="margin-block-start: clamp(16px, 2vw, 24px)" aria-labelledby="community-posting-policy-title">
                   <div class="community-session-policy-heading">
                     <div>
                       <span class="section-kicker">{{ 'Feed e Stories' | t }}</span>
-                      <h3 id="community-posting-policy-title">{{ 'Quem pode publicar' | t }}</h3>
+                      <h3 id="community-posting-policy-title">{{ 'Quem pode publicar?' | t }}</h3>
                       <p>{{ 'Decide se todos os membros publicam no feed e em Stories da comunidade, ou só os organizadores.' | t }}</p>
                     </div>
                     @if (canManage() && !postingPolicyEditing) {
                       <button type="button" class="jynlo-action jynlo-action--neutral" (click)="editPostingPolicy()">
-                        {{ 'Alterar' | t }}
+                        {{ 'communities.sessionPolicy.edit' | t }}
                       </button>
                     }
                   </div>

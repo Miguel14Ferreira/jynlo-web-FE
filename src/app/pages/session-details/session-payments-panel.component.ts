@@ -83,6 +83,13 @@ import { SessionPayments, SessionPaymentService } from '../../services/session-p
               <p>{{ 'payments.payInPerson' | t:{ amount: amountLabel() } }}</p>
             } @else if (data.mbwayPhone) {
               <p>{{ 'payments.payTo' | t:{ amount: amountLabel() } }}</p>
+              @if (data.payee?.username || data.payee?.fullName) {
+                <p class="session-payments__payee">
+                  {{ 'payments.payeeIs' | t }}
+                  <strong>{{ data.payee?.fullName || data.payee?.username }}</strong>
+                  @if (data.payee?.username && data.payee?.fullName) { <span class="session-payments__muted">&#64;{{ data.payee?.username }}</span> }
+                </p>
+              }
               <div class="session-payments__row">
                 <strong class="session-payments__phone">{{ phoneLabel(data.mbwayPhone) }}</strong>
                 <button type="button" class="jynlo-action" (click)="copyPhone(data.mbwayPhone)">

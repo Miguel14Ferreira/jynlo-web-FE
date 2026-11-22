@@ -1755,3 +1755,11 @@ h1 {
 :host .jynlo-session-detail-premium .title-row h1{font-size:clamp(2rem,3vw,2.9rem);line-height:1.12;letter-spacing:-.04em;overflow-wrap:anywhere}
 :host .jynlo-session-detail-premium .title-row .badges>span{border:1px solid #33d6c34d;background:#16767c3d;color:#b3ffeb;border-radius:10px}
 }
+
+.session-payment-method {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.85;
+}

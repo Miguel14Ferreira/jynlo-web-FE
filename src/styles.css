@@ -629,3 +629,10 @@ button:is([aria-label^="Fechar " i],[aria-label^="Close " i],
     margin-top: -42px;
   }
 }
+
+/* Page notices open as a centred pop-up (app-page-notice-popup), so the
+   inline banner is hidden to avoid showing the same message twice. */
+.feedback.error-feedback,
+.feedback.success-feedback {
+  display: none !important;
+}

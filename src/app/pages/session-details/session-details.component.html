@@ -752,6 +752,11 @@
               <strong>
                 @if (session.priceAmount > 0) {
                   {{ session.priceAmount | number:'1.2-2' }} €
+                  @if (session.paymentMethod === 'MBWAY') {
+                    <small class="session-payment-method">{{ 'payments.publicMbway' | t }}</small>
+                  } @else if (session.paymentMethod === 'IN_PERSON') {
+                    <small class="session-payment-method">{{ 'payments.publicInPerson' | t }}</small>
+                  }
                 } @else {
                   {{ 'common.free' | t }}
                 }
