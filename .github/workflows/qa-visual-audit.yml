@@ -1,0 +1,46 @@
+name: Jynlo auditoria visual (manual, conta QA, só leitura)
+
+# Percorre as páginas principais do site real com a conta QA jynloteste01, em
+# telemóvel e computador, e guarda capturas + relatório de problemas de layout.
+# Só leitura: não envia mensagens, não submete formulários nem muda dados.
+# As capturas mostram apenas o que a conta QA vê e ficam 5 dias no artefacto privado.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jynlo-visual-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      JYNLO_QA_USERNAME_1: ${{ secrets.JYNLO_QA1_USERNAME }}
+      JYNLO_QA_PASSWORD_1: ${{ secrets.JYNLO_QA1_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Confirmar conta QA autorizada
+        run: |
+          if [ -z "$JYNLO_QA_PASSWORD_1" ] || [ "$JYNLO_QA_USERNAME_1" != 'jynloteste01' ]; then
+            echo '::error::Conta QA em falta ou não autorizada; nenhuma sessão iniciada.'; exit 1
+          fi
+      - name: Instalar Playwright
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pw" --no-save --no-audit --no-fund --package-lock=false playwright
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Auditoria
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" node scripts/qa/visual-audit.cjs
+      - name: Guardar capturas e relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jynlo-auditoria-visual
+          path: visual-audit/
+          retention-days: 5
