@@ -5453,10 +5453,16 @@
                           }
                         </span>
                         <span class="community-member-identity">
-                          <strong>{{ member.fullName || member.username }}</strong>
-                          <span class="community-member-handle">@{{ member.username }}</span>
-                          <span class="community-member-role" [class.is-owner]="member.role === 'OWNER'"
-                            [class.is-admin]="member.role === 'ADMIN'">{{ ('communities.role.' + (member.role || '').toLowerCase()) | t }}</span>
+                          <span class="community-member-line">
+                            <strong>{{ member.fullName || member.username }}</strong>
+                            @if (member.role === 'OWNER' || member.role === 'ADMIN') {
+                              <span class="community-member-role" [class.is-owner]="member.role === 'OWNER'"
+                                [class.is-admin]="member.role === 'ADMIN'">{{ ('communities.role.' + (member.role || '').toLowerCase()) | t }}</span>
+                            }
+                          </span>
+                          @if (member.fullName && member.fullName !== member.username) {
+                            <span class="community-member-handle">@{{ member.username }}</span>
+                          }
                         </span>
                         <span class="community-member-open" aria-hidden="true">↗</span>
                       </a>

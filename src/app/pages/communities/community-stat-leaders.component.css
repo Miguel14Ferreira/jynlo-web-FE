@@ -1,19 +1,28 @@
 /* Read-only statistics leader snapshot. Parent computes every record. */
 :host {display:block;}
-.stats-grid {
-  display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:.7rem;
+.stats-leaders {display:grid;gap:.7rem;}
+.leader-card {
+  display:flex;align-items:center;gap:1rem;padding:1rem 1.1rem;border-radius:18px;
+  border:1px solid rgba(94,230,200,.38);
+  background:linear-gradient(120deg,rgba(94,230,200,.16),rgba(10,41,55,.7) 60%);
 }
-.stat-card {
-  border:1px solid rgba(96,176,182,.24);
-  border-radius:16px;
-  background:rgba(10,41,55,.65);
-  display:grid;
-  gap:.35rem;
-  padding:.9rem;
+.leader-avatar {
+  width:56px;height:56px;flex:0 0 56px;border-radius:50%;display:grid;place-items:center;overflow:hidden;
+  background:#0f4b52;color:#e9fffa;font-weight:900;font-size:1.35rem;border:2px solid rgba(94,230,200,.55);
 }
-.stat-card span,.stat-card small {color:#94a3b8;font-size:.78rem;}
-.stat-card strong {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.95rem;}
-@media(max-width:1050px){.stats-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
-@media(max-width:800px){.stats-grid{grid-template-columns:1fr;}}
+.leader-avatar img {width:100%;height:100%;object-fit:cover;}
+.leader-copy {display:grid;gap:.2rem;min-width:0;}
+.leader-label {color:#7ae5c5;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;}
+.leader-copy strong {font-size:1.25rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.leader-copy small {color:#b9d4d6;font-size:.85rem;}
+.records {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.7rem;}
+.record-card {
+  display:flex;align-items:center;gap:.7rem;padding:.75rem .9rem;border-radius:14px;
+  border:1px solid rgba(96,176,182,.24);background:rgba(10,41,55,.65);
+}
+.record-icon {font-size:1.25rem;}
+.record-copy {display:grid;gap:.1rem;min-width:0;flex:1;}
+.record-copy span {color:#94a3b8;font-size:.75rem;}
+.record-copy strong {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.92rem;}
+.record-value {font-size:1.3rem;color:#e9fffa;}
+.records-empty {margin:0;color:#94a3b8;font-size:.85rem;}
