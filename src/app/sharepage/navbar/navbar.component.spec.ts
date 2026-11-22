@@ -346,7 +346,7 @@ describe('NavbarComponent', () => {
     const primaryLinks = Array.from(nav.querySelectorAll<HTMLAnchorElement>(
       ':scope > a.desktop-primary-link'
     )).map(anchor => anchor.getAttribute('href'));
-    expect(primaryLinks).toEqual(['/menu/feed', '/menu/createEvent']);
+    expect(primaryLinks).toEqual(['/menu/feed', '/menu/create']);
     expect(nav.querySelector('a[href="/menu/discover"]')).toBeTruthy();
     expect(nav.querySelector(':scope > a.nav-activities-link[href="/menu/events"]')).toBeTruthy();
     expect(nav.querySelector('.feed-v3-top-search')).toBeNull();

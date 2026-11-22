@@ -1070,6 +1070,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadHiddenFeedEntries();
     this.load();
+    // "Criar → Publicação" opens the composer directly.
+    if (this.route.snapshot?.queryParamMap?.get('compose') === 'post') this.openPostComposer();
     this.connectLiveCounters();
     this.loadSuggestedPeople();
     this.preparePostGameMoment();
