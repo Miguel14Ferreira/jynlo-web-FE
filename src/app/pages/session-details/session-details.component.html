@@ -1016,6 +1016,7 @@
             </section>
           }
 
+          @if (session.status !== 'CANCELLED' && gameStillAhead()) {
           <section class="calendar-panel">
             <div>
               <h2>{{ 'sessionDetail.calendarTitle' | t }}</h2>
@@ -1037,6 +1038,7 @@
               </button>
             </div>
           </section>
+          }
 
           <section class="creator-reliability">
             <div class="creator-reliability__header">

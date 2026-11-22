@@ -856,7 +856,6 @@ const PT: Dictionary = {
   'footer.terms': 'Termos de Utilização',
   'footer.privacy': 'Privacidade',
   'footer.contact': 'Contacto',
-  'footer.pilot': 'Projeto piloto',
 
   'legal.eyebrow': 'Informação legal',
   'legal.pilotNotice': 'Esta informação aplica-se à Jynlo no website e nas aplicações para Android e iPhone. Para dúvidas sobre privacidade e proteção de dados, contacta desporto24app@gmail.com.',
@@ -3464,6 +3463,8 @@ const PT: Dictionary = {
   'communities.record.mostGames': 'Mais jogos',
   'communities.record.bestWinRate': 'Melhor % de vitórias',
   'communities.record.bestStreak': 'Melhor série de vitórias',
+  'communities.gameShort': 'jogo',
+  'communities.winShort': 'vitória',
   'communities.gamesShort': 'jogos',
   'communities.winsShort': 'vitórias',
   'communities.chartKicker': 'Gráfico',

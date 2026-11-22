@@ -10,7 +10,7 @@
     <article class="record-card">
       <span>{{ 'communities.record.mostGames' | t }}</span>
       <strong>{{ mostGames?.fullName || mostGames?.username || '—' }}</strong>
-      <small>{{ mostGames?.games || 0 }} {{ 'communities.gamesShort' | t }}</small>
+      <small>{{ mostGames?.games || 0 }} {{ ((mostGames?.games || 0) === 1 ? 'communities.gameShort' : 'communities.gamesShort') | t }}</small>
     </article>
     <article class="record-card">
       <span>{{ 'communities.record.bestWinRate' | t }}</span>
@@ -20,7 +20,7 @@
     <article class="record-card">
       <span>{{ 'communities.record.bestStreak' | t }}</span>
       <strong>{{ bestWinStreak?.fullName || bestWinStreak?.username || '—' }}</strong>
-      <small>{{ bestWinStreak?.bestWinStreak || 0 }} {{ 'communities.winsShort' | t }}</small>
+      <small>{{ bestWinStreak?.bestWinStreak || 0 }} {{ ((bestWinStreak?.bestWinStreak || 0) === 1 ? 'communities.winShort' : 'communities.winsShort') | t }}</small>
     </article>
   </div>
 </section>

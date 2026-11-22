@@ -8,7 +8,9 @@
 
       <div class="header-actions">
         <a class="secondary-action jynlo-action jynlo-action--neutral" routerLink="/home">{{ 'nav.home' | t }}</a>
-        <a class="secondary-action jynlo-action jynlo-action--neutral" routerLink="/login">{{ 'nav.login' | t }}</a>
+        @if (!loggedIn) {
+          <a class="secondary-action jynlo-action jynlo-action--neutral" routerLink="/login">{{ 'nav.login' | t }}</a>
+        }
       </div>
     </header>
 

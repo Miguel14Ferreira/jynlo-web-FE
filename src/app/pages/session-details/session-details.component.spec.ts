@@ -557,9 +557,19 @@ describe('SessionDetailsComponent', () => {
     expect(sessionService.updateMeetingPoint).not.toHaveBeenCalled();
   });
 
+  it('hides cancel and planning tools once the game has started', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = { ...session, status: 'FULL', gameDate: new Date(Date.now() - 3600000).toISOString() };
+    expect(component.canCancelOwnSession()).toBeFalse();
+    expect(component.canEditLevel).toBeFalse();
+    component.session = { ...session, status: 'FULL', gameDate: new Date(Date.now() + 3600000).toISOString() };
+    expect(component.canCancelOwnSession()).toBeTrue();
+  });
+
   it('lets the organiser update players confirmed outside Jynlo', () => {
     (component as any).currentUsername = 'creator-user';
-    component.session = { ...session, status: 'OPEN', externalConfirmedParticipants: 2 };
+    component.session = { ...session, status: 'OPEN', externalConfirmedParticipants: 2,
+      gameDate: new Date(Date.now() + 3600000).toISOString() };
     fixture.detectChanges();
     const input = fixture.nativeElement.querySelector('.session-level-edit input[type=number]') as HTMLInputElement;
     expect(input).not.toBeNull();

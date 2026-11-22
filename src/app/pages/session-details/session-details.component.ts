@@ -663,7 +663,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   levelLabel(level: string | null | undefined): string { return sessionSkillLevelLabel(level); }
 
   get canEditLevel(): boolean {
-    return !!this.session && this.isCreator()
+    return !!this.session && this.isCreator() && this.gameStillAhead()
       && (this.session.status === 'OPEN' || this.session.status === 'FULL');
   }
 
@@ -755,8 +755,14 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       });
   }
 
+  /** True until kick-off; past games can no longer be cancelled or re-planned. */
+  gameStillAhead(): boolean {
+    const kickoff = Date.parse(this.session?.gameDate ?? '');
+    return Number.isFinite(kickoff) && kickoff > Date.now();
+  }
+
   canCancelOwnSession(): boolean {
-    return !!this.session && this.isCreator()
+    return !!this.session && this.isCreator() && this.gameStillAhead()
       && (this.session.status === 'OPEN' || this.session.status === 'FULL');
   }
 

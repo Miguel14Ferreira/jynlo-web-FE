@@ -1,6 +1,8 @@
 import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthenticationService } from '../../services/authethication.service';
+import { MyProfileService } from '../../services/my-profile.service';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -53,10 +55,26 @@ export class ContactComponent implements OnDestroy {
   successMessage = '';
   fieldErrors: Partial<Record<ContactField, string>> = {};
 
+  /** Signed-in people see no "Entrar" button and get their name and email filled in. */
+  readonly loggedIn: boolean;
+
   constructor(
     private feedbackService: FeedbackService,
-    private host: ElementRef<HTMLElement>
-  ) {}
+    private host: ElementRef<HTMLElement>,
+    auth: AuthenticationService,
+    profiles: MyProfileService
+  ) {
+    this.loggedIn = auth.hasSessionCandidate() === true;
+    if (this.loggedIn) {
+      profiles.get().subscribe({
+        next: profile => {
+          if (!this.name.trim()) this.name = profile?.fullName?.trim() || profile?.username || '';
+          if (!this.email.trim()) this.email = profile?.email || '';
+        },
+        error: () => { /* the form still works without prefill */ }
+      });
+    }
+  }
 
   submit(): void {
     this.fieldErrors = this.validate();

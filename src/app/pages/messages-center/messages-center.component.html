@@ -83,7 +83,7 @@
         </div>
       </aside>
 
-      <main class="inbox-detail">
+      <main class="inbox-detail" [class.inbox-detail--empty]="!selected">
         @if (selected; as conversation) {
           <header class="inbox-detail-heading">
             @if (conversation.kind === 'direct') {

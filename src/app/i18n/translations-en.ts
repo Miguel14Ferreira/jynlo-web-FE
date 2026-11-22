@@ -850,7 +850,6 @@ export const EN: Record<string, string> = {
   'footer.terms': 'Terms of Use',
   'footer.privacy': 'Privacy',
   'footer.contact': 'Contact',
-  'footer.pilot': 'Pilot project',
 
   'legal.eyebrow': 'Legal information',
   'legal.pilotNotice': 'This information applies to Jynlo on the website and in the Android and iPhone apps. For privacy and data protection questions, contact desporto24app@gmail.com.',
@@ -3458,6 +3457,8 @@ export const EN: Record<string, string> = {
   'communities.record.mostGames': 'Most games',
   'communities.record.bestWinRate': 'Best win rate',
   'communities.record.bestStreak': 'Best winning streak',
+  'communities.gameShort': 'game',
+  'communities.winShort': 'win',
   'communities.gamesShort': 'games',
   'communities.winsShort': 'wins',
   'communities.chartKicker': 'Chart',

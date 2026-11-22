@@ -114,3 +114,7 @@
 @media(prefers-reduced-motion:reduce){
   :host .jynlo-sessions-premium .history-row{transition:none;}
 }
+/* On phones the actions stack; they must keep their natural height, not stretch into tall ovals. */
+@media (max-width:720px){
+  :host .jynlo-sessions-premium .card-actions>:is(button,a){flex:0 0 auto;min-height:44px;height:auto;}
+}

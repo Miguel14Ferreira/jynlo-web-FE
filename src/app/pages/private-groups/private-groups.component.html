@@ -178,7 +178,7 @@
            [placeholder]="'groups.messagePlaceholder' | t"></textarea>
          <button type="submit" [disabled]="busy || !draft.trim()">{{ 'chat.send' | t }}</button>
        </form>
-     } @else {
+     } @else if (groups.length > 0) {
        <div class="group-welcome">
          <span aria-hidden="true">👥</span>
          <h2>{{ 'groups.welcomeTitle' | t }}</h2>

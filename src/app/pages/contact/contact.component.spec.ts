@@ -4,6 +4,7 @@ import { of } from 'rxjs';
 import { ContactComponent } from './contact.component';
 import { FeedbackService } from '../../services/feedback.service';
 import { TEST_IMPORTS, TEST_PROVIDERS } from '../../testing/test-providers';
+import { MyProfileService } from '../../services/my-profile.service';
 
 describe('ContactComponent', () => {
   let component: ContactComponent;
@@ -19,7 +20,8 @@ describe('ContactComponent', () => {
       imports: [...TEST_IMPORTS, ContactComponent],
       providers: [
         ...TEST_PROVIDERS,
-        { provide: FeedbackService, useValue: service }
+        { provide: FeedbackService, useValue: service },
+        { provide: MyProfileService, useValue: { get: () => of({ username: 'miguel', fullName: 'Miguel', email: 'm@x.pt' }) } }
       ]
     }).compileComponents();
 

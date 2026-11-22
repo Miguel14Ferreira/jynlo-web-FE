@@ -37,10 +37,10 @@
               <small>
                 @if (mode === 'history') {
                   {{ ('venue.edit.status.' + item.status) | t }}
-                  · {{ item.reviewedAt | date:'short' }} · @{{ item.reviewedByUsername }}
+                  · {{ item.reviewedAt | date:'dd/MM/yyyy, HH:mm' }} · @{{ item.reviewedByUsername }}
                 } @else {
                   {{ fields(item).length }} {{ 'venue.edit.admin.fields' | t }}
-                  · @{{ item.submittedByUsername }} · {{ item.submittedAt | date:'short' }}
+                  · @{{ item.submittedByUsername }} · {{ item.submittedAt | date:'dd/MM/yyyy, HH:mm' }}
                 }
               </small>
             </span>
@@ -82,14 +82,14 @@
               <strong>{{ ('venue.edit.status.' + item.status) | t }}</strong>
               <p><span>{{ 'venue.edit.admin.reviewedBy' | t }}:</span> @{{ item.reviewedByUsername || '—' }}</p>
               <p><span>{{ 'venue.edit.admin.reviewedAt' | t }}:</span>
-                {{ item.reviewedAt ? (item.reviewedAt | date:'medium') : '—' }}</p>
+                {{ item.reviewedAt ? (item.reviewedAt | date:'dd/MM/yyyy, HH:mm') : '—' }}</p>
               @if (item.decisionNote) {
                 <p><span>{{ 'venue.edit.admin.decisionNote' | t }}:</span> {{ item.decisionNote }}</p>
               }
               @if (hasProposedContact(item)) {
                 <p><span>{{ 'venue.edit.admin.sourceReviewDate' | t }}:</span>
                   {{ item.sourceReviewConfirmedAt
-                    ? (item.sourceReviewConfirmedAt | date:'medium')
+                    ? (item.sourceReviewConfirmedAt | date:'dd/MM/yyyy, HH:mm')
                     : ('venue.edit.admin.sourceNotRecorded' | t) }}</p>
               }
             </div>
