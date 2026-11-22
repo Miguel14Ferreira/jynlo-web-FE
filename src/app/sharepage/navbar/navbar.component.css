@@ -639,3 +639,33 @@
     background: rgba(7,17,31,.97);
   }
 }
+
+/* Desktop: icon and label always stay on one line. When the window is narrower
+   (or labels are longer, e.g. in English) the bar gets more compact instead of
+   letting a link shrink and push its label under the icon. */
+@media (min-width: 901px) {
+  .site-nav__links { flex-wrap: nowrap; min-width: 0; }
+  .site-nav__links > a {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+  .site-nav__links > a .jynlo-nav-icon { flex: none; }
+  .brand { flex: none; }
+  .site-nav__shell { width: min(1320px, calc(100% - 2rem)); }
+}
+@media (min-width: 901px) and (max-width: 1380px) {
+  .site-nav__shell { gap: .6rem; }
+  .site-nav__links { gap: .15rem; }
+  .site-nav__links > a { padding: .5rem .55rem; }
+}
+@media (min-width: 901px) and (max-width: 1260px) {
+  .site-nav__links .notification-link .nav-text,
+  .account-menu .account-identity-copy { display: none; }
+}
+@media (min-width: 901px) and (max-width: 1060px) {
+  .brand__wordmark { display: none; }
+  .site-nav__links > a { padding: .5rem .45rem; font-size: .82rem; }
+}
