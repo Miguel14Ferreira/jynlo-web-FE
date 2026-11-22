@@ -70,7 +70,7 @@
             } @else { — }</dd></div>
             <div><dt>{{ 'venue.admin.coordinates' | t }}</dt><dd>{{ suggestion.venue.latitude ?? '—' }}, {{ suggestion.venue.longitude ?? '—' }}</dd></div>
             <div><dt>{{ 'venue.admin.submitter' | t }}</dt><dd>@{{ suggestion.submittedByUsername }}</dd></div>
-            <div><dt>{{ 'venue.detail.addedAt' | t }}</dt><dd>{{ suggestion.submittedAt | date:'medium' }}</dd></div>
+            <div><dt>{{ 'venue.detail.addedAt' | t }}</dt><dd>{{ suggestion.submittedAt | date:'dd/MM/yyyy, HH:mm' }}</dd></div>
           </dl>
           <details>
             <summary>{{ 'venue.admin.optional' | t }}</summary>

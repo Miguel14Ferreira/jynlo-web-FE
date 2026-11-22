@@ -28,7 +28,8 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
     </nav>
   </main>`,
   styles: [`
-    .create-hub{max-width:760px;margin:0 auto;padding:28px 18px 48px;display:grid;gap:18px}
+    .create-hub{max-width:760px;margin:0 auto;padding:96px 18px 48px;display:grid;gap:18px}
+    @media(max-width:700px){.create-hub{padding-top:80px}}
     header h1{margin:0;font-size:28px}
     header p{margin:6px 0 0;color:var(--jynlo-muted,#9fb8bd)}
     h2{margin:8px 0 0;font-size:15px;color:var(--jynlo-muted,#9fb8bd)}

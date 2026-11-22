@@ -458,9 +458,9 @@
                     }
                   </div>
                   @if (session.createdAt) {
-                    <small>{{ 'profile.sessions.since' | t }} {{ session.createdAt | date:'mediumDate' }}</small>
+                    <small>{{ 'profile.sessions.since' | t }} {{ session.createdAt | date:'dd/MM/yyyy' }}</small>
                   }
-                  <small>{{ 'profile.sessions.expires' | t }} {{ session.expiresAt | date:'mediumDate' }}</small>
+                  <small>{{ 'profile.sessions.expires' | t }} {{ session.expiresAt | date:'dd/MM/yyyy' }}</small>
                 </div>
 
                 @if (pendingRevokeId === session.id) {

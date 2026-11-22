@@ -15,7 +15,7 @@ import { TeamCommunityMembership,TeamCommunityMembershipsService } from '../../s
     <section class="community-teams" [attr.aria-label]="'Equipas associadas à comunidade' | t">
       <div class="heading">
         <div><h3>{{ 'Equipas da comunidade' | t }}</h3><p>{{ 'Equipas mantêm o plantel e o perfil próprios.' | t }}</p></div>
-        <span>{{ '{{activeCount}} equipas' | t:{activeCount: (active.length)} }}</span>
+        <span *ngIf="!loading">{{ '{{activeCount}} equipas' | t:{activeCount: (active.length)} }}</span>
       </div>
       <p *ngIf="loading">{{ 'A carregar equipas…' | t }}</p>
       <p *ngIf="error" role="alert" class="error">{{error}}</p>

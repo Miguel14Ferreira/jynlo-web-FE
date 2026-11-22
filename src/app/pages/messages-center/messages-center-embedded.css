@@ -83,3 +83,10 @@
 .inbox-bubble>.inbox-message-actions .inbox-toolbar-reactions:focus-within{z-index:4}
 .inbox-bubble>.inbox-message-actions:has(.inbox-toolbar-reactions.is-picker-open){z-index:60}
 .inbox-bubble>.inbox-message-actions:has(.inbox-toolbar-reactions.is-details-open){z-index:60}
+
+/* Phones: with no conversation open, the list is the whole screen (no empty "pick on the left" panel). */
+@media(max-width:700px){
+ .inbox-page:not(.inbox-embedded) .inbox-detail.inbox-detail--empty{display:none}
+}
+/* Footer shortcuts wrap instead of cutting "As minhas comunidades". */
+.inbox-side-footer a{white-space:normal;text-align:center;line-height:1.25;min-width:0}

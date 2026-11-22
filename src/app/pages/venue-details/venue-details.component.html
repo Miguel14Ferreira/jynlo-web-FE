@@ -59,7 +59,7 @@
             @if (venue.createdByUsername) {
               {{ 'venue.detail.createdBy' | t }} <strong>@{{ venue.createdByUsername }}</strong> ·
             }
-            {{ 'venue.detail.addedAt' | t }} {{ venue.createdAt | date:'short' }}
+            {{ 'venue.detail.addedAt' | t }} {{ venue.createdAt | date:'dd/MM/yyyy, HH:mm' }}
           </span>
         </div>
       </header>
@@ -254,7 +254,7 @@
                   @if (photo.uploadedByUsername) {
                     {{ 'venue.detail.createdBy' | t }} <strong>@{{ photo.uploadedByUsername }}</strong> ·
                   }
-                  {{ 'venue.detail.addedAt' | t }} {{ photo.createdAt | date:'short' }}
+                  {{ 'venue.detail.addedAt' | t }} {{ photo.createdAt | date:'dd/MM/yyyy, HH:mm' }}
                 </figcaption>
               </figure>
             }
@@ -396,7 +396,7 @@
                   @if (condition.createdByUsername) {
                     {{ 'venue.detail.createdBy' | t }} <strong>@{{ condition.createdByUsername }}</strong> ·
                   }
-                  {{ 'venue.detail.addedAt' | t }} {{ condition.createdAt | date:'short' }}
+                  {{ 'venue.detail.addedAt' | t }} {{ condition.createdAt | date:'dd/MM/yyyy, HH:mm' }}
                 </div>
               </article>
             }

@@ -330,3 +330,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .group-search-form{display:flex;gap:8px;flex-wrap:wrap}
 .group-search-form input{flex:1;min-height:40px;padding:0 10px;border-radius:10px;border:1px solid rgba(255,255,255,.24);background:transparent;color:inherit}
 .group-search-hit{margin:6px 0;font-size:.9rem;opacity:.9}
+
+/* Phones: no empty "pick a group" panel under the list. */
+@media(max-width:700px){main.group-chat:has(> .group-welcome),main.group-chat:not(:has(> *)){display:none}}
+main.group-chat:not(:has(> *)){display:none}
