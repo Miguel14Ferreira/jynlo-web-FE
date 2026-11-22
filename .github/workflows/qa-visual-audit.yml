@@ -6,6 +6,17 @@ name: Jynlo auditoria visual (manual, conta QA, só leitura)
 # As capturas mostram apenas o que a conta QA vê e ficam 5 dias no artefacto privado.
 on:
   workflow_dispatch:
+    inputs:
+      conta:
+        description: 'Conta QA (1 = jynloteste01 dono, 2 = jynloteste02 membro)'
+        type: choice
+        options: ['1', '2']
+        default: '1'
+      idioma:
+        description: 'Idioma do site'
+        type: choice
+        options: [pt, en]
+        default: pt
 
 permissions:
   contents: write
@@ -21,6 +32,10 @@ jobs:
     env:
       JYNLO_QA_USERNAME_1: ${{ secrets.JYNLO_QA1_USERNAME }}
       JYNLO_QA_PASSWORD_1: ${{ secrets.JYNLO_QA1_PASSWORD }}
+      JYNLO_QA_USERNAME_2: ${{ secrets.JYNLO_QA2_USERNAME }}
+      JYNLO_QA_PASSWORD_2: ${{ secrets.JYNLO_QA2_PASSWORD }}
+      JYNLO_AUDIT_ACCOUNT: ${{ inputs.conta || '1' }}
+      JYNLO_AUDIT_LANG: ${{ inputs.idioma || 'pt' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,7 +43,8 @@ jobs:
           node-version: '22'
       - name: Confirmar conta QA autorizada
         run: |
-          if [ -z "$JYNLO_QA_PASSWORD_1" ] || [ "$JYNLO_QA_USERNAME_1" != 'jynloteste01' ]; then
+          u="JYNLO_QA_USERNAME_$JYNLO_AUDIT_ACCOUNT"; p="JYNLO_QA_PASSWORD_$JYNLO_AUDIT_ACCOUNT"
+          if [ -z "${!p}" ] || [ "${!u}" != "jynloteste0$JYNLO_AUDIT_ACCOUNT" ]; then
             echo '::error::Conta QA em falta ou não autorizada; nenhuma sessão iniciada.'; exit 1
           fi
       - name: Instalar Playwright
