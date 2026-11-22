@@ -276,6 +276,12 @@ export class SessionService {
       { params: new HttpParams().set('maxParticipants', String(maxParticipants)) });
   }
 
+  /** Organiser-only: players confirmed outside Jynlo, counted against capacity. */
+  updateExternalConfirmations(id: number, count: number): Observable<SessionDetail> {
+    return this.http.patch<SessionDetail>(this.baseUrl + '/' + id + '/external-confirmations',
+      { externalConfirmedParticipants: count });
+  }
+
   /** Organiser-only: level the session is aimed at (null = all levels). */
   updateSkillLevel(id: number, skillLevel: string | null): Observable<SessionDetail> {
     return this.http.patch<SessionDetail>(this.baseUrl + '/' + id + '/skill-level', { skillLevel });

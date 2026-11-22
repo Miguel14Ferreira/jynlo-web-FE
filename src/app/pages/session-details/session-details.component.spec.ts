@@ -97,7 +97,7 @@ describe('SessionDetailsComponent', () => {
     directChatService.send.and.returnValue(of({} as any));
     sessionService = jasmine.createSpyObj<SessionService>(
       'SessionService',
-      ['detail', 'officialResult', 'context', 'postGameCommunities', 'joinCommunityAfterGame', 'updateMeetingPoint', 'updateCapacity', 'updateDetails', 'join', 'leave', 'cancel', 'complete', 'reportDidNotOccur', 'reportProblem', 'messages', 'postMessage', 'attachmentsAvailable', 'sendAttachment', 'downloadAttachment', 'participants', 'removeParticipant', 'teamSuggestion', 'confirmTeams', 'futureExclusionStatus', 'excludeFromFutureSessions', 'allowFutureSessions', 'myOverallRating', 'rateOverall', 'myVenueRating', 'rateVenue', 'sentCompliments', 'receivedCompliments', 'giveCompliment', 'issueGuestLink', 'guestRequests', 'confirmedGuests', 'reviewGuestRequest', 'cancelGuestRequest']
+      ['detail', 'officialResult', 'context', 'postGameCommunities', 'joinCommunityAfterGame', 'updateMeetingPoint', 'updateExternalConfirmations', 'updateCapacity', 'updateDetails', 'join', 'leave', 'cancel', 'complete', 'reportDidNotOccur', 'reportProblem', 'messages', 'postMessage', 'attachmentsAvailable', 'sendAttachment', 'downloadAttachment', 'participants', 'removeParticipant', 'teamSuggestion', 'confirmTeams', 'futureExclusionStatus', 'excludeFromFutureSessions', 'allowFutureSessions', 'myOverallRating', 'rateOverall', 'myVenueRating', 'rateVenue', 'sentCompliments', 'receivedCompliments', 'giveCompliment', 'issueGuestLink', 'guestRequests', 'confirmedGuests', 'reviewGuestRequest', 'cancelGuestRequest']
     );
     socialFeedService=jasmine.createSpyObj<SocialFeedService>('SocialFeedService',['sessionMemories']);
     socialFeedService.sessionMemories.and.returnValue(of([]));
@@ -555,6 +555,25 @@ describe('SessionDetailsComponent', () => {
     expect(location.querySelector('.session-meeting-edit-button')).toBeNull();
     expect(location.querySelector('#session-meeting-point-input')).toBeNull();
     expect(sessionService.updateMeetingPoint).not.toHaveBeenCalled();
+  });
+
+  it('lets the organiser update players confirmed outside Jynlo', () => {
+    (component as any).currentUsername = 'creator-user';
+    component.session = { ...session, status: 'OPEN', externalConfirmedParticipants: 2 };
+    fixture.detectChanges();
+    const input = fixture.nativeElement.querySelector('.session-level-edit input[type=number]') as HTMLInputElement;
+    expect(input).not.toBeNull();
+    sessionService.updateExternalConfirmations.and.returnValue(of({ ...component.session, externalConfirmedParticipants: 4 }));
+    component.externalDraft = 4;
+    component.saveExternalConfirmations();
+    expect(sessionService.updateExternalConfirmations).toHaveBeenCalledWith(7, 4);
+    expect(component.session?.externalConfirmedParticipants).toBe(4);
+    expect(component.externalDraft).toBeNull();
+
+    component.externalDraft = 120;
+    component.saveExternalConfirmations();
+    expect(component.externalError).toBeTruthy();
+    expect(sessionService.updateExternalConfirmations).toHaveBeenCalledTimes(1);
   });
 
   it('can clear a point without changing the mapped venue', () => {

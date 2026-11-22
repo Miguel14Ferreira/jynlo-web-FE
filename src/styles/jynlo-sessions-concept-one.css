@@ -300,3 +300,7 @@ body .session-level-edit { display: flex; flex-wrap: wrap; align-items: center; 
 body .session-level-edit label { display: flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 700; color: #bfe9df; }
 body .session-level-edit select { min-height: 38px; padding: 0 10px; border-radius: 10px; border: 1px solid rgba(63,216,180,.35); background: #0a3340; color: #effffb; font: inherit; font-weight: 600; color-scheme: dark; }
 body .session-level-edit small { color: #ffb4b4; }
+body .session-level-edit input[type=number] { width: 72px; min-height: 38px; padding: 0 10px; border-radius: 10px; border: 1px solid rgba(63,216,180,.35); background: #0a3340; color: #effffb; font: inherit; font-weight: 600; color-scheme: dark; }
+body .session-level-edit #external-confirmed-hint { flex-basis: 100%; order: 10; color: #9fc7c4; font-weight: 500; }
+body .session-level-edit small[role=status] { color: #7ae5c5; }
+body .session-level-edit .jynlo-action { min-height: 38px; padding: 0 14px; }

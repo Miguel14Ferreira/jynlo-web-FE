@@ -8147,4 +8147,8 @@ export const EN: Record<string, string> = {
   'Presença nos jogos': 'Game attendance',
   'Este jogo é só por convite. Pede o link de convite ao organizador.': 'This game is invite-only. Ask the organiser for the invitation link.',
   'Recebeste uma palavra-passe? Usa-a aqui.': 'Got a password? Use it here.',
+  'Confirmados fora da Jynlo': 'Confirmed outside Jynlo',
+  'Indica entre 0 e 99 jogadores.': 'Enter between 0 and 99 players.',
+  'Jogadores confirmados fora da Jynlo atualizados.': 'Players confirmed outside Jynlo updated.',
+  'Amigos que confirmaram por WhatsApp ou telefone. Ocupam lugares no jogo.': 'Friends who confirmed by WhatsApp or phone. They take spots in the game.',
 };

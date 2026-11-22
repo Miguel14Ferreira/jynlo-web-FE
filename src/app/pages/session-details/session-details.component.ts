@@ -685,6 +685,38 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       });
   }
 
+  externalDraft: number | null = null;
+  externalSaving = false;
+  externalError = '';
+  externalSuccess = '';
+
+  saveExternalConfirmations(): void {
+    if (!this.session || !this.sessionId || this.externalSaving || !this.canEditLevel) return;
+    const count = Number(this.externalDraft ?? this.session.externalConfirmedParticipants ?? 0);
+    if (!Number.isInteger(count) || count < 0 || count > 99) {
+      this.externalError = t('Indica entre 0 e 99 jogadores.');
+      return;
+    }
+    const sessionId = this.sessionId;
+    this.externalSaving = true;
+    this.externalError = '';
+    this.externalSuccess = '';
+    this.sessionService.updateExternalConfirmations(sessionId, count)
+      .pipe(timeout(10000), finalize(() => this.externalSaving = false))
+      .subscribe({
+        next: detail => {
+          if (this.sessionId !== sessionId) return;
+          ++this.sessionDetailRequestId;
+          this.session = detail;
+          this.externalDraft = null;
+          this.externalSuccess = t('Jogadores confirmados fora da Jynlo atualizados.');
+        },
+        error: error => {
+          this.externalError = this.errorFrom(error, t('Não foi possível guardar. Tenta novamente.'));
+        }
+      });
+  }
+
   saveMeetingPoint(): void {
     if (!this.meetingPointEditing || !this.canEditMeetingPoint()
         || !this.sessionId || this.meetingPointSaving) return;
