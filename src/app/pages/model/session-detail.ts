@@ -14,6 +14,8 @@ export interface SessionDetail extends SessionSummary {
   /** Public optional description of the session. */
   description?: string | null;
   canSeeExactAddress: boolean;
+  /** How the organiser is paid (never the phone number): shown before joining. */
+  paymentMethod?: 'MBWAY' | 'IN_PERSON' | null;
   /** Visible only when canSeeExactAddress is true. */
   meetingPointInstructions?: string | null;
   joined: boolean;

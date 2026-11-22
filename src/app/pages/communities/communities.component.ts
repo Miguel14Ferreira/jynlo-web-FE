@@ -4580,15 +4580,13 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     }
 
     if (!this.selected || !this.canManage()) {
-      this.errorMessage = t('feedback.communities.seasonCreateError');
+      this.errorMessage = appTranslate('Só os organizadores da comunidade podem criar épocas.');
       return;
     }
 
-    const name = this.seasonName.trim();
-    if (!name) {
-      this.errorMessage = t('feedback.communities.seasonCreateError');
-      return;
-    }
+    // An empty name is the most common slip: use the obvious default.
+    const sportLabel = this.seasonSport ? ' · ' + this.seasonSport : '';
+    const name = this.seasonName.trim() || appTranslate('Época') + ' ' + new Date().getFullYear() + sportLabel;
     // Multiple active seasons require an explicit sport. Shared legacy seasons
     // cannot overlap with per-sport seasons.
     if ((this.competition?.seasons.some(season => season.active) ?? false)
@@ -4603,7 +4601,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     }
     // An old draft must not create a season for a sport removed from the community.
     if (this.seasonSport && !this.communitySports(this.selected).includes(this.seasonSport)) {
-      this.errorMessage = t('feedback.communities.seasonCreateError');
+      this.errorMessage = appTranslate('Escolhe uma modalidade da comunidade.');
       return;
     }
 

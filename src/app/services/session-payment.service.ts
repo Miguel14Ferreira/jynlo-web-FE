@@ -16,6 +16,8 @@ export interface SessionPayments {
   playerCount: number;
   players: SessionPaymentPlayer[];
   lastReminderAt: string | null;
+  /** The organiser who receives the money (older backends omit it). */
+  payee?: { username: string | null; fullName: string | null; profilePicUrl: string | null } | null;
 }
 
 export interface PreviousUnpaid { sessionId: number | null; gameDate: string | null; sport: string | null; unpaid: string[]; }
