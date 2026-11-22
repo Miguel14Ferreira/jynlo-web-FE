@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       conta:
-        description: 'Conta QA (1 = jynloteste01 dono, 2 = jynloteste02 membro)'
+        description: 'Conta (0 = visitante sem sessão, 1 = jynloteste01 dono, 2 = jynloteste02 membro)'
         type: choice
-        options: ['1', '2']
+        options: ['0', '1', '2']
         default: '1'
       idioma:
         description: 'Idioma do site'
@@ -43,8 +43,9 @@ jobs:
           node-version: '22'
       - name: Confirmar conta QA autorizada
         run: |
-          u="JYNLO_QA_USERNAME_$JYNLO_AUDIT_ACCOUNT"; p="JYNLO_QA_PASSWORD_$JYNLO_AUDIT_ACCOUNT"
-          if [ -z "${!p}" ] || [ "${!u}" != "jynloteste0$JYNLO_AUDIT_ACCOUNT" ]; then
+          acc="$JYNLO_AUDIT_ACCOUNT"; [ "$acc" = 0 ] && acc=1
+          u="JYNLO_QA_USERNAME_$acc"; p="JYNLO_QA_PASSWORD_$acc"
+          if [ -z "${!p}" ] || [ "${!u}" != "jynloteste0$acc" ]; then
             echo '::error::Conta QA em falta ou não autorizada; nenhuma sessão iniciada.'; exit 1
           fi
       - name: Instalar Playwright
