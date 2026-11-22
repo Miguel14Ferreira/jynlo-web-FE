@@ -28,13 +28,13 @@
             type="text"
             name="sport"
             list="discover-sports"
-            [ngModel]="sport"
+            [ngModel]="sportDisplay"
             (ngModelChange)="onSportChange($event)"
             autocomplete="off"
             [placeholder]="'discover.sportPlaceholder' | t">
           <datalist id="discover-sports">
             @for (sportOption of searchableSports; track sportOption) {
-              <option [value]="sportOption"></option>
+              <option [value]="sportOptionLabel(sportOption)"></option>
             }
           </datalist>
         </label>

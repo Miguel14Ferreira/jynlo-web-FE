@@ -3,9 +3,9 @@
                       <thead>
                         <tr>
                           <th>{{ 'communities.player' | t }}</th>
-                          <th>J</th>
-                          <th>G</th>
-                          <th>A</th>
+                          <th [attr.title]="'Jogos' | t">{{ 'J' | t }}</th>
+                          <th [attr.title]="'Golos' | t">{{ 'G' | t }}</th>
+                          <th [attr.title]="'Assistências' | t">{{ 'A' | t }}</th>
                           <th>{{ 'MVP' | t }}</th>
                           <th>{{ 'CS' | t }}</th>
                           <th>{{ 'communities.winRate' | t }}</th>
