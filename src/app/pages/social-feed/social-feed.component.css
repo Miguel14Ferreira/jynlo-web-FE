@@ -1574,3 +1574,11 @@ h1 {
   outline:2px solid #56ead5;
   outline-offset:3px;
 }
+
+/* "Publicar em": perfil, comunidade ou equipa */
+.composer-destinations{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:4px 0 10px}
+.composer-destinations-label{font-size:12px;font-weight:800;color:var(--jynlo-muted,#9fb8bd);margin-right:2px}
+.composer-destination{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:36px;padding:0 14px;border-radius:18px;border:1px solid #2c6a73;background:transparent;color:#2ee6d0;font-weight:800;font-size:13px;cursor:pointer}
+.composer-destination:hover:not(:disabled){border-color:#2ee6d0}
+.composer-destination--on{background:#2ee6d0;border-color:#2ee6d0;color:#03242a}
+.composer-destination:disabled{opacity:.55;cursor:default}

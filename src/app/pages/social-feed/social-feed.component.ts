@@ -2,7 +2,7 @@ import { appTranslate } from '../../i18n/i18n.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit, Optional, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, Subscription, auditTime, catchError, finalize, forkJoin, of, retry, switchMap, takeUntil, timeout, timer, interval } from 'rxjs';
+import { Observable, Subject, Subscription, auditTime, catchError, finalize, forkJoin, of, retry, switchMap, takeUntil, timeout, timer, interval } from 'rxjs';
 
 import { environment } from 'src/environment/environment';
 import { appTranslate as t } from '../../i18n/i18n.service';
@@ -12,6 +12,8 @@ import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.s
 import { DirectChatService } from '../../services/direct-chat.service';
 import { CommunityService } from '../../services/community.service';
 import { CommunityGroupsService } from '../../services/community-groups.service';
+import { CommunityTimelineService } from '../../services/community-timeline.service';
+import { SportsTeamsService } from '../../services/sports-teams.service';
 import { CommunityGroup } from '../model/community-group';
 import { MySessionsResponse } from '../model/my-sessions-response';
 import { nextWeekGames, nextWeekWaitlist, weekOffers } from './my-sports-week';
@@ -29,6 +31,8 @@ import { addTextToPhoto } from './social-photo-text';
 import { TextPlacement } from './movable-text.component';
 import { CommunityLiveEvent, CommunityLiveService } from '../../services/community-live.service';
 import { PersonalLiveEvent, PersonalLiveService } from '../../services/personal-live.service';
+
+export interface PostDestination { kind: 'community' | 'team'; id: number; name: string; }
 
 @Component({
   selector: 'app-social-feed',
@@ -246,8 +250,108 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   postComposerPrivacy = 'PUBLIC';
   postComposerTagAi = false;
 
+  /** "Publicar em": null = my profile; otherwise a community or team feed I belong to. */
+  postDestination: PostDestination | null = null;
+  postDestinations: PostDestination[] = [];
+  publishedDestination: PostDestination | null = null;
+  private postDestinationsLoaded = false;
+  static readonly TEAM_FEED_MAX_FILES = 4;
+
   openPostComposer(): void {
     this.postComposerOpen = true;
+    this.loadPostDestinations();
+  }
+
+  loadPostDestinations(): void {
+    if (this.postDestinationsLoaded || !this.currentUsername) return;
+    this.postDestinationsLoaded = true;
+    forkJoin({
+      groups: this.communityGroupsService ? this.communityGroupsService.mine().pipe(catchError(() => of([] as CommunityGroup[]))) : of([] as CommunityGroup[]),
+      teams: this.sportsTeams ? this.sportsTeams.mine().pipe(catchError(() => of([]))) : of([])
+    }).subscribe(({ groups, teams }) => {
+      const list: PostDestination[] = [];
+      for (const group of groups ?? []) {
+        if (Number.isSafeInteger(group.id) && group.id > 0) list.push({ kind: 'community', id: group.id, name: group.name });
+      }
+      for (const team of teams ?? []) {
+        if (team.feedEnabled !== false && Number.isSafeInteger(team.id) && team.id > 0) list.push({ kind: 'team', id: team.id, name: team.name });
+      }
+      this.postDestinations = list;
+    });
+  }
+
+  get showPostDestinations(): boolean {
+    return this.postDestinations.length > 0 && !this.postGameSession && !this.newSessionForFeed;
+  }
+
+  isPostDestination(option: PostDestination | null): boolean {
+    if (!option) return this.postDestination === null;
+    return this.postDestination?.kind === option.kind && this.postDestination.id === option.id;
+  }
+
+  selectPostDestination(option: PostDestination | null): void {
+    if (this.posting) return;
+    this.postDestination = option;
+    if (option) {
+      this.postLocation = '';
+      this.postLocationVerified = false;
+      this.selectedSessionId = null;
+    }
+  }
+
+  destinationLink(destination: PostDestination): string[] {
+    return destination.kind === 'community'
+      ? ['/menu/communities', String(destination.id)]
+      : ['/menu/teams', String(destination.id)];
+  }
+
+  /** Posts in a community or team feed (members only; the server checks membership). */
+  private publishToDestination(destination: PostDestination, content: string): void {
+    const files = this.postGallery.length
+      ? this.postGallery.map(item => item.file)
+      : [this.postImageFile, this.postVideoFile].filter((file): file is File => !!file);
+    let send: Observable<unknown>;
+    if (destination.kind === 'community') {
+      if (!this.communityTimeline) return;
+      send = files.length
+        ? this.communityTimeline.sendPostAlbum(destination.id, content, files)
+        : this.communityTimeline.send(destination.id, 'POST', content);
+    } else {
+      if (!this.sportsTeams) return;
+      if (files.length > SocialFeedComponent.TEAM_FEED_MAX_FILES) {
+        this.actionError = appTranslate('No feed da equipa podes publicar até 4 fotografias ou vídeos de cada vez.');
+        return;
+      }
+      send = files.length
+        ? this.sportsTeams.uploadContentFiles(destination.id, 'feed', files, content, null)
+        : this.sportsTeams.sendContent(destination.id, 'feed', content);
+    }
+    this.posting = true;
+    this.actionError = '';
+    this.publishedDestination = null;
+    send.pipe(timeout(files.length ? 90_000 : 30_000), finalize(() => this.posting = false)).subscribe({
+      next: () => {
+        this.publishedDestination = destination;
+        this.postContent = '';
+        this.postImageFile = undefined;
+        this.postImagePreview = '';
+        this.removePostVideo();
+        this.clearPostGallery();
+        this.postDestination = null;
+        this.postComposerOpen = false;
+      },
+      error: (error: unknown) => {
+        if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
+          this.actionError = appTranslate('Não tens permissão para publicar aqui. Confirma que ainda és membro.');
+          return;
+        }
+        if (error instanceof HttpErrorResponse && error.status === 413) {
+          this.actionError = appTranslate('Os ficheiros são demasiado grandes para o servidor. Reduz o tamanho e tenta novamente.');
+          return;
+        }
+        this.actionError = appTranslate('Não foi possível confirmar a publicação. Verifica o feed antes de repetir.');
+      }
+    });
   }
 
   closePostComposer(): void {
@@ -954,7 +1058,9 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     @Optional() private communityLiveService: CommunityLiveService | null = null,
     @Optional() private personalLiveService: PersonalLiveService | null = null,
     @Optional() private realPlaceSearch: RealPlaceSearchService | null = null,
-    @Optional() private postShareChat: DirectChatService | null = null
+    @Optional() private postShareChat: DirectChatService | null = null,
+    @Optional() private communityTimeline: CommunityTimelineService | null = null,
+    @Optional() private sportsTeams: SportsTeamsService | null = null
   ) {
     this.authenticationService.isLoggedIn();
     this.currentUsername = this.authenticationService.loggedInPerfilname || '';
@@ -1309,6 +1415,10 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     const content = this.postContent.trim();
     const location = this.postLocation.trim();
     if (!this.canPublishPost) return;
+    if (this.postDestination) {
+      this.publishToDestination(this.postDestination, content);
+      return;
+    }
     if (location && !this.postLocationVerified) {
       this.actionError = appTranslate('Escolhe uma localização real da lista antes de publicar.');
       return;

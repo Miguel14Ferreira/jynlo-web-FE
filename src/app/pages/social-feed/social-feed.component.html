@@ -263,6 +263,23 @@
           }
         </div>
       }
+      @if (showPostDestinations) {
+        <div class="composer-destinations" role="radiogroup" [attr.aria-label]="'Publicar em' | t">
+          <span class="composer-destinations-label">{{ 'Publicar em' | t }}</span>
+          <button type="button" role="radio" class="composer-destination" [class.composer-destination--on]="isPostDestination(null)"
+                  [attr.aria-checked]="isPostDestination(null)" [disabled]="posting" (click)="selectPostDestination(null)">{{ 'O meu perfil' | t }}</button>
+          @for (option of postDestinations; track option.kind + option.id) {
+            <button type="button" role="radio" class="composer-destination" [class.composer-destination--on]="isPostDestination(option)"
+                    [attr.aria-checked]="isPostDestination(option)" [disabled]="posting" (click)="selectPostDestination(option)"
+                    [attr.title]="(option.kind === 'community' ? 'Comunidade' : 'Equipa') | t">
+              {{ option.kind === 'community' ? '👥' : '🛡' }} {{ option.name }}
+            </button>
+          }
+        </div>
+        @if (postDestination; as destination) {
+          <p class="composer-hint" role="status">{{ (destination.kind === 'community' ? 'Vai aparecer no feed da comunidade {{name}}, só para os membros.' : 'Vai aparecer no feed da equipa {{name}}, só para os membros.') | t:{name: destination.name} }}</p>
+        }
+      }
       <div class="composer-create-stage"
            [class.composer-create-stage--with-media]="postImagePreview || postVideoPreview || postGallery.length">
       <textarea
@@ -272,6 +289,7 @@
         [disabled]="posting"
         [placeholder]="'feed.sharePlaceholder' | t"></textarea>
       <p class="composer-caption-optional">{{ 'Descrição opcional — podes publicar apenas fotografias ou vídeos.' | t }}</p>
+      @if (!postDestination) {
       <label class="composer-place-label" for="feed-post-location">{{ 'Localização (opcional)' | t }}</label>
       <div class="composer-location-search">
         <input id="feed-post-location" class="composer-place-input" type="search"
@@ -300,6 +318,7 @@
           </div>
         }
       </div>
+      }
       <button type="button" class="composer-tag-trigger"
               [attr.aria-expanded]="postTagSearchOpen"
               [disabled]="posting" (click)="openPostTagSearch()">
@@ -676,6 +695,13 @@
               {{ (showAllAttendance ? 'common.close' : 'feed.v3.viewAll') | t }}
             </button>
           }
+        </section>
+      }
+      @if (publishedDestination; as destination) {
+        <section class="feed-hide-feedback" role="status" [attr.aria-label]="'Publicação confirmada' | t">
+          <span>{{ (destination.kind === 'community' ? 'Publicado na comunidade {{name}}.' : 'Publicado na equipa {{name}}.') | t:{name: destination.name} }}</span>
+          <a [routerLink]="destinationLink(destination)">{{ 'Ver' | t }}</a>
+          <button type="button" (click)="publishedDestination = null" [attr.aria-label]="'Fechar confirmação' | t">{{ 'Fechar' | t }}</button>
         </section>
       }
       @if (recentlyPublishedPostId) {
