@@ -73,7 +73,7 @@ test('Vercel sends the same crawlers to the same share pages, before the app fal
     assert.ok(rules.indexOf(rule) < rules.findIndex(r => r.source === '/(.*)'));
   }
   const robots = require('node:fs').readFileSync(require('node:path').join(__dirname, '../../src/robots.txt'), 'utf8');
-  assert.match(robots, /Sitemap: https:\/\/api\.d24sports\.com\/api\/public\/sitemap\.xml/);
+  assert.match(robots, /Sitemap: https:\/\/api\.jynlosports\.com\/api\/public\/sitemap\.xml/);
 });
 
 test('Vercel publishes develop and master, never work branches (daily build limit)', () => {

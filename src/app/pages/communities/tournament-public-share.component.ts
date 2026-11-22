@@ -63,7 +63,7 @@ export class TournamentPublicShareComponent implements OnChanges, OnDestroy {
   ngOnDestroy(): void { this.sub?.unsubscribe(); }
 
   link(): string {
-    return (typeof location !== 'undefined' ? location.origin : 'https://d24sports.com') + (this.setting?.path ?? '');
+    return (typeof location !== 'undefined' ? location.origin : 'https://jynlosports.com') + (this.setting?.path ?? '');
   }
 
   whatsapp(): string {

@@ -24,5 +24,5 @@ export function publicSessionResultMessage(
   const sport = typeof game.sport === 'string' ? game.sport.trim().slice(0, 60) : '';
   return appTranslate('🏆 Resultado oficial Jynlo') + '\n'
     + (sport ? sport + ' · ' : '') + appTranslate('Equipa A {{a}} — {{b}} Equipa B', {a: result.scoreA ?? '', b: result.scoreB ?? ''}) + '\n'
-    + 'https://d24sports.com/sessions/' + game.id;
+    + 'https://jynlosports.com/sessions/' + game.id;
 }
