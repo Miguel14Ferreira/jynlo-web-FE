@@ -22,6 +22,8 @@ describe('CommunityStatLeadersComponent', () => {
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.leader-card')?.textContent).toContain('Mestre');
+    expect(el.querySelector('.leader-card')?.textContent).toContain('4V 0E 2D · Jogos: 6');
+    expect(el.textContent).not.toContain('{');
     expect(el.querySelectorAll('.record-card').length).toBe(0);
     expect(el.querySelector('.records-empty')).not.toBeNull();
     expect(el.textContent).not.toContain('—');

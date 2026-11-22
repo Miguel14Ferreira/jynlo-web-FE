@@ -8151,8 +8151,8 @@ export const EN: Record<string, string> = {
   'Indica entre 0 e 99 jogadores.': 'Enter between 0 and 99 players.',
   'Jogadores confirmados fora da Jynlo atualizados.': 'Players confirmed outside Jynlo updated.',
   'Amigos que confirmaram por WhatsApp ou telefone. Ocupam lugares no jogo.': 'Friends who confirmed by WhatsApp or phone. They take spots in the game.',
-  '{w}V {d}E {l}D': '{w}W {d}D {l}L',
-  'Jogos: {n}': 'Games: {n}',
+  '{{w}}V {{d}}E {{l}}D': '{{w}}W {{d}}D {{l}}L',
+  'Jogos: {{n}}': 'Games: {{n}}',
   'Golos, assistências, MVP e clean sheets aparecem aqui quando forem registados nos resultados das jornadas.': 'Goals, assists, MVPs and clean sheets show up here once they are recorded in the match results.',
   'Ainda não há resultados nesta época.': 'No results this season yet.',
 };

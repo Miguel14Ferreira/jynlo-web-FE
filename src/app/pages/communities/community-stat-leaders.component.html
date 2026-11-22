@@ -11,8 +11,7 @@
         <small>
           {{ leader.points }} {{ 'communities.pointsShort' | t }}
           @if (leader.games > 0) {
-            · {{ '{w}V {d}E {l}D' | t:{ w: leader.wins, d: leader.draws, l: leader.losses } }}
-            · {{ 'Jogos: {n}' | t:{ n: leader.games } }}
+            · {{ leaderRecord(leader) }}
           }
         </small>
       </div>
