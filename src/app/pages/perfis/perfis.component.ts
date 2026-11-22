@@ -20,6 +20,7 @@ import { SocialStory } from '../model/social-story';
 import { FollowStatus, FollowProfile } from '../model/follow';
 import { CommunityService, FriendshipStatus, ProfileSearchFilters, PublicProfileAffiliations, PublicIndividualTitle, PublicCompletedParticipation } from '../../services/community.service';
 import { AuthenticationService } from '../../services/authethication.service';
+import { ReliabilitySummary } from '../model/reliability-summary';
 import { ReliabilityService } from '../../services/reliability.service';
 import { SocialGraphService } from '../../services/social-graph.service';
 import { FollowRequestSummary, ProfilePrivacyService, ProfilePrivacyStatus } from '../../services/profile-privacy.service';
@@ -169,6 +170,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
   profiles: CommunityProfile[] = [];
   selectedProfile?: CommunityProfile;
   selectedActivity?: ProfileActivity;
+  selectedAttendance?: ReliabilitySummary;
   profilePosts: FeedItem[] = [];
   expandedPost: FeedItem | null = null;
   private readonly privacyService=inject(ProfilePrivacyService);
@@ -644,6 +646,16 @@ export class PerfisComponent implements OnInit, OnDestroy {
         .subscribe(activity => {
           if (this.selectedProfile?.username !== profile.username) return;
           this.selectedActivity = activity;
+        })
+    );
+    // Attendance replaces the old generic badges: only shown after 3 finished games.
+    this.selectedAttendance = undefined;
+    this.detailSubscription.add(
+      this.reliabilityService.summary(profile.username)
+        .pipe(timeout(10_000), catchError(() => of(undefined)))
+        .subscribe(summary => {
+          if (this.selectedProfile?.username !== profile.username) return;
+          this.selectedAttendance = summary && Number.isFinite(summary.attendanceRate) ? summary : undefined;
         })
     );
     this.detailSubscription.add(

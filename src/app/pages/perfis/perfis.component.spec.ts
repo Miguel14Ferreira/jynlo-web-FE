@@ -1147,8 +1147,8 @@ describe('PerfisComponent', () => {
     fixture.detectChanges();
     let root: HTMLElement = fixture.nativeElement;
     expect(root.querySelector('a.profile-edit-action')).toBeNull();
-    expect(root.querySelectorAll('.profile-achievement-preview > .profile-achievement-badge').length).toBe(2);
-    expect(root.querySelector('details.public-achievements-disclosure')).toBeNull();
+    // Generic badges are no longer shown on profiles.
+    expect(root.querySelectorAll('.profile-achievement-badge').length).toBe(0);
 
     (component.isOwnProfile as jasmine.Spy).and.returnValue(true);
     fixture.detectChanges();
@@ -1157,7 +1157,7 @@ describe('PerfisComponent', () => {
     expect(root.querySelector('.profile-invite-trigger')).toBeNull();
   });
 
-  it('shows three earned achievements immediately and keeps additional ones collapsed', () => {
+  it('shows attendance instead of badges once there are enough games', () => {
     component.profilePage = true;
     component.selectedProfile = { ...profile };
     component.selectedActivity = {
@@ -1165,13 +1165,14 @@ describe('PerfisComponent', () => {
       eventsCreated: 3, participantsMobilized: 16, communitiesJoined: 2,
       achievements: ['FIRST_ACTIVITY','TEN_ACTIVITIES','EXPLORER','ORGANIZER']
     };
+    component.selectedAttendance = { attendanceRate: 95.6, completedSessions: 9 } as any;
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.querySelectorAll('.profile-achievement-preview > .profile-achievement-badge').length).toBe(3);
-    const remainder = root.querySelector('details.public-achievements-disclosure') as HTMLDetailsElement;
-    expect(remainder).toBeTruthy();
-    expect(remainder.open).toBeFalse();
-    expect(remainder.querySelectorAll('.profile-achievement-remainder > .profile-achievement-badge').length).toBe(1);
+    expect(root.querySelectorAll('.profile-achievement-badge').length).toBe(0);
+    expect(root.textContent).toContain('96%');
+    component.selectedAttendance = { attendanceRate: 50, completedSessions: 2 } as any;
+    fixture.detectChanges();
+    expect(root.textContent).not.toContain('50%');
   });
 
   it('shows the chat instead of another request when the server confirms friendship', () => {

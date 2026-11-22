@@ -8065,4 +8065,5 @@ export const EN: Record<string, string> = {
   'Concluir e explorar': "Finish and explore",
   'Não foi possível seguir a comunidade. Tenta novamente.': "Could not follow the community. Please try again.",
   'A preparar as tuas fotografias…': 'Preparing your photos…',
+  'Presença nos jogos': 'Game attendance',
 };
