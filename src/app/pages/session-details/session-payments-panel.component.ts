@@ -87,7 +87,7 @@ import { SessionPayments, SessionPaymentService } from '../../services/session-p
                 <p class="session-payments__payee">
                   {{ 'payments.payeeIs' | t }}
                   <strong>{{ data.payee?.fullName || data.payee?.username }}</strong>
-                  @if (data.payee?.username && data.payee?.fullName) { <span class="session-payments__muted">&#64;{{ data.payee?.username }}</span> }
+                  @if (data.payee?.username && data.payee?.fullName) { <span class="session-payments__muted"> · &#64;{{ data.payee?.username }}</span> }
                 </p>
               }
               <div class="session-payments__row">
