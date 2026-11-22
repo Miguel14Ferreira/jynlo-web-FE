@@ -468,16 +468,17 @@
                     }
                     <button type="button" class="inbox-reply-action"
                       [disabled]="sending || deliveryUncertain || !composerAllowed || mutationPending"
-                      (click)="replyToMessage(message)">
-                      ↩ {{ 'chat.replyToMessage' | t }}
-                    </button>
+                      [attr.aria-label]="'chat.replyToMessage' | t" [title]="'chat.replyToMessage' | t"
+                      (click)="replyToMessage(message)"><span aria-hidden="true">↩</span></button>
                     @if (canEditSentMessage(message)) {
                       <button type="button" class="inbox-mutation-trigger"
-                        (click)="beginEditMessage(message)">{{ 'chat.editMessage' | t }}</button>
+                        [attr.aria-label]="'chat.editMessage' | t" [title]="'chat.editMessage' | t"
+                        (click)="beginEditMessage(message)"><span aria-hidden="true">✎</span></button>
                     }
                     @if (canDeleteSentMessage(message)) {
-                      <button type="button" class="inbox-mutation-trigger"
-                        (click)="promptDeleteMessage(message)">{{ 'chat.deleteMessage' | t }}</button>
+                      <button type="button" class="inbox-mutation-trigger inbox-mutation-trigger--danger"
+                        [attr.aria-label]="'chat.deleteMessage' | t" [title]="'chat.deleteMessage' | t"
+                        (click)="promptDeleteMessage(message)"><span aria-hidden="true">🗑</span></button>
                     }
                   </div>
                   @if (confirmingDeleteMessageId === message.id) {
