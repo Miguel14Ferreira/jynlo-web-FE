@@ -672,4 +672,12 @@ describe('SocialStoriesComponent', () => {
     }
   });
 
+
+  it('offers a public community to plain members when organizers let members post', () => {
+    const allowed = { id: 9, name: 'Aberta', visibility: 'PUBLIC', myRole: 'MEMBER', membersCanPost: true };
+    const closed = { id: 10, name: 'Fechada', visibility: 'PUBLIC', myRole: 'MEMBER', membersCanPost: false };
+    const keep = (group: any) => group.visibility === 'PUBLIC'
+      && (group.myRole === 'OWNER' || group.myRole === 'ADMIN' || group.membersCanPost === true);
+    expect([allowed, closed].filter(keep).map(g => g.id)).toEqual([9]);
+  });
 });

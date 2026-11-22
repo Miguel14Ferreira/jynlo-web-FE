@@ -955,6 +955,52 @@
                   @if (sessionPolicyError) { <p role="alert" class="community-session-policy-error">{{ sessionPolicyError }}</p> }
                 </section>
 
+                <section class="community-session-policy" aria-labelledby="community-posting-policy-title">
+                  <div class="community-session-policy-heading">
+                    <div>
+                      <span class="section-kicker">{{ 'Feed e Stories' | t }}</span>
+                      <h3 id="community-posting-policy-title">{{ 'Quem pode publicar' | t }}</h3>
+                      <p>{{ 'Decide se todos os membros publicam no feed e em Stories da comunidade, ou só os organizadores.' | t }}</p>
+                    </div>
+                    @if (canManage() && !postingPolicyEditing) {
+                      <button type="button" class="jynlo-action jynlo-action--neutral" (click)="editPostingPolicy()">
+                        {{ 'Alterar' | t }}
+                      </button>
+                    }
+                  </div>
+                  @if (!postingPolicyEditing) {
+                    <p class="community-session-policy-value">
+                      {{ (selected.membersCanPost === false
+                          ? 'Só os organizadores'
+                          : 'Todos os membros') | t }}
+                    </p>
+                  } @else {
+                    <fieldset class="community-session-policy-options" [disabled]="postingPolicySaving">
+                      <legend>{{ 'Quem pode publicar' | t }}</legend>
+                      <div class="community-session-policy-choice-grid">
+                        <label [class.selected]="postingPolicyDraft">
+                          <input type="radio" name="communityPostingPermission" [value]="true" [(ngModel)]="postingPolicyDraft">
+                          <span class="community-session-policy-choice-copy">{{ 'Todos os membros' | t }}</span>
+                        </label>
+                        <label [class.selected]="!postingPolicyDraft">
+                          <input type="radio" name="communityPostingPermission" [value]="false" [(ngModel)]="postingPolicyDraft">
+                          <span class="community-session-policy-choice-copy">{{ 'Só os organizadores' | t }}</span>
+                        </label>
+                      </div>
+                    </fieldset>
+                    <div class="community-session-policy-actions">
+                      <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="postingPolicySaving"
+                        (click)="savePostingPolicy()">
+                        {{ (postingPolicySaving ? 'A guardar…' : 'Guardar') | t }}
+                      </button>
+                      <button type="button" class="jynlo-action jynlo-action--neutral" [disabled]="postingPolicySaving"
+                        (click)="cancelPostingPolicy()">{{ 'Cancelar' | t }}</button>
+                    </div>
+                  }
+                  @if (postingPolicyFeedback) { <p role="status" class="community-session-policy-feedback">{{ postingPolicyFeedback }}</p> }
+                  @if (postingPolicyError) { <p role="alert" class="community-session-policy-error">{{ postingPolicyError }}</p> }
+                </section>
+
                 <section class="season-dashboard">
                   <app-community-habitual-venue-picker [community]="selected"
                     (venueSaved)="onHabitualVenueSaved($event)"></app-community-habitual-venue-picker>

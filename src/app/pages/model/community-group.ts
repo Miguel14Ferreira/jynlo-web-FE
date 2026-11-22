@@ -33,6 +33,8 @@ export interface CommunityGroup {
   teamTournamentsEnabled?: boolean;
   /** Defaults to true for pre-existing community responses. */
   membersCanCreateSessions?: boolean;
+  /** Organizers decide whether all members may post in the feed and Stories. */
+  membersCanPost?: boolean;
   ownerUsername: string;
   myRole: CommunityRole | null;
   memberCount: number;

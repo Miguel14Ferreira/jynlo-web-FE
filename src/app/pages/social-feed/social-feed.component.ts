@@ -271,7 +271,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     }).subscribe(({ groups, teams }) => {
       const list: PostDestination[] = [];
       for (const group of groups ?? []) {
-        if (Number.isSafeInteger(group.id) && group.id > 0) list.push({ kind: 'community', id: group.id, name: group.name });
+        const mayPost = group.membersCanPost !== false || group.myRole === 'OWNER' || group.myRole === 'ADMIN';
+        if (mayPost && Number.isSafeInteger(group.id) && group.id > 0) list.push({ kind: 'community', id: group.id, name: group.name });
       }
       for (const team of teams ?? []) {
         if (team.feedEnabled !== false && Number.isSafeInteger(team.id) && team.id > 0) list.push({ kind: 'team', id: team.id, name: team.name });
