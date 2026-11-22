@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy } from '@angular/core';
 import { Subscription, timeout } from 'rxjs';
@@ -18,7 +19,7 @@ import { PublicRankingService, PublicRankingSetting } from '../../services/publi
         </div>
         <div class="tps__actions">
           @if (setting.enabled) {
-            <a class="secondary-action jynlo-action jynlo-action--neutral jynlo-action--compact" [href]="whatsapp()" target="_blank" rel="noopener">WhatsApp</a>
+            <a class="secondary-action jynlo-action jynlo-action--neutral jynlo-action--compact" [href]="whatsapp()" target="_blank" rel="noopener">{{ 'WhatsApp' | t }}</a>
             <button type="button" class="secondary-action jynlo-action jynlo-action--neutral jynlo-action--compact" (click)="copy()">
               {{ (copied ? 'publicTournament.copied' : 'publicTournament.copyLink') | t }}</button>
           }
@@ -65,7 +66,7 @@ export class CommunityPublicRankingShareComponent implements OnChanges, OnDestro
   }
 
   whatsapp(): string {
-    return 'https://wa.me/?text=' + encodeURIComponent('Classificação da época: ' + this.link());
+    return 'https://wa.me/?text=' + encodeURIComponent(appTranslate('Classificação da época: {{link}}', {link: this.link()}));
   }
 
   copy(): void {
@@ -82,7 +83,7 @@ export class CommunityPublicRankingShareComponent implements OnChanges, OnDestro
     this.busy = true; this.error = '';
     this.api.update(this.communityId, !this.setting.enabled).pipe(timeout(10000)).subscribe({
       next: setting => { this.setting = setting; this.busy = false; this.cdr.markForCheck(); },
-      error: () => { this.busy = false; this.error = 'Não foi possível alterar. Tenta outra vez.'; this.cdr.markForCheck(); }
+      error: () => { this.busy = false; this.error = appTranslate('Não foi possível alterar. Tenta outra vez.'); this.cdr.markForCheck(); }
     });
   }
 }

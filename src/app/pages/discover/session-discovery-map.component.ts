@@ -16,18 +16,18 @@ type MapArea = 'mainland' | 'azores' | 'madeira';
   standalone: false,
   template: `
     <div class="jynlo-session-map">
-      <div class="jynlo-session-map-toolbar" aria-label="Navegar no mapa de Portugal">
-        <button type="button" (click)="showArea('mainland')">Continente</button>
-        <button type="button" (click)="showArea('azores')">Açores</button>
-        <button type="button" (click)="showArea('madeira')">Madeira</button>
-        <button type="button" (click)="zoomBy(1)" aria-label="Aproximar mapa">+</button>
-        <button type="button" (click)="zoomBy(-1)" aria-label="Afastar mapa">−</button>
+      <div class="jynlo-session-map-toolbar" [attr.aria-label]="'Navegar no mapa de Portugal' | t">
+        <button type="button" (click)="showArea('mainland')">{{ 'Continente' | t }}</button>
+        <button type="button" (click)="showArea('azores')">{{ 'Açores' | t }}</button>
+        <button type="button" (click)="showArea('madeira')">{{ 'Madeira' | t }}</button>
+        <button type="button" (click)="zoomBy(1)" [attr.aria-label]="'Aproximar mapa' | t">+</button>
+        <button type="button" (click)="zoomBy(-1)" [attr.aria-label]="'Afastar mapa' | t">−</button>
       </div>
       <div class="jynlo-session-map-actions">
-        <button type="button" (click)="searchCurrentArea()">⌕ Pesquisar nesta área</button>
-        <span>Pesquisa aproximada na zona visível</span>
+        <button type="button" (click)="searchCurrentArea()">{{ '⌕ Pesquisar nesta área' | t }}</button>
+        <span>{{ 'Pesquisa aproximada na zona visível' | t }}</span>
       </div>
-      <div class="jynlo-session-map-viewport" aria-label="Mapa das zonas aproximadas dos jogos"
+      <div class="jynlo-session-map-viewport" [attr.aria-label]="'Mapa das zonas aproximadas dos jogos' | t"
         (pointerdown)="startPan($event)" (pointermove)="movePan($event)"
         (pointerup)="stopPan()" (pointercancel)="stopPan()" (lostpointercapture)="stopPan()">
         @for (tile of tiles; track tile.key) {
@@ -36,21 +36,21 @@ type MapArea = 'mainland' | 'azores' | 'madeira';
         }
         @for (pin of pins; track pin.session.id) {
           <button type="button" class="jynlo-session-map-pin" [style.left.px]="pin.left"
-            [style.top.px]="pin.top" [attr.aria-label]="pin.sessions.length > 1 ? 'Ver ' + pin.sessions.length + ' jogos nesta zona' : 'Ver ' + pin.session.sport + ' em ' + pin.session.city"
+            [style.top.px]="pin.top" [attr.aria-label]="pin.sessions.length > 1 ? ('Ver {{length}} jogos nesta zona' | t:{length: pin.sessions.length}) : ('Ver {{sport}} em {{city}}' | t:{sport: pin.session.sport, city: pin.session.city})"
             [class.jynlo-session-map-pin--cluster]="pin.sessions.length > 1"
             (pointerdown)="$event.stopPropagation()" (click)="selectPin(pin)">
             <span aria-hidden="true">{{ pin.sessions.length > 1 ? pin.sessions.length : '●' }}</span>
           </button>
         }
       </div>
-      <p class="jynlo-session-map-caption">© OpenStreetMap contributors · Os marcadores indicam zonas aproximadas, não pontos de encontro exatos.</p>
+      <p class="jynlo-session-map-caption">{{ '© OpenStreetMap contributors · Os marcadores indicam zonas aproximadas, não pontos de encontro exatos.' | t }}</p>
       @if (selectedGroup.length) {
         <div class="jynlo-session-map-group" aria-live="polite">
-          <strong>{{ selectedGroup.length === 1 ? 'Jogo selecionado' : selectedGroup.length + ' jogos nesta zona' }}</strong>
+          <strong>{{ selectedGroup.length === 1 ? ('Jogo selecionado' | t) : ('{{n}} jogos nesta zona' | t:{n: selectedGroup.length}) }}</strong>
           <div class="jynlo-session-map-group-list">
             @for (session of selectedGroup; track session.id) {
               <a [routerLink]="['/menu/events', session.id]">
-                <span><b>{{ session.sport }}</b><small>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</small></span>
+                <span><b>{{ session.sport }}</b><small>{{ session.city }} · {{ session.gameDate | date:('dd/MM HH:mm' | t) }}</small></span>
                 <span aria-hidden="true">→</span>
               </a>
             }
@@ -58,7 +58,7 @@ type MapArea = 'mainland' | 'azores' | 'madeira';
         </div>
       }
       @if (pins.length === 0) {
-        <p class="jynlo-session-map-empty">Não há sessões com localização pública nesta área. Experimenta outra região ou consulta a lista.</p>
+        <p class="jynlo-session-map-empty">{{ 'Não há sessões com localização pública nesta área. Experimenta outra região ou consulta a lista.' | t }}</p>
       }
     </div>
   `,

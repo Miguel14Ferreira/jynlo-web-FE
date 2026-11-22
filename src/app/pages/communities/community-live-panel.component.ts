@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -6,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { Room, RoomEvent, Track, RemoteTrack, RemoteParticipant } from 'livekit-client';
 import { Subscription, EMPTY, finalize, firstValueFrom, interval, startWith, switchMap, catchError, of, timeout } from 'rxjs';
 import { CommunityLiveEvent, CommunityLiveService } from '../../services/community-live.service';
-import { I18nService } from '../../i18n/i18n.service';
+import { I18nService, appTranslate } from '../../i18n/i18n.service';
 
 /**
  * Community-scoped live video. The host publishes; viewers always subscribe
@@ -15,9 +16,9 @@ import { I18nService } from '../../i18n/i18n.service';
 @Component({
   selector: 'app-community-live-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [TranslatePipe, CommonModule, FormsModule],
   template: `
-    <section class="live-panel" [hidden]="!enabled" aria-label="Transmissões em direto da comunidade">
+    <section class="live-panel" [hidden]="!enabled" [attr.aria-label]="'Transmissões em direto da comunidade' | t">
       <div class="live-panel-heading">
         <div><strong>{{tr('Diretos da comunidade','Community live streams')}}</strong><p>{{tr('Jogos, treinos e eventos em direto','Live games, training and events')}}</p></div>
         <button type="button" class="live-refresh" (click)="load()" [disabled]="busy">{{tr('Atualizar','Refresh')}}</button>
@@ -32,7 +33,7 @@ import { I18nService } from '../../i18n/i18n.service';
                   {{ event.status === 'LIVE' ? tr('● Em direto','● LIVE') : event.status === 'SCHEDULED' ? tr('Agendado','Scheduled') : tr('Terminado','Ended') }}
                 </span>
                 <strong>{{ event.title }}</strong>
-                <small>{{ event.scheduledAt | date:'dd/MM/yyyy HH:mm' }}</small>
+                <small>{{ event.scheduledAt | date:('dd/MM/yyyy HH:mm' | t) }}</small>
                 @if (event.description) { <p>{{ event.description }}</p> }
               </div>
               <div class="live-event-actions">
@@ -53,32 +54,31 @@ import { I18nService } from '../../i18n/i18n.service';
       }
       @if (canManage && !room) {
         <form class="live-schedule" (ngSubmit)="schedule()">
-          <label>Título do direto
+          <label>{{ 'Título do direto' | t }}
             <input name="liveTitle" [(ngModel)]="title" maxlength="120" required [disabled]="busy"
               [placeholder]="tr('Ex.: Jogo de futebol de sábado','e.g. Saturday football match')"/>
           </label>
-          <label>Descrição (opcional)
+          <label>{{ 'Descrição (opcional)' | t }}
             <textarea name="liveDescription" [(ngModel)]="description" maxlength="1000" rows="2"
               [disabled]="busy"></textarea>
           </label>
-          <label>Data e hora
+          <label>{{ 'Data e hora' | t }}
             <input name="liveDate" type="datetime-local" [(ngModel)]="date" required [disabled]="busy"/>
           </label>
           <div class="live-create-actions">
             <button type="submit" class="secondary" [disabled]="busy || !title.trim() || !date">
-              Agendar transmissão
+              {{ 'Agendar transmissão' | t }}
             </button>
             <button type="button" class="live-go-now" [disabled]="busy || !!room || hasActiveBroadcast"
                     (click)="goLiveNow()">
-              ● Entrar em direto agora
+              {{ '● Entrar em direto agora' | t }}
             </button>
           </div>
-          <p class="live-create-help">O direto usa a tua câmara e microfone após clicares em iniciar.
-            Podes desligá-los durante a transmissão. Apenas os responsáveis da comunidade podem transmitir.</p>
+          <p class="live-create-help">{{ 'O direto usa a tua câmara e microfone após clicares em iniciar. Podes desligá-los durante a transmissão. Apenas os responsáveis da comunidade podem transmitir.' | t }}</p>
         </form>
       }
       @if (room) {
-        <div class="live-player" role="region" aria-label="Transmissão em direto">
+        <div class="live-player" role="region" [attr.aria-label]="'Transmissão em direto' | t">
           <div class="live-player-header">
             <strong>{{ active?.title }}</strong>
             <span>{{ hosting ? tr('A transmitir','Broadcasting') : tr('A assistir','Watching') }}</span>
@@ -95,10 +95,10 @@ import { I18nService } from '../../i18n/i18n.service';
               <button type="button" (click)="leave()">{{tr('Sair da transmissão','Leave broadcast')}}</button>
             }
           </div>
-          <div class="live-media" #stage aria-label="Vídeo e áudio da transmissão"></div>
+          <div class="live-media" #stage [attr.aria-label]="'Vídeo e áudio da transmissão' | t"></div>
           @if (!hosting) {
             <button type="button" class="live-audio-unlock" (click)="unlockAudio()">
-              Ativar som da transmissão
+              {{ 'Ativar som da transmissão' | t }}
             </button>
           }
           @if (hosting) {
@@ -249,7 +249,7 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
     const version = this.requestVersion;
     this.api.list(this.communityId).pipe(timeout(10000)).subscribe({
       next: events => { if (version === this.requestVersion) { this.events = events; this.error = ''; } },
-      error: () => { this.error = 'Não foi possível atualizar as transmissões.'; }
+      error: () => { this.error = appTranslate('Não foi possível atualizar as transmissões.'); }
     });
   }
 
@@ -263,7 +263,7 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
     if (this.busy || this.room || !this.communityId || !this.canManage || !this.enabled
         || this.hasActiveBroadcast) return;
     const communityId = this.communityId;
-    const title = this.title.trim() || 'Direto da comunidade';
+    const title = this.title.trim() || appTranslate('Direto da comunidade');
     const description = this.description.trim();
     this.busy = true;
     this.error = '';
@@ -285,7 +285,7 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
         });
       },
       error: () => {
-        this.error = 'Não foi possível iniciar o direto. Verifica as permissões e a disponibilidade do vídeo.';
+        this.error = appTranslate('Não foi possível iniciar o direto. Verifica as permissões e a disponibilidade do vídeo.');
         this.load();
       }
     });
@@ -294,12 +294,12 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
   schedule(): void {
     if (this.busy || !this.title.trim() || !this.date || !this.communityId) return;
     const startsAt = new Date(this.date);
-    if (!Number.isFinite(startsAt.getTime())) { this.error = 'Data inválida.'; return; }
+    if (!Number.isFinite(startsAt.getTime())) { this.error = appTranslate('Data inválida.'); return; }
     this.busy = true;
     this.api.schedule(this.communityId, this.title.trim(), this.description.trim(),
       startsAt.toISOString()).pipe(finalize(() => this.busy = false)).subscribe({
       next: () => { this.title=''; this.description=''; this.date=''; this.error=''; this.load(); },
-      error: () => this.error = 'Não foi possível agendar. Confirma as permissões e a data.'
+      error: () => this.error = appTranslate('Não foi possível agendar. Confirma as permissões e a data.')
     });
   }
 
@@ -316,7 +316,7 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
           if (this.communityId === communityId) void this.join(started);
         });
       },
-      error: () => this.error = 'Não foi possível iniciar. Verifica a ligação e a disponibilidade do vídeo.'
+      error: () => this.error = appTranslate('Não foi possível iniciar. Verifica a ligação e a disponibilidade do vídeo.')
     });
   }
 
@@ -325,7 +325,7 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
     this.busy = true;
     this.api.end(this.communityId, event.id).pipe(finalize(() => this.busy = false)).subscribe({
       next: () => { this.leave(); this.load(); },
-      error: () => this.error = 'Não foi possível terminar a transmissão.'
+      error: () => this.error = appTranslate('Não foi possível terminar a transmissão.')
     });
   }
 
@@ -396,7 +396,7 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
         // camera changes during a running broadcast.
       }
     } catch {
-      this.error = 'Não foi possível entrar no direto. Verifica as permissões da câmara e do microfone.';
+      this.error = appTranslate('Não foi possível entrar no direto. Verifica as permissões da câmara e do microfone.');
       this.leave();
     } finally { this.busy = false; }
   }
@@ -414,7 +414,7 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
         catchError((error: unknown) => {
           if (error instanceof HttpErrorResponse
               && [401, 403, 404, 409].includes(error.status)) {
-            this.error = 'O direto terminou ou deixaste de ter permissão para transmitir.';
+            this.error = appTranslate('O direto terminou ou deixaste de ter permissão para transmitir.');
             this.leave();
           }
           // Ordinary network errors are retried by the next heartbeat.
@@ -435,9 +435,9 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
       // Audio is separate; muted video can autoplay on mobile browsers.
       element.muted = true;
       element.setAttribute('playsinline','');
-      element.setAttribute('aria-label', 'Vídeo em direto');
+      element.setAttribute('aria-label', appTranslate('Vídeo em direto'));
     } else {
-      element.setAttribute('aria-label', 'Áudio do direto');
+      element.setAttribute('aria-label', appTranslate('Áudio do direto'));
     }
     this.attached.add(element);
     stage.appendChild(element);
@@ -451,9 +451,9 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
     for (const element of this.attached) {
       if (element instanceof HTMLAudioElement) {
         try { void element.play().catch(() => {
-          this.error = 'Não foi possível iniciar o áudio. Verifica o som do dispositivo.';
+          this.error = appTranslate('Não foi possível iniciar o áudio. Verifica o som do dispositivo.');
         }); } catch {
-          this.error = 'O navegador bloqueou o áudio. Verifica as permissões.';
+          this.error = appTranslate('O navegador bloqueou o áudio. Verifica as permissões.');
         }
       }
     }
@@ -464,7 +464,7 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
     try {
       await this.room.localParticipant.setCameraEnabled(!this.cameraOn);
       this.cameraOn = !this.cameraOn;
-    } catch { this.error = 'Não foi possível alterar a câmara.'; }
+    } catch { this.error = appTranslate('Não foi possível alterar a câmara.'); }
   }
 
   async toggleMic(): Promise<void> {
@@ -472,7 +472,7 @@ export class CommunityLivePanelComponent implements OnChanges, OnDestroy {
     try {
       await this.room.localParticipant.setMicrophoneEnabled(!this.micOn);
       this.micOn = !this.micOn;
-    } catch { this.error = 'Não foi possível alterar o microfone.'; }
+    } catch { this.error = appTranslate('Não foi possível alterar o microfone.'); }
   }
 
   leave(): void {

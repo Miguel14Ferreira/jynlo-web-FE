@@ -1,3 +1,4 @@
+import { appTranslate } from '../i18n/i18n.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -21,7 +22,7 @@ export class SocialFeedService {
   /** Opt-in posts associated with a public game; privacy enforced on the API. */
   sessionMemories(sessionId: number): Observable<FeedItem[]> {
     if (!Number.isSafeInteger(sessionId) || sessionId <= 0) {
-      throw new Error('Sessão inválida');
+      throw new Error(appTranslate('Sessão inválida'));
     }
     return this.http.get<FeedItem[]>(this.baseUrl + '/sessions/' + sessionId + '/memories');
   }

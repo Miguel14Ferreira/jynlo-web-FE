@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, OnDestroy, OnInit, AfterViewChecked, ViewChild, ChangeDetectionStrategy, Optional, HostListener, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
@@ -1779,7 +1780,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
         || files.some(file => !allowed.includes(file.type)
           || file.size === 0 || file.size > (file.type.startsWith('video/') ? 20
             : file.type.startsWith('audio/') ? 12 : 5) * 1024 * 1024)) {
-      this.composerError = 'Até 4 ficheiros (40 MB no total): imagens/PDF 5 MB, áudio 12 MB, vídeo 20 MB.';
+      this.composerError = appTranslate('Até 4 ficheiros (40 MB no total): imagens/PDF 5 MB, áudio 12 MB, vídeo 20 MB.');
       return;
     }
     this.clearVoicePreview();
@@ -2265,7 +2266,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
         if (version !== this.attachmentViewVersion || this.selectedKey !== message.key
             || !this.isAttachmentIdentityCurrent() || !this.isSelectedSessionOpen()) return;
         if (blob.type.toLowerCase() !== attachment.mimeType.toLowerCase()) {
-          this.composerError = 'O ficheiro recebido não corresponde ao formato esperado.';
+          this.composerError = appTranslate('O ficheiro recebido não corresponde ao formato esperado.');
           return;
         }
         const url = URL.createObjectURL(blob);

@@ -1,3 +1,5 @@
+import { TranslatePipe } from '../i18n/translate.pipe';
+import { appTranslate } from '../i18n/i18n.service';
 import {CommonModule} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
 import {Component,Input,OnChanges,OnDestroy,OnInit} from '@angular/core';
@@ -14,39 +16,39 @@ import {DirectChatMessage} from '../pages/model/direct-chat';
 @Component({
  selector:'app-direct-call-chat-panel',
  standalone:true,
- imports:[CommonModule,FormsModule],
+ imports:[TranslatePipe, CommonModule,FormsModule],
  template:`
-  <section class="jynlo-call-chat" aria-label="Chat da chamada">
+  <section class="jynlo-call-chat" [attr.aria-label]="'Chat da chamada' | t">
    <header class="call-chat-head">
     <span class="call-chat-avatar" aria-hidden="true">{{peer.slice(0,1).toUpperCase()}}</span>
     <div class="call-chat-head-copy">
-     <strong>Chat da chamada</strong>
-     <small>Conversa privada com @{{peer}}</small>
+     <strong>{{ 'Chat da chamada' | t }}</strong>
+     <small>{{ 'Conversa privada com @{{peer}}' | t:{peer: (peer)} }}</small>
     </div>
    </header>
-   @if (loading) { <p class="call-chat-loading" role="status">A abrir mensagens…</p> }
+   @if (loading) { <p class="call-chat-loading" role="status">{{ 'A abrir mensagens…' | t }}</p> }
    @if (syncWarning) { <p class="call-chat-warning" role="status">{{syncWarning}}</p> }
-   <div class="call-chat-history" role="log" aria-label="Mensagens durante a chamada" aria-live="polite">
-    @if (!loading && !messages.length) { <p class="call-chat-empty">Ainda não há mensagens. Inicia a conversa!</p> }
+   <div class="call-chat-history" role="log" [attr.aria-label]="'Mensagens durante a chamada' | t" aria-live="polite">
+    @if (!loading && !messages.length) { <p class="call-chat-empty">{{ 'Ainda não há mensagens. Inicia a conversa!' | t }}</p> }
     @for (message of messages; track message.id) {
      <article class="call-chat-bubble" [class.is-mine]="isMine(message)">
-      <small class="call-chat-sender">{{isMine(message)?'Tu':'@'+peer}}</small>
+      <small class="call-chat-sender">{{isMine(message)?('Tu' | t):'@'+peer}}</small>
       @if (message.replyToText && !message.deletedAt) {
        <span class="call-chat-quote">↳ {{message.replyToText}}</span>
       }
       @if (message.deletedAt) {
-       <p>Mensagem removida</p>
+       <p>{{ 'Mensagem removida' | t }}</p>
       } @else {
        @if (message.text) { <p>{{message.text}}</p> }
        @if (message.id; as messageId) {
         @for (attachment of messageAttachments(message); track attachment.index) {
          @if (isImage(attachment.mimeType)) {
           @if (attachmentUrl(messageId,attachment.index); as url) {
-           <a [href]="url" target="_blank" rel="noopener" [attr.aria-label]="'Abrir imagem ' + attachment.filename">
+           <a [href]="url" target="_blank" rel="noopener" [attr.aria-label]="('Abrir imagem {{filename}}' | t:{filename: attachment.filename})">
             <img class="call-chat-image" [src]="url" [alt]="attachment.filename" loading="lazy">
            </a>
           } @else {
-           <span class="call-chat-attachment-state">{{attachmentFailed(messageId,attachment.index)?'Imagem indisponível':'A carregar imagem…'}}</span>
+           <span class="call-chat-attachment-state">{{attachmentFailed(messageId,attachment.index)?('Imagem indisponível' | t):('A carregar imagem…' | t)}}</span>
           }
          } @else {
           <button type="button" class="call-chat-file" (click)="openAttachment(messageId,attachment.index,attachment.filename)">
@@ -55,7 +57,7 @@ import {DirectChatMessage} from '../pages/model/direct-chat';
          }
         }
        }
-       @if (!message.text && !messageAttachments(message).length) { <p>Mensagem</p> }
+       @if (!message.text && !messageAttachments(message).length) { <p>{{ 'Mensagem' | t }}</p> }
       }
       <time>{{messageTime(message)}}</time>
      </article>
@@ -64,10 +66,10 @@ import {DirectChatMessage} from '../pages/model/direct-chat';
    @if (error) { <p class="call-chat-warning" role="alert">{{error}}</p> }
    <form class="call-chat-composer" (ngSubmit)="sendMessage()">
     <textarea name="message" [(ngModel)]="draft" rows="2" maxlength="2000"
-     aria-label="Escrever mensagem na chamada" placeholder="Escrever mensagem…"
+     [attr.aria-label]="'Escrever mensagem na chamada' | t" [placeholder]="'Escrever mensagem…' | t"
      [disabled]="sending || accessRevoked"></textarea>
     <button type="submit" [disabled]="sending || accessRevoked || !draft.trim()"
-     aria-label="Enviar mensagem durante a chamada">{{sending?'…':'Enviar'}}</button>
+     [attr.aria-label]="'Enviar mensagem durante a chamada' | t">{{sending?'…':('Enviar' | t)}}</button>
    </form>
   </section>
  `,
@@ -165,7 +167,7 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
   this.chat.history(peer).subscribe({
    next:rows=>{
     if(version!==this.generation||this.peer!==peer)return;
-    if(!Array.isArray(rows)){this.syncWarning='Não foi possível validar o histórico.';return;}
+    if(!Array.isArray(rows)){this.syncWarning=appTranslate('Não foi possível validar o histórico.');return;}
     const messages=new Map<number,DirectChatMessage>();
     const serverIds=new Set<number>();
     for(const item of rows){
@@ -187,8 +189,8 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
     if(version!==this.generation||this.peer!==peer)return;
     if(e instanceof HttpErrorResponse&&[401,403,404,410].includes(e.status)){
      this.messages=[];this.draft='';this.locallyConfirmed.clear();this.clearMedia();this.accessRevoked=true;
-     this.error='Já não tens acesso ao chat deste contacto.';
-    }else this.syncWarning='Não foi possível sincronizar as mensagens. O histórico pode estar desatualizado.';
+     this.error=appTranslate('Já não tens acesso ao chat deste contacto.');
+    }else this.syncWarning=appTranslate('Não foi possível sincronizar as mensagens. O histórico pode estar desatualizado.');
    },
    complete:()=>this.finishRefresh(version,peer)
   }).add(()=>this.finishRefresh(version,peer));
@@ -264,7 +266,7 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
     anchor.href=url;anchor.download=filename||'anexo';anchor.click();
     setTimeout(()=>URL.revokeObjectURL(url),1000);
    },
-   error:()=>{if(epoch===this.mediaEpoch)this.error='Não foi possível obter o anexo.';}
+   error:()=>{if(epoch===this.mediaEpoch)this.error=appTranslate('Não foi possível obter o anexo.');}
   });
  }
  isMine(message:DirectChatMessage):boolean{
@@ -287,7 +289,7 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
      !message.deletedAt&&message.username2?.toLowerCase()===peer.toLowerCase()&&
      message.text?.trim()===body;
     if(!accepted){
-     this.error='O servidor não confirmou a mensagem. Consulta o histórico antes de repetir.';
+     this.error=appTranslate('O servidor não confirmou a mensagem. Consulta o histórico antes de repetir.');
      return;
     }
     this.locallyConfirmed.set(message.id!,{message,at:Date.now()});
@@ -299,7 +301,7 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
    },
    error:()=>{
     if(version===this.generation&&peer===this.peer)
-     this.error='Não foi possível confirmar o envio. Consulta o histórico antes de repetir.';
+     this.error=appTranslate('Não foi possível confirmar o envio. Consulta o histórico antes de repetir.');
    }
   }).add(()=>{
    if(version===this.generation&&peer===this.peer){this.writeBusy=false;this.sending=false;}

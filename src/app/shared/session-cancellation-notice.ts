@@ -1,3 +1,4 @@
+import { appTranslate } from '../i18n/i18n.service';
 /** Public-only cancellation message for sharing with guests outside Jynlo.
  * Accept only sport, local time and city. Never include exact addresses,
  * meeting notes, passwords or contact details from private sessions.
@@ -25,7 +26,5 @@ export function sessionCancellationNotice(item: PublicSessionCancellation): stri
   const description = [
     publicLabel(item.sport, 'desporto'), when, publicLabel(item.city)
   ].filter(Boolean).join(' · ');
-  return '⚠️ Sessão cancelada — ' + description +
-    '. O organizador cancelou esta sessão e o jogo não se vai realizar. ' +
-    'Por favor, não te desloques ao recinto.';
+  return appTranslate('⚠️ Sessão cancelada — {{description}}. O organizador cancelou esta sessão e o jogo não se vai realizar. Por favor, não te desloques ao recinto.', {description});
 }

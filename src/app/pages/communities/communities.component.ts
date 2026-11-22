@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { sportMatchesQuery } from '../../shared/venue-catalogue-display';
 import { AfterViewChecked, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, Type, ViewChild, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -164,7 +165,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       },
       error:()=>{
         if(request!==this.communityFollowRequest || this.selected?.id!==id)return;
-        this.communityFollowError='Não foi possível carregar os seguidores.';
+        this.communityFollowError=appTranslate('Não foi possível carregar os seguidores.');
       }
     });
   }
@@ -188,7 +189,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       error:()=>{
         if(request!==this.communityFollowRequest||this.selected?.id!==id)return;
         this.communityFollowBusy=false;
-        this.communityFollowError='Não foi possível confirmar a alteração.';
+        this.communityFollowError=appTranslate('Não foi possível confirmar a alteração.');
         // Never optimistically change a follow count after an uncertain request.
         this.communityFollowState=null;
         this.loadCommunityFollow(id);
@@ -885,7 +886,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     if (combined.length > 6 || combined.some(file => !valid.includes(file.type)
         || file.size === 0 || file.size > (file.type.startsWith('video/') ? 20 : 5) * 1024 * 1024)
         || combined.reduce((sum, file) => sum + file.size, 0) > 60 * 1024 * 1024) {
-      this.timelineError = 'Até 6 fotografias ou vídeos, máximo de 60 MB no total (5 MB por foto e 20 MB por vídeo).';
+      this.timelineError = appTranslate('Até 6 fotografias ou vídeos, máximo de 60 MB no total (5 MB por foto e 20 MB por vídeo).');
       return;
     }
     this.clearCommunityFeedImage();
@@ -1068,21 +1069,21 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   /** Display actionable upload failures without leaking server internals. */
   communityPostUploadError(error: unknown): string {
     if (error instanceof TimeoutError)
-      return 'O envio demorou demasiado. Verifica primeiro se a publicação apareceu antes de tentares novamente.';
+      return appTranslate('O envio demorou demasiado. Verifica primeiro se a publicação apareceu antes de tentares novamente.');
     if (!(error instanceof HttpErrorResponse)) return t('communities.timelineSendError');
     if (error.status === 0 || error.status === 408 || error.status === 504)
-      return 'Não foi possível confirmar o envio. Verifica a ligação e se a publicação apareceu antes de repetir.';
+      return appTranslate('Não foi possível confirmar o envio. Verifica a ligação e se a publicação apareceu antes de repetir.');
     if (error.status === 401 || error.status === 403)
-      return 'Não tens permissão para publicar nesta comunidade. Verifica a sessão e a tua participação.';
+      return appTranslate('Não tens permissão para publicar nesta comunidade. Verifica a sessão e a tua participação.');
     if (error.status === 413)
-      return 'O ficheiro é demasiado grande para o servidor. Experimenta uma imagem mais pequena.';
+      return appTranslate('O ficheiro é demasiado grande para o servidor. Experimenta uma imagem mais pequena.');
     if (error.status === 415)
-      return 'O formato do ficheiro não é suportado. Utiliza JPG, PNG, WebP, MP4 ou WebM.';
+      return appTranslate('O formato do ficheiro não é suportado. Utiliza JPG, PNG, WebP, MP4 ou WebM.');
     if (error.status === 404 || error.status === 405)
-      return 'O servidor ainda não reconhece este tipo de publicação. Tenta enviar uma fotografia de cada vez.';
+      return appTranslate('O servidor ainda não reconhece este tipo de publicação. Tenta enviar uma fotografia de cada vez.');
     if (error.status === 400 || error.status === 422)
-      return 'A publicação foi rejeitada. Confirma o formato e o tamanho dos ficheiros e tenta novamente.';
-    return 'Não foi possível publicar (erro do servidor ' + error.status + '). O conteúdo foi mantido para tentares novamente.';
+      return appTranslate('A publicação foi rejeitada. Confirma o formato e o tamanho dos ficheiros e tenta novamente.');
+    return appTranslate('Não foi possível publicar (erro do servidor {{status}}). O conteúdo foi mantido para tentares novamente.', {status: error.status});
   }
 
   sendTimeline(): void {
@@ -1185,7 +1186,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
         || this.savingCommunityPostId !== null) return;
     const content = this.editingCommunityPostText.trim();
     if (content.length > 1000 || (!content && !this.communityPostMedia(entry).length)) {
-      this.timelineError = 'A publicação deve ter uma descrição ou pelo menos um anexo.';
+      this.timelineError = appTranslate('A publicação deve ter uma descrição ou pelo menos um anexo.');
       return;
     }
     this.savingCommunityPostId = entry.id;
@@ -1199,7 +1200,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
           entry.editedAt = updated.editedAt;
           this.editingCommunityPostId = null;
         },
-        error: () => this.timelineError = 'Não foi possível guardar as alterações. A publicação original foi mantida.'
+        error: () => this.timelineError = appTranslate('Não foi possível guardar as alterações. A publicação original foi mantida.')
       });
   }
 
@@ -2756,7 +2757,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
           this.sportsMessage = 'Modalidades atualizadas.';
         },
         error: () => {
-          if (this.selected?.id === id) this.errorMessage = 'Não foi possível atualizar as modalidades.';
+          if (this.selected?.id === id) this.errorMessage = appTranslate('Não foi possível atualizar as modalidades.');
         }
       });
   }
@@ -4550,12 +4551,12 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     // cannot overlap with per-sport seasons.
     if ((this.competition?.seasons.some(season => season.active) ?? false)
         && !this.seasonSport) {
-      this.errorMessage = 'Seleciona uma modalidade para a nova época.';
+      this.errorMessage = appTranslate('Seleciona uma modalidade para a nova época.');
       return;
     }
     // A stale draft must not duplicate a currently active sport season.
     if (this.seasonSport && !this.availableSeasonSports.includes(this.seasonSport)) {
-      this.errorMessage = 'Já existe uma época ativa para esta modalidade.';
+      this.errorMessage = appTranslate('Já existe uma época ativa para esta modalidade.');
       return;
     }
     // An old draft must not create a season for a sport removed from the community.
@@ -5730,7 +5731,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     // Explicitly selecting another sport requires its own active season first.
     if ((this.competition?.seasons?.filter(season => season.active).length ?? 0) > 1
         && this.roundTargetSeasonId == null) {
-      this.errorMessage = 'Cria ou seleciona uma época ativa para esta modalidade antes de registares a jornada.';
+      this.errorMessage = appTranslate('Cria ou seleciona uma época ativa para esta modalidade antes de registares a jornada.');
       return;
     }
     if (eventOptionsForSport(this.newRoundSport).length && !this.newRoundEventType) {

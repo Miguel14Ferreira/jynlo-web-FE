@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit, Optional, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -116,7 +117,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
             this.recentlyHiddenFeedEntry = key;
             this.persistHiddenFeedEntries();
           },
-          error: () => this.actionError = 'Não foi possível ocultar esta publicação. Tenta novamente.'
+          error: () => this.actionError = appTranslate('Não foi possível ocultar esta publicação. Tenta novamente.')
         });
       return;
     }
@@ -145,7 +146,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
             // Reload the authorized feed to retrieve it when undoing.
             this.load();
           },
-          error: () => this.actionError = 'Não foi possível repor a publicação. Tenta novamente.'
+          error: () => this.actionError = appTranslate('Não foi possível repor a publicação. Tenta novamente.')
         });
       return;
     }
@@ -169,7 +170,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       .pipe(timeout(10_000), finalize(() => this.hiddenPostsLoading = false))
       .subscribe({
         next: posts => this.hiddenPostsList = posts,
-        error: () => this.hiddenPostsError = 'Não foi possível consultar as publicações ocultas.'
+        error: () => this.hiddenPostsError = appTranslate('Não foi possível consultar as publicações ocultas.')
       });
   }
 
@@ -190,7 +191,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
           this.persistHiddenFeedEntries();
           this.load();
         },
-        error: () => this.hiddenPostsError = 'Não foi possível repor a publicação. Tenta novamente.'
+        error: () => this.hiddenPostsError = appTranslate('Não foi possível repor a publicação. Tenta novamente.')
       });
   }
 
@@ -280,7 +281,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     } else {
       // Called with a completed listing (or a known in-memory match).
       // Do not suppress the unavailable state while finalize() is still pending.
-      this.personalLiveError = 'Este direto já terminou ou não está disponível.';
+      this.personalLiveError = appTranslate('Este direto já terminou ou não está disponível.');
     }
   }
 
@@ -299,7 +300,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       },
       error: () => {
         if (this.requestedPersonalLiveId !== null)
-          this.personalLiveError = 'Não foi possível carregar este direto. Tenta novamente.';
+          this.personalLiveError = appTranslate('Não foi possível carregar este direto. Tenta novamente.');
       }
     });
   }
@@ -315,7 +316,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     const dismissedId = this.personalLiveRoom?.id;
     const wasHost = this.personalLiveRoom?.canManage ?? false;
     this.personalLiveNotice = reason === 'ENDED'
-      ? (wasHost ? 'Terminaste o direto para todos.' : 'A transmissão terminou.')
+      ? (wasHost ? appTranslate('Terminaste o direto para todos.') : appTranslate('A transmissão terminou.'))
       : '';
     this.personalLiveRoom = null;
     this.openedPersonalLiveId = null;
@@ -353,11 +354,11 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     if (this.liveBusy) return;
     const title=this.liveTitle.trim();
     if (!title) {
-      this.liveStartError='Escreve o título do direto.';
+      this.liveStartError=appTranslate('Escreve o título do direto.');
       return;
     }
     if (this.liveMode === 'PERSONAL') {
-      if (!this.personalLiveService) {this.liveStartError='Diretos indisponíveis.';return;}
+      if (!this.personalLiveService) {this.liveStartError=appTranslate('Diretos indisponíveis.');return;}
       this.liveBusy=true;
       this.liveStartError='';
       this.personalLiveService.start(title).pipe(timeout(12000),
@@ -370,7 +371,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
           this.personalLiveRoom=event;
           this.refreshPersonalLive();
         },
-        error:()=>this.liveStartError='Não foi possível iniciar o teu direto. Confirma se já tens uma transmissão ativa.'
+        error:()=>this.liveStartError=appTranslate('Não foi possível iniciar o teu direto. Confirma se já tens uma transmissão ativa.')
       });
       return;
     }
@@ -383,12 +384,12 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       timeout(12000),
       switchMap(capabilities => {
         if (!capabilities.enabled || !capabilities.canManage)
-          throw new Error('Sem permissão para iniciar diretos nesta comunidade.');
+          throw new Error(appTranslate('Sem permissão para iniciar diretos nesta comunidade.'));
         return this.communityLiveService!.list(communityId).pipe(timeout(12000));
       }),
       switchMap(events => {
         if (events.some(event => event.status === 'LIVE'))
-          throw new Error('Já existe um direto ativo nesta comunidade.');
+          throw new Error(appTranslate('Já existe um direto ativo nesta comunidade.'));
         return this.communityLiveService!.schedule(communityId, title, '', new Date().toISOString())
           .pipe(timeout(12000));
       }),
@@ -408,7 +409,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         this.liveStartError = error instanceof Error && error.message.startsWith('Sem permissão')
           ? error.message
           : error instanceof Error && error.message.startsWith('Já existe')
-            ? error.message : 'Não foi possível iniciar o direto. Tenta novamente.';
+            ? error.message : appTranslate('Não foi possível iniciar o direto. Tenta novamente.');
       }
     });
   }
@@ -470,7 +471,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       this.postRealPlaces = places;
       this.postLocationLoading = false;
       if (!places.length) this.postLocationError =
-        'Não foram encontrados locais verificados. Experimenta escrever o nome completo.';
+        appTranslate('Não foram encontrados locais verificados. Experimenta escrever o nome completo.');
     });
   }
 
@@ -503,12 +504,12 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         this.postLocationQuerySerial++;
         this.postPlaceSessionToken=crypto.randomUUID();
       },
-      error:()=>this.postLocationError='Não foi possível verificar este local. Escolhe outro ou tenta novamente.'
+      error:()=>this.postLocationError=appTranslate('Não foi possível verificar este local. Escolhe outro ou tenta novamente.')
     });
   }
 
   selectPostPlaceName(): void {
-    this.postLocationError = 'Escolhe uma localização real da lista de sugestões.';
+    this.postLocationError = appTranslate('Escolhe uma localização real da lista de sugestões.');
   }
 
   selectPostLocation(place: Venue): void {
@@ -680,7 +681,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       if (this.photoTextPreview) URL.revokeObjectURL(this.photoTextPreview);
       this.photoTextPreview = '';
     } catch (error) {
-      this.photoTextError = error instanceof Error ? error.message : 'Não foi possível editar a fotografia.';
+      this.photoTextError = error instanceof Error ? error.message : appTranslate('Não foi possível editar a fotografia.');
     } finally {
       this.photoTextSaving = false;
     }
@@ -899,7 +900,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         comment.authorUsername!==this.currentUsername) return;
     const value=this.editingCommentDraft.trim();
     if (!value || value.length>500) {
-      this.actionError='O comentário deve ter entre 1 e 500 caracteres.';
+      this.actionError=appTranslate('O comentário deve ter entre 1 e 500 caracteres.');
       return;
     }
     if (value===comment.content) {this.cancelCommentEdit();return;}
@@ -911,7 +912,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
           this.editingCommentId=null;
           this.editingCommentDraft='';
         },
-        error:()=>this.actionError='Não foi possível editar o comentário. Tenta novamente.'
+        error:()=>this.actionError=appTranslate('Não foi possível editar o comentário. Tenta novamente.')
       });
   }
   toggleCommentLike(postId:number,comment:SocialComment):void {
@@ -926,7 +927,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
           comment.likeCount=updated.likeCount;
           comment.likedByMe=updated.likedByMe;
         },
-        error:()=>this.actionError='Não foi possível atualizar o gosto no comentário.'
+        error:()=>this.actionError=appTranslate('Não foi possível atualizar o gosto no comentário.')
       });
   }
 
@@ -1272,7 +1273,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
             this.items = [item, ...this.items];
           focus();
         },
-        error: () => this.actionError = 'Esta publicação não está disponível ou não tens permissão para a ver.'
+        error: () => this.actionError = appTranslate('Esta publicação não está disponível ou não tens permissão para a ver.')
       });
   }
 
@@ -1282,11 +1283,11 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
     const day = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
     const days = Math.round((today - day) / 86_400_000);
-    if (days === 0) return 'Hoje';
-    if (days === 1) return 'Ontem';
-    if (days > 1 && days < 7) return 'Há ' + days + ' dias';
-    if (days >= 7 && days < 14) return 'Há 1 semana';
-    if (days >= 14 && days < 30) return 'Há ' + Math.floor(days / 7) + ' semanas';
+    if (days === 0) return appTranslate('Hoje');
+    if (days === 1) return appTranslate('Ontem');
+    if (days > 1 && days < 7) return appTranslate('Há {{n}} dias', {n: days});
+    if (days >= 7 && days < 14) return appTranslate('Há 1 semana');
+    if (days >= 14 && days < 30) return appTranslate('Há {{n}} semanas', {n: Math.floor(days / 7)});
     return date.toLocaleDateString('pt-PT');
   }
 
@@ -1309,7 +1310,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     const location = this.postLocation.trim();
     if (!this.canPublishPost) return;
     if (location && !this.postLocationVerified) {
-      this.actionError = 'Escolhe uma localização real da lista antes de publicar.';
+      this.actionError = appTranslate('Escolhe uma localização real da lista antes de publicar.');
       return;
     }
 
@@ -1333,7 +1334,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       .subscribe({
         next: item => {
           if (item?.type !== 'POST' || !Number.isSafeInteger(item.postId) || (item.postId ?? 0) <= 0) {
-            this.actionError = 'O servidor não confirmou a publicação. Verifica o teu perfil antes de repetir.';
+            this.actionError = appTranslate('O servidor não confirmou a publicação. Verifica o teu perfil antes de repetir.');
             return;
           }
           this.recentlyPublishedPostId = item.postId!;
@@ -1354,27 +1355,27 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         error: (error: unknown) => {
           if (error instanceof HttpErrorResponse) {
             if (error.status === 413) {
-              this.actionError = 'Os ficheiros são demasiado grandes para o servidor. Reduz o tamanho e tenta novamente.';
+              this.actionError = appTranslate('Os ficheiros são demasiado grandes para o servidor. Reduz o tamanho e tenta novamente.');
               return;
             }
             if (error.status === 415) {
-              this.actionError = 'O servidor recusou o formato do envio. Experimenta uma fotografia JPG/PNG ou vídeo MP4.';
+              this.actionError = appTranslate('O servidor recusou o formato do envio. Experimenta uma fotografia JPG/PNG ou vídeo MP4.');
               return;
             }
             if (error.status === 400 || error.status === 422) {
-              this.actionError = 'O servidor recusou algum campo da publicação. Verifica o ficheiro e os dados e tenta novamente.';
+              this.actionError = appTranslate('O servidor recusou algum campo da publicação. Verifica o ficheiro e os dados e tenta novamente.');
               return;
             }
             if (error.status === 500 || error.status === 502 || error.status === 503 || error.status === 504) {
-              this.actionError = 'O servidor não conseguiu guardar a publicação. A fotografia continua selecionada para tentares novamente.';
+              this.actionError = appTranslate('O servidor não conseguiu guardar a publicação. A fotografia continua selecionada para tentares novamente.');
               return;
             }
             if (error.status === 401 || error.status === 403) {
-              this.actionError = 'A sessão expirou ou não tens permissão para publicar. Inicia sessão novamente.';
+              this.actionError = appTranslate('A sessão expirou ou não tens permissão para publicar. Inicia sessão novamente.');
               return;
             }
             if (error.status === 0) {
-              this.actionError = 'Não foi possível contactar o servidor. Verifica a ligação e tenta novamente.';
+              this.actionError = appTranslate('Não foi possível contactar o servidor. Verifica a ligação e tenta novamente.');
               return;
             }
           }
@@ -1539,7 +1540,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     if (unique.length > 6 || unique.some(file => !allowed.includes(file.type)
         || file.size === 0 || file.size > (file.type.startsWith('video/') ? 20 : 5) * 1024 * 1024)
         || unique.reduce((sum, file) => sum + file.size, 0) > 60 * 1024 * 1024) {
-      this.actionError = 'Até 6 fotografias ou vídeos, máximo de 60 MB no total (5 MB por foto e 20 MB por vídeo).';
+      this.actionError = appTranslate('Até 6 fotografias ou vídeos, máximo de 60 MB no total (5 MB por foto e 20 MB por vídeo).');
       return;
     }
 
@@ -1728,13 +1729,13 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     const count = item.likeCount;
     if (count <= 0) return '';
     if (item.hideLikers && item.authorUsername !== this.currentUsername) {
-      return count === 1 ? '1 gosto' : count + ' gostos';
+      return count === 1 ? appTranslate('1 gosto') : appTranslate('{{n}} gostos', {n: count});
     }
     const display = item.postId !== null ? this.likerPreview[item.postId] : null;
     if (display) {
-      return count === 1 ? 'Gostado por ' + display : 'Gostado por ' + display + ' e outras pessoas';
+      return count === 1 ? appTranslate('Gostado por {{name}}', {name: display}) : appTranslate('Gostado por {{name}} e outras pessoas', {name: display});
     }
-    return count === 1 ? 'Gostado por 1 pessoa' : 'Gostado por ' + count + ' pessoas';
+    return count === 1 ? appTranslate('Gostado por 1 pessoa') : appTranslate('Gostado por {{n}} pessoas', {n: count});
   }
 
   private loadLikerPreviews(): void {
@@ -1764,7 +1765,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         takeUntil(this.destroyed))
       .subscribe({
         next: hidden => { item.hideLikers = hidden; },
-        error: () => { this.actionError = 'Não foi possível alterar a privacidade dos gostos.'; }
+        error: () => { this.actionError = appTranslate('Não foi possível alterar a privacidade dos gostos.'); }
       });
   }
 
@@ -2037,7 +2038,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       !['image/jpeg','image/png','image/webp','video/mp4','video/webm'].includes(file.type)
       || file.size > 20 * 1024 * 1024)
       || files.reduce((sum, file) => sum + file.size, 0) > 60 * 1024 * 1024) {
-      this.editingPostMediaError = 'Escolhe até 6 fotografias/vídeos (máximo 20 MB por ficheiro e 60 MB no total).';
+      this.editingPostMediaError = appTranslate('Escolhe até 6 fotografias/vídeos (máximo 20 MB por ficheiro e 60 MB no total).');
       return;
     }
     this.editingPostReplacementFiles = files;
@@ -2081,7 +2082,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     if (content.length > 1000 || location.length > 160
         || (!content && (this.editingPostReplaceMedia
           ? !this.editingPostReplacementFiles.length : !this.mediaForPost(item).length))) {
-      this.actionError = 'Adiciona uma descrição ou mantém uma fotografia/vídeo. Máximo de 1000 caracteres.';
+      this.actionError = appTranslate('Adiciona uma descrição ou mantém uma fotografia/vídeo. Máximo de 1000 caracteres.');
       return;
     }
     this.savingPostId = item.postId;
@@ -2101,7 +2102,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
           this.editingPostId = null;
           this.keepEditPostMedia();
         },
-        error: () => this.actionError = 'Não foi possível guardar a edição. A publicação original mantém-se.'
+        error: () => this.actionError = appTranslate('Não foi possível guardar a edição. A publicação original mantém-se.')
       });
   }
 
@@ -2144,7 +2145,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
           this.postShareLoadingFriends = false;
         },
         error: () => {
-          this.postShareFriendsError = 'Não foi possível carregar os teus amigos.';
+          this.postShareFriendsError = appTranslate('Não foi possível carregar os teus amigos.');
           this.postShareLoadingFriends = false;
         }
       });
@@ -2160,14 +2161,13 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         !this.postShareFriends.some(user => user.username === friend.username)) return;
     this.postShareSendingTo = friend.username;
     this.postShareFriendsError = '';
-    this.postShareChat.send(friend.username, 'Partilhei esta publicação contigo na Jynlo: ' +
-      this.postShareLink).pipe(timeout(12000),finalize(() => this.postShareSendingTo = null),
+    this.postShareChat.send(friend.username, appTranslate('Partilhei esta publicação contigo na Jynlo: {{link}}', {link: this.postShareLink})).pipe(timeout(12000),finalize(() => this.postShareSendingTo = null),
         takeUntil(this.destroyed)).subscribe({
       next: () => {
-        this.postShareMessage = 'Publicação enviada para @' + friend.username;
+        this.postShareMessage = appTranslate('Publicação enviada para @{{user}}', {user: friend.username});
         this.postShareFriendsOpen = false;
       },
-      error: () => this.postShareFriendsError = 'Não foi possível enviar. Verifica se podes trocar mensagens com este amigo.'
+      error: () => this.postShareFriendsError = appTranslate('Não foi possível enviar. Verifica se podes trocar mensagens com este amigo.')
     });
   }
   postShareMessage = '';
@@ -2197,7 +2197,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       await this.copyShareUrl(this.cancellationShareText);
       this.cancellationShareNotice = 'Aviso copiado. Envia-o aos participantes externos.';
     } catch {
-      this.cancellationShareNotice = 'Seleciona e copia o texto para o grupo dos participantes.';
+      this.cancellationShareNotice = appTranslate('Seleciona e copia o texto para o grupo dos participantes.');
     }
   }
 
@@ -2215,7 +2215,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       next: detail => {
         if (detail.creatorUsername?.toLowerCase() !== this.currentUsername.toLowerCase()
           || (detail.status !== 'OPEN' && detail.status !== 'FULL')) {
-          this.actionError = 'Esta sessão já não pode ser cancelada ou não és o organizador.';
+          this.actionError = appTranslate('Esta sessão já não pode ser cancelada ou não és o organizador.');
           return;
         }
         this.pendingCancelSessionSnapshot = {
@@ -2224,7 +2224,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         };
         this.pendingCancelSession = item;
       },
-      error: () => this.actionError = 'Não foi possível verificar a sessão. Abre o detalhe antes de tentar novamente.'
+      error: () => this.actionError = appTranslate('Não foi possível verificar a sessão. Abre o detalhe antes de tentar novamente.')
     });
   }
 
@@ -2254,12 +2254,12 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
           ? this.pendingCancelSessionSnapshot : item;
         this.cancellationShareText = this.cancelledSessionMessage(confirmedDetails);
         this.pendingCancelSessionSnapshot = null;
-        this.cancellationShareNotice = 'Cancelamento confirmado. Os jogadores com conta Jynlo recebem a notificação interna; partilha este aviso com convidados externos.';
+        this.cancellationShareNotice = appTranslate('Cancelamento confirmado. Os jogadores com conta Jynlo recebem a notificação interna; partilha este aviso com convidados externos.');
         this.loadCompletedSessions();
         this.load();
       },
       error: () => this.actionError =
-        'Não foi possível confirmar o cancelamento. Verifica o estado da sessão antes de repetir.'
+        appTranslate('Não foi possível confirmar o cancelamento. Verifica o estado da sessão antes de repetir.')
     });
   }
 
@@ -2283,7 +2283,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.postShareMessage = '';
     if (typeof navigator.share === 'function') {
       try {
-        await navigator.share({ title: 'Publicação na Jynlo', text: item.content || '', url });
+        await navigator.share({ title: appTranslate('Publicação na Jynlo'), text: item.content || '', url });
         this.postShareMessage = 'Partilhado';
         return;
       } catch (error) {
@@ -2294,7 +2294,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       await this.copyShareUrl(url);
       this.postShareMessage = 'Link copiado';
     } catch {
-      this.postShareMessage = 'Copia o endereço abaixo para partilhar';
+      this.postShareMessage = appTranslate('Copia o endereço abaixo para partilhar');
     }
   }
 

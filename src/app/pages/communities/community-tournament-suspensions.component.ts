@@ -1,3 +1,5 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -8,24 +10,22 @@ import { CommunityDisciplineService, CommunityTournamentSuspension } from '../..
 @Component({
   selector: 'app-community-tournament-suspensions',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [TranslatePipe, CommonModule, FormsModule],
   template: `
     <section class="suspension-panel" aria-labelledby="suspension-title">
-      <h3 id="suspension-title">Suspensões de torneios</h3>
+      <h3 id="suspension-title">{{ 'Suspensões de torneios' | t }}</h3>
       <p class="suspension-help">
-        Impedem novas inscrições e entradas em equipas dos torneios desta comunidade.
-        Não afetam a conta Jynlo, outras comunidades ou sessões fora dos torneios.
-        As inscrições existentes não são removidas automaticamente.
+        {{ 'Impedem novas inscrições e entradas em equipas dos torneios desta comunidade. Não afetam a conta Jynlo, outras comunidades ou sessões fora dos torneios. As inscrições existentes não são removidas automaticamente.' | t }}
       </p>
 
       @if (canManage) {
         <form (ngSubmit)="issue()" class="suspension-form">
-          <label for="suspension-member">Membro a suspender</label>
+          <label for="suspension-member">{{ 'Membro a suspender' | t }}</label>
           <div class="discipline-member-picker">
             <input id="suspension-member" name="suspension-member" type="search" autocomplete="off"
                    [ngModel]="memberQuery" (ngModelChange)="onMemberQueryChange($event)"
                    (focus)="memberSearchOpen = true" [disabled]="saving"
-                   placeholder="Escreve o nome ou @username" aria-autocomplete="list"
+                   [placeholder]="'Escreve o nome ou @username' | t" aria-autocomplete="list"
                    [attr.aria-expanded]="memberSearchOpen && suggestedMembers.length > 0" required>
             @if (memberSearchOpen && suggestedMembers.length > 0) {
               <div class="discipline-member-suggestions" role="listbox">
@@ -39,44 +39,44 @@ import { CommunityDisciplineService, CommunityTournamentSuspension } from '../..
               </div>
             }
           </div>
-          <label for="suspension-days">Duração (dias)</label>
+          <label for="suspension-days">{{ 'Duração (dias)' | t }}</label>
           <input id="suspension-days" name="suspension-days" type="number"
                  min="1" max="30" step="1" [(ngModel)]="days" [disabled]="saving" required>
-          <label for="suspension-reason">Motivo</label>
+          <label for="suspension-reason">{{ 'Motivo' | t }}</label>
           <textarea id="suspension-reason" name="suspension-reason" rows="3" maxlength="1000"
                     [(ngModel)]="reason" [disabled]="saving" required
-                    placeholder="Explica a infração e as circunstâncias"></textarea>
+                    [placeholder]="'Explica a infração e as circunstâncias' | t"></textarea>
           <button type="submit" class="jynlo-action jynlo-action--primary" [disabled]="saving || !canIssue()">
-            {{ saving ? 'A registar…' : 'Aplicar suspensão' }}
+            {{ saving ? ('A registar…' | t) : ('Aplicar suspensão' | t) }}
           </button>
         </form>
       }
 
       @if (error) { <p role="alert">{{ error }}</p> }
       @if (feedback) { <p role="status">{{ feedback }}</p> }
-      <h4>{{ canManage ? 'Suspensões da comunidade' : 'As minhas suspensões' }}</h4>
+      <h4>{{ canManage ? ('Suspensões da comunidade' | t) : ('As minhas suspensões' | t) }}</h4>
       @if (loading) {
-        <p role="status">A carregar suspensões…</p>
+        <p role="status">{{ 'A carregar suspensões…' | t }}</p>
       } @else if (suspensions.length === 0) {
-        <p>Não existem suspensões registadas.</p>
+        <p>{{ 'Não existem suspensões registadas.' | t }}</p>
       } @else {
         <ul class="suspension-history">
           @for (item of suspensions; track item.id) {
             <li>
               @if (canManage) { <strong>{{ memberName(item.targetProfileId) }}</strong> · }
-              <strong>{{ isActive(item) ? 'Ativa' : item.revokedAt ? 'Levantada' : 'Terminada' }}</strong>
+              <strong>{{ isActive(item) ? ('Ativa' | t) : item.revokedAt ? ('Levantada' | t) : ('Terminada' | t) }}</strong>
               <p>{{ item.reason }}</p>
-              <p>{{ item.startsAt | date:'dd/MM/yyyy HH:mm' }} — {{ item.endsAt | date:'dd/MM/yyyy HH:mm' }}</p>
+              <p>{{ item.startsAt | date:('dd/MM/yyyy HH:mm' | t) }} — {{ item.endsAt | date:('dd/MM/yyyy HH:mm' | t) }}</p>
               @if (item.revokedAt) {
-                <p>Levantada em {{ item.revokedAt | date:'dd/MM/yyyy HH:mm' }}: {{ item.revocationReason }}</p>
+                <p>{{ 'Levantada em {{revokedAt}}: {{revocationReason}}' | t:{revokedAt: (item.revokedAt | date:('dd/MM/yyyy HH:mm' | t)), revocationReason: (item.revocationReason)} }}</p>
               } @else if (canManage && isActive(item)) {
                 <form class="suspension-form" (ngSubmit)="lift(item.id)">
-                  <label [for]="'lift-reason-' + item.id">Motivo para levantar a suspensão</label>
+                  <label [for]="'lift-reason-' + item.id">{{ 'Motivo para levantar a suspensão' | t }}</label>
                   <textarea [id]="'lift-reason-' + item.id" [name]="'lift-reason-' + item.id"
                             rows="2" maxlength="1000" [(ngModel)]="liftReasons[item.id]"
                             [disabled]="saving" required></textarea>
                   <button type="submit" [disabled]="saving || !liftReasons[item.id]?.trim()">
-                    Levantar suspensão
+                    {{ 'Levantar suspensão' | t }}
                   </button>
                 </form>
               }
@@ -201,7 +201,7 @@ export class CommunityTournamentSuspensionsComponent implements OnChanges {
         error: () => {
           if (revision !== this.revision) return;
           this.loading = false;
-          this.error = 'Não foi possível carregar as suspensões.';
+          this.error = appTranslate('Não foi possível carregar as suspensões.');
           this.changeDetector.markForCheck();
         }
       });
@@ -223,13 +223,13 @@ export class CommunityTournamentSuspensionsComponent implements OnChanges {
         this.memberQuery = '';
         this.memberSearchOpen = false;
         this.reason = '';
-        this.feedback = 'Suspensão registada para os torneios desta comunidade.';
+        this.feedback = appTranslate('Suspensão registada para os torneios desta comunidade.');
         this.changeDetector.markForCheck();
       },
       error: () => {
         if (revision !== this.revision) return;
         this.saving = false;
-        this.error = 'Não foi possível aplicar a suspensão. Verifica as permissões e a existência de outras suspensões.';
+        this.error = appTranslate('Não foi possível aplicar a suspensão. Verifica as permissões e a existência de outras suspensões.');
         this.changeDetector.markForCheck();
       }
     });
@@ -250,13 +250,13 @@ export class CommunityTournamentSuspensionsComponent implements OnChanges {
         this.saving = false;
         this.suspensions = this.suspensions.map(item => item.id === suspensionId ? updated : item);
         delete this.liftReasons[suspensionId];
-        this.feedback = 'Suspensão levantada e decisão registada.';
+        this.feedback = appTranslate('Suspensão levantada e decisão registada.');
         this.changeDetector.markForCheck();
       },
       error: () => {
         if (revision !== this.revision) return;
         this.saving = false;
-        this.error = 'Não foi possível levantar a suspensão.';
+        this.error = appTranslate('Não foi possível levantar a suspensão.');
         this.changeDetector.markForCheck();
       }
     });

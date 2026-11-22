@@ -1,3 +1,4 @@
+import { appTranslate } from '../i18n/i18n.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, forkJoin, map, Observable, of, switchMap, timeout } from 'rxjs';

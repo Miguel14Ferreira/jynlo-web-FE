@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -127,7 +128,7 @@ export class ContactComponent implements OnDestroy {
     let total = this.screenshots.reduce((sum, item) => sum + item.file.size, 0);
     for (const file of files) {
       if (this.screenshots.length >= this.maxScreenshots) {
-        problems.push('Só podes adicionar até 8 ficheiros.');
+        problems.push(appTranslate('Só podes adicionar até 8 ficheiros.'));
         break;
       }
       if (!allowed.includes(file.type.toLowerCase())) {
@@ -135,16 +136,16 @@ export class ContactComponent implements OnDestroy {
         continue;
       }
       if (!file.size || file.size > (this.isImage(file) ? this.maxScreenshotBytes : this.maxMediaBytes)) {
-        problems.push('Cada imagem pode ter até 3 MB; vídeos, áudio e PDF até 12 MB.');
+        problems.push(appTranslate('Cada imagem pode ter até 3 MB; vídeos, áudio e PDF até 12 MB.'));
         continue;
       }
       if (total + file.size > this.maxTotalScreenshotBytes) {
-        problems.push('O conjunto das imagens pode ter até 16 MB.');
+        problems.push(appTranslate('O conjunto das imagens pode ter até 16 MB.'));
         continue;
       }
       if (this.screenshots.some(item => item.file.name === file.name
             && item.file.size === file.size && item.file.lastModified === file.lastModified)) {
-        problems.push('Essa imagem já foi adicionada.');
+        problems.push(appTranslate('Essa imagem já foi adicionada.'));
         continue;
       }
       this.screenshots.push({ file, url: URL.createObjectURL(file) });

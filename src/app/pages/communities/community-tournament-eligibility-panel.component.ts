@@ -16,7 +16,7 @@ import { CommunityTournamentEligibilityService, TournamentEligibilityOverview } 
       <div class="eligibility-clear" role="status">
         <span aria-hidden="true">✓</span>
         <span>{{ 'communities.tournaments.eligibility.allClear' | t }}</span>
-        <small>{{ 'communities.tournaments.eligibility.checkedAt' | t }} {{ overview!.checkedAt | date:'dd/MM HH:mm' }}</small>
+        <small>{{ 'communities.tournaments.eligibility.checkedAt' | t }} {{ overview!.checkedAt | date:('dd/MM HH:mm' | t) }}</small>
         <button type="button" class="eligibility-clear-refresh" (click)="reload()" [disabled]="loading">{{ 'communities.tournaments.eligibility.refresh' | t }}</button>
       </div>
     } @else {
@@ -38,7 +38,7 @@ import { CommunityTournamentEligibilityService, TournamentEligibilityOverview } 
               <strong>{{ memberName(entry.profileId) }}</strong>
               @if (entry.teamId !== null) { · {{ 'communities.tournaments.eligibility.team' | t }} #{{ entry.teamId }} }
               @if (entry.participantStatus) { · {{ (entry.participantStatus === 'CONFIRMED' ? 'communities.tournaments.eligibility.confirmed' : 'communities.tournaments.eligibility.pending') | t }} }
-              · {{ 'communities.tournaments.eligibility.until' | t }} {{ entry.suspendedUntil | date:'dd/MM/yyyy HH:mm' }}
+              · {{ 'communities.tournaments.eligibility.until' | t }} {{ entry.suspendedUntil | date:('dd/MM/yyyy HH:mm' | t) }}
             </li>
           }
         </ul>
@@ -46,7 +46,7 @@ import { CommunityTournamentEligibilityService, TournamentEligibilityOverview } 
         <p role="status">{{ 'communities.tournaments.eligibility.noSuspensions' | t }}</p>
       }
       @if (overview) {
-        <small>{{ 'communities.tournaments.eligibility.checkedAt' | t }} {{ overview.checkedAt | date:'dd/MM/yyyy HH:mm' }}.
+        <small>{{ 'communities.tournaments.eligibility.checkedAt' | t }} {{ overview.checkedAt | date:('dd/MM/yyyy HH:mm' | t) }}.
           {{ 'communities.tournaments.eligibility.disclaimer' | t }}</small>
       }
     </section>

@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
@@ -67,7 +68,7 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
     this.joinedLoading=true;this.joinedError='';
     this.api.joined().pipe(timeout(this.requestTimeout)).subscribe({
       next:items=>{if(!this.alive)return;this.joined=items;this.joinedLoading=false;this.render();},
-      error:()=>{if(!this.alive)return;this.joinedError='Não foi possível confirmar as equipas onde és jogador.';this.joinedLoading=false;this.render();}
+      error:()=>{if(!this.alive)return;this.joinedError=appTranslate('Não foi possível confirmar as equipas onde és jogador.');this.joinedLoading=false;this.render();}
     });
   }
   loadMine(): void {
@@ -80,7 +81,7 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
       },
       error: () => {
         if(!this.alive)return;
-        this.mineError='Não foi possível carregar as tuas equipas. Tenta novamente.';
+        this.mineError=appTranslate('Não foi possível carregar as tuas equipas. Tenta novamente.');
         this.mineLoading=false;this.render();
       }
     });
@@ -92,7 +93,7 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
       next:items=>{if(!this.alive)return;this.teamInvitations=items;this.teamInvitationsVerified=true;this.render();},
       error:()=>{
         this.teamInvitationsVerified=false;
-        this.teamInvitationError='Não foi possível verificar os convites para equipas.';
+        this.teamInvitationError=appTranslate('Não foi possível verificar os convites para equipas.');
         this.render();
       }
     });
@@ -115,7 +116,7 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
       },
       error:()=>{
         this.teamResponding=false;this.teamInvitationsVerified=false;
-        this.teamInvitationError='Não foi possível confirmar a resposta. Verifica os convites antes de repetir.';
+        this.teamInvitationError=appTranslate('Não foi possível confirmar a resposta. Verifica os convites antes de repetir.');
       }
     });
   }
@@ -132,7 +133,7 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
     this.error = '';
     this.competitionInvites.respond(id, accept).subscribe({
       next: () => {this.responding = false; this.loadInvitations();},
-      error: () => {this.responding = false; this.error = 'Não foi possível responder ao convite. Confirma o estado antes de repetir.';}
+      error: () => {this.responding = false; this.error = appTranslate('Não foi possível responder ao convite. Confirma o estado antes de repetir.');}
     });
   }
 
@@ -147,7 +148,7 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
       },
       error:()=>{
         if(!this.alive||request!==this.searchRequest)return;
-        this.error='A pesquisa demorou demasiado ou falhou. Tenta novamente.';
+        this.error=appTranslate('A pesquisa demorou demasiado ou falhou. Tenta novamente.');
         this.loading=false;this.render();
       }
     });
@@ -165,11 +166,11 @@ export class SportsTeamsComponent implements OnInit, OnDestroy {
         if(Number.isSafeInteger(created.id)&&created.id>0){
           void this.router.navigate(['/menu/teams',created.id]);
         }else{
-          this.error='A equipa foi criada, mas o servidor não confirmou o identificador. Consulta as tuas equipas.';
+          this.error=appTranslate('A equipa foi criada, mas o servidor não confirmou o identificador. Consulta as tuas equipas.');
           this.search();this.loadMine();
         }
       },
-      error: () => { this.saving = false; this.error = 'Não foi possível criar a equipa. Confirma que tens sessão iniciada.';this.render(); }
+      error: () => { this.saving = false; this.error = appTranslate('Não foi possível criar a equipa. Confirma que tens sessão iniciada.');this.render(); }
     });
   }
 }

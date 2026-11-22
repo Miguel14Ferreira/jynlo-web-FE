@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, forwardRef, HostListener, Input, OnDestroy, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -33,7 +34,7 @@ export class JynloSelectComponent implements ControlValueAccessor, OnDestroy {
   @Output() remoteQueryChange = new EventEmitter<string>();
   @Input() loading = false;
   @Input() loadingLabel = 'A pesquisar…';
-  @Input() emptyLabel = 'Sem resultados';
+  @Input() emptyLabel = appTranslate('Sem resultados');
   @Input() invalid = false;
   @Input() required = false;
   // Angular NgModel handles the [disabled] form state; [blocked] makes the

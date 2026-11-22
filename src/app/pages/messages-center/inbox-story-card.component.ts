@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -9,31 +10,31 @@ import { SocialStoriesService } from '../../services/social-stories.service';
 @Component({
   selector:'app-inbox-story-card',
   standalone:true,
-  imports:[CommonModule,RouterLink],
+  imports:[TranslatePipe, CommonModule,RouterLink],
   template:`
-    <div class="inbox-story-card" aria-label="Story partilhada">
+    <div class="inbox-story-card" [attr.aria-label]="'Story partilhada' | t">
       @if(story && !unavailable) {
         <div class="inbox-story-media">
           @if(story.video) {
             <video [src]="story.mediaUrl" controls playsinline preload="metadata"
-              (error)="markUnavailable()" aria-label="Vídeo da Story"></video>
+              (error)="markUnavailable()" [attr.aria-label]="'Vídeo da Story' | t"></video>
           } @else {
-            <img [src]="story.mediaUrl" [alt]="story.altText || 'Imagem da Story'"
+            <img [src]="story.mediaUrl" [alt]="story.altText || ('Imagem da Story' | t)"
               loading="lazy" (error)="markUnavailable()" />
           }
         </div>
         <div class="inbox-story-info">
-          <strong>Story de @{{story.authorUsername}}</strong>
+          <strong>{{ 'Story de @{{authorUsername}}' | t:{authorUsername: (story.authorUsername)} }}</strong>
           @if(story.caption) {<span>{{story.caption}}</span>}
           <a class="inbox-story-link" [routerLink]="['/menu/feed']"
-            [queryParams]="{story:story.id}">Ver Story ↗</a>
+            [queryParams]="{story:story.id}">{{ 'Ver Story ↗' | t }}</a>
         </div>
       } @else if(loading) {
-        <div class="inbox-story-status" role="status">A carregar Story…</div>
+        <div class="inbox-story-status" role="status">{{ 'A carregar Story…' | t }}</div>
       } @else {
         <div class="inbox-story-status inbox-story-unavailable" role="status">
-          <strong>Story indisponível</strong>
-          <span>A Story expirou, foi eliminada ou já não está acessível.</span>
+          <strong>{{ 'Story indisponível' | t }}</strong>
+          <span>{{ 'A Story expirou, foi eliminada ou já não está acessível.' | t }}</span>
         </div>
       }
     </div>

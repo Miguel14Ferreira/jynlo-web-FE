@@ -1,3 +1,5 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, HostListener, Input, OnChanges, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -11,30 +13,30 @@ import { SocialFeedService } from '../../services/social-feed.service';
 @Component({
   selector: 'app-profile-post-viewer',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ProtectedMediaDirective],
+  imports: [TranslatePipe, CommonModule, FormsModule, RouterModule, ProtectedMediaDirective],
   template: `
     <div class="post-viewer-backdrop" (click)="closed.emit()">
       <section class="post-viewer" role="dialog" aria-modal="true"
         aria-label="Publicação de {{post.authorDisplayName}}" (click)="$event.stopPropagation()">
-        <button type="button" class="post-viewer-close" (click)="closed.emit()" aria-label="Fechar">×</button>
+        <button type="button" class="post-viewer-close" (click)="closed.emit()" [attr.aria-label]="'Fechar' | t">×</button>
         <div class="post-viewer-media" (touchstart)="beginSwipe($event)" (touchend)="endSwipe($event)">
           @if (media.length) {
             @for (asset of media; track asset.url; let i=$index) {
               @if (i === index) {
                 @if (asset.mimeType.startsWith('video/')) {
-                  <video [jynloProtectedSrc]="asset.url" controls playsinline preload="metadata" aria-label="Vídeo da publicação"></video>
+                  <video [jynloProtectedSrc]="asset.url" controls playsinline preload="metadata" [attr.aria-label]="'Vídeo da publicação' | t"></video>
                 } @else {
-                  <img [jynloProtectedSrc]="asset.url" [alt]="'Fotografia ' + (i+1) + ' de ' + media.length">
+                  <img [jynloProtectedSrc]="asset.url" [alt]="('Fotografia {{v}} de {{length}}' | t:{v: (i+1), length: media.length})">
                 }
               }
             }
             @if (media.length>1) {
-              <button type="button" class="post-viewer-prev" (click)="change(-1)" aria-label="Anterior">‹</button>
-              <button type="button" class="post-viewer-next" (click)="change(1)" aria-label="Seguinte">›</button>
+              <button type="button" class="post-viewer-prev" (click)="change(-1)" [attr.aria-label]="'Anterior' | t">‹</button>
+              <button type="button" class="post-viewer-next" (click)="change(1)" [attr.aria-label]="'Seguinte' | t">›</button>
               <span class="post-viewer-count">{{index+1}} / {{media.length}}</span>
             }
           } @else {
-            <p class="post-viewer-empty">Publicação de texto</p>
+            <p class="post-viewer-empty">{{ 'Publicação de texto' | t }}</p>
           }
         </div>
         <aside class="post-viewer-details">
@@ -42,20 +44,20 @@ import { SocialFeedService } from '../../services/social-feed.service';
             <a [routerLink]="['/menu/perfis',post.authorUsername]" (click)="closed.emit()">
               <strong>{{post.authorDisplayName}}</strong><small>&#64;{{post.authorUsername}}</small>
             </a>
-            <time>{{post.createdAt | date:'dd/MM/yyyy HH:mm'}}</time>
+            <time>{{post.createdAt | date:('dd/MM/yyyy HH:mm' | t)}}</time>
           </header>
           @if(post.content){<p class="post-viewer-caption">{{post.content}}</p>}
-          @if(post.location){<a class="post-viewer-place" [href]="'https://www.google.com/maps/search/?api=1&query='+encode(post.location)"
+          @if(post.location){<a class="post-viewer-place" [href]="'https://www.google.com/maps/search/?api=1&query=' + encode(post.location)"
             target="_blank" rel="noopener noreferrer">📍 {{post.location}}</a>}
           <div class="post-viewer-actions">
             <button type="button" [disabled]="busy" [attr.aria-pressed]="post.likedByMe"
-              (click)="toggleLike()">{{post.likedByMe?'♥':'♡'}} {{post.likeCount}} gostos</button>
-            <span>◯ {{post.commentCount}} comentários</span>
-            <button type="button" (click)="copyLink()">Partilhar</button>
+              (click)="toggleLike()">{{ (post.likedByMe?'♥':'♡') + ' ' + ('{{likeCount}} gostos' | t:{likeCount: post.likeCount}) }}</button>
+            <span>{{ '◯ {{commentCount}} comentários' | t:{commentCount: (post.commentCount)} }}</span>
+            <button type="button" (click)="copyLink()">{{ 'Partilhar' | t }}</button>
           </div>
           @if(shareMessage){<small role="status">{{shareMessage}}</small>}
           <div class="post-viewer-comments">
-            @if(loading){<p>A carregar comentários…</p>}
+            @if(loading){<p>{{ 'A carregar comentários…' | t }}</p>}
             @if(error){<p role="alert">{{error}}</p>}
             @for(comment of comments;track comment.id){
               <div class="post-viewer-comment">
@@ -65,11 +67,11 @@ import { SocialFeedService } from '../../services/social-feed.service';
                 @if (editingCommentId === comment.id) {
                   <div class="post-comment-edit">
                     <textarea [(ngModel)]="commentEditDraft" maxlength="500" rows="2"
-                      [disabled]="busyComment === comment.id" aria-label="Editar comentário"></textarea>
+                      [disabled]="busyComment === comment.id" [attr.aria-label]="'Editar comentário' | t"></textarea>
                     <div class="post-comment-edit-actions">
                       <button type="button" (click)="saveCommentEdit(comment)"
-                        [disabled]="busyComment === comment.id || !commentEditDraft.trim()">Guardar</button>
-                      <button type="button" (click)="cancelCommentEdit()" [disabled]="busyComment === comment.id">Cancelar</button>
+                        [disabled]="busyComment === comment.id || !commentEditDraft.trim()">{{ 'Guardar' | t }}</button>
+                      <button type="button" (click)="cancelCommentEdit()" [disabled]="busyComment === comment.id">{{ 'Cancelar' | t }}</button>
                     </div>
                   </div>
                 } @else {
@@ -81,16 +83,16 @@ import { SocialFeedService } from '../../services/social-feed.service';
                 </button>
                 @if (comment.authorUsername.toLowerCase() === viewerUsername.toLowerCase()
                      && editingCommentId !== comment.id) {
-                  <button type="button" (click)="startCommentEdit(comment)">Editar</button>
+                  <button type="button" (click)="startCommentEdit(comment)">{{ 'Editar' | t }}</button>
                 }
-                @if(comment.editedAt){<small>Editado</small>}
+                @if(comment.editedAt){<small>{{ 'Editado' | t }}</small>}
               </div>
             }
           </div>
           <form class="post-viewer-comment-form" (submit)="submitComment();$event.preventDefault()">
-            <input [(ngModel)]="draft" name="comment" placeholder="Escrever um comentário…" maxlength="500"
-              aria-label="Escrever comentário" [disabled]="sending">
-            <button type="submit" [disabled]="sending||!draft.trim()">Publicar</button>
+            <input [(ngModel)]="draft" name="comment" [placeholder]="'Escrever um comentário…' | t" maxlength="500"
+              [attr.aria-label]="'Escrever comentário' | t" [disabled]="sending">
+            <button type="submit" [disabled]="sending||!draft.trim()">{{ 'Publicar' | t }}</button>
           </form>
         </aside>
       </section>
@@ -193,7 +195,7 @@ export class ProfilePostViewerComponent implements OnChanges {
     this.feed.comments(this.post.postId).pipe(timeout(12000),
       finalize(()=>this.loading=false)).subscribe({
       next:comments=>this.comments=comments,
-      error:()=>this.error='Não foi possível carregar os comentários.'
+      error:()=>this.error=appTranslate('Não foi possível carregar os comentários.')
     });
   }
   toggleLike():void{
@@ -202,7 +204,7 @@ export class ProfilePostViewerComponent implements OnChanges {
     const request=this.post.likedByMe?this.feed.unlikePost(this.post.postId):this.feed.likePost(this.post.postId);
     request.pipe(timeout(10000),finalize(()=>this.busy=false)).subscribe({
       next:status=>{this.post.likedByMe=status.likedByMe;this.post.likeCount=status.likeCount;},
-      error:()=>this.error='Não foi possível atualizar o gosto.'
+      error:()=>this.error=appTranslate('Não foi possível atualizar o gosto.')
     });
   }
   toggleCommentLike(comment:SocialComment):void{
@@ -212,7 +214,7 @@ export class ProfilePostViewerComponent implements OnChanges {
       this.feed.likeComment(this.post.postId,comment.id);
     request.pipe(timeout(10000),finalize(()=>this.busyComment=null)).subscribe({
       next:result=>{comment.likedByMe=result.likedByMe;comment.likeCount=result.likeCount;},
-      error:()=>this.error='Não foi possível atualizar o gosto.'
+      error:()=>this.error=appTranslate('Não foi possível atualizar o gosto.')
     });
   }
   startCommentEdit(comment:SocialComment):void {
@@ -228,13 +230,13 @@ export class ProfilePostViewerComponent implements OnChanges {
     if(this.post.postId==null||this.busyComment!=null||this.editingCommentId!==comment.id
       ||comment.authorUsername.toLowerCase()!==this.viewerUsername.toLowerCase())return;
     const content=this.commentEditDraft.trim();
-    if(!content||content.length>500){this.error='O comentário deve ter entre 1 e 500 caracteres.';return;}
+    if(!content||content.length>500){this.error=appTranslate('O comentário deve ter entre 1 e 500 caracteres.');return;}
     if(content===comment.content){this.cancelCommentEdit();return;}
     this.busyComment=comment.id;
     this.feed.editComment(this.post.postId,comment.id,content).pipe(timeout(10000),
       finalize(()=>this.busyComment=null)).subscribe({
       next:updated=>{Object.assign(comment,updated);this.editingCommentId=null;this.commentEditDraft='';},
-      error:()=>this.error='Não foi possível guardar o comentário.'
+      error:()=>this.error=appTranslate('Não foi possível guardar o comentário.')
     });
   }
   submitComment():void{
@@ -244,15 +246,15 @@ export class ProfilePostViewerComponent implements OnChanges {
     this.feed.addComment(this.post.postId,text).pipe(timeout(10000),
       finalize(()=>this.sending=false)).subscribe({
       next:result=>{this.comments.push(result);this.post.commentCount++;this.draft='';},
-      error:()=>this.error='Não foi possível publicar o comentário.'
+      error:()=>this.error=appTranslate('Não foi possível publicar o comentário.')
     });
   }
   async copyLink():Promise<void>{
     if(this.post.postId==null)return;
     const link=new URL('/menu/feed?post='+this.post.postId,window.location.origin).href;
     try {
-      if(navigator.share)await navigator.share({url:link,title:'Publicação na Jynlo'});
+      if(navigator.share)await navigator.share({url:link,title:appTranslate('Publicação na Jynlo')});
       else {await navigator.clipboard.writeText(link);this.shareMessage='Link copiado';}
-    } catch {this.shareMessage='Não foi possível partilhar o link.';}
+    } catch {this.shareMessage=appTranslate('Não foi possível partilhar o link.');}
   }
 }

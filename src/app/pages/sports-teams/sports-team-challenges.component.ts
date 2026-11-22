@@ -1,3 +1,5 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
@@ -12,95 +14,93 @@ import { SportsTeamChallengesService, TeamChallenge } from '../../services/sport
 @Component({
   standalone:true,
   selector:'app-sports-team-challenges',
-  imports:[CommonModule,FormsModule,RouterLink],
+  imports:[TranslatePipe, CommonModule,FormsModule,RouterLink],
   template:`
-  <section class="challenges" aria-label="Desafios entre equipas">
+  <section class="challenges" [attr.aria-label]="'Desafios entre equipas' | t">
     <div class="heading">
       <div>
-        <p class="eyebrow">JYNLO · RIVALIDADES</p>
-        <h2>Desafios entre equipas</h2>
-        <p>Desafia outra equipa. A sessão só é associada após a aceitação,
-        sem inscrever ninguém automaticamente.</p>
+        <p class="eyebrow">{{ 'JYNLO · RIVALIDADES' | t }}</p>
+        <h2>{{ 'Desafios entre equipas' | t }}</h2>
+        <p>{{ 'Desafia outra equipa. A sessão só é associada após a aceitação, sem inscrever ninguém automaticamente.' | t }}</p>
       </div>
-      <button type="button" [disabled]="busy" (click)="refresh()">Verificar desafios</button>
+      <button type="button" [disabled]="busy" (click)="refresh()">{{ 'Verificar desafios' | t }}</button>
     </div>
     <p role="alert" *ngIf="error" class="error">{{error}}</p>
     <p role="status" *ngIf="feedback" class="feedback">{{feedback}}</p>
-    <p *ngIf="loading" role="status">A consultar desafios…</p>
+    <p *ngIf="loading" role="status">{{ 'A consultar desafios…' | t }}</p>
     <ng-container *ngIf="!loading">
       <p *ngIf="!items.length&&!error" class="empty">
-        Esta equipa ainda não tem desafios. Podes lançar o primeiro a partir daqui.
+        {{ 'Esta equipa ainda não tem desafios. Podes lançar o primeiro a partir daqui.' | t }}
       </p>
       <div class="challenge-list">
         <article *ngFor="let challenge of items" class="challenge-card">
           <div class="challenge-top">
-            <strong>{{challenge.challengerTeamName}} <span>vs.</span> {{challenge.challengedTeamName}}</strong>
+            <strong>{{challenge.challengerTeamName}} <span>{{ 'vs.' | t }}</span> {{challenge.challengedTeamName}}</strong>
             <span class="status" [class.pending]="challenge.status==='PENDING'">
               {{statusLabel(challenge.status)}}</span>
           </div>
           <p *ngIf="challenge.message">{{challenge.message}}</p>
-          <small>{{challenge.createdAt | date:'dd/MM/yyyy'}}</small>
+          <small>{{challenge.createdAt | date:('dd/MM/yyyy' | t)}}</small>
           <div class="actions" *ngIf="isOwner">
             <ng-container *ngIf="challenge.status==='PENDING'&&challenge.challengedTeamId===teamId">
               <button type="button" class="primary" [disabled]="busy" (click)="respond(challenge,true)">
-                Aceitar desafio</button>
-              <button type="button" [disabled]="busy" (click)="respond(challenge,false)">Recusar</button>
+                {{ 'Aceitar desafio' | t }}</button>
+              <button type="button" [disabled]="busy" (click)="respond(challenge,false)">{{ 'Recusar' | t }}</button>
             </ng-container>
             <button type="button" *ngIf="challenge.status==='PENDING'&&challenge.challengerTeamId===teamId"
-              [disabled]="busy" (click)="cancel(challenge)">Cancelar convite</button>
+              [disabled]="busy" (click)="cancel(challenge)">{{ 'Cancelar convite' | t }}</button>
             <ng-container *ngIf="challenge.status==='ACCEPTED'&&!challenge.sessionId">
-              <p class="hint">Cria uma sessão pública normalmente e associa-a aqui.
-                A organização do jogo e as inscrições mantêm as regras habituais.</p>
-              <label [attr.for]="'challenge-session-'+challenge.id">Escolher um jogo público criado por ti</label>
+              <p class="hint">{{ 'Cria uma sessão pública normalmente e associa-a aqui. A organização do jogo e as inscrições mantêm as regras habituais.' | t }}</p>
+              <label [attr.for]="'challenge-session-'+challenge.id">{{ 'Escolher um jogo público criado por ti' | t }}</label>
               <div class="link-form">
                 <select [id]="'challenge-session-'+challenge.id" [disabled]="busy||sessionsLoading||!sessionsVerified"
                   [(ngModel)]="sessionInputs[challenge.id]">
-                  <option value="">Escolher sessão</option>
+                  <option value="">{{ 'Escolher sessão' | t }}</option>
                   <option *ngFor="let game of availableSessions" [value]="game.id">
-                    {{game.sport}} · {{game.city}} · {{game.gameDate | date:'dd/MM/yyyy HH:mm'}}
+                    {{game.sport}} · {{game.city}} · {{game.gameDate | date:('dd/MM/yyyy HH:mm' | t)}}
                   </option>
                 </select>
                 <button type="button" class="primary" [disabled]="busy||!validSession(challenge.id)"
-                  (click)="linkSession(challenge)">Associar sessão</button>
+                  (click)="linkSession(challenge)">{{ 'Associar sessão' | t }}</button>
               </div>
-              <p class="hint" *ngIf="sessionsLoading">A consultar as tuas sessões…</p>
+              <p class="hint" *ngIf="sessionsLoading">{{ 'A consultar as tuas sessões…' | t }}</p>
               <p class="hint" *ngIf="sessionsError" role="alert">{{sessionsError}}</p>
               <p class="hint" *ngIf="sessionsVerified&&!availableSessions.length">
-                Ainda não tens uma sessão pública elegível. Cria uma antes de associares o jogo.
+                {{ 'Ainda não tens uma sessão pública elegível. Cria uma antes de associares o jogo.' | t }}
               </p>
-              <a routerLink="/menu/createEvent">Criar uma sessão</a>
+              <a routerLink="/menu/createEvent">{{ 'Criar uma sessão' | t }}</a>
             </ng-container>
           </div>
           <a *ngIf="challenge.sessionId" [routerLink]="['/menu/events',challenge.sessionId]">
-            Abrir sessão associada</a>
+            {{ 'Abrir sessão associada' | t }}</a>
           <a *ngIf="challenge.challengerTeamId!==teamId" [routerLink]="['/menu/teams',challenge.challengerTeamId]">
-            Ver equipa desafiante</a>
+            {{ 'Ver equipa desafiante' | t }}</a>
           <a *ngIf="challenge.challengedTeamId!==teamId" [routerLink]="['/menu/teams',challenge.challengedTeamId]">
-            Ver equipa desafiada</a>
+            {{ 'Ver equipa desafiada' | t }}</a>
         </article>
       </div>
     </ng-container>
     <div *ngIf="isOwner" class="create">
-      <h3>Lançar um desafio</h3>
-      <p>Procura uma equipa da mesma modalidade. Apenas o respetivo responsável poderá aceitar.</p>
+      <h3>{{ 'Lançar um desafio' | t }}</h3>
+      <p>{{ 'Procura uma equipa da mesma modalidade. Apenas o respetivo responsável poderá aceitar.' | t }}</p>
       <div class="search">
-        <input [(ngModel)]="query" maxlength="80" placeholder="Pesquisar equipa" [disabled]="busy"
+        <input [(ngModel)]="query" maxlength="80" [placeholder]="'Pesquisar equipa' | t" [disabled]="busy"
           (keyup.enter)="findTeams()">
         <button type="button" (click)="findTeams()" [disabled]="busy||searching||query.trim().length<2">
-          {{searching?'A procurar…':'Pesquisar'}}</button>
+          {{searching?('A procurar…' | t):('Pesquisar' | t)}}</button>
       </div>
       <div class="candidates" *ngIf="candidates.length">
         <button type="button" *ngFor="let team of candidates" [disabled]="busy"
           [class.selected]="selectedTeamId===team.id" [attr.aria-pressed]="selectedTeamId===team.id"
           (click)="selectedTeamId=team.id">
-          {{team.name}} <small>{{team.sport||'Modalidade por definir'}}</small>
+          {{team.name}} <small>{{team.sport||('Modalidade por definir' | t)}}</small>
         </button>
       </div>
-      <label for="challenge-message">Mensagem opcional</label>
+      <label for="challenge-message">{{ 'Mensagem opcional' | t }}</label>
       <textarea id="challenge-message" [(ngModel)]="message" maxlength="280"
-        placeholder="Que tal um jogo entre as nossas equipas?" [disabled]="busy"></textarea>
+        [placeholder]="'Que tal um jogo entre as nossas equipas?' | t" [disabled]="busy"></textarea>
       <button type="button" class="primary" [disabled]="busy||!selectedTeamId"
-        (click)="invite()">Enviar desafio</button>
+        (click)="invite()">{{ 'Enviar desafio' | t }}</button>
     </div>
   </section>
   `,
@@ -183,7 +183,7 @@ export class SportsTeamChallengesComponent implements OnInit,OnDestroy {
         if(this.isOwner&&items.some(x=>x.status==='ACCEPTED'&&!x.sessionId))this.loadAvailableSessions();
         this.render();},
       error:()=>{if(this.destroyed||version!==this.generation)return;
-        this.items=[];this.loading=false;this.error='Não foi possível confirmar os desafios desta equipa.';this.render();}
+        this.items=[];this.loading=false;this.error=appTranslate('Não foi possível confirmar os desafios desta equipa.');this.render();}
     });
   }
   private loadAvailableSessions():void {
@@ -202,7 +202,7 @@ export class SportsTeamChallengesComponent implements OnInit,OnDestroy {
       error:()=>{
         if(this.destroyed||version!==this.sessionsVersion)return;
         this.sessionsVerified=false;this.sessionsLoading=false;this.sessionsRequested=false;
-        this.sessionsError='Não foi possível consultar as tuas sessões. Tenta verificar novamente.';this.render();
+        this.sessionsError=appTranslate('Não foi possível consultar as tuas sessões. Tenta verificar novamente.');this.render();
       }
     });
   }
@@ -215,7 +215,7 @@ export class SportsTeamChallengesComponent implements OnInit,OnDestroy {
           &&(!this.sport||!x.sport||x.sport.toLowerCase()===this.sport.toLowerCase()));
         this.searching=false;this.render();},
       error:()=>{if(this.destroyed||version!==this.searchVersion)return;
-        this.searching=false;this.error='Pesquisa indisponível. Tenta novamente.';this.render();}
+        this.searching=false;this.error=appTranslate('Pesquisa indisponível. Tenta novamente.');this.render();}
     });
   }
   invite():void {
@@ -224,10 +224,10 @@ export class SportsTeamChallengesComponent implements OnInit,OnDestroy {
     this.busy=true;this.error='';this.feedback='';
     this.api.challenge(this.teamId,this.selectedTeamId,this.message).pipe(timeout(12000)).subscribe({
       next:()=>{if(this.destroyed)return;this.busy=false;this.message='';this.selectedTeamId=null;
-        this.candidates=[];this.feedback='Desafio enviado. A outra equipa terá de aceitar.';this.refresh();},
+        this.candidates=[];this.feedback=appTranslate('Desafio enviado. A outra equipa terá de aceitar.');this.refresh();},
       error:(e:HttpErrorResponse)=>{if(this.destroyed)return;this.busy=false;
-        this.error=e.status===409?'Já existe um desafio entre estas equipas. Confirma a lista antes de repetir.':
-          'Não foi possível confirmar o envio. Verifica os desafios antes de voltares a tentar.';this.render();}
+        this.error=e.status===409?appTranslate('Já existe um desafio entre estas equipas. Confirma a lista antes de repetir.'):
+          appTranslate('Não foi possível confirmar o envio. Verifica os desafios antes de voltares a tentar.');this.render();}
     });
   }
   private mutate(request:import('rxjs').Observable<TeamChallenge>,success:string):void {
@@ -236,13 +236,13 @@ export class SportsTeamChallengesComponent implements OnInit,OnDestroy {
     request.pipe(timeout(12000)).subscribe({
       next:()=>{if(this.destroyed)return;this.busy=false;this.feedback=success;this.refresh();},
       error:(e:HttpErrorResponse)=>{if(this.destroyed)return;this.busy=false;
-        this.error=e.status===409?'Este desafio foi alterado noutra sessão. Verifica o estado antes de repetir.':
-          'Não foi possível confirmar a alteração. Consulta novamente os desafios.';this.refresh();}
+        this.error=e.status===409?appTranslate('Este desafio foi alterado noutra sessão. Verifica o estado antes de repetir.'):
+          appTranslate('Não foi possível confirmar a alteração. Consulta novamente os desafios.');this.refresh();}
     });
   }
   respond(item:TeamChallenge,accept:boolean):void {
     if(!this.isOwner||item.challengedTeamId!==this.teamId||item.status!=='PENDING')return;
-    this.mutate(this.api.respond(item.id,accept),accept?'Desafio aceite. Podem organizar a sessão.':'Desafio recusado.');
+    this.mutate(this.api.respond(item.id,accept),accept?appTranslate('Desafio aceite. Podem organizar a sessão.'):'Desafio recusado.');
   }
   cancel(item:TeamChallenge):void {
     if(!this.isOwner||item.challengerTeamId!==this.teamId||item.status!=='PENDING')return;
@@ -251,6 +251,6 @@ export class SportsTeamChallengesComponent implements OnInit,OnDestroy {
   linkSession(item:TeamChallenge):void {
     if(!this.isOwner||item.status!=='ACCEPTED'||item.sessionId||!this.validSession(item.id))return;
     this.mutate(this.api.linkSession(item.id,Number(this.sessionInputs[item.id])),
-      'Sessão associada ao desafio.');
+      appTranslate('Sessão associada ao desafio.'));
   }
 }

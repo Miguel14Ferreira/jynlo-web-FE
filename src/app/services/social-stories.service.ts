@@ -1,3 +1,4 @@
+import { appTranslate } from '../i18n/i18n.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -49,7 +50,7 @@ export class SocialStoriesService {
     const body = new FormData();
     body.append('caption', caption.trim());
     body.append(file.type.startsWith('video/') ? 'video' : 'image', file);
-    if (communityId !== null && teamId != null) throw new Error('Uma Story só pode pertencer a uma entidade.');
+    if (communityId !== null && teamId != null) throw new Error(appTranslate('Uma Story só pode pertencer a uma entidade.'));
     if (communityId !== null) body.append('communityId', String(communityId));
     if (teamId != null) body.append('teamId', String(teamId));
     if (options) {

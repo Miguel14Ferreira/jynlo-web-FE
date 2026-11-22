@@ -20,7 +20,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
       <span class="callup-kind">📣 {{ 'chat.callUp.title' | t }}</span>
       @if (session) {
         <strong class="callup-title">{{ session.sport }} · {{ session.city }}</strong>
-        <span class="callup-meta">{{ session.gameDate | date:'dd/MM · HH:mm' }}</span>
+        <span class="callup-meta">{{ session.gameDate | date:('dd/MM · HH:mm' | t) }}</span>
         <div class="callup-progress" role="img"
           [attr.aria-label]="('chat.callUp.going' | t:{count: session.participantCount, max: session.maxParticipants})">
           <span [style.width.%]="progress()"></span>

@@ -1,3 +1,5 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { timeout } from 'rxjs';
@@ -11,72 +13,72 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
 @Component({
   standalone:true,
   selector:'app-team-competition-discovery',
-  imports:[CommonModule,FormsModule,RouterLink],
+  imports:[TranslatePipe, CommonModule,FormsModule,RouterLink],
   template:`
     <main class="team-discover">
-      <a routerLink="/menu/teams">← Voltar às equipas</a>
-      <h1>Encontrar torneios e campeonatos</h1>
-      <p>Encontra competições públicas com candidaturas abertas e pede participação como responsável de uma equipa.</p>
+      <a routerLink="/menu/teams">{{ '← Voltar às equipas' | t }}</a>
+      <h1>{{ 'Encontrar torneios e campeonatos' | t }}</h1>
+      <p>{{ 'Encontra competições públicas com candidaturas abertas e pede participação como responsável de uma equipa.' | t }}</p>
       <div class="filters">
-        <label>Nome ou comunidade<input [(ngModel)]="query" maxlength="80" (keyup.enter)="search()"/></label>
-        <label>Modalidade
-          <select [(ngModel)]="sport" aria-label="Filtrar modalidade">
-            <option value="">Todas as modalidades</option>
+        <label>{{ 'Nome ou comunidade' | t }}<input [(ngModel)]="query" maxlength="80" (keyup.enter)="search()"/></label>
+        <label>{{ 'Modalidade' | t }}
+          <select [(ngModel)]="sport" [attr.aria-label]="'Filtrar modalidade' | t">
+            <option value="">{{ 'Todas as modalidades' | t }}</option>
             <option *ngFor="let item of sportsCatalog" [value]="item">{{item}}</option>
           </select>
         </label>
-        <button type="button" (click)="search()">Pesquisar</button>
+        <button type="button" (click)="search()">{{ 'Pesquisar' | t }}</button>
       </div>
       <p *ngIf="error" role="alert" class="error">{{error}}</p>
       <p *ngIf="notice" role="status">{{notice}}</p>
-      <p *ngIf="!refreshingApplications && !applicationsVerified" role="alert">Não foi possível confirmar as candidaturas anteriores. Para evitar pedidos repetidos, o envio está temporariamente bloqueado.</p>
+      <p *ngIf="!refreshingApplications && !applicationsVerified" role="alert">{{ 'Não foi possível confirmar as candidaturas anteriores. Para evitar pedidos repetidos, o envio está temporariamente bloqueado.' | t }}</p>
       <button *ngIf="!applicationsVerified || !teamsVerified" type="button" class="refresh-state" [disabled]="saving || refreshingApplications"
-        (click)="refreshOwnershipAndApplications()">{{refreshingApplications?'A confirmar…':'Verificar equipas e candidaturas'}}</button>
-      <p *ngIf="loading" role="status">A procurar competições…</p>
+        (click)="refreshOwnershipAndApplications()">{{refreshingApplications?('A confirmar…' | t):('Verificar equipas e candidaturas' | t)}}</button>
+      <p *ngIf="loading" role="status">{{ 'A procurar competições…' | t }}</p>
       <section class="card" *ngIf="applications.length">
-        <h2>Pedidos das tuas equipas</h2>
+        <h2>{{ 'Pedidos das tuas equipas' | t }}</h2>
         <p *ngFor="let application of applications">
-          {{application.teamName}} · {{application.competitionType==='TOURNAMENT'?'Torneio':'Campeonato'}}
-          · {{application.status==='PENDING'?'Em análise':application.status==='APPROVED'?'Aprovado pelo organizador · inscrição por confirmar':'Recusado'}}
+          {{application.teamName}} · {{application.competitionType==='TOURNAMENT'?('Torneio' | t):('Campeonato' | t)}}
+          · {{application.status==='PENDING'?('Em análise' | t):application.status==='APPROVED'?('Aprovado pelo organizador · inscrição por confirmar' | t):('Recusado' | t)}}
         </p>
       </section>
-      <section class="card team-picker" aria-label="Escolher equipa para candidatura">
-        <h2>Escolher a equipa</h2>
-        <p *ngIf="!refreshingApplications && !teamsVerified">Ainda não foi possível confirmar as equipas que geres.</p>
-        <label for="choose-team-for-competition">Equipa que se candidata</label>
+      <section class="card team-picker" [attr.aria-label]="'Escolher equipa para candidatura' | t">
+        <h2>{{ 'Escolher a equipa' | t }}</h2>
+        <p *ngIf="!refreshingApplications && !teamsVerified">{{ 'Ainda não foi possível confirmar as equipas que geres.' | t }}</p>
+        <label for="choose-team-for-competition">{{ 'Equipa que se candidata' | t }}</label>
         <select id="choose-team-for-competition" [disabled]="!teamsVerified || saving"
                 [ngModel]="selectedTeam" (ngModelChange)="selectTeam($event)">
-          <option [ngValue]="null">Selecionar equipa</option>
+          <option [ngValue]="null">{{ 'Selecionar equipa' | t }}</option>
           <option *ngFor="let team of mine" [ngValue]="team.id">{{team.name}}</option>
         </select>
         <div class="selected-team-kit" *ngIf="selectedTeam && selectedTeamIdentity as team"
-          aria-label="Logótipo e equipamento da equipa selecionada">
+          [attr.aria-label]="'Logótipo e equipamento da equipa selecionada' | t">
           <img *ngIf="selectedTeamLogo as logo" class="selected-team-crest" [src]="logo"
-            [alt]="'Logótipo de ' + team.name" (error)="failedLogoUrl=logo" />
+            [alt]="('Logótipo de {{name}}' | t:{name: team.name})" (error)="failedLogoUrl=logo" />
           <span *ngIf="!selectedTeamLogo" class="selected-team-crest crest-fallback"
             aria-hidden="true">{{team.name.slice(0,1).toUpperCase()}}</span>
           <span class="team-shirt" [class]="'team-shirt kit-' + (team.kitPattern || 'PLAIN').toLowerCase()"
             [style.--shirt-primary]="team.kitPrimary || '#16caba'"
             [style.--shirt-secondary]="team.kitSecondary || '#f2fafc'" aria-hidden="true"></span>
-          <span><strong>{{team.name}}</strong> · Equipamento oficial</span>
+          <span><strong>{{team.name}}</strong> {{ '· Equipamento oficial' | t }}</span>
         </div>
       </section>
-      <p *ngIf="!loading && !searchError && competitions.length" class="result-count" role="status">{{competitions.length}} {{competitions.length===1?'competição encontrada':'competições encontradas'}}</p>
-      <section class="results" aria-label="Competições encontradas">
+      <p *ngIf="!loading && !searchError && competitions.length" class="result-count" role="status">{{competitions.length}} {{competitions.length===1?('competição encontrada' | t):('competições encontradas' | t)}}</p>
+      <section class="results" [attr.aria-label]="'Competições encontradas' | t">
         <article class="card" *ngFor="let item of competitions">
-          <div class="competition-meta"><span class="competition-type">{{item.type==='TOURNAMENT'?'Torneio':'Campeonato'}}</span><span class="competition-community">{{item.communityName}}</span></div>
+          <div class="competition-meta"><span class="competition-type">{{item.type==='TOURNAMENT'?('Torneio' | t):('Campeonato' | t)}}</span><span class="competition-community">{{item.communityName}}</span></div>
           <h2>{{item.name}}</h2>
-          <p class="competition-sport">{{item.sport || 'Modalidade não indicada'}}</p>
-          <p *ngIf="!item.applicationsOpen" role="status">Candidaturas encerradas</p>
+          <p class="competition-sport">{{item.sport || ('Modalidade não indicada' | t)}}</p>
+          <p *ngIf="!item.applicationsOpen" role="status">{{ 'Candidaturas encerradas' | t }}</p>
           <button type="button" [disabled]="saving || !item.applicationsOpen || !selectedTeam || !teamsVerified || !applicationsVerified || hasApplication(item,selectedTeam)"
-                  (click)="apply(item)">{{applicationLabel(item,selectedTeam) || (saving?'A enviar…':'Pedir participação')}}</button>
+                  (click)="apply(item)">{{applicationLabel(item,selectedTeam) || (saving?('A enviar…' | t):('Pedir participação' | t))}}</button>
           <p *ngIf="selectedTeam && hasApplication(item,selectedTeam)">{{applicationLabel(item,selectedTeam)}}</p>
         </article>
       </section>
-      <p *ngIf="!loading && !searchError && !competitions.length">Não há competições a aceitar candidaturas com estes filtros.</p>
-      <p *ngIf="teamsVerified && !mine.length">Precisas de criar ou administrar uma equipa para pedir participação.</p>
-      <a class="create-team-link" routerLink="/menu/teams" [queryParams]="{create:1}">Criar equipa</a>
-      <p class="note">A aprovação não inscreve automaticamente o plantel. A inscrição final depende das regras da competição.</p>
+      <p *ngIf="!loading && !searchError && !competitions.length">{{ 'Não há competições a aceitar candidaturas com estes filtros.' | t }}</p>
+      <p *ngIf="teamsVerified && !mine.length">{{ 'Precisas de criar ou administrar uma equipa para pedir participação.' | t }}</p>
+      <a class="create-team-link" routerLink="/menu/teams" [queryParams]="{create:1}">{{ 'Criar equipa' | t }}</a>
+      <p class="note">{{ 'A aprovação não inscreve automaticamente o plantel. A inscrição final depende das regras da competição.' | t }}</p>
     </main>
   `,
   styles:[`
@@ -173,7 +175,7 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
       },
       error:()=>{
         if(this.destroyed||version!==this.searchVersion)return;
-        this.searchError=true;this.error='A pesquisa de competições demorou demasiado ou falhou. Tenta novamente.';
+        this.searchError=true;this.error=appTranslate('A pesquisa de competições demorou demasiado ou falhou. Tenta novamente.');
         this.loading=false;this.render();
       }
     });
@@ -202,7 +204,7 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
       error:()=>{
         if(this.destroyed||version!==this.ownershipVersion)return;
         this.mine=[];this.selectedTeam=null;this.teamsVerified=false;
-        this.error='Não foi possível confirmar as tuas equipas. Verifica a ligação e tenta novamente.';
+        this.error=appTranslate('Não foi possível confirmar as tuas equipas. Verifica a ligação e tenta novamente.');
         done();
       }
     });
@@ -214,7 +216,7 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
       error:()=>{
         if(this.destroyed||version!==this.ownershipVersion)return;
         this.applications=[];this.applicationsVerified=false;
-        this.error='Não foi possível confirmar os pedidos existentes. Tenta novamente.';
+        this.error=appTranslate('Não foi possível confirmar os pedidos existentes. Tenta novamente.');
         done();
       }
     });
@@ -228,7 +230,7 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
   }
   applicationLabel(item:OpenTeamCompetition,teamId:number|null):string|null{
     const status=this.applicationFor(item,teamId)?.status;
-    return status==='PENDING'?'Pedido em análise':status==='APPROVED'?'Aprovada · inscrição por confirmar':
+    return status==='PENDING'?appTranslate('Pedido em análise'):status==='APPROVED'?appTranslate('Aprovada · inscrição por confirmar'):
       status==='DECLINED'?'Candidatura recusada':null;
   }
   apply(item:OpenTeamCompetition):void{
@@ -243,12 +245,12 @@ export class TeamCompetitionDiscoveryComponent implements OnInit, OnDestroy {
         if(this.destroyed||ownershipVersion!==this.ownershipVersion)return;
         this.applications=[application,...this.applications.filter(previous=>previous.id!==application.id)];
         this.saving=false;
-        this.notice='Pedido enviado ao organizador. Podes acompanhar o estado nesta página.';this.render();
+        this.notice=appTranslate('Pedido enviado ao organizador. Podes acompanhar o estado nesta página.');this.render();
       },
       error:()=>{
         if(this.destroyed||ownershipVersion!==this.ownershipVersion)return;
         this.saving=false;this.applicationsVerified=false;
-        this.error='Não foi possível confirmar o pedido. Verifica os pedidos existentes antes de repetir.';this.render();
+        this.error=appTranslate('Não foi possível confirmar o pedido. Verifica os pedidos existentes antes de repetir.');this.render();
       }
     });
   }

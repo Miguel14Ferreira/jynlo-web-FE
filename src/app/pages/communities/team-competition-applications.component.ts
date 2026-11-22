@@ -1,3 +1,5 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { GlobalTeamEnrollmentComponent } from './global-team-enrollment.component';
 import { Component, Input, OnChanges } from '@angular/core';
@@ -7,34 +9,34 @@ import { TeamCompetitionApplicationsService, TeamCompetitionApplication, TeamCom
 @Component({
   standalone:true,
   selector:'app-team-competition-applications',
-  imports:[CommonModule,GlobalTeamEnrollmentComponent],
+  imports:[TranslatePipe, CommonModule,GlobalTeamEnrollmentComponent],
   template:`
     <section class="team-applications">
-      <h6>Candidaturas de equipas</h6>
-      <p>Permite que equipas da Jynlo encontrem esta competição e peçam participação.</p>
+      <h6>{{ 'Candidaturas de equipas' | t }}</h6>
+      <p>{{ 'Permite que equipas da Jynlo encontrem esta competição e peçam participação.' | t }}</p>
       <p *ngIf="error" role="alert" class="error">{{error}}</p>
       <p *ngIf="notice" role="status">{{notice}}</p>
-      <p *ngIf="loading">A carregar candidaturas…</p>
+      <p *ngIf="loading">{{ 'A carregar candidaturas…' | t }}</p>
       <ng-container *ngIf="settingsLoaded">
-        <p><strong>Pesquisa pública:</strong> {{open?'Candidaturas abertas':'Desativada'}}</p>
+        <p><strong>{{ 'Pesquisa pública:' | t }}</strong> {{open?('Candidaturas abertas' | t):('Desativada' | t)}}</p>
         <button type="button" [disabled]="busy" (click)="toggle()">
-          {{open?'Fechar candidaturas':'Abrir candidaturas a equipas'}}
+          {{open?('Fechar candidaturas' | t):('Abrir candidaturas a equipas' | t)}}
         </button>
-        <h6>Pedidos recebidos</h6>
-        <p *ngIf="!applications.length">Ainda não há pedidos de participação.</p>
+        <h6>{{ 'Pedidos recebidos' | t }}</h6>
+        <p *ngIf="!applications.length">{{ 'Ainda não há pedidos de participação.' | t }}</p>
         <article *ngFor="let application of applications" class="application-row">
           <strong>{{application.teamName}}</strong>
-          <span>{{application.status==='PENDING'?'Pendente':
-            application.status==='APPROVED'?'Aprovado':'Recusado'}}</span>
+          <span>{{application.status==='PENDING'?('Pendente' | t):
+            application.status==='APPROVED'?('Aprovado' | t):('Recusado' | t)}}</span>
           <div *ngIf="application.status==='PENDING'" class="buttons">
-            <button type="button" [disabled]="busy" (click)="decide(application.id,true)">Aprovar pedido</button>
-            <button type="button" [disabled]="busy" (click)="decide(application.id,false)">Recusar pedido</button>
+            <button type="button" [disabled]="busy" (click)="decide(application.id,true)">{{ 'Aprovar pedido' | t }}</button>
+            <button type="button" [disabled]="busy" (click)="decide(application.id,false)">{{ 'Recusar pedido' | t }}</button>
           </div>
           <app-global-team-enrollment *ngIf="application.status==='APPROVED'"
             [communityId]="communityId" [competitionId]="competitionId" [type]="type"
             [globalTeamId]="application.teamId"></app-global-team-enrollment>
         </article>
-        <p class="fine">A aprovação confirma a candidatura. A inscrição e os jogadores continuam sujeitos às regras da competição.</p>
+        <p class="fine">{{ 'A aprovação confirma a candidatura. A inscrição e os jogadores continuam sujeitos às regras da competição.' | t }}</p>
       </ng-container>
     </section>
   `,
@@ -65,21 +67,21 @@ export class TeamCompetitionApplicationsComponent implements OnChanges {
         this.settingsLoaded=true;
         this.loadApplications(version);
       },
-      error:()=>{if(version===this.revision){this.loading=false;this.error='Não foi possível obter a configuração de candidaturas.';}}
+      error:()=>{if(version===this.revision){this.loading=false;this.error=appTranslate('Não foi possível obter a configuração de candidaturas.');}}
     });
   }
   private loadApplications(version:number):void{
     this.api.list(this.communityId,this.type,this.competitionId).subscribe({
       next:rows=>{if(version===this.revision){this.applications=rows;this.loading=false;}},
-      error:()=>{if(version===this.revision){this.loading=false;this.error='Não foi possível carregar os pedidos.';}}
+      error:()=>{if(version===this.revision){this.loading=false;this.error=appTranslate('Não foi possível carregar os pedidos.');}}
     });
   }
   toggle():void{
     if(this.busy||!this.settingsLoaded)return;
     const version=this.revision;this.busy=true;this.error='';this.notice='';
     this.api.configure(this.communityId,this.type,this.competitionId,!this.open).subscribe({
-      next:updated=>{if(version===this.revision){this.open=updated.applicationsOpen;this.notice='Configuração guardada.';}this.busy=false;},
-      error:()=>{if(version===this.revision)this.error='Não foi possível alterar as candidaturas. Verifica se a competição e comunidade são elegíveis.';this.busy=false;}
+      next:updated=>{if(version===this.revision){this.open=updated.applicationsOpen;this.notice=appTranslate('Configuração guardada.');}this.busy=false;},
+      error:()=>{if(version===this.revision)this.error=appTranslate('Não foi possível alterar as candidaturas. Verifica se a competição e comunidade são elegíveis.');this.busy=false;}
     });
   }
   decide(id:number,approve:boolean):void{
@@ -89,11 +91,11 @@ export class TeamCompetitionApplicationsComponent implements OnChanges {
       next:updated=>{
         if(version===this.revision){
           this.applications=this.applications.map(row=>row.id===id?updated:row);
-          this.notice=approve?'Pedido aprovado. Confirma depois a inscrição e o plantel.':'Pedido recusado.';
+          this.notice=approve?appTranslate('Pedido aprovado. Confirma depois a inscrição e o plantel.'):'Pedido recusado.';
         }
         this.busy=false;
       },
-      error:()=>{if(version===this.revision)this.error='Não foi possível confirmar a decisão. Atualiza o estado antes de repetir.';this.busy=false;}
+      error:()=>{if(version===this.revision)this.error=appTranslate('Não foi possível confirmar a decisão. Atualiza o estado antes de repetir.');this.busy=false;}
     });
   }
 }

@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { AfterViewInit, ChangeDetectionStrategy, Component, NgZone, OnInit } from '@angular/core';
@@ -163,7 +164,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
           if (response.mfaRequired) {
             if (!response.challengeId) {
-              this.errorMessage = 'Não foi possível iniciar a autenticação multifator.';
+              this.errorMessage = appTranslate('Não foi possível iniciar a autenticação multifator.');
               return;
             }
 
@@ -181,7 +182,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
           }
 
           if (!response.token) {
-            this.errorMessage = 'Não foi possível concluir o login com Google.';
+            this.errorMessage = appTranslate('Não foi possível concluir o login com Google.');
             return;
           }
 
@@ -191,7 +192,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         error: error => {
           this.errorMessage = this.errorFrom(
             error,
-            'Não foi possível iniciar sessão com Google.'
+            appTranslate('Não foi possível iniciar sessão com Google.')
           );
         }
       });

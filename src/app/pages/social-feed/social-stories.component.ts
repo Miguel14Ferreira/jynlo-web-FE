@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { ProtectedMediaDirective } from '../../shared/protected-media.directive';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, Optional, ViewChild, inject } from '@angular/core';
@@ -160,7 +161,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
         this.storyPlaceSessionToken=crypto.randomUUID();
       },
       error:()=>{
-        this.publishError='Não foi possível verificar este local. Tenta novamente.';
+        this.publishError=appTranslate('Não foi possível verificar este local. Tenta novamente.');
         this.changeDetector.markForCheck();
       }
     });
@@ -277,16 +278,16 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
 
   private publishingErrorMessage(error: unknown): string {
     if (error instanceof HttpErrorResponse) {
-      if (error.status === 413) return 'O ficheiro é demasiado grande para enviar. Escolhe um mais pequeno.';
-      if (error.status === 401) return 'A tua sessão terminou. Inicia sessão antes de publicar.';
-      if (error.status === 403) return 'Não tens permissão para publicar nesta comunidade.';
-      if (error.status === 415) return 'Formato não suportado. Usa JPG, PNG, WebP, MP4 ou WebM.';
-      if (error.status === 400) return 'Este ficheiro não foi aceite. Experimenta uma imagem JPG/PNG diferente.';
+      if (error.status === 413) return appTranslate('O ficheiro é demasiado grande para enviar. Escolhe um mais pequeno.');
+      if (error.status === 401) return appTranslate('A tua sessão terminou. Inicia sessão antes de publicar.');
+      if (error.status === 403) return appTranslate('Não tens permissão para publicar nesta comunidade.');
+      if (error.status === 415) return appTranslate('Formato não suportado. Usa JPG, PNG, WebP, MP4 ou WebM.');
+      if (error.status === 400) return appTranslate('Este ficheiro não foi aceite. Experimenta uma imagem JPG/PNG diferente.');
       if (error.status === 502 || error.status === 503 || error.status === 504 || error.status === 0)
-        return 'O servidor de imagens está temporariamente indisponível. A fotografia continua aqui para tentares novamente.';
-      if (error.status >= 500) return 'O servidor não conseguiu guardar a Story. O ficheiro foi mantido para repetires.';
+        return appTranslate('O servidor de imagens está temporariamente indisponível. A fotografia continua aqui para tentares novamente.');
+      if (error.status >= 500) return appTranslate('O servidor não conseguiu guardar a Story. O ficheiro foi mantido para repetires.');
     }
-    return 'Não foi possível publicar. A fotografia continua selecionada; tenta novamente.';
+    return appTranslate('Não foi possível publicar. A fotografia continua selecionada; tenta novamente.');
   }
 
   error = '';
@@ -315,7 +316,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
       },
       error: () => {
         if (this.activeStory?.id !== story.id) return;
-        this.audienceError = 'Não foi possível carregar as visualizações.';
+        this.audienceError = appTranslate('Não foi possível carregar as visualizações.');
         this.audienceBusy = false;
         this.changeDetector.markForCheck();
       }
@@ -797,7 +798,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
   publish(): void {
     if (this.uploading || !this.file) return;
     if (this.storyLocation.trim() && !this.storyLocationVerified) {
-      this.publishError = 'Escolhe uma localização real das sugestões ou limpa o campo.';
+      this.publishError = appTranslate('Escolhe uma localização real das sugestões ou limpa o campo.');
       return;
     }
     const isTeam=this.communityId.startsWith('team:');
@@ -830,7 +831,7 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: story => {
         if (!Number.isSafeInteger(story?.id) || story.id <= 0) {
-          this.publishError = 'O servidor não confirmou a Story. Verifica o perfil antes de repetir.';
+          this.publishError = appTranslate('O servidor não confirmou a Story. Verifica o perfil antes de repetir.');
           this.changeDetector.markForCheck();
           return;
         }

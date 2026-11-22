@@ -1,14 +1,15 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { Component, Input, inject } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 /** Provider-hosted GIPHY player. Jynlo does not cache, rehost or proxy GIF assets. */
 @Component({
   selector: 'app-giphy-embed',
-  standalone: true,
+  standalone: true, imports: [TranslatePipe],
   template: `
     @if (safeEmbedUrl; as url) {
       <div class="giphy-embed" [class.compact]="compact">
-        <iframe [src]="url" title="GIPHY GIF" loading="lazy"
+        <iframe [src]="url" [title]="'GIPHY GIF' | t" loading="lazy"
           sandbox="allow-scripts allow-same-origin allow-popups"
           referrerpolicy="no-referrer" allowfullscreen></iframe>
         @if (!compact) {

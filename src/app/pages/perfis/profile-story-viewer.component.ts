@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, HostListener, Input, OnDestroy, Output } from '@angular/core';
 import { RouterModule } from '@angular/router';
@@ -8,19 +9,19 @@ import { SocialStoriesService } from '../../services/social-stories.service';
 @Component({
   selector:'app-profile-story-viewer',
   standalone:true,
-  imports:[CommonModule,RouterModule,ProtectedMediaDirective],
+  imports:[TranslatePipe, CommonModule,RouterModule,ProtectedMediaDirective],
   template:`
     <div class="profile-story-backdrop" (click)="closed.emit()">
       <section role="dialog" aria-modal="true" class="profile-story-dialog"
-        [attr.aria-label]="'Stories de '+username" (click)="$event.stopPropagation()">
-        <div class="profile-story-progress" aria-label="Progresso das stories">
+        [attr.aria-label]="('Stories de {{username}}' | t:{username: username})" (click)="$event.stopPropagation()">
+        <div class="profile-story-progress" [attr.aria-label]="'Progresso das stories' | t">
           @for(story of stories;track story.id;let i=$index){
             <div class="profile-story-track"><span [style.width.%]="i<index ? 100 : i===index ? progress : 0"></span></div>
           }
         </div>
         <header>
           <span>&#64;{{username}}</span>
-          <button type="button" (click)="closed.emit()" aria-label="Fechar story">×</button>
+          <button type="button" (click)="closed.emit()" [attr.aria-label]="'Fechar story' | t">×</button>
         </header>
         @if(active;as story){
           <div class="profile-story-media">
@@ -28,10 +29,10 @@ import { SocialStoriesService } from '../../services/social-stories.service';
               <video [jynloProtectedSrc]="story.mediaUrl" autoplay playsinline [muted]="muted" #video
                 (loadedmetadata)="videoDuration($event); recordRenderedView(story)" (ended)="next()"></video>
               <button type="button" class="profile-story-mute" (click)="muted=!muted">
-                {{muted?'Ativar som':'Silenciar'}}
+                {{muted?('Ativar som' | t):('Silenciar' | t)}}
               </button>
             } @else {
-              <img [jynloProtectedSrc]="story.mediaUrl" [alt]="story.altText || 'Story de '+username"
+              <img [jynloProtectedSrc]="story.mediaUrl" [alt]="story.altText || ('Story de {{username}}' | t:{username: username})"
                 (load)="imageReady=true; recordRenderedView(story)" (error)="mediaError=true">
             }
             @if(story.caption){
@@ -43,12 +44,12 @@ import { SocialStoriesService } from '../../services/social-stories.service';
             }
             @if(story.locationLabel){
               <a class="profile-story-location" target="_blank" rel="noopener noreferrer"
-                [href]="'https://www.google.com/maps/search/?api=1&query='+encode(story.locationLabel)">
+                [href]="'https://www.google.com/maps/search/?api=1&query=' + encode(story.locationLabel)">
                 📍 {{story.locationLabel}}
               </a>
             }
             @if(story.showTime){
-              <span class="profile-story-time">{{story.createdAt | date:'dd/MM/yyyy · HH:mm'}}</span>
+              <span class="profile-story-time">{{story.createdAt | date:('dd/MM/yyyy · HH:mm' | t)}}</span>
             }
             @if(story.taggedUsernames){
               <div class="profile-story-tags">
@@ -59,10 +60,10 @@ import { SocialStoriesService } from '../../services/social-stories.service';
               </div>
             }
           </div>
-          @if(mediaError){<p role="alert">Não foi possível carregar esta story.</p>}
+          @if(mediaError){<p role="alert">{{ 'Não foi possível carregar esta story.' | t }}</p>}
         }
-        <button type="button" class="profile-story-prev" (click)="previous()" aria-label="Story anterior">‹</button>
-        <button type="button" class="profile-story-next" (click)="next()" aria-label="Story seguinte">›</button>
+        <button type="button" class="profile-story-prev" (click)="previous()" [attr.aria-label]="'Story anterior' | t">‹</button>
+        <button type="button" class="profile-story-next" (click)="next()" [attr.aria-label]="'Story seguinte' | t">›</button>
       </section>
     </div>
   `,

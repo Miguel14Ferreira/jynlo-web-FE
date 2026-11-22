@@ -1,10 +1,11 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { firstValueFrom, interval, Subscription, timeout, finalize, Subject, takeUntil } from 'rxjs';
 import { Room, RoomEvent, RemoteTrack, Track } from 'livekit-client';
-import { I18nService } from '../../i18n/i18n.service';
+import { I18nService, appTranslate } from '../../i18n/i18n.service';
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
 import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
   PersonalLiveControls, PersonalLiveGuestRequest } from '../../services/personal-live.service';
@@ -12,7 +13,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
 @Component({
   selector:'app-personal-live-room',
   standalone:true,
-  imports:[CommonModule,FormsModule],
+  imports:[TranslatePipe, CommonModule,FormsModule],
   template:`
     <section class="personal-live" [attr.aria-label]="tr('Transmissão pessoal','Personal broadcast')">
       <header>
@@ -42,7 +43,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           (click)="chatVisible=!chatVisible"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M14 4v16M6 8h5m-5 4h5"/></svg></button>
         @if (audioBlocked) {
           <button type="button" (click)="enableAudio()" [disabled]="!room">
-            Ativar som da transmissão
+            {{ 'Ativar som da transmissão' | t }}
           </button>
         }
         @if (shareFeedback) { <span role="status">{{shareFeedback}}</span> }
@@ -60,7 +61,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           </div>
           <div class="live-stage-info">
             <span>● {{participantCount}} {{participantCount === 1 ? tr('pessoa na sala','person in room') : tr('pessoas na sala','people in room')}}</span>
-            @if (role==='GUEST') { <strong>Estás como convidado</strong> }
+            @if (role==='GUEST') { <strong>{{ 'Estás como convidado' | t }}</strong> }
           </div>
         </div>
         @if (chatVisible) {
@@ -73,13 +74,13 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
           @if (controls?.mutedByHost) {
             <p class="chat-notice" role="status">{{tr('O apresentador silenciou as tuas mensagens.','The host has muted your messages.')}}</p>
           }
-          <div #chatHistory class="live-chat-history" aria-live="polite" aria-label="Mensagens recentes do direto">
+          <div #chatHistory class="live-chat-history" aria-live="polite" [attr.aria-label]="'Mensagens recentes do direto' | t">
             @for (message of messages; track message.id) {
               <div class="live-chat-message">
                 <strong>@{{message.username}}</strong>
                 <span>{{message.message}}</span>
                 <time [attr.datetime]="message.createdAt" [title]="message.createdAt | date:'medium'">
-                  {{message.createdAt | date:'HH:mm'}}
+                  {{message.createdAt | date:('HH:mm' | t)}}
                 </time>
                 @if (event.canManage && message.username.toLowerCase() !== event.username.toLowerCase()) {
                   <button type="button" [disabled]="moderationBusy"
@@ -147,7 +148,7 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
         }
       </div>
       @if (event.canManage || role==='GUEST') {
-        <footer aria-label="Controlos do direto">
+        <footer [attr.aria-label]="'Controlos do direto' | t">
           <button type="button" [disabled]="!room || connecting || reconnecting || deviceBusy"
             [attr.aria-pressed]="micOn" (click)="toggleMic()" class="live-device-icon" [title]="micOn ? tr('Silenciar microfone','Mute microphone') : tr('Ligar microfone','Enable microphone')" [attr.aria-label]="micOn ? tr('Silenciar microfone','Mute microphone') : tr('Ligar microfone','Enable microphone')"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5m-4 0h8"/></svg></button>
           <button type="button" [disabled]="!room || connecting || reconnecting || deviceBusy"
@@ -170,9 +171,9 @@ import { PersonalLiveEvent, PersonalLiveService, PersonalLiveChatMessage,
             <h3 id="personal-live-end-title">{{tr('Terminar o direto?','End this live?')}}</h3>
             <p id="personal-live-end-desc">{{tr('A transmissão vai terminar para todos os espectadores e convidados.','This broadcast will end for all viewers and guests.')}}</p>
             <div class="live-confirm-actions">
-              <button type="button" [disabled]="ending" (click)="confirmingEnd=false">Continuar em direto</button>
+              <button type="button" [disabled]="ending" (click)="confirmingEnd=false">{{ 'Continuar em direto' | t }}</button>
               <button type="button" class="end" [disabled]="ending"
-                (click)="end()">{{ending ? 'A terminar…' : 'Terminar para todos'}}</button>
+                (click)="end()">{{ending ? ('A terminar…' | t) : ('Terminar para todos' | t)}}</button>
             </div>
           </section>
         </div>
@@ -355,7 +356,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   shareFeedback='';
   room:Room|null=null;
   connecting=false;
-  connectionStatus='A ligar à transmissão…';
+  connectionStatus=appTranslate('A ligar à transmissão…');
   deviceBusy=false;
   reconnecting=false;
   ending=false;
@@ -416,7 +417,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
   async connect(roleChange=false):Promise<void> {
     if (this.room || this.connecting || this.destroyed || this.closing ||
         (this.rejoining && !roleChange)) return;
-    this.connecting=true;this.connectionStatus='A ligar à transmissão…';this.error='';
+    this.connecting=true;this.connectionStatus=appTranslate('A ligar à transmissão…');this.error='';
     let next:Room|null=null;
     try {
       const credentials=await firstValueFrom(this.service.join(this.event.id).pipe(timeout(12000)));
@@ -440,7 +441,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
           this.attach(publication.track,'Tu',true);
         if(publication.source===Track.Source.ScreenShare) {
           this.screenOn=true;
-          this.attach(publication.track,'O teu ecrã',true,undefined,true);
+          this.attach(publication.track,appTranslate('O teu ecrã'),true,undefined,true);
         }
       });
       activeRoom.on(RoomEvent.LocalTrackUnpublished,publication=>{
@@ -457,7 +458,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       activeRoom.on(RoomEvent.Reconnecting,()=>{
         if(this.room===activeRoom&&!this.closing) {
           this.reconnecting=true;
-          this.connectionStatus='A recuperar a ligação…';
+          this.connectionStatus=appTranslate('A recuperar a ligação…');
         }
       });
       activeRoom.on(RoomEvent.Reconnected,()=>{
@@ -516,8 +517,8 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
                 // A failed HTTP heartbeat is not proof that the LiveKit stream
                 // ended. Keep the host's media active and retry on the next tick.
                 this.error=this.heartbeatFailures>=3
-                  ? 'A ligação ao servidor continua instável. O direto mantém-se aberto enquanto recuperamos.'
-                  : 'Ligação ao servidor instável. Vamos tentar novamente.';
+                  ? appTranslate('A ligação ao servidor continua instável. O direto mantém-se aberto enquanto recuperamos.')
+                  : appTranslate('Ligação ao servidor instável. Vamos tentar novamente.');
               }
             });
           });
@@ -530,7 +531,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
             await activeRoom.localParticipant.setCameraEnabled(true);
             if(this.room===activeRoom&&!this.destroyed&&!this.closing)this.cameraOn=true;
           } catch {
-            this.error='Não foi possível ativar a câmara. Podes tentar novamente nos controlos.';
+            this.error=appTranslate('Não foi possível ativar a câmara. Podes tentar novamente nos controlos.');
           }
           try {
             if(this.room===activeRoom&&!this.destroyed&&!this.closing) {
@@ -538,7 +539,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
               if(this.room===activeRoom&&!this.destroyed&&!this.closing)this.micOn=true;
             }
           } catch {
-            this.error='Não foi possível ativar o microfone. Podes tentar novamente nos controlos.';
+            this.error=appTranslate('Não foi possível ativar o microfone. Podes tentar novamente nos controlos.');
           } finally {
             if(this.room===activeRoom)this.deviceBusy=false;
           }
@@ -554,14 +555,14 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         // the viewer joins. Do not advertise a retry or end it a second time.
         this.handleBroadcastEnded();
       } else {
-        this.error='Não foi possível entrar no direto. Verifica a ligação e as permissões.';
+        this.error=appTranslate('Não foi possível entrar no direto. Verifica a ligação e as permissões.');
       }
     } finally {this.connecting=false;this.cdr.markForCheck();}
   }
   private async recoverDisconnectedRoom(activeRoom:Room):Promise<void> {
     if(this.room!==activeRoom || this.destroyed || this.closing)return;
     const previousRole=this.role;
-    this.error='A ligação ao direto foi interrompida. A verificar o estado da transmissão…';
+    this.error=appTranslate('A ligação ao direto foi interrompida. A verificar o estado da transmissão…');
     await this.disconnectForRetry(activeRoom);
     if(this.destroyed || this.closing)return;
     try {
@@ -574,20 +575,20 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         this.lastRoleChangeAt=Date.now();
         await this.connect();
       } else {
-        this.error='A ligação ao direto foi interrompida. Podes tentar entrar novamente.';
+        this.error=appTranslate('A ligação ao direto foi interrompida. Podes tentar entrar novamente.');
       }
     } catch(error:unknown) {
       if(this.destroyed || this.closing || this.room)return;
       if(error instanceof HttpErrorResponse && (error.status===404 || error.status===410))
         this.handleBroadcastEnded();
-      else this.error='A ligação ao direto foi interrompida. Podes tentar entrar novamente.';
+      else this.error=appTranslate('A ligação ao direto foi interrompida. Podes tentar entrar novamente.');
     }
   }
   private handleBroadcastEnded():void {
     if(this.destroyed || this.closing || this.ended)return;
     this.ended=true;
     this.controlsUnavailable=true;
-    this.error='Este direto terminou ou já não está disponível.';
+    this.error=appTranslate('Este direto terminou ou já não está disponível.');
     this.leave('ENDED');
   }
   private syncLocalMedia(activeRoom:Room):void {
@@ -766,8 +767,8 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         this.messages=this.messages.filter(message=>message.id!==temporaryId);
         if(!this.draft.trim())this.draft=content;
         this.chatSendError=error instanceof HttpErrorResponse && error.status===429
-          ? 'Modo lento ativo. Aguarda antes de enviares outra mensagem.'
-          : 'Não foi possível enviar. A mensagem foi mantida para tentares novamente.';
+          ? appTranslate('Modo lento ativo. Aguarda antes de enviares outra mensagem.')
+          : appTranslate('Não foi possível enviar. A mensagem foi mantida para tentares novamente.');
       }
     });
   }
@@ -780,7 +781,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         this.moderationBusy=false;this.controlsMutation=false;this.refreshInteractions();
       })).subscribe({
       next:state=>this.controls=state,
-      error:()=>this.error='Não foi possível alterar o modo lento do chat.'
+      error:()=>this.error=appTranslate('Não foi possível alterar o modo lento do chat.')
     });
   }
   toggleChat():void {
@@ -791,7 +792,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         this.moderationBusy=false;this.controlsMutation=false;this.refreshInteractions();
       })).subscribe({
       next:state=>this.controls=state,
-      error:()=>this.error='Não foi possível alterar a moderação do chat.'
+      error:()=>this.error=appTranslate('Não foi possível alterar a moderação do chat.')
     });
   }
   toggleViewerMute(username:string,muted:boolean):void {
@@ -802,7 +803,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         this.moderationBusy=false;this.controlsMutation=false;this.refreshInteractions();
       })).subscribe({
       next:state=>this.controls=state,
-      error:()=>this.error='Não foi possível alterar o silêncio do espectador.'
+      error:()=>this.error=appTranslate('Não foi possível alterar o silêncio do espectador.')
     });
   }
   requestGuest():void {
@@ -815,7 +816,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         this.moderationBusy=false;this.controlsMutation=false;this.refreshInteractions();
       })).subscribe({
       next:()=>{},
-      error:()=>this.error='Não foi possível enviar o pedido para participar.'
+      error:()=>this.error=appTranslate('Não foi possível enviar o pedido para participar.')
     });
   }
   decideGuest(request:PersonalLiveGuestRequest,approve:boolean):void {
@@ -826,7 +827,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         this.moderationBusy=false;this.controlsMutation=false;this.refreshInteractions();
       })).subscribe({
       next:()=>{},
-      error:()=>this.error='Não foi possível responder ao pedido.'
+      error:()=>this.error=appTranslate('Não foi possível responder ao pedido.')
     });
   }
   removeGuest():void {
@@ -837,7 +838,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         this.moderationBusy=false;this.controlsMutation=false;this.refreshInteractions();
       })).subscribe({
       next:()=>{},
-      error:()=>this.error='Não foi possível retirar o convidado.'
+      error:()=>this.error=appTranslate('Não foi possível retirar o convidado.')
     });
   }
 
@@ -872,7 +873,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       const name=document.createElement('span');
       name.className='live-video-label';
       name.textContent=isScreen
-        ? (isLocal?'O teu ecrã':'Ecrã de @'+label.replace(/^@/,''))
+        ? (isLocal?appTranslate('O teu ecrã'):appTranslate('Ecrã de @{{user}}',{user:label.replace(/^@/,'')}))
         : (isLocal?label:'@'+label.replace(/^@/,''));
       tile.append(element,name);
       stage.appendChild(tile);
@@ -897,7 +898,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     if(!remoteAudio.length){this.audioBlocked=false;return;}
     const results=await Promise.allSettled(remoteAudio.map(element=>element.play()));
     this.audioBlocked=results.some(result=>result.status==='rejected');
-    if(this.audioBlocked)this.error='O navegador bloqueou o áudio. Verifica as permissões de som.';
+    if(this.audioBlocked)this.error=appTranslate('O navegador bloqueou o áudio. Verifica as permissões de som.');
     else if(this.error.includes('bloqueou o áudio'))this.error='';
   }
   async shareLive():Promise<void> {
@@ -909,11 +910,11 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         this.shareFeedback='Direto partilhado.';
       } else {
         await navigator.clipboard.writeText(url.href);
-        this.shareFeedback='Link do direto copiado.';
+        this.shareFeedback=appTranslate('Link do direto copiado.');
       }
     } catch(error) {
       if(error instanceof DOMException && error.name==='AbortError')return;
-      this.shareFeedback='Não foi possível partilhar. Copia o endereço do direto.';
+      this.shareFeedback=appTranslate('Não foi possível partilhar. Copia o endereço do direto.');
     }
   }
   async toggleFullscreen():Promise<void> {
@@ -922,7 +923,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
     try {
       if(document.fullscreenElement)await document.exitFullscreen();
       else await stage.requestFullscreen();
-    } catch {this.error='Não foi possível ampliar o vídeo neste dispositivo.';}
+    } catch {this.error=appTranslate('Não foi possível ampliar o vídeo neste dispositivo.');}
   }
   async toggleScreenShare():Promise<void> {
     if(!this.room || this.connecting || this.reconnecting || this.rejoining || this.deviceBusy ||
@@ -935,7 +936,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       if(this.room===activeRoom&&!this.destroyed&&!this.closing)this.syncLocalMedia(activeRoom);
     } catch {
       if(this.room===activeRoom&&!this.closing)
-        this.error='Não foi possível partilhar o ecrã. Verifica as permissões do navegador.';
+        this.error=appTranslate('Não foi possível partilhar o ecrã. Verifica as permissões do navegador.');
     } finally {if(this.room===activeRoom)this.deviceBusy=false;}
   }
   async toggleCamera():Promise<void> {
@@ -949,7 +950,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       await activeRoom.localParticipant.setCameraEnabled(enabled);
       if(this.room===activeRoom && !this.destroyed && !this.closing)this.syncLocalMedia(activeRoom);
     }catch{
-      if(this.room===activeRoom)this.error='Não foi possível alterar a câmara.';
+      if(this.room===activeRoom)this.error=appTranslate('Não foi possível alterar a câmara.');
     }finally{if(this.room===activeRoom)this.deviceBusy=false;}
   }
   async toggleMic():Promise<void> {
@@ -962,7 +963,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
       await activeRoom.localParticipant.setMicrophoneEnabled(enabled);
       if(this.room===activeRoom && !this.destroyed && !this.closing)this.syncLocalMedia(activeRoom);
     }catch{
-      if(this.room===activeRoom)this.error='Não foi possível alterar o microfone.';
+      if(this.room===activeRoom)this.error=appTranslate('Não foi possível alterar o microfone.');
     }finally{if(this.room===activeRoom)this.deviceBusy=false;}
   }
   requestEnd():void {
@@ -982,7 +983,7 @@ export class PersonalLiveRoomComponent implements OnInit, OnDestroy {
         }
         if(!this.destroyed&&!this.closing){
           this.ending=false;
-          this.error='Não foi possível terminar o direto. Tenta novamente.';
+          this.error=appTranslate('Não foi possível terminar o direto. Tenta novamente.');
         }
       }
     });
