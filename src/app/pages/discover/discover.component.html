@@ -231,7 +231,7 @@
                   <small>{{ 'discover.explore.mapDisclaimer' | t }}
                     <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">{{ '© OpenStreetMap' | t }}</a>
                   </small>
-                  <a [routerLink]="['/menu/venues', focusedMapVenue!.id]">
+                  <a [routerLink]="visitor ? ['/venues', focusedMapVenue!.id] : ['/menu/venues', focusedMapVenue!.id]">
                     {{ 'discover.explore.mapDetails' | t }} <span aria-hidden="true">→</span>
                   </a>
                 </div>
@@ -353,7 +353,7 @@
           } @else {
             <div class="result-list">
               @for (session of topSessions; track session.id) {
-                <a class="result-card session-card" [routerLink]="['/menu/events', session.id]"
+                <a class="result-card session-card" [routerLink]="visitor ? ['/sessions', session.id] : ['/menu/events', session.id]"
                    [queryParams]="{ from: 'discover', sport: sport.trim(), city: location.trim(),
                       player: playerName.trim() || null,
                       join: sessionEntryAction(session) === 'details' ? null : '1' }">
@@ -424,6 +424,15 @@
             <span class="result-count">{{ people.length }}</span>
           </header>
 
+          @if (visitor) {
+            <div class="pillar-empty people-empty visitor-people">
+              <p>{{ 'Cria conta ou entra para encontrares pessoas com quem jogar e lhes enviares mensagens.' | t }}</p>
+              <div class="visitor-actions">
+                <a class="jynlo-action jynlo-action--primary" routerLink="/login/registerNewUser">{{ 'nav.register' | t }}</a>
+                <a class="jynlo-action jynlo-action--neutral" routerLink="/login" [queryParams]="{ returnUrl: '/menu/discover' }">{{ 'nav.login' | t }}</a>
+              </div>
+            </div>
+          } @else {
           <form class="discover-people-search" (ngSubmit)="searchPlayers()">
             <label for="discover-player-name">{{ 'discover.who.searchLabel' | t }}</label>
             <div class="discover-people-search-controls">
@@ -502,6 +511,7 @@
                : { from: 'discover', sport: sport.trim() || null, city: location.trim() || null }">
             {{ 'discover.who.action' | t }} <span>→</span>
           </a>
+          }
         </section>
       </div>
 

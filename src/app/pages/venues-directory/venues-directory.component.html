@@ -98,7 +98,7 @@
     } @else {
       <div class="venue-directory-grid">
         @for (venue of venues; track venue.id) {
-          <a class="venue-directory-card" [routerLink]="['/menu/venues', venue.id]"
+          <a class="venue-directory-card" [routerLink]="visitor ? ['/venues', venue.id] : ['/menu/venues', venue.id]"
              [queryParams]="{ page: page, name: name, city: city, district: district, sport: sport,
                nearby: nearbyMode ? 1 : null, radiusKm: nearbyMode ? nearbyRadiusKm : null }">
             <div class="venue-directory-card-top">

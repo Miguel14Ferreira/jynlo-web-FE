@@ -160,8 +160,11 @@ export class DiscoverComponent implements OnInit {
     @Optional() private readonly sanitizer: DomSanitizer | null
   ) {}
 
+  /** Signed-out visitors can browse sessions and venues; people search needs an account. */
+  visitor = false;
+
   ngOnInit(): void {
-    this.authenticationService.isLoggedIn();
+    this.visitor = !this.authenticationService.isLoggedIn();
 
     // Explicit return filters take precedence over suggestions from the public profile.
     const params = this.route.snapshot.queryParamMap;
@@ -592,6 +595,7 @@ export class DiscoverComponent implements OnInit {
     sport: string,
     location: string
   ): Observable<CommunityProfile[]> {
+    if (this.visitor) return of([] as CommunityProfile[]);
     const name = this.playerName.trim();
     // A name search must not inherit Discover's sport or locality filters.
     if (name) {

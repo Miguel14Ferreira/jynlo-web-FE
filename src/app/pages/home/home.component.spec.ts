@@ -53,7 +53,7 @@ describe('HomeComponent public discovery', () => {
     expect(root.querySelector('main.hero[aria-labelledby="jynlo-home-title"]')).not.toBeNull();
     expect(root.querySelector('.jynlo-premium-features')?.querySelectorAll('article').length).toBe(3);
     expect(root.querySelector('.public-discovery form.preview-search')).not.toBeNull();
-    expect(root.querySelector('a[href="#jynlo-public-discovery"]')).not.toBeNull();
+    expect(root.querySelector('a[href="/menu/discover"]')).not.toBeNull();
     expect(root.querySelectorAll('a.preview-item').length).toBe(0);
   });
 
@@ -84,7 +84,7 @@ describe('HomeComponent public discovery', () => {
   it('makes public sessions discoverable without signing up and explains communities', () => {
     const fixture = render();
     const root = fixture.nativeElement as HTMLElement;
-    const exploreLink = root.querySelector<HTMLAnchorElement>('a[href="#jynlo-public-discovery"]');
+    const exploreLink = root.querySelector<HTMLAnchorElement>('a[href="/menu/discover"]');
     const publicResults = root.querySelector<HTMLElement>('section#jynlo-public-discovery');
     const communitySection = root.querySelector<HTMLElement>('section.community-teaser');
     const communityCta = root.querySelector<HTMLAnchorElement>('a.community-teaser-cta');

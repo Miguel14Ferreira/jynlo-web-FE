@@ -79,7 +79,7 @@ describe('AuthenticationGuard', () => {
     expect(result).not.toBeTrue();
     expect(router.serializeUrl(result as any)).toContain('/login');
     expect(router.serializeUrl(result as any)).toContain('returnUrl=');
-    expect(router.serializeUrl(result as any)).toContain('sessionExpired=1');
+    expect(router.serializeUrl(result as any)).not.toContain('sessionExpired');
   });
 
   it('should keep the route on a temporary refresh outage', async () => {
@@ -112,7 +112,7 @@ describe('AuthenticationGuard', () => {
     expect(result).not.toBeTrue();
     const redirect = router.serializeUrl(result as any);
     expect(redirect).toContain('/login?');
-    expect(redirect).toContain('sessionExpired=1');
+    expect(redirect).not.toContain('sessionExpired');
     expect(redirect).toContain('returnUrl=');
     expect(authenticationService.refreshSession).toHaveBeenCalledTimes(1);
   });

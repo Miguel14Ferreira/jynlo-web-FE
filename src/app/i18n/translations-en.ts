@@ -8160,4 +8160,5 @@ export const EN: Record<string, string> = {
   'G': 'G',
   'A': 'A',
   'Jogos': 'Games',
+  'Cria conta ou entra para encontrares pessoas com quem jogar e lhes enviares mensagens.': 'Create an account or sign in to find people to play with and message them.',
 };
