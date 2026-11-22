@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { Injectable, NgZone, OnDestroy } from '@angular/core';
 
 /**
@@ -151,8 +152,8 @@ export class NativeSelectEnhancementService implements OnDestroy {
       input.className = 'jynlo-native-select__search';
       input.type = 'search';
       input.autocomplete = 'off';
-      input.setAttribute('aria-label', this.isEnglish() ? 'Search options' : 'Pesquisar opções');
-      input.placeholder = this.isEnglish() ? 'Search options…' : 'Pesquisar opções…';
+      input.setAttribute('aria-label', this.isEnglish() ? 'Search options' : appTranslate('Pesquisar opções'));
+      input.placeholder = this.isEnglish() ? 'Search options…' : appTranslate('Pesquisar opções…');
       input.addEventListener('input', () => {
         this.renderOptions(input.value);
         this.place();
@@ -185,7 +186,7 @@ export class NativeSelectEnhancementService implements OnDestroy {
     const explicit = select.getAttribute('aria-label');
     if (explicit) return explicit;
     const label = select.labels?.[0]?.textContent?.trim();
-    return label || select.name || (this.isEnglish() ? 'Choose an option' : 'Escolher opção');
+    return label || select.name || (this.isEnglish() ? 'Choose an option' : appTranslate('Escolher opção'));
   }
 
   private isEnglish(): boolean {
@@ -238,7 +239,7 @@ export class NativeSelectEnhancementService implements OnDestroy {
       const empty = document.createElement('div');
       empty.className = 'jynlo-native-select__empty';
       empty.setAttribute('role', 'status');
-      empty.textContent = this.isEnglish() ? 'No options found' : 'Sem opções encontradas';
+      empty.textContent = this.isEnglish() ? 'No options found' : appTranslate('Sem opções encontradas');
       container.appendChild(empty);
     }
   }

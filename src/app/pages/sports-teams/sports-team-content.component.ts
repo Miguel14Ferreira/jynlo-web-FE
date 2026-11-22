@@ -1,3 +1,5 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
@@ -17,22 +19,22 @@ import { ConversationMuteService, isConversationMuted } from '../../services/con
 @Component({
   selector: 'app-sports-team-content',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, PollComposerComponent, InboxPollCardComponent],
+  imports: [TranslatePipe, CommonModule, FormsModule, RouterLink, PollComposerComponent, InboxPollCardComponent],
   template: `
     <div class="team-content" [class.team-chat-mode]="kind === 'chat'" [class.team-feed-mode]="kind === 'feed'">
       <ng-container *ngIf="!accessRevoked; else accessRevokedState">
       <div class="team-content-heading">
         <div class="team-content-heading-icon" aria-hidden="true">{{kind === 'chat' ? '💬' : '📰'}}</div>
-        <div class="team-heading-copy"><h3>{{kind === 'chat' ? 'Conversa do plantel' : 'Publicações da equipa'}}</h3>
-          <p class="team-content-note">Só os membros confirmados podem participar. Atualização automática.</p></div>
+        <div class="team-heading-copy"><h3>{{kind === 'chat' ? ('Conversa do plantel' | t) : ('Publicações da equipa' | t)}}</h3>
+          <p class="team-content-note">{{ 'Só os membros confirmados podem participar. Atualização automática.' | t }}</p></div>
         <button *ngIf="kind === 'chat'" class="team-search-toggle" type="button" [disabled]="chatMuteBusy" (click)="toggleChatMute()"
-          [attr.aria-label]="chatMuted ? 'Ativar avisos do chat da equipa' : 'Silenciar o chat da equipa'">
-          {{chatMuted ? '🔕 Ativar avisos' : '🔔 Silenciar'}}
+          [attr.aria-label]="chatMuted ? ('Ativar avisos do chat da equipa' | t) : ('Silenciar o chat da equipa' | t)">
+          {{chatMuted ? ('🔕 Ativar avisos' | t) : ('🔔 Silenciar' | t)}}
         </button>
         <button class="team-search-toggle" type="button" (click)="toggleSearchPanel()"
           [attr.aria-expanded]="searchOpen" [attr.aria-controls]="'team-search-panel-' + kind + '-' + teamId"
-          [attr.aria-label]="searchOpen ? 'Fechar pesquisa' : 'Pesquisar nesta ' + (kind === 'chat' ? 'conversa' : 'equipa')">
-          <span aria-hidden="true">⌕</span> <span>{{searchOpen ? 'Fechar pesquisa' : 'Pesquisar'}}</span>
+          [attr.aria-label]="searchOpen ? ('Fechar pesquisa' | t) : ('Pesquisar nesta {{v}}' | t:{v: (kind === 'chat' ? 'conversa' : 'equipa')})">
+          <span aria-hidden="true">⌕</span> <span>{{searchOpen ? ('Fechar pesquisa' | t) : ('Pesquisar' | t)}}</span>
         </button>
       </div>
       <ng-container *ngIf="showFeedComposerAtTop()" [ngTemplateOutlet]="teamComposer"></ng-container>
@@ -40,60 +42,60 @@ import { ConversationMuteService, isConversationMuted } from '../../services/con
       <p role="status" class="team-content-note" *ngIf="syncError">{{syncError}}</p>
       <form *ngIf="searchOpen" [id]="'team-search-panel-' + kind + '-' + teamId"
         (ngSubmit)="search()" class="team-content-search">
-        <label [for]="'team-search-' + kind + '-' + teamId">Pesquisar nesta {{kind === 'chat' ? 'conversa' : 'equipa'}}</label>
+        <label [for]="'team-search-' + kind + '-' + teamId">{{ (kind === 'chat' ? 'Pesquisar nesta conversa' : 'Pesquisar nesta equipa') | t }}</label>
         <div class="team-content-search-controls">
           <input [id]="'team-search-' + kind + '-' + teamId" name="search" [(ngModel)]="searchTerm" (ngModelChange)="onSearchTermChanged()"
-            placeholder="Escreve pelo menos 2 caracteres" maxlength="80"
+            [placeholder]="'Escreve pelo menos 2 caracteres' | t" maxlength="80"
             [disabled]="searching" />
-          <button type="submit" [disabled]="searching || searchTerm.trim().length < 2">Pesquisar</button>
-          <button type="button" *ngIf="searchActive" (click)="clearSearch()">Voltar {{kind === 'chat' ? 'ao chat' : 'às publicações'}}</button>
+          <button type="submit" [disabled]="searching || searchTerm.trim().length < 2">{{ 'Pesquisar' | t }}</button>
+          <button type="button" *ngIf="searchActive" (click)="clearSearch()">{{ (kind === 'chat' ? 'Voltar ao chat' : 'Voltar às publicações') | t }}</button>
         </div>
       </form>
-      <p class="team-content-note" *ngIf="searchActive">{{searching ? 'A pesquisar…' : ('Resultados encontrados: ' + searchResults.length)}}</p>
-      <p *ngIf="loading" class="team-content-note" role="status">A carregar {{kind==='chat'?'mensagens':'publicações'}}…</p>
+      <p class="team-content-note" *ngIf="searchActive">{{searching ? ('A pesquisar…' | t) : ('Resultados encontrados: ' + searchResults.length)}}</p>
+      <p *ngIf="loading" class="team-content-note" role="status">{{ kind==='chat' ? ('A carregar mensagens…' | t) : ('A carregar publicações…' | t) }}</p>
       <button *ngIf="!loading && !items.length && error && !accessRevoked"
-        type="button" class="team-content-retry" (click)="read(false)">Tentar novamente</button>
+        type="button" class="team-content-retry" (click)="read(false)">{{ 'Tentar novamente' | t }}</button>
       <p *ngIf="!loading && !searchActive && !items.length && !error" class="team-content-note">
-        {{kind === 'chat' ? 'Ainda não existem mensagens nesta equipa.' : 'Ainda não há publicações.'}}
+        {{kind === 'chat' ? ('Ainda não existem mensagens nesta equipa.' | t) : ('Ainda não há publicações.' | t)}}
       </p>
-      <div #historyPane class="team-content-history" [attr.aria-label]="kind === 'chat' ? 'Histórico de mensagens da equipa' : 'Publicações da equipa'" aria-live="polite" (scroll)="onHistoryScroll()">
+      <div #historyPane class="team-content-history" [attr.aria-label]="kind === 'chat' ? ('Histórico de mensagens da equipa' | t) : ('Publicações da equipa' | t)" aria-live="polite" (scroll)="onHistoryScroll()">
         <div *ngIf="kind === 'feed' && !searchActive && (hasOlderPosts || olderLoading || olderError)" class="team-history-more">
           <button type="button" [disabled]="olderLoading || loading || sending" (click)="loadOlderPosts()">
-            {{olderLoading ? 'A carregar publicações…' : 'Ver publicações anteriores'}}
+            {{olderLoading ? ('A carregar publicações…' | t) : ('Ver publicações anteriores' | t)}}
           </button>
           <span *ngIf="olderError" role="status">{{olderError}}</span>
         </div>
         <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry" [class.team-feed-comment]="isFeedComment(item)" [class.team-own-message]="kind === 'chat' && item.canEdit" [class.team-removed-message]="item.deleted"
           [class.team-actions-expanded]="activeActionMessageId === item.id" [attr.data-team-message-id]="item.id" tabindex="-1">
           <div class="team-entry-header">
-            <a class="team-entry-avatar team-avatar-link" [routerLink]="['/menu/perfis', item.username]" [attr.aria-label]="'Abrir perfil de @' + item.username">
+            <a class="team-entry-avatar team-avatar-link" [routerLink]="['/menu/perfis', item.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: item.username})">
               <img *ngIf="authorAvatarSrc(item) && !brokenAuthorAvatars.has(item.id)"
                 [src]="authorAvatarSrc(item)!" (error)="brokenAuthorAvatars.add(item.id)" loading="lazy" alt="" />
               <ng-container *ngIf="!authorAvatarSrc(item) || brokenAuthorAvatars.has(item.id)">{{(item.username || 'J').slice(0,1).toUpperCase()}}</ng-container>
             </a>
-            <div class="team-entry-meta"><a class="team-author-link" [routerLink]="['/menu/perfis',item.username]" [attr.aria-label]="'Abrir perfil de @' + item.username">@{{item.username}}</a>
-              <time>{{item.createdAt | date:'dd/MM/yyyy HH:mm'}}</time></div>
+            <div class="team-entry-meta"><a class="team-author-link" [routerLink]="['/menu/perfis',item.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: item.username})">@{{item.username}}</a>
+              <time>{{item.createdAt | date:('dd/MM/yyyy HH:mm' | t)}}</time></div>
           </div>
           <button *ngIf="item.replyToId" type="button" class="team-content-reply team-reply-jump"
-             (click)="jumpToReply(item.replyToId)" [attr.aria-label]="'Ver mensagem original: ' + replyPreview(item.replyToId)">↳ {{replyPreview(item.replyToId)}}</button>
-          <p *ngIf="item.deleted">{{kind === 'chat' ? 'Mensagem eliminada' : 'Publicação eliminada'}}</p>
+             (click)="jumpToReply(item.replyToId)" [attr.aria-label]="('Ver mensagem original: {{replyToId}}' | t:{replyToId: replyPreview(item.replyToId)})">↳ {{replyPreview(item.replyToId)}}</button>
+          <p *ngIf="item.deleted">{{kind === 'chat' ? ('Mensagem eliminada' | t) : ('Publicação eliminada' | t)}}</p>
           <app-inbox-poll-card *ngIf="!item.deleted && kind === 'chat' && readPoll(item.body) as poll" [poll]="poll" kind="team"
             [conversationId]="'' + teamId" [messageId]="item.id"></app-inbox-poll-card>
           <p *ngIf="!item.deleted && !(kind === 'chat' && readPoll(item.body))" class="team-content-body"><ng-container *ngFor="let piece of bodyMentionParts(item.body)">
             <a *ngIf="piece.username; else plainTeamText" class="team-inline-mention"
-              [routerLink]="['/menu/perfis',piece.username]" [attr.aria-label]="'Abrir perfil de @' + piece.username">{{piece.text}}</a>
+              [routerLink]="['/menu/perfis',piece.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: piece.username})">{{piece.text}}</a>
             <ng-template #plainTeamText>{{piece.text}}</ng-template>
           </ng-container></p>
           <div class="team-private-files" *ngIf="!item.deleted && item.attachments?.length">
             <div *ngFor="let file of item.attachments" class="team-file-card">
               <p>📎 {{file.filename}} ({{(file.size/1024/1024) | number:'1.1-1'}} MB)</p>
               <button type="button" *ngIf="canPreview(file.mimeType)"
-                [disabled]="downloading" (click)="preview(item,file)">{{previews[previewKey(item.id,file.index)] ? 'Ocultar anexo' : 'Ver anexo'}}</button>
+                [disabled]="downloading" (click)="preview(item,file)">{{previews[previewKey(item.id,file.index)] ? ('Ocultar anexo' | t) : ('Ver anexo' | t)}}</button>
               <button type="button" [disabled]="downloading"
-                (click)="download(item,file.index,file.filename)">Descarregar</button>
+                (click)="download(item,file.index,file.filename)">{{ 'Descarregar' | t }}</button>
               <img *ngIf="previews[previewKey(item.id,file.index)]?.type === 'image'"
                 [src]="previews[previewKey(item.id,file.index)]?.url || ''"
-                [alt]="'Anexo de ' + item.username" loading="lazy" />
+                [alt]="('Anexo de {{username}}' | t:{username: item.username})" loading="lazy" />
               <video *ngIf="previews[previewKey(item.id,file.index)]?.type === 'video'"
                 [src]="previews[previewKey(item.id,file.index)]?.url || ''" controls preload="none"></video>
             </div>
@@ -101,28 +103,28 @@ import { ConversationMuteService, isConversationMuted } from '../../services/con
           <button *ngIf="kind === 'feed' && !searchActive && !isFeedComment(item) && commentCount(item.id) > 0"
             type="button" class="team-comment-toggle" [attr.aria-expanded]="!collapsedFeedPosts.has(item.id)"
             (click)="toggleComments(item.id)">
-            {{collapsedFeedPosts.has(item.id) ? 'Ver' : 'Ocultar'}} {{commentCount(item.id)}} {{commentCount(item.id) === 1 ? 'comentário' : 'comentários'}}
+            {{collapsedFeedPosts.has(item.id) ? ('Ver' | t) : ('Ocultar' | t)}} {{commentCount(item.id)}} {{commentCount(item.id) === 1 ? ('comentário' | t) : ('comentários' | t)}}
           </button>
-          <small *ngIf="item.editedAt && !item.deleted">Editada</small>
-          <div class="team-reactions" *ngIf="!item.deleted" [attr.aria-label]="kind === 'chat' ? 'Reações à mensagem' : 'Reações à publicação'">
+          <small *ngIf="item.editedAt && !item.deleted">{{ 'Editada' | t }}</small>
+          <div class="team-reactions" *ngIf="!item.deleted" [attr.aria-label]="kind === 'chat' ? ('Reações à mensagem' | t) : ('Reações à publicação' | t)">
             <ng-container *ngIf="kind === 'chat'">
               <button type="button" *ngFor="let emoji of emojis" class="team-reaction-summary"
                 [hidden]="!reactionsById[item.id]?.counts?.[emoji]"
                 [disabled]="reactionBusyId !== null"
                 [class.selected]="reactionsById[item.id]?.mine === emoji"
-                [attr.aria-label]="emoji + ' ' + (reactionsById[item.id]?.counts?.[emoji] || 0) + ' reações'"
+                [attr.aria-label]="('{{emoji}} {{emoji0}} reações' | t:{emoji: emoji, emoji0: (reactionsById[item.id]?.counts?.[emoji] || 0)})"
                 (click)="react(item,emoji)">{{emoji}} {{reactionsById[item.id]?.counts?.[emoji] || 0}}</button>
             </ng-container>
             <ng-container *ngIf="kind === 'feed'">
               <button type="button" [disabled]="reactionBusyId !== null"
                 [class.selected]="reactionsById[item.id]?.mine === '❤️'"
                 [attr.aria-pressed]="reactionsById[item.id]?.mine === '❤️'"
-                [attr.aria-label]="'Gostar da publicação de @' + item.username"
-                (click)="react(item, '❤️')">❤️ {{reactionCount(item.id) || 'Gostar'}}</button>
+                [attr.aria-label]="('Gostar da publicação de @{{username}}' | t:{username: item.username})"
+                (click)="react(item, '❤️')">❤️ {{reactionCount(item.id) || ('Gostar' | t)}}</button>
               <button type="button" [disabled]="reactionBusyId !== null"
                 [attr.aria-expanded]="feedReactionPickerId === item.id"
-                [attr.aria-label]="'Escolher reação à publicação de @' + item.username"
-                (click)="toggleFeedReactionPicker(item.id)">☺ Reagir</button>
+                [attr.aria-label]="('Escolher reação à publicação de @{{username}}' | t:{username: item.username})"
+                (click)="toggleFeedReactionPicker(item.id)">{{ '☺ Reagir' | t }}</button>
             </ng-container>
             <ng-container *ngIf="kind === 'feed'">            <div class="team-emoji-picker" *ngIf="feedReactionPickerId === item.id">
               <button type="button" *ngFor="let emoji of emojis" [disabled]="reactionBusyId !== null"
@@ -135,51 +137,51 @@ import { ConversationMuteService, isConversationMuted } from '../../services/con
           </div>
           <button type="button" *ngIf="kind === 'chat' && !item.deleted"
             class="team-message-mobile-actions" [attr.aria-expanded]="activeActionMessageId === item.id"
-            [attr.aria-label]="'Mostrar ações da mensagem de @' + item.username"
+            [attr.aria-label]="('Mostrar ações da mensagem de @{{username}}' | t:{username: item.username})"
             (click)="toggleMessageActions(item.id)">···</button>
           <div class="team-content-actions" *ngIf="!item.deleted" role="toolbar"
-            [attr.aria-label]="'Ações de @' + item.username">
+            [attr.aria-label]="('Ações de @{{username}}' | t:{username: item.username})">
             <button *ngIf="kind === 'chat'" type="button" (click)="toggleFeedReactionPicker(item.id)"
-              [disabled]="reactionBusyId !== null" title="Reagir" aria-label="Reagir à mensagem">☺</button>
+              [disabled]="reactionBusyId !== null" [title]="'Reagir' | t" [attr.aria-label]="'Reagir à mensagem' | t">☺</button>
             <div *ngIf="kind === 'chat' && feedReactionPickerId === item.id"
-              class="team-emoji-picker team-hover-emoji-picker" role="group" aria-label="Escolher reação">
+              class="team-emoji-picker team-hover-emoji-picker" role="group" [attr.aria-label]="'Escolher reação' | t">
               <button type="button" *ngFor="let emoji of emojis" [disabled]="reactionBusyId !== null"
                 [class.selected]="reactionsById[item.id]?.mine === emoji"
                 [attr.aria-pressed]="reactionsById[item.id]?.mine === emoji"
                 (click)="react(item, emoji)">{{emoji}}</button>
             </div>
-            <button type="button" (click)="reply(item)" [disabled]="sending" [attr.aria-label]="kind === 'chat' ? 'Responder à mensagem' : 'Comentar publicação'" [title]="kind === 'chat' ? 'Responder' : 'Comentar'">↩ <span>{{kind === 'chat' ? 'Responder' : 'Comentar'}}</span></button>
-            <button type="button" *ngIf="item.canEdit" [disabled]="sending" (click)="beginEdit(item)" [attr.aria-label]="kind === 'chat' ? 'Editar mensagem' : 'Editar publicação'" title="Editar">✎ <span>Editar</span></button>
-            <button type="button" *ngIf="item.canManage" [disabled]="sending" (click)="remove(item)" [attr.aria-label]="kind === 'chat' ? 'Eliminar mensagem' : 'Eliminar publicação'" title="Eliminar">× <span>Eliminar</span></button>
+            <button type="button" (click)="reply(item)" [disabled]="sending" [attr.aria-label]="kind === 'chat' ? ('Responder à mensagem' | t) : ('Comentar publicação' | t)" [title]="kind === 'chat' ? ('Responder' | t) : ('Comentar' | t)">↩ <span>{{kind === 'chat' ? ('Responder' | t) : ('Comentar' | t)}}</span></button>
+            <button type="button" *ngIf="item.canEdit" [disabled]="sending" (click)="beginEdit(item)" [attr.aria-label]="kind === 'chat' ? ('Editar mensagem' | t) : ('Editar publicação' | t)" [title]="'Editar' | t">✎ <span>{{ 'Editar' | t }}</span></button>
+            <button type="button" *ngIf="item.canManage" [disabled]="sending" (click)="remove(item)" [attr.aria-label]="kind === 'chat' ? ('Eliminar mensagem' | t) : ('Eliminar publicação' | t)" [title]="'Eliminar' | t">× <span>{{ 'Eliminar' | t }}</span></button>
           </div>
           <div *ngIf="kind === 'feed' && replyTargetId === item.id" class="team-inline-comment-editor">
-            <p class="team-content-note">A comentar publicação de @{{item.username}}</p>
+            <p class="team-content-note">{{ 'A comentar publicação de @{{username}}' | t:{username: (item.username)} }}</p>
             <ng-container [ngTemplateOutlet]="teamComposer"></ng-container>
           </div>
-          <form *ngIf="editingId === item.id" (ngSubmit)="saveEdit(item)" class="team-inline-edit" aria-label="Editar mensagem">
+          <form *ngIf="editingId === item.id" (ngSubmit)="saveEdit(item)" class="team-inline-edit" [attr.aria-label]="'Editar mensagem' | t">
             <textarea name="editBody" [(ngModel)]="editingDraft" maxlength="2000" [disabled]="sending" (keydown.escape)="editingId = null"></textarea>
             <div class="team-inline-edit-actions">
-              <button type="button" class="team-edit-cancel" [disabled]="sending" (click)="editingId = null">Cancelar</button>
-              <button type="submit" class="team-edit-save" [disabled]="sending || !editingDraft.trim() || editingDraft.trim() === item.body.trim()">{{sending ? 'A guardar…' : '✓ Guardar'}}</button>
+              <button type="button" class="team-edit-cancel" [disabled]="sending" (click)="editingId = null">{{ 'Cancelar' | t }}</button>
+              <button type="submit" class="team-edit-save" [disabled]="sending || !editingDraft.trim() || editingDraft.trim() === item.body.trim()">{{sending ? ('A guardar…' | t) : ('✓ Guardar' | t)}}</button>
             </div>
           </form>
         </article>
       </div>
-      <button *ngIf="kind === 'chat' && unseenBelow && !searchActive" type="button" class="team-new-messages" (click)="showLatest()" aria-label="Ver mensagens novas">↓ Mensagens novas</button>
+      <button *ngIf="kind === 'chat' && unseenBelow && !searchActive" type="button" class="team-new-messages" (click)="showLatest()" [attr.aria-label]="'Ver mensagens novas' | t">{{ '↓ Mensagens novas' | t }}</button>
       <ng-container *ngIf="kind === 'chat'" [ngTemplateOutlet]="teamComposer"></ng-container>
       </ng-container>
       <ng-template #teamComposer>
       <div *ngIf="replyTargetId" class="team-reply-composer" role="status">
         <span class="team-reply-mark" aria-hidden="true">↩</span>
-        <span class="team-reply-details"><strong>{{kind === 'chat' ? 'A responder' : 'A comentar'}}</strong>
+        <span class="team-reply-details"><strong>{{kind === 'chat' ? ('A responder' | t) : ('A comentar' | t)}}</strong>
           <span>{{replyPreview(replyTargetId)}}</span></span>
-        <button type="button" class="team-reply-dismiss" (click)="cancelReply()" aria-label="Cancelar resposta" title="Cancelar resposta">×</button>
+        <button type="button" class="team-reply-dismiss" (click)="cancelReply()" [attr.aria-label]="'Cancelar resposta' | t" [title]="'Cancelar resposta' | t">×</button>
       </div>
-      <button *ngIf="kind === 'chat'" type="button" class="team-search-toggle" [disabled]="sending" (click)="pollOpen = !pollOpen">📊 Sondagem</button>
+      <button *ngIf="kind === 'chat'" type="button" class="team-search-toggle" [disabled]="sending" (click)="pollOpen = !pollOpen">{{ '📊 Sondagem' | t }}</button>
       <app-poll-composer *ngIf="kind === 'chat' && pollOpen" (send)="sendPoll($event)" (closed)="pollOpen = false"></app-poll-composer>
       <form (ngSubmit)="send()" class="team-content-editor">
         <label [for]="'team-content-' + kind + '-' + teamId">
-          {{kind === 'chat' ? 'Mensagem' : replyTargetId ? 'Comentário' : 'Nova publicação'}}
+          {{kind === 'chat' ? ('Mensagem' | t) : replyTargetId ? ('Comentário' | t) : ('Nova publicação' | t)}}
         </label>
         <div class="team-mention-anchor">
           <textarea #teamComposerInput [id]="'team-content-' + kind + '-' + teamId" name="body"
@@ -187,10 +189,10 @@ import { ConversationMuteService, isConversationMuted } from '../../services/con
             [attr.aria-expanded]="mentionOpen" [attr.aria-haspopup]="'listbox'"
             (ngModelChange)="onMentionDraftChange($event)" (keydown)="onComposerKeydown($event)"
             (paste)="onComposerPaste($event)"
-            [placeholder]="kind === 'chat' ? 'Escreve uma mensagem…' : 'Partilha novidades com o plantel…'"></textarea>
-          <div *ngIf="mentionOpen" class="team-mention-options" role="listbox" aria-label="Sugestões de pessoas">
-            <div class="team-mention-title"><span aria-hidden="true">@</span> Identificar pessoa</div>
-            <span *ngIf="mentionBusy" class="team-mention-status">A procurar pessoas…</span>
+            [placeholder]="kind === 'chat' ? ('Escreve uma mensagem…' | t) : ('Partilha novidades com o plantel…' | t)"></textarea>
+          <div *ngIf="mentionOpen" class="team-mention-options" role="listbox" [attr.aria-label]="'Sugestões de pessoas' | t">
+            <div class="team-mention-title"><span aria-hidden="true">@</span> {{ 'Identificar pessoa' | t }}</div>
+            <span *ngIf="mentionBusy" class="team-mention-status">{{ 'A procurar pessoas…' | t }}</span>
             <button type="button" role="option" *ngFor="let person of mentionOptions; let index=index"
               [attr.aria-selected]="mentionActiveIndex===index"
               [class.team-mention-active]="mentionActiveIndex===index"
@@ -202,30 +204,30 @@ import { ConversationMuteService, isConversationMuted } from '../../services/con
               <span class="team-mention-person"><strong>{{person.fullName || person.nickname || person.username}}</strong>
                 <small>@{{person.username}}</small></span>
             </button>
-            <span *ngIf="!mentionBusy && !mentionOptions.length" class="team-mention-status">{{mentionQuery ? 'Nenhum perfil encontrado.' : 'Escreve o nome ou username para encontrar alguém.'}}</span>
+            <span *ngIf="!mentionBusy && !mentionOptions.length" class="team-mention-status">{{mentionQuery ? ('Nenhum perfil encontrado.' | t) : ('Escreve o nome ou username para encontrar alguém.' | t)}}</span>
           </div>
         </div>
         <div *ngIf="attachmentsEnabled" class="team-upload-selector">
-          <label [for]="'team-upload-' + kind + '-' + teamId">📎 Anexar fotografias, vídeos ou PDF (até 4)</label>
+          <label [for]="'team-upload-' + kind + '-' + teamId">{{ '📎 Anexar fotografias, vídeos ou PDF (até 4)' | t }}</label>
           <input [id]="'team-upload-' + kind + '-' + teamId" type="file"
             multiple accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,application/pdf"
             (change)="chooseFiles($event)" [disabled]="sending" />
-          <p class="team-content-note" *ngIf="files.length">{{files.length}} ficheiro(s) selecionado(s) · Legenda opcional.</p>
+          <p class="team-content-note" *ngIf="files.length">{{ '{{filesCount}} ficheiro(s) selecionado(s) · Legenda opcional.' | t:{filesCount: (files.length)} }}</p>
           <div *ngIf="files.length" class="team-selected-media">
             <div *ngFor="let file of files; let i=index" class="team-selected-file">
-              <img *ngIf="file.type.startsWith('image/')" [src]="filePreviewUrl(file)" [alt]="'Pré-visualização: ' + file.name" />
+              <img *ngIf="file.type.startsWith('image/')" [src]="filePreviewUrl(file)" [alt]="('Pré-visualização: {{name}}' | t:{name: file.name})" />
               <video *ngIf="file.type.startsWith('video/')" [src]="filePreviewUrl(file)" muted preload="metadata" controls></video>
               <span *ngIf="file.type==='application/pdf'">📄 {{file.name}}</span>
-              <button type="button" [disabled]="sending" (click)="removeSelectedFile(i)" [attr.aria-label]="'Retirar anexo ' + (i+1)">Retirar</button>
+              <button type="button" [disabled]="sending" (click)="removeSelectedFile(i)" [attr.aria-label]="('Retirar anexo {{v}}' | t:{v: (i+1)})">{{ 'Retirar' | t }}</button>
             </div>
           </div>
-          <button type="button" *ngIf="files.length" [disabled]="sending" (click)="clearFiles()">Retirar todos</button>
+          <button type="button" *ngIf="files.length" [disabled]="sending" (click)="clearFiles()">{{ 'Retirar todos' | t }}</button>
         </div>
         <div class="team-composer-footer">
-          <small *ngIf="kind === 'chat'">Enter para enviar · Shift + Enter para nova linha · Podes colar imagens</small>
-          <small *ngIf="kind === 'feed'">Partilha notícias, fotografias ou momentos da equipa.</small>
+          <small *ngIf="kind === 'chat'">{{ 'Enter para enviar · Shift + Enter para nova linha · Podes colar imagens' | t }}</small>
+          <small *ngIf="kind === 'feed'">{{ 'Partilha notícias, fotografias ou momentos da equipa.' | t }}</small>
           <button type="submit" [disabled]="sending || (!draft.trim() && !files.length)">
-            {{sending ? 'A enviar…' : kind === 'chat' ? 'Enviar mensagem' : replyTargetId ? 'Comentar' : 'Publicar'}}
+            {{sending ? ('A enviar…' | t) : kind === 'chat' ? ('Enviar mensagem' | t) : replyTargetId ? ('Comentar' | t) : ('Publicar' | t)}}
           </button>
         </div>
       </form>
@@ -692,7 +694,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   error = '';
   syncError = '';
   accessRevoked = false;
-  blockedReason = 'Já não tens acesso a esta conversa.';
+  blockedReason = appTranslate('Já não tens acesso a esta conversa.');
   sending = false;
   loading = true;
   private readonly subscriptions = new Subscription();
@@ -706,8 +708,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.accessRevoked=true;
     this.invalidatePendingRead();
     this.blockedReason=failure.status===409
-      ? 'O chat ou feed da equipa foi desativado pelo responsável.'
-      : 'Já não tens acesso a esta conversa.';
+      ? appTranslate('O chat ou feed da equipa foi desativado pelo responsável.')
+      : appTranslate('Já não tens acesso a esta conversa.');
     this.items=[];this.olderEntries=[];this.feedCombined=[];
     this.hasOlderPosts=false;this.olderLoading=false;this.olderError='';
     this.olderReconcileInFlight=false;this.olderReconcileAt=0;this.olderReconcileOffset=0;
@@ -748,7 +750,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     this.sending = true; this.error = '';
     this.api.sendContent(this.teamId, this.kind, text, null).pipe(timeout(20000)).subscribe({
       next: item => { if (!this.items.some(p => p.id === item.id)) this.items = [...this.items, item].sort((a, b) => a.id - b.id); },
-      error: () => { this.error = 'Não foi possível enviar a sondagem.'; },
+      error: () => { this.error = appTranslate('Não foi possível enviar a sondagem.'); },
     }).add(() => { this.sending = false; this.cdr.markForCheck(); });
   }
 
@@ -769,7 +771,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const next = !this.chatMuted;
     this.mutes.set('team', this.teamId, next).subscribe({
       next: () => { this.chatMuted = next; this.chatMuteBusy = false; this.cdr.markForCheck(); },
-      error: () => { this.chatMuteBusy = false; this.syncError = 'Não foi possível alterar o silêncio desta conversa.'; this.cdr.markForCheck(); },
+      error: () => { this.chatMuteBusy = false; this.syncError = appTranslate('Não foi possível alterar o silêncio desta conversa.'); this.cdr.markForCheck(); },
     });
   }
   private markChatRead(items: TeamContentEntry[]): void {
@@ -809,7 +811,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     if (changes['teamId'] || changes['kind']) {
       this.generation++;
       this.invalidatePendingRead();
-      this.accessRevoked = false;this.blockedReason='Já não tens acesso a esta conversa.';
+      this.accessRevoked = false;this.blockedReason=appTranslate('Já não tens acesso a esta conversa.');
       // Old requests may still complete, but their UI locks belong to the old conversation.
       this.sending=false;this.downloading=false;this.reactionBusyId=null;this.loading=true;
       this.items = [];this.olderEntries=[];this.feedCombined=[];
@@ -920,7 +922,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       error:failure=>{
         if(generation!==this.generation||this.accessRevoked)return;
         if(!this.blockUnavailable(failure))
-          this.olderError='Não foi possível carregar publicações antigas. Tenta novamente.';
+          this.olderError=appTranslate('Não foi possível carregar publicações antigas. Tenta novamente.');
       }
     }).add(()=>{if(generation===this.generation)this.olderLoading=false;});
   }
@@ -991,8 +993,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const original=(this.searchActive?this.searchResults:[]).find(item=>item.id===id)
       || this.feedCombined.find(item=>item.id===id)
       || this.items.find(item=>item.id===id);
-    if(!original)return 'uma mensagem anterior';
-    if(original.deleted)return 'uma mensagem eliminada';
+    if(!original)return appTranslate('uma mensagem anterior');
+    if(original.deleted)return appTranslate('uma mensagem eliminada');
     return '@'+original.username+': '+original.body.slice(0,110);
   }
 
@@ -1028,7 +1030,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
             || requestId!==this.readRequestId)return;
         const wasBlocked=this.accessRevoked;
         this.accessRevoked=false;
-        this.blockedReason='Já não tens acesso a esta conversa.';
+        this.blockedReason=appTranslate('Já não tens acesso a esta conversa.');
         this.error='';
         const oldLatest=this.items.reduce((id,item)=>Math.max(id,item.id),0);
         const newLatest=items.reduce((id,item)=>Math.max(id,item.id),0);
@@ -1071,8 +1073,8 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         if(version!==this.generation || writeVersion!==this.writeVersion
             || requestId!==this.readRequestId)return;
         if(this.blockUnavailable(failure))return;
-        if(silent)this.syncError='A sincronização falhou. O histórico pode estar desatualizado.';
-        else this.error='Não foi possível carregar automaticamente. Podes tentar novamente.';
+        if(silent)this.syncError=appTranslate('A sincronização falhou. O histórico pode estar desatualizado.');
+        else this.error=appTranslate('Não foi possível carregar automaticamente. Podes tentar novamente.');
         this.cdr.markForCheck();
       }
     }).add(() => {
@@ -1139,7 +1141,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       },
       error:failure => {
         if(version===this.generation&&!this.accessRevoked&&!this.blockUnavailable(failure))
-          this.error='Envio não confirmado. Verifica o histórico antes de tentares novamente.';
+          this.error=appTranslate('Envio não confirmado. Verifica o histórico antes de tentares novamente.');
       }
     }).add(() => {if(version===this.generation){this.sending=false;this.read(true);}});
   }
@@ -1169,7 +1171,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const images=Array.from(event.clipboardData?.files||[]).filter(file=>file.type.startsWith('image/'));
     if(!images.length)return;
     if(!this.attachmentsEnabled||this.sending||this.accessRevoked){
-      this.error='Os anexos não estão disponíveis nesta conversa.';
+      this.error=appTranslate('Os anexos não estão disponíveis nesta conversa.');
       return;
     }
     event.preventDefault();
@@ -1183,7 +1185,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     if(combined.length>4 || combined.some(file=>!allowed.has(file.type)||!file.size
       || file.size>(file.type.startsWith('video/')?20:5)*1024*1024)
       || combined.reduce((sum,file)=>sum+file.size,0)>40*1024*1024){
-      this.error='Até 4 anexos e 40 MB no total: fotos/PDF até 5 MB e vídeos até 20 MB.';
+      this.error=appTranslate('Até 4 anexos e 40 MB no total: fotos/PDF até 5 MB e vídeos até 20 MB.');
       return;
     }
     this.files=combined;this.error='';
@@ -1244,7 +1246,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         if(generation!==this.generation||this.accessRevoked
           ||!this.currentAttachment(entry.id,file.index,file.mimeType))return;
         if(blob.type!==file.mimeType){
-          this.error='O tipo do ficheiro recebido não corresponde ao anexo.';
+          this.error=appTranslate('O tipo do ficheiro recebido não corresponde ao anexo.');
           return;
         }
         if(this.previewOrder.length>=8){
@@ -1259,7 +1261,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         this.previewOrder.push(key);
       },
       error:failure=>{if(generation===this.generation&&!this.blockUnavailable(failure))
-        this.error='Não foi possível abrir o anexo. Confirma a tua participação.';}
+        this.error=appTranslate('Não foi possível abrir o anexo. Confirma a tua participação.');}
     }).add(()=>{if(generation===this.generation)this.downloading=false;});
   }
   /** Preload only four recent private post photos: no publicly addressable URLs. */
@@ -1322,7 +1324,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         }finally{setTimeout(()=>URL.revokeObjectURL(url),1000);}
       },
       error:failure=>{if(generation===this.generation&&!this.blockUnavailable(failure))
-        this.error='Não foi possível descarregar o ficheiro. Confirma a tua participação.';}
+        this.error=appTranslate('Não foi possível descarregar o ficheiro. Confirma a tua participação.');}
     }).add(()=>{if(generation===this.generation)this.downloading=false;});
   }
 
@@ -1377,7 +1379,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         if(generation!==this.generation||this.accessRevoked)return;
         if(this.blockUnavailable(failure))return;
         this.reactionsById={...this.reactionsById,[item.id]:previous};
-        this.error='Não foi possível confirmar a reação. Consulta o histórico antes de repetir.';
+        this.error=appTranslate('Não foi possível confirmar a reação. Consulta o histórico antes de repetir.');
       }
     }).add(()=>{if(generation===this.generation){this.reactionBusyId=null;if(!this.accessRevoked)this.loadReactions([item]);}});
   }
@@ -1409,7 +1411,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       error:failure=>{
         if(generation===this.generation&&searchVersion===this.searchVersion){
           if(!this.blockUnavailable(failure))
-            this.syncError='Não foi possível atualizar os resultados da pesquisa.';
+            this.syncError=appTranslate('Não foi possível atualizar os resultados da pesquisa.');
         }
       }
     }).add(()=>{if(generation===this.generation)this.searchRecheckBusy=false;});
@@ -1427,7 +1429,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       },
       error:failure=>{
         if(version===this.searchVersion && generation===this.generation&&!this.blockUnavailable(failure))
-          this.error='Não foi possível pesquisar as mensagens.';
+          this.error=appTranslate('Não foi possível pesquisar as mensagens.');
       }
     }).add(()=>{if(version===this.searchVersion)this.searching=false;});
   }
@@ -1454,7 +1456,7 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
     const target=Array.from(pane.querySelectorAll<HTMLElement>('[data-team-message-id]'))
       .find(element=>element.dataset['teamMessageId']===String(id));
     if(target){target.scrollIntoView({block:'nearest',behavior:'smooth'});target.focus({preventScroll:true});}
-    else this.error='A mensagem original já não está no histórico carregado.';
+    else this.error=appTranslate('A mensagem original já não está no histórico carregado.');
   }
   reply(entry:TeamContentEntry):void {
     if(entry.deleted||this.sending)return;
@@ -1501,15 +1503,15 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
         // Editing a concurrently deleted message returns 409 too. Only the
         // authenticated history read can decide if the chat was disabled.
         if(failure instanceof HttpErrorResponse&&failure.status===409)
-          this.error='Esta mensagem pode ter sido eliminada. A verificar o histórico.';
+          this.error=appTranslate('Esta mensagem pode ter sido eliminada. A verificar o histórico.');
         else if(!this.blockUnavailable(failure))
-          this.error='Edição não confirmada. Consulta o histórico antes de repetir.';
+          this.error=appTranslate('Edição não confirmada. Consulta o histórico antes de repetir.');
       }}
     }).add(()=>{if(version===this.generation){this.sending=false;this.read(true);}});
   }
   remove(entry:TeamContentEntry):void {
     if(this.sending || !entry.canManage || entry.deleted)return;
-    if(!window.confirm('Eliminar esta mensagem da equipa?'))return;
+    if(!window.confirm(appTranslate('Eliminar esta mensagem da equipa?')))return;
     this.invalidatePendingRead();
     this.sending=true;this.error='';
     const version=this.generation;
@@ -1533,9 +1535,9 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
       },
       error:failure=>{if(version===this.generation){
         if(failure instanceof HttpErrorResponse&&failure.status===409)
-          this.error='A mensagem já pode ter sido eliminada. A verificar o histórico.';
+          this.error=appTranslate('A mensagem já pode ter sido eliminada. A verificar o histórico.');
         else if(!this.blockUnavailable(failure))
-          this.error='Eliminação não confirmada. Consulta o histórico antes de repetir.';
+          this.error=appTranslate('Eliminação não confirmada. Consulta o histórico antes de repetir.');
       }}
     }).add(()=>{if(version===this.generation){this.sending=false;this.read(true);}});
   }

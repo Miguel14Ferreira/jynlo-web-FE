@@ -8,7 +8,7 @@ import { finalize, timeout } from 'rxjs';
 import { environment } from 'src/environment/environment';
 import { AuthenticationService } from '../../services/authethication.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
-import { I18nService } from '../../i18n/i18n.service';
+import { I18nService, appTranslate } from '../../i18n/i18n.service';
 import { compactSessionShareMessage } from '../../shared/session-share-message';
 import { PublicSessionChatComponent } from './public-session-chat.component';
 

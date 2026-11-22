@@ -1,3 +1,4 @@
+import { appTranslate } from '../i18n/i18n.service';
 /**
  * A short game-first invitation. WhatsApp adds its own link preview when
  * supported; do not repeat promotional copy in the message.
@@ -34,7 +35,7 @@ export function compactSessionShareMessage(
   if (typeof spots === 'number' && Number.isSafeInteger(spots) && spots > 0) {
     lines.push((english ? 'Places: ' : 'Vagas: ') + spots + (english
       ? (spots === 1 ? ' left' : ' left')
-      : (spots === 1 ? ' disponível' : ' disponíveis')));
+      : (spots === 1 ? appTranslate(' disponível') : appTranslate(' disponíveis'))));
   }
   return lines.join('\n');
 }

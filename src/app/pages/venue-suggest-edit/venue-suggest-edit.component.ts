@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { sportMatchesQuery } from '../../shared/venue-catalogue-display';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -38,7 +39,7 @@ export class VenueSuggestEditComponent implements OnInit {
   readonly districts = [
     'Aveiro', 'Beja', 'Braga', 'Bragança', 'Castelo Branco', 'Coimbra',
     'Évora', 'Faro', 'Guarda', 'Leiria', 'Lisboa', 'Portalegre',
-    'Porto', 'Santarém', 'Setúbal', 'Viana do Castelo', 'Vila Real', 'Viseu'
+    'Porto', 'Santarém', 'Setúbal', appTranslate('Viana do Castelo'), 'Vila Real', 'Viseu'
   ];
   readonly sportsCatalog = SPORTS_CATALOG;
   venue: Venue | null = null;

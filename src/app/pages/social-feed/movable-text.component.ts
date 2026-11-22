@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, Input, Output } from '@angular/core';
 
@@ -10,7 +11,7 @@ export interface TextPlacement {
 @Component({
   selector: 'app-movable-text',
   standalone: true,
-  imports: [CommonModule],
+  imports: [TranslatePipe, CommonModule],
   template: `
     @if (text.trim()) {
       <div class="movable-text" [style.left.%]="placement.x"
@@ -21,11 +22,11 @@ export interface TextPlacement {
            [style.transform]="'translate(-50%,-50%) rotate(' + placement.rotation + 'deg) scale(' + placement.scale + ')'"
            (pointerdown)="begin($event, 'move')" (pointermove)="move($event)"
            (pointerup)="finish($event)" (pointercancel)="finish($event)"
-           [class.plain]="plain" aria-label="Arrastar texto para mover">
+           [class.plain]="plain" [attr.aria-label]="'Arrastar texto para mover' | t">
         <span>{{ text }}</span>
-        <button type="button" class="handle rotate" aria-label="Rodar texto"
+        <button type="button" class="handle rotate" [attr.aria-label]="'Rodar texto' | t"
           (pointerdown)="begin($event, 'rotate')">↻</button>
-        <button type="button" class="handle resize" aria-label="Redimensionar texto"
+        <button type="button" class="handle resize" [attr.aria-label]="'Redimensionar texto' | t"
           (pointerdown)="begin($event, 'resize')">↘</button>
       </div>
     }

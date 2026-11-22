@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -149,7 +150,7 @@ export class SessionPaymentsPanelComponent implements OnChanges, OnDestroy {
     this.load?.unsubscribe();
     this.load = this.payments.get(this.sessionId).pipe(timeout(10000)).subscribe({
       next: data => this.apply(data),
-      error: () => { this.loading = false; this.error = 'Não foi possível carregar os pagamentos.'; this.cdr.markForCheck(); }
+      error: () => { this.loading = false; this.error = appTranslate('Não foi possível carregar os pagamentos.'); this.cdr.markForCheck(); }
     });
   }
 
@@ -191,7 +192,7 @@ export class SessionPaymentsPanelComponent implements OnChanges, OnDestroy {
       error: failure => {
         this.busy = false;
         const message = failure?.error?.message || failure?.error?.reason;
-        this.error = typeof message === 'string' && message.length < 200 ? message : 'Não foi possível guardar. Tenta outra vez.';
+        this.error = typeof message === 'string' && message.length < 200 ? message : appTranslate('Não foi possível guardar. Tenta outra vez.');
         this.cdr.markForCheck();
       }
     });

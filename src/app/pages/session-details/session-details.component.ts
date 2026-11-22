@@ -1,3 +1,5 @@
+import { venueCatalogueDisplayLabel } from '../../shared/venue-catalogue-display';
+import { appTranslate } from '../../i18n/i18n.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AfterViewChecked, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, NgZone, inject } from '@angular/core';
@@ -82,7 +84,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         if(version!==this.officialSocialScoreVersion||this.session?.id!==id)return;
         this.officialSocialScore=null;
         this.officialSocialScoreLoading=false;
-        if(err.status!==404)this.officialSocialScoreError='Não foi possível consultar o resultado oficial.';
+        if(err.status!==404)this.officialSocialScoreError=appTranslate('Não foi possível consultar o resultado oficial.');
       }
     });
   }
@@ -95,11 +97,11 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       if(typeof navigator.share==='function')await navigator.share({text});
       else if(navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
-        this.officialSocialShareFeedback='Resultado copiado para partilhar.';
-      }else this.officialSocialShareFeedback='Não foi possível copiar automaticamente o resultado.';
+        this.officialSocialShareFeedback=appTranslate('Resultado copiado para partilhar.');
+      }else this.officialSocialShareFeedback=appTranslate('Não foi possível copiar automaticamente o resultado.');
     }catch{
       // A cancelled native share is not a successful publication.
-      this.officialSocialShareFeedback='Partilha cancelada ou indisponível.';
+      this.officialSocialShareFeedback=appTranslate('Partilha cancelada ou indisponível.');
     }
   }
 
@@ -131,7 +133,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       error:()=>{
         if(generation!==this.sessionMemoriesVersion||this.session?.id!==id)return;
         if(!silent)this.sessionMemories=[];
-        if(!silent)this.sessionMemoriesError='Não foi possível carregar os momentos desta sessão.';
+        if(!silent)this.sessionMemoriesError=appTranslate('Não foi possível carregar os momentos desta sessão.');
         this.sessionMemoriesPending=false;
         if(!silent)this.sessionMemoriesLoading=false;
       }
@@ -2004,7 +2006,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       case 'LATE_CANCELLED':
         return t('status.lateCancelShort');
       default:
-        return 'Por marcar';
+        return appTranslate('Por marcar');
     }
   }
 
@@ -2182,7 +2184,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif',
       'application/pdf', 'audio/webm', 'audio/ogg'];
     if (!allowed.includes(file.type.toLowerCase())) {
-      this.attachmentFeedback = 'Formato não suportado. Usa imagem, PDF ou áudio WebM/Ogg.';
+      this.attachmentFeedback = appTranslate('Formato não suportado. Usa imagem, PDF ou áudio WebM/Ogg.');
       this.attachmentFile = null;
       return;
     }
@@ -2226,10 +2228,10 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
           // The server may have accepted the upload before the response was lost.
           // Never automatically post the same attachment twice.
           this.attachmentFile = null;
-          this.attachmentFeedback = 'Não foi possível confirmar o envio. Atualiza o chat antes de tentares novamente.';
+          this.attachmentFeedback = appTranslate('Não foi possível confirmar o envio. Atualiza o chat antes de tentares novamente.');
           this.refreshMessages(false);
         } else {
-          this.attachmentFeedback = this.errorFrom(error, 'Não foi possível enviar o anexo.');
+          this.attachmentFeedback = this.errorFrom(error, appTranslate('Não foi possível enviar o anexo.'));
           if (error instanceof HttpErrorResponse && [403, 409, 503].includes(error.status)) {
             this.attachmentAvailable = false;
           }
@@ -2259,7 +2261,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
               || this.sessionId !== sessionId || !this.canSendChat()) return;
           // The server must supply the requested image type; never render HTML/SVG.
           if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(blob.type)) {
-            this.attachmentFeedback = 'Não foi possível pré-visualizar esta imagem.';
+            this.attachmentFeedback = appTranslate('Não foi possível pré-visualizar esta imagem.');
             return;
           }
           this.attachmentPreviewUrl = URL.createObjectURL(blob);
@@ -2268,7 +2270,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         error: error => {
           this.attachmentDownloadingId = null;
           if (version === this.attachmentPreviewVersion && this.sessionId === sessionId) {
-            this.attachmentFeedback = this.errorFrom(error, 'Não foi possível abrir a imagem.');
+            this.attachmentFeedback = this.errorFrom(error, appTranslate('Não foi possível abrir a imagem.'));
           }
         }
       });
@@ -2303,7 +2305,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         error: error => {
           this.attachmentDownloadingId = null;
           if (this.sessionId === sessionId) {
-            this.attachmentFeedback = this.errorFrom(error, 'Não foi possível descarregar o anexo.');
+            this.attachmentFeedback = this.errorFrom(error, appTranslate('Não foi possível descarregar o anexo.'));
           }
         }
       });
@@ -2600,7 +2602,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
           !friend.chatBlocked && !friend.blockedByMe
           && friend.username.toLowerCase() !== this.currentUsername?.toLowerCase()
         ),
-        error: () => this.inviteError = 'Não foi possível carregar os amigos.'
+        error: () => this.inviteError = appTranslate('Não foi possível carregar os amigos.')
       });
   }
 
@@ -2618,12 +2620,12 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       .subscribe({
         next: () => {
           this.formalInvitedFriends.add(username);
-          this.inviteFeedback = `Convite enviado a @${username}.`;
+          this.inviteFeedback = appTranslate('Convite enviado a @{{username}}.', {username});
         },
         error: (error: HttpErrorResponse) => {
           this.inviteError = error.status === 409
-            ? `@${username} já está inscrito, em espera ou tem um convite pendente.`
-            : `Não foi possível convidar @${username}.`;
+            ? appTranslate('@{{username}} já está inscrito, em espera ou tem um convite pendente.', {username})
+            : appTranslate('Não foi possível convidar @{{username}}.', {username});
         }
       });
   }
@@ -2640,11 +2642,11 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     this.inviteSendingTo = username;
     this.inviteFeedback = '';
     this.inviteError = '';
-    this.directChatService.send(username, `Queres juntar-te ao nosso jogo de ${this.session!.sport}? ${url}`)
+    this.directChatService.send(username, appTranslate('Queres juntar-te ao nosso jogo de {{sport}}? {{url}}', {sport: venueCatalogueDisplayLabel(this.session!.sport, 'sport'), url}))
       .pipe(timeout(10_000), finalize(() => this.inviteSendingTo = null))
       .subscribe({
-        next: () => this.inviteFeedback = `Mensagem enviada a @${username}.`,
-        error: () => this.inviteError = `Não foi possível enviar a mensagem a @${username}.`
+        next: () => this.inviteFeedback = appTranslate('Mensagem enviada a @{{username}}.', {username}),
+        error: () => this.inviteError = appTranslate('Não foi possível enviar a mensagem a @{{username}}.', {username})
       });
   }
 
@@ -3159,10 +3161,10 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       }
 
       await this.copyShareUrl(url);
-      this.shareFeedback = 'Ligação copiada';
+      this.shareFeedback = appTranslate('Ligação copiada');
     } catch {
       this.manualShareUrl = url;
-      this.shareFeedback = 'Não foi possível copiar automaticamente. Seleciona a ligação abaixo.';
+      this.shareFeedback = appTranslate('Não foi possível copiar automaticamente. Seleciona a ligação abaixo.');
     } finally {
       this.sharingSession = false;
     }
@@ -3335,10 +3337,10 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
 
   private calendarDescription(): string {
     const creator = this.session?.creatorUsername
-      ? ` Criada por ${this.session.creatorUsername}.`
+      ? ' ' + appTranslate('Criada por {{user}}.', {user: this.session.creatorUsername})
       : '';
 
-    return `Sessão de ${this.session?.sport ?? 'desporto'} na Jynlo.${creator}`;
+    return appTranslate('Sessão de {{sport}} na Jynlo.', {sport: venueCatalogueDisplayLabel(this.session?.sport, 'sport') || appTranslate('desporto')}) + creator;
   }
 
   /** The session endpoint supplies profile photos only to authorised attendees. */
@@ -3459,7 +3461,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
     if (!this.canEditCapacity() || !this.sessionId || this.googleMapsSaving) return;
     const trimmed = this.googleMapsDraft.trim();
     if (trimmed && !this.verifiedGoogleMapsUrl(trimmed)) {
-      this.googleMapsError = 'Insere um link HTTPS válido do Google Maps.';
+      this.googleMapsError = appTranslate('Insere um link HTTPS válido do Google Maps.');
       return;
     }
     this.googleMapsSaving = true;
@@ -3471,10 +3473,10 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
           ++this.sessionDetailRequestId;
           this.session = detail;
           this.googleMapsEditorOpen = false;
-          this.googleMapsNotice = 'Localização Google Maps atualizada.';
+          this.googleMapsNotice = appTranslate('Localização Google Maps atualizada.');
         },
         error: () => {
-          this.googleMapsError = 'Não foi possível confirmar a atualização. Consulta novamente antes de repetir.';
+          this.googleMapsError = appTranslate('Não foi possível confirmar a atualização. Consulta novamente antes de repetir.');
         }
       });
   }

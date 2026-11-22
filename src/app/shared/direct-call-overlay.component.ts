@@ -88,7 +88,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
             <small>{{ (call.phase === 'connecting' ? 'calls.reconnecting' : (call.startedAt ? 'calls.connected' : 'calls.ringing')) | t }}</small>
           </div>
           <button type="button" class="connect-mini-chat" (click)="openChat(call.peer)"
-            [attr.aria-label]="'calls.openChatKeepCall' | t">Chat</button>
+            [attr.aria-label]="'calls.openChatKeepCall' | t">{{ 'Chat' | t }}</button>
           <button type="button" class="connect-mini-expand" (click)="minimized=false">{{ 'calls.expand' | t }}</button>
           <button type="button" class="connect-mini-hangup" (click)="calls.end()"
             [attr.aria-label]="'calls.hangUp' | t">✕</button>
@@ -99,7 +99,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
         <div class="call-panel" [class.call-panel--chat-open]="showCallChat" tabindex="-1">
           <header class="call-topline">
             <strong class="call-brand">Jynlo <span class="call-brand-dot">●</span>
-              <span class="connect-brand-label">Connect</span></strong>
+              <span class="connect-brand-label">{{ 'Connect' | t }}</span></strong>
             <div class="connect-head-actions">
               <span class="call-kind">{{ (videoActive ? 'calls.video' : 'calls.voice') | t }}</span>
               @if (call.phase !== 'error') {
@@ -110,7 +110,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
           </header>
           <div class="call-info">
             <button type="button" class="call-peer-profile" (click)="openPeerProfile(call.peer)"
-              [attr.aria-label]="'Ver perfil de ' + call.peer" [title]="'Ver perfil de ' + call.peer">
+              [attr.aria-label]="('Ver perfil de {{peer}}' | t:{peer: call.peer})" [title]="('Ver perfil de {{peer}}' | t:{peer: call.peer})">
               <span class="call-avatar" aria-hidden="true">
                 @if (profilePhoto(call.peer); as photo) {
                   <img [src]="photo" alt="" referrerpolicy="no-referrer" (error)="hideBrokenPhoto(call.peer)">
@@ -399,7 +399,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                 <button type="button" class="connect-chat-button"
                   (click)="toggleCallChat()" [attr.aria-expanded]="showCallChat"
                    [attr.aria-label]="(showCallChat?'calls.hideCallChat':'calls.showCallChat') | t">
-                  <svg class="call-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5Z"/></svg> Chat
+                  <svg class="call-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5Z"/></svg> {{ 'Chat' | t }}
                 </button>
                 <button type="button" class="call-settings-button"
                   [attr.aria-expanded]="settingsOpen" (click)="toggleSettings();inviteOpen=false">
@@ -414,12 +414,12 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
               <section class="connect-invite-panel" [attr.aria-label]="'calls.inviteMembers' | t">
                 <div class="connect-invite-heading">
                   <div>
-                    <span class="connect-invite-eyebrow">Jynlo Connect</span>
+                    <span class="connect-invite-eyebrow">{{ 'Jynlo Connect' | t }}</span>
                     <h3>{{ 'calls.inviteMembers' | t }}</h3>
-                    <p>Adiciona amigos à chamada atual. Só entram depois de aceitar o convite.</p>
+                    <p>{{ 'Adiciona amigos à chamada atual. Só entram depois de aceitar o convite.' | t }}</p>
                   </div>
                   <button type="button" class="connect-invite-close" (click)="inviteOpen=false"
-                    aria-label="Fechar convites" title="Fechar convites">
+                    [attr.aria-label]="'Fechar convites' | t" [title]="'Fechar convites' | t">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
                       stroke-width="2" stroke-linecap="round" aria-hidden="true">
                       <path d="M18 6 6 18M6 6l12 12"/>
@@ -427,15 +427,15 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                   </button>
                 </div>
                 <form class="connect-invite-form" (ngSubmit)="inviteMember()">
-                  <label for="connect-invite-name">Procurar por nome de utilizador</label>
+                  <label for="connect-invite-name">{{ 'Procurar por nome de utilizador' | t }}</label>
                   <div class="connect-invite-search">
                     <input id="connect-invite-name" type="search" autocomplete="off"
                       name="inviteUsername" [ngModel]="inviteUsername" (ngModelChange)="inviteUsername=$event"
                       maxlength="128" [disabled]="(calls.invitationBusy$ | async) ?? false"
-                      placeholder="Pesquisar amigos ou escrever @username">
+                      [placeholder]="'Pesquisar amigos ou escrever @username' | t">
                     <button type="submit"
                       [disabled]="(calls.invitationBusy$ | async) || !inviteUsername.trim()">
-                      {{ (calls.invitationBusy$ | async) ? 'A enviar…' : 'Convidar' }}
+                      {{ (calls.invitationBusy$ | async) ? ('A enviar…' | t) : ('Convidar' | t) }}
                     </button>
                   </div>
                 </form>
@@ -443,14 +443,14 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                   <p class="connect-invite-error" role="alert">{{ inviteError | t }}</p>
                 }
                 <div class="connect-invite-list-heading">
-                  <strong>{{ inviteUsername.trim() ? 'Resultados da pesquisa' : 'Amigos disponíveis' }}</strong>
-                  @if (contactsLoading) { <span role="status">A procurar…</span> }
+                  <strong>{{ inviteUsername.trim() ? ('Resultados da pesquisa' | t) : ('Amigos disponíveis' | t) }}</strong>
+                  @if (contactsLoading) { <span role="status">{{ 'A procurar…' | t }}</span> }
                 </div>
                 @if (contactsError) {
-                  <p class="connect-invite-empty" role="alert">Não foi possível carregar os amigos. Podes continuar a convidar pelo nome de utilizador.</p>
+                  <p class="connect-invite-empty" role="alert">{{ 'Não foi possível carregar os amigos. Podes continuar a convidar pelo nome de utilizador.' | t }}</p>
                 } @else if (!contactsLoading && !matchingContacts.length) {
                   <p class="connect-invite-empty">
-                    {{ inviteUsername.trim() ? 'Sem correspondências na lista de amigos. Podes convidar pelo nome de utilizador acima.' : 'Não há amigos disponíveis neste momento.' }}
+                    {{ inviteUsername.trim() ? ('Sem correspondências na lista de amigos. Podes convidar pelo nome de utilizador acima.' | t) : ('Não há amigos disponíveis neste momento.' | t) }}
                   </p>
                 }
                 @if (matchingContacts.length) {
@@ -469,7 +469,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                           <strong>{{ contact.nickname || contact.fullName || contact.username }}</strong>
                           <small>&#64;{{ contact.username }}</small>
                         </span>
-                        <span class="connect-contact-action">Convidar <span aria-hidden="true">＋</span></span>
+                        <span class="connect-contact-action">{{ 'Convidar' | t }} <span aria-hidden="true">＋</span></span>
                       </button>
                     }
                   </div>
@@ -477,7 +477,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                 @if (calls.members$ | async; as members) {
                   <div class="connect-member-list">
                     <div class="connect-member-heading">
-                      <strong>Na chamada</strong>
+                      <strong>{{ 'Na chamada' | t }}</strong>
                       <span>{{ participantCount }} {{ participantCount===1?'pessoa':'pessoas' }}</span>
                     </div>
                     @for (person of members.participants; track person.identity) {
@@ -489,7 +489,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                         </span>
                         <span class="connect-member-details">
                           <strong>{{ person.username }}</strong>
-                          <small><span class="connect-presence-dot" aria-hidden="true"></span> Na chamada</small>
+                          <small><span class="connect-presence-dot" aria-hidden="true"></span> {{ 'Na chamada' | t }}</small>
                         </span>
                         @if (person.identity !== calls.room?.localParticipant?.identity) {
                           <label class="connect-member-volume">
@@ -501,18 +501,18 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                               [attr.aria-label]="('calls.volume' | t) + ' ' + person.username">
                           </label>
                         } @else {
-                          <small class="connect-member-you">Tu</small>
+                          <small class="connect-member-you">{{ 'Tu' | t }}</small>
                         }
                       </div>
                     }
                     @if (members.pending.length) {
                       <div class="connect-member-heading connect-pending-heading">
-                        <strong>Convites pendentes</strong>
+                        <strong>{{ 'Convites pendentes' | t }}</strong>
                         <span>{{ members.pending.length }}</span>
                       </div>
                       @for (pending of members.pending; track pending) {
                         <div class="connect-member-pending">
-                          <span aria-hidden="true">◷</span> &#64;{{ pending }} <small>A aguardar resposta</small>
+                          <span aria-hidden="true">◷</span> &#64;{{ pending }} <small>{{ 'A aguardar resposta' | t }}</small>
                         </div>
                       }
                     }
@@ -525,11 +525,11 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                 <div class="call-settings-head">
                   <strong>{{ 'calls.devices' | t }}</strong>
                   @if ((calls.deviceScanStatus$ | async) === 'scanning') {
-                    <span class="call-device-auto-refresh" role="status">A procurar dispositivos…</span>
+                    <span class="call-device-auto-refresh" role="status">{{ 'A procurar dispositivos…' | t }}</span>
                   } @else if ((calls.deviceScanStatus$ | async) === 'unavailable') {
-                    <span class="call-device-auto-refresh" role="alert">O navegador não permite consultar os dispositivos.</span>
+                    <span class="call-device-auto-refresh" role="alert">{{ 'O navegador não permite consultar os dispositivos.' | t }}</span>
                   } @else {
-                    <span class="call-device-auto-refresh">Dispositivos detetados automaticamente</span>
+                    <span class="call-device-auto-refresh">{{ 'Dispositivos detetados automaticamente' | t }}</span>
                   }
                 </div>
                 @if (calls.devices$ | async; as devices) {
@@ -572,35 +572,35 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                   </select>
                 }
                   @if ((calls.deviceScanStatus$ | async) === 'ready' && devices.length === 0) {
-                    <p role="status">Não foram encontrados dispositivos. Confirma as permissões no navegador.</p>
+                    <p role="status">{{ 'Não foram encontrados dispositivos. Confirma as permissões no navegador.' | t }}</p>
                   }
                 }
-                <div class="call-background-settings" role="group" aria-label="Fundo da câmara">
-                  <strong>Fundo da câmara</strong>
+                <div class="call-background-settings" role="group" [attr.aria-label]="'Fundo da câmara' | t">
+                  <strong>{{ 'Fundo da câmara' | t }}</strong>
                   <div class="call-background-choices">
                     <button type="button" [disabled]="(calls.backgroundBusy$ | async) || (calls.busyMedia$ | async)"
                       [class.is-active]="(calls.backgroundMode$ | async) === 'none'"
                       [attr.aria-pressed]="(calls.backgroundMode$ | async) === 'none'"
-                      (click)="calls.setBackground('none')">Original</button>
+                      (click)="calls.setBackground('none')">{{ 'Original' | t }}</button>
                     <button type="button" [disabled]="!calls.backgroundSupported || (calls.backgroundBusy$ | async) || (calls.busyMedia$ | async)"
                       [class.is-active]="(calls.backgroundMode$ | async) === 'blur'"
                       [attr.aria-pressed]="(calls.backgroundMode$ | async) === 'blur'"
-                      (click)="calls.setBackground('blur')">Desfocar</button>
+                      (click)="calls.setBackground('blur')">{{ 'Desfocar' | t }}</button>
                     <button type="button" class="call-background-jynlo"
                       [disabled]="!calls.backgroundSupported || (calls.backgroundBusy$ | async) || (calls.busyMedia$ | async)"
                       [class.is-active]="(calls.backgroundMode$ | async) === 'jynlo'"
                       [attr.aria-pressed]="(calls.backgroundMode$ | async) === 'jynlo'"
                       (click)="calls.setBackground('jynlo')">
-                      <img src="assets/jynlo-connect-background.svg" alt="" loading="lazy"> Jynlo Connect
+                      <img src="assets/jynlo-connect-background.svg" alt="" loading="lazy"> {{ 'Jynlo Connect' | t }}
                     </button>
                   </div>
                   @if (!calls.backgroundSupported) {
-                    <small>Este navegador não suporta fundos virtuais. A câmara normal continua disponível.</small>
+                    <small>{{ 'Este navegador não suporta fundos virtuais. A câmara normal continua disponível.' | t }}</small>
                   }
                   @if (calls.backgroundError$ | async; as backgroundError) {
                     <p class="call-background-error" role="alert">{{ backgroundError }}</p>
                   }
-                  @if ((calls.backgroundBusy$ | async)) { <small role="status">A aplicar fundo…</small> }
+                  @if ((calls.backgroundBusy$ | async)) { <small role="status">{{ 'A aplicar fundo…' | t }}</small> }
                 </div>
                 <p>{{ 'calls.devicesHelp' | t }}</p>
               </div>

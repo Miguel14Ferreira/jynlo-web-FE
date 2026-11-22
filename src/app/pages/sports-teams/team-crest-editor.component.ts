@@ -1,3 +1,5 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -21,18 +23,18 @@ export interface TeamCrestDesign {
 @Component({
   standalone: true,
   selector: 'app-team-crest-editor',
-  imports: [CommonModule, FormsModule],
+  imports: [TranslatePipe, CommonModule, FormsModule],
   template: `
-    <section class="crest-editor" aria-label="Estúdio de emblemas Jynlo">
+    <section class="crest-editor" [attr.aria-label]="'Estúdio de emblemas Jynlo' | t">
       <header class="crest-editor-intro">
-        <div><strong>Estúdio de emblemas</strong>
-          <p>Constrói a identidade da tua equipa, em qualquer modalidade. Nenhum símbolo ou texto é obrigatório.</p>
-        </div><span class="crest-label">PERSONALIZÁVEL</span>
+        <div><strong>{{ 'Estúdio de emblemas' | t }}</strong>
+          <p>{{ 'Constrói a identidade da tua equipa, em qualquer modalidade. Nenhum símbolo ou texto é obrigatório.' | t }}</p>
+        </div><span class="crest-label">{{ 'PERSONALIZÁVEL' | t }}</span>
       </header>
       <div class="crest-designer">
         <div class="crest-preview">
           <svg #drawingBoard viewBox="0 0 320 360" role="img" (pointermove)="moveLayer($event)"
-               (pointerup)="finishLayerDrag($event)" (pointercancel)="finishLayerDrag($event)" [attr.aria-label]="'Pré-visualização do emblema da equipa ' + teamName">
+               (pointerup)="finishLayerDrag($event)" (pointercancel)="finishLayerDrag($event)" [attr.aria-label]="('Pré-visualização do emblema da equipa {{teamName}}' | t:{teamName: teamName})">
             <defs>
               <clipPath id="crestDesignClip"><path [attr.d]="shieldPath"/></clipPath>
             </defs>
@@ -70,123 +72,123 @@ export interface TeamCrestDesign {
                 rx="6" fill="none" stroke="#84ffda" stroke-width="1.6" stroke-dasharray="4 3" pointer-events="none"/>
             </g>
           </svg>
-          <p>{{loadedFromTeam?'Projeto guardado reaberto para edição':'Pré-visualização em tempo real'}}</p>
+          <p>{{loadedFromTeam?('Projeto guardado reaberto para edição' | t):('Pré-visualização em tempo real' | t)}}</p>
         </div>
         <div class="crest-fields">
-          <section class="crest-wide crest-layer-editor" aria-label="Camadas do emblema">
+          <section class="crest-wide crest-layer-editor" [attr.aria-label]="'Camadas do emblema' | t">
             <div class="crest-layer-head">
-              <strong>Camadas livres <small>({{layers.length}}/6)</small></strong>
-              <span>Arrasta os elementos no emblema para os posicionar.</span>
+              <strong>{{ 'Camadas livres' | t }} <small>({{layers.length}}/6)</small></strong>
+              <span>{{ 'Arrasta os elementos no emblema para os posicionar.' | t }}</span>
             </div>
             <div class="crest-presets">
-              <button type="button" [disabled]="disabled||layers.length>=6" (click)="addLayer('text')">+ Texto</button>
-              <button type="button" [disabled]="disabled||layers.length>=6" (click)="addLayer('symbol')">+ Símbolo</button>
+              <button type="button" [disabled]="disabled||layers.length>=6" (click)="addLayer('text')">{{ '+ Texto' | t }}</button>
+              <button type="button" [disabled]="disabled||layers.length>=6" (click)="addLayer('symbol')">{{ '+ Símbolo' | t }}</button>
             </div>
             <div class="crest-layer-stack" *ngIf="layers.length">
               <button type="button" *ngFor="let layer of layers;trackBy:trackLayer"
                 [class.selected]="selectedLayerId===layer.id"
                 [attr.aria-pressed]="selectedLayerId===layer.id"
-                (click)="selectedLayerId=layer.id">{{layer.kind==='text'?(layer.text||'Texto'):layerLabel(layer)}}</button>
+                (click)="selectedLayerId=layer.id">{{layer.kind==='text'?(layer.text||('Texto' | t)):layerLabel(layer)}}</button>
             </div>
             <ng-container *ngIf="selectedLayer as layer">
               <div class="crest-layer-settings">
-                <label *ngIf="layer.kind==='text'">Texto da camada
-                  <input [(ngModel)]="layer.text" maxlength="18" [disabled]="disabled" placeholder="Texto personalizado">
+                <label *ngIf="layer.kind==='text'">{{ 'Texto da camada' | t }}
+                  <input [(ngModel)]="layer.text" maxlength="18" [disabled]="disabled" [placeholder]="'Texto personalizado' | t">
                 </label>
-                <label *ngIf="layer.kind==='symbol'">Símbolo da camada
+                <label *ngIf="layer.kind==='symbol'">{{ 'Símbolo da camada' | t }}
                   <select [(ngModel)]="layer.symbol" [disabled]="disabled">
-                    <option *ngFor="let choice of layerSymbols" [value]="choice.id">{{choice.label}}</option>
+                    <option *ngFor="let choice of layerSymbols" [value]="choice.id">{{ choice.label | t }}</option>
                   </select>
                 </label>
-                <label>Cor <input type="color" [(ngModel)]="layer.color" [disabled]="disabled"></label>
-                <label>Tamanho {{layer.size}} <input type="range" min="18" max="110" step="1" [(ngModel)]="layer.size" [disabled]="disabled"></label>
-                <label>Rotação {{layer.rotation}}° <input type="range" min="-180" max="180" step="5" [(ngModel)]="layer.rotation" [disabled]="disabled"></label>
-                <label>Opacidade {{layer.opacity}}% <input type="range" min="0" max="100" step="5" [(ngModel)]="layer.opacity" [disabled]="disabled"></label>
-                <label>Horizontal {{layer.x}} <input type="range" min="24" max="296" step="1" [(ngModel)]="layer.x" [disabled]="disabled"></label>
-                <label>Vertical {{layer.y}} <input type="range" min="24" max="330" step="1" [(ngModel)]="layer.y" [disabled]="disabled"></label>
+                <label>{{ 'Cor' | t }} <input type="color" [(ngModel)]="layer.color" [disabled]="disabled"></label>
+                <label>{{ 'Tamanho {{size}}' | t:{size: (layer.size)} }} <input type="range" min="18" max="110" step="1" [(ngModel)]="layer.size" [disabled]="disabled"></label>
+                <label>{{ 'Rotação {{rotation}}°' | t:{rotation: (layer.rotation)} }} <input type="range" min="-180" max="180" step="5" [(ngModel)]="layer.rotation" [disabled]="disabled"></label>
+                <label>{{ 'Opacidade {{opacity}}%' | t:{opacity: (layer.opacity)} }} <input type="range" min="0" max="100" step="5" [(ngModel)]="layer.opacity" [disabled]="disabled"></label>
+                <label>{{ 'Horizontal {{x}}' | t:{x: (layer.x)} }} <input type="range" min="24" max="296" step="1" [(ngModel)]="layer.x" [disabled]="disabled"></label>
+                <label>{{ 'Vertical {{y}}' | t:{y: (layer.y)} }} <input type="range" min="24" max="330" step="1" [(ngModel)]="layer.y" [disabled]="disabled"></label>
               </div>
               <div class="crest-layer-actions">
-                <button type="button" (click)="moveLayerOrder(-1)" [disabled]="disabled||selectedLayerIndex===0">Para trás</button>
-                <button type="button" (click)="moveLayerOrder(1)" [disabled]="disabled||selectedLayerIndex===layers.length-1">Para a frente</button>
-                <button type="button" (click)="duplicateLayer()" [disabled]="disabled||layers.length>=6">Duplicar</button>
-                <button type="button" (click)="removeLayer()" [disabled]="disabled">Eliminar camada</button>
+                <button type="button" (click)="moveLayerOrder(-1)" [disabled]="disabled||selectedLayerIndex===0">{{ 'Para trás' | t }}</button>
+                <button type="button" (click)="moveLayerOrder(1)" [disabled]="disabled||selectedLayerIndex===layers.length-1">{{ 'Para a frente' | t }}</button>
+                <button type="button" (click)="duplicateLayer()" [disabled]="disabled||layers.length>=6">{{ 'Duplicar' | t }}</button>
+                <button type="button" (click)="removeLayer()" [disabled]="disabled">{{ 'Eliminar camada' | t }}</button>
               </div>
             </ng-container>
           </section>
-          <div class="crest-wide" role="group" aria-label="Modelos rápidos de emblema">
-            <strong>Começar com um estilo</strong>
+          <div class="crest-wide" role="group" [attr.aria-label]="'Modelos rápidos de emblema' | t">
+            <strong>{{ 'Começar com um estilo' | t }}</strong>
             <div class="crest-presets">
               <button type="button" *ngFor="let preset of presets" [disabled]="disabled"
-                (click)="applyPreset(preset.id)">{{preset.label}}</button>
+                (click)="applyPreset(preset.id)">{{ preset.label | t }}</button>
             </div>
           </div>
-          <label>Formato
+          <label>{{ 'Formato' | t }}
             <select [(ngModel)]="shape" [disabled]="disabled">
-              <option value="shield">Escudo clássico</option><option value="rounded">Escudo arredondado</option>
-              <option value="circle">Circular</option><option value="hex">Hexágono</option>
-              <option value="diamond">Losango</option><option value="square">Quadrado</option>
-              <option value="oval">Oval</option><option value="banner">Estandarte</option>
+              <option value="shield">{{ 'Escudo clássico' | t }}</option><option value="rounded">{{ 'Escudo arredondado' | t }}</option>
+              <option value="circle">{{ 'Circular' | t }}</option><option value="hex">{{ 'Hexágono' | t }}</option>
+              <option value="diamond">{{ 'Losango' | t }}</option><option value="square">{{ 'Quadrado' | t }}</option>
+              <option value="oval">{{ 'Oval' | t }}</option><option value="banner">{{ 'Estandarte' | t }}</option>
             </select>
           </label>
-          <label>Elemento central
+          <label>{{ 'Elemento central' | t }}
             <select [(ngModel)]="symbol" [disabled]="disabled">
-              <option value="none">Sem símbolo</option><option value="letter">Monograma</option>
-              <option value="star">★ Estrela</option><option value="bolt">⚡ Raio</option>
-              <option value="crown">♛ Coroa</option><option value="flame">🔥 Chama</option>
-              <option value="heart">♥ Coração</option><option value="trophy">🏆 Troféu</option>
-              <option value="ball">⚽ Futebol</option><option value="basketball">🏀 Basquetebol</option>
-              <option value="volleyball">🏐 Voleibol</option><option value="tennis">🎾 Ténis</option>
-              <option value="rugby">🏉 Rugby</option><option value="badminton">🏸 Badminton</option>
-              <option value="cricket">🏏 Cricket</option><option value="hockey">🏑 Hóquei</option>
-              <option value="golf">⛳ Golfe</option><option value="cycling">🚴 Ciclismo</option>
-              <option value="running">🏃 Atletismo</option><option value="swimming">🏊 Natação</option>
-              <option value="boxing">🥊 Desportos de combate</option><option value="target">🎯 Precisão</option>
-              <option value="mountain">⛰ Montanha</option><option value="wave">≈ Ondas</option>
+              <option value="none">{{ 'Sem símbolo' | t }}</option><option value="letter">{{ 'Monograma' | t }}</option>
+              <option value="star">{{ '★ Estrela' | t }}</option><option value="bolt">{{ '⚡ Raio' | t }}</option>
+              <option value="crown">{{ '♛ Coroa' | t }}</option><option value="flame">{{ '🔥 Chama' | t }}</option>
+              <option value="heart">{{ '♥ Coração' | t }}</option><option value="trophy">{{ '🏆 Troféu' | t }}</option>
+              <option value="ball">{{ '⚽ Futebol' | t }}</option><option value="basketball">{{ '🏀 Basquetebol' | t }}</option>
+              <option value="volleyball">{{ '🏐 Voleibol' | t }}</option><option value="tennis">{{ '🎾 Ténis' | t }}</option>
+              <option value="rugby">{{ '🏉 Rugby' | t }}</option><option value="badminton">{{ '🏸 Badminton' | t }}</option>
+              <option value="cricket">{{ '🏏 Cricket' | t }}</option><option value="hockey">{{ '🏑 Hóquei' | t }}</option>
+              <option value="golf">{{ '⛳ Golfe' | t }}</option><option value="cycling">{{ '🚴 Ciclismo' | t }}</option>
+              <option value="running">{{ '🏃 Atletismo' | t }}</option><option value="swimming">{{ '🏊 Natação' | t }}</option>
+              <option value="boxing">{{ '🥊 Desportos de combate' | t }}</option><option value="target">{{ '🎯 Precisão' | t }}</option>
+              <option value="mountain">{{ '⛰ Montanha' | t }}</option><option value="wave">{{ '≈ Ondas' | t }}</option>
             </select>
           </label>
-          <label>Estilo de fundo
+          <label>{{ 'Estilo de fundo' | t }}
             <select [(ngModel)]="pattern" [disabled]="disabled">
-              <option value="none">Liso</option><option value="diagonal">Faixa diagonal</option>
-              <option value="stripes">Riscas verticais</option><option value="hoops">Riscas horizontais</option>
-              <option value="split">Duas metades</option><option value="chevron">Chevron</option>
+              <option value="none">{{ 'Liso' | t }}</option><option value="diagonal">{{ 'Faixa diagonal' | t }}</option>
+              <option value="stripes">{{ 'Riscas verticais' | t }}</option><option value="hoops">{{ 'Riscas horizontais' | t }}</option>
+              <option value="split">{{ 'Duas metades' | t }}</option><option value="chevron">{{ 'Chevron' | t }}</option>
             </select>
           </label>
-          <label>Iniciais (até 5)
-            <input [(ngModel)]="customInitials" maxlength="5" autocomplete="off" [disabled]="disabled" placeholder="Ex.: JYNLO">
+          <label>{{ 'Iniciais (até 5)' | t }}
+            <input [(ngModel)]="customInitials" maxlength="5" autocomplete="off" [disabled]="disabled" [placeholder]="'Ex.: JYNLO' | t">
           </label>
-          <label class="crest-check"><input type="checkbox" [(ngModel)]="showInitials" [disabled]="disabled"> Mostrar iniciais</label>
-          <label class="crest-check"><input type="checkbox" [(ngModel)]="innerBorder" [disabled]="disabled"> Aro interior</label>
-          <label class="crest-wide">Texto inferior opcional
+          <label class="crest-check"><input type="checkbox" [(ngModel)]="showInitials" [disabled]="disabled"> {{ 'Mostrar iniciais' | t }}</label>
+          <label class="crest-check"><input type="checkbox" [(ngModel)]="innerBorder" [disabled]="disabled"> {{ 'Aro interior' | t }}</label>
+          <label class="crest-wide">{{ 'Texto inferior opcional' | t }}
             <input [(ngModel)]="caption" maxlength="22" autocomplete="off" [disabled]="disabled"
-              placeholder="Ex.: DESDE 2026 · LISBOA">
+              [placeholder]="'Ex.: DESDE 2026 · LISBOA' | t">
           </label>
           <div class="crest-colors">
-            <label>Fundo <input type="color" [(ngModel)]="primary" [disabled]="disabled"></label>
-            <label>Padrão <input type="color" [(ngModel)]="secondary" [disabled]="disabled"></label>
-            <label>Texto <input type="color" [(ngModel)]="textColor" [disabled]="disabled"></label>
-            <label>Contorno <input type="color" [(ngModel)]="borderColor" [disabled]="disabled"></label>
+            <label>{{ 'Fundo' | t }} <input type="color" [(ngModel)]="primary" [disabled]="disabled"></label>
+            <label>{{ 'Padrão' | t }} <input type="color" [(ngModel)]="secondary" [disabled]="disabled"></label>
+            <label>{{ 'Texto' | t }} <input type="color" [(ngModel)]="textColor" [disabled]="disabled"></label>
+            <label>{{ 'Contorno' | t }} <input type="color" [(ngModel)]="borderColor" [disabled]="disabled"></label>
           </div>
-          <label *ngIf="pattern!=='none'" class="crest-wide">Intensidade do padrão · {{patternOpacity}}%
+          <label *ngIf="pattern!=='none'" class="crest-wide">{{ 'Intensidade do padrão · {{patternOpacity}}%' | t:{patternOpacity: (patternOpacity)} }}
             <input type="range" min="0" max="100" step="5" [(ngModel)]="patternOpacity" [disabled]="disabled">
           </label>
-          <label>Largura do contorno · {{borderWidth}}
+          <label>{{ 'Largura do contorno · {{borderWidth}}' | t:{borderWidth: (borderWidth)} }}
             <input type="range" min="0" max="14" step="1" [(ngModel)]="borderWidth" [disabled]="disabled">
           </label>
-          <label *ngIf="symbol!=='none'">Tamanho do símbolo · {{symbolSize}}
+          <label *ngIf="symbol!=='none'">{{ 'Tamanho do símbolo · {{symbolSize}}' | t:{symbolSize: (symbolSize)} }}
             <input type="range" min="30" max="112" step="2" [(ngModel)]="symbolSize" [disabled]="disabled">
           </label>
-          <label *ngIf="symbol!=='none'">Posição do símbolo
+          <label *ngIf="symbol!=='none'">{{ 'Posição do símbolo' | t }}
             <input type="range" min="85" max="205" step="5" [(ngModel)]="symbolY" [disabled]="disabled">
           </label>
-          <label *ngIf="showInitials">Tamanho das iniciais · {{initialsSize}}
+          <label *ngIf="showInitials">{{ 'Tamanho das iniciais · {{initialsSize}}' | t:{initialsSize: (initialsSize)} }}
             <input type="range" min="16" max="54" step="2" [(ngModel)]="initialsSize" [disabled]="disabled">
           </label>
-          <label *ngIf="showInitials">Posição das iniciais
+          <label *ngIf="showInitials">{{ 'Posição das iniciais' | t }}
             <input type="range" min="165" max="265" step="5" [(ngModel)]="initialsY" [disabled]="disabled">
           </label>
-          <button type="button" class="crest-reset" [disabled]="disabled" (click)="reset()">Repor desenho</button>
+          <button type="button" class="crest-reset" [disabled]="disabled" (click)="reset()">{{ 'Repor desenho' | t }}</button>
           <button type="button" class="crest-save" (click)="save()" [disabled]="disabled">
-            {{disabled ? 'A guardar…' : 'Guardar emblema da equipa'}}
+            {{disabled ? ('A guardar…' | t) : ('Guardar emblema da equipa' | t)}}
           </button>
           <small *ngIf="error" role="alert">{{error}}</small>
         </div>
@@ -253,7 +255,7 @@ export class TeamCrestEditorComponent {
       if(![1,2].includes(design.version) || !['shield','rounded','circle','hex','diamond','square','oval','banner'].includes(design.shape))return;
       this.applyDesign(design);
       this.loadedFromTeam=true;
-    } catch { this.error='Não foi possível reabrir o desenho guardado.'; }
+    } catch { this.error=appTranslate('Não foi possível reabrir o desenho guardado.'); }
   }
   @Output() generated=new EventEmitter<{file:File;design:string}>();
   loadedFromTeam=false;
@@ -271,14 +273,14 @@ export class TeamCrestEditorComponent {
   readonly layerSymbols=[
     {id:'star',label:'★ Estrela'},{id:'bolt',label:'⚡ Raio'},
     {id:'crown',label:'♛ Coroa'},{id:'flame',label:'🔥 Chama'},
-    {id:'heart',label:'♥ Coração'},{id:'trophy',label:'🏆 Troféu'},
+    {id:'heart',label:appTranslate('♥ Coração')},{id:'trophy',label:appTranslate('🏆 Troféu')},
     {id:'ball',label:'⚽ Futebol'},{id:'basketball',label:'🏀 Basquetebol'},
-    {id:'volleyball',label:'🏐 Voleibol'},{id:'tennis',label:'🎾 Ténis'},
+    {id:'volleyball',label:'🏐 Voleibol'},{id:'tennis',label:appTranslate('🎾 Ténis')},
     {id:'rugby',label:'🏉 Rugby'},{id:'badminton',label:'🏸 Badminton'},
-    {id:'cricket',label:'🏏 Cricket'},{id:'hockey',label:'🏑 Hóquei'},
+    {id:'cricket',label:'🏏 Cricket'},{id:'hockey',label:appTranslate('🏑 Hóquei')},
     {id:'golf',label:'⛳ Golfe'},{id:'cycling',label:'🚴 Ciclismo'},
-    {id:'running',label:'🏃 Atletismo'},{id:'swimming',label:'🏊 Natação'},
-    {id:'boxing',label:'🥊 Combate'},{id:'target',label:'🎯 Precisão'},
+    {id:'running',label:'🏃 Atletismo'},{id:'swimming',label:appTranslate('🏊 Natação')},
+    {id:'boxing',label:'🥊 Combate'},{id:'target',label:appTranslate('🎯 Precisão')},
     {id:'mountain',label:'⛰ Montanha'},{id:'wave',label:'≈ Ondas'}
   ];
   get selectedLayer():TeamCrestLayer|undefined{return this.layers.find(l=>l.id===this.selectedLayerId);}
@@ -376,7 +378,7 @@ export class TeamCrestEditorComponent {
   readonly presets=[
     {id:'classic',label:'Clássico'},{id:'minimal',label:'Minimalista'},
     {id:'modern',label:'Moderno'},{id:'retro',label:'Retro'},
-    {id:'energy',label:'Energia'},{id:'blank',label:'Em branco'}
+    {id:'energy',label:'Energia'},{id:'blank',label:appTranslate('Em branco')}
   ];
   applyPreset(id:string):void {
     this.reset();
@@ -435,18 +437,18 @@ export class TeamCrestEditorComponent {
     // The server enforces the same bounded schema, so reject invalid edits locally first.
     if(!/^[\p{L}0-9]{0,5}$/u.test(this.customInitials)
       || this.caption.length>22 || /[\x00-\x1F]/.test(this.caption)){
-      this.error='Verifica as iniciais (até cinco caracteres) e o texto inferior.';
+      this.error=appTranslate('Verifica as iniciais (até cinco caracteres) e o texto inferior.');
       return;
     }
     if(this.layers.some(layer=>layer.text.length>18 || /[\x00-\x1F]/.test(layer.text)
       || (layer.kind==='text' && !layer.text.trim()))){
-      this.error='As camadas de texto devem ter entre 1 e 18 caracteres.';
+      this.error=appTranslate('As camadas de texto devem ter entre 1 e 18 caracteres.');
       return;
     }
     const canvas=document.createElement('canvas');
     canvas.width=512;canvas.height=576;
     const ctx=canvas.getContext('2d');
-    if(!ctx){this.error='Este navegador não suporta a criação de emblemas.';return;}
+    if(!ctx){this.error=appTranslate('Este navegador não suporta a criação de emblemas.');return;}
     ctx.scale(1.6,1.6);
     const path=new Path2D(this.shieldPath);
     ctx.fillStyle=this.primary;ctx.fill(path);
@@ -495,7 +497,7 @@ export class TeamCrestEditorComponent {
     }
     const editableDesign=JSON.stringify(this.snapshot());
     canvas.toBlob(blob=>{
-      if(!blob){this.error='Não foi possível criar o PNG.';return;}
+      if(!blob){this.error=appTranslate('Não foi possível criar o PNG.');return;}
       this.generated.emit({file:new File([blob],'emblema-jynlo.png',{type:'image/png'}),
         design:editableDesign});
     },'image/png');

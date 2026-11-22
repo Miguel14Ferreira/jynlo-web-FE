@@ -2872,7 +2872,7 @@
                         [attr.aria-label]="'communities.tournaments.phaseUi.filter' | t">
                         <option value="ALL">{{ 'communities.tournaments.phaseUi.all' | t }}</option>
                         @for (phase of teamProfilePhases; track phase.key) {
-                          <option [value]="phase.key">{{ phase.label }} · {{ phase.completed }}/{{ phase.loaded }}</option>
+                          <option [value]="phase.key">{{ phase.label | t }} · {{ phase.completed }}/{{ phase.loaded }}</option>
                         }
                       </select>
                     </label>
@@ -4136,7 +4136,7 @@
                               [attr.aria-pressed]="selectedKnockoutRound === round.round"
                               [attr.aria-label]="('communities.tournaments.phaseUi.filter' | t) + ': ' + round.label"
                               (click)="jumpToKnockoutRound(round.round)">
-                              <span>{{ round.label }}</span>
+                              <span>{{ round.label | t }}</span>
                               <small [attr.title]="'communities.tournaments.phaseUi.completedOfLoaded' | t"
                                 [attr.aria-label]="knockoutCompletedCount(round.matches) + '/' + round.matches.length + ' ' + ('communities.tournaments.phaseUi.completedOfLoaded' | t)">{{ knockoutCompletedCount(round.matches) }}/{{ round.matches.length }}</small>
                             </button>
@@ -4176,7 +4176,7 @@
                               [class.is-active]="teamPhaseFilter === 'round-' + round.round"
                               [attr.aria-pressed]="teamPhaseFilter === 'round-' + round.round"
                               (click)="setTeamPhaseFilter(teamPhaseFilter === 'round-' + round.round ? 'ALL' : 'round-' + round.round)">
-                              <strong>{{ round.label }}</strong>
+                              <strong>{{ round.label | t }}</strong>
                               <span>{{ (knockoutMatchQuery.trim() || knockoutStatusFilter !== 'ALL' ? visibleKnockoutMatches(round.round, round.matches).length : round.matches.length) }} {{ 'communities.tournaments.bracketUi.matches' | t }}</span>
                             </button>
                             @for (item of visibleKnockoutMatches(round.round, round.matches); track item.game.id) {
@@ -4295,7 +4295,7 @@
                             [class.is-active]="teamPhaseFilter === stage.key"
                             [attr.aria-pressed]="teamPhaseFilter === stage.key"
                             (click)="setTeamPhaseFilter(teamPhaseFilter === stage.key ? 'ALL' : stage.key)">
-                            <strong>{{ stage.label }}</strong>
+                            <strong>{{ stage.label | t }}</strong>
                             <span>{{ stage.completed }} / {{ stage.loaded }}</span>
                             <small>{{ 'communities.tournaments.phaseUi.completedOfLoaded' | t }}</small>
                           </button>
@@ -4323,7 +4323,7 @@
                           [attr.aria-label]="'communities.tournaments.phaseUi.filter' | t">
                           <option value="ALL">{{ 'communities.tournaments.phaseUi.all' | t }}</option>
                           @for (stage of teamPhases; track stage.key) {
-                            <option [value]="stage.key">{{ stage.label }}</option>
+                            <option [value]="stage.key">{{ stage.label | t }}</option>
                           }
                         </select>
                       </label>

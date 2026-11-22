@@ -1,3 +1,5 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { GlobalTeamEnrollmentComponent } from './global-team-enrollment.component';
 import { Component, Input, OnChanges } from '@angular/core';
@@ -11,57 +13,56 @@ import { CompetitionTeamInvitation, CompetitionTeamInvitationType,
 @Component({
   standalone: true,
   selector: 'app-competition-team-search',
-  imports: [CommonModule, FormsModule, GlobalTeamEnrollmentComponent],
+  imports: [TranslatePipe, CommonModule, FormsModule, GlobalTeamEnrollmentComponent],
   template: `
     <div class="search-teams">
       <button type="button" class="search-toggle" (click)="open = !open"
               [attr.aria-expanded]="open">
-        {{ open ? 'Fechar pesquisa' : 'Pesquisar equipa' }}
+        {{ open ? ('Fechar pesquisa' | t) : ('Pesquisar equipa' | t) }}
       </button>
       <div *ngIf="open" class="search-content">
-        <p>Encontra uma equipa existente na Jynlo e convida o seu responsável.</p>
-        <h4>Equipas da comunidade</h4>
-        <p *ngIf="!associated.length">Ainda não há equipas associadas.</p>
+        <p>{{ 'Encontra uma equipa existente na Jynlo e convida o seu responsável.' | t }}</p>
+        <h4>{{ 'Equipas da comunidade' | t }}</h4>
+        <p *ngIf="!associated.length">{{ 'Ainda não há equipas associadas.' | t }}</p>
         <ul><li *ngFor="let team of associated">
           <strong>{{team.teamName}}</strong>
-          <span *ngIf="invitationFor(team.teamId) as invitation">Convite: {{invitation.status}}
+          <span *ngIf="invitationFor(team.teamId) as invitation">{{ 'Convite: {{status}}' | t:{status: (invitation.status)} }}
             <app-global-team-enrollment *ngIf="invitation.status==='ACCEPTED'"
               [communityId]="communityId" [competitionId]="competitionId" [type]="type"
               [globalTeamId]="team.teamId"></app-global-team-enrollment>
           </span>
           <button type="button" *ngIf="!invitationFor(team.teamId)" [disabled]="busy || !invitationsVerified"
-            (click)="invite(team.teamId)">Convidar para a competição</button>
+            (click)="invite(team.teamId)">{{ 'Convidar para a competição' | t }}</button>
         </li></ul>
-        <h4>Outras equipas da Jynlo</h4>
-        <label [for]="'team-query-' + type + '-' + competitionId">Nome da equipa</label>
+        <h4>{{ 'Outras equipas da Jynlo' | t }}</h4>
+        <label [for]="'team-query-' + type + '-' + competitionId">{{ 'Nome da equipa' | t }}</label>
         <div class="search-row">
           <input [id]="'team-query-' + type + '-' + competitionId"
                  [(ngModel)]="query" maxlength="100"
-                 (keyup.enter)="search()" placeholder="Pesquisar equipa…" />
-          <button type="button" (click)="search()" [disabled]="busy || !query.trim()">Pesquisar</button>
+                 (keyup.enter)="search()" [placeholder]="'Pesquisar equipa…' | t" />
+          <button type="button" (click)="search()" [disabled]="busy || !query.trim()">{{ 'Pesquisar' | t }}</button>
         </div>
         <p *ngIf="error" role="alert" class="error">{{ error }}</p>
-        <p *ngIf="!invitationsVerified" role="alert">Convites anteriores por confirmar. Novos convites bloqueados.</p>
+        <p *ngIf="!invitationsVerified" role="alert">{{ 'Convites anteriores por confirmar. Novos convites bloqueados.' | t }}</p>
         <button *ngIf="!invitationsVerified" type="button" [disabled]="busy"
-          (click)="refreshInvitations()">Verificar convites anteriores</button>
+          (click)="refreshInvitations()">{{ 'Verificar convites anteriores' | t }}</button>
         <p *ngIf="notice" role="status">{{ notice }}</p>
-        <p *ngIf="busy" aria-live="polite">A processar…</p>
+        <p *ngIf="busy" aria-live="polite">{{ 'A processar…' | t }}</p>
         <ul *ngIf="!busy">
           <li *ngFor="let team of results">
             <div><strong>{{ team.name }}</strong>
-              <small>{{ team.sport || 'Várias modalidades' }} · {{ team.location || 'Sem localização' }}</small>
+              <small>{{ team.sport || ('Várias modalidades' | t) }} · {{ team.location || ('Sem localização' | t) }}</small>
             </div>
-            <span *ngIf="invitationFor(team.id) as invited">Convite: {{ invited.status === 'PENDING' ? 'pendente' : invited.status === 'ACCEPTED' ? 'aceite' : 'recusado' }}
+            <span *ngIf="invitationFor(team.id) as invited">{{ (invited.status === 'PENDING' ? 'Convite: pendente' : invited.status === 'ACCEPTED' ? 'Convite: aceite' : 'Convite: recusado') | t }}
               <app-global-team-enrollment *ngIf="invited.status==='ACCEPTED'"
                 [communityId]="communityId" [competitionId]="competitionId" [type]="type"
                 [globalTeamId]="team.id"></app-global-team-enrollment>
             </span>
-            <button *ngIf="!invitationFor(team.id)" type="button" [disabled]="busy || !invitationsVerified" (click)="invite(team.id)">Convidar equipa</button>
+            <button *ngIf="!invitationFor(team.id)" type="button" [disabled]="busy || !invitationsVerified" (click)="invite(team.id)">{{ 'Convidar equipa' | t }}</button>
           </li>
         </ul>
-        <p *ngIf="searched && !busy && results.length === 0">Não foram encontradas equipas.</p>
-        <p class="hint">O convite não inscreve automaticamente a equipa nem os seus jogadores.
-          Após a aceitação, o organizador confirma a participação na competição.</p>
+        <p *ngIf="searched && !busy && results.length === 0">{{ 'Não foram encontradas equipas.' | t }}</p>
+        <p class="hint">{{ 'O convite não inscreve automaticamente a equipa nem os seus jogadores. Após a aceitação, o organizador confirma a participação na competição.' | t }}</p>
       </div>
     </div>
   `,
@@ -131,7 +132,7 @@ export class CompetitionTeamSearchComponent implements OnChanges {
       },
       error: () => {
         if (version === this.invitationRevision)
-          this.error = 'Não foi possível confirmar os convites anteriores. Verifica antes de enviar.';
+          this.error = appTranslate('Não foi possível confirmar os convites anteriores. Verifica antes de enviar.');
       }
     });
   }
@@ -154,7 +155,7 @@ export class CompetitionTeamSearchComponent implements OnChanges {
         this.results = rows;
         this.searched = true;
       },
-      error: () => {if (this.revision === rev) this.error = 'Não foi possível pesquisar equipas.';}
+      error: () => {if (this.revision === rev) this.error = appTranslate('Não foi possível pesquisar equipas.');}
     });
   }
 
@@ -172,12 +173,12 @@ export class CompetitionTeamSearchComponent implements OnChanges {
         next: invitation => {
           if (this.revision !== rev) return;
           this.invitations = [...this.invitations, invitation];
-          this.notice = 'Convite registado. O responsável poderá responder na área de equipas.';
+          this.notice = appTranslate('Convite registado. O responsável poderá responder na área de equipas.');
         },
         error: () => {
           if (this.revision === rev) {
             this.invitationsVerified = false;
-            this.error = 'O convite pode ter sido entregue. Verifica os convites antes de repetir.';
+            this.error = appTranslate('O convite pode ter sido entregue. Verifica os convites antes de repetir.');
           }
         }
       });

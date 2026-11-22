@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
@@ -70,7 +71,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
   async shareProfile(profile: CommunityProfile): Promise<void> {
     if (this.profileShareBusy || !profile.username?.trim()) return;
     const url = window.location.origin + '/menu/perfis/' + encodeURIComponent(profile.username.trim());
-    const text = 'Vê o perfil de @' + profile.username + ' na Jynlo';
+    const text = appTranslate('Vê o perfil de @{{user}} na Jynlo', {user: profile.username});
     this.profileShareBusy = true;
     this.profileShareMessage = '';
     try {
@@ -86,9 +87,9 @@ export class PerfisComponent implements OnInit, OnDestroy {
       }
       if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
       await navigator.clipboard.writeText(url);
-      this.profileShareMessage = 'Ligação do perfil copiada.';
+      this.profileShareMessage = appTranslate('Ligação do perfil copiada.');
     } catch {
-      this.profileShareMessage = 'Não foi possível partilhar. Copia o endereço desta página.';
+      this.profileShareMessage = appTranslate('Não foi possível partilhar. Copia o endereço desta página.');
     } finally {
       this.profileShareBusy = false;
     }
@@ -189,13 +190,13 @@ export class PerfisComponent implements OnInit, OnDestroy {
         this.privacyStatus=state;
         if(this.isOwnProfile(this.selectedProfile))this.loadPendingFollows();
       },
-      error:()=>this.privacyError='Não foi possível verificar a privacidade deste perfil.'
+      error:()=>this.privacyError=appTranslate('Não foi possível verificar a privacidade deste perfil.')
     });
   }
   loadPendingFollows():void {
     this.privacyService.requests().pipe(timeout(10000)).subscribe({
       next:requests=>this.privacyPending=requests,
-      error:()=>this.privacyError='Não foi possível consultar os pedidos para seguir.'
+      error:()=>this.privacyError=appTranslate('Não foi possível consultar os pedidos para seguir.')
     });
   }
   changeProfilePrivacy(privateProfile:boolean):void {
@@ -204,7 +205,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     this.privacyService.setPrivate(privateProfile).pipe(timeout(10000),
       finalize(()=>this.privacyBusy=false)).subscribe({
       next:status=>this.privacyStatus=status,
-      error:()=>this.privacyError='Não foi possível alterar a privacidade.'
+      error:()=>this.privacyError=appTranslate('Não foi possível alterar a privacidade.')
     });
   }
   decidePendingFollow(id:number,accept:boolean):void {
@@ -217,7 +218,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
         if(this.selectedProfile)this.socialGraphService.status(this.selectedProfile.username)
           .subscribe(status=>this.selectedFollowStatus=status);
       },
-      error:()=>this.privacyError='Não foi possível responder ao pedido.'
+      error:()=>this.privacyError=appTranslate('Não foi possível responder ao pedido.')
     });
   }
 
@@ -1020,7 +1021,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
           if (this.selectedProfile?.username.toLowerCase() !== profile.username.toLowerCase()) return;
           this.selectedFollowStatus = status;
           this.actionSuccess = status.requestPending
-            ? 'Pedido para seguir enviado. Aguarda a aprovação.'
+            ? appTranslate('Pedido para seguir enviado. Aguarda a aprovação.')
             : status.followedByMe
             ? t('feedback.social.followed', { username: profile.username })
             : t('feedback.social.unfollowed', { username: profile.username });

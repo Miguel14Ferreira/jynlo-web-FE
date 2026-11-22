@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { AfterViewChecked, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
@@ -99,7 +100,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
       this.searchOpen = true;
       this.searchQuery = message.replyToText || '';
       this.onMessageSearchChange();
-      this.searchError = 'A mensagem original pode estar no histórico anterior. Carrega mensagens antigas para a encontrar.';
+      this.searchError = appTranslate('A mensagem original pode estar no histórico anterior. Carrega mensagens antigas para a encontrar.');
       return;
     }
     this.searchOpen = true;
@@ -425,7 +426,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
     if (!image) return;
     event.preventDefault();
     if (!this.attachmentReady || this.sending || this.deliveryUncertain || this.chatInfo?.chatBlocked) {
-      this.actionError = 'O envio de imagens não está disponível nesta conversa.';
+      this.actionError = appTranslate('O envio de imagens não está disponível nesta conversa.');
       return;
     }
     this.stageAttachment(image);
@@ -450,7 +451,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
     if (all.length > 4 || all.reduce((sum, item) => sum + item.size, 0) > 40 * 1024 * 1024
         || all.some(file => !accepted.includes(file.type.toLowerCase()) || !file.size
           || file.size > (file.type.startsWith('video/') ? 20 : file.type.startsWith('audio/') ? 12 : 5) * 1024 * 1024)) {
-      this.actionError = 'Até 4 ficheiros (40 MB no total): imagens/PDF 5 MB, áudio 12 MB, vídeo 20 MB.';
+      this.actionError = appTranslate('Até 4 ficheiros (40 MB no total): imagens/PDF 5 MB, áudio 12 MB, vídeo 20 MB.');
       return;
     }
     const pending = [...incoming];
@@ -503,7 +504,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
             setTimeout(() => URL.revokeObjectURL(url), 60_000);
           }
         },
-        error: () => this.actionError = 'Não foi possível abrir o anexo.'
+        error: () => this.actionError = appTranslate('Não foi possível abrir o anexo.')
       });
   }
 
@@ -526,7 +527,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
           if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif',
             'video/mp4', 'video/webm', 'audio/mpeg', 'audio/mp4', 'audio/ogg',
             'audio/webm', 'application/pdf'].includes(blob.type.toLowerCase())) {
-            this.actionError = 'O formato deste anexo não é suportado.';
+            this.actionError = appTranslate('O formato deste anexo não é suportado.');
             return;
           }
           if (blob.type === 'application/pdf') {
@@ -540,7 +541,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
           }
           this.attachmentPreviews.set(id, URL.createObjectURL(blob));
         },
-        error: () => this.actionError = 'Não foi possível abrir a imagem.'
+        error: () => this.actionError = appTranslate('Não foi possível abrir a imagem.')
       });
   }
 
@@ -627,7 +628,7 @@ export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked 
             this.verifyDelivery();
           } else {
             this.actionError = attachment && this.isUncertainSendError(error)
-              ? 'Não foi possível confirmar o envio da imagem. Verifica a conversa antes de tentar novamente.'
+              ? appTranslate('Não foi possível confirmar o envio da imagem. Verifica a conversa antes de tentar novamente.')
               : this.errorFrom(error, t('feedback.chat.sendError'));
           }
         }

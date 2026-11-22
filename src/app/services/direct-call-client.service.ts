@@ -612,7 +612,7 @@ export class DirectCallClientService implements OnDestroy {
     const room=this.room;
     if (!room || this.backgroundBusy$.value || !['none','blur','jynlo'].includes(mode)) return;
     if (mode!=='none' && !this.backgroundSupported) {
-      this.backgroundError$.next('Os fundos virtuais não são suportados neste navegador.');
+      this.backgroundError$.next(appTranslate('Os fundos virtuais não são suportados neste navegador.'));
       return;
     }
     this.backgroundBusy$.next(true);
@@ -621,7 +621,7 @@ export class DirectCallClientService implements OnDestroy {
       if (this.state$.value?.cameraEnabled) await this.applyBackground(room,mode);
       if (room===this.room) this.backgroundMode$.next(mode);
     } catch {
-      if (room===this.room) this.backgroundError$.next('Não foi possível aplicar o fundo. Verifica a câmara ou tenta novamente.');
+      if (room===this.room) this.backgroundError$.next(appTranslate('Não foi possível aplicar o fundo. Verifica a câmara ou tenta novamente.'));
     } finally {
       this.backgroundBusy$.next(false);
     }
@@ -709,7 +709,7 @@ export class DirectCallClientService implements OnDestroy {
         // An effect failure cannot turn off a working camera.
         if (this.backgroundMode$.value!=='none') {
           try { await this.applyBackground(room,this.backgroundMode$.value); }
-          catch { this.backgroundError$.next('Não foi possível restaurar o fundo virtual.'); }
+          catch { this.backgroundError$.next(appTranslate('Não foi possível restaurar o fundo virtual.')); }
         }
       } else {
         this.backgroundTrack=null;

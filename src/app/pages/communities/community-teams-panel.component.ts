@@ -1,3 +1,5 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -8,51 +10,51 @@ import { TeamCommunityMembership,TeamCommunityMembershipsService } from '../../s
 @Component({
   standalone:true,
   selector:'app-community-teams-panel',
-  imports:[CommonModule,FormsModule,RouterLink],
+  imports:[TranslatePipe, CommonModule,FormsModule,RouterLink],
   template:`
-    <section class="community-teams" aria-label="Equipas associadas à comunidade">
+    <section class="community-teams" [attr.aria-label]="'Equipas associadas à comunidade' | t">
       <div class="heading">
-        <div><h3>Equipas da comunidade</h3><p>Equipas mantêm o plantel e o perfil próprios.</p></div>
-        <span>{{active.length}} equipas</span>
+        <div><h3>{{ 'Equipas da comunidade' | t }}</h3><p>{{ 'Equipas mantêm o plantel e o perfil próprios.' | t }}</p></div>
+        <span>{{ '{{activeCount}} equipas' | t:{activeCount: (active.length)} }}</span>
       </div>
-      <p *ngIf="loading">A carregar equipas…</p>
+      <p *ngIf="loading">{{ 'A carregar equipas…' | t }}</p>
       <p *ngIf="error" role="alert" class="error">{{error}}</p>
       <p *ngIf="notice" role="status">{{notice}}</p>
-      <p *ngIf="!loading && active.length===0">Esta comunidade ainda não tem equipas associadas.</p>
+      <p *ngIf="!loading && active.length===0">{{ 'Esta comunidade ainda não tem equipas associadas.' | t }}</p>
       <ul><li *ngFor="let membership of active">
         <a [routerLink]="['/menu/teams',membership.teamId]">{{membership.teamName}}</a>
-        <button type="button" *ngIf="canManage" [disabled]="busy" (click)="remove(membership.id)">Remover equipa</button>
+        <button type="button" *ngIf="canManage" [disabled]="busy" (click)="remove(membership.id)">{{ 'Remover equipa' | t }}</button>
       </li></ul>
       <ng-container *ngIf="!canManage && mine.length">
-        <h4>Pedir entrada com uma das minhas equipas</h4>
+        <h4>{{ 'Pedir entrada com uma das minhas equipas' | t }}</h4>
         <div *ngFor="let team of mine" class="form-row">
           <span>{{team.name}}</span>
           <button type="button" [disabled]="busy||hasRelation(team.id)" (click)="request(team.id)">
-            {{hasRelation(team.id)?'Pedido existente':'Pedir adesão'}}
+            {{hasRelation(team.id)?('Pedido existente' | t):('Pedir adesão' | t)}}
           </button>
         </div>
       </ng-container>
       <ng-container *ngIf="canManage">
-        <h4>Convidar equipa existente</h4>
+        <h4>{{ 'Convidar equipa existente' | t }}</h4>
         <div class="form-row">
-          <input [(ngModel)]="query" maxlength="100" (keyup.enter)="search()" placeholder="Pesquisar equipa pelo nome"/>
-          <button type="button" [disabled]="busy||!query.trim()" (click)="search()">Pesquisar</button>
+          <input [(ngModel)]="query" maxlength="100" (keyup.enter)="search()" [placeholder]="'Pesquisar equipa pelo nome' | t"/>
+          <button type="button" [disabled]="busy||!query.trim()" (click)="search()">{{ 'Pesquisar' | t }}</button>
         </div>
         <ul><li *ngFor="let team of matches">
-          <span>{{team.name}} · {{team.sport || 'Várias modalidades'}}</span>
+          <span>{{team.name}} · {{team.sport || ('Várias modalidades' | t)}}</span>
           <button type="button" [disabled]="busy||hasRelation(team.id)"
-             (click)="invite(team.id)">{{hasRelation(team.id)?'Pedido existente':'Convidar equipa'}}</button>
+             (click)="invite(team.id)">{{hasRelation(team.id)?('Pedido existente' | t):('Convidar equipa' | t)}}</button>
         </li></ul>
-        <h4>Pedidos e convites pendentes</h4>
+        <h4>{{ 'Pedidos e convites pendentes' | t }}</h4>
         <ul><li *ngFor="let membership of pending">
-          <span>{{membership.teamName}} · {{membership.status==='PENDING_COMMUNITY'?'Pediu adesão':'Convite enviado'}}</span>
+          <span>{{membership.teamName}} · {{membership.status==='PENDING_COMMUNITY'?('Pediu adesão' | t):('Convite enviado' | t)}}</span>
           <ng-container *ngIf="membership.status==='PENDING_COMMUNITY'">
-            <button type="button" [disabled]="busy" (click)="respond(membership.id,true)">Aceitar</button>
-            <button type="button" [disabled]="busy" (click)="respond(membership.id,false)">Recusar</button>
+            <button type="button" [disabled]="busy" (click)="respond(membership.id,true)">{{ 'Aceitar' | t }}</button>
+            <button type="button" [disabled]="busy" (click)="respond(membership.id,false)">{{ 'Recusar' | t }}</button>
           </ng-container>
         </li></ul>
       </ng-container>
-      <small>Associar uma equipa não adiciona automaticamente os jogadores como membros individuais.</small>
+      <small>{{ 'Associar uma equipa não adiciona automaticamente os jogadores como membros individuais.' | t }}</small>
     </section>
   `,
   styles:[`
@@ -85,7 +87,7 @@ export class CommunityTeamsPanelComponent implements OnChanges {
     const revision=++this.revision;this.loading=true;this.error='';
     this.service.communityTeams(this.communityId).subscribe({
       next:rows=>{if(revision===this.revision){this.rows=rows;this.loading=false;}},
-      error:()=>{if(revision===this.revision){this.error='Não foi possível carregar as equipas.';this.loading=false;}}
+      error:()=>{if(revision===this.revision){this.error=appTranslate('Não foi possível carregar as equipas.');this.loading=false;}}
     });
   }
   search():void{
@@ -93,23 +95,23 @@ export class CommunityTeamsPanelComponent implements OnChanges {
     const revision=this.revision;this.busy=true;this.error='';
     this.teams.discover(this.query).subscribe({
       next:rows=>{if(revision===this.revision){this.matches=rows;this.busy=false;}},
-      error:()=>{if(revision===this.revision){this.error='Pesquisa indisponível.';this.busy=false;}}
+      error:()=>{if(revision===this.revision){this.error=appTranslate('Pesquisa indisponível.');this.busy=false;}}
     });
   }
   request(teamId:number):void{
     if(this.canManage||this.busy||this.hasRelation(teamId)||!this.mine.some(t=>t.id===teamId))return;
     this.busy=true;this.error='';this.notice='';
     this.service.request(teamId,this.communityId).subscribe({
-      next:()=>{this.busy=false;this.notice='Pedido enviado aos responsáveis da comunidade.';this.reload();},
-      error:()=>{this.busy=false;this.error='Não foi possível pedir adesão. Confirma se a comunidade é pública.';}
+      next:()=>{this.busy=false;this.notice=appTranslate('Pedido enviado aos responsáveis da comunidade.');this.reload();},
+      error:()=>{this.busy=false;this.error=appTranslate('Não foi possível pedir adesão. Confirma se a comunidade é pública.');}
     });
   }
   invite(teamId:number):void{
     if(!this.canManage||this.busy||this.hasRelation(teamId))return;
     this.busy=true;this.error='';this.notice='';
     this.service.invite(this.communityId,teamId).subscribe({
-      next:()=>{this.busy=false;this.notice='Convite enviado ao responsável da equipa.';this.reload();},
-      error:()=>{this.busy=false;this.error='Não foi possível convidar. Verifica os pedidos existentes.';}
+      next:()=>{this.busy=false;this.notice=appTranslate('Convite enviado ao responsável da equipa.');this.reload();},
+      error:()=>{this.busy=false;this.error=appTranslate('Não foi possível convidar. Verifica os pedidos existentes.');}
     });
   }
   respond(id:number,accept:boolean):void{
@@ -117,15 +119,15 @@ export class CommunityTeamsPanelComponent implements OnChanges {
     this.busy=true;this.error='';
     this.service.respond(id,accept).subscribe({
       next:()=>{this.busy=false;this.notice=accept?'Pedido aceite.':'Pedido recusado.';this.reload();},
-      error:()=>{this.busy=false;this.error='Não foi possível confirmar a decisão.';}
+      error:()=>{this.busy=false;this.error=appTranslate('Não foi possível confirmar a decisão.');}
     });
   }
   remove(id:number):void{
     if(!this.canManage||this.busy)return;
     this.busy=true;this.error='';
     this.service.remove(id).subscribe({
-      next:()=>{this.busy=false;this.notice='Equipa removida da comunidade.';this.reload();},
-      error:()=>{this.busy=false;this.error='Não foi possível remover a equipa.';}
+      next:()=>{this.busy=false;this.notice=appTranslate('Equipa removida da comunidade.');this.reload();},
+      error:()=>{this.busy=false;this.error=appTranslate('Não foi possível remover a equipa.');}
     });
   }
 }

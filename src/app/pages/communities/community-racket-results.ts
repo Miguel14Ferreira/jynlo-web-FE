@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommunityRound, CommunityRoundEntryDraft, CommunitySetScore } from '../model/community-group';
 
 /** Set scoring is appropriate only to these racket disciplines, not all duels. */

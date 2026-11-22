@@ -108,7 +108,7 @@
                 <select [value]="session.skillLevel || ''" [disabled]="levelSaving"
                   (change)="changeLevel($any($event.target).value)">
                   @for (option of levelOptions; track option.value) {
-                    <option [value]="option.value">{{ option.label }}</option>
+                    <option [value]="option.value">{{ option.label | t }}</option>
                   }
                 </select>
               </label>

@@ -135,7 +135,7 @@
         <span>{{ 'sessionLevel.label' | t }}</span>
         <select name="skillLevel" [(ngModel)]="skillLevel" [attr.aria-label]="'sessionLevel.label' | t">
           @for (option of skillLevelOptions; track option.value) {
-            <option [value]="option.value">{{ option.label }}</option>
+            <option [value]="option.value">{{ option.label | t }}</option>
           }
         </select>
       </label>

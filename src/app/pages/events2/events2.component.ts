@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { sportMatchesQuery } from '../../shared/venue-catalogue-display';
 import { HttpErrorResponse } from '@angular/common/http';
 import { appTranslate as t } from '../../i18n/i18n.service';
@@ -1860,7 +1861,7 @@ export class Events2Component implements OnInit, OnDestroy {
       this.lookupGpsAddress(latitude, longitude, accuracyMeters, 'gps');
     } else {
       this.gpsAddressLoading = false;
-      this.gpsAddressNotice = 'Localização aproximada: a rua não foi preenchida automaticamente porque o ponto pode estar longe do recinto.';
+      this.gpsAddressNotice = appTranslate('Localização aproximada: a rua não foi preenchida automaticamente porque o ponto pode estar longe do recinto.');
     }
   }
 
@@ -1993,24 +1994,24 @@ export class Events2Component implements OnInit, OnDestroy {
     }
     if (!this.sportSelected) {
       return this.customSportMode
-        ? 'Escreve um nome de modalidade válido (2–60 caracteres), ou escolhe uma sugestão do catálogo.'
-        : 'Seleciona um desporto da lista.';
+        ? appTranslate('Escreve um nome de modalidade válido (2–60 caracteres), ou escolhe uma sugestão do catálogo.')
+        : appTranslate('Seleciona um desporto da lista.');
     }
     if (this.customSportMode && (this.communityId !== null || this.shareCommunityIds.length
         || this.seasonGame || this.selectedVenueId !== null)) {
-      return 'As modalidades sugeridas só estão disponíveis em sessões independentes, sem recinto oficial ou classificações.';
+      return appTranslate('As modalidades sugeridas só estão disponíveis em sessões independentes, sem recinto oficial ou classificações.');
     }
     if (this.gpsAddressLoading) {
       return t('createSession.gpsAddressLoading');
     }
     if (this.locationMethod === 'maps' && !(this.hasCoordinates && this.locationSource === 'map')) {
-      return 'Resolve primeiro a ligação do Google Maps para confirmar o ponto do recinto.';
+      return appTranslate('Resolve primeiro a ligação do Google Maps para confirmar o ponto do recinto.');
     }
     if (this.locationMethod === 'gps' && !(this.hasCoordinates && this.locationSource === 'gps')) {
-      return 'Autoriza e confirma primeiro a tua localização atual.';
+      return appTranslate('Autoriza e confirma primeiro a tua localização atual.');
     }
     if (this.locationSource === 'gps' && this.gpsAccuracyIsLow) {
-      return 'O browser não conseguiu localizar o campo com precisão. Escolhe Ligação Google Maps e indica o recinto correto; não é seguro guardar este ponto aproximado.';
+      return appTranslate('O browser não conseguiu localizar o campo com precisão. Escolhe Ligação Google Maps e indica o recinto correto; não é seguro guardar este ponto aproximado.');
     }
 
     if (this.selectedVenueId !== null) {
@@ -2032,7 +2033,7 @@ export class Events2Component implements OnInit, OnDestroy {
 
     if (!this.gameDate || !this.city.trim()
         || (!this.address.trim() && !this.hasCoordinates)) {
-      return 'Preenche a data e a localidade. Sem localização no mapa, indica também a morada.';
+      return appTranslate('Preenche a data e a localidade. Sem localização no mapa, indica também a morada.');
     }
 
     const city = this.city.trim();

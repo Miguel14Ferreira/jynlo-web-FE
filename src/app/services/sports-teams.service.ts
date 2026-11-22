@@ -1,3 +1,4 @@
+import { appTranslate } from '../i18n/i18n.service';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -209,14 +210,14 @@ export class SportsTeamsService {
   }
   feedEntries(id:number,ids:number[]):Observable<TeamContentEntry[]> {
     if(!ids.length||ids.length>100||ids.some(value=>!Number.isSafeInteger(value)||value<=0))
-      throw Error('Lista de publicações inválida.');
+      throw Error(appTranslate('Lista de publicações inválida.'));
     return this.http.get<TeamContentEntry[]>(this.url+'/'+id+'/feed/entries',{
       params:new HttpParams().set('ids',ids.join(','))
     });
   }
   olderFeed(id:number,before:number,limit=30):Observable<TeamContentEntry[]> {
     if(!Number.isSafeInteger(before)||before<=0||!Number.isInteger(limit)||limit<1||limit>50)
-      throw Error('Página de publicações inválida.');
+      throw Error(appTranslate('Página de publicações inválida.'));
     return this.http.get<TeamContentEntry[]>(this.url+'/'+id+'/feed/older',{
       params:new HttpParams().set('before',String(before)).set('limit',String(limit))
     });

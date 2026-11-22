@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { sportMatchesQuery } from '../../shared/venue-catalogue-display';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -116,7 +117,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         if (loadVersion !== this.permanentTeamRegistryLoadVersion) return;
-        this.championshipError = 'Não foi possível carregar as equipas permanentes.';
+        this.championshipError = appTranslate('Não foi possível carregar as equipas permanentes.');
         this.changeDetector.markForCheck();
       }
     });
@@ -140,7 +141,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipBusy = false;
-        this.championshipError = 'Não foi possível criar a equipa permanente.';
+        this.championshipError = appTranslate('Não foi possível criar a equipa permanente.');
         this.changeDetector.markForCheck();
       }
     });
@@ -167,7 +168,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipBusy = false;
-        this.championshipError = 'Não foi possível associar a equipa permanente.';
+        this.championshipError = appTranslate('Não foi possível associar a equipa permanente.');
         this.changeDetector.markForCheck();
       }
     });
@@ -257,7 +258,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       },
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
-        this.championshipHonoursError = 'Não foi possível carregar o palmarés.';
+        this.championshipHonoursError = appTranslate('Não foi possível carregar o palmarés.');
         this.changeDetector.markForCheck();
       }
     });
@@ -311,12 +312,12 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipBusy = false;
         this.championshipError = err?.status === 409
-          ? 'Não é possível eliminar este campeonato: já existem resultados, acontecimentos ou torneios independentes associados. Os dados históricos estão protegidos.'
+          ? appTranslate('Não é possível eliminar este campeonato: já existem resultados, acontecimentos ou torneios independentes associados. Os dados históricos estão protegidos.')
           : err?.status === 403
-            ? 'Não tens permissões para eliminar este campeonato. Contacta um organizador da comunidade.'
+            ? appTranslate('Não tens permissões para eliminar este campeonato. Contacta um organizador da comunidade.')
             : err?.status === 404
-              ? 'Este campeonato já não existe. Atualiza a lista de campeonatos antes de tentares novamente.'
-              : 'Não foi possível eliminar o campeonato. Tenta novamente.';
+              ? appTranslate('Este campeonato já não existe. Atualiza a lista de campeonatos antes de tentares novamente.')
+              : appTranslate('Não foi possível eliminar o campeonato. Tenta novamente.');
         this.changeDetector.markForCheck();
       }
     });
@@ -346,7 +347,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipBusy = false;
         this.championshipError =
-          'Não foi possível encerrar: verifica as provas, equipas associadas e empates no topo.';
+          appTranslate('Não foi possível encerrar: verifica as provas, equipas associadas e empates no topo.');
         this.changeDetector.markForCheck();
       }
     });
@@ -482,7 +483,7 @@ export class CommunityTournamentsComponent implements OnChanges {
             || loadVersion !== this.championshipTeamAdminLoadVersion[teamId]) return;
         this.championshipTeamAdminLoading[teamId] = false;
         this.championshipTeamAdminLoadError[teamId] = true;
-        this.championshipError = 'Não foi possível verificar o responsável da equipa.';
+        this.championshipError = appTranslate('Não foi possível verificar o responsável da equipa.');
         this.changeDetector.markForCheck();
       }
     });
@@ -539,7 +540,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamPlayerBusy[teamId] = false;
-        this.championshipError = 'Não foi possível responder ao convite. Confirma a elegibilidade nesta época.';
+        this.championshipError = appTranslate('Não foi possível responder ao convite. Confirma a elegibilidade nesta época.');
         // The server may have consumed or revoked the invitation even if the
         // response failed. Revalidate before allowing another decision.
         this.loadChampionshipTeamInvitation(championshipId, teamId);
@@ -567,7 +568,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamAdminBusy[teamId] = false;
-        this.championshipError = 'Não foi possível cancelar a transferência.';
+        this.championshipError = appTranslate('Não foi possível cancelar a transferência.');
         // A timed-out mutation may have succeeded on the server. Recheck the
         // authoritative administrator state before another transfer action.
         this.loadChampionshipTeamAdministrator(championshipId, teamId);
@@ -599,7 +600,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamAdminBusy[teamId] = false;
-        this.championshipError = 'Só podes transferir a administração para outro jogador já inscrito nesta equipa.';
+        this.championshipError = appTranslate('Só podes transferir a administração para outro jogador já inscrito nesta equipa.');
         // A timed-out mutation may have succeeded on the server. Recheck the
         // authoritative administrator state before another transfer action.
         this.loadChampionshipTeamAdministrator(championshipId, teamId);
@@ -627,7 +628,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamAdminBusy[teamId] = false;
-        this.championshipError = 'Não foi possível responder ao convite. Confirma que continuas na comunidade e na mesma época.';
+        this.championshipError = appTranslate('Não foi possível responder ao convite. Confirma que continuas na comunidade e na mesma época.');
         // A timed-out mutation may have succeeded on the server. Recheck the
         // authoritative administrator state before another transfer action.
         this.loadChampionshipTeamAdministrator(championshipId, teamId);
@@ -705,7 +706,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id
             || loadVersion !== this.championshipTeamPlayersLoadVersion[teamId]) return;
-        this.championshipError = 'Não foi possível carregar o plantel da equipa.';
+        this.championshipError = appTranslate('Não foi possível carregar o plantel da equipa.');
         this.changeDetector.markForCheck();
       }
     });
@@ -761,7 +762,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamPlayerBusy[teamId] = false;
-        this.championshipError = 'Não foi possível adicionar o perfil. Confirma que pertence à comunidade e não está noutra equipa da época.';
+        this.championshipError = appTranslate('Não foi possível adicionar o perfil. Confirma que pertence à comunidade e não está noutra equipa da época.');
         this.changeDetector.markForCheck();
       }
     });
@@ -786,8 +787,8 @@ export class CommunityTournamentsComponent implements OnChanges {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipTeamPlayerBusy[teamId] = false;
         this.championshipError = error.status === 409
-          ? 'O jogador tem golos, assistências, cartões, substituições ou uma escalação registada. Corrige primeiro o histórico do campeonato.'
-          : 'Não foi possível remover o jogador da equipa.';
+          ? appTranslate('O jogador tem golos, assistências, cartões, substituições ou uma escalação registada. Corrige primeiro o histórico do campeonato.')
+          : appTranslate('Não foi possível remover o jogador da equipa.');
         this.changeDetector.markForCheck();
       }
     });
@@ -834,7 +835,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id
             || loadVersion !== this.championshipTeamRegistryLoadVersion[championshipId]) return;
-        this.championshipError = 'Não foi possível carregar as equipas do campeonato.';
+        this.championshipError = appTranslate('Não foi possível carregar as equipas do campeonato.');
         this.changeDetector.markForCheck();
       }
     });
@@ -863,7 +864,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       },
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
-        this.championshipError = 'Não foi possível criar a equipa. Verifica se o nome já existe.';
+        this.championshipError = appTranslate('Não foi possível criar a equipa. Verifica se o nome já existe.');
         this.championshipBusy = false;
         this.changeDetector.markForCheck();
       }
@@ -887,7 +888,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       },
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
-        this.championshipError = 'Não foi possível associar a equipa à prova.';
+        this.championshipError = appTranslate('Não foi possível associar a equipa à prova.');
         this.championshipBusy = false;
         this.changeDetector.markForCheck();
       }
@@ -912,7 +913,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id
             || loadVersion !== this.championshipStandingsLoadVersion[championshipId]) return;
-        this.championshipError = 'A classificação completa ainda não está disponível.';
+        this.championshipError = appTranslate('A classificação completa ainda não está disponível.');
         this.changeDetector.markForCheck();
       }
     });
@@ -958,7 +959,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipBusy = false;
-        this.championshipError = 'Não foi possível alterar o modo. Só é permitido antes do início das provas.';
+        this.championshipError = appTranslate('Não foi possível alterar o modo. Só é permitido antes do início das provas.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1040,7 +1041,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipLeagueFinalizeBusy[event.id] = false;
-        this.championshipError = 'Não foi possível concluir a liga. Verifica os resultados, o desempate e as equipas.';
+        this.championshipError = appTranslate('Não foi possível concluir a liga. Verifica os resultados, o desempate e as equipas.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1065,7 +1066,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id
             || loadVersion !== this.championshipLeaguePlayerStatsLoadVersion[eventId]) return;
-        this.championshipError = 'Não foi possível carregar as estatísticas dos jogadores.';
+        this.championshipError = appTranslate('Não foi possível carregar as estatísticas dos jogadores.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1088,7 +1089,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id
             || loadVersion !== this.championshipLeagueTableLoadVersion[eventId]) return;
-        this.championshipError = 'Não foi possível carregar a classificação da liga.';
+        this.championshipError = appTranslate('Não foi possível carregar a classificação da liga.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1129,7 +1130,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id
             || loadVersion !== this.championshipFixtureLineupsLoadVersion[fixtureId]) return;
-        this.championshipError = 'Não foi possível carregar a escalação do jogo.';
+        this.championshipError = appTranslate('Não foi possível carregar a escalação do jogo.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1161,7 +1162,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipLineupBusy[fixture.id] = false;
-        this.championshipError = 'Não foi possível guardar a escalação.';
+        this.championshipError = appTranslate('Não foi possível guardar a escalação.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1186,7 +1187,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipLineupBusy[fixtureId] = false;
-        this.championshipError = 'Não foi possível retirar o jogador da escalação.';
+        this.championshipError = appTranslate('Não foi possível retirar o jogador da escalação.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1214,7 +1215,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id
             || loadVersion !== this.championshipFixtureSubstitutionsLoadVersion[fixtureId]) return;
-        this.championshipError = 'Não foi possível carregar as substituições.';
+        this.championshipError = appTranslate('Não foi possível carregar as substituições.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1253,7 +1254,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipSubBusy[fixture.id] = false;
-        this.championshipError = 'Não foi possível registar a substituição. Confirma os jogadores e a equipa.';
+        this.championshipError = appTranslate('Não foi possível registar a substituição. Confirma os jogadores e a equipa.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1278,7 +1279,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipSubBusy[fixtureId] = false;
-        this.championshipError = 'Não foi possível remover a substituição.';
+        this.championshipError = appTranslate('Não foi possível remover a substituição.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1306,7 +1307,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id
             || loadVersion !== this.championshipFixtureCardsLoadVersion[fixtureId]) return;
-        this.championshipError = 'Não foi possível carregar os cartões do jogo.';
+        this.championshipError = appTranslate('Não foi possível carregar os cartões do jogo.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1343,7 +1344,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipCardBusy[fixture.id] = false;
-        this.championshipError = 'Não foi possível registar o cartão. Verifica a equipa, o jogador e os cartões anteriores.';
+        this.championshipError = appTranslate('Não foi possível registar o cartão. Verifica a equipa, o jogador e os cartões anteriores.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1368,7 +1369,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipCardBusy[fixtureId] = false;
-        this.championshipError = 'Não foi possível remover o cartão.';
+        this.championshipError = appTranslate('Não foi possível remover o cartão.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1404,7 +1405,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id
             || loadVersion !== this.championshipFixtureGoalsLoadVersion[fixtureId]) return;
-        this.championshipError = 'Não foi possível carregar os marcadores deste jogo.';
+        this.championshipError = appTranslate('Não foi possível carregar os marcadores deste jogo.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1447,7 +1448,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipFixtureGoalBusy[fixture.id] = false;
-        this.championshipError = 'Não foi possível registar o marcador. Confirma a equipa, o resultado e o plantel.';
+        this.championshipError = appTranslate('Não foi possível registar o marcador. Confirma a equipa, o resultado e o plantel.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1473,7 +1474,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipFixtureGoalBusy[fixtureId] = false;
-        this.championshipError = 'Não foi possível remover o marcador.';
+        this.championshipError = appTranslate('Não foi possível remover o marcador.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1700,7 +1701,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipFixtureSaving[fixture.id] = false;
-        this.championshipError = 'Não foi possível registar o resultado deste jogo.';
+        this.championshipError = appTranslate('Não foi possível registar o resultado deste jogo.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1893,7 +1894,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipCupScoreBusy[match.id] = false;
-        this.championshipError = 'Não foi possível guardar o resultado. A eliminatória precisa de vencedor.';
+        this.championshipError = appTranslate('Não foi possível guardar o resultado. A eliminatória precisa de vencedor.');
         this.changeDetector.markForCheck();
       }
     });
@@ -1922,7 +1923,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipCupBusy = false;
-        this.championshipError = 'Não foi possível avançar. Confirma que todas as eliminatórias têm vencedor.';
+        this.championshipError = appTranslate('Não foi possível avançar. Confirma que todas as eliminatórias têm vencedor.');
         this.changeDetector.markForCheck();
       }
     });
@@ -2400,7 +2401,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       },
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
-        this.championshipError = 'Não foi possível carregar os campeonatos.';
+        this.championshipError = appTranslate('Não foi possível carregar os campeonatos.');
         this.changeDetector.markForCheck();
       }
     });
@@ -2437,7 +2438,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipBusy = false;
-        this.championshipError = 'Não foi possível criar o campeonato.';
+        this.championshipError = appTranslate('Não foi possível criar o campeonato.');
         this.changeDetector.markForCheck();
       }
     });
@@ -2464,7 +2465,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipBusy = false;
-        this.championshipError = 'Não foi possível associar esta prova. Confirma a modalidade e se já pertence a outro campeonato.';
+        this.championshipError = appTranslate('Não foi possível associar esta prova. Confirma a modalidade e se já pertence a outro campeonato.');
         this.changeDetector.markForCheck();
       }
     });
@@ -2479,7 +2480,7 @@ export class CommunityTournamentsComponent implements OnChanges {
         || chunks.some(value => !/^[0-9]{1,5}$/.test(value))
         || points.some((point, index) => point > 10000
           || (index > 0 && point > points[index - 1]))) {
-      this.championshipError = 'Indica entre 2 e 20 pontuações inteiras, por ordem decrescente (ex.: 25,18,15,10).';
+      this.championshipError = appTranslate('Indica entre 2 e 20 pontuações inteiras, por ordem decrescente (ex.: 25,18,15,10).');
       return;
     }
     const communityId = this.community.id;
@@ -2498,7 +2499,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipBusy = false;
-        this.championshipError = 'Não foi possível guardar a pontuação por posição.';
+        this.championshipError = appTranslate('Não foi possível guardar a pontuação por posição.');
         this.changeDetector.markForCheck();
       }
     });
@@ -2509,7 +2510,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     const points = Number(rawPoints);
     if (!this.canManage || this.championshipBusy
         || !Number.isInteger(points) || points < 0 || points > 10000) {
-      this.championshipError = 'Define um número inteiro de pontos entre 0 e 10000.';
+      this.championshipError = appTranslate('Define um número inteiro de pontos entre 0 e 10000.');
       return;
     }
     this.championshipBusy = true;
@@ -2526,7 +2527,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (revision !== this.championshipRevision || communityId !== this.community.id) return;
         this.championshipBusy = false;
-        this.championshipError = 'Não foi possível guardar os pontos da prova.';
+        this.championshipError = appTranslate('Não foi possível guardar os pontos da prova.');
         this.changeDetector.markForCheck();
       }
     });
@@ -2764,7 +2765,7 @@ export class CommunityTournamentsComponent implements OnChanges {
   async promoteTournamentTeam(team: TournamentTeam): Promise<void> {
     const current = this.tournamentTeamPromotion[team.id];
     if (!this.selected || !current?.canPromote || this.tournamentTeamPromotionBusy[team.id]) return;
-    if (!window.confirm('Guardar esta equipa permanentemente na Jynlo? O torneio e os resultados mantêm-se.')) return;
+    if (!window.confirm(appTranslate('Guardar esta equipa permanentemente na Jynlo? O torneio e os resultados mantêm-se.'))) return;
     const communityId = this.community.id, tournamentId = this.selected.id;
     const revision = this.detailRevision;
     this.tournamentTeamPromotionBusy[team.id] = true;
@@ -2778,7 +2779,7 @@ export class CommunityTournamentsComponent implements OnChanges {
     } catch {
       if (revision === this.detailRevision && communityId === this.community.id
           && this.selected?.id === tournamentId)
-        this.tournamentTeamPromotionError[team.id] = 'Não foi possível guardar a equipa. Verifica antes de repetir.';
+        this.tournamentTeamPromotionError[team.id] = appTranslate('Não foi possível guardar a equipa. Verifica antes de repetir.');
     } finally {
       this.tournamentTeamPromotionBusy[team.id] = false;
       this.changeDetector.markForCheck();
@@ -2922,7 +2923,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       error: () => {
         if (this.detailRevision !== revision || this.community.id !== communityId
             || this.selected?.id !== tournamentId) return;
-        this.showError('Não foi possível verificar a administração da equipa.');
+        this.showError(appTranslate('Não foi possível verificar a administração da equipa.'));
       }
     });
   }

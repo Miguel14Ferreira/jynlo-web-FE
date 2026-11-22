@@ -1,3 +1,5 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -8,21 +10,21 @@ import { CommunityDisciplineService, CommunityDisciplinaryWarning, CommunityWarn
 @Component({
   selector: 'app-community-discipline-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [TranslatePipe, CommonModule, FormsModule],
   template: `
     <section class="discipline-panel" aria-labelledby="discipline-title">
-      <h3 id="discipline-title">Disciplina e Fair Play</h3>
+      <h3 id="discipline-title">{{ 'Disciplina e Fair Play' | t }}</h3>
       <p class="discipline-description">
-        Advertências da comunidade. Não suspendem a conta nem impedem a participação em jogos.
+        {{ 'Advertências da comunidade. Não suspendem a conta nem impedem a participação em jogos.' | t }}
       </p>
       @if (canManage) {
         <form (ngSubmit)="issueWarning()" class="discipline-form">
-          <label for="discipline-member">Membro</label>
+          <label for="discipline-member">{{ 'Membro' | t }}</label>
           <div class="discipline-member-picker">
             <input id="discipline-member" name="discipline-member" type="search" autocomplete="off"
                    [ngModel]="memberQuery" (ngModelChange)="onMemberQueryChange($event)"
                    (focus)="memberSearchOpen = true" [disabled]="saving"
-                   placeholder="Escreve o nome ou @username" aria-autocomplete="list"
+                   [placeholder]="'Escreve o nome ou @username' | t" aria-autocomplete="list"
                    [attr.aria-expanded]="memberSearchOpen && suggestedMembers.length > 0" required>
             @if (memberSearchOpen && suggestedMembers.length > 0) {
               <div class="discipline-member-suggestions" role="listbox">
@@ -36,23 +38,23 @@ import { CommunityDisciplineService, CommunityDisciplinaryWarning, CommunityWarn
               </div>
             }
           </div>
-          <label for="discipline-reason">Motivo da advertência</label>
+          <label for="discipline-reason">{{ 'Motivo da advertência' | t }}</label>
           <textarea id="discipline-reason" name="disciplineReason"
                     [(ngModel)]="reason" maxlength="1000" rows="3"
                     [disabled]="saving" required
-                    placeholder="Descreve objetivamente a ocorrência"></textarea>
+                    [placeholder]="'Descreve objetivamente a ocorrência' | t"></textarea>
           <button type="submit" class="jynlo-action jynlo-action--primary" [disabled]="saving || targetProfileId === null || !reason.trim()">
-            {{ saving ? 'A registar…' : 'Registar advertência' }}
+            {{ saving ? ('A registar…' | t) : ('Registar advertência' | t) }}
           </button>
         </form>
       }
       @if (error) { <p role="alert">{{ error }}</p> }
       @if (feedback) { <p role="status">{{ feedback }}</p> }
-      <h4>{{ canManage ? 'Histórico recente da comunidade' : 'As minhas advertências' }}</h4>
+      <h4>{{ canManage ? ('Histórico recente da comunidade' | t) : ('As minhas advertências' | t) }}</h4>
       @if (loading) {
-        <p role="status">A carregar advertências…</p>
+        <p role="status">{{ 'A carregar advertências…' | t }}</p>
       } @else if (warnings.length === 0) {
-        <p>Não existem advertências registadas.</p>
+        <p>{{ 'Não existem advertências registadas.' | t }}</p>
       } @else {
         <ul class="discipline-history">
           @for (warning of warnings; track warning.id) {
@@ -61,47 +63,47 @@ import { CommunityDisciplineService, CommunityDisciplinaryWarning, CommunityWarn
                 <strong>{{ memberName(warning.targetProfileId) }}</strong>
                 <span> · </span>
               }
-              <span>{{ warning.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              <span>{{ warning.createdAt | date:('dd/MM/yyyy HH:mm' | t) }}</span>
               <p>{{ warning.reason }}</p>
               @if (appealFor(warning.id); as appeal) {
-                <p class="appeal-response"><strong>Contestação apresentada:</strong> {{ appeal.statement }}</p>
+                <p class="appeal-response"><strong>{{ 'Contestação apresentada:' | t }}</strong> {{ appeal.statement }}</p>
                 @if (decisionFor(appeal.id); as decision) {
                   <p class="appeal-response">
-                    <strong>{{ decision.outcome === 'OVERTURNED' ? 'Advertência anulada após revisão' : 'Advertência mantida após revisão' }}</strong>
+                    <strong>{{ decision.outcome === 'OVERTURNED' ? ('Advertência anulada após revisão' | t) : ('Advertência mantida após revisão' | t) }}</strong>
                     · {{ decision.reason }}
                   </p>
                 } @else if (canManage) {
                   <form class="discipline-form" (ngSubmit)="decideAppeal(appeal.id)">
-                    <label [for]="'appeal-outcome-' + appeal.id">Decisão da contestação</label>
+                    <label [for]="'appeal-outcome-' + appeal.id">{{ 'Decisão da contestação' | t }}</label>
                     <select [id]="'appeal-outcome-' + appeal.id" [name]="'appeal-outcome-' + appeal.id"
                             [(ngModel)]="decisionOutcomes[appeal.id]"
                             [disabled]="decisionSavingId !== null" required>
-                      <option value="UPHELD">Manter advertência</option>
-                      <option value="OVERTURNED">Anular advertência</option>
+                      <option value="UPHELD">{{ 'Manter advertência' | t }}</option>
+                      <option value="OVERTURNED">{{ 'Anular advertência' | t }}</option>
                     </select>
-                    <label [for]="'appeal-review-reason-' + appeal.id">Fundamentação da decisão</label>
+                    <label [for]="'appeal-review-reason-' + appeal.id">{{ 'Fundamentação da decisão' | t }}</label>
                     <textarea [id]="'appeal-review-reason-' + appeal.id"
                               [name]="'appeal-review-reason-' + appeal.id"
                               [(ngModel)]="decisionReasons[appeal.id]" rows="3"
                               maxlength="1000" [disabled]="decisionSavingId !== null"
-                              placeholder="A decisão deve ser tomada por um responsável diferente do emissor."
+                              [placeholder]="'A decisão deve ser tomada por um responsável diferente do emissor.' | t"
                               required></textarea>
                     <button type="submit" [disabled]="decisionSavingId !== null || !decisionReasons[appeal.id]?.trim()">
-                      {{ decisionSavingId === appeal.id ? 'A guardar…' : 'Registar decisão' }}
+                      {{ decisionSavingId === appeal.id ? ('A guardar…' | t) : ('Registar decisão' | t) }}
                     </button>
                   </form>
                 }
               } @else if (!canManage) {
                 <form class="discipline-form" (ngSubmit)="submitAppeal(warning.id)">
-                  <label [for]="'appeal-statement-' + warning.id">A tua versão dos factos</label>
+                  <label [for]="'appeal-statement-' + warning.id">{{ 'A tua versão dos factos' | t }}</label>
                   <textarea [id]="'appeal-statement-' + warning.id"
                             [name]="'appeal-statement-' + warning.id"
                             [(ngModel)]="appealDrafts[warning.id]" rows="3" maxlength="2000"
                             [disabled]="appealSavingId !== null" required
-                            placeholder="Explica o que aconteceu. A resposta ficará registada."></textarea>
+                            [placeholder]="'Explica o que aconteceu. A resposta ficará registada.' | t"></textarea>
                   <button type="submit"
                           [disabled]="appealSavingId !== null || !appealDrafts[warning.id]?.trim()">
-                    {{ appealSavingId === warning.id ? 'A enviar…' : 'Apresentar contestação' }}
+                    {{ appealSavingId === warning.id ? ('A enviar…' | t) : ('Apresentar contestação' | t) }}
                   </button>
                 </form>
               }
@@ -230,7 +232,7 @@ export class CommunityDisciplinePanelComponent implements OnChanges {
       },
       error: () => {
         if (revision !== this.revision) return;
-        this.error = 'Não foi possível carregar as decisões das contestações.';
+        this.error = appTranslate('Não foi possível carregar as decisões das contestações.');
         this.changeDetector.markForCheck();
       }
     });
@@ -243,7 +245,7 @@ export class CommunityDisciplinePanelComponent implements OnChanges {
       },
       error: () => {
         if (revision !== this.revision) return;
-        this.error = 'Não foi possível carregar as contestações.';
+        this.error = appTranslate('Não foi possível carregar as contestações.');
         this.changeDetector.markForCheck();
       }
     });
@@ -257,7 +259,7 @@ export class CommunityDisciplinePanelComponent implements OnChanges {
       },
       error: () => {
         if (revision !== this.revision) return;
-        this.error = 'Não foi possível carregar o histórico disciplinar.';
+        this.error = appTranslate('Não foi possível carregar o histórico disciplinar.');
         this.loading = false;
         this.changeDetector.markForCheck();
       }
@@ -282,14 +284,14 @@ export class CommunityDisciplinePanelComponent implements OnChanges {
         this.memberQuery = '';
         this.memberSearchOpen = false;
         this.reason = '';
-        this.feedback = 'Advertência registada na comunidade.';
+        this.feedback = appTranslate('Advertência registada na comunidade.');
         this.load();
         this.changeDetector.markForCheck();
       },
       error: () => {
         if (revision !== this.revision) return;
         this.saving = false;
-        this.error = 'Não foi possível registar a advertência. Verifica as permissões e tenta novamente.';
+        this.error = appTranslate('Não foi possível registar a advertência. Verifica as permissões e tenta novamente.');
         this.changeDetector.markForCheck();
       }
     });
@@ -309,13 +311,13 @@ export class CommunityDisciplinePanelComponent implements OnChanges {
         this.appealSavingId = null;
         this.appeals = [...this.appeals, appeal];
         delete this.appealDrafts[warningId];
-        this.feedback = 'A tua contestação ficou registada.';
+        this.feedback = appTranslate('A tua contestação ficou registada.');
         this.changeDetector.markForCheck();
       },
       error: () => {
         if (revision !== this.revision) return;
         this.appealSavingId = null;
-        this.error = 'Não foi possível enviar a contestação. Tenta novamente.';
+        this.error = appTranslate('Não foi possível enviar a contestação. Tenta novamente.');
         this.changeDetector.markForCheck();
       }
     });
@@ -338,13 +340,13 @@ export class CommunityDisciplinePanelComponent implements OnChanges {
         this.decisions = [...this.decisions, decision];
         this.decisionSavingId = null;
         delete this.decisionReasons[appealId];
-        this.feedback = 'Decisão registada e fundamentada.';
+        this.feedback = appTranslate('Decisão registada e fundamentada.');
         this.changeDetector.markForCheck();
       },
       error: () => {
         if (revision !== this.revision) return;
         this.decisionSavingId = null;
-        this.error = 'Não foi possível decidir. O responsável que emitiu a advertência não pode rever o próprio caso.';
+        this.error = appTranslate('Não foi possível decidir. O responsável que emitiu a advertência não pode rever o próprio caso.');
         this.changeDetector.markForCheck();
       }
     });

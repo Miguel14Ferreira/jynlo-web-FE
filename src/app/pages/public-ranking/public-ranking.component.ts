@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -45,7 +46,7 @@ export class PublicRankingComponent implements OnInit, OnDestroy {
     this.sub = this.api.page(this.communityId, seasonId).pipe(timeout(15000)).subscribe({
       next: page => {
         this.page = page; this.loading = false;
-        this.title.setTitle(this.t(page.communityName) + ' · Classificação · Jynlo');
+        this.title.setTitle(appTranslate('{{name}} · Classificação · Jynlo', {name: this.t(page.communityName)}));
         this.cdr.markForCheck();
       },
       error: failure => {

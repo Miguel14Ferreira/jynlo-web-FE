@@ -1,3 +1,5 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthenticationService } from '../../services/authethication.service';
@@ -16,12 +18,12 @@ type KitDesign = Omit<TeamKitVariant,'type'>;
 @Component({
   standalone: true,
   selector: 'app-sports-team-detail',
-  imports: [CommonModule, RouterLink, FormsModule, SportsTeamContentComponent, SportsTeamChallengesComponent, TeamCrestEditorComponent],
+  imports: [TranslatePipe, CommonModule, RouterLink, FormsModule, SportsTeamContentComponent, SportsTeamChallengesComponent, TeamCrestEditorComponent],
   template: `
   <main class="team-detail" *ngIf="team as t; else state">
-    <a class="team-back" routerLink="/menu/teams">← Voltar às equipas</a>
+    <a class="team-back" routerLink="/menu/teams">{{ '← Voltar às equipas' | t }}</a>
     <div class="team-hero">
-      <p class="team-eyebrow">JYNLO · EQUIPA DESPORTIVA</p>
+      <p class="team-eyebrow">{{ 'JYNLO · EQUIPA DESPORTIVA' | t }}</p>
       <div class="team-hero-main">
         <span class="team-hero-crest" aria-hidden="true" [style.--kit-primary]="t.kitPrimary || '#16caba'">
           <img *ngIf="logoSrc(t.logoUrl) && !logoBroken" [src]="logoSrc(t.logoUrl)!" (error)="logoBroken=true" alt="" class="team-crest-photo">
@@ -29,93 +31,93 @@ type KitDesign = Omit<TeamKitVariant,'type'>;
         </span>
         <div>
           <h1>{{ t.name }}</h1>
-          <p class="team-hero-meta">{{ t.sport || 'Várias modalidades' }} · {{ t.location || 'Localização por definir' }}</p>
+          <p class="team-hero-meta">{{ t.sport || ('Várias modalidades' | t) }} · {{ t.location || ('Localização por definir' | t) }}</p>
           <p *ngIf="t.description">{{ t.description }}</p>
         </div>
       </div>
-      <div class="team-kit-strip" aria-label="Modelo oficial do equipamento">
+      <div class="team-kit-strip" [attr.aria-label]="'Modelo oficial do equipamento' | t">
         <span class="team-shirt" [class]="'team-shirt kit-' + (t.kitPattern || 'PLAIN').toLowerCase()"
           [style.--shirt-primary]="t.kitPrimary || '#16caba'"
           [style.--shirt-secondary]="t.kitSecondary || '#f2fafc'" aria-hidden="true"></span>
-        <span>Equipamento · {{ kitLabel(t.kitPattern || 'PLAIN') }}</span>
+        <span>{{ 'Equipamento · {{kitPattern}}' | t:{kitPattern: (kitLabel(t.kitPattern || 'PLAIN'))} }}</span>
       </div>
-      <div class="team-social-follow" aria-label="Seguidores da equipa">
+      <div class="team-social-follow" [attr.aria-label]="'Seguidores da equipa' | t">
         @if (followerState; as state) {
           <span><strong>{{state.count}}</strong> {{state.count===1 ? 'seguidor' : 'seguidores'}}</span>
           <button type="button" [disabled]="followBusy" [attr.aria-pressed]="state.following"
-            (click)="toggleTeamFollow()">{{followBusy?'A atualizar…':state.following?'A seguir ✓':'Seguir equipa +'}}</button>
+            (click)="toggleTeamFollow()">{{followBusy?('A atualizar…' | t):state.following?('A seguir ✓' | t):('Seguir equipa +' | t)}}</button>
         } @else if (followError) {
           <span role="status">{{followError}}</span>
-          <button type="button" (click)="loadTeamFollowers()">Tentar novamente</button>
+          <button type="button" (click)="loadTeamFollowers()">{{ 'Tentar novamente' | t }}</button>
         }
       </div>
       <div class="team-hero-stats">
-        <span><strong>{{rosterVerified ? members.length : '—'}}</strong> Jogadores</span>
-        <span><strong>{{communitiesVerified ? activeCommunities.length : '—'}}</strong> Comunidades</span>
-        <span><strong>{{trophiesVerified ? trophies.length + championshipHonours.length : '—'}}</strong> Troféus</span>
-        <a routerLink="/menu/teams/competitions" [queryParams]="{teamId:t.id}">Explorar competições →</a>
+        <span><strong>{{rosterVerified ? members.length : '—'}}</strong> {{ 'Jogadores' | t }}</span>
+        <span><strong>{{communitiesVerified ? activeCommunities.length : '—'}}</strong> {{ 'Comunidades' | t }}</span>
+        <span><strong>{{trophiesVerified ? trophies.length + championshipHonours.length : '—'}}</strong> {{ 'Troféus' | t }}</span>
+        <a routerLink="/menu/teams/competitions" [queryParams]="{teamId:t.id}">{{ 'Explorar competições →' | t }}</a>
         <button *ngIf="isOwner && rosterVerified" type="button" class="team-branding-shortcut"
-          (click)="selectTab('SETTINGS')" aria-label="Personalizar emblema e equipamento da equipa">
-          Personalizar equipa
+          (click)="selectTab('SETTINGS')" [attr.aria-label]="'Personalizar emblema e equipamento da equipa' | t">
+          {{ 'Personalizar equipa' | t }}
         </button>
       </div>
     </div>
-    <nav #teamTabs class="team-tabs" aria-label="Secções da equipa">
+    <nav #teamTabs class="team-tabs" [attr.aria-label]="'Secções da equipa' | t">
       <button type="button" data-team-tab="OVERVIEW" [attr.aria-current]="activeTab === 'OVERVIEW' ? 'page' : null"
-        [class.selected]="activeTab === 'OVERVIEW'" (click)="selectTab('OVERVIEW')">Visão geral</button>
+        [class.selected]="activeTab === 'OVERVIEW'" (click)="selectTab('OVERVIEW')">{{ 'Visão geral' | t }}</button>
       <button type="button" data-team-tab="SQUAD" [attr.aria-current]="activeTab === 'SQUAD' ? 'page' : null"
-        [class.selected]="activeTab === 'SQUAD'" (click)="selectTab('SQUAD')">Plantel</button>
+        [class.selected]="activeTab === 'SQUAD'" (click)="selectTab('SQUAD')">{{ 'Plantel' | t }}</button>
       <button type="button" data-team-tab="COMMUNITIES" [attr.aria-current]="activeTab === 'COMMUNITIES' ? 'page' : null"
-        [class.selected]="activeTab === 'COMMUNITIES'" (click)="selectTab('COMMUNITIES')">Comunidades</button>
+        [class.selected]="activeTab === 'COMMUNITIES'" (click)="selectTab('COMMUNITIES')">{{ 'Comunidades' | t }}</button>
       <button type="button" data-team-tab="TROPHIES" [attr.aria-current]="activeTab === 'TROPHIES' ? 'page' : null"
-        [class.selected]="activeTab === 'TROPHIES'" (click)="selectTab('TROPHIES')">🏆 Troféus</button>
+        [class.selected]="activeTab === 'TROPHIES'" (click)="selectTab('TROPHIES')">{{ '🏆 Troféus' | t }}</button>
       <button type="button" data-team-tab="FEED" [attr.aria-current]="activeTab === 'FEED' ? 'page' : null"
-        [class.selected]="activeTab === 'FEED'" (click)="selectTab('FEED')">Publicações</button>
+        [class.selected]="activeTab === 'FEED'" (click)="selectTab('FEED')">{{ 'Publicações' | t }}</button>
       <button type="button" data-team-tab="CHAT" [attr.aria-current]="activeTab === 'CHAT' ? 'page' : null"
-        [class.selected]="activeTab === 'CHAT'" (click)="selectTab('CHAT')">Mensagens</button>
+        [class.selected]="activeTab === 'CHAT'" (click)="selectTab('CHAT')">{{ 'Mensagens' | t }}</button>
       <button *ngIf="isOwner && rosterVerified" type="button" data-team-tab="CHALLENGES" [attr.aria-current]="activeTab === 'CHALLENGES' ? 'page' : null"
-        [class.selected]="activeTab === 'CHALLENGES'" (click)="selectTab('CHALLENGES')">Desafios</button>
+        [class.selected]="activeTab === 'CHALLENGES'" (click)="selectTab('CHALLENGES')">{{ 'Desafios' | t }}</button>
       <button *ngIf="isOwner && rosterVerified" type="button" data-team-tab="SETTINGS" [attr.aria-current]="activeTab === 'SETTINGS' ? 'page' : null"
-        [class.selected]="activeTab === 'SETTINGS'" (click)="selectTab('SETTINGS')">Identidade e gestão</button>
+        [class.selected]="activeTab === 'SETTINGS'" (click)="selectTab('SETTINGS')">{{ 'Identidade e gestão' | t }}</button>
     </nav>
     <p *ngIf="feedback" role="status" class="team-feedback">{{feedback}}</p>
     <div class="team-grid" aria-live="off">
       <section *ngIf="activeTab === 'OVERVIEW'" class="team-dashboard">
-        <h2>O espaço da tua equipa</h2>
-        <p>Consulta o plantel, acompanha a comunidade e entra nas conversas sem perder tempo.</p>
+        <h2>{{ 'O espaço da tua equipa' | t }}</h2>
+        <p>{{ 'Consulta o plantel, acompanha a comunidade e entra nas conversas sem perder tempo.' | t }}</p>
         <div class="team-dashboard-links">
           <button type="button" (click)="selectTab('SQUAD')">
-            <span aria-hidden="true">👥</span><strong>Plantel</strong>
-            <small>{{rosterVerified ? members.length + ' jogadores' : 'A confirmar jogadores'}}</small>
+            <span aria-hidden="true">👥</span><strong>{{ 'Plantel' | t }}</strong>
+            <small>{{rosterVerified ? ('{{n}} jogadores' | t:{n: members.length}) : ('A confirmar jogadores' | t)}}</small>
           </button>
           <button type="button" (click)="selectTab('COMMUNITIES')">
-            <span aria-hidden="true">🤝</span><strong>Comunidades</strong>
-            <small>{{communitiesVerified ? activeCommunities.length + ' associadas' : 'A confirmar associações'}}</small>
+            <span aria-hidden="true">🤝</span><strong>{{ 'Comunidades' | t }}</strong>
+            <small>{{communitiesVerified ? ('{{n}} associadas' | t:{n: activeCommunities.length}) : ('A confirmar associações' | t)}}</small>
           </button>
           <button type="button" (click)="selectTab('FEED')">
-            <span aria-hidden="true">📰</span><strong>Publicações</strong><small>Novidades do plantel</small>
+            <span aria-hidden="true">📰</span><strong>{{ 'Publicações' | t }}</strong><small>{{ 'Novidades do plantel' | t }}</small>
           </button>
           <button type="button" (click)="selectTab('CHAT')">
-            <span aria-hidden="true">💬</span><strong>Mensagens</strong><small>Conversa da equipa</small>
+            <span aria-hidden="true">💬</span><strong>{{ 'Mensagens' | t }}</strong><small>{{ 'Conversa da equipa' | t }}</small>
           </button>
           <button type="button" (click)="selectTab('TROPHIES')">
-            <span aria-hidden="true">🏆</span><strong>Conquistas</strong><small>Títulos e histórico</small>
+            <span aria-hidden="true">🏆</span><strong>{{ 'Conquistas' | t }}</strong><small>{{ 'Títulos e histórico' | t }}</small>
           </button>
           <a [routerLink]="['/menu/teams/competitions']" [queryParams]="{teamId:t.id}">
-            <span aria-hidden="true">⚔️</span><strong>Competições</strong><small>Encontrar torneios e campeonatos</small>
+            <span aria-hidden="true">⚔️</span><strong>{{ 'Competições' | t }}</strong><small>{{ 'Encontrar torneios e campeonatos' | t }}</small>
           </a>
         </div>
       </section>
-      <section *ngIf="activeTab === 'SQUAD'"><h2>Plantel ({{ rosterVerified ? members.length : '—' }})</h2>
-        <p *ngIf="!rosterVerified" role="alert">Não foi possível confirmar o plantel. As opções de gestão estão temporariamente bloqueadas.</p>
+      <section *ngIf="activeTab === 'SQUAD'"><h2>{{ 'Plantel ({{members}})' | t:{members: (rosterVerified ? members.length : '—')} }}</h2>
+        <p *ngIf="!rosterVerified" role="alert">{{ 'Não foi possível confirmar o plantel. As opções de gestão estão temporariamente bloqueadas.' | t }}</p>
         <div class="team-roster-toolbar" *ngIf="rosterVerified && members.length > 4">
-          <label for="team-roster-filter">Encontrar jogador</label>
-          <input id="team-roster-filter" type="search" [(ngModel)]="rosterQuery" maxlength="80" placeholder="Pesquisar pelo nome de utilizador" autocomplete="off">
-          <span role="status">{{visibleRoster.length}} de {{members.length}} jogadores</span>
+          <label for="team-roster-filter">{{ 'Encontrar jogador' | t }}</label>
+          <input id="team-roster-filter" type="search" [(ngModel)]="rosterQuery" maxlength="80" [placeholder]="'Pesquisar pelo nome de utilizador' | t" autocomplete="off">
+          <span role="status">{{ '{{visibleRosterCount}} de {{membersCount}} jogadores' | t:{visibleRosterCount: (visibleRoster.length), membersCount: (members.length)} }}</span>
         </div>
         <div class="team-roster" *ngIf="rosterVerified && visibleRoster.length">
           <article class="team-member" *ngFor="let player of visibleRoster; trackBy: trackRosterMember">
-            <a class="team-member-avatar team-member-profile-link" [routerLink]="['/menu/perfis',player.username]" [attr.aria-label]="'Abrir perfil de @' + player.username">
+            <a class="team-member-avatar team-member-profile-link" [routerLink]="['/menu/perfis',player.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: player.username})">
               <img *ngIf="playerAvatarSrc(player.profilePicUrl) && !brokenPlayerAvatars.has(player.profileId)"
                 [src]="playerAvatarSrc(player.profilePicUrl)!" loading="lazy" decoding="async"
                 (error)="brokenPlayerAvatars.add(player.profileId)" alt="">
@@ -127,168 +129,168 @@ type KitDesign = Omit<TeamKitVariant,'type'>;
               <span *ngIf="player.bio" class="team-member-bio">{{player.bio}}</span>
             </div>
             <span class="team-member-role" [class.team-member-role-owner]="player.role === 'OWNER'">
-              {{player.role === 'OWNER' ? 'Responsável' : 'Jogador'}}
+              {{player.role === 'OWNER' ? ('Responsável' | t) : ('Jogador' | t)}}
             </span>
             <div class="team-member-actions">
-              <a class="team-member-open" [routerLink]="['/menu/perfis',player.username]" [attr.aria-label]="'Ver perfil de @' + player.username" title="Ver perfil">↗</a>
+              <a class="team-member-open" [routerLink]="['/menu/perfis',player.username]" [attr.aria-label]="('Ver perfil de @{{username}}' | t:{username: player.username})" [title]="'Ver perfil' | t">↗</a>
               <button *ngIf="isOwner && player.role !== 'OWNER'" type="button" class="team-member-remove"
-                [attr.aria-label]="'Remover @' + player.username + ' da equipa'" title="Remover jogador da equipa"
-                [disabled]="busy || !rosterVerified" (click)="removePlayer(player)">Remover</button>
+                [attr.aria-label]="('Remover @{{username}} da equipa' | t:{username: player.username})" [title]="'Remover jogador da equipa' | t"
+                [disabled]="busy || !rosterVerified" (click)="removePlayer(player)">{{ 'Remover' | t }}</button>
             </div>
           </article>
         </div>
-        <p *ngIf="rosterVerified && members.length === 0">Ainda não existem jogadores no plantel.</p>
-        <p *ngIf="rosterVerified && members.length > 0 && !visibleRoster.length" role="status">Não existem jogadores que correspondam à pesquisa.</p>
+        <p *ngIf="rosterVerified && members.length === 0">{{ 'Ainda não existem jogadores no plantel.' | t }}</p>
+        <p *ngIf="rosterVerified && members.length > 0 && !visibleRoster.length" role="status">{{ 'Não existem jogadores que correspondam à pesquisa.' | t }}</p>
         <button *ngIf="rosterVerified && isMember && !isOwner" type="button"
           class="team-leave-button" [disabled]="busy"
-          (click)="leaveTeam()">Sair da equipa</button>
+          (click)="leaveTeam()">{{ 'Sair da equipa' | t }}</button>
         <div *ngIf="isOwner && rosterVerified" class="team-player-search">
-          <h3>Convites pendentes ({{invitationsVerified?pendingPlayers.length:'—'}})</h3>
-          <p *ngIf="!invitationsVerified" role="alert">Não foi possível confirmar os convites. Novos envios bloqueados.</p>
-          <p class="team-content-note" *ngIf="invitationsVerified">Convites sincronizados automaticamente.</p>
-          <p *ngIf="invitationsVerified && !pendingPlayers.length" class="team-empty-hint">Não tens convites por responder.</p>
+          <h3>{{ 'Convites pendentes ({{pendingPlayers}})' | t:{pendingPlayers: (invitationsVerified?pendingPlayers.length:'—')} }}</h3>
+          <p *ngIf="!invitationsVerified" role="alert">{{ 'Não foi possível confirmar os convites. Novos envios bloqueados.' | t }}</p>
+          <p class="team-content-note" *ngIf="invitationsVerified">{{ 'Convites sincronizados automaticamente.' | t }}</p>
+          <p *ngIf="invitationsVerified && !pendingPlayers.length" class="team-empty-hint">{{ 'Não tens convites por responder.' | t }}</p>
           <div *ngFor="let invite of (invitationsVerified?pendingPlayers:[]); trackBy: trackPendingPlayer" class="team-candidate team-invite-card">
-            <a class="team-candidate-avatar team-member-profile-link" [routerLink]="['/menu/perfis',invite.username]" [attr.aria-label]="'Abrir perfil de @' + invite.username">{{(invite.username || 'J').slice(0,1).toUpperCase()}}</a>
+            <a class="team-candidate-avatar team-member-profile-link" [routerLink]="['/menu/perfis',invite.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: invite.username})">{{(invite.username || 'J').slice(0,1).toUpperCase()}}</a>
             <div class="team-candidate-identity">
               <a [routerLink]="['/menu/perfis',invite.username]">@{{invite.username}}</a>
-              <small>A aguardar resposta</small>
+              <small>{{ 'A aguardar resposta' | t }}</small>
             </div>
-            <button type="button" [disabled]="busy || pendingLoading" (click)="cancelPendingInvitation(invite)">Cancelar convite</button>
+            <button type="button" [disabled]="busy || pendingLoading" (click)="cancelPendingInvitation(invite)">{{ 'Cancelar convite' | t }}</button>
           </div>
-          <h3>Convidar jogadores</h3>
+          <h3>{{ 'Convidar jogadores' | t }}</h3>
           <div class="search-community team-player-discovery">
-            <label for="team-player-query">Nome ou utilizador</label>
+            <label for="team-player-query">{{ 'Nome ou utilizador' | t }}</label>
             <input id="team-player-query" type="search" [(ngModel)]="playerQuery" (ngModelChange)="invalidatePlayerSearch()"
-              maxlength="80" placeholder="Pesquisar jogadores na Jynlo" autocomplete="off" (keyup.enter)="searchPlayers()">
+              maxlength="80" [placeholder]="'Pesquisar jogadores na Jynlo' | t" autocomplete="off" (keyup.enter)="searchPlayers()">
             <button type="button" [disabled]="busy || searchingPlayers || playerQuery.trim().length < 2 || !invitationsVerified"
-              (click)="searchPlayers()">{{ searchingPlayers ? 'A procurar…' : 'Pesquisar jogadores' }}</button>
+              (click)="searchPlayers()">{{ searchingPlayers ? ('A procurar…' | t) : ('Pesquisar jogadores' | t) }}</button>
           </div>
-          <p *ngIf="playerSearchComplete && availablePlayers.length === 0" class="team-empty-hint" role="status">Não encontrámos jogadores disponíveis nesta pesquisa.</p>
+          <p *ngIf="playerSearchComplete && availablePlayers.length === 0" class="team-empty-hint" role="status">{{ 'Não encontrámos jogadores disponíveis nesta pesquisa.' | t }}</p>
           <div *ngFor="let candidate of availablePlayers; trackBy: trackCandidate" class="team-candidate team-player-result">
-            <a class="team-candidate-avatar team-member-profile-link" [routerLink]="['/menu/perfis',candidate.username]" [attr.aria-label]="'Abrir perfil de @' + candidate.username">{{(candidate.username || 'J').slice(0,1).toUpperCase()}}</a>
+            <a class="team-candidate-avatar team-member-profile-link" [routerLink]="['/menu/perfis',candidate.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: candidate.username})">{{(candidate.username || 'J').slice(0,1).toUpperCase()}}</a>
             <div class="team-candidate-identity">
               <a [routerLink]="['/menu/perfis',candidate.username]">{{candidate.fullName || candidate.username}}</a>
               <small>@{{candidate.username}}</small>
             </div>
-            <button type="button" [attr.aria-label]="'Convidar @' + candidate.username + ' para a equipa'"
-              [disabled]="busy || !invitationsVerified || !rosterVerified" (click)="invitePlayer(candidate)">Convidar</button>
+            <button type="button" [attr.aria-label]="('Convidar @{{username}} para a equipa' | t:{username: candidate.username})"
+              [disabled]="busy || !invitationsVerified || !rosterVerified" (click)="invitePlayer(candidate)">{{ 'Convidar' | t }}</button>
           </div>
         </div>
       </section>
-      <section *ngIf="activeTab === 'TROPHIES'" class="team-trophies"><h2>🏆 Troféus ({{trophiesVerified ? trophies.length + championshipHonours.length : '—'}})</h2>
-        <p *ngIf="historyLoading || honoursLoading">A carregar conquistas oficiais…</p>
+      <section *ngIf="activeTab === 'TROPHIES'" class="team-trophies"><h2>{{ '🏆 Troféus ({{championshipHonours}})' | t:{championshipHonours: (trophiesVerified ? trophies.length + championshipHonours.length : '—')} }}</h2>
+        <p *ngIf="historyLoading || honoursLoading">{{ 'A carregar conquistas oficiais…' | t }}</p>
         <p *ngIf="historyError" role="alert">{{historyError}}</p>
         <p *ngIf="honoursError" role="alert">{{honoursError}}</p>
         <button type="button" *ngIf="!historyLoading && !honoursLoading && (historyError || honoursError)"
-          (click)="retryTrophies()">Voltar a tentar carregar troféus</button>
-        <p *ngIf="!historyLoading && !honoursLoading && !historyError && !honoursError && !trophies.length && !championshipHonours.length">Ainda não existem troféus oficiais nesta equipa.</p>
+          (click)="retryTrophies()">{{ 'Voltar a tentar carregar troféus' | t }}</button>
+        <p *ngIf="!historyLoading && !honoursLoading && !historyError && !honoursError && !trophies.length && !championshipHonours.length">{{ 'Ainda não existem troféus oficiais nesta equipa.' | t }}</p>
         <article *ngFor="let honour of championshipHonours" class="trophy">
           <strong>🏆 {{honour.competitionName}}</strong>
           <p>{{honour.championshipName}} · {{honour.seasonLabel}} · {{honour.communityName}}</p>
-          <p>{{honour.format === 'LEAGUE' ? 'Liga' : honour.format === 'KNOCKOUT' ? 'Taça' : honour.format === 'CHAMPIONSHIP' ? 'Campeonato' : honour.format}} · {{honour.sport}}</p>
-          <small>{{honour.awardedAt | date:'dd/MM/yyyy'}}</small>
+          <p>{{honour.format === 'LEAGUE' ? ('Liga' | t) : honour.format === 'KNOCKOUT' ? ('Taça' | t) : honour.format === 'CHAMPIONSHIP' ? ('Campeonato' | t) : honour.format}} · {{honour.sport}}</p>
+          <small>{{honour.awardedAt | date:('dd/MM/yyyy' | t)}}</small>
         </article>
         <article *ngFor="let trophy of trophies" class="trophy">
           <strong>🏆 {{trophy.tournamentName}}</strong>
-          <p>{{trophy.communityName}} · {{trophy.sport || 'Modalidade não indicada'}}</p>
-          <small *ngIf="trophy.completedAt">{{trophy.completedAt | date:'dd/MM/yyyy'}}</small>
+          <p>{{trophy.communityName}} · {{trophy.sport || ('Modalidade não indicada' | t)}}</p>
+          <small *ngIf="trophy.completedAt">{{trophy.completedAt | date:('dd/MM/yyyy' | t)}}</small>
         </article>
       </section>
-      <section *ngIf="activeTab === 'TROPHIES'"><h2>Histórico de competições ({{history.length}})</h2>
-        <p *ngIf="!historyLoading && !historyError && !history.length">Ainda não participou em torneios associados à equipa.</p>
-        <p *ngFor="let entry of history"><a [routerLink]="['/menu/communities',entry.communityId]">{{entry.tournamentName}}</a> · {{entry.communityName}} — {{entry.champion ? '🏆 Campeão' : entry.archived ? 'Concluído' : 'Em curso'}}</p>
+      <section *ngIf="activeTab === 'TROPHIES'"><h2>{{ 'Histórico de competições ({{historyCount}})' | t:{historyCount: (history.length)} }}</h2>
+        <p *ngIf="!historyLoading && !historyError && !history.length">{{ 'Ainda não participou em torneios associados à equipa.' | t }}</p>
+        <p *ngFor="let entry of history"><a [routerLink]="['/menu/communities',entry.communityId]">{{entry.tournamentName}}</a> · {{entry.communityName}} — {{entry.champion ? ('🏆 Campeão' | t) : entry.archived ? ('Concluído' | t) : ('Em curso' | t)}}</p>
       </section>
-      <section *ngIf="activeTab === 'OVERVIEW'" class="team-competition-next"><h2>Competições</h2>
-        <p>Encontra torneios e campeonatos com candidaturas abertas para esta equipa.</p>
-        <a routerLink="/menu/teams/competitions" [queryParams]="{teamId: t.id}">Encontrar torneios e campeonatos</a>
+      <section *ngIf="activeTab === 'OVERVIEW'" class="team-competition-next"><h2>{{ 'Competições' | t }}</h2>
+        <p>{{ 'Encontra torneios e campeonatos com candidaturas abertas para esta equipa.' | t }}</p>
+        <a routerLink="/menu/teams/competitions" [queryParams]="{teamId: t.id}">{{ 'Encontrar torneios e campeonatos' | t }}</a>
       </section>
-      <section *ngIf="activeTab === 'COMMUNITIES'"><h2>Comunidades ({{activeCommunities.length}})</h2>
+      <section *ngIf="activeTab === 'COMMUNITIES'"><h2>{{ 'Comunidades ({{activeCommunitiesCount}})' | t:{activeCommunitiesCount: (activeCommunities.length)} }}</h2>
         <div *ngFor="let item of activeCommunities; trackBy: trackTeamCommunity" class="team-community">
           <span class="team-community-avatar" aria-hidden="true">{{item.communityName.slice(0,1).toUpperCase()}}</span>
           <div class="team-community-identity">
             <a [routerLink]="['/menu/communities',item.communityId]">{{item.communityName}}</a>
-            <small>Equipa associada</small>
+            <small>{{ 'Equipa associada' | t }}</small>
           </div>
           <button *ngIf="isOwner" type="button" [disabled]="busy || !communitiesVerified"
-            [attr.aria-label]="'Retirar equipa de ' + item.communityName"
-            (click)="leaveCommunity(item)">Sair da comunidade</button>
+            [attr.aria-label]="('Retirar equipa de {{communityName}}' | t:{communityName: item.communityName})"
+            (click)="leaveCommunity(item)">{{ 'Sair da comunidade' | t }}</button>
         </div>
-        <p *ngIf="!communitiesVerified" role="alert">Não foi possível confirmar as comunidades. Atualiza a página antes de gerir convites.</p>
-        <p *ngIf="communitiesVerified && !activeCommunities.length">Esta equipa ainda não está associada a comunidades.</p>
+        <p *ngIf="!communitiesVerified" role="alert">{{ 'Não foi possível confirmar as comunidades. Atualiza a página antes de gerir convites.' | t }}</p>
+        <p *ngIf="communitiesVerified && !activeCommunities.length">{{ 'Esta equipa ainda não está associada a comunidades.' | t }}</p>
         <ng-container *ngIf="isOwner && communitiesVerified">
-          <h3>Convites para comunidades ({{invitations.length}})</h3>
-          <p *ngIf="!invitations.length" class="team-empty-hint">Não há convites pendentes.</p>
+          <h3>{{ 'Convites para comunidades ({{invitationsCount}})' | t:{invitationsCount: (invitations.length)} }}</h3>
+          <p *ngIf="!invitations.length" class="team-empty-hint">{{ 'Não há convites pendentes.' | t }}</p>
           <div *ngFor="let item of invitations; trackBy: trackTeamCommunity" class="team-community team-community-invite">
             <span class="team-community-avatar" aria-hidden="true">{{item.communityName.slice(0,1).toUpperCase()}}</span>
             <div class="team-community-identity">
               <a [routerLink]="['/menu/communities',item.communityId]">{{item.communityName}}</a>
-              <small>Convite recebido · a aguardar decisão</small>
+              <small>{{ 'Convite recebido · a aguardar decisão' | t }}</small>
             </div>
             <div class="team-community-actions">
-              <button type="button" [disabled]="busy" (click)="respond(item.id,true)">Aceitar</button>
-              <button type="button" [disabled]="busy" (click)="respond(item.id,false)">Recusar</button>
+              <button type="button" [disabled]="busy" (click)="respond(item.id,true)">{{ 'Aceitar' | t }}</button>
+              <button type="button" [disabled]="busy" (click)="respond(item.id,false)">{{ 'Recusar' | t }}</button>
             </div>
           </div>
-          <h3>Encontrar comunidades</h3>
-          <p>Pesquisa comunidades públicas e pede adesão em nome desta equipa.</p>
+          <h3>{{ 'Encontrar comunidades' | t }}</h3>
+          <p>{{ 'Pesquisa comunidades públicas e pede adesão em nome desta equipa.' | t }}</p>
           <div class="search-community team-community-search">
-            <label for="team-community-query">Nome da comunidade</label>
+            <label for="team-community-query">{{ 'Nome da comunidade' | t }}</label>
             <input id="team-community-query" type="search" [(ngModel)]="communityQuery"
-              (ngModelChange)="invalidateCommunitySearch()" maxlength="100" placeholder="Pesquisar comunidades"
+              (ngModelChange)="invalidateCommunitySearch()" maxlength="100" [placeholder]="'Pesquisar comunidades' | t"
               (keyup.enter)="searchCommunities()" autocomplete="off">
             <button type="button" [disabled]="busy || searchingCommunities || communityQuery.trim().length < 2"
-              (click)="searchCommunities()">{{searchingCommunities?'A pesquisar…':'Pesquisar'}}</button>
+              (click)="searchCommunities()">{{searchingCommunities?('A pesquisar…' | t):('Pesquisar' | t)}}</button>
           </div>
           <p *ngIf="communitySearchComplete && !communityResults.length" role="status" class="team-empty-hint">
-            Não encontramos comunidades para esta pesquisa.
+            {{ 'Não encontramos comunidades para esta pesquisa.' | t }}
           </p>
           <div *ngFor="let candidate of communityResults; trackBy: trackCommunityCandidate" class="team-community team-community-discovery">
             <span class="team-community-avatar" aria-hidden="true">{{candidate.name.slice(0,1).toUpperCase()}}</span>
             <div class="team-community-identity">
               <a [routerLink]="['/menu/communities',candidate.id]">{{candidate.name}}</a>
-              <small>{{candidate.sport||'Várias modalidades'}}</small>
+              <small>{{candidate.sport||('Várias modalidades' | t)}}</small>
             </div>
             <button type="button" [disabled]="busy || hasCommunity(candidate.id)"
               (click)="requestCommunity(candidate.id)">
-              {{hasCommunity(candidate.id)?'Pedido existente':'Pedir adesão'}}
+              {{hasCommunity(candidate.id)?('Pedido existente' | t):('Pedir adesão' | t)}}
             </button>
           </div>
         </ng-container>
       </section>
       <section *ngIf="activeTab === 'SETTINGS' && isOwner && rosterVerified" class="team-settings">
-        <section *ngIf="isOwner" class="team-branding" aria-label="Personalizar identidade da equipa">
+        <section *ngIf="isOwner" class="team-branding" [attr.aria-label]="'Personalizar identidade da equipa' | t">
         <div class="team-branding-heading">
-          <div><h2>Identidade da equipa</h2><p>Logótipo e cores oficiais, visíveis no perfil e nos cartões.</p></div>
-          <span>Responsável</span>
+          <div><h2>{{ 'Identidade da equipa' | t }}</h2><p>{{ 'Logótipo e cores oficiais, visíveis no perfil e nos cartões.' | t }}</p></div>
+          <span>{{ 'Responsável' | t }}</span>
         </div>
         <app-team-crest-editor [teamName]="t.name" [savedDesign]="t.crestDesign" [disabled]="brandingSaving" (generated)="saveGeneratedCrest($event)"></app-team-crest-editor>
         <div class="team-logo-actions">
-          <label class="team-upload">Adicionar ou mudar logótipo
+          <label class="team-upload">{{ 'Adicionar ou mudar logótipo' | t }}
             <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" [disabled]="brandingSaving"
               (change)="uploadTeamLogo($event)">
           </label>
-          <button type="button" *ngIf="t.logoUrl" (click)="removeTeamLogo()" [disabled]="brandingSaving">Remover logótipo</button>
+          <button type="button" *ngIf="t.logoUrl" (click)="removeTeamLogo()" [disabled]="brandingSaving">{{ 'Remover logótipo' | t }}</button>
         </div>
-        <section class="team-kit-editor" aria-label="Editor de equipamentos">
-          <div class="team-kit-collection" role="group" aria-label="Selecionar conjunto de equipamento">
+        <section class="team-kit-editor" [attr.aria-label]="'Editor de equipamentos' | t">
+          <div class="team-kit-collection" role="group" [attr.aria-label]="'Selecionar conjunto de equipamento' | t">
             <button type="button" *ngFor="let choice of kitKinds"
               [disabled]="brandingSaving"
               [attr.aria-pressed]="activeKitKind===choice.id"
               [class.selected]="activeKitKind===choice.id"
-              (click)="switchKit(choice.id)">{{choice.label}}</button>
+              (click)="switchKit(choice.id)">{{ choice.label | t }}</button>
           </div>
           <button type="button" *ngIf="activeKitKind!=='PRIMARY'"
             class="team-kit-remove-variant" [disabled]="brandingSaving"
-            (click)="removeCurrentVariant()">Eliminar desenho {{activeKitKind==='ALTERNATE'?'alternativo':'de treino'}}</button>
+            (click)="removeCurrentVariant()">{{ (activeKitKind==='ALTERNATE'?'Eliminar desenho alternativo':'Eliminar desenho de treino') | t }}</button>
           <div class="team-kit-editor-heading">
-            <div><h3>Desenhar equipamento</h3>
-              <p>Escolhe o modelo e as cores. Vê o resultado em grande antes de guardar.</p></div>
-            <span class="team-kit-preview-tag">PRÉ-VISUALIZAÇÃO</span>
+            <div><h3>{{ 'Desenhar equipamento' | t }}</h3>
+              <p>{{ 'Escolhe o modelo e as cores. Vê o resultado em grande antes de guardar.' | t }}</p></div>
+            <span class="team-kit-preview-tag">{{ 'PRÉ-VISUALIZAÇÃO' | t }}</span>
           </div>
           <div class="team-kit-designer">
             <div class="team-kit-preview-stage">
               <svg class="team-kit-big-shirt" viewBox="0 0 320 336" role="img"
-                   [attr.aria-label]="'Pré-visualização ' + garmentLabel(kitGarment) + ', padrão ' + kitLabel(kitPattern)">
+                   [attr.aria-label]="('Pré-visualização {{garmentLabel}}, padrão {{kitLabel}}' | t:{garmentLabel: garmentLabel(kitGarment), kitLabel: kitLabel(kitPattern)})">
                 <defs>
                   <clipPath id="jynloTeamKitOutline"><path [attr.d]="kitGarmentPath"/>
                   </clipPath>
@@ -325,35 +327,35 @@ type KitDesign = Omit<TeamKitVariant,'type'>;
               </svg>
               <div class="team-kit-preview-caption">
                 <strong>{{ kitLabel(kitPattern) }}</strong>
-                <span>Equipamento da equipa · Visualização ilustrativa</span>
+                <span>{{ 'Equipamento da equipa · Visualização ilustrativa' | t }}</span>
                 <div class="team-kit-swatch-pair" aria-hidden="true">
                   <i [style.background]="kitPrimary"></i><i [style.background]="kitSecondary"></i>
                 </div>
               </div>
             </div>
             <div class="team-kit-config">
-              <div role="group" aria-label="Visualizar frente ou costas" class="team-kit-side-controls">
-                <button type="button" [attr.aria-pressed]="kitSide==='front'" (click)="kitSide='front'">Frente</button>
-                <button type="button" [attr.aria-pressed]="kitSide==='back'" (click)="kitSide='back'">Costas</button>
+              <div role="group" [attr.aria-label]="'Visualizar frente ou costas' | t" class="team-kit-side-controls">
+                <button type="button" [attr.aria-pressed]="kitSide==='front'" (click)="kitSide='front'">{{ 'Frente' | t }}</button>
+                <button type="button" [attr.aria-pressed]="kitSide==='back'" (click)="kitSide='back'">{{ 'Costas' | t }}</button>
               </div>
               <div *ngIf="kitSide==='back'" class="team-kit-back-fields">
-                <label>Nome ilustrativo <input [(ngModel)]="kitPlayerName" maxlength="14" placeholder="ATLETA" [disabled]="brandingSaving"></label>
-                <label>Número ilustrativo <input [(ngModel)]="kitPlayerNumber" maxlength="2" inputmode="numeric" pattern="[0-9]*" placeholder="10" [disabled]="brandingSaving"></label>
+                <label>{{ 'Nome ilustrativo' | t }} <input [(ngModel)]="kitPlayerName" maxlength="14" [placeholder]="'ATLETA' | t" [disabled]="brandingSaving"></label>
+                <label>{{ 'Número ilustrativo' | t }} <input [(ngModel)]="kitPlayerNumber" maxlength="2" inputmode="numeric" pattern="[0-9]*" placeholder="10" [disabled]="brandingSaving"></label>
               </div>
-              <label class="team-garment-control">Tipo de equipamento — pré-visualização
+              <label class="team-garment-control">{{ 'Tipo de equipamento — pré-visualização' | t }}
                 <select [(ngModel)]="kitGarment" [disabled]="brandingSaving">
-                  <option value="jersey">Camisola de jogo</option><option value="singlet">Singlet / atletismo</option>
-                  <option value="vest">Colete de treino</option><option value="polo">Polo / golfe</option>
-                  <option value="cycling">Jersey de ciclismo</option><option value="rashguard">Rashguard / combate</option>
+                  <option value="jersey">{{ 'Camisola de jogo' | t }}</option><option value="singlet">{{ 'Singlet / atletismo' | t }}</option>
+                  <option value="vest">{{ 'Colete de treino' | t }}</option><option value="polo">{{ 'Polo / golfe' | t }}</option>
+                  <option value="cycling">{{ 'Jersey de ciclismo' | t }}</option><option value="rashguard">{{ 'Rashguard / combate' | t }}</option>
                 </select></label>
-              <p class="team-kit-save-hint">O tipo de peça, as cores, o padrão, o nome e o número são guardados na equipa. O nome e número são exemplos de personalização, não dados de cada atleta.</p>
+              <p class="team-kit-save-hint">{{ 'O tipo de peça, as cores, o padrão, o nome e o número são guardados na equipa. O nome e número são exemplos de personalização, não dados de cada atleta.' | t }}</p>
               <div class="team-kit-color-row">
-                <label>Cor principal <input type="color" [(ngModel)]="kitPrimary" [disabled]="brandingSaving"></label>
-                <label>Cor secundária <input type="color" [(ngModel)]="kitSecondary" [disabled]="brandingSaving"></label>
-                <label>Cor de destaque <input type="color" [(ngModel)]="kitAccent" [disabled]="brandingSaving"></label>
+                <label>{{ 'Cor principal' | t }} <input type="color" [(ngModel)]="kitPrimary" [disabled]="brandingSaving"></label>
+                <label>{{ 'Cor secundária' | t }} <input type="color" [(ngModel)]="kitSecondary" [disabled]="brandingSaving"></label>
+                <label>{{ 'Cor de destaque' | t }} <input type="color" [(ngModel)]="kitAccent" [disabled]="brandingSaving"></label>
               </div>
-              <fieldset class="team-pattern-options" [disabled]="brandingSaving" aria-label="Desenho do equipamento">
-                <legend>Padrão de cores</legend>
+              <fieldset class="team-pattern-options" [disabled]="brandingSaving" [attr.aria-label]="'Desenho do equipamento' | t">
+                <legend>{{ 'Padrão de cores' | t }}</legend>
                 <div class="team-pattern-grid">
                   <button *ngFor="let option of kitPatterns" type="button"
                     [class.chosen]="kitPattern === option.id"
@@ -361,41 +363,40 @@ type KitDesign = Omit<TeamKitVariant,'type'>;
                     (click)="kitPattern = option.id">
                     <span class="team-shirt pattern-sample" [class]="'team-shirt pattern-sample kit-' + option.id.toLowerCase()"
                       [style.--shirt-primary]="kitPrimary" [style.--shirt-secondary]="kitSecondary" aria-hidden="true"></span>
-                    <span>{{option.label}}</span>
-                    <small *ngIf="kitPattern === option.id">Selecionado</small>
+                    <span>{{ option.label | t }}</span>
+                    <small *ngIf="kitPattern === option.id">{{ 'Selecionado' | t }}</small>
                   </button>
                 </div>
               </fieldset>
-              <p class="team-kit-save-hint">As alterações só ficam oficiais depois de guardares o equipamento.</p>
+              <p class="team-kit-save-hint">{{ 'As alterações só ficam oficiais depois de guardares o equipamento.' | t }}</p>
               <button type="button" class="team-branding-save" [disabled]="brandingSaving" (click)="saveTeamKit()">
-                {{brandingSaving?'A guardar…':'Guardar equipamento'}}
+                {{brandingSaving?('A guardar…' | t):('Guardar equipamento' | t)}}
               </button>
             </div>
           </div>
         </section>
       </section>
-      <section *ngIf="isOwner" class="team-danger-zone" aria-label="Administração da equipa">
+      <section *ngIf="isOwner" class="team-danger-zone" [attr.aria-label]="'Administração da equipa' | t">
         <div>
-          <strong>Administração da equipa</strong>
-          <p>A eliminação só é permitida se não existirem jogadores, convites,
-            mensagens, competições ou associações guardadas. O histórico é protegido.</p>
+          <strong>{{ 'Administração da equipa' | t }}</strong>
+          <p>{{ 'A eliminação só é permitida se não existirem jogadores, convites, mensagens, competições ou associações guardadas. O histórico é protegido.' | t }}</p>
         </div>
         <button type="button" class="team-delete-button" [disabled]="deletingTeam || busy || brandingSaving || featureSaving"
-          (click)="deleteTeam()">{{deletingTeam ? 'A eliminar…' : 'Eliminar equipa'}}</button>
+          (click)="deleteTeam()">{{deletingTeam ? ('A eliminar…' | t) : ('Eliminar equipa' | t)}}</button>
       </section>
       </section>
       <section *ngIf="activeTab === 'FEED'" class="team-feature">
         <div class="team-feature-title">
-          <h2>Publicações</h2>
+          <h2>{{ 'Publicações' | t }}</h2>
           <details *ngIf="isOwner" class="team-feature-settings">
-            <summary [attr.aria-label]="'Definições de feed'">⚙ <span>Definições</span></summary>
+            <summary [attr.aria-label]="('Definições de feed' | t)">⚙ <span>{{ 'Definições' | t }}</span></summary>
             <button type="button" [disabled]="featureSaving"
-              (click)="toggleFeature('feedEnabled')">{{ t.feedEnabled ? 'Desativar feed' : 'Ativar feed' }}</button>
+              (click)="toggleFeature('feedEnabled')">{{ t.feedEnabled ? ('Desativar feed' | t) : ('Ativar feed' | t) }}</button>
           </details>
         </div>
-        <p *ngIf="!t.feedEnabled">Desativado pelo responsável da equipa.</p>
+        <p *ngIf="!t.feedEnabled">{{ 'Desativado pelo responsável da equipa.' | t }}</p>
         <app-sports-team-content *ngIf="t.feedEnabled && rosterVerified && isMember" [teamId]="t.id" kind="feed"></app-sports-team-content>
-        <p *ngIf="t.feedEnabled && (!rosterVerified || !isMember)">Disponível apenas para membros confirmados da equipa.</p>
+        <p *ngIf="t.feedEnabled && (!rosterVerified || !isMember)">{{ 'Disponível apenas para membros confirmados da equipa.' | t }}</p>
       </section>
       <section *ngIf="activeTab === 'CHALLENGES' && isOwner && rosterVerified">
         <app-sports-team-challenges [teamId]="t.id" [isOwner]="isOwner && rosterVerified"
@@ -403,20 +404,20 @@ type KitDesign = Omit<TeamKitVariant,'type'>;
       </section>
       <section *ngIf="activeTab === 'CHAT'" class="team-feature">
         <div class="team-feature-title">
-          <h2>Mensagens</h2>
+          <h2>{{ 'Mensagens' | t }}</h2>
           <details *ngIf="isOwner" class="team-feature-settings">
-            <summary [attr.aria-label]="'Definições de chat'">⚙ <span>Definições</span></summary>
+            <summary [attr.aria-label]="('Definições de chat' | t)">⚙ <span>{{ 'Definições' | t }}</span></summary>
             <button type="button" [disabled]="featureSaving"
-              (click)="toggleFeature('chatEnabled')">{{ t.chatEnabled ? 'Desativar chat' : 'Ativar chat' }}</button>
+              (click)="toggleFeature('chatEnabled')">{{ t.chatEnabled ? ('Desativar chat' | t) : ('Ativar chat' | t) }}</button>
           </details>
         </div>
-        <p *ngIf="!t.chatEnabled">Desativado pelo responsável da equipa.</p>
+        <p *ngIf="!t.chatEnabled">{{ 'Desativado pelo responsável da equipa.' | t }}</p>
         <app-sports-team-content *ngIf="t.chatEnabled && rosterVerified && isMember" [teamId]="t.id" kind="chat"></app-sports-team-content>
-        <p *ngIf="t.chatEnabled && (!rosterVerified || !isMember)">Disponível apenas para membros confirmados da equipa.</p>
+        <p *ngIf="t.chatEnabled && (!rosterVerified || !isMember)">{{ 'Disponível apenas para membros confirmados da equipa.' | t }}</p>
       </section>
     </div>
   </main>
-  <ng-template #state><main class="team-detail"><p role="alert">{{ error || 'A carregar equipa…' }}</p><a routerLink="/menu/teams">Voltar às equipas</a></main></ng-template>
+  <ng-template #state><main class="team-detail"><p role="alert">{{ error || ('A carregar equipa…' | t) }}</p><a routerLink="/menu/teams">{{ 'Voltar às equipas' | t }}</a></main></ng-template>
   `,
   styleUrls: ['./sports-team-detail.component.css']
 })
@@ -438,7 +439,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
       next:state=>{if(this.team?.id!==id||serial!==this.followRequest)return;
         this.followerState=state;this.render();},
       error:()=>{if(this.team?.id!==id||serial!==this.followRequest)return;
-        this.followerState=null;this.followError='Seguidores temporariamente indisponíveis.';this.render();}
+        this.followerState=null;this.followError=appTranslate('Seguidores temporariamente indisponíveis.');this.render();}
     });
   }
   toggleTeamFollow():void {
@@ -452,7 +453,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
       next:state=>{if(this.team?.id!==id||serial!==this.followRequest)return;
         this.followerState=state;this.followBusy=false;this.render();},
       error:()=>{if(this.team?.id!==id||serial!==this.followRequest)return;
-        this.followBusy=false;this.followError='Não foi possível confirmar a alteração.';this.loadTeamFollowers();}
+        this.followBusy=false;this.followError=appTranslate('Não foi possível confirmar a alteração.');this.loadTeamFollowers();}
     });
   }
 
@@ -500,7 +501,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
       },
       error:()=>{
         if(this.team?.id!==id)return;
-        this.honoursError='Não foi possível carregar os títulos dos campeonatos.';
+        this.honoursError=appTranslate('Não foi possível carregar os títulos dos campeonatos.');
         this.honoursLoading=false;this.render();
       }
     });
@@ -511,7 +512,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
       },
       error:()=>{
         if(this.team?.id!==id)return;
-        this.historyError='Não foi possível carregar o histórico de troféus.';
+        this.historyError=appTranslate('Não foi possível carregar o histórico de troféus.');
         this.historyLoading=false;this.render();
       }
     });
@@ -619,7 +620,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     this.kitVariants=this.kitVariants.filter(variant=>variant.type!==type);
     this.activeKitKind='PRIMARY';
     if(this.primaryKitDraft)this.showKitDraft(this.primaryKitDraft);
-    this.feedback='Conjunto retirado do desenho. Guarda os equipamentos para confirmar.';
+    this.feedback=appTranslate('Conjunto retirado do desenho. Guarda os equipamentos para confirmar.');
   }
   private loadKitCollection(team:SportsTeam):void {
     this.primaryKitDraft={
@@ -642,7 +643,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     if(/jiu|judo|luta|wrestling|mma|muay|kickbox|boxe|combat|karate/.test(value))return 'rashguard';
     return 'jersey';
   }
-  garmentLabel(type:string):string{return ({jersey:'de camisola',singlet:'de singlet',vest:'de colete',polo:'de polo',cycling:'de jersey de ciclismo',rashguard:'de rashguard'} as Record<string,string>)[type]||'de equipamento';}
+  garmentLabel(type:string):string{return ({jersey:appTranslate('de camisola'),singlet:appTranslate('de singlet'),vest:appTranslate('de colete'),polo:appTranslate('de polo'),cycling:appTranslate('de jersey de ciclismo'),rashguard:appTranslate('de rashguard')} as Record<string,string>)[type]||appTranslate('de equipamento');}
   get kitGarmentPath():string {
     switch(this.kitGarment){
       case 'singlet':return 'M114 32 Q135 57 160 58 Q185 57 206 32 L247 58 L231 111 L223 292 Q160 311 97 292 L89 111 L73 58 Z';
@@ -659,7 +660,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   ];
   readonly kitStripePositions:ReadonlyArray<number>=[-30,14,58,102,146,190,234,278];
   readonly kitHoopPositions:ReadonlyArray<number>=[40,110,180,250];
-  kitLabel(pattern:TeamKitPattern):string{return this.kitPatterns.find(p=>p.id===pattern)?.label||'Lisa';}
+  kitLabel(pattern:TeamKitPattern):string{return appTranslate(this.kitPatterns.find(p=>p.id===pattern)?.label||'Lisa');}
   private readonly maxTeamLogoBytes=5*1024*1024;
   saveTeamKit():void {
     if(!this.team||!this.isOwner||this.brandingSaving)return;
@@ -670,11 +671,11 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     const all=[primary,...variants];
     if(all.some(v=>v.playerName.length>14 ||
       (v.playerName && !/^[\p{L}0-9 .'-]+$/u.test(v.playerName)))){
-      this.feedback='Nome inválido: usa até 14 letras, números, espaços, pontos, hífenes ou apóstrofos.';
+      this.feedback=appTranslate('Nome inválido: usa até 14 letras, números, espaços, pontos, hífenes ou apóstrofos.');
       return;
     }
     if(all.some(v=>v.playerNumber && !/^[0-9]{1,2}$/.test(v.playerNumber))){
-      this.feedback='Número inválido: indica um ou dois algarismos.';
+      this.feedback=appTranslate('Número inválido: indica um ou dois algarismos.');
       return;
     }
     const teamId=this.team.id;
@@ -690,12 +691,12 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         this.team=updated;this.brandingSaving=false;this.api.rememberTeam(updated);
         this.loadKitCollection(updated);
         this.switchKit(selected);
-        this.feedback='Equipamentos principal, alternativo e de treino guardados.';this.render();
+        this.feedback=appTranslate('Equipamentos principal, alternativo e de treino guardados.');this.render();
       },
       error:()=>{
         if(this.team?.id!==teamId)return;
         this.brandingSaving=false;
-        this.feedback='Não foi possível confirmar os equipamentos. Consulta a equipa antes de repetir.';this.render();
+        this.feedback=appTranslate('Não foi possível confirmar os equipamentos. Consulta a equipa antes de repetir.');this.render();
       }
     });
   }
@@ -703,7 +704,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     const {file,design}=result;
     if(!this.team||!this.isOwner||!this.rosterVerified||this.brandingSaving)return;
     if(file.type!== 'image/png'||file.size<1||file.size>this.maxTeamLogoBytes){
-      this.feedback='O emblema gerado não é válido.';return;
+      this.feedback=appTranslate('O emblema gerado não é válido.');return;
     }
     const teamId=this.team.id;
     this.brandingSaving=true;this.feedback='';
@@ -711,12 +712,12 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
       next:updated=>{
         if(this.team?.id!==teamId)return;
         this.team=updated;this.logoBroken=false;this.api.rememberTeam(updated);
-        this.brandingSaving=false;this.feedback='Emblema Jynlo criado e guardado.';this.render();
+        this.brandingSaving=false;this.feedback=appTranslate('Emblema Jynlo criado e guardado.');this.render();
       },
       error:()=>{
         if(this.team?.id!==teamId)return;
         this.brandingSaving=false;
-        this.feedback='Não foi possível confirmar o emblema. Consulta a equipa antes de repetir.';this.render();
+        this.feedback=appTranslate('Não foi possível confirmar o emblema. Consulta a equipa antes de repetir.');this.render();
       }
     });
   }
@@ -727,23 +728,23 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     if(!file||!this.team||!this.isOwner||this.brandingSaving)return;
     if(!['image/png','image/jpeg','image/webp','image/gif'].includes(file.type)||
        file.size<1||file.size>this.maxTeamLogoBytes){
-      this.feedback='Escolhe uma imagem PNG, JPG, WebP ou GIF até 5 MB.';return;
+      this.feedback=appTranslate('Escolhe uma imagem PNG, JPG, WebP ou GIF até 5 MB.');return;
     }
     this.brandingSaving=true;this.feedback='';
     this.api.uploadLogo(this.team.id,file).pipe(timeout(30000)).subscribe({
       next:updated=>{this.team=updated;this.logoBroken=false;this.api.rememberTeam(updated);this.brandingSaving=false;
-        this.feedback='Logótipo atualizado.';this.render();},
-      error:()=>{this.brandingSaving=false;this.feedback='Não foi possível confirmar o logótipo. Consulta a equipa antes de repetir.';this.render();}
+        this.feedback=appTranslate('Logótipo atualizado.');this.render();},
+      error:()=>{this.brandingSaving=false;this.feedback=appTranslate('Não foi possível confirmar o logótipo. Consulta a equipa antes de repetir.');this.render();}
     });
   }
   removeTeamLogo():void {
     if(!this.team||!this.isOwner||this.brandingSaving||!this.team.logoUrl)return;
-    if(typeof window==='undefined'||!window.confirm('Remover o logótipo da equipa?'))return;
+    if(typeof window==='undefined'||!window.confirm(appTranslate('Remover o logótipo da equipa?')))return;
     this.brandingSaving=true;this.feedback='';
     this.api.removeLogo(this.team.id).pipe(timeout(15000)).subscribe({
       next:updated=>{this.team=updated;this.api.rememberTeam(updated);this.brandingSaving=false;
-        this.feedback='Logótipo removido.';this.render();},
-      error:()=>{this.brandingSaving=false;this.feedback='Não foi possível confirmar a remoção. Consulta a equipa antes de repetir.';this.render();}
+        this.feedback=appTranslate('Logótipo removido.');this.render();},
+      error:()=>{this.brandingSaving=false;this.feedback=appTranslate('Não foi possível confirmar a remoção. Consulta a equipa antes de repetir.');this.render();}
     });
   }
 
@@ -752,9 +753,8 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
        this.brandingSaving||this.featureSaving||typeof window==='undefined')return;
     const current=this.team;
     const confirmed=window.confirm(
-      'Eliminar definitivamente a equipa "'+current.name+'"?\n\n'
-      +'Esta ação não pode ser anulada. Se houver jogadores, convites, mensagens, '
-      +'competições ou histórico, o servidor não permitirá a eliminação.');
+      appTranslate('Eliminar definitivamente a equipa "{{name}}"?',{name:current.name})+'\n\n'
+      +appTranslate('Esta ação não pode ser anulada. Se houver jogadores, convites, mensagens, competições ou histórico, o servidor não permitirá a eliminação.'));
     if(!confirmed)return;
     this.deletingTeam=true;this.feedback='';
     this.api.deleteEmptyTeam(current.id).pipe(timeout(15000)).subscribe({
@@ -767,8 +767,8 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         if(this.rosterSubscriptions.closed)return;
         this.deletingTeam=false;
         this.feedback=failure instanceof HttpErrorResponse && failure.status===409
-          ? 'Não é possível eliminar esta equipa porque tem jogadores, convites, publicações, mensagens ou ligações históricas. Estes dados ficam protegidos.'
-          : 'Não foi possível confirmar a eliminação. Consulta a equipa antes de tentares novamente.';
+          ? appTranslate('Não é possível eliminar esta equipa porque tem jogadores, convites, publicações, mensagens ou ligações históricas. Estes dados ficam protegidos.')
+          : appTranslate('Não foi possível confirmar a eliminação. Consulta a equipa antes de tentares novamente.');
         this.render();
       }
     });
@@ -781,7 +781,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     this.api.setFeatures(previous.id,field==='chatEnabled'
       ? {chatEnabled:!previous.chatEnabled} : {feedEnabled:!previous.feedEnabled}).subscribe({
       next:updated=>{this.team=updated;this.featureSaving=false;},
-      error:()=>{this.feedback='Não foi possível confirmar a configuração. Atualiza antes de repetir.';this.featureSaving=false;}
+      error:()=>{this.feedback=appTranslate('Não foi possível confirmar a configuração. Atualiza antes de repetir.');this.featureSaving=false;}
     });
   }
   get activeCommunities(){return this.communities.filter(item=>item.status==='ACTIVE');}
@@ -801,7 +801,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
       },
       error:()=>{
         if(version!==this.communitySearchVersion||this.team?.id!==teamId)return;
-        this.feedback='Não foi possível pesquisar comunidades.';
+        this.feedback=appTranslate('Não foi possível pesquisar comunidades.');
         this.searchingCommunities=false;this.render();
       }
     });
@@ -810,8 +810,8 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     if(!this.team||!this.isOwner||!this.communitiesVerified||this.busy||this.hasCommunity(communityId))return;
     this.busy=true;this.feedback='';
     this.communityMemberships.request(this.team.id,communityId).subscribe({
-      next:()=>{this.busy=false;this.feedback='Pedido enviado aos responsáveis da comunidade.';this.loadCommunities();},
-      error:()=>{this.busy=false;this.communitiesVerified=false;this.feedback='Não foi possível confirmar o pedido. Atualiza as comunidades antes de repetir.';}
+      next:()=>{this.busy=false;this.feedback=appTranslate('Pedido enviado aos responsáveis da comunidade.');this.loadCommunities();},
+      error:()=>{this.busy=false;this.communitiesVerified=false;this.feedback=appTranslate('Não foi possível confirmar o pedido. Atualiza as comunidades antes de repetir.');}
     });
   }
   error = '';
@@ -826,22 +826,22 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     this.busy=true;this.feedback='';
     this.communityMemberships.respond(id,accept).subscribe({
       next:()=>{this.busy=false;this.feedback=accept?'Convite aceite.':'Convite recusado.';this.loadCommunities();},
-      error:()=>{this.busy=false;this.communitiesVerified=false;this.feedback='Não foi possível confirmar a resposta. Atualiza a lista antes de repetir.';}
+      error:()=>{this.busy=false;this.communitiesVerified=false;this.feedback=appTranslate('Não foi possível confirmar a resposta. Atualiza a lista antes de repetir.');}
     });
   }
   leaveCommunity(item:TeamCommunityMembership):void{
     if(!this.team||!this.isOwner||!this.communitiesVerified||this.busy)return;
-    if(typeof window==='undefined'||!window.confirm('Retirar a equipa de '+item.communityName+'?'))return;
+    if(typeof window==='undefined'||!window.confirm(appTranslate('Retirar a equipa de {{name}}?',{name:item.communityName})))return;
     this.busy=true;this.feedback='';
     this.communityMemberships.remove(item.id).subscribe({
       next:()=>{
         this.communities=this.communities.filter(row=>row.id!==item.id);
-        this.busy=false;this.feedback='Equipa removida da comunidade.';
+        this.busy=false;this.feedback=appTranslate('Equipa removida da comunidade.');
         this.loadCommunities();
       },
       error:()=>{
         this.busy=false;this.communitiesVerified=false;
-        this.feedback='Não foi possível confirmar a saída. Atualiza as comunidades antes de repetir.';
+        this.feedback=appTranslate('Não foi possível confirmar a saída. Atualiza as comunidades antes de repetir.');
       }
     });
   }
@@ -849,7 +849,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     if(!this.team)return;
     this.communityMemberships.teamCommunities(this.team.id).pipe(timeout(15000)).subscribe({
       next:rows=>{this.communities=rows;this.communitiesVerified=true;this.render();},
-      error:()=>{this.communitiesVerified=false;this.feedback='Não foi possível confirmar as comunidades da equipa.';this.render();}
+      error:()=>{this.communitiesVerified=false;this.feedback=appTranslate('Não foi possível confirmar as comunidades da equipa.');this.render();}
     });
   }
   invalidatePlayerSearch():void{
@@ -867,7 +867,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
       },
       error:()=>{
         if(version!==this.playerSearchVersion)return;
-        this.searchingPlayers=false;this.feedback='Não foi possível pesquisar jogadores.';
+        this.searchingPlayers=false;this.feedback=appTranslate('Não foi possível pesquisar jogadores.');
       }
     });
   }
@@ -884,7 +884,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
       error:()=>{
         if(version!==this.pendingRequest||this.team?.id!==teamId)return;
         this.pendingPlayers=[];this.invitationsVerified=false;
-        this.feedback='Não foi possível confirmar os convites pendentes.';
+        this.feedback=appTranslate('Não foi possível confirmar os convites pendentes.');
         this.render();
       }
     }).add(()=>{if(version===this.pendingRequest)this.pendingLoading=false;});
@@ -892,12 +892,12 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   cancelPendingInvitation(invite:TeamPendingPlayerInvitation):void {
     if(!this.team||!this.isOwner||!this.invitationsVerified||this.busy||
       !this.pendingPlayers.some(p=>p.profileId===invite.profileId))return;
-    if(typeof window==='undefined'||!window.confirm('Cancelar convite para @'+invite.username+'?'))return;
+    if(typeof window==='undefined'||!window.confirm(appTranslate('Cancelar convite para @{{user}}?',{user:invite.username})))return;
     const teamId=this.team.id;
     this.busy=true;this.feedback='';
     this.api.remove(teamId,invite.profileId).subscribe({
       next:()=>{this.busy=false;this.feedback='Convite cancelado.';this.loadPendingInvitations();},
-      error:()=>{this.busy=false;this.invitationsVerified=false;this.pendingPlayers=[];this.feedback='Não foi possível confirmar o cancelamento. Verifica os convites antes de repetir.';}
+      error:()=>{this.busy=false;this.invitationsVerified=false;this.pendingPlayers=[];this.feedback=appTranslate('Não foi possível confirmar o cancelamento. Verifica os convites antes de repetir.');}
     });
   }
   invitePlayer(player:SportsTeamPlayerCandidate):void{
@@ -906,8 +906,8 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     const teamId=this.team.id;
     this.busy=true;this.feedback='';
     this.api.invite(teamId,player.profileId).subscribe({
-      next:()=>{this.busy=false;this.playerCandidates=this.playerCandidates.filter(item=>item.profileId!==player.profileId);this.feedback='Convite enviado. O jogador entra no plantel quando aceitar.';this.loadPendingInvitations();},
-      error:()=>{this.busy=false;this.invitationsVerified=false;this.invalidatePlayerSearch();this.feedback='Não foi possível confirmar o convite. Verifica os convites antes de repetir.';}
+      next:()=>{this.busy=false;this.playerCandidates=this.playerCandidates.filter(item=>item.profileId!==player.profileId);this.feedback=appTranslate('Convite enviado. O jogador entra no plantel quando aceitar.');this.loadPendingInvitations();},
+      error:()=>{this.busy=false;this.invitationsVerified=false;this.invalidatePlayerSearch();this.feedback=appTranslate('Não foi possível confirmar o convite. Verifica os convites antes de repetir.');}
     });
   }
   refreshRoster():void {
@@ -955,7 +955,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
       && member.username.toLowerCase()===currentUsername);
     if(!player)return;
     if(typeof window==='undefined'||!window.confirm(
-      'Sair desta equipa? Deixarás de ter acesso ao chat e às publicações privadas.'))return;
+      appTranslate('Sair desta equipa? Deixarás de ter acesso ao chat e às publicações privadas.')))return;
     const teamId=this.team.id;
     this.busy=true;this.feedback='';
     this.api.remove(teamId,player.profileId).subscribe({
@@ -964,29 +964,29 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         this.isMember=false;
         this.members=this.members.filter(member=>member.profileId!==player.profileId);
         this.busy=false;
-        this.feedback='Saíste da equipa. O acesso ao chat e às publicações foi retirado.';
+        this.feedback=appTranslate('Saíste da equipa. O acesso ao chat e às publicações foi retirado.');
         this.refreshRoster();
       },
       error:()=>{
         // A timeout may hide a committed removal: do not retry automatically.
         this.isMember=false;this.rosterVerified=false;this.busy=false;
-        this.feedback='Não foi possível confirmar a saída. Verifica o plantel antes de tentares novamente.';
+        this.feedback=appTranslate('Não foi possível confirmar a saída. Verifica o plantel antes de tentares novamente.');
       }
     });
   }
   removePlayer(player:SportsTeamMember):void{
     if(!this.team||!this.isOwner||!this.rosterVerified||this.busy||player.role==='OWNER')return;
-    if(typeof window==='undefined'||!window.confirm('Remover @'+player.username+' do plantel?'))return;
+    if(typeof window==='undefined'||!window.confirm(appTranslate('Remover @{{user}} do plantel?',{user:player.username})))return;
     this.busy=true;this.feedback='';
     this.api.remove(this.team.id,player.profileId).subscribe({
-      next:()=>{this.members=this.members.filter(m=>m.profileId!==player.profileId);this.busy=false;this.feedback='Jogador removido do plantel.';this.refreshRoster();},
-      error:()=>{this.rosterVerified=false;this.isMember=false;this.busy=false;this.feedback='Não foi possível confirmar a remoção. Recarrega o plantel antes de repetir.';}
+      next:()=>{this.members=this.members.filter(m=>m.profileId!==player.profileId);this.busy=false;this.feedback=appTranslate('Jogador removido do plantel.');this.refreshRoster();},
+      error:()=>{this.rosterVerified=false;this.isMember=false;this.busy=false;this.feedback=appTranslate('Não foi possível confirmar a remoção. Recarrega o plantel antes de repetir.');}
     });
   }
   ngOnInit(): void {
     this.auth.isLoggedIn();
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (!Number.isSafeInteger(id) || id <= 0) {this.error = 'Equipa inválida.'; return;}
+    if (!Number.isSafeInteger(id) || id <= 0) {this.error = appTranslate('Equipa inválida.'); return;}
     // Chat alerts open the team straight on its chat.
     const requestedTab = this.route.snapshot.queryParamMap?.get('tab') ?? null;
     if (requestedTab === 'chat') this.activeTab = 'CHAT';
@@ -1007,7 +1007,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         this.loadTeamFollowers();
         this.refreshRoster();
       },
-      error: () => {this.error = 'Não foi possível confirmar os dados da equipa. Tenta abrir novamente.';this.render();}
+      error: () => {this.error = appTranslate('Não foi possível confirmar os dados da equipa. Tenta abrir novamente.');this.render();}
     });
     this.rosterSubscriptions.add(interval(30000).subscribe(()=>{
       if(typeof document!=='undefined' && document.visibilityState==='visible')this.refreshRoster();

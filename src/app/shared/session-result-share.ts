@@ -1,3 +1,4 @@
+import { appTranslate } from '../i18n/i18n.service';
 import { SessionDetail } from '../pages/model/session-detail';
 
 /** Result IDs and scores must originate from the authorised official-result API. */
@@ -21,8 +22,7 @@ export function publicSessionResultMessage(
     return null;
   }
   const sport = typeof game.sport === 'string' ? game.sport.trim().slice(0, 60) : '';
-  return '🏆 Resultado oficial Jynlo\n'
-    + (sport ? sport + ' · ' : '') + 'Equipa A ' + result.scoreA
-    + ' — ' + result.scoreB + ' Equipa B\n'
+  return appTranslate('🏆 Resultado oficial Jynlo') + '\n'
+    + (sport ? sport + ' · ' : '') + appTranslate('Equipa A {{a}} — {{b}} Equipa B', {a: result.scoreA ?? '', b: result.scoreB ?? ''}) + '\n'
     + 'https://d24sports.com/sessions/' + game.id;
 }

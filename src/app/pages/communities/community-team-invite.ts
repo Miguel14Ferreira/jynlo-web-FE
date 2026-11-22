@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { buildWhatsAppGroupShareUrl } from './community-group-invite';
 
 /**
@@ -25,10 +26,10 @@ export function teamInvitationWhatsAppUrl(
   communityName: string, tournamentName: string, teamName: string, url: string
 ): string {
   return buildWhatsAppGroupShareUrl(
-    ['🏆 Convido-te para a equipa "' + teamName + '"',
-      'Torneio: ' + tournamentName,
-      'Comunidade: ' + communityName,
-      'Abre o link para aceitares o convite. Se ainda não és membro, adere à comunidade primeiro.',
+    [appTranslate('🏆 Convido-te para a equipa "{{team}}"', {team: teamName}),
+      appTranslate('Torneio: {{name}}', {name: tournamentName}),
+      appTranslate('Comunidade: {{name}}', {name: communityName}),
+      appTranslate('Abre o link para aceitares o convite. Se ainda não és membro, adere à comunidade primeiro.'),
       url].join('\n')
   );
 }

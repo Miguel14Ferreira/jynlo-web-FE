@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { TextPlacement } from './movable-text.component';
 /** Draw authored overlay text into image bytes so sharing preserves the edit. */
 export async function addTextToPhoto(file: File, text: string,
@@ -12,14 +13,14 @@ export async function addTextToPhoto(file: File, text: string,
     (imageTransform.x ?? 0) !== 0 || (imageTransform.y ?? 0) !== 0;
   if (!caption && !hasPhotoTransform) return file;
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type))
-    throw new Error('Só é possível escrever sobre fotografias');
+    throw new Error(appTranslate('Só é possível escrever sobre fotografias'));
   const sourceUrl = URL.createObjectURL(file);
   try {
     const image = new Image();
     image.src = sourceUrl;
     await new Promise<void>((resolve, reject) => {
       image.onload = () => resolve();
-      image.onerror = () => reject(new Error('Não foi possível abrir a fotografia'));
+      image.onerror = () => reject(new Error(appTranslate('Não foi possível abrir a fotografia')));
     });
     const maxSide = 2048;
     const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
@@ -29,7 +30,7 @@ export async function addTextToPhoto(file: File, text: string,
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('O navegador não permite editar esta fotografia');
+    if (!ctx) throw new Error(appTranslate('O navegador não permite editar esta fotografia'));
     // Keep image preview and exported media in the same transform.
     ctx.save();
     ctx.translate(width / 2 + width * (imageTransform.x ?? 0) / 100,
@@ -58,7 +59,7 @@ export async function addTextToPhoto(file: File, text: string,
       }
     }
     if (line) lines.push(line);
-    if (lines.length > 5) throw new Error('O texto é demasiado longo para caber na fotografia');
+    if (lines.length > 5) throw new Error(appTranslate('O texto é demasiado longo para caber na fotografia'));
     const blockHeight = lines.length * lineHeight + fontSize * .8;
     const centerY = placement ? height * placement.y / 100
       : position === 'top' ? margin + blockHeight / 2
@@ -89,9 +90,9 @@ export async function addTextToPhoto(file: File, text: string,
     }
     const mime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
     const blob = await new Promise<Blob>((resolve, reject) =>
-      canvas.toBlob(value => value ? resolve(value) : reject(new Error('Não foi possível guardar a fotografia')), mime, .88));
+      canvas.toBlob(value => value ? resolve(value) : reject(new Error(appTranslate('Não foi possível guardar a fotografia'))), mime, .88));
     if (blob.size > 5 * 1024 * 1024)
-      throw new Error('A fotografia editada excede o limite de 5 MB');
+      throw new Error(appTranslate('A fotografia editada excede o limite de 5 MB'));
     const stem = file.name.replace(/\.[^.]+$/, '');
     return new File([blob], stem + '-jynlo.' + (mime === 'image/png' ? 'png' : 'jpg'),
       { type: mime, lastModified: Date.now() });
