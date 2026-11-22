@@ -102,4 +102,16 @@ describe('First steps', () => {
     const b = [{ id: 4, visibility: 'PUBLIC' }, { id: 1, visibility: 'PUBLIC' }];
     expect(suggestedCommunities([a, b] as any, [], 8).map((g: any) => g.id)).toEqual([1, 4, 3]);
   });
+
+  it('a new account opens first steps by itself, once per browser session', () => {
+    sessionStorage.removeItem('jynlo.firstSteps.opened.ana');
+    const router = TestBed.inject(Router);
+    const navigate = spyOn(router, 'navigate').and.resolveTo(true);
+    TestBed.createComponent(FirstStepsPromptComponent).detectChanges();
+    expect(navigate).toHaveBeenCalledWith(['/menu/first-steps']);
+    navigate.calls.reset();
+    TestBed.createComponent(FirstStepsPromptComponent).detectChanges();
+    expect(navigate).not.toHaveBeenCalled();
+    sessionStorage.removeItem('jynlo.firstSteps.opened.ana');
+  });
 });
