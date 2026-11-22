@@ -12,8 +12,10 @@ const { chromium } = require('playwright');
 
 const SITE = process.env.JYNLO_SITE || 'https://jynlosports.com';
 const API = SITE.includes('jynlosports.com') ? 'https://api.jynlosports.com' : 'https://api.d24sports.com';
-const USER = process.env.JYNLO_QA_USERNAME_1 || '';
-const PASS = process.env.JYNLO_QA_PASSWORD_1 || '';
+const ACCOUNT = process.env.JYNLO_AUDIT_ACCOUNT === '2' ? '2' : '1';
+const USER = process.env['JYNLO_QA_USERNAME_' + ACCOUNT] || '';
+const PASS = process.env['JYNLO_QA_PASSWORD_' + ACCOUNT] || '';
+const LANG = process.env.JYNLO_AUDIT_LANG === 'en' ? 'en' : 'pt';
 const OUT = path.resolve(process.env.AUDIT_OUT || 'visual-audit');
 const VIEWPORTS = [
   { name: 'telemovel', width: 390, height: 844, mobile: true },
@@ -136,6 +138,10 @@ function inspect(isMobile) {
     const m = text.match(re);
     if (m) problems.push({ tipo, detalhe: Array.from(new Set(m)).slice(0, 5).join(', ') });
   }
+  if (window.__auditLang === 'en') {
+    const pt = text.match(/\b(não|sessões|comunidade|jogadores|equipas|mensagens|ainda|criar|entrar|palavra-passe|guardar|eliminar|perfil|definições|histórico|época)\b/gi);
+    if (pt) problems.push({ tipo: 'portugues-em-ingles', detalhe: Array.from(new Set(pt.map(w => w.toLowerCase()))).slice(0, 12).join(', ') });
+  }
   const dashes = (text.match(/(^|\n)\s*—\s*(\n|$)/g) || []).length;
   if (dashes >= 3) problems.push({ tipo: 'muitos-tracos', detalhe: dashes + ' valores "—" visíveis (cartões vazios?)' });
   return problems;
@@ -163,10 +169,10 @@ async function auditPage(page, name, route, vp, consoleErrors, httpErrors) {
   const { routes, tabs } = await discoverRoutes(token);
   const browser = await chromium.launch();
   for (const vp of VIEWPORTS) {
-    const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, isMobile: vp.mobile, hasTouch: vp.mobile, locale: 'pt-PT', deviceScaleFactor: vp.mobile ? 2 : 1 });
-    await context.addInitScript(([t, u]) => {
-      try { localStorage.setItem('t', t); localStorage.setItem('jynlo.firstSteps.skipped.' + u.toLowerCase(), String(Date.now())); } catch {}
-    }, [token, USER]);
+    const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, isMobile: vp.mobile, hasTouch: vp.mobile, locale: LANG === 'en' ? 'en-GB' : 'pt-PT', deviceScaleFactor: vp.mobile ? 2 : 1 });
+    await context.addInitScript(([t, u, l]) => {
+      try { localStorage.setItem('t', t); localStorage.setItem('jynlo.firstSteps.skipped.' + u.toLowerCase(), String(Date.now())); if (l === 'en') { localStorage.setItem('d24-language', 'en'); window.__auditLang = 'en'; } } catch {}
+    }, [token, USER, LANG]);
     const page = await context.newPage();
     const consoleErrors = []; const httpErrors = [];
     page.on('console', m => { if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 200)); });
