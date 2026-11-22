@@ -80,8 +80,8 @@
         </details>
       } @else {
         <a routerLink="/home" routerLinkActive="active-link">{{ 'nav.home' | t }}</a>
-        <a routerLink="/about" routerLinkActive="active-link">{{ 'nav.about' | t }}</a>
-        <a routerLink="/contact" routerLinkActive="active-link">{{ 'nav.contact' | t }}</a>
+        <a class="nav-public-secondary" routerLink="/about" routerLinkActive="active-link">{{ 'nav.about' | t }}</a>
+        <a class="nav-public-secondary" routerLink="/contact" routerLinkActive="active-link">{{ 'nav.contact' | t }}</a>
       }
 
       @if (!authenticated) {

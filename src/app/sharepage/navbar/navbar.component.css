@@ -669,3 +669,9 @@
   .brand__wordmark { display: none; }
   .site-nav__links > a { padding: .5rem .45rem; font-size: .82rem; }
 }
+
+/* Phones, signed out: "Sobre" and "Contacto" are in the footer, so the bar keeps
+   room for "Criar conta" and "Entrar" without hiding them off-screen. */
+@media (max-width: 620px) {
+  .site-nav__links .nav-public-secondary { display: none; }
+}
