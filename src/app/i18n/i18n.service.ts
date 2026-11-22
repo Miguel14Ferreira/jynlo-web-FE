@@ -1712,6 +1712,7 @@ const PT: Dictionary = {
   'notifications.tournament.open': 'Ver torneio',
   'notifications.preferences.type.PAYMENT_REMINDER': 'Lembretes de pagamento dos jogos',
   'notifications.preferences.type.NEARBY_SESSION': 'Novos jogos perto de ti',
+  'notifications.preferences.type.COMMUNITY_SESSION_CREATED': 'Novos jogos nas tuas comunidades',
   'notifications.preferences.type.AVAILABILITY_REQUEST': 'Pedidos de disponibilidade (quem pode?)',
   'notifications.preferences.type.AVAILABILITY_REMINDER': 'Lembretes para responder à disponibilidade',
   'nearbyAlerts.title': 'Novos jogos perto de ti',
