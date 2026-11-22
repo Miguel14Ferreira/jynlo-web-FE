@@ -41,6 +41,16 @@ describe('ImageZoomComponent', () => {
     expect(fixture.nativeElement.querySelector('.image-zoom-image')).toBeNull();
   });
 
+  it('also zooms when a decorative layer above the photo receives the click', () => {
+    host.innerHTML = '<div class="frame" style="position:relative;width:100px;height:100px">'
+      + '<img data-zoomable alt="ACM" style="display:block;width:100px;height:100px" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=">'
+      + '<span class="shine" style="position:absolute;inset:0"></span></div>';
+    const box = host.querySelector('img')!.getBoundingClientRect();
+    const shine = host.querySelector('.shine')!;
+    expect(zoomTarget(shine, box.left + 50, box.top + 50)?.alt).toBe('ACM');
+    expect(zoomTarget(shine, box.right + 40, box.top + 50)).toBeNull();
+  });
+
   it('closes when the backdrop is clicked', () => {
     fixture.componentInstance.open({ src: 'x.png', alt: '' });
     fixture.detectChanges();
