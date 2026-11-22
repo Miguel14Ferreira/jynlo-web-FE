@@ -43,9 +43,9 @@
 /* The same contextual actions in the unified DM/community/session chat as in
    team chat. Keep the confirmation modal outside the floating toolbar. */
 .inbox-bubble{position:relative;overflow:visible}
-.inbox-bubble>.inbox-message-actions{position:absolute;z-index:20;right:8px;top:-22px;
- display:flex;align-items:center;gap:3px;flex-wrap:nowrap;
- max-width:calc(100% - 16px);padding:5px;
+.inbox-bubble>.inbox-message-actions{position:absolute;z-index:20;left:6px;bottom:calc(100% - 6px);
+ display:flex;align-items:center;gap:2px;flex-wrap:nowrap;
+ width:max-content;max-width:none;padding:4px;
  background:#163e4b;border:1px solid #44818b;border-radius:12px;
  box-shadow:0 10px 24px #0008;opacity:0;visibility:hidden;
  pointer-events:none;transform:translateY(5px);
@@ -53,11 +53,13 @@
 .inbox-bubble:is(:hover,:focus-within)>.inbox-message-actions,
 .inbox-bubble.inbox-actions-expanded>.inbox-message-actions{
  opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}
+.inbox-bubble.is-mine>.inbox-message-actions{left:auto;right:6px}
 .inbox-bubble>.inbox-message-actions>button{display:inline-flex;align-items:center;
- justify-content:center;min-height:32px;padding:5px 9px;white-space:nowrap;
+ justify-content:center;min-height:32px;min-width:32px;padding:4px 7px;white-space:nowrap;font-size:1rem!important;
  margin:0;border:0;border-radius:8px;background:transparent;color:#e3fcf6;
  font-size:.78rem;line-height:1.2}
 .inbox-bubble>.inbox-message-actions>button:hover{background:#245a65;text-decoration:none}
+.inbox-bubble>.inbox-message-actions>.inbox-mutation-trigger--danger:hover{background:#5a2730}
 .inbox-bubble>.inbox-message-actions>button:focus-visible{outline:2px solid #80f7dd;outline-offset:1px}
 .inbox-bubble .inbox-message-more{display:none}
 @media(hover:none),(pointer:coarse){
