@@ -1,3 +1,4 @@
+import { venueCatalogueDisplayLabel } from '../../shared/venue-catalogue-display';
 import { ChangeDetectionStrategy, Component, OnInit, Optional } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
@@ -221,7 +222,16 @@ export class DiscoverComponent implements OnInit {
       .replace(/[\u0300-\u036f]/g, '');
   }
 
+  /** The field shows the sport in the site language; searches keep the stored (Portuguese) name. */
+  get sportDisplay(): string { return this.sport ? venueCatalogueDisplayLabel(this.sport, 'sport') : ''; }
+  sportOptionLabel(value: string): string { return venueCatalogueDisplayLabel(value, 'sport'); }
+
   onSportChange(value: string): void {
+    const typed = (value ?? '').trim().toLowerCase();
+    const canonical = typed
+      ? this.searchableSports.find(s => venueCatalogueDisplayLabel(s, 'sport').toLowerCase() === typed)
+      : undefined;
+    value = canonical ?? value;
     this.sport = value;
     this.sportEdited = true;
     this.playerName = '';

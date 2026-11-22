@@ -8156,4 +8156,8 @@ export const EN: Record<string, string> = {
   'Jogos: {{n}}': 'Games: {{n}}',
   'Golos, assistências, MVP e clean sheets aparecem aqui quando forem registados nos resultados das jornadas.': 'Goals, assists, MVPs and clean sheets show up here once they are recorded in the match results.',
   'Ainda não há resultados nesta época.': 'No results this season yet.',
+  'J': 'GP',
+  'G': 'G',
+  'A': 'A',
+  'Jogos': 'Games',
 };
