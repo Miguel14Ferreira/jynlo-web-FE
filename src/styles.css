@@ -654,3 +654,8 @@ button:is([aria-label^="Fechar " i],[aria-label^="Close " i],
 
 /* Photos that open enlarged when clicked. */
 img[data-zoomable], :has(> img[data-zoomable]) { cursor: zoom-in; }
+
+/* Community standings tables (racket/race by sport): scroll sideways on phones
+   instead of squeezing names and headers one letter per line. */
+.racket-standings-group .t-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.racket-standings-group .t-table-scroll table { min-width: 520px; white-space: nowrap; }
