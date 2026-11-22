@@ -9,7 +9,7 @@
     <div class="fsteps__chips">
       @for (sport of choices; track sport) {
         <button type="button" class="fsteps__chip" [class.fsteps__chip--on]="isOn(sport)" [attr.aria-pressed]="isOn(sport)" (click)="toggle(sport)">
-          @if (isOn(sport)) { ✓ }{{ sport }}
+          @if (isOn(sport)) { ✓ }{{ sport | sportName }}
         </button>
       }
     </div>

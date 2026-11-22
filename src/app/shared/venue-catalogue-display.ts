@@ -7,6 +7,7 @@ export type VenueCatalogueLabelKind = 'sport' | 'venueType' | 'surface';
 const EN_SPORTS: Readonly<Record<string, string>> = {
   "Aeromodelismo": "Aeromodelling",
   "Aikido": "Aikido",
+  "Airsoft": "Airsoft",
   "Andebol": "Handball",
   "Apneia": "Freediving",
   "Artes Marciais Chinesas": "Chinese martial arts",

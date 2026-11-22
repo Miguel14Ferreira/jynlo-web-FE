@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { SessionSummary } from '../model/session-summary';
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 /**
  * A read-only community session summary. The parent remains responsible for
@@ -10,7 +11,7 @@ import { SessionSummary } from '../model/session-summary';
 @Component({
   selector: 'app-community-session-card',
   standalone: true,
-  imports: [RouterLink, TranslatePipe],
+  imports: [SportNamePipe, RouterLink, TranslatePipe],
   templateUrl: './community-session-card.component.html',
   styleUrls: ['./community-session-card.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

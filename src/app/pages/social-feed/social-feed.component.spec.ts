@@ -1,3 +1,4 @@
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { Component } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SocialFeedComponent } from './social-feed.component';
@@ -68,7 +69,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
 
     await TestBed.configureTestingModule({
       declarations: [SocialFeedComponent],
-      imports: [...TEST_IMPORTS, StubStoriesComponent, StubFirstStepsPromptComponent, VenueSportsBadgesComponent, MovableTextComponent, ProtectedMediaDirective],
+      imports: [SportNamePipe, ...TEST_IMPORTS, StubStoriesComponent, StubFirstStepsPromptComponent, VenueSportsBadgesComponent, MovableTextComponent, ProtectedMediaDirective],
       providers: [
         ...TEST_PROVIDERS,
         { provide: AuthenticationService, useValue: auth },

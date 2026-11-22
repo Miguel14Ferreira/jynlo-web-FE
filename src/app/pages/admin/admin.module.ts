@@ -12,6 +12,7 @@ import { AdminPlayersComponent } from '../admin-players/admin-players.component'
 import { AdminUserReportsComponent } from '../admin-user-reports/admin-user-reports.component';
 import { AdminVenueSuggestionsComponent } from '../admin-venue-suggestions/admin-venue-suggestions.component';
 import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/venue-sports-badges.component';
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 const routes: Routes = [
   { path: '', component: AdminDashboardComponent },
@@ -37,7 +38,7 @@ const routes: Routes = [
     AdminPlayersComponent,
     AdminUserReportsComponent
   ],
-  imports: [
+  imports: [SportNamePipe, 
     CommonModule,
     FormsModule,
     RouterModule.forChild(routes),

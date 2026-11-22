@@ -17,7 +17,7 @@
     <div class="sport-classification-list" [attr.aria-label]="'communities.competitionSettings' | t">
       @for (item of classifiedSports; track item.sport) {
         <div class="sport-scoring-guidance" role="note" [attr.data-sport-format]="item.family">
-          <strong>{{ item.sport }}</strong>
+          <strong>{{ item.sport | sportName }}</strong>
           <span>{{ classificationHeadingKey(item.sport) | t }}</span>
           <p>{{ classificationDescriptionKey(item.sport) | t }}</p>
         </div>

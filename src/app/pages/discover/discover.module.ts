@@ -5,11 +5,12 @@ import { RouterModule } from '@angular/router';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { DiscoverComponent } from './discover.component';
 import { SessionDiscoveryMapComponent } from './session-discovery-map.component';
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 // Load this screen only when its route is opened, not on the public home page.
 @NgModule({
   declarations: [DiscoverComponent, SessionDiscoveryMapComponent],
-  imports: [
+  imports: [SportNamePipe, 
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

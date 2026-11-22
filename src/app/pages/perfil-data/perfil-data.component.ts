@@ -15,6 +15,7 @@ import { FollowProfile, FollowStatus } from '../model/follow';
 import { ReliabilityService } from '../../services/reliability.service';
 import { sportIcon } from '../../shared/sports-catalog';
 import { calculateProfileCompletion, ProfileCompletion, ProfileCompletionItem } from '../../shared/profile-completion';
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 @Component({
   selector: 'app-perfil-data',
@@ -22,7 +23,7 @@ import { calculateProfileCompletion, ProfileCompletion, ProfileCompletionItem } 
   styleUrls: ['./perfil-data.component.css', './perfil-data-v3-finish.css'],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe]
+  imports: [SportNamePipe, CommonModule, FormsModule, RouterLink, TranslatePipe]
 })
 export class PerfilDataComponent implements OnInit {
   profile?: MyProfile;

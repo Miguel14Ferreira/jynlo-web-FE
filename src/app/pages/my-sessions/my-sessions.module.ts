@@ -4,11 +4,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { MySessionsComponent } from './my-sessions.component';
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 // Keep this feature out of the public application's initial JavaScript bundle.
 @NgModule({
   declarations: [MySessionsComponent],
-  imports: [
+  imports: [SportNamePipe, 
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

@@ -5,6 +5,7 @@ import { Title } from '@angular/platform-browser';
 import { Subscription, timeout } from 'rxjs';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { PublicTournamentGame, PublicTournamentPage, PublicTournamentService } from '../../services/public-tournament.service';
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 interface Round { round: number; group: number | null; games: PublicTournamentGame[]; }
 
@@ -12,7 +13,7 @@ interface Round { round: number; group: number | null; games: PublicTournamentGa
 @Component({
   selector: 'app-public-tournament',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslatePipe],
+  imports: [SportNamePipe, CommonModule, RouterModule, TranslatePipe],
   templateUrl: './public-tournament.component.html',
   styleUrls: ['./public-tournament.component.css']
 })

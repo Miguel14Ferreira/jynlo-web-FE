@@ -1,3 +1,4 @@
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -218,7 +219,7 @@ describe('SessionDetailsComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [SessionDetailsComponent],
-      imports: [...TEST_IMPORTS, ChatReactionsStubComponent, SessionPaymentsPanelStubComponent, PreviousUnpaidWarningStubComponent],
+      imports: [SportNamePipe, ...TEST_IMPORTS, ChatReactionsStubComponent, SessionPaymentsPanelStubComponent, PreviousUnpaidWarningStubComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: ChatReadSyncService, useValue: readSync },

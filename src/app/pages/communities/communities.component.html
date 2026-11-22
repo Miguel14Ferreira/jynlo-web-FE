@@ -991,7 +991,7 @@
                       @for (season of competition?.seasons || []; track season.id) {
                         @if (season.active) {
                           <span class="competition-badge">
-                            {{ 'communities.activeSeason' | t }} · {{ season.sport || season.name }}
+                            {{ 'communities.activeSeason' | t }} · {{ (season.sport | sportName) || season.name }}
                           </span>
                         }
                       }
@@ -1036,7 +1036,7 @@
                           <div class="season-management-row">
                             <div class="season-management-identity">
                               <strong>{{ season.name }}</strong>
-                              <span>{{ (season.active ? 'communities.activeSeason' : 'communities.closedSeason') | t }}{{ season.sport ? ' · ' + season.sport : '' }}</span>
+                              <span>{{ (season.active ? 'communities.activeSeason' : 'communities.closedSeason') | t }}{{ season.sport ? ' · ' + (season.sport | sportName) : '' }}</span>
                             </div>
                             @if (editingSeasonId === season.id) {
                               <div class="season-management-editor">
@@ -2381,7 +2381,7 @@
                                 [attr.aria-label]="'communities.roundSport' | t">
                                 <option value="">{{ 'communities.selectRoundSport' | t }}</option>
                                 @for (sport of roundEligibleSports; track sport) {
-                                  <option [value]="sport">{{ sport }}</option>
+                                  <option [value]="sport">{{ sport | sportName }}</option>
                                 }
                               </select>
                             </label>
@@ -3112,7 +3112,7 @@
                         @for (group of raceRankingGroups; track group.sport) {
                           <div class="racket-standings-group">
                             <div class="racket-standings-group-head">
-                              <h4>🏁 {{ group.sport }}</h4>
+                              <h4>🏁 {{ group.sport | sportName }}</h4>
                               @if (group.rule) {
                                 <span class="competition-badge">{{ 'communities.race.scoringOn' | t }}</span>
                               } @else {
@@ -3221,7 +3221,7 @@
                         @for (group of racketRankingGroups; track group.sport + ':' + group.matchFormat) {
                           <div class="racket-standings-group">
                             <div class="racket-standings-group-head">
-                              <h4>{{ group.sport }}</h4>
+                              <h4>{{ group.sport | sportName }}</h4>
                               <span class="competition-badge">
                                 {{ (group.matchFormat === 'DOUBLES'
                                   ? 'communities.racket.doubles' : 'communities.racket.singles') | t }}
@@ -3367,7 +3367,7 @@
                               <strong>{{ round.name }}</strong>
                               <span>{{ formatRoundDate(round.playedAt) }}</span>
                               @if (roundSport(round); as sport) {
-                                <span class="round-sport-tag">{{ sport }}</span>
+                                <span class="round-sport-tag">{{ sport | sportName }}</span>
                               }
                               @if (round.eventType) {
                                 <span class="round-sport-tag">{{ eventTypeLabel(round.eventType, roundSport(round)) }}</span>
@@ -4752,7 +4752,7 @@
                                     <select [(ngModel)]="importSportDraft" (ngModelChange)="invalidateImportPlan()">
                                       <option value="">{{ 'communities.selectRoundSport' | t }}</option>
                                       @for (sport of communityRoundSports; track sport) {
-                                        <option [value]="sport">{{ sport }}</option>
+                                        <option [value]="sport">{{ sport | sportName }}</option>
                                       }
                                     </select>
                                   </label>
@@ -4915,7 +4915,7 @@
                         @for (group of raceRankingGroups; track group.sport) {
                           <div class="racket-standings-group">
                             <div class="racket-standings-group-head">
-                              <h4>{{ group.sport }}</h4>
+                              <h4>{{ group.sport | sportName }}</h4>
                               <span class="competition-badge">{{ (group.rule
                                 ? 'communities.race.scoringOn' : 'communities.race.noScoring') | t }}</span>
                             </div>
@@ -4996,7 +4996,7 @@
                     @for (group of scopedMatchRankingGroups; track group.sport) {
                       <section class="racket-standings-group">
                         <div class="racket-standings-group-head">
-                          <h4>{{ group.sport }}</h4>
+                          <h4>{{ group.sport | sportName }}</h4>
                           @if (group.scoring) {
                             <span class="scoring-caption">
                               {{ group.scoring.winPoints }}/{{ group.scoring.drawPoints }}/{{ group.scoring.lossPoints }}

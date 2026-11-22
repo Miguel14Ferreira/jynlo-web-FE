@@ -6,11 +6,12 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SportsTeam, SportsTeamInvitation, SportsTeamsService } from '../../services/sports-teams.service';
 import { SPORTS_CATALOG } from '../../shared/sports-catalog';
 import { CompetitionTeamInvitation, TeamCompetitionInvitationsService } from '../../services/team-competition-invitations.service';
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 @Component({
   selector: 'app-sports-teams',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [SportNamePipe, CommonModule, FormsModule, RouterLink],
   templateUrl: './sports-teams.component.html',
   styleUrls: ['./sports-teams.component.css']
 })

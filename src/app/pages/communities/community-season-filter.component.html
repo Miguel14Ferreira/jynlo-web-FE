@@ -4,7 +4,7 @@
     <option [ngValue]="null">{{ 'communities.allTime' | t }}</option>
     @for (season of seasons; track season.id) {
       <option [ngValue]="season.id">
-        {{ season.sport ? season.sport + ' · ' : '' }}{{ season.name }}{{ season.active ? ' · ' + ('communities.activeShort' | t) : '' }}
+        {{ season.sport ? (season.sport | sportName) + ' · ' : '' }}{{ season.name }}{{ season.active ? ' · ' + ('communities.activeShort' | t) : '' }}
       </option>
     }
   </select>

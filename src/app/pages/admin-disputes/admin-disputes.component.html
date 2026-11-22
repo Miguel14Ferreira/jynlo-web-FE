@@ -59,7 +59,7 @@
           <article class="dispute-card">
             <div class="card-heading">
               <div>
-                <span class="sport">{{ dispute.sport }}</span>
+                <span class="sport">{{ dispute.sport | sportName }}</span>
                 <h2>{{ dispute.participantUsername }}</h2>
                 <p>{{ dispute.city }} · sessão #{{ dispute.sessionId }}</p>
               </div>

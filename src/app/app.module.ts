@@ -20,6 +20,7 @@ import { ProfileQuickViewComponent } from './shared/profile-quick-view.component
 import { VenueSportsBadgesComponent } from './shared/venue-sports-badges/venue-sports-badges.component';
 import { LegalPageComponent } from './pages/legal-page/legal-page.component';
 import { JynloSelectComponent } from './shared/jynlo-select/jynlo-select.component';
+import { SportNamePipe } from './i18n/sport-name.pipe';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -32,7 +33,7 @@ import { JynloSelectComponent } from './shared/jynlo-select/jynlo-select.compone
 
         LegalPageComponent
     ],
-    bootstrap: [AppComponent], imports: [BrowserModule,
+    bootstrap: [AppComponent], imports: [SportNamePipe, BrowserModule,
         AppRoutingModule,
         FormsModule,
         ReactiveFormsModule,

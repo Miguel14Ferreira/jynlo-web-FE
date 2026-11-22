@@ -76,7 +76,7 @@
                 <article class="session-card upcoming-card">
                   <div class="card-top">
                     <div>
-                      <span class="sport">{{ session.sport }} · {{ session.city }}</span>
+                      <span class="sport">{{ session.sport | sportName }} · {{ session.city }}</span>
                       <h3>{{ (sessionDisplayDate(session) | date:'dd/MM/yyyy HH:mm') || ('publicSession.notSpecified' | t) }}</h3>
                     </div>
                     <span class="status" [class.status-full]="session.status === 'FULL'">{{ sessionStatusLabel(session) }}</span>
@@ -126,7 +126,7 @@
                 <span>{{ 'mySessions.filterSport' | t }}</span>
                 <select name="historySport" [(ngModel)]="historySport" (ngModelChange)="historyShown=8">
                   <option value="">{{ 'mySessions.allSports' | t }}</option>
-                  @for (sport of historySports; track sport) { <option [value]="sport">{{ sport }}</option> }
+                  @for (sport of historySports; track sport) { <option [value]="sport">{{ sport | sportName }}</option> }
                 </select>
               </label>
               <label class="history-filter">
@@ -166,7 +166,7 @@
                 @for (session of visibleHistory; track session.id) {
                   <article class="history-row">
                     <div class="history-main">
-                      <strong>{{ session.sport }} · {{ session.city }}</strong>
+                      <strong>{{ session.sport | sportName }} · {{ session.city }}</strong>
                       <span>{{ (sessionDisplayDate(session) | date:'dd/MM/yyyy HH:mm') || ('publicSession.notSpecified' | t) }}</span>
                     </div>
                     <span class="history-status" [class.is-cancelled]="session.status === 'CANCELLED'"
@@ -199,7 +199,7 @@
             <section class="next-session-highlight" aria-labelledby="next-joined-session-title">
               <div>
                 <span class="section-kicker">{{ 'mySessions.nextConfirmed' | t }}</span>
-                <h2 id="next-joined-session-title">{{ session.sport }} · {{ session.city }}</h2>
+                <h2 id="next-joined-session-title">{{ session.sport | sportName }} · {{ session.city }}</h2>
                 <p>{{ (sessionDisplayDate(session) | date:'dd/MM/yyyy HH:mm') || ('publicSession.notSpecified' | t) }} · {{ 'mySessions.players' | t:{ count: session.participantCount + '/' + session.maxParticipants } }}</p>
               </div>
               <a class="jynlo-action jynlo-action--primary" [routerLink]="['/menu/events', session.id]"
@@ -226,7 +226,7 @@
               <article class="session-card">
                 <div class="card-top">
                   <div>
-                    <span class="sport">{{ session.sport }}</span>
+                    <span class="sport">{{ session.sport | sportName }}</span>
                     <h3>{{ session.city }}</h3>
                   </div>
                   <span class="status">{{ sessionStatusLabel(session) }}</span>
@@ -266,7 +266,7 @@
               <article class="session-card">
                 <div class="card-top">
                   <div>
-                    <span class="sport">{{ session.sport }}</span>
+                    <span class="sport">{{ session.sport | sportName }}</span>
                     <h3>{{ session.city }}</h3>
                   </div>
                   <span class="waitlist-badge">{{ 'mySessions.waitingStatus' | t }}</span>
@@ -333,7 +333,7 @@
             <article class="attendance-card">
               <div class="attendance-main">
                 <div>
-                  <span class="sport">{{ item.sport }}</span>
+                  <span class="sport">{{ item.sport | sportName }}</span>
                   <h3>{{ item.city }}</h3>
                   @if (item.gameDate) {
                     <span class="attendance-date">{{ item.gameDate | date:'dd/MM/yyyy HH:mm' }}</span>

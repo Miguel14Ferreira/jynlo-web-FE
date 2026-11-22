@@ -12,13 +12,14 @@ import {
   VenueEditField, VenueEditSuggestion, VenueEditSuggestionsService
 } from '../../services/venue-edit-suggestions.service';
 import { Venue } from '../model/venue';
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 type Draft = Record<VenueEditField, string>;
 
 @Component({
   selector: 'app-venue-suggest-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe],
+  imports: [SportNamePipe, CommonModule, FormsModule, RouterLink, TranslatePipe],
   templateUrl: './venue-suggest-edit.component.html',
   styleUrls: ['./venue-suggest-edit.component.css']
 })

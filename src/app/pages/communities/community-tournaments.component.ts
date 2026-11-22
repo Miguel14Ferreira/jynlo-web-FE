@@ -48,6 +48,7 @@ import { SPORTS_CATALOG } from '../../shared/sports-catalog';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { buildTournamentTeamInviteUrl, teamInvitationWhatsAppUrl } from './community-team-invite';
 import { formatKartingDuration, kartingRaceAward, orderedKartingRaceEntries } from './community-karting-race-display';
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 interface TournamentTeamAdministrationState {
   teamId: number;
@@ -62,7 +63,7 @@ interface TournamentTeamAdministrationState {
   templateUrl: './community-tournaments.component.html',
   styleUrls: ['./community-tournaments.component.css', './community-tournaments-v3-finish.css', './community-tournaments-team-journey.css', './community-team-honours-timeline.css', './community-competitions-dashboard.css', './community-team-autonomy.css', './community-championship-round-centre.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, CommunityTournamentEligibilityPanelComponent, CompetitionFormatChooserComponent, CompetitionGuideComponent, CompetitionTeamSearchComponent, EventRankingPanelComponent, KartingPalmaresComponent, KartingPodiumComponent, KartingRaceTableComponent, RaceStandingsCardComponent, TeamCompetitionApplicationsComponent, TournamentClassificationNoteComponent, TournamentPublicShareComponent]
+  imports: [SportNamePipe, CommonModule, FormsModule, RouterLink, TranslatePipe, CommunityTournamentEligibilityPanelComponent, CompetitionFormatChooserComponent, CompetitionGuideComponent, CompetitionTeamSearchComponent, EventRankingPanelComponent, KartingPalmaresComponent, KartingPodiumComponent, KartingRaceTableComponent, RaceStandingsCardComponent, TeamCompetitionApplicationsComponent, TournamentClassificationNoteComponent, TournamentPublicShareComponent]
 })
 export class CommunityTournamentsComponent implements OnChanges {
   @Input({ required: true }) community!: CommunityGroup;

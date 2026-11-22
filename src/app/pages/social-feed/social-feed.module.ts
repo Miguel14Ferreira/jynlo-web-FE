@@ -10,11 +10,12 @@ import { SocialStoriesComponent } from './social-stories.component';
 import { MovableTextComponent } from './movable-text.component';
 import { PersonalLiveRoomComponent } from './personal-live-room.component';
 import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/venue-sports-badges.component';
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 // Load this screen only when its route is opened, not on the public home page.
 @NgModule({
   declarations: [SocialFeedComponent],
-  imports: [
+  imports: [SportNamePipe, 
     CommonModule,
     ProtectedMediaDirective,
     FormsModule,

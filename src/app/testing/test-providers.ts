@@ -1,3 +1,4 @@
+import { SportNamePipe } from '../i18n/sport-name.pipe';
 import { Provider } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
@@ -42,6 +43,7 @@ const activatedRouteMock = {
 };
 
 export const TEST_IMPORTS = [
+  SportNamePipe,
   FormsModule,
   ReactiveFormsModule,
   RouterTestingModule,

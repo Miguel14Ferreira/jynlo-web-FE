@@ -69,7 +69,7 @@
               @for (sport of selectedSports; track sport) {
                 <button type="button" (click)="removeSport(sport)"
                   [attr.aria-label]="('venue.edit.removeSport' | t) + ': ' + sport">
-                  {{ sport }} ×
+                  {{ sport | sportName }} ×
                 </button>
               }
             </div>
@@ -80,7 +80,7 @@
             </label>
             <div class="venue-edit-sport-results">
               @for (sport of visibleSports; track sport) {
-                <button type="button" (click)="addSport(sport)">+ {{ sport }}</button>
+                <button type="button" (click)="addSport(sport)">+ {{ sport | sportName }}</button>
               }
             </div>
           </div>
