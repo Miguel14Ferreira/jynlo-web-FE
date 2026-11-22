@@ -1087,18 +1087,6 @@
             </span>
           </label>
 
-          @if (privateGame) {
-            <label class="nested-field">
-              <span>{{ 'login.password' | t }} *</span>
-              <input
-                type="password"
-                name="password"
-                autocomplete="new-password"
-                [(ngModel)]="password"
-                [disabled]="loading"
-                [placeholder]="'createSession.sessionPassword' | t">
-            </label>
-          }
         </section>
         }
 

@@ -1136,7 +1136,8 @@ export class Events2Component implements OnInit, OnDestroy {
         && this.confirmActivateRankings,
       priceAmount: this.hasPrice ? Number(this.priceAmount ?? 0) : 0,
       privateGame: this.findPlayersMode ? false : this.privateGame,
-      password: this.findPlayersMode ? null : (this.privateGame ? this.password.trim() : null),
+      // Private games are invite-only: shared via the invitation link, no password.
+      password: null,
       latitude: this.hasCoordinates ? this.latitude : null,
       longitude: this.hasCoordinates ? this.longitude : null,
       communityId: this.communityId,
@@ -2124,9 +2125,6 @@ export class Events2Component implements OnInit, OnDestroy {
       }
     }
 
-    if (!this.findPlayersMode && this.privateGame && !this.password.trim()) {
-      return t('feedback.create.privatePassword');
-    }
 
     if (this.hasPrice) {
       const price = Number(this.priceAmount);

@@ -1481,24 +1481,31 @@
 
               <div class="join-controls">
                 @if (session.privateGame) {
-                  <label>
-                    <span>{{ 'sessionDetail.password' | t }}</span>
-                    <input
-                      type="password"
-                      autocomplete="off"
-                      [(ngModel)]="joinPassword"
-                      [disabled]="actionLoading"
-                      [placeholder]="'sessionDetail.passwordPlaceholder' | t">
-                  </label>
+                  <p class="join-invite-only">{{ 'Este jogo é só por convite. Pede o link de convite ao organizador.' | t }}</p>
+                  @if (legacyPasswordOpen) {
+                    <label>
+                      <span>{{ 'sessionDetail.password' | t }}</span>
+                      <input
+                        type="password"
+                        autocomplete="off"
+                        [(ngModel)]="joinPassword"
+                        [disabled]="actionLoading"
+                        [placeholder]="'sessionDetail.passwordPlaceholder' | t">
+                    </label>
+                  } @else {
+                    <button type="button" class="link-button" (click)="legacyPasswordOpen = true">{{ 'Recebeste uma palavra-passe? Usa-a aqui.' | t }}</button>
+                  }
                 }
 
-                <button
-                  type="button"
-                  class="primary-action jynlo-action jynlo-action--primary"
-                  [disabled]="actionLoading"
-                  (click)="joinSession()">
-                  {{ joinButtonLabel() }}
-                </button>
+                @if (!session.privateGame || legacyPasswordOpen) {
+                  <button
+                    type="button"
+                    class="primary-action jynlo-action jynlo-action--primary"
+                    [disabled]="actionLoading"
+                    (click)="joinSession()">
+                    {{ joinButtonLabel() }}
+                  </button>
+                }
               </div>
             </section>
           }

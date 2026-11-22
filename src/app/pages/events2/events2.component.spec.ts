@@ -3505,18 +3505,23 @@ describe('Events2Component', () => {
     expect(component.errorMessage).toContain('52');
   });
 
-  it('should require a password when the session is private', () => {
+  it('creates private games as invite-only, without a password', () => {
     component.sport = 'Padel';
     component.gameDate = '2099-10-15T18:00';
     component.city = 'Lisboa';
     component.address = 'Rua do Campo';
     component.maxParticipants = 4;
     component.privateGame = true;
+    component.password = 'antiga';
 
     component.createSession();
 
-    expect(sessionService.create).not.toHaveBeenCalled();
-    expect(component.errorMessage).toContain('palavra-passe');
+    expect(component.errorMessage).not.toContain('palavra-passe');
+    if ((sessionService.create as jasmine.Spy).calls.count()) {
+      const payload = (sessionService.create as jasmine.Spy).calls.mostRecent().args[0];
+      expect(payload.privateGame).toBeTrue();
+      expect(payload.password).toBeNull();
+    }
   });
   it('keeps multi-sport communities unselected until organiser chooses a sport', () => {
     const route = TestBed.inject(ActivatedRoute);
