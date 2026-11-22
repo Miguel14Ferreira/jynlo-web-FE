@@ -2045,3 +2045,44 @@ describe('SocialFeedComponent attendance activity visibility', () => {
     expect(component.hidingAttendanceSessionId).toBeNull();
   });
 });
+
+describe('SocialFeedComponent "Publicar em"', () => {
+  function create(timeline: any, teams: any): SocialFeedComponent {
+    const auth = jasmine.createSpyObj<AuthenticationService>('AuthenticationService', ['isLoggedIn']);
+    auth.isLoggedIn.and.returnValue(true);
+    const component = new SocialFeedComponent(
+      {} as SocialFeedService, {} as SessionService, auth,
+      { snapshot: { queryParamMap: convertToParamMap({}) }, queryParamMap: of(convertToParamMap({})) } as unknown as ActivatedRoute,
+      {} as Router, {} as CommunityService, null, null, null, null, null, null, null, timeline, teams);
+    return component;
+  }
+
+  it('publishes text in the chosen community feed, not on the profile', () => {
+    const timeline = jasmine.createSpyObj('CommunityTimelineService', ['send', 'sendPostAlbum']);
+    timeline.send.and.returnValue(of({}));
+    const component = create(timeline, null);
+    component.postLocation = 'Lisboa';
+    component.selectPostDestination({ kind: 'community', id: 7, name: 'Futsal Amigos' });
+    expect(component.postLocation).toBe('');
+    component.postContent = 'Jogo quinta às 20h';
+    component.publish();
+    expect(timeline.send).toHaveBeenCalledWith(7, 'POST', 'Jogo quinta às 20h');
+    expect(component.publishedDestination?.id).toBe(7);
+    expect(component.postContent).toBe('');
+  });
+
+  it('team feed posts with photos go as one album and respect the 4-file limit', () => {
+    const teams = jasmine.createSpyObj('SportsTeamsService', ['sendContent', 'uploadContentFiles']);
+    teams.uploadContentFiles.and.returnValue(of({}));
+    const component = create(null, teams);
+    component.selectPostDestination({ kind: 'team', id: 3, name: 'Os Craques' });
+    const file = new File(['x'], 'a.jpg', { type: 'image/jpeg' });
+    component.postGallery = [1, 2, 3, 4, 5].map(() => ({ file } as any));
+    component.publish();
+    expect(teams.uploadContentFiles).not.toHaveBeenCalled();
+    expect(component.actionError).toContain('4');
+    component.postGallery = [{ file } as any];
+    component.publish();
+    expect(teams.uploadContentFiles).toHaveBeenCalledWith(3, 'feed', [file], '', null);
+  });
+});
