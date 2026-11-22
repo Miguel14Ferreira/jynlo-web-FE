@@ -2193,6 +2193,22 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   importPreviewLoading = false;
   importSheetName = '';
   importMappings: Array<{ columnIndex: number; header: string; field: string; confidence: number }> = [];
+  /** Every column was recognised with high confidence: hide the column table unless asked. */
+  importMappingConfident = false;
+  importMappingOpen = false;
+
+  /** Player results the confirmed import will create (duplicate rounds excluded). */
+  get importPlanEntries(): number {
+    const rounds: Array<{ duplicate?: boolean; players?: number }> = this.importFinalPlan?.rounds ?? [];
+    return rounds.filter(round => !round.duplicate)
+      .reduce((sum, round) => sum + (round.players || 0), 0);
+  }
+
+  /** Columns the import will use, in plain words, for the collapsed summary. */
+  get importRecognisedColumns(): string {
+    return this.importMappings.filter(item => item.field !== 'IGNORE')
+      .map(item => this.importFieldLabel(item.field)).join(', ');
+  }
   importValidation?: { valid: boolean; dataRows: number; validRows: number; errors: string[]; warnings: string[];
     errorDetails?: CommunityImportDiagnostic[]; warningDetails?: CommunityImportDiagnostic[] };
   importNormalized?: { acceptedRows: number; skippedRows: number; rows: any[]; skipped: any[] };
@@ -5053,6 +5069,8 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
 
     this.importFile = file;
     this.importFileName = file.name;
+    // One step less: read the file as soon as it is chosen.
+    this.inspectImportFile();
   }
 
   clearImportFile(input: HTMLInputElement): void {
@@ -5128,6 +5146,15 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     this.sourceDatesNeedYear = this.importMode === 'ROUNDS' &&
       dates.some(date => /^\d{1,2}\s+[\p{L}.]+$/u.test(date) || /^\d{1,2}[-/.]\d{1,2}$/.test(date));
     if (this.sourceDatesNeedYear) this.importDefaultYear = null;
+    const used = this.importMappings.filter(item => item.field !== 'IGNORE');
+    this.importMappingConfident = this.importMode === 'ROUNDS'
+      && used.some(item => item.field === 'PLAYER')
+      && used.every(item => item.confidence >= 0.9);
+    this.importMappingOpen = !this.importMappingConfident;
+    // Recognised file (e.g. the Jynlo template): go straight to the data preview.
+    if (this.importMappingConfident && !this.sourceDatesNeedYear && this.importFile) {
+      this.validateImportMapping();
+    }
   }
 
   private suggestRoundsField(header: string, suggestion: string): string {

@@ -109,6 +109,15 @@ export interface TeamContentEntry {
 export interface TeamReactionState { counts: Record<string, number>; mine: string | null; }
 export type TeamContentKind = 'chat' | 'feed';
 
+/** Squad entry imported from a spreadsheet (owner only). */
+export interface TeamRosterEntry { id: number; name: string; shirtNumber: number | null; position: string | null;
+  username: string | null; memberStatus: 'INVITED' | 'ACTIVE' | 'DECLINED' | null; }
+export interface TeamRosterPreview {
+  rows: { line: number; name: string; shirtNumber: number | null; position: string | null; username: string | null;
+    status: 'INVITE' | 'ALREADY_IN_TEAM' | 'NEW' | 'DUPLICATE' | 'UNKNOWN_USERNAME' }[];
+  invites: number; newPlayers: number; skipped: number; warnings: string[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class SportsTeamsService {
   private readonly url = environment.apiUrl + '/api/teams';
@@ -171,6 +180,20 @@ export class SportsTeamsService {
     return this.http.get<SportsTeamPlayerCandidate[]>(this.url+'/players/search',{
       params:new HttpParams().set('q',term)
     });
+  }
+  roster(teamId: number): Observable<TeamRosterEntry[]> {
+    return this.http.get<TeamRosterEntry[]>(this.url + '/' + teamId + '/roster');
+  }
+  previewRosterImport(teamId: number, file: File): Observable<TeamRosterPreview> {
+    const form = new FormData(); form.append('file', file, file.name);
+    return this.http.post<TeamRosterPreview>(this.url + '/' + teamId + '/roster/import/preview', form);
+  }
+  importRoster(teamId: number, file: File): Observable<{ invited: number; added: number; skipped: number }> {
+    const form = new FormData(); form.append('file', file, file.name);
+    return this.http.post<{ invited: number; added: number; skipped: number }>(this.url + '/' + teamId + '/roster/import', form);
+  }
+  removeRosterEntry(teamId: number, entryId: number): Observable<void> {
+    return this.http.delete<void>(this.url + '/' + teamId + '/roster/' + entryId);
   }
   invite(teamId: number, profileId: number): Observable<void> {
     return this.http.post<void>(this.url + '/' + teamId + '/invitations', {profileId});
