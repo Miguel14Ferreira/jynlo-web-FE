@@ -81,6 +81,7 @@ const routes: Routes = [
   {path:'menu/notifications/:id',loadChildren:() => import('./pages/notifications/notifications.module').then(m => m.NotificationsModule),canActivate:[AuthenticationGuard]},
   {path:'menu/teams/competitions',loadComponent:() => import('./pages/sports-teams/sports-team-competition-discovery.component').then(m => m.TeamCompetitionDiscoveryComponent),canActivate:[AuthenticationGuard]},
   {path:'menu/teams',loadComponent:() => import('./pages/sports-teams/sports-teams.component').then(m => m.SportsTeamsComponent),canActivate:[AuthenticationGuard]},
+  {path:'menu/teams/claim/:token',loadComponent:() => import('./pages/sports-teams/team-roster-claim.component').then(m => m.TeamRosterClaimComponent),canActivate:[AuthenticationGuard]},
   {path:'menu/teams/:id',loadComponent:() => import('./pages/sports-teams/sports-team-detail.component').then(m => m.SportsTeamDetailComponent),canActivate:[AuthenticationGuard]},
   {path:'menu/communities',loadChildren:() => import('./pages/communities/communities.module').then(m => m.CommunitiesModule),canActivate:[AuthenticationGuard]},
   {path:'menu/admin',loadChildren:() => import('./pages/admin/admin.module').then(m => m.AdminModule),canActivate:[AuthenticationGuard,AdminGuard]},
