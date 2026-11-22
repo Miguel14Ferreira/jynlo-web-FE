@@ -202,7 +202,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
   changeProfilePrivacy(privateProfile:boolean):void {
     if(this.privacyBusy || !this.privacyStatus?.privateModeAvailable)return;
     this.privacyBusy=true;
-    this.privacyService.setPrivate(privateProfile).pipe(timeout(10000),
+    this.privacyService.setPrivate(privateProfile).pipe(timeout(120000),
       finalize(()=>this.privacyBusy=false)).subscribe({
       next:status=>this.privacyStatus=status,
       error:()=>this.privacyError=appTranslate('Não foi possível alterar a privacidade.')

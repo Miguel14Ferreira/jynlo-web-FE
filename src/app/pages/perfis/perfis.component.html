@@ -727,7 +727,7 @@
                 @if (privacyStatus.privateModeAvailable) {
                   <button type="button" class="profile-privacy-action" [disabled]="privacyBusy"
                     (click)="changeProfilePrivacy(!privacyStatus.privateProfile)">
-                    {{ privacyBusy ? ('A guardar…' | t) : (privacyStatus.privateProfile ? ('Tornar público' | t) : ('Tornar privado' | t)) }}
+                    {{ privacyBusy ? ('A preparar as tuas fotografias…' | t) : (privacyStatus.privateProfile ? ('Tornar público' | t) : ('Tornar privado' | t)) }}
                   </button>
                 } @else {
                   <button type="button" class="profile-privacy-action" disabled
