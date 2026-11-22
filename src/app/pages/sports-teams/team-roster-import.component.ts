@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { appTranslate } from '../../i18n/i18n.service';
-import { SportsTeamsService, TeamRosterEntry, TeamRosterPreview } from '../../services/sports-teams.service';
+import { SportsTeamMember, SportsTeamPlayerCandidate, SportsTeamsService, TeamRosterEntry, TeamRosterPreview, TeamRosterSuggestion } from '../../services/sports-teams.service';
 
 /**
  * Owner-only squad import from Excel/CSV. Players with a Jynlo username get
@@ -11,7 +12,7 @@ import { SportsTeamsService, TeamRosterEntry, TeamRosterPreview } from '../../se
 @Component({
   selector: 'app-team-roster-import',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="team-roster-import" [attr.aria-label]="'Plantel por Excel' | t">
@@ -52,20 +53,78 @@ import { SportsTeamsService, TeamRosterEntry, TeamRosterPreview } from '../../se
           </div>
         </div>
       }
+      @if (suggestions.length) {
+        <div class="team-roster-import__suggestions" role="group" [attr.aria-label]="'Sugestões de associação' | t">
+          <h3>{{ 'Será a mesma pessoa?' | t }}</h3>
+          @for (sug of suggestions; track sug.entryId) {
+            <p>
+              <strong>{{ sug.entryName }}</strong>@if (sug.shirtNumber !== null) { · nº {{ sug.shirtNumber }} }
+              → &#64;{{ sug.username }}@if (sug.fullName) { ({{ sug.fullName }}) }
+              <button type="button" class="jynlo-action jynlo-action--primary jynlo-action--compact" [disabled]="busy" (click)="acceptSuggestion(sug)">{{ 'Sim' | t }}</button>
+              <button type="button" class="jynlo-action jynlo-action--compact" [disabled]="busy" (click)="dismissSuggestion(sug)">{{ 'Não' | t }}</button>
+            </p>
+          }
+        </div>
+      }
+      @if (shareNotice) { <p role="status" class="team-roster-import__ok">{{ shareNotice }}</p> }
       @if (entries.length) {
-        <h3>{{ 'Plantel sem conta ({{n}})' | t:{n: withoutAccount} }}</h3>
+        <h3>{{ 'Plantel importado ({{n}})' | t:{n: entries.length} }}</h3>
         <ul class="team-roster-import__entries">
           @for (entry of entries; track entry.id) {
             <li>
-              @if (entry.shirtNumber !== null) { <b>{{ entry.shirtNumber }}</b> }
-              {{ entry.name }}
-              @if (entry.position) { <small>· {{ entry.position }}</small> }
-              @if (entry.username) { <small>· &#64;{{ entry.username }} · {{ memberLabel(entry.memberStatus) }}</small> }
-              <button type="button" class="team-member-remove" [disabled]="busy" (click)="remove(entry)"
-                [attr.aria-label]="('Remover {{name}} do plantel' | t:{name: entry.name})">✕</button>
+              @if (editing === entry.id) {
+                <input class="team-roster-import__num" type="number" min="0" max="999" [(ngModel)]="draftNumber" [attr.aria-label]="'Número' | t">
+                <input [(ngModel)]="draftName" maxlength="100" [attr.aria-label]="'Nome' | t">
+                <input [(ngModel)]="draftPosition" maxlength="40" [placeholder]="'Posição' | t" [attr.aria-label]="'Posição' | t">
+                <button type="button" class="jynlo-action jynlo-action--primary jynlo-action--compact" [disabled]="busy" (click)="saveEntry(entry)">{{ 'Guardar' | t }}</button>
+                <button type="button" class="jynlo-action jynlo-action--compact" [disabled]="busy" (click)="editing = null">{{ 'Cancelar' | t }}</button>
+              } @else {
+                @if (entry.shirtNumber !== null) { <b>{{ entry.shirtNumber }}</b> }
+                {{ entry.name }}
+                @if (entry.position) { <small>· {{ entry.position }}</small> }
+                @if (entry.username) {
+                  <small>· &#64;{{ entry.username }} · {{ memberLabel(entry.memberStatus) }}</small>
+                } @else {
+                  <small>· {{ 'sem conta' | t }}</small>
+                }
+                <span class="team-roster-import__row-actions">
+                  @if (!entry.username) {
+                    <button type="button" class="jynlo-action jynlo-action--compact" [disabled]="busy" (click)="shareClaim(entry)">{{ 'Partilhar convite' | t }}</button>
+                    <button type="button" class="jynlo-action jynlo-action--compact" [disabled]="busy" (click)="startLink(entry)">{{ 'Associar a utilizador' | t }}</button>
+                  } @else {
+                    <button type="button" class="jynlo-action jynlo-action--compact" [disabled]="busy" (click)="unlink(entry)">{{ 'Desfazer associação' | t }}</button>
+                  }
+                  <button type="button" class="jynlo-action jynlo-action--compact" [disabled]="busy" (click)="startEdit(entry)">{{ 'Editar' | t }}</button>
+                  <button type="button" class="team-member-remove" [disabled]="busy" (click)="remove(entry)"
+                    [attr.aria-label]="('Remover {{name}} do plantel' | t:{name: entry.name})">✕</button>
+                </span>
+              }
+              @if (linking === entry.id) {
+                <div class="team-roster-import__link">
+                  <input type="search" [(ngModel)]="linkQuery" maxlength="80" [placeholder]="'Nome ou utilizador' | t" (keyup.enter)="searchLink()">
+                  <button type="button" class="jynlo-action jynlo-action--compact" [disabled]="busy || linkQuery.trim().length < 2" (click)="searchLink()">{{ 'Pesquisar' | t }}</button>
+                  @for (c of linkCandidates; track c.profileId) {
+                    <button type="button" class="jynlo-action jynlo-action--compact" [disabled]="busy" (click)="link(entry, c)">{{ c.fullName || c.username }} · &#64;{{ c.username }}</button>
+                  }
+                  @if (linkSearched && !linkCandidates.length) { <small>{{ 'Não encontrámos ninguém com essa pesquisa.' | t }}</small> }
+                </div>
+              }
             </li>
           }
         </ul>
+      }
+      @if (unlinkedMembers.length) {
+        <details class="team-roster-import__members">
+          <summary>{{ 'Número e posição de quem já está na equipa' | t }}</summary>
+          @for (m of unlinkedMembers; track m.profileId) {
+            <div class="team-roster-import__member">
+              <span>{{ m.fullName || m.username }}</span>
+              <input class="team-roster-import__num" type="number" min="0" max="999" [ngModel]="m.shirtNumber" (ngModelChange)="memberDraft(m).shirtNumber = $event" [attr.aria-label]="'Número' | t">
+              <input [ngModel]="m.position" (ngModelChange)="memberDraft(m).position = $event" maxlength="40" [placeholder]="'Posição' | t" [attr.aria-label]="'Posição' | t">
+              <button type="button" class="jynlo-action jynlo-action--compact" [disabled]="busy" (click)="saveMember(m)">{{ 'Guardar' | t }}</button>
+            </div>
+          }
+        </details>
       }
     </section>
   `,
@@ -85,11 +144,27 @@ import { SportsTeamsService, TeamRosterEntry, TeamRosterPreview } from '../../se
     .team-roster-import__status { margin-left: auto; opacity: .8; }
     .team-roster-import__entries li button { margin-left: auto; }
     .team-roster-import__error { color: #fca5a5; }
+    .team-roster-import__row-actions { margin-left: auto; display: inline-flex; flex-wrap: wrap; gap: 6px; }
+    .team-roster-import__link, .team-roster-import__member { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; width: 100%; padding: 6px 0; }
+    .team-roster-import__num { width: 70px; }
+    .team-roster-import__suggestions { display: grid; gap: 6px; padding: 10px; border-radius: 12px; background: rgba(83, 188, 180, .1); }
+    .team-roster-import__suggestions p { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0; }
   `]
 })
 export class TeamRosterImportComponent implements OnChanges {
   @Input({ required: true }) teamId!: number;
+  @Input() members: readonly SportsTeamMember[] = [];
   @Output() imported = new EventEmitter<void>();
+  /** Public roster numbers/positions changed. */
+  @Output() rosterChanged = new EventEmitter<void>();
+  suggestions: TeamRosterSuggestion[] = [];
+  editing: number | null = null;
+  draftName = ''; draftNumber: number | null = null; draftPosition = '';
+  linking: number | null = null;
+  linkQuery = ''; linkCandidates: SportsTeamPlayerCandidate[] = []; linkSearched = false;
+  shareNotice = '';
+  private readonly dismissed = new Set<number>();
+  private readonly memberDrafts = new Map<number, { shirtNumber: number | null; position: string | null }>();
   file: File | null = null;
   preview: TeamRosterPreview | null = null;
   result: { invited: number; added: number } | null = null;
@@ -101,7 +176,7 @@ export class TeamRosterImportComponent implements OnChanges {
 
   get withoutAccount(): number { return this.entries.filter(e => !e.username).length; }
 
-  ngOnChanges(): void { this.load(); }
+  ngOnChanges(changes: SimpleChanges): void { if (changes['teamId']) this.load(); }
 
   load(): void {
     if (!this.teamId) return;
@@ -109,6 +184,99 @@ export class TeamRosterImportComponent implements OnChanges {
       next: entries => { this.entries = entries; this.cdr.markForCheck(); },
       error: () => { this.entries = []; this.cdr.markForCheck(); }
     });
+    this.api.rosterSuggestions(this.teamId).subscribe({
+      next: list => { this.suggestions = list.filter(s => !this.dismissed.has(s.entryId)); this.cdr.markForCheck(); },
+      error: () => { this.suggestions = []; this.cdr.markForCheck(); }
+    });
+  }
+
+  /** Members who have no squad line yet (their number/position can be set here). */
+  get unlinkedMembers(): SportsTeamMember[] {
+    const linked = new Set(this.entries.map(e => e.username?.toLowerCase()).filter(Boolean));
+    return this.members.filter(m => !linked.has(m.username.toLowerCase()));
+  }
+
+  memberDraft(m: SportsTeamMember): { shirtNumber: number | null; position: string | null } {
+    let draft = this.memberDrafts.get(m.profileId);
+    if (!draft) { draft = { shirtNumber: m.shirtNumber ?? null, position: m.position ?? null }; this.memberDrafts.set(m.profileId, draft); }
+    return draft;
+  }
+
+  saveMember(m: SportsTeamMember): void {
+    const d = this.memberDraft(m);
+    const number = d.shirtNumber === null || (d.shirtNumber as unknown) === '' ? null : Number(d.shirtNumber);
+    this.run(this.api.setMemberLine(this.teamId, m.profileId, { shirtNumber: number, position: d.position || null }),
+      () => { this.load(); this.rosterChanged.emit(); });
+  }
+
+  startEdit(entry: TeamRosterEntry): void {
+    this.editing = entry.id; this.linking = null;
+    this.draftName = entry.name; this.draftNumber = entry.shirtNumber; this.draftPosition = entry.position ?? '';
+  }
+
+  saveEntry(entry: TeamRosterEntry): void {
+    const number = this.draftNumber === null || (this.draftNumber as unknown) === '' ? null : Number(this.draftNumber);
+    this.run(this.api.updateRosterEntry(this.teamId, entry.id, { name: this.draftName, shirtNumber: number, position: this.draftPosition || null }),
+      () => { this.editing = null; this.load(); this.rosterChanged.emit(); });
+  }
+
+  shareClaim(entry: TeamRosterEntry): void {
+    this.run(this.api.rosterClaimLink(this.teamId, entry.id), link => {
+      const url = (typeof window !== 'undefined' ? window.location.origin : 'https://jynlosports.com') + link.path;
+      const text = appTranslate('{{name}}, és tu no plantel? Entra na equipa aqui: {{url}}', { name: entry.name, url });
+      const nav = typeof navigator !== 'undefined' ? navigator : null;
+      if (nav?.share) {
+        void nav.share({ text }).catch(() => undefined);
+        this.shareNotice = appTranslate('Convite criado para {{name}}. Um link novo anula o anterior.', { name: entry.name });
+      } else if (nav?.clipboard) {
+        void nav.clipboard.writeText(text);
+        this.shareNotice = appTranslate('Link copiado. Envia-o a {{name}} (por exemplo, no WhatsApp).', { name: entry.name });
+      } else {
+        this.shareNotice = url;
+      }
+      this.load();
+    });
+  }
+
+  startLink(entry: TeamRosterEntry): void {
+    this.linking = this.linking === entry.id ? null : entry.id; this.editing = null;
+    this.linkQuery = entry.name; this.linkCandidates = []; this.linkSearched = false;
+  }
+
+  searchLink(): void {
+    const q = this.linkQuery.trim();
+    if (q.length < 2) return;
+    this.run(this.api.findPlayers(q), list => { this.linkCandidates = list.slice(0, 8); this.linkSearched = true; });
+  }
+
+  link(entry: TeamRosterEntry, candidate: SportsTeamPlayerCandidate): void {
+    this.run(this.api.linkRosterEntry(this.teamId, entry.id, candidate.profileId), updated => {
+      this.linking = null;
+      this.shareNotice = updated.memberStatus === 'ACTIVE'
+        ? appTranslate('{{name}} associado a @{{u}}.', { name: entry.name, u: candidate.username })
+        : appTranslate('Convite enviado a @{{u}}. Fica associado quando aceitar.', { u: candidate.username });
+      this.load(); this.imported.emit(); this.rosterChanged.emit();
+    });
+  }
+
+  unlink(entry: TeamRosterEntry): void {
+    this.run(this.api.unlinkRosterEntry(this.teamId, entry.id), () => { this.load(); this.rosterChanged.emit(); });
+  }
+
+  acceptSuggestion(sug: TeamRosterSuggestion): void {
+    this.run(this.api.linkRosterEntry(this.teamId, sug.entryId, sug.profileId), () => { this.load(); this.rosterChanged.emit(); });
+  }
+
+  dismissSuggestion(sug: TeamRosterSuggestion): void {
+    this.dismissed.add(sug.entryId);
+    this.suggestions = this.suggestions.filter(s => s.entryId !== sug.entryId);
+  }
+
+  private run<T>(request: import('rxjs').Observable<T>, next: (value: T) => void): void {
+    if (this.busy) return;
+    this.busy = true; this.error = ''; this.shareNotice = '';
+    request.pipe(finalize(() => { this.busy = false; this.cdr.markForCheck(); }))
+      .subscribe({ next, error: e => this.error = e?.error?.message || appTranslate('Não foi possível guardar') });
   }
 
   choose(event: Event): void {
@@ -164,6 +332,6 @@ export class TeamRosterImportComponent implements OnChanges {
 
   memberLabel(status: string | null): string {
     return status === 'ACTIVE' ? appTranslate('na equipa') : status === 'INVITED' ? appTranslate('convite enviado')
-      : appTranslate('recusou o convite');
+      : status === 'DECLINED' ? appTranslate('recusou o convite') : appTranslate('saiu da equipa');
   }
 }

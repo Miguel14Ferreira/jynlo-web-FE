@@ -56,6 +56,9 @@ export interface SportsTeamMember {
   profilePicUrl?: string | null;
   fullName?: string | null;
   bio?: string | null;
+  /** From the squad line linked to this player (set by the team owner). */
+  shirtNumber?: number | null;
+  position?: string | null;
 }
 export interface SportsTeamInvitation {
   teamId: number;
@@ -111,7 +114,11 @@ export type TeamContentKind = 'chat' | 'feed';
 
 /** Squad entry imported from a spreadsheet (owner only). */
 export interface TeamRosterEntry { id: number; name: string; shirtNumber: number | null; position: string | null;
-  username: string | null; memberStatus: 'INVITED' | 'ACTIVE' | 'DECLINED' | null; }
+  username: string | null; memberStatus: 'INVITED' | 'ACTIVE' | 'DECLINED' | null; hasClaimLink?: boolean; }
+export interface TeamRosterSuggestion { entryId: number; entryName: string; shirtNumber: number | null;
+  profileId: number; username: string; fullName: string | null; }
+export interface TeamRosterClaim { teamId: number; teamName: string; teamSlug: string; name: string;
+  shirtNumber: number | null; position: string | null; alreadyLinked: boolean; }
 export interface TeamRosterPreview {
   rows: { line: number; name: string; shirtNumber: number | null; position: string | null; username: string | null;
     status: 'INVITE' | 'ALREADY_IN_TEAM' | 'NEW' | 'DUPLICATE' | 'UNKNOWN_USERNAME' }[];
@@ -191,6 +198,30 @@ export class SportsTeamsService {
   importRoster(teamId: number, file: File): Observable<{ invited: number; added: number; skipped: number }> {
     const form = new FormData(); form.append('file', file, file.name);
     return this.http.post<{ invited: number; added: number; skipped: number }>(this.url + '/' + teamId + '/roster/import', form);
+  }
+  rosterClaimLink(teamId: number, entryId: number): Observable<{ token: string; path: string }> {
+    return this.http.post<{ token: string; path: string }>(this.url + '/' + teamId + '/roster/' + entryId + '/claim-link', {});
+  }
+  linkRosterEntry(teamId: number, entryId: number, profileId: number): Observable<TeamRosterEntry> {
+    return this.http.post<TeamRosterEntry>(this.url + '/' + teamId + '/roster/' + entryId + '/link', { profileId });
+  }
+  unlinkRosterEntry(teamId: number, entryId: number): Observable<void> {
+    return this.http.delete<void>(this.url + '/' + teamId + '/roster/' + entryId + '/link');
+  }
+  updateRosterEntry(teamId: number, entryId: number, line: { name: string; shirtNumber: number | null; position: string | null }): Observable<TeamRosterEntry> {
+    return this.http.put<TeamRosterEntry>(this.url + '/' + teamId + '/roster/' + entryId, line);
+  }
+  setMemberLine(teamId: number, profileId: number, line: { shirtNumber: number | null; position: string | null }): Observable<TeamRosterEntry> {
+    return this.http.put<TeamRosterEntry>(this.url + '/' + teamId + '/roster/members/' + profileId, line);
+  }
+  rosterSuggestions(teamId: number): Observable<TeamRosterSuggestion[]> {
+    return this.http.get<TeamRosterSuggestion[]>(this.url + '/' + teamId + '/roster/suggestions');
+  }
+  rosterClaim(token: string): Observable<TeamRosterClaim> {
+    return this.http.get<TeamRosterClaim>(this.url + '/roster-claims/' + encodeURIComponent(token));
+  }
+  acceptRosterClaim(token: string): Observable<TeamRosterClaim> {
+    return this.http.post<TeamRosterClaim>(this.url + '/roster-claims/' + encodeURIComponent(token) + '/accept', {});
   }
   removeRosterEntry(teamId: number, entryId: number): Observable<void> {
     return this.http.delete<void>(this.url + '/' + teamId + '/roster/' + entryId);

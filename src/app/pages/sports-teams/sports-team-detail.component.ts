@@ -126,7 +126,7 @@ import { TeamRosterImportComponent } from './team-roster-import.component';
             </a>
             <div class="team-member-identity">
               <a class="team-member-name" [routerLink]="['/menu/perfis',player.username]">{{player.fullName || player.username}}</a>
-              <span class="team-member-handle">@{{player.username}}</span>
+              <span class="team-member-handle">@{{player.username}}<ng-container *ngIf="player.shirtNumber != null"> · nº {{player.shirtNumber}}</ng-container><ng-container *ngIf="player.position"> · {{player.position}}</ng-container></span>
               <span *ngIf="player.bio" class="team-member-bio">{{player.bio}}</span>
             </div>
             <span class="team-member-role" [class.team-member-role-owner]="player.role === 'OWNER'">
@@ -176,7 +176,7 @@ import { TeamRosterImportComponent } from './team-roster-import.component';
             <button type="button" [attr.aria-label]="('Convidar @{{username}} para a equipa' | t:{username: candidate.username})"
               [disabled]="busy || !invitationsVerified || !rosterVerified" (click)="invitePlayer(candidate)">{{ 'Convidar' | t }}</button>
           </div>
-          <app-team-roster-import [teamId]="t.id" (imported)="loadPendingInvitations()"></app-team-roster-import>
+          <app-team-roster-import [teamId]="t.id" [members]="members" (imported)="loadPendingInvitations()" (rosterChanged)="refreshRoster()"></app-team-roster-import>
         </div>
       </section>
       <section *ngIf="activeTab === 'TROPHIES'" class="team-trophies"><h2>{{ '🏆 Troféus ({{championshipHonours}})' | t:{championshipHonours: (trophiesVerified ? trophies.length + championshipHonours.length : '—')} }}</h2>
