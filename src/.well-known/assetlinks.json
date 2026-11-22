@@ -7,7 +7,8 @@
       "namespace": "android_app",
       "package_name": "com.jynlo.app",
       "sha256_cert_fingerprints": [
-        "21:11:17:14:2E:29:3C:87:EF:AF:75:9B:E9:60:0D:F1:13:07:C9:F1:62:6F:7D:00:BE:87:BF:97:EF:20:8E:DF"
+        "21:11:17:14:2E:29:3C:87:EF:AF:75:9B:E9:60:0D:F1:13:07:C9:F1:62:6F:7D:00:BE:87:BF:97:EF:20:8E:DF",
+        "74:CC:C1:6B:82:1B:51:1D:09:3E:7D:BB:1A:98:78:B8:05:1B:F4:41:20:49:8B:20:BC:20:AF:8D:A2:9C:AF:FE"
       ]
     }
   }
