@@ -1980,6 +1980,46 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       });
   }
 
+  postingPolicyEditing = false;
+  postingPolicySaving = false;
+  postingPolicyDraft = true;
+  postingPolicyFeedback = '';
+  postingPolicyError = '';
+
+  editPostingPolicy(): void {
+    if (!this.selected || !this.canManage() || this.postingPolicySaving) return;
+    this.postingPolicyDraft = this.selected.membersCanPost !== false;
+    this.postingPolicyFeedback = '';
+    this.postingPolicyError = '';
+    this.postingPolicyEditing = true;
+  }
+
+  cancelPostingPolicy(): void {
+    if (!this.postingPolicySaving) this.postingPolicyEditing = false;
+  }
+
+  savePostingPolicy(): void {
+    if (!this.selected || !this.canManage() || !this.postingPolicyEditing || this.postingPolicySaving) return;
+    const id = this.selected.id;
+    this.postingPolicySaving = true;
+    this.postingPolicyError = '';
+    this.postingPolicyFeedback = '';
+    this.communityService.updatePostingPolicy(id, this.postingPolicyDraft)
+      .pipe(timeout(10_000), finalize(() => this.postingPolicySaving = false))
+      .subscribe({
+        next: updated => {
+          if (this.selected?.id !== id) return;
+          this.selected = updated;
+          this.replaceCommunity(updated);
+          this.postingPolicyEditing = false;
+          this.postingPolicyFeedback = t('Guardado.');
+        },
+        error: () => {
+          if (this.selected?.id === id) this.postingPolicyError = t('Não foi possível guardar. Tenta novamente.');
+        }
+      });
+  }
+
   onHabitualVenueSaved(group: CommunityGroup): void {
     if (this.selected?.id !== group.id) return;
     this.selected = group;

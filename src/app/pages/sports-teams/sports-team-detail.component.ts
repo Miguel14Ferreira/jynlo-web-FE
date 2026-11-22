@@ -392,9 +392,12 @@ type KitDesign = Omit<TeamKitVariant,'type'>;
             <summary [attr.aria-label]="('Definições de feed' | t)">⚙ <span>{{ 'Definições' | t }}</span></summary>
             <button type="button" [disabled]="featureSaving"
               (click)="toggleFeature('feedEnabled')">{{ t.feedEnabled ? ('Desativar feed' | t) : ('Ativar feed' | t) }}</button>
+            <button type="button" [disabled]="featureSaving" (click)="toggleFeature('membersCanPost')">
+              {{ t.membersCanPost === false ? ('Deixar todos os membros publicar' | t) : ('Só eu publico no feed e Stories' | t) }}</button>
           </details>
         </div>
         <p *ngIf="!t.feedEnabled">{{ 'Desativado pelo responsável da equipa.' | t }}</p>
+        <p *ngIf="t.feedEnabled && t.membersCanPost === false" class="team-feature-note">{{ 'Só o responsável publica no feed e em Stories desta equipa.' | t }}</p>
         <app-sports-team-content *ngIf="t.feedEnabled && rosterVerified && isMember" [teamId]="t.id" kind="feed"></app-sports-team-content>
         <p *ngIf="t.feedEnabled && (!rosterVerified || !isMember)">{{ 'Disponível apenas para membros confirmados da equipa.' | t }}</p>
       </section>
@@ -774,12 +777,13 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  toggleFeature(field:'chatEnabled'|'feedEnabled'):void {
+  toggleFeature(field:'chatEnabled'|'feedEnabled'|'membersCanPost'):void {
     if(!this.isOwner||!this.team||this.featureSaving)return;
     const previous=this.team;
     this.featureSaving=true;this.feedback='';
     this.api.setFeatures(previous.id,field==='chatEnabled'
-      ? {chatEnabled:!previous.chatEnabled} : {feedEnabled:!previous.feedEnabled}).subscribe({
+      ? {chatEnabled:!previous.chatEnabled} : field==='feedEnabled' ? {feedEnabled:!previous.feedEnabled}
+      : {membersCanPost:previous.membersCanPost===false}).subscribe({
       next:updated=>{this.team=updated;this.featureSaving=false;},
       error:()=>{this.feedback=appTranslate('Não foi possível confirmar a configuração. Atualiza antes de repetir.');this.featureSaving=false;}
     });

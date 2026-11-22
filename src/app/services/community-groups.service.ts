@@ -342,6 +342,11 @@ export class CommunityGroupsService {
     return this.http.put<CommunityGroup>(this.url + '/' + id + '/features', request);
   }
 
+  /** Organizers choose whether every member, or only organizers, publish posts and Stories. */
+  updatePostingPolicy(id: number, membersCanPost: boolean): Observable<CommunityGroup> {
+    return this.http.put<CommunityGroup>(this.url + '/' + id + '/posting-policy', { membersCanPost });
+  }
+
   updateSessionCreationPolicy(id: number, membersCanCreateSessions: boolean): Observable<CommunityGroup> {
     return this.http.put<CommunityGroup>(
       this.url + '/' + id + '/session-creation-policy', { membersCanCreateSessions });

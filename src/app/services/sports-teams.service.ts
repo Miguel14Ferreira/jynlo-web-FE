@@ -26,6 +26,8 @@ export interface SportsTeam {
   description: string | null;
   ownerProfileId: number;
   feedEnabled: boolean;
+  /** The owner decides whether every member may post in the feed and Stories. */
+  membersCanPost?: boolean;
   chatEnabled: boolean;
   logoUrl?: string | null;
   crestDesign?: string | null;
@@ -274,7 +276,7 @@ export class SportsTeamsService {
   removeLogo(id:number):Observable<SportsTeam> {
     return this.http.delete<SportsTeam>(this.url+'/'+id+'/logo');
   }
-  setFeatures(id: number, input: {feedEnabled?: boolean; chatEnabled?: boolean}): Observable<SportsTeam> {
+  setFeatures(id: number, input: {feedEnabled?: boolean; chatEnabled?: boolean; membersCanPost?: boolean}): Observable<SportsTeam> {
     return this.http.patch<SportsTeam>(this.url + '/' + id + '/features', input);
   }
 }

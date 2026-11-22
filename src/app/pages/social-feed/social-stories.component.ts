@@ -591,7 +591,8 @@ export class SocialStoriesComponent implements OnInit, OnDestroy {
       catchError(() => of([] as CommunityGroup[])),
       takeUntil(this.destroyed)
     ).subscribe(groups => this.groups = groups.filter(group =>
-      group.visibility === 'PUBLIC' && (group.myRole === 'OWNER' || group.myRole === 'ADMIN')
+      group.visibility === 'PUBLIC' && (group.myRole === 'OWNER' || group.myRole === 'ADMIN'
+        || group.membersCanPost === true)
     ));
     // Route reuse is common when a shared Story is opened from inside the Feed.
     // Observe link changes and cancel stale requests so a slow response cannot
