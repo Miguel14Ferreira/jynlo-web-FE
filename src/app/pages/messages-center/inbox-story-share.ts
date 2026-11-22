@@ -1,4 +1,5 @@
 /** Recognize only official Jynlo Story shares, including a short accompanying caption. */
+const OFFICIAL_ORIGINS=['https://d24sports.com','https://jynlosports.com','https://www.jynlosports.com'];
 export interface StoryChatShare { id:number; caption:string; }
 export function storyShareFromChatText(value:string|null|undefined):StoryChatShare|null {
   if(!value||value.length>600)return null;
@@ -6,7 +7,7 @@ export function storyShareFromChatText(value:string|null|undefined):StoryChatSha
   if(lines.length<1||lines.length>4)return null;
   let url:URL;
   try {url=new URL(lines[lines.length-1]);}catch{return null;}
-  if(url.origin!=='https://d24sports.com'||url.pathname!=='/menu/feed'
+  if(!OFFICIAL_ORIGINS.includes(url.origin)||url.pathname!=='/menu/feed'
       ||url.hash||[...url.searchParams.keys()].some(key=>key!=='story'))return null;
   const id=url.searchParams.get('story');
   if(url.searchParams.getAll('story').length!==1||!id||!/^[1-9][0-9]{0,14}$/.test(id))return null;
