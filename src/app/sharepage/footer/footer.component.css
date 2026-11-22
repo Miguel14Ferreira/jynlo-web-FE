@@ -58,4 +58,7 @@
     align-items: flex-start;
     flex-direction: column;
   }
+  /* Comfortable finger targets on phones (at least 44px tall). */
+  .footer-links { gap: .25rem 1.25rem; }
+  .footer-links a { display: inline-flex; align-items: center; min-height: 44px; }
 }
