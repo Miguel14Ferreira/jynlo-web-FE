@@ -1523,11 +1523,6 @@ input,textarea,select {
   margin-block-start: clamp(24px, 2.5vw, 32px);
 }
 
-/* Stacked permission cards (sessions, posting) never touch each other. */
-.community-session-policy + .community-session-policy {
-  margin-block-start: clamp(16px, 2vw, 24px);
-}
-
 /* Community session creation policy: readable owner/admin settings. */
 .community-session-policy {
   display: flex;
