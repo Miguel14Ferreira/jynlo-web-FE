@@ -12,6 +12,8 @@ const { chromium } = require('playwright');
 
 const SITE = process.env.JYNLO_SITE || 'https://jynlosports.com';
 const API = SITE.includes('jynlosports.com') ? 'https://api.jynlosports.com' : 'https://api.d24sports.com';
+const VISITOR = process.env.JYNLO_AUDIT_ACCOUNT === '0';
+// Visitors browse signed out; the QA account is only used (API only) to find real IDs.
 const ACCOUNT = process.env.JYNLO_AUDIT_ACCOUNT === '2' ? '2' : '1';
 const USER = process.env['JYNLO_QA_USERNAME_' + ACCOUNT] || '';
 const PASS = process.env['JYNLO_QA_PASSWORD_' + ACCOUNT] || '';
@@ -79,6 +81,15 @@ async function discoverRoutes(token) {
     if (first?.id) routes.push(['recinto-' + first.id, '/menu/venues/' + first.id]);
   });
   routes.push(['perfil-publico', '/menu/perfis/' + USER]);
+  if (VISITOR) {
+    const keep = routes.filter(([n]) => /^(jogo-|recinto-)/.test(n)).map(([n, r]) => [n, r.replace('/menu/events/', '/sessions/')]);
+    return { routes: [
+      ['inicio', '/'], ['entrar', '/login'], ['registar', '/login/registerNewUser'], ['recuperar', '/login/resetPassword'],
+      ['explorar', '/menu/discover'], ['sessoes', '/menu/events'], ['recintos', '/menu/venues'], ['equipas', '/menu/teams'],
+      ['sobre', '/about'], ['contacto', '/contact'], ['privacidade', '/privacy'], ['termos', '/terms'],
+      ['eliminar-conta', '/delete-account'], ['pagina-inexistente', '/isto-nao-existe'], ...keep
+    ], tabs: [] };
+  }
   return { routes, tabs };
 }
 
@@ -170,7 +181,7 @@ async function auditPage(page, name, route, vp, consoleErrors, httpErrors) {
   const browser = await chromium.launch();
   for (const vp of VIEWPORTS) {
     const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, isMobile: vp.mobile, hasTouch: vp.mobile, locale: LANG === 'en' ? 'en-GB' : 'pt-PT', deviceScaleFactor: vp.mobile ? 2 : 1 });
-    await context.addInitScript(([t, u, l]) => {
+    if (!VISITOR) await context.addInitScript(([t, u, l]) => {
       try { localStorage.setItem('t', t); localStorage.setItem('jynlo.firstSteps.skipped.' + u.toLowerCase(), String(Date.now())); if (l === 'en') { localStorage.setItem('d24-language', 'en'); window.__auditLang = 'en'; } } catch {}
     }, [token, USER, LANG]);
     const page = await context.newPage();
