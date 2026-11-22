@@ -25,7 +25,7 @@
           "value": "(?i).*(facebookexternalhit|facebot|meta-externalagent|whatsapp|twitterbot|linkedinbot|slackbot|telegrambot|discordbot|skypeuripreview|pinterest|embedly).*"
         }
       ],
-      "destination": "https://api.d24sports.com/api/share/sessions/:id"
+      "destination": "https://api.jynlosports.com/api/share/sessions/:id"
     },
     {
       "source": "/menu/communities/:id(\\d+)",
@@ -36,7 +36,7 @@
           "value": "(?i).*(facebookexternalhit|facebot|meta-externalagent|whatsapp|twitterbot|linkedinbot|slackbot|telegrambot|discordbot|skypeuripreview|pinterest|embedly).*"
         }
       ],
-      "destination": "https://api.d24sports.com/api/share/communities/:id"
+      "destination": "https://api.jynlosports.com/api/share/communities/:id"
     },
     {
       "source": "/menu/perfis/:username([A-Za-z0-9._-]+)",
@@ -47,7 +47,7 @@
           "value": "(?i).*(facebookexternalhit|facebot|meta-externalagent|whatsapp|twitterbot|linkedinbot|slackbot|telegrambot|discordbot|skypeuripreview|pinterest|embedly).*"
         }
       ],
-      "destination": "https://api.d24sports.com/api/share/profiles/:username"
+      "destination": "https://api.jynlosports.com/api/share/profiles/:username"
     },
     {
       "source": "/(.*)",

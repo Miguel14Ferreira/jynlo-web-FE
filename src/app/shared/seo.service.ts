@@ -4,7 +4,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 
-export const SEO_SITE_URL = 'https://d24sports.com';
+export const SEO_SITE_URL = 'https://jynlosports.com';
 export const SEO_DEFAULT_TITLE = 'Jynlo — Join the game.';
 export const SEO_DEFAULT_DESCRIPTION = 'Jynlo — encontra onde, quando e com quem jogar.';
 export const SEO_DEFAULT_IMAGE = `${SEO_SITE_URL}/assets/og-default.png`;

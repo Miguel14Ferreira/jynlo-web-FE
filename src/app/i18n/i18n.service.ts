@@ -885,7 +885,7 @@ const PT: Dictionary = {
   'delete.inApp.title': 'Na aplicação Android',
   'delete.inApp.text': 'Entra na tua conta, abre Perfil, seleciona Eliminar a minha conta, escreve exatamente o teu nome de utilizador e confirma a eliminação definitiva. A aplicação só confirma a eliminação quando o servidor concluir o pedido.',
   'delete.web.title': 'No site Jynlo',
-  'delete.web.text': 'Inicia sessão em d24sports.com e abre os dados do teu perfil. Na secção Eliminar conta, confirma o nome de utilizador e a eliminação definitiva. Se não conseguires aceder à conta, contacta o suporte pelo email indicado.',
+  'delete.web.text': 'Inicia sessão em jynlosports.com e abre os dados do teu perfil. Na secção Eliminar conta, confirma o nome de utilizador e a eliminação definitiva. Se não conseguires aceder à conta, contacta o suporte pelo email indicado.',
   'delete.ownedCommunities.title': 'Se tens comunidades próprias',
   'delete.ownedCommunities.text': 'Antes de eliminar a conta, transfere a propriedade das comunidades que criaste. O servidor não conclui a eliminação enquanto fores proprietário de comunidades. Se precisares de ajuda para a transferência, contacta o suporte.',
   'delete.data.title': 'O que acontece aos dados',

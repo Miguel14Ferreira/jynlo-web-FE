@@ -973,7 +973,7 @@ export class PublicSessionPreviewComponent implements OnInit, OnDestroy {
     return this.session && this.canRequestParticipation && this.sessionId !== null
       ? new URL('/sessions/' + this.sessionId
           + (this.guestToken ? '?guest=' + encodeURIComponent(this.guestToken) : ''),
-          'https://d24sports.com').href
+          'https://jynlosports.com').href
       : null;
   }
 

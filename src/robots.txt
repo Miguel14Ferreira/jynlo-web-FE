@@ -5,6 +5,6 @@ Disallow: /admin
 Disallow: /login
 Disallow: /menu/
 
-Sitemap: https://d24sports.com/sitemap.xml
+Sitemap: https://jynlosports.com/sitemap.xml
 # Full list with every venue, built by the API (allowed across hosts when listed here).
-Sitemap: https://api.d24sports.com/api/public/sitemap.xml
+Sitemap: https://api.jynlosports.com/api/public/sitemap.xml

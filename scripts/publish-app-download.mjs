@@ -6,8 +6,8 @@ const approvedSplash=resolve('dist/desporto24/assets/jynlo-splash-approved.webp'
 const destination=resolve('dist/desporto24/app/index.html');
 const html=readFileSync(source,'utf8');
 if(!existsSync(approvedSplash))throw Error('Imagem aprovada da Jynlo não está incluída na build.');
-if(!html.includes('https://d24sports.com/assets/jynlo-splash-approved.webp') ||
-   !html.includes('https://d24sports.com/app/'))
+if(!html.includes('https://jynlosports.com/assets/jynlo-splash-approved.webp') ||
+   !html.includes('https://jynlosports.com/app/'))
  throw Error('A página de instalação precisa dos metadados oficiais da Jynlo.');
 mkdirSync(resolve('dist/desporto24/app'),{recursive:true});
 copyFileSync(source,destination);

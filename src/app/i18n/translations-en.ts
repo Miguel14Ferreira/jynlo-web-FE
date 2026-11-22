@@ -879,7 +879,7 @@ export const EN: Record<string, string> = {
   'delete.inApp.title': 'In the Android app',
   'delete.inApp.text': 'Sign in, open Profile, choose Delete my account, enter your exact username, and confirm permanent deletion. The app confirms deletion only after the server successfully completes the request.',
   'delete.web.title': 'On the Jynlo website',
-  'delete.web.text': 'Sign in at d24sports.com and open your profile settings. Under Delete account, confirm your username and permanent deletion. If you cannot access your account, email support.',
+  'delete.web.text': 'Sign in at jynlosports.com and open your profile settings. Under Delete account, confirm your username and permanent deletion. If you cannot access your account, email support.',
   'delete.ownedCommunities.title': 'If you own communities',
   'delete.ownedCommunities.text': 'You must transfer ownership of communities you created before deleting your account. The server will block deletion while you own a community. Contact support if you need help.',
   'delete.data.title': 'What happens to your data',
