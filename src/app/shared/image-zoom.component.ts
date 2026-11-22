@@ -10,9 +10,22 @@ export const ZOOMABLE_IMAGE_SELECTOR = 'img[data-zoomable]';
 
 export interface ZoomedImage { src: string; alt: string; }
 
-/** Finds the zoomable image a click landed on, if any. */
-export function zoomTarget(target: EventTarget | null): ZoomedImage | null {
-  const element = target instanceof Element ? target.closest(ZOOMABLE_IMAGE_SELECTOR) : null;
+/**
+ * Finds the zoomable image a click landed on, if any. Some photo frames put a
+ * decorative layer above the image, so a click on a nearby wrapper also counts
+ * when it lands inside a zoomable image's box.
+ */
+export function zoomTarget(target: EventTarget | null, x?: number, y?: number): ZoomedImage | null {
+  let element: Element | null = target instanceof Element ? target.closest(ZOOMABLE_IMAGE_SELECTOR) : null;
+  if (!element && target instanceof Element && x !== undefined && y !== undefined) {
+    let host: Element | null = target;
+    for (let depth = 0; host && depth < 3 && !element; depth++, host = host.parentElement) {
+      element = Array.from(host.querySelectorAll(ZOOMABLE_IMAGE_SELECTOR)).find(img => {
+        const box = img.getBoundingClientRect();
+        return box.width > 0 && x >= box.left && x <= box.right && y >= box.top && y <= box.bottom;
+      }) ?? null;
+    }
+  }
   if (!(element instanceof HTMLImageElement)) return null;
   const src = element.currentSrc || element.src;
   if (!src) return null;
@@ -42,8 +55,8 @@ export function zoomTarget(target: EventTarget | null): ZoomedImage | null {
       animation: image-zoom-fade .14s ease-out;
     }
     .image-zoom-image {
-      max-width: min(1100px, 100%); max-height: 100%; object-fit: contain; border-radius: 14px;
-      box-shadow: 0 24px 70px rgba(0, 0, 0, .55); cursor: default;
+      width: min(1100px, calc(100vw - 32px)); height: calc(100vh - 80px); object-fit: contain;
+      cursor: default;
     }
     .image-zoom-close {
       position: absolute; top: 14px; right: 14px; width: 42px; height: 42px; border-radius: 50%;
@@ -61,7 +74,7 @@ export class ImageZoomComponent implements OnInit, OnDestroy {
   private readonly browser: boolean;
   private readonly onClick = (event: MouseEvent) => {
     if (event.button !== 0 || event.defaultPrevented) return;
-    const found = zoomTarget(event.target);
+    const found = zoomTarget(event.target, event.clientX, event.clientY);
     if (!found) return;
     // The photo may sit inside a card or button: the zoom replaces that click.
     event.preventDefault();
