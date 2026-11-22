@@ -131,7 +131,7 @@ function inspect(isMobile) {
     if (img.complete && img.naturalWidth === 0) problems.push({ tipo: 'imagem-partida', detalhe: (img.getAttribute('src') || '').slice(0, 80) });
   }
   const text = document.body.innerText;
-  for (const [re, tipo] of [[/\bundefined\b/g, 'texto-undefined'], [/\bnull\b/g, 'texto-null'], [/\bNaN\b/g, 'texto-NaN'], [/\[object Object\]/g, 'texto-object'],
+  for (const [re, tipo] of [[/\bundefined\b/g, 'texto-undefined'], [/\bnull\b/g, 'texto-null'], [/\bNaN\b/g, 'texto-NaN'], [/\[object Object\]/g, 'texto-object'], [/\{\{?[a-zA-Z]+\}\}?/g, 'marcador-por-preencher'],
     [/\b[a-z]+(?:[A-Z][a-zA-Z]+)?\.[a-z][a-zA-Z]+\.[a-zA-Z.]+\b/g, 'chave-sem-traducao']]) {
     const m = text.match(re);
     if (m) problems.push({ tipo, detalhe: Array.from(new Set(m)).slice(0, 5).join(', ') });

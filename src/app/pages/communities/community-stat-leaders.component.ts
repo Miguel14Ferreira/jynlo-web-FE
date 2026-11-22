@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { TranslatePipe } from '../../i18n/translate.pipe';
+import { appTranslate as t } from '../../i18n/i18n.service';
 import { CommunityStanding } from '../model/community-group';
 
 export interface StatRecord { label: string; icon: string; who: CommunityStanding; value: number; }
@@ -32,6 +33,12 @@ export class CommunityStatLeadersComponent {
       this.record('communities.stat.cleanSheets', '🧤', this.cleanSheets, this.cleanSheets?.cleanSheets)
     ];
     return all.filter((r): r is StatRecord => r !== null);
+  }
+
+  /** "4V 0E 2D · Jogos: 6" (placeholders use the app's {{name}} syntax). */
+  leaderRecord(s: CommunityStanding): string {
+    return t('{{w}}V {{d}}E {{l}}D', { w: s.wins, d: s.draws, l: s.losses })
+      + ' · ' + t('Jogos: {{n}}', { n: s.games });
   }
 
   nameOf(s: CommunityStanding): string {
