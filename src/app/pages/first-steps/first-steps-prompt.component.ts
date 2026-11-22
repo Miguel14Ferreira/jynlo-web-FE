@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthenticationService } from '../../services/authethication.service';
 import { FirstStepsService } from '../../services/first-steps.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
@@ -36,15 +36,33 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
 })
 export class FirstStepsPromptComponent implements OnInit {
   visible = false;
-  constructor(private steps: FirstStepsService, private auth: AuthenticationService, private cd: ChangeDetectorRef) {}
+  constructor(private steps: FirstStepsService, private auth: AuthenticationService, private cd: ChangeDetectorRef,
+              private router: Router) {}
 
   ngOnInit(): void {
     const user = this.auth.loggedInPerfilname;
     if (this.steps.skipped(user)) return;
     this.steps.get().subscribe({
-      next: state => { this.visible = Boolean(state?.needed); this.cd.markForCheck(); },
+      next: state => {
+        this.visible = Boolean(state?.needed);
+        this.cd.markForCheck();
+        if (this.visible) this.openOncePerSession(user);
+      },
       error: () => { this.visible = false; }
     });
+  }
+
+  /**
+   * Like the app: a new account goes straight to "first steps". Only once per
+   * browser session, so going back to the feed shows this card instead of looping.
+   */
+  private openOncePerSession(user: string | null | undefined): void {
+    const key = 'jynlo.firstSteps.opened.' + (user || '').toLowerCase();
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+    } catch { return; }
+    this.router.navigate(['/menu/first-steps']).catch(() => undefined);
   }
 
   later(): void {
