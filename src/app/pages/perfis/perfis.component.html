@@ -41,7 +41,7 @@
             [placeholder]="'community.sportPlaceholder' | t">
           <datalist id="community-sport-options">
             @for (sportOption of sportsCatalog; track sportOption) {
-              <option [value]="sportOption"></option>
+              <option [value]="sportOption" [label]="sportOption | sportName"></option>
             }
           </datalist>
         </label>

@@ -1,3 +1,4 @@
+import { sportMatchesQuery } from '../../shared/venue-catalogue-display';
 import { AfterViewChecked, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, Type, ViewChild, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { JwtHelperService } from '@auth0/angular-jwt';
@@ -2548,7 +2549,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     const query = this.sportsSearch.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
     if (!query) return [];
     return SPORTS_CATALOG.filter(value =>
-      value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(query)
+      sportMatchesQuery(value, query)
       && !(this.sportsDraft || []).some(current => current.toLowerCase() === value.toLowerCase())
     ).slice(0, 8);
   }

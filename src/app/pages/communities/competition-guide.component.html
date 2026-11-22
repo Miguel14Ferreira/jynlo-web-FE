@@ -8,7 +8,7 @@
     <span>{{ 'communities.competitionGuide.chooseSport' | t }}</span>
     <select [value]="selectedSport" (change)="selectedSport = $any($event.target).value">
       @for (option of sports; track option) {
-        <option [value]="option">{{ option }}</option>
+        <option [value]="option">{{ option | sportName }}</option>
       }
     </select>
     <small>{{ 'communities.competitionGuide.supportNote' | t }}</small>

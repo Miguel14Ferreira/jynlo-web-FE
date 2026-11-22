@@ -89,7 +89,7 @@
           @if (sports.length) {
             <div class="sport-tags" [attr.aria-label]="'communityCreate.selectedSports' | t">
               @for (item of sports; track item) {
-                <span class="sport-tag">{{ item }}
+                <span class="sport-tag">{{ item | sportName }}
                   <button type="button" [disabled]="saving"
                     [attr.aria-label]="'communityCreate.removeSport' | t:{ sport: item }" (click)="removeSport(item)">×</button>
                 </span>
@@ -104,7 +104,7 @@
             <div class="sport-suggestions" role="group" [attr.aria-label]="'communityCreate.sportSuggestions' | t">
               @for (item of sportSuggestions; track item) {
                 <button type="button" [disabled]="saving" (click)="addSport(item)">
-                  <span>{{ item }}</span><span aria-hidden="true">+</span>
+                  <span>{{ item | sportName }}</span><span aria-hidden="true">+</span>
                 </button>
               }
             </div>

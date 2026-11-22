@@ -1,3 +1,4 @@
+import { venueCatalogueDisplayLabel } from '../../shared/venue-catalogue-display';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -24,7 +25,7 @@ export function cleanQuery(value: string): string {
 export function sessionFilters(query: string, sports: readonly string[]): { sport?: string; city?: string } | null {
   const q = fold(query);
   if (q.length < 2) return null;
-  const sport = sports.find(s => fold(s) === q);
+  const sport = sports.find(s => fold(s) === q || fold(venueCatalogueDisplayLabel(s, 'sport', 'en')) === q);
   return sport ? { sport } : { city: query.trim() };
 }
 

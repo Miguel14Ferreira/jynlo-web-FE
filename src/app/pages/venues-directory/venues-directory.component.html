@@ -30,7 +30,7 @@
         <input name="sport" [(ngModel)]="sport" maxlength="90" list="catalog-sports"
                [placeholder]="'venue.catalog.sportHint' | t">
         <datalist id="catalog-sports">
-          @for (item of sportsCatalog; track item) { <option [value]="item"></option> }
+          @for (item of sportsCatalog; track item) { <option [value]="item" [label]="item | sportName"></option> }
         </datalist>
       </label>
       <div class="venue-directory-actions">

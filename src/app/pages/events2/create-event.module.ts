@@ -1,3 +1,4 @@
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +15,6 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [Events2Component],
-  imports: [CommonModule, FormsModule, RouterModule.forChild(routes), TranslatePipe, LocationMethodSelectorComponent, JynloSelectComponent]
+  imports: [SportNamePipe, CommonModule, FormsModule, RouterModule.forChild(routes), TranslatePipe, LocationMethodSelectorComponent, JynloSelectComponent]
 })
 export class CreateEventModule {}

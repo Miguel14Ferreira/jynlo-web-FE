@@ -242,7 +242,7 @@
                 <button type="button" class="community-sport-option"
                   [class.active]="sport === item"
                   [attr.aria-pressed]="sport === item"
-                  [disabled]="loading" (click)="chooseCommunitySport(item)">{{ item }}</button>
+                  [disabled]="loading" (click)="chooseCommunitySport(item)">{{ item | sportName }}</button>
               }
             </div>
             <small>Também podes escolher outra modalidade no campo abaixo.</small>
@@ -283,7 +283,7 @@
                 <small>Já temos algo parecido?</small>
                 @for (similar of customSportMatches; track similar) {
                   <button type="button" class="community-sport-option"
-                    [disabled]="loading" (click)="onSportChoice(similar)">{{similar}}</button>
+                    [disabled]="loading" (click)="onSportChoice(similar)">{{ similar | sportName }}</button>
                 }
               </div>
             }

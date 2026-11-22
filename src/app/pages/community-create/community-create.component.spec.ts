@@ -1,3 +1,4 @@
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { of, throwError } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
@@ -129,7 +130,7 @@ describe('Community creation onboarding', () => {
       };
       await TestBed.configureTestingModule({
         declarations: [CommunityCreateComponent],
-        imports: [FormsModule, TranslatePipe],
+        imports: [FormsModule, TranslatePipe, SportNamePipe],
         providers: [
           { provide: CommunityGroupsService, useValue: service },
           { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } }

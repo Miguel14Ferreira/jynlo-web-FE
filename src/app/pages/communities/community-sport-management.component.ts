@@ -1,3 +1,4 @@
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
@@ -5,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-community-sport-management',
   standalone: true,
-  imports: [FormsModule],
+  imports: [SportNamePipe, FormsModule],
   templateUrl: './community-sport-management.component.html',
   styleUrls: ['./community-sport-management.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

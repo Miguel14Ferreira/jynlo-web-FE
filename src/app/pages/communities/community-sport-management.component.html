@@ -12,7 +12,7 @@
                   </div>
                   <div class="sport-tags" aria-label="Modalidades da comunidade">
                     @for (item of sports; track item) {
-                      <span class="sport-tag">{{ item }}</span>
+                      <span class="sport-tag">{{ item | sportName }}</span>
                     } @empty {
                       <span class="sport-blank">Ainda sem modalidades definidas</span>
                     }
@@ -22,7 +22,7 @@
                     <div class="sport-edit">
                       <div class="sport-tags" aria-label="Modalidades a guardar">
                         @for (item of draft; track item) {
-                          <span class="sport-tag">{{ item }}
+                          <span class="sport-tag">{{ item | sportName }}
                             <button type="button" [disabled]="saving"
                               [attr.aria-label]="'Remover ' + item"
                               (click)="removeRequested.emit(item)">×</button>

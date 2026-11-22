@@ -26,7 +26,7 @@
         <label>Modalidade
           <select name="sport" [(ngModel)]="draft.sport" aria-label="Escolher modalidade">
             <option value="">Selecionar modalidade (opcional)</option>
-            <option *ngFor="let item of sportsCatalog" [value]="item">{{ item }}</option>
+            <option *ngFor="let item of sportsCatalog" [value]="item">{{ item | sportName }}</option>
           </select>
         </label>
         <label>Localização <input name="location" [(ngModel)]="draft.location" placeholder="Ex.: Lisboa" maxlength="100"></label>

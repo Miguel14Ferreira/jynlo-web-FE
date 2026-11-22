@@ -154,7 +154,7 @@
               [name]="'sport-' + sportOption"
               [checked]="isSportSelected(sportOption)"
               (change)="toggleSport(sportOption, $any($event.target).checked)">
-            <span>{{ sportOption }}</span>
+            <span>{{ sportOption | sportName }}</span>
           </label>
         }
         @if (visibleSports.length === 0) {

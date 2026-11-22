@@ -59,7 +59,7 @@
           @for (quick of quickSports; track quick) {
             <button type="button" class="explore-chip" [class.is-selected]="sport.trim() === quick"
               [attr.aria-pressed]="sport.trim() === quick" (click)="selectQuickSport(quick)">
-              {{ quick }}
+              {{ quick | sportName }}
             </button>
           }
         </div>

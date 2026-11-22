@@ -2024,7 +2024,7 @@
             @for (item of visibleCommunitySportOptions; track item) {
               <button type="button" class="t-sport-chip" [disabled]="busy"
                 [attr.aria-pressed]="sportDraft === item"
-                (click)="chooseSport(item)">{{ item }}</button>
+                (click)="chooseSport(item)">{{ item | sportName }}</button>
             }
             @if (communitySportOptions.length > communitySportPreviewSize) {
               <button type="button" class="t-sport-chip"
@@ -2046,7 +2046,7 @@
           <div class="t-sport-suggestions" role="group" [attr.aria-label]="'communities.tournaments.createUi.suggestions' | t">
             @for (item of suggestedSports; track item) {
               <button type="button" class="t-sport-chip" [disabled]="busy"
-                (click)="chooseSport(item)">{{ item }}</button>
+                (click)="chooseSport(item)">{{ item | sportName }}</button>
             }
           </div>
         } @else if (sportSearch.trim()) {

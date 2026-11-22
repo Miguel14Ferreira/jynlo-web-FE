@@ -1,3 +1,4 @@
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -15,7 +16,7 @@ import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/ven
 @Component({
   selector: 'app-venues-directory',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, VenueSportsBadgesComponent],
+  imports: [SportNamePipe, CommonModule, FormsModule, RouterLink, TranslatePipe, VenueSportsBadgesComponent],
   templateUrl: './venues-directory.component.html',
   styleUrls: ['./venues-directory.component.css', './venues-directory-v3-finish.css']
 })
