@@ -3,6 +3,8 @@ import { Venue } from './venue';
 
 export interface SessionDetail extends SessionSummary {
   creatorUsername: string | null;
+  /** Players the organiser confirmed outside Jynlo (WhatsApp, phone…); they take spots. */
+  externalConfirmedParticipants?: number;
   /** API-controlled minimum to be ready; capacity may be greater. */
   minParticipants?: number;
   address: string | null;

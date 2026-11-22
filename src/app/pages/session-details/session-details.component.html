@@ -113,6 +113,19 @@
                 </select>
               </label>
               @if (levelError) { <small role="alert">{{ levelError }}</small> }
+              <label>
+                <span>{{ 'Confirmados fora da Jynlo' | t }}</span>
+                <input type="number" min="0" max="99" step="1" inputmode="numeric"
+                  [ngModel]="externalDraft ?? session.externalConfirmedParticipants ?? 0"
+                  (ngModelChange)="externalDraft = $event" [disabled]="externalSaving"
+                  [attr.aria-describedby]="'external-confirmed-hint'">
+              </label>
+              <small id="external-confirmed-hint">{{ 'Amigos que confirmaram por WhatsApp ou telefone. Ocupam lugares no jogo.' | t }}</small>
+              <button type="button" class="jynlo-action jynlo-action--neutral"
+                [disabled]="externalSaving || externalDraft === null || externalDraft === (session.externalConfirmedParticipants ?? 0)"
+                (click)="saveExternalConfirmations()">{{ (externalSaving ? 'A guardar…' : 'Guardar') | t }}</button>
+              @if (externalError) { <small role="alert">{{ externalError }}</small> }
+              @if (externalSuccess) { <small role="status">{{ externalSuccess }}</small> }
             </div>
           }
 
