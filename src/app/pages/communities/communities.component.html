@@ -1018,6 +1018,8 @@
                     [drawPoints]="drawPointsDraft"
                     [lossPoints]="lossPointsDraft"
                     [saving]="competitionSaving"
+                    [overallEnabled]="overallStandingsDraft"
+                    (overallEnabledChange)="overallStandingsDraft = $event"
                     (enabledChange)="rankingsEnabledDraft = $event"
                     (winPointsChange)="winPointsDraft = $event"
                     (drawPointsChange)="drawPointsDraft = $event"
@@ -5037,6 +5039,10 @@
                   }
                   @if (rankingHistoricalSuccess) {
                     <p class="ranking-identity-success" role="status">{{ rankingHistoricalSuccess }}</p>
+                  }
+                  @if (competition?.overallStandings?.length) {
+                    <app-community-overall-standings [rows]="competition?.overallStandings ?? []">
+                    </app-community-overall-standings>
                   }
                   @if (scopedMatchRankingGroups.length) {
                     @for (group of scopedMatchRankingGroups; track group.sport) {

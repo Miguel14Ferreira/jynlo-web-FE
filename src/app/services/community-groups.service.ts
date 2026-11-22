@@ -633,6 +633,7 @@ export class CommunityGroupsService {
       winPoints: number | null;
       drawPoints: number | null;
       lossPoints: number | null;
+      overallStandingsEnabled?: boolean;
     }
   ): Observable<CommunityCompetitionSettings> {
     return this.http.put<CommunityCompetitionSettings>(

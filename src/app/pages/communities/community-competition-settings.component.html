@@ -49,6 +49,20 @@
 
   }
 
+  @if (classifiedSports.length > 1) {
+    <div class="overall-standings-setting">
+      <div>
+        <strong>{{ 'communities.overall.setting' | t }}</strong>
+        <p>{{ 'communities.overall.settingHint' | t }}</p>
+      </div>
+      <app-community-switch
+        [checked]="overallEnabled"
+        [label]="(overallEnabled ? 'communities.enabled' : 'communities.disabled') | t"
+        (checkedChange)="overallEnabledChange.emit($event)"
+      ></app-community-switch>
+    </div>
+  }
+
   <button type="button" class="primary-action jynlo-action jynlo-action--primary"
     [disabled]="saving" (click)="saveRequested.emit()">
     {{ (saving ? 'communities.savingCompetition' : 'communities.saveCompetition') | t }}
