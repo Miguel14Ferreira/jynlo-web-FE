@@ -10,14 +10,29 @@ export const PAGE_NOTICE_SELECTOR = '.feedback.error-feedback, .feedback.success
 
 export interface PageNotice { tone: 'error' | 'success'; text: string; }
 
+/** Errors announced with role="alert" (forms, panels): shown as a pop-up only right after the person acted. */
+export const ACTION_ERROR_SELECTOR = '[role="alert"]';
+/** A server answer can take a few seconds; later alerts were not caused by the click. */
+export const ACTION_WINDOW_MS = 10_000;
+
 /** Reads new notice banners, so every page gets the pop-up without its own code. */
-export function noticesToShow(root: ParentNode, seen: WeakMap<Element, string>): PageNotice[] {
+export function noticesToShow(root: ParentNode, seen: WeakMap<Element, string>,
+                              recentAction = false): PageNotice[] {
   const found: PageNotice[] = [];
   root.querySelectorAll(PAGE_NOTICE_SELECTOR).forEach(element => {
     const text = (element.textContent ?? '').replace(/\s+/g, ' ').trim();
     if (!text || seen.get(element) === text) return;
     seen.set(element, text);
     found.push({ tone: element.classList.contains('error-feedback') ? 'error' : 'success', text });
+  });
+  root.querySelectorAll(ACTION_ERROR_SELECTOR).forEach(element => {
+    if (element.matches(PAGE_NOTICE_SELECTOR) || element.closest('.page-notice')) return;
+    const text = (element.textContent ?? '').replace(/\s+/g, ' ').trim();
+    if (!text || seen.get(element) === text) return;
+    seen.set(element, text);
+    // Errors that appear while typing stay inline next to the field; only an
+    // error that follows a button press (save, send, create…) also pops up.
+    if (recentAction) found.push({ tone: 'error', text });
   });
   return found;
 }
@@ -78,12 +93,25 @@ export class PageNoticePopupComponent implements AfterViewInit, OnDestroy {
   private scheduled = false;
   private autoClose?: ReturnType<typeof setTimeout>;
   private previousFocus: HTMLElement | null = null;
+  private lastActionAt = 0;
 
   constructor(private readonly zone: NgZone, private readonly cdr: ChangeDetectorRef,
               @Inject(PLATFORM_ID) private readonly platformId: object) {}
 
   ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId) || typeof MutationObserver === 'undefined') return;
+    // Remember button presses and form submissions (capture phase, never blocks them).
+    this.zone.runOutsideAngular(() => {
+      document.addEventListener('click', event => {
+        const target = event.target as Element | null;
+        if (target?.closest?.('button, [type="submit"], [role="button"]') && !target.closest('.page-notice')) {
+          this.lastActionAt = Date.now();
+        }
+      }, true);
+      document.addEventListener('submit', () => { this.lastActionAt = Date.now(); }, true);
+    });
+    // Alerts already on the page when it opens are not caused by an action.
+    noticesToShow(document, this.seen, false);
     this.zone.runOutsideAngular(() => {
       this.observer = new MutationObserver(() => this.schedule());
       this.observer.observe(document.body, { childList: true, subtree: true, characterData: true });
@@ -111,7 +139,8 @@ export class PageNoticePopupComponent implements AfterViewInit, OnDestroy {
     this.scheduled = true;
     requestAnimationFrame(() => {
       this.scheduled = false;
-      const found = noticesToShow(document, this.seen);
+      const found = noticesToShow(document, this.seen,
+        Date.now() - this.lastActionAt < ACTION_WINDOW_MS);
       if (!found.length) return;
       // Errors win over a success shown at the same time.
       const next = found.find(item => item.tone === 'error') ?? found[found.length - 1];

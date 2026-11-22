@@ -15,10 +15,11 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
 
 type KitDesign = Omit<TeamKitVariant,'type'>;
 
+import { TeamRosterImportComponent } from './team-roster-import.component';
 @Component({
   standalone: true,
   selector: 'app-sports-team-detail',
-  imports: [TranslatePipe, CommonModule, RouterLink, FormsModule, SportsTeamContentComponent, SportsTeamChallengesComponent, TeamCrestEditorComponent],
+  imports: [TranslatePipe, CommonModule, RouterLink, FormsModule, SportsTeamContentComponent, SportsTeamChallengesComponent, TeamCrestEditorComponent, TeamRosterImportComponent],
   template: `
   <main class="team-detail" *ngIf="team as t; else state">
     <a class="team-back" routerLink="/menu/teams">{{ '← Voltar às equipas' | t }}</a>
@@ -175,6 +176,7 @@ type KitDesign = Omit<TeamKitVariant,'type'>;
             <button type="button" [attr.aria-label]="('Convidar @{{username}} para a equipa' | t:{username: candidate.username})"
               [disabled]="busy || !invitationsVerified || !rosterVerified" (click)="invitePlayer(candidate)">{{ 'Convidar' | t }}</button>
           </div>
+          <app-team-roster-import [teamId]="t.id" (imported)="loadPendingInvitations()"></app-team-roster-import>
         </div>
       </section>
       <section *ngIf="activeTab === 'TROPHIES'" class="team-trophies"><h2>{{ '🏆 Troféus ({{championshipHonours}})' | t:{championshipHonours: (trophiesVerified ? trophies.length + championshipHonours.length : '—')} }}</h2>

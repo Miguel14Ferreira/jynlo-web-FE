@@ -4411,6 +4411,12 @@
                             <div>
                               <h4>{{ 'communities.import.wizard.fileTitle' | t }}</h4>
                               <p>{{ 'communities.import.wizard.fileHint' | t }}</p>
+                              @if (importMode === 'ROUNDS') {
+                                <p class="import-template-hint">
+                                  {{ 'Não tens um ficheiro arrumado? Usa o nosso modelo: uma linha por jogador em cada jogo.' | t }}
+                                  <a href="/assets/modelo-jynlo-historico.csv" download="modelo-jynlo-historico.csv">{{ 'Descarregar modelo' | t }}</a>
+                                </p>
+                              }
                             </div>
                           </div>
                           <div class="import-wizard-upload">
@@ -4489,7 +4495,14 @@
                             @if (sourceDatesNeedYear && importMode === 'ROUNDS') {
                               <p class="import-validation" role="note">{{ 'communities.import.yearlessDates' | t }}</p>
                             }
-                            @if (importMappings.length) {
+                            @if (importMappings.length && importMappingConfident && !importMappingOpen) {
+                              <p class="import-validation import-mapping-recognised" role="status">
+                                ✓ {{ 'Reconhecemos as colunas:' | t }} <strong>{{ importRecognisedColumns }}</strong>
+                                <button type="button" class="secondary-action small jynlo-action jynlo-action--neutral jynlo-action--compact"
+                                  (click)="importMappingOpen = true">{{ 'Alterar colunas' | t }}</button>
+                              </p>
+                            }
+                            @if (importMappings.length && importMappingOpen) {
                               <div class="import-mapping">
                                 <div class="import-mapping-head">
                                   <strong>{{ 'communities.import.column' | t }}</strong>
@@ -4926,6 +4939,12 @@
                                 }
 
                                 @if (importFinalPlan.invalidDates === 0 && importFinalPlan.roundsNeedingYear === 0) {
+                                  <p class="import-plain-summary" role="status">
+                                    {{ 'Vamos criar {{rounds}} jornadas com {{entries}} resultados de jogadores.' | t:{rounds: importFinalPlan.distinctRounds - importFinalPlan.duplicateRounds, entries: importPlanEntries} }}
+                                    @if (importFinalPlan.duplicateRounds > 0) {
+                                      {{ '{{n}} jornadas já existiam e ficam como estão.' | t:{n: importFinalPlan.duplicateRounds} }}
+                                    }
+                                  </p>
                                   <button type="button" class="primary-action import-confirm jynlo-action jynlo-action--primary"
                                     [disabled]="importConfirming || (importIncludesPoints && !importPointsAcknowledged)"
                                     (click)="confirmHistoricalImport()">

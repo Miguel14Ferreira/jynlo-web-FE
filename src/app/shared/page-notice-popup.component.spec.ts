@@ -11,4 +11,13 @@ describe('page notices as pop-ups', () => {
     root.querySelector('.success-feedback')!.textContent = 'Guardado.';
     expect(noticesToShow(root, seen)).toEqual([{ tone: 'success', text: 'Guardado.' }]);
   });
+
+  it('pops up form errors only when they follow a button press', () => {
+    const root = document.createElement('div');
+    root.innerHTML = '<p role="alert">O nome é obrigatório.</p>';
+    const seen = new WeakMap<Element, string>();
+    expect(noticesToShow(root, seen, false)).toEqual([]);
+    root.querySelector('p')!.textContent = 'Não foi possível guardar.';
+    expect(noticesToShow(root, seen, true)).toEqual([{ tone: 'error', text: 'Não foi possível guardar.' }]);
+  });
 });
