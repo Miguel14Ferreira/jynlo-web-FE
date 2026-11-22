@@ -59,7 +59,7 @@
           @for (quick of quickSports; track quick) {
             <button type="button" class="explore-chip" [class.is-selected]="sport.trim() === quick"
               [attr.aria-pressed]="sport.trim() === quick" (click)="selectQuickSport(quick)">
-              {{ quick }}
+              {{ quick | sportName }}
             </button>
           }
         </div>
@@ -202,9 +202,9 @@
               <label>
                 <span>{{ 'discover.nearby.radius' | t }}</span>
                 <select [value]="nearbyVenueRadiusKm" (change)="changeNearbyVenueRadius(+$any($event.target).value)">
-                  <option [value]="10">10 km</option>
-                  <option [value]="25">25 km</option>
-                  <option [value]="50">50 km</option>
+                  <option [value]="10">{{ '10 km' | t }}</option>
+                  <option [value]="25">{{ '25 km' | t }}</option>
+                  <option [value]="50">{{ '50 km' | t }}</option>
                 </select>
               </label>
               <button type="button" class="jynlo-action jynlo-action--neutral"
@@ -229,7 +229,7 @@
                   referrerpolicy="no-referrer"></iframe>
                 <div class="explore-map-caption">
                   <small>{{ 'discover.explore.mapDisclaimer' | t }}
-                    <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap</a>
+                    <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">{{ '© OpenStreetMap' | t }}</a>
                   </small>
                   <a [routerLink]="['/menu/venues', focusedMapVenue!.id]">
                     {{ 'discover.explore.mapDetails' | t }} <span aria-hidden="true">→</span>
@@ -303,9 +303,9 @@
               <label>
                 <span>{{ 'discover.nearby.radius' | t }}</span>
                 <select [value]="nearbyRadiusKm" (change)="changeNearbyRadius(+$any($event.target).value)">
-                  <option [value]="10">10 km</option>
-                  <option [value]="25">25 km</option>
-                  <option [value]="50">50 km</option>
+                  <option [value]="10">{{ '10 km' | t }}</option>
+                  <option [value]="25">{{ '25 km' | t }}</option>
+                  <option [value]="50">{{ '50 km' | t }}</option>
                 </select>
               </label>
               <button type="button" class="jynlo-action jynlo-action--neutral"
@@ -323,18 +323,18 @@
           @if (loadingSessions) {
             <div class="state-card" role="status">{{ 'discover.loading' | t }}</div>
           } @else {
-          <div class="jynlo-session-view-toggle" role="group" aria-label="Visualização das sessões">
+          <div class="jynlo-session-view-toggle" role="group" [attr.aria-label]="'Visualização das sessões' | t">
             <button type="button" [class.is-selected]="sessionView === 'map'"
-              [attr.aria-pressed]="sessionView === 'map'" (click)="setSessionView('map')">⌖ Mapa</button>
+              [attr.aria-pressed]="sessionView === 'map'" (click)="setSessionView('map')">{{ '⌖ Mapa' | t }}</button>
             <button type="button" [class.is-selected]="sessionView === 'list'"
-              [attr.aria-pressed]="sessionView === 'list'" (click)="setSessionView('list')">☷ Lista</button>
+              [attr.aria-pressed]="sessionView === 'list'" (click)="setSessionView('list')">{{ '☷ Lista' | t }}</button>
           </div>
           @if (sessionView === 'map') {
             <app-session-discovery-map [sessions]="sessions" (searchArea)="searchMapArea($event)"></app-session-discovery-map>
             @if (mapSearchPosition) {
               <div class="jynlo-map-search-status" role="status">
-                Pesquisa por zona aproximada · raio {{ mapSearchRadiusKm }} km
-                <button type="button" (click)="clearMapSearch()">Limpar pesquisa no mapa</button>
+                {{ 'Pesquisa por zona aproximada · raio {{mapSearchRadiusKm}} km' | t:{mapSearchRadiusKm: (mapSearchRadiusKm)} }}
+                <button type="button" (click)="clearMapSearch()">{{ 'Limpar pesquisa no mapa' | t }}</button>
               </div>
             }
           } @else {

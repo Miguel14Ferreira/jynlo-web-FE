@@ -1,3 +1,4 @@
+import { sportMatchesQuery } from '../../shared/venue-catalogue-display';
 import { Component, OnInit, Optional } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -24,7 +25,7 @@ export class VenueCreateComponent implements OnInit {
   get visibleSports(): readonly string[] {
     const query = this.normalizeSport(this.sportSearch.trim());
     if (query) {
-      return this.sportsCatalog.filter(sport => this.normalizeSport(sport).includes(query));
+      return this.sportsCatalog.filter(sport => sportMatchesQuery(sport, query));
     }
     return this.showAllSports
       ? this.sportsCatalog

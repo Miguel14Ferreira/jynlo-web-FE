@@ -197,11 +197,11 @@
 
         <section class="account-section">
           <div class="section-heading"><div>
-            <span class="section-kicker">EQUIPAS</span>
-            <h3>As minhas equipas</h3>
+            <span class="section-kicker">{{ 'EQUIPAS' | t }}</span>
+            <h3>{{ 'As minhas equipas' | t }}</h3>
           </div></div>
-          <p>Consulta as equipas de que és responsável e os teus convites para competir.</p>
-          <a class="jynlo-action jynlo-action--primary" routerLink="/menu/teams">Ver equipas e criar equipa</a>
+          <p>{{ 'Consulta as equipas de que és responsável e os teus convites para competir.' | t }}</p>
+          <a class="jynlo-action jynlo-action--primary" routerLink="/menu/teams">{{ 'Ver equipas e criar equipa' | t }}</a>
         </section>
 
         <section class="account-section">
@@ -218,7 +218,7 @@
             <div><span>{{ 'profileData.birthDate' | t }}</span><strong>{{ profile.dateOfBirth || ('common.notProvidedF' | t) }}</strong></div>
             <div><span>{{ 'common.gender' | t }}</span><strong>{{ profile.gender || ('common.notProvided' | t) }}</strong></div>
             <div><span>{{ 'profileData.memberSince' | t }}</span><strong>{{ profile.joinDateDisplay || ('common.noInfo' | t) }}</strong></div>
-            <div><span>MFA</span><strong>{{ profile.mfa ? ('common.active' | t) : ('common.inactive' | t) }}</strong></div>
+            <div><span>{{ 'MFA' | t }}</span><strong>{{ profile.mfa ? ('common.active' | t) : ('common.inactive' | t) }}</strong></div>
           </div>
         </section>
       </section>
@@ -232,7 +232,7 @@
                  (click)="$event.stopPropagation()">
           <header class="social-list-head">
             <h3>{{ (followListMode === 'followers' ? 'social.followers' : 'social.following') | t }}</h3>
-            <button type="button" class="jynlo-action jynlo-action--neutral" (click)="closeFollowList()" aria-label="Fechar">×</button>
+            <button type="button" class="jynlo-action jynlo-action--neutral" (click)="closeFollowList()" [attr.aria-label]="'Fechar' | t">×</button>
           </header>
           @if (followListLoading) {
             <p role="status">{{ 'home.preview.loading' | t }}</p>

@@ -140,18 +140,18 @@
           }
         </div>
         <div class="create-field">
-          <label for="championship-mode">Como queres construir o campeonato?</label>
+          <label for="championship-mode">{{ 'Como queres construir o campeonato?' | t }}</label>
           <select id="championship-mode" [(ngModel)]="championshipCreationMode">
-            <option value="GUIDED">Guiado — sugestões da Jynlo</option>
-            <option value="CUSTOM">Personalizado — escolhes as provas</option>
+            <option value="GUIDED">{{ 'Guiado — sugestões da Jynlo' | t }}</option>
+            <option value="CUSTOM">{{ 'Personalizado — escolhes as provas' | t }}</option>
           </select>
           @if (championshipCreationMode === 'GUIDED' && championshipSportDraft) {
-            <div class="create-step" role="group" aria-label="Estrutura sugerida pela Jynlo">
-              <strong>Estrutura sugerida — opcional</strong>
+            <div class="create-step" role="group" [attr.aria-label]="'Estrutura sugerida pela Jynlo' | t">
+              <strong>{{ 'Estrutura sugerida — opcional' | t }}</strong>
               @for (suggestion of championshipSuggestions(championshipSportDraft); track suggestion.id) {
                 <p><strong>{{ suggestion.title }}</strong> — {{ suggestion.description }}</p>
               }
-              <small>Nada será criado automaticamente. Depois de criar a época, escolhes as provas e os torneios que queres associar.</small>
+              <small>{{ 'Nada será criado automaticamente. Depois de criar a época, escolhes as provas e os torneios que queres associar.' | t }}</small>
             </div>
           }
           <small>
@@ -163,12 +163,12 @@
           </small>
         </div>
         <div class="create-field">
-          <label for="championship-ranking-policy">Classificação do campeonato</label>
+          <label for="championship-ranking-policy">{{ 'Classificação do campeonato' | t }}</label>
           <select id="championship-ranking-policy" [(ngModel)]="championshipRankingModeDraft">
-            <option value="AGGREGATE">Campeão geral — pontos acumulados das provas</option>
-            <option value="INDEPENDENT">Vencedores por prova — sem campeão geral</option>
+            <option value="AGGREGATE">{{ 'Campeão geral — pontos acumulados das provas' | t }}</option>
+            <option value="INDEPENDENT">{{ 'Vencedores por prova — sem campeão geral' | t }}</option>
           </select>
-          <small>Esta decisão é independente do modo guiado ou personalizado. Podes alterá-la enquanto nenhuma prova tiver começado.</small>
+          <small>{{ 'Esta decisão é independente do modo guiado ou personalizado. Podes alterá-la enquanto nenhuma prova tiver começado.' | t }}</small>
         </div>
         <button type="button" class="t-btn t-btn-primary"
           [disabled]="championshipBusy || !championshipNameDraft.trim() || !championshipSeasonDraft.trim() || !championshipSportDraft"
@@ -185,37 +185,37 @@
     </div>
     @if (championshipHistoryView === 'HISTORY') {
       @if (selectedPermanentTeamProfile; as profile) {
-        <section class="create-step" aria-label="Ficha da equipa">
+        <section class="create-step" [attr.aria-label]="'Ficha da equipa' | t">
           <button type="button" class="t-btn t-btn-secondary"
-            (click)="closePermanentTeamProfile()">Voltar ao palmarés</button>
-          <p class="tournament-eyebrow">Palmarés da equipa</p>
+            (click)="closePermanentTeamProfile()">{{ 'Voltar ao palmarés' | t }}</button>
+          <p class="tournament-eyebrow">{{ 'Palmarés da equipa' | t }}</p>
           <h4>{{ profile.name }}</h4>
-          <p>Identidade permanente desta comunidade. Os títulos e as participações são apresentados apenas quando há associação explícita.</p>
+          <p>{{ 'Identidade permanente desta comunidade. Os títulos e as participações são apresentados apenas quando há associação explícita.' | t }}</p>
           <div class="create-step">
-            <h5>Troféus conquistados</h5>
-            <div class="team-honours-trophies" role="group" aria-label="Títulos conquistados">
+            <h5>{{ 'Troféus conquistados' | t }}</h5>
+            <div class="team-honours-trophies" role="group" [attr.aria-label]="'Títulos conquistados' | t">
               <div class="team-honours-trophy">
                 <span aria-hidden="true">🏆</span>
                 <strong>{{ profile.championships }}</strong>
-                <span>Campeonatos</span>
+                <span>{{ 'Campeonatos' | t }}</span>
               </div>
               <div class="team-honours-trophy">
                 <span aria-hidden="true">🥇</span>
                 <strong>{{ profile.leagues }}</strong>
-                <span>Ligas</span>
+                <span>{{ 'Ligas' | t }}</span>
               </div>
               <div class="team-honours-trophy">
                 <span aria-hidden="true">🏅</span>
                 <strong>{{ profile.cups }}</strong>
-                <span>Taças</span>
+                <span>{{ 'Taças' | t }}</span>
               </div>
             </div>
           </div>
-          <section class="create-step" aria-label="Gráfico de evolução das classificações">
-            <h5>Evolução da classificação</h5>
-            <p class="team-honours-muted">Posições finais verificadas, por ordem cronológica. O 1.º lugar está no topo e cada modalidade tem o seu próprio gráfico.</p>
+          <section class="create-step" [attr.aria-label]="'Gráfico de evolução das classificações' | t">
+            <h5>{{ 'Evolução da classificação' | t }}</h5>
+            <p class="team-honours-muted">{{ 'Posições finais verificadas, por ordem cronológica. O 1.º lugar está no topo e cada modalidade tem o seu próprio gráfico.' | t }}</p>
             @if (availableRankingChartSports.length > 1) {
-              <label for="team-ranking-sport">Modalidade</label>
+              <label for="team-ranking-sport">{{ 'Modalidade' | t }}</label>
               <select id="team-ranking-sport"
                 [value]="selectedRankingChart?.sport || ''"
                 (change)="chooseRankingChartSport($any($event.target).value)">
@@ -226,9 +226,9 @@
             }
             @if (selectedRankingChart; as rankingChart) {
               <div class="team-ranking-chart" role="group"
-                [attr.aria-label]="'Evolução das classificações em ' + rankingChart.sport">
+                [attr.aria-label]="('Evolução das classificações em {{sport}}' | t:{sport: rankingChart.sport})">
                 <svg viewBox="0 0 1000 225" preserveAspectRatio="xMidYMid meet"
-                  role="img" [attr.aria-label]="'Gráfico de posições finais em ' + rankingChart.sport">
+                  role="img" [attr.aria-label]="('Gráfico de posições finais em {{sport}}' | t:{sport: rankingChart.sport})">
                   <line x1="45" y1="35" x2="950" y2="35" class="team-ranking-gridline"/>
                   <line x1="45" y1="180" x2="950" y2="180" class="team-ranking-gridline"/>
                   <text x="4" y="40" class="team-ranking-axis-label">1.º</text>
@@ -247,40 +247,38 @@
                 <ol class="team-ranking-chart-legend">
                   @for (point of rankingChart.points; track point.championshipId) {
                     <li><strong>{{ point.seasonLabel }}</strong>
-                      · {{ point.championshipName }} · {{ point.position }}.º lugar
-                      · {{ point.points }} pontos</li>
+                      {{ '· {{championshipName}} · {{position}}.º lugar · {{points}} pontos' | t:{championshipName: (point.championshipName), position: (point.position), points: (point.points)} }}</li>
                   }
                 </ol>
               </div>
             } @else {
-              <p>Não existem classificações finais verificadas suficientes para apresentar a evolução.</p>
+              <p>{{ 'Não existem classificações finais verificadas suficientes para apresentar a evolução.' | t }}</p>
             }
           </section>
           <div class="create-step">
-            <h5>Linha temporal das épocas</h5>
-            <p class="team-honours-muted">Participações associadas a esta equipa. A evolução compara apenas classificações finais verificadas da mesma modalidade.</p>
+            <h5>{{ 'Linha temporal das épocas' | t }}</h5>
+            <p class="team-honours-muted">{{ 'Participações associadas a esta equipa. A evolução compara apenas classificações finais verificadas da mesma modalidade.' | t }}</p>
             @if (profile.seasons.length) {
               <ol class="team-honours-timeline">
                 @for (season of profile.seasons; track season.championshipId) {
                   <li class="team-honours-season">
                     <div class="team-honours-season-header">
                       <strong>{{ season.seasonLabel }}</strong>
-                      <span>{{ season.closedAt ? 'Concluída' : 'Em curso' }}</span>
+                      <span>{{ season.closedAt ? ('Concluída' | t) : ('Em curso' | t) }}</span>
                       @if (season.champion) {
-                        <span class="team-honours-champion">🏆 Campeã</span>
+                        <span class="team-honours-champion">{{ '🏆 Campeã' | t }}</span>
                       }
                     </div>
                     <div>{{ season.name }} · {{ season.sport | sportName }}</div>
-                    <div class="team-honours-muted">Equipa inscrita: {{ season.teamName }}</div>
+                    <div class="team-honours-muted">{{ 'Equipa inscrita: {{teamName}}' | t:{teamName: (season.teamName)} }}</div>
                     @if (season.position !== null && season.closedAt) {
                       <div class="team-honours-result">
-                        <strong>{{ season.position }}.º lugar</strong>
-                        <span>{{ season.points }} pontos</span>
+                        <strong>{{ '{{position}}.º lugar' | t:{position: (season.position)} }}</strong>
+                        <span>{{ '{{points}} pontos' | t:{points: (season.points)} }}</span>
                         @if (season.positionChange !== null) {
-                          <span [class.team-honours-improved]="season.positionChange > 0"
-                            [class.team-honours-declined]="season.positionChange < 0">
+                          <span [class.team-honours-improved]="season.positionChange > 0" [class.team-honours-declined]="season.positionChange < 0">
                             @if (season.positionChange > 0) {
-                              ↑ {{ season.positionChange }} posição(ões)
+                              {{ '↑ {{positionChange}} posição(ões)' | t:{positionChange: (season.positionChange)} }}
                             } @else if (season.positionChange < 0) {
                               ↓ {{ -season.positionChange }} posição(ões)
                             } @else {
@@ -288,33 +286,33 @@
                             }
                           </span>
                         } @else {
-                          <span>Primeira classificação comparável</span>
+                          <span>{{ 'Primeira classificação comparável' | t }}</span>
                         }
                       </div>
                       @if (season.previousPoints !== null) {
-                        <small>Época anterior comparável: {{ season.previousPoints }} pontos. Os regulamentos podem variar entre temporadas.</small>
+                        <small>{{ 'Época anterior comparável: {{previousPoints}} pontos. Os regulamentos podem variar entre temporadas.' | t:{previousPoints: (season.previousPoints)} }}</small>
                       }
                     } @else {
-                      <p class="team-honours-muted">Sem classificação final verificável para esta época.</p>
+                      <p class="team-honours-muted">{{ 'Sem classificação final verificável para esta época.' | t }}</p>
                     }
                   </li>
                 }
               </ol>
             } @else {
-              <p>Ainda não existem épocas associadas a esta equipa.</p>
+              <p>{{ 'Ainda não existem épocas associadas a esta equipa.' | t }}</p>
             }
           </div>
-          <section class="create-step" aria-label="Comparar duas épocas da equipa">
-            <h5>Comparar duas épocas</h5>
-            <p class="team-honours-muted">Escolhe duas épocas concluídas com classificação final verificada da mesma modalidade. As diferenças de pontos não pressupõem regulamentos iguais.</p>
+          <section class="create-step" [attr.aria-label]="'Comparar duas épocas da equipa' | t">
+            <h5>{{ 'Comparar duas épocas' | t }}</h5>
+            <p class="team-honours-muted">{{ 'Escolhe duas épocas concluídas com classificação final verificada da mesma modalidade. As diferenças de pontos não pressupõem regulamentos iguais.' | t }}</p>
             @if (selectableTeamSeasons.length >= 2) {
               <div class="team-honours-compare-selectors">
                 <div>
-                  <label for="team-compare-older">Primeira época</label>
+                  <label for="team-compare-older">{{ 'Primeira época' | t }}</label>
                   <select id="team-compare-older"
                     [value]="comparisonOlderChampionshipId ?? ''"
                     (change)="chooseComparisonOlder($any($event.target).value ? +$any($event.target).value : null)">
-                    <option value="">Selecionar época</option>
+                    <option value="">{{ 'Selecionar época' | t }}</option>
                     @for (season of selectableTeamSeasons; track season.championshipId) {
                       <option [value]="season.championshipId">
                         {{ season.seasonLabel }} · {{ season.name }} · {{ season.sport | sportName }}
@@ -323,11 +321,11 @@
                   </select>
                 </div>
                 <div>
-                  <label for="team-compare-newer">Segunda época</label>
+                  <label for="team-compare-newer">{{ 'Segunda época' | t }}</label>
                   <select id="team-compare-newer"
                     [value]="comparisonNewerChampionshipId ?? ''"
                     (change)="chooseComparisonNewer($any($event.target).value ? +$any($event.target).value : null)">
-                    <option value="">Selecionar época</option>
+                    <option value="">{{ 'Selecionar época' | t }}</option>
                     @for (season of selectableTeamSeasons; track season.championshipId) {
                       <option [value]="season.championshipId">
                         {{ season.seasonLabel }} · {{ season.name }} · {{ season.sport | sportName }}
@@ -341,25 +339,20 @@
                   <article class="team-honours-comparison-side">
                     <h6>{{ comparison.older.season.seasonLabel }}</h6>
                     <p>{{ comparison.older.season.name }} · {{ comparison.older.season.sport | sportName }}</p>
-                    <p><strong>{{ comparison.older.season.position }}.º lugar</strong> · {{ comparison.older.season.points }} pontos</p>
-                    <p>🏆 {{ comparison.older.championships }} Campeonato(s)
-                      · 🥇 {{ comparison.older.leagues }} Liga(s)
-                      · 🏅 {{ comparison.older.cups }} Taça(s)</p>
+                    <p><strong>{{ '{{position}}.º lugar' | t:{position: (comparison.older.season.position)} }}</strong> {{ '· {{points}} pontos' | t:{points: (comparison.older.season.points)} }}</p>
+                    <p>{{ '🏆 {{championships}} Campeonato(s) · 🥇 {{leagues}} Liga(s) · 🏅 {{cups}} Taça(s)' | t:{championships: (comparison.older.championships), leagues: (comparison.older.leagues), cups: (comparison.older.cups)} }}</p>
                   </article>
                   <article class="team-honours-comparison-side">
                     <h6>{{ comparison.newer.season.seasonLabel }}</h6>
                     <p>{{ comparison.newer.season.name }} · {{ comparison.newer.season.sport | sportName }}</p>
-                    <p><strong>{{ comparison.newer.season.position }}.º lugar</strong> · {{ comparison.newer.season.points }} pontos</p>
-                    <p>🏆 {{ comparison.newer.championships }} Campeonato(s)
-                      · 🥇 {{ comparison.newer.leagues }} Liga(s)
-                      · 🏅 {{ comparison.newer.cups }} Taça(s)</p>
+                    <p><strong>{{ '{{position}}.º lugar' | t:{position: (comparison.newer.season.position)} }}</strong> {{ '· {{points}} pontos' | t:{points: (comparison.newer.season.points)} }}</p>
+                    <p>{{ '🏆 {{championships}} Campeonato(s) · 🥇 {{leagues}} Liga(s) · 🏅 {{cups}} Taça(s)' | t:{championships: (comparison.newer.championships), leagues: (comparison.newer.leagues), cups: (comparison.newer.cups)} }}</p>
                   </article>
                 </div>
                 <p class="team-honours-compare-result"
-                  [class.team-honours-improved]="comparison.positionImprovement > 0"
-                  [class.team-honours-declined]="comparison.positionImprovement < 0">
+                  [class.team-honours-improved]="comparison.positionImprovement > 0" [class.team-honours-declined]="comparison.positionImprovement < 0">
                   @if (comparison.positionImprovement > 0) {
-                    ↑ Subiu {{ comparison.positionImprovement }} posição(ões)
+                    {{ '↑ Subiu {{positionImprovement}} posição(ões)' | t:{positionImprovement: (comparison.positionImprovement)} }}
                   } @else if (comparison.positionImprovement < 0) {
                     ↓ Desceu {{ -comparison.positionImprovement }} posição(ões)
                   } @else {
@@ -368,14 +361,14 @@
                   · Diferença de pontos: {{ comparison.pointsDifference > 0 ? '+' : '' }}{{ comparison.pointsDifference }}
                 </p>
               } @else if (comparisonOlderChampionshipId !== null && comparisonNewerChampionshipId !== null) {
-                <p role="status">Seleciona épocas diferentes e da mesma modalidade. Não é possível comparar resultados incompatíveis.</p>
+                <p role="status">{{ 'Seleciona épocas diferentes e da mesma modalidade. Não é possível comparar resultados incompatíveis.' | t }}</p>
               }
             } @else {
-              <p>São necessárias pelo menos duas épocas concluídas com classificação final verificável.</p>
+              <p>{{ 'São necessárias pelo menos duas épocas concluídas com classificação final verificável.' | t }}</p>
             }
           </section>
           <div class="create-step">
-            <h5>Campeonatos conquistados</h5>
+            <h5>{{ 'Campeonatos conquistados' | t }}</h5>
             @if (profile.seasonTitles.length) {
               <ul>
                 @for (title of profile.seasonTitles; track title.championshipId) {
@@ -384,90 +377,89 @@
                 }
               </ul>
             } @else {
-              <p>A equipa ainda não tem títulos de Campeonato confirmados.</p>
+              <p>{{ 'A equipa ainda não tem títulos de Campeonato confirmados.' | t }}</p>
             }
           </div>
           <div class="create-step">
-            <h5>Ligas e Taças conquistadas</h5>
+            <h5>{{ 'Ligas e Taças conquistadas' | t }}</h5>
             @if (profile.competitionTitles.length) {
               <ul>
                 @for (trophy of profile.competitionTitles; track trophy.championshipId + '-' + (trophy.ownedEventId != null ? 'event-' + trophy.ownedEventId : 'tournament-' + trophy.tournamentId)) {
-                  <li>{{ trophy.format === 'LEAGUE' ? 'Liga' : 'Taça / Eliminatórias' }}
+                  <li>{{ trophy.format === 'LEAGUE' ? ('Liga' | t) : ('Taça / Eliminatórias' | t) }}
                     · {{ trophy.tournamentName }} · {{ trophy.seasonLabel }} · {{ trophy.sport | sportName }}</li>
                 }
               </ul>
             } @else {
-              <p>Não há troféus de provas confirmados no histórico disponível.</p>
+              <p>{{ 'Não há troféus de provas confirmados no histórico disponível.' | t }}</p>
             }
           </div>
         </section>
       } @else {
-      <section class="create-step" aria-label="Palmarés da comunidade">
-        <h5>Palmarés da comunidade</h5>
+      <section class="create-step" [attr.aria-label]="'Palmarés da comunidade' | t">
+        <h5>{{ 'Palmarés da comunidade' | t }}</h5>
         @if (championshipHonours?.teamHonours?.length) {
-          <h6>Equipas com mais títulos</h6>
+          <h6>{{ 'Equipas com mais títulos' | t }}</h6>
           <ol>
             @for (team of championshipHonours!.teamHonours; track team.permanentTeamId) {
               <li>
                 <button type="button" class="t-btn t-btn-secondary"
-                  (click)="openPermanentTeamProfile(team.permanentTeamId)">{{ team.name }} · Ver ficha</button>
-                · {{ team.titles }} Campeonato(s)
-                · {{ team.leagues }} Liga(s) · {{ team.cups }} Taça(s)
+                  (click)="openPermanentTeamProfile(team.permanentTeamId)">{{ '{{name}} · Ver ficha' | t:{name: (team.name)} }}</button>
+                {{ '· {{titles}} Campeonato(s) · {{leagues}} Liga(s) · {{cups}} Taça(s)' | t:{titles: (team.titles), leagues: (team.leagues), cups: (team.cups)} }}
               </li>
             }
           </ol>
         }
         @if (permanentTeamRegistry?.teams?.length) {
-          <h6>Consultar equipas</h6>
+          <h6>{{ 'Consultar equipas' | t }}</h6>
           @for (registered of permanentTeamRegistry!.teams; track registered.id) {
             <button type="button" class="t-btn t-btn-secondary"
               (click)="openPermanentTeamProfile(registered.id)">{{ registered.name }}</button>
           }
         }
         @if (canManage) {
-          <h6>Identidade permanente das equipas</h6>
-          <p>Cria uma identidade comum e associa as equipas de épocas diferentes. Não são agrupadas pelo nome automaticamente.</p>
-          <label for="new-permanent-team">Nome da equipa permanente</label>
+          <h6>{{ 'Identidade permanente das equipas' | t }}</h6>
+          <p>{{ 'Cria uma identidade comum e associa as equipas de épocas diferentes. Não são agrupadas pelo nome automaticamente.' | t }}</p>
+          <label for="new-permanent-team">{{ 'Nome da equipa permanente' | t }}</label>
           <input id="new-permanent-team" type="text" maxlength="100"
-            [(ngModel)]="permanentTeamNameDraft" placeholder="Ex.: Águias FC">
+            [(ngModel)]="permanentTeamNameDraft" [placeholder]="'Ex.: Águias FC' | t">
           <button type="button" class="t-btn t-btn-secondary"
             [disabled]="championshipBusy || !permanentTeamNameDraft.trim()"
-            (click)="createPermanentTeam()">Criar equipa permanente</button>
+            (click)="createPermanentTeam()">{{ 'Criar equipa permanente' | t }}</button>
         }
         @if (championshipHonours; as honours) {
-          <p>{{ honours.completedSeasons }} campeonato(s) concluído(s)</p>
+          <p>{{ '{{completedSeasons}} campeonato(s) concluído(s)' | t:{completedSeasons: (honours.completedSeasons)} }}</p>
           @if (honours.individualHonours.length) {
-            <h6>Atletas com mais títulos</h6>
+            <h6>{{ 'Atletas com mais títulos' | t }}</h6>
             <ol>
               @for (athlete of honours.individualHonours; track athlete.profileId) {
-                <li><strong>{{ athlete.name }}</strong> · {{ athlete.titles }} título(s)</li>
+                <li><strong>{{ athlete.name }}</strong> {{ '· {{titles}} título(s)' | t:{titles: (athlete.titles)} }}</li>
               }
             </ol>
           }
-          <h6>Vencedores das provas</h6>
+          <h6>{{ 'Vencedores das provas' | t }}</h6>
           @if (honours.competitionTitles?.length) {
             <ul>
               @for (trophy of honours.competitionTitles; track trophy.championshipId + '-' + (trophy.ownedEventId != null ? 'event-' + trophy.ownedEventId : 'tournament-' + trophy.tournamentId)) {
                 @if (!championshipHonoursSportFilter || trophy.sport === championshipHonoursSportFilter) {
                   <li>
                     <strong>{{ trophy.winnerName }}</strong> · {{ trophy.tournamentName }}
-                    · {{ trophy.format === 'LEAGUE' ? 'Liga' : 'Taça / Eliminatórias' }}
+                    · {{ trophy.format === 'LEAGUE' ? ('Liga' | t) : ('Taça / Eliminatórias' | t) }}
                     · {{ trophy.seasonLabel }} · {{ trophy.sport | sportName }}
                     @if (trophy.entryType === 'TEAM' && !trophy.permanentTeamId) {
-                      <small>Equipa ainda sem identidade permanente</small>
+                      <small>{{ 'Equipa ainda sem identidade permanente' | t }}</small>
                     }
                   </li>
                 }
               }
             </ul>
           } @else {
-            <p>Não existem troféus de provas arquivados. As épocas encerradas anteriormente mantêm o seu histórico original.</p>
+            <p>{{ 'Não existem troféus de provas arquivados. As épocas encerradas anteriormente mantêm o seu histórico original.' | t }}</p>
           }
-          <h6>Campeões por época</h6>
+          <h6>{{ 'Campeões por época' | t }}</h6>
           @if (honours.titles.length) {
-            <label for="championship-honours-sport-filter">Filtrar por modalidade</label>
+            <label for="championship-honours-sport-filter">{{ 'Filtrar por modalidade' | t }}</label>
             <select id="championship-honours-sport-filter" [(ngModel)]="championshipHonoursSportFilter">
-              <option value="">Todas as modalidades</option>
+              <option value="">{{ 'Todas as modalidades' | t }}</option>
               @for (sport of championshipHonoursSports; track sport) {
                 <option [value]="sport">{{ sport | sportName }}</option>
               }
@@ -478,22 +470,22 @@
                   <strong>{{ title.championName }}</strong>
                   · {{ title.seasonLabel }} · {{ title.sport | sportName }}
                   · {{ title.championshipName }}
-                  <span>({{ title.entryType === 'TEAM' ? 'Equipa' : 'Individual' }})</span>
+                  <span>({{ title.entryType === 'TEAM' ? ('Equipa' | t) : ('Individual' | t) }})</span>
                 </li>
               }
             </ul>
           } @else {
-            <p>Ainda não existem títulos oficialmente atribuídos.</p>
+            <p>{{ 'Ainda não existem títulos oficialmente atribuídos.' | t }}</p>
           }
-          <small>Os títulos individuais são agrupados pela conta. Os títulos das equipas são agrupados apenas quando existe uma associação permanente explícita.</small>
+          <small>{{ 'Os títulos individuais são agrupados pela conta. Os títulos das equipas são agrupados apenas quando existe uma associação permanente explícita.' | t }}</small>
         } @else if (championshipHonoursError) {
           <p role="status">{{ championshipHonoursError }}</p>
         } @else {
-          <p>A carregar palmarés...</p>
+          <p>{{ 'A carregar palmarés...' | t }}</p>
         }
       </section>
       @if (archivedChampionshipCount === 0) {
-        <p>Ainda não existem épocas encerradas nesta comunidade.</p>
+        <p>{{ 'Ainda não existem épocas encerradas nesta comunidade.' | t }}</p>
       }
       @for (championship of championships; track championship.id) {
         @if (championship.closedAt) {
@@ -501,33 +493,33 @@
             <div class="create-step-heading">
               <div>
                 <h5>{{ championship.name }} · {{ championship.seasonLabel }}</h5>
-                <p>{{ championship.sport | sportName }} · Encerrado a {{ championship.closedAt | date:'dd/MM/yyyy' }}</p>
+                <p>{{ '{{sport}} · Encerrado a {{closedAt}}' | t:{sport: (championship.sport | sportName), closedAt: (championship.closedAt | date:'dd/MM/yyyy')} }}</p>
                 @if (championship.standingsMode === 'INDEPENDENT') {
-                  <p>Época encerrada com vencedores independentes por prova.</p>
+                  <p>{{ 'Época encerrada com vencedores independentes por prova.' | t }}</p>
                 } @else if (championship.championDisplayName) {
-                  <p><strong>Campeão geral: {{ championship.championDisplayName }}</strong></p>
+                  <p><strong>{{ 'Campeão geral: {{championDisplayName}}' | t:{championDisplayName: (championship.championDisplayName)} }}</strong></p>
                 } @else {
-                  <p>Época encerrada sem campeão geral atribuído.</p>
+                  <p>{{ 'Época encerrada sem campeão geral atribuído.' | t }}</p>
                 }
               </div>
               <button type="button" class="t-btn t-btn-secondary"
                 [attr.aria-expanded]="expandedArchivedChampionshipId === championship.id"
                 [attr.aria-controls]="'championship-history-' + championship.id"
                 (click)="toggleArchivedChampionship(championship.id)">
-                {{ expandedArchivedChampionshipId === championship.id ? 'Fechar detalhes' : 'Ver época' }}
+                {{ expandedArchivedChampionshipId === championship.id ? ('Fechar detalhes' | t) : ('Ver época' | t) }}
               </button>
             </div>
             @if (expandedArchivedChampionshipId === championship.id) {
               <div [id]="'championship-history-' + championship.id">
                 @if (canManage && championshipTeamRegistries[championship.id]; as registry) {
                   @if (registry.teams.length && permanentTeamRegistry?.teams?.length) {
-                    <h6>Associar equipas desta época</h6>
+                    <h6>{{ 'Associar equipas desta época' | t }}</h6>
                     @for (team of registry.teams; track team.id) {
                       <div>
                         <strong>{{ team.name }}</strong>
                         <select #permanentChoice [value]="team.permanentTeamId || ''"
-                          [attr.aria-label]="'Equipa permanente para ' + team.name">
-                          <option value="">Por associar</option>
+                          [attr.aria-label]="('Equipa permanente para {{name}}' | t:{name: team.name})">
+                          <option value="">{{ 'Por associar' | t }}</option>
                           @for (permanent of permanentTeamRegistry!.teams; track permanent.id) {
                             <option [value]="permanent.id">{{ permanent.name }}</option>
                           }
@@ -535,46 +527,44 @@
                         <button type="button" class="t-btn t-btn-secondary"
                           [disabled]="championshipBusy || !permanentChoice.value"
                           (click)="linkPermanentTeam(championship.id, team.id, +permanentChoice.value)">
-                          Associar
+                          {{ 'Associar' | t }}
                         </button>
                       </div>
                     }
                   }
                 }
-                <h6>Classificação final</h6>
+                <h6>{{ 'Classificação final' | t }}</h6>
                 @if (championshipAggregateStandings[championship.id]; as archived) {
                   <ol>
                     @for (leader of archived.standings; track leader.entryType + '-' + leader.participantId) {
                       <li>
-                        <strong>{{ leader.name }}</strong> · {{ leader.points }} pontos
-                        · {{ leader.victories }} vitória(s)
-                        · {{ leader.awardedCompetitions }} prova(s) pontuadas
+                        <strong>{{ leader.name }}</strong> {{ '· {{points}} pontos · {{victories}} vitória(s) · {{awardedCompetitions}} prova(s) pontuadas' | t:{points: (leader.points), victories: (leader.victories), awardedCompetitions: (leader.awardedCompetitions)} }}
                       </li>
                     }
                   </ol>
                   @if (!archived.standings.length) {
-                    <p>A classificação final não está disponível.</p>
+                    <p>{{ 'A classificação final não está disponível.' | t }}</p>
                   }
                 } @else {
-                  <p>A carregar classificação final guardada.</p>
+                  <p>{{ 'A carregar classificação final guardada.' | t }}</p>
                 }
-                <h6>Provas da época</h6>
+                <h6>{{ 'Provas da época' | t }}</h6>
                 @if (championship.competitions.length) {
                   <ul>
                     @for (competition of championship.competitions; track competition.id) {
                       <li>{{ competition.name }} · {{ competition.format }}
                         @if (competition.pointsByPlace) {
-                          · Pontuação: {{ competition.pointsByPlace }}
+                          {{ '· Pontuação: {{pointsByPlace}}' | t:{pointsByPlace: (competition.pointsByPlace)} }}
                         } @else {
-                          · {{ competition.winnerPoints }} pontos por vitória
+                          {{ '· {{winnerPoints}} pontos por vitória' | t:{winnerPoints: (competition.winnerPoints)} }}
                         }
                       </li>
                     }
                   </ul>
                 } @else {
-                  <p>Sem provas associadas.</p>
+                  <p>{{ 'Sem provas associadas.' | t }}</p>
                 }
-                <small>Classificação e campeão consultados a partir do registo final arquivado.</small>
+                <small>{{ 'Classificação e campeão consultados a partir do registo final arquivado.' | t }}</small>
               </div>
             }
           </article>
@@ -583,7 +573,7 @@
       }
     } @else {
       @if (activeChampionshipCount === 0) {
-        <p>Ainda não existem campeonatos em curso.</p>
+        <p>{{ 'Ainda não existem campeonatos em curso.' | t }}</p>
       }
     @for (championship of championships; track championship.id) {
       @if (!championship.closedAt) {
@@ -595,40 +585,40 @@
             <h5>{{ championship.name }}</h5>
             <p>{{ championship.sport | sportName }} · {{ championship.seasonLabel }}</p>
             <p class="championship-sport-mode" role="note">
-              <strong>Tipo de classificação:</strong>
-              {{ championship.standingsMode === 'INDEPENDENT' ? 'Vencedores de cada prova, sem campeão geral' : 'Classificação geral por pontos' }}
+              <strong>{{ 'Tipo de classificação:' | t }}</strong>
+              {{ championship.standingsMode === 'INDEPENDENT' ? ('Vencedores de cada prova, sem campeão geral' | t) : ('Classificação geral por pontos' | t) }}
             </p>
             @if (canManage && canChangeChampionshipStandingsMode(championship)) {
-              <label [for]="'standings-mode-' + championship.id">Como queres determinar os vencedores?</label>
+              <label [for]="'standings-mode-' + championship.id">{{ 'Como queres determinar os vencedores?' | t }}</label>
               <select [id]="'standings-mode-' + championship.id"
                 [value]="championshipStandingsModeDrafts[championship.id] || championship.standingsMode || 'AGGREGATE'"
                 (change)="championshipStandingsModeDrafts[championship.id] = $any($event.target).value">
-                <option value="AGGREGATE">Campeão geral — somar pontos das provas</option>
-                <option value="INDEPENDENT">Vencedores independentes — sem campeão geral</option>
+                <option value="AGGREGATE">{{ 'Campeão geral — somar pontos das provas' | t }}</option>
+                <option value="INDEPENDENT">{{ 'Vencedores independentes — sem campeão geral' | t }}</option>
               </select>
               <button type="button" class="t-btn t-btn-secondary"
                 [disabled]="championshipBusy"
-                (click)="saveChampionshipStandingsMode(championship)">Guardar tipo de classificação</button>
-              <small>Escolhe antes de iniciar as provas. Os resultados e os títulos de cada torneio mantêm-se separados.</small>
+                (click)="saveChampionshipStandingsMode(championship)">{{ 'Guardar tipo de classificação' | t }}</button>
+              <small>{{ 'Escolhe antes de iniciar as provas. Os resultados e os títulos de cada torneio mantêm-se separados.' | t }}</small>
             }
             @if (championship.closedAt) {
-              <p><strong>Época encerrada</strong> · {{ championship.closedAt | date:'dd/MM/yyyy' }}</p>
-              <p><strong>Campeão: {{ championship.championDisplayName }}</strong></p>
-              <small>Classificação final arquivada; alterações posteriores às provas não modificam este histórico.</small>
+              <p><strong>{{ 'Época encerrada' | t }}</strong> · {{ championship.closedAt | date:'dd/MM/yyyy' }}</p>
+              <p><strong>{{ 'Campeão: {{championDisplayName}}' | t:{championDisplayName: (championship.championDisplayName)} }}</strong></p>
+              <small>{{ 'Classificação final arquivada; alterações posteriores às provas não modificam este histórico.' | t }}</small>
             } @else if (canManage) {
               <label>
                 <input type="checkbox" [checked]="!!championshipCloseConfirmed[championship.id]"
                   (change)="championshipCloseConfirmed[championship.id] = $any($event.target).checked">
-                Confirmo que pretendo encerrar esta época definitivamente.
+                {{ 'Confirmo que pretendo encerrar esta época definitivamente.' | t }}
               </label>
               <button type="button" class="t-btn t-btn-secondary"
                 [disabled]="championshipBusy || !championshipCloseConfirmed[championship.id] || !championshipCanClose(championship)"
-                (click)="closeChampionship(championship)">{{ championship.standingsMode === 'INDEPENDENT' ? 'Encerrar época e guardar troféus' : 'Encerrar época e guardar campeão geral' }}</button>
-              <small>O fecho é definitivo. Todas as provas devem estar concluídas e o primeiro lugar desempatado.</small>
+                (click)="closeChampionship(championship)">{{ championship.standingsMode === 'INDEPENDENT' ? ('Encerrar época e guardar troféus' | t) : ('Encerrar época e guardar campeão geral' | t) }}</button>
+              <small>{{ 'O fecho é definitivo. Todas as provas devem estar concluídas e o primeiro lugar desempatado.' | t }}</small>
               @if ((championshipAggregateStandings[championship.id]?.pendingCompetitions || 0) > 0) {
-                <p class="team-honours-muted" role="note">Há provas por concluir ou vencedores por confirmar. Encerra primeiro todas as Ligas e Taças.</p>
+                <p class="team-honours-muted" role="note">{{ 'Há provas por concluir ou vencedores por confirmar. Encerra primeiro todas as Ligas e Taças.' | t }}</p>
               } @else if (!championshipCanClose(championship)) {
-                <p class="team-honours-muted" role="note">O fecho exige pelo menos uma prova validada e, quando existe campeão geral, um primeiro lugar sem empate.</p>
+                <p class="team-honours-muted" role="note">{{ 'O fecho exige pelo menos uma prova validada e, quando existe campeão geral, um primeiro lugar sem empate.' | t }}</p>
               }
             }
           </div>
@@ -636,30 +626,29 @@
         @if (canManage && !championship.closedAt) {
           <div class="jynlo-championship-delete-control">
             @if (deletingChampionshipId === championship.id) {
-              <p role="alert"><strong>Eliminar definitivamente «{{ championship.name }}»?</strong>
-                Serão removidas as provas internas sem resultados, os calendários e as equipas desta época.
-                Campeonatos com resultados ou torneios independentes associados não podem ser eliminados.</p>
+              <p role="alert"><strong>{{ 'Eliminar definitivamente «{{name}}»?' | t:{name: (championship.name)} }}</strong>
+                {{ 'Serão removidas as provas internas sem resultados, os calendários e as equipas desta época. Campeonatos com resultados ou torneios independentes associados não podem ser eliminados.' | t }}</p>
               <div class="jynlo-championship-delete-actions">
                 <button type="button" class="t-btn t-btn-secondary"
                   [disabled]="championshipBusy" (click)="deleteUnplayedChampionship(championship)">
-                  Sim, eliminar campeonato
+                  {{ 'Sim, eliminar campeonato' | t }}
                 </button>
                 <button type="button" class="t-btn t-btn-secondary"
-                  [disabled]="championshipBusy" (click)="cancelDeleteChampionship()">Cancelar</button>
+                  [disabled]="championshipBusy" (click)="cancelDeleteChampionship()">{{ 'Cancelar' | t }}</button>
               </div>
             } @else {
               <button type="button" class="t-btn t-btn-secondary jynlo-championship-delete-trigger"
                 [disabled]="championshipBusy" (click)="requestDeleteChampionship(championship)">
-                Eliminar campeonato
+                {{ 'Eliminar campeonato' | t }}
               </button>
             }
           </div>
         }
         <details class="jynlo-championship-management" [open]="requestedChampionshipId === championship.id">
           <summary class="jynlo-championship-management-toggle">
-            <span>Gerir campeonato</span>
-            <small>{{ (championshipOwnedEvents[championship.id] || []).length }} prova(s) · {{ (championshipTeamRegistries[championship.id]?.teams || []).length }} equipa(s)</small>
-            <span class="jynlo-fixture-round-hint">Expandir / recolher</span>
+            <span>{{ 'Gerir campeonato' | t }}</span>
+            <small>{{ '{{id}} prova(s) · {{teams}} equipa(s)' | t:{id: ((championshipOwnedEvents[championship.id] || []).length), teams: ((championshipTeamRegistries[championship.id]?.teams || []).length)} }}</small>
+            <span class="jynlo-fixture-round-hint">{{ 'Expandir / recolher' | t }}</span>
           </summary>
         @if (championship.competitions.length) {
           <ul>
@@ -667,15 +656,15 @@
               <li>
                 <strong>{{ competition.name }}</strong> · {{ competition.format }} · {{ competition.status }}
                 @if (championship.standingsMode !== 'INDEPENDENT') {
-                  <span> · {{ competition.winnerPoints }} pontos por vitória na prova</span>
+                  <span> {{ '· {{winnerPoints}} pontos por vitória na prova' | t:{winnerPoints: (competition.winnerPoints)} }}</span>
                 } @else {
-                  <span> · Vencedor independente, sem pontos para a época</span>
+                  <span> {{ '· Vencedor independente, sem pontos para a época' | t }}</span>
                 }
                 @if (competition.pointsByPlace) {
-                  <p>Pontos por posição configurados: {{ competition.pointsByPlace }}</p>
+                  <p>{{ 'Pontos por posição configurados: {{pointsByPlace}}' | t:{pointsByPlace: (competition.pointsByPlace)} }}</p>
                 }
                 @if (canManage && !championship.closedAt && championship.standingsMode !== 'INDEPENDENT' && competition.status === 'DRAFT') {
-                  <label [for]="'placement-points-' + competition.id">Pontuação por posição (1.º, 2.º, 3.º...)</label>
+                  <label [for]="'placement-points-' + competition.id">{{ 'Pontuação por posição (1.º, 2.º, 3.º...)' | t }}</label>
                   <input [id]="'placement-points-' + competition.id"
                     type="text" maxlength="120" #placementPointsInput
                     [value]="competition.pointsByPlace || '25,18,15,10,8,6,4,2,1,0'"
@@ -683,12 +672,12 @@
                   <button type="button" class="t-btn t-btn-secondary"
                     [disabled]="championshipBusy"
                     (click)="setChampionshipPlacementPoints(championship, competition.id, placementPointsInput.value)">
-                    Guardar regulamento
+                    {{ 'Guardar regulamento' | t }}
                   </button>
-                  <small>Os pontos das restantes posições serão aplicados apenas quando os resultados finais forem verificáveis.</small>
+                  <small>{{ 'Os pontos das restantes posições serão aplicados apenas quando os resultados finais forem verificáveis.' | t }}</small>
                 }
                 @if (canManage && !championship.closedAt && championship.standingsMode !== 'INDEPENDENT' && competition.status === 'DRAFT') {
-                  <label [for]="'winner-points-' + competition.id">Pontos:</label>
+                  <label [for]="'winner-points-' + competition.id">{{ 'Pontos:' | t }}</label>
                   <input type="number" min="0" max="10000" step="1"
                     [id]="'winner-points-' + competition.id" [value]="competition.winnerPoints"
                     #winnerPointsInput style="width:6rem">
@@ -703,15 +692,15 @@
           <p>{{ 'communities.championshipUi.noCompetitions' | t }}</p>
         }
         @if (canManage && !championship.closedAt) {
-          <div class="create-step" role="group" [attr.aria-label]="'Associar torneio ao campeonato ' + championship.name">
-            <h6>Associar torneio existente</h6>
-            <p>Os torneios continuam independentes. Podes juntar a este campeonato um torneio da mesma modalidade, sem voltar a criar resultados.</p>
+          <div class="create-step" role="group" [attr.aria-label]="('Associar torneio ao campeonato {{name}}' | t:{name: championship.name})">
+            <h6>{{ 'Associar torneio existente' | t }}</h6>
+            <p>{{ 'Os torneios continuam independentes. Podes juntar a este campeonato um torneio da mesma modalidade, sem voltar a criar resultados.' | t }}</p>
             @if (availableChampionshipTournaments(championship).length) {
-              <label [for]="'championship-existing-tournament-' + championship.id">Torneio disponível</label>
+              <label [for]="'championship-existing-tournament-' + championship.id">{{ 'Torneio disponível' | t }}</label>
               <select [id]="'championship-existing-tournament-' + championship.id"
                 [value]="championshipTournamentDrafts[championship.id] ?? ''"
                 (change)="championshipTournamentDrafts[championship.id] = $any($event.target).value ? +$any($event.target).value : null">
-                <option value="">Escolher torneio</option>
+                <option value="">{{ 'Escolher torneio' | t }}</option>
                 @for (tournament of availableChampionshipTournaments(championship); track tournament.id) {
                   <option [value]="tournament.id">{{ tournament.name }} · {{ tournament.format }}</option>
                 }
@@ -719,10 +708,10 @@
               <button type="button" class="t-btn t-btn-secondary"
                 [disabled]="championshipBusy || !championshipTournamentDrafts[championship.id]"
                 (click)="linkChampionshipCompetition(championship, championshipTournamentDrafts[championship.id]!)">
-                Associar torneio
+                {{ 'Associar torneio' | t }}
               </button>
             } @else {
-              <small>Não há torneios disponíveis para associar nesta modalidade. Podes criar um torneio independente no separador Torneios.</small>
+              <small>{{ 'Não há torneios disponíveis para associar nesta modalidade. Podes criar um torneio independente no separador Torneios.' | t }}</small>
             }
           </div>
         }
@@ -740,7 +729,7 @@
         <details class="create-step jynlo-season-panel"
           [open]="requestedChampionshipId === championship.id">
           <summary class="jynlo-section-title">{{ 'communities.competitionModes.seasonTeams' | t }}</summary>
-          <p>Associa as equipas de diferentes provas à mesma equipa do campeonato para acumular os pontos. A associação é manual e não depende apenas do nome.</p>
+          <p>{{ 'Associa as equipas de diferentes provas à mesma equipa do campeonato para acumular os pontos. A associação é manual e não depende apenas do nome.' | t }}</p>
           @if (championshipTeamRegistries[championship.id]; as registry) {
             @if (canManage && !championship.closedAt) {
               <div class="jynlo-admin-explainer" role="note">
@@ -755,14 +744,14 @@
               }
             }
             @if (canManage && !championship.closedAt && championshipTeamAvailable(championship.sport)) {
-              <label [for]="'season-team-' + championship.id">Nome da equipa</label>
+              <label [for]="'season-team-' + championship.id">{{ 'Nome da equipa' | t }}</label>
               <input [id]="'season-team-' + championship.id" type="text" maxlength="100"
                 [value]="championshipTeamDrafts[championship.id] || ''"
                 (input)="championshipTeamDrafts[championship.id] = $any($event.target).value"
-                placeholder="Nova equipa do campeonato">
+                [placeholder]="'Nova equipa do campeonato' | t">
               <button type="button" class="t-btn t-btn-secondary"
                 [disabled]="championshipBusy || !championshipTeamDrafts[championship.id]"
-                (click)="createChampionshipTeam(championship.id)">Criar equipa</button>
+                (click)="createChampionshipTeam(championship.id)">{{ 'Criar equipa' | t }}</button>
               <app-competition-team-search
                 [communityId]="community.id" [competitionId]="championship.id" type="CHAMPIONSHIP">
               </app-competition-team-search>
@@ -771,7 +760,7 @@
               </app-team-competition-applications>
             }
             @if (registry.teams.length) {
-              <h6>Equipas inscritas nesta época</h6>
+              <h6>{{ 'Equipas inscritas nesta época' | t }}</h6>
               @for (seasonTeam of registry.teams; track seasonTeam.id) {
                 <div class="jynlo-season-team"
                   [attr.id]="'championship-team-' + seasonTeam.id"
@@ -779,21 +768,21 @@
                     && requestedChampionshipTeamId === seasonTeam.id">
                   <div class="jynlo-season-team-heading">
                     <strong>{{ seasonTeam.name }}</strong>
-                    <span>{{ (championshipTeamPlayers[seasonTeam.id] || []).length }} jogadores</span>
+                    <span>{{ '{{id}} jogadores' | t:{id: ((championshipTeamPlayers[seasonTeam.id] || []).length)} }}</span>
                   </div>
                   @if (championshipTeamAdminLoadError[seasonTeam.id] && !championship.closedAt) {
                     <div class="jynlo-team-admin-decision" role="status">
-                      <p>Não foi possível verificar as permissões de administração desta equipa.</p>
+                      <p>{{ 'Não foi possível verificar as permissões de administração desta equipa.' | t }}</p>
                       <button type="button" class="t-btn t-btn-secondary t-btn-small"
                         [disabled]="championshipTeamAdminLoading[seasonTeam.id] || championshipTeamAdminBusy[seasonTeam.id]"
                         (click)="loadChampionshipTeamAdministrator(championship.id, seasonTeam.id)">
-                        Tentar novamente
+                        {{ 'Tentar novamente' | t }}
                       </button>
                     </div>
                   }
                   @if (championshipTeamAdministrators[seasonTeam.id]; as administrator) {
                     <section class="jynlo-team-admin-card" [class.is-waiting]="!administrator.adminProfileId"
-                      [attr.aria-label]="'Administração de ' + seasonTeam.name">
+                      [attr.aria-label]="('Administração de {{name}}' | t:{name: seasonTeam.name})">
                       <div class="jynlo-team-admin-card-header">
                         <div class="jynlo-team-admin-identity">
                           <span class="jynlo-team-admin-avatar" aria-hidden="true">✦</span>
@@ -859,11 +848,11 @@
                   }
                   @if (championshipTeamInviteLoadError[seasonTeam.id] && !championship.closedAt) {
                     <div class="jynlo-team-admin-decision" role="status">
-                      <p>Não foi possível verificar os teus convites para esta equipa.</p>
+                      <p>{{ 'Não foi possível verificar os teus convites para esta equipa.' | t }}</p>
                       <button type="button" class="t-btn t-btn-secondary t-btn-small"
                         [disabled]="championshipTeamInviteLoading[seasonTeam.id] || championshipTeamPlayerBusy[seasonTeam.id]"
                         (click)="loadChampionshipTeamInvitation(championship.id, seasonTeam.id)">
-                        {{ championshipTeamInviteLoading[seasonTeam.id] ? 'A verificar…' : 'Tentar novamente' }}
+                        {{ championshipTeamInviteLoading[seasonTeam.id] ? ('A verificar…' | t) : ('Tentar novamente' | t) }}
                       </button>
                     </div>
                   }
@@ -899,14 +888,14 @@
                         @if (canRemoveChampionshipTeamPlayer(seasonTeam.id, player.profileId) && !championship.closedAt) {
                           <button type="button" class="t-btn t-btn-secondary"
                             [disabled]="championshipTeamPlayerBusy[seasonTeam.id]"
-                            (click)="removeChampionshipTeamPlayer(championship.id, seasonTeam.id, player.profileId)">Remover</button>
+                            (click)="removeChampionshipTeamPlayer(championship.id, seasonTeam.id, player.profileId)">{{ 'Remover' | t }}</button>
                         }
                       </div>
                     } @empty {
                       @if (championshipTeamRosterSearch[seasonTeam.id]?.trim()) {
                         <p class="team-honours-muted">{{ 'communities.tournaments.teamPage.noResults' | t }}</p>
                       } @else {
-                        <p class="team-honours-muted">Ainda não há jogadores inscritos nesta equipa.</p>
+                        <p class="team-honours-muted">{{ 'Ainda não há jogadores inscritos nesta equipa.' | t }}</p>
                       }
                     }
                   </div>
@@ -914,19 +903,19 @@
                     <div class="jynlo-team-roster-add">
                       <label [for]="'season-player-' + seasonTeam.id">{{ 'teams.autonomy.inviteLabel' | t }}</label>
                       <input type="search"
-                        [attr.aria-label]="'Pesquisar jogadores para ' + seasonTeam.name"
+                        [attr.aria-label]="('Pesquisar jogadores para {{name}}' | t:{name: seasonTeam.name})"
                         [placeholder]="'communities.tournaments.teamUi.searchPlaceholder' | t"
                         [value]="championshipTeamMemberSearch[seasonTeam.id] || ''"
                         (input)="championshipTeamMemberSearch[seasonTeam.id] = $any($event.target).value; championshipTeamPlayerDrafts[seasonTeam.id] = null">
                       <select [id]="'season-player-' + seasonTeam.id"
                         [value]="championshipTeamPlayerDrafts[seasonTeam.id] ?? ''"
                         (change)="championshipTeamPlayerDrafts[seasonTeam.id] = $any($event.target).value ? +$any($event.target).value : null">
-                        <option value="">Selecionar jogador</option>
+                        <option value="">{{ 'Selecionar jogador' | t }}</option>
                         @for (member of searchableChampionshipTeamMembers(championship.id, seasonTeam.id); track member.profileId) {
                           <option [value]="member.profileId">{{ member.fullName || member.username }} (&#64;{{ member.username }})</option>
                         }
                       </select>
-                      <small>Mostramos até 40 perfis. Pesquisa pelo nome para encontrares outros membros da comunidade.</small>
+                      <small>{{ 'Mostramos até 40 perfis. Pesquisa pelo nome para encontrares outros membros da comunidade.' | t }}</small>
                       <button type="button" class="t-btn t-btn-primary"
                         [disabled]="championshipTeamPlayerBusy[seasonTeam.id] || !championshipTeamPlayerDrafts[seasonTeam.id]"
                         (click)="addChampionshipTeamPlayer(championship.id, seasonTeam.id)">
@@ -977,22 +966,22 @@
                   @if (seasonTeam.permanentTeamId) {
                     <button type="button" class="t-btn t-btn-secondary"
                       (click)="openPermanentTeamProfile(seasonTeam.permanentTeamId)">
-                      Ver palmarés
+                      {{ 'Ver palmarés' | t }}
                     </button>
                   } @else {
-                    <small>Sem identidade permanente associada</small>
+                    <small>{{ 'Sem identidade permanente associada' | t }}</small>
                   }
                 </div>
               }
             }
             @if (canManage && !championship.closedAt && registry.teams.length && permanentTeamRegistry?.teams?.length) {
-              <h6>Identidade permanente entre épocas</h6>
+              <h6>{{ 'Identidade permanente entre épocas' | t }}</h6>
               @for (seasonTeam of registry.teams; track seasonTeam.id) {
                 <div>
                   <strong>{{ seasonTeam.name }}</strong>
                   <select #activePermanentChoice [value]="seasonTeam.permanentTeamId || ''"
-                    [attr.aria-label]="'Identidade permanente de ' + seasonTeam.name">
-                    <option value="">Por associar</option>
+                    [attr.aria-label]="('Identidade permanente de {{name}}' | t:{name: seasonTeam.name})">
+                    <option value="">{{ 'Por associar' | t }}</option>
                     @for (permanent of permanentTeamRegistry!.teams; track permanent.id) {
                       <option [value]="permanent.id">{{ permanent.name }}</option>
                     }
@@ -1000,7 +989,7 @@
                   <button type="button" class="t-btn t-btn-secondary"
                     [disabled]="championshipBusy || !activePermanentChoice.value"
                     (click)="linkPermanentTeam(championship.id, seasonTeam.id, +activePermanentChoice.value)">
-                    Associar
+                    {{ 'Associar' | t }}
                   </button>
                 </div>
               }
@@ -1011,8 +1000,8 @@
                 @if (canManage && !championship.closedAt && registry.teams.length) {
                   <select #canonicalTeamSelect
                     [value]="team.championshipTeamId || ''"
-                    [attr.aria-label]="'Equipa do campeonato para ' + team.name">
-                    <option value="">Por associar</option>
+                    [attr.aria-label]="('Equipa do campeonato para {{name}}' | t:{name: team.name})">
+                    <option value="">{{ 'Por associar' | t }}</option>
                     @for (seasonTeam of registry.teams; track seasonTeam.id) {
                       <option [value]="seasonTeam.id">{{ seasonTeam.name }}</option>
                     }
@@ -1020,63 +1009,58 @@
                   <button type="button" class="t-btn t-btn-secondary"
                     [disabled]="championshipBusy || !canonicalTeamSelect.value"
                     (click)="linkChampionshipTeam(championship.id, team.id, +canonicalTeamSelect.value)">
-                    Associar
+                    {{ 'Associar' | t }}
                   </button>
                 } @else {
-                  <span>{{ team.championshipTeamId ? 'Associada' : 'Por associar' }}</span>
+                  <span>{{ team.championshipTeamId ? ('Associada' | t) : ('Por associar' | t) }}</span>
                 }
               </div>
             }
           } @else {
-            <p>Equipas ainda não carregadas.</p>
+            <p>{{ 'Equipas ainda não carregadas.' | t }}</p>
           }
         </details>
         }
         <div class="create-step">
           @if (championship.standingsMode === 'INDEPENDENT') {
-            <h5>Vencedores independentes por prova</h5>
-            <p>Esta época não soma os pontos para eleger um campeão geral. Consulta as provas acima para ver os respetivos vencedores e resultados.</p>
+            <h5>{{ 'Vencedores independentes por prova' | t }}</h5>
+            <p>{{ 'Esta época não soma os pontos para eleger um campeão geral. Consulta as provas acima para ver os respetivos vencedores e resultados.' | t }}</p>
             @if (championshipAggregateStandings[championship.id]?.pendingCompetitions) {
-              <p>Existem provas por concluir ou com vencedor por confirmar.</p>
+              <p>{{ 'Existem provas por concluir ou com vencedor por confirmar.' | t }}</p>
             }
           } @else {
-          <h5 class="jynlo-section-title">Classificação geral do campeonato</h5>
-          <p class="team-honours-muted">Nesta fase, cada Liga ou Taça interna concluída atribui 10 pontos ao vencedor. As provas associadas mantêm as suas próprias regras de pontuação.</p>
+          <h5 class="jynlo-section-title">{{ 'Classificação geral do campeonato' | t }}</h5>
+          <p class="team-honours-muted">{{ 'Nesta fase, cada Liga ou Taça interna concluída atribui 10 pontos ao vencedor. As provas associadas mantêm as suas próprias regras de pontuação.' | t }}</p>
           @if (championshipAggregateStandings[championship.id]; as aggregate) {
             <p>
-              {{ aggregate.fullyScoredCompetitions }} prova(s) com posições verificadas ·
-              {{ aggregate.winnerOnlyCompetitions }} apenas com vencedor confirmado ·
-              {{ aggregate.pendingCompetitions }} pendente(s)
+              {{ '{{fullyScoredCompetitions}} prova(s) com posições verificadas · {{winnerOnlyCompetitions}} apenas com vencedor confirmado · {{pendingCompetitions}} pendente(s)' | t:{fullyScoredCompetitions: (aggregate.fullyScoredCompetitions), winnerOnlyCompetitions: (aggregate.winnerOnlyCompetitions), pendingCompetitions: (aggregate.pendingCompetitions)} }}
             </p>
             @if (aggregate.standings.length) {
               <ol>
                 @for (leader of aggregate.standings; track leader.entryType + '-' + leader.participantId) {
                   <li>
                     <strong>{{ leader.name }}</strong>
-                    · {{ leader.entryType === 'TEAM' ? 'Equipa' : leader.entryType === 'TEAM_UNLINKED' ? 'Equipa por associar' : 'Individual' }}
-                    · {{ leader.points }} pontos
-                    · {{ leader.victories }} vitória(s)
-                    · {{ leader.awardedCompetitions }} prova(s) pontuadas
+                    {{ '· {{entryType}} · {{points}} pontos · {{victories}} vitória(s) · {{awardedCompetitions}} prova(s) pontuadas' | t:{entryType: (leader.entryType === 'TEAM' ? ('Equipa' | t) : leader.entryType === 'TEAM_UNLINKED' ? ('Equipa por associar' | t) : ('Individual' | t)), points: (leader.points), victories: (leader.victories), awardedCompetitions: (leader.awardedCompetitions)} }}
                   </li>
                 }
               </ol>
             } @else {
-              <p>Ainda não existem provas concluídas com resultados verificáveis.</p>
+              <p>{{ 'Ainda não existem provas concluídas com resultados verificáveis.' | t }}</p>
             }
           } @else {
-            <p>Classificação detalhada ainda não disponível. A mostrar apenas vencedores confirmados.</p>
+            <p>{{ 'Classificação detalhada ainda não disponível. A mostrar apenas vencedores confirmados.' | t }}</p>
             <ol>
               @for (leader of championship.winnerStandings; track leader.entryType + '-' + leader.participantId) {
-                <li><strong>{{ leader.name }}</strong> · {{ leader.points }} pontos</li>
+                <li><strong>{{ leader.name }}</strong> {{ '· {{points}} pontos' | t:{points: (leader.points)} }}</li>
               }
             </ol>
           }
           }
         </div>
         @if (canManage && !championship.closedAt) {
-          <section class="create-step" [attr.aria-label]="'Sugestões de provas para ' + championship.name">
-            <h5>Ideias para este campeonato</h5>
-            <p>Estas sugestões são opcionais: podes combinar torneios independentes e provas internas compatíveis com a modalidade.</p>
+          <section class="create-step" [attr.aria-label]="('Sugestões de provas para {{name}}' | t:{name: championship.name})">
+            <h5>{{ 'Ideias para este campeonato' | t }}</h5>
+            <p>{{ 'Estas sugestões são opcionais: podes combinar torneios independentes e provas internas compatíveis com a modalidade.' | t }}</p>
             @for (suggestion of championshipSuggestions(championship.sport); track suggestion.id) {
               <div class="create-step">
                 <strong>{{ suggestion.title }}</strong>
@@ -1085,12 +1069,12 @@
                   <button type="button" class="t-btn t-btn-secondary"
                     [disabled]="championshipEventBusy"
                     (click)="prepareSuggestedChampionshipEvent(championship, suggestion)">
-                    Preparar esta prova
+                    {{ 'Preparar esta prova' | t }}
                   </button>
                 } @else if (suggestion.nextStep === 'STANDALONE') {
-                  <small>Cria a prova no separador Torneios e associa-a acima quando estiver disponível.</small>
+                  <small>{{ 'Cria a prova no separador Torneios e associa-a acima quando estiver disponível.' | t }}</small>
                 } @else {
-                  <small>A organização da época está disponível; o motor de resultados desta prova ainda não.</small>
+                  <small>{{ 'A organização da época está disponível; o motor de resultados desta prova ainda não.' | t }}</small>
                 }
               </div>
             }
@@ -1130,7 +1114,7 @@
                   } @else {
                     <strong>{{ event.name }}</strong> · {{ ('communities.championshipOwned.format.' + event.format) | t }}
                     · {{ event.status === 'COMPLETED'
-                      ? 'Concluída'
+                      ? ('Concluída' | t)
                       : ((event.status === 'SCHEDULED' ? 'communities.championshipOwned.scheduled' : 'communities.championshipOwned.draft') | t) }}
                     @if (canManage && !championship.closedAt && event.status === 'DRAFT') {
                       <button type="button" class="t-btn t-btn-secondary"
@@ -1198,15 +1182,15 @@
                       @if ((championship.sport === 'Futebol' || championship.sport === 'Futsal')
                           && championshipLeaguePlayerStats[event.id]; as athleteStats) {
                         <details class="jynlo-athlete-stats">
-                          <summary>Estatísticas registadas dos atletas ({{ athleteStats.length }})</summary>
-                          <p>Dados desta liga: apenas golos, assistências e cartões efetivamente registados. Não representam jogos disputados.</p>
+                          <summary>{{ 'Estatísticas registadas dos atletas ({{athleteStatsCount}})' | t:{athleteStatsCount: (athleteStats.length)} }}</summary>
+                          <p>{{ 'Dados desta liga: apenas golos, assistências e cartões efetivamente registados. Não representam jogos disputados.' | t }}</p>
                           @if (athleteStats.length) {
                             <div class="jynlo-owned-league-scroll">
                               <table>
                                 <thead>
-                                  <tr><th scope="col">Atleta</th><th scope="col">Equipa</th>
-                                    <th scope="col">Golos</th><th scope="col">Assistências</th>
-                                    <th scope="col">Amarelos</th><th scope="col">Vermelhos</th></tr>
+                                  <tr><th scope="col">{{ 'Atleta' | t }}</th><th scope="col">{{ 'Equipa' | t }}</th>
+                                    <th scope="col">{{ 'Golos' | t }}</th><th scope="col">{{ 'Assistências' | t }}</th>
+                                    <th scope="col">{{ 'Amarelos' | t }}</th><th scope="col">{{ 'Vermelhos' | t }}</th></tr>
                                 </thead>
                                 <tbody>
                                   @for (athlete of athleteStats; track athlete.profileId + '-' + athlete.teamId) {
@@ -1223,27 +1207,27 @@
                               </table>
                             </div>
                           } @else {
-                            <p>Sem acontecimentos individuais registados nesta liga.</p>
+                            <p>{{ 'Sem acontecimentos individuais registados nesta liga.' | t }}</p>
                           }
                         </details>
                       }
 
                       @if ((championship.sport === 'Futebol' || championship.sport === 'Futsal')
                           && championshipOwnedLeagueTables[event.id]; as table) {
-                        <section class="jynlo-owned-league-table" aria-label="Classificação provisória da liga">
+                        <section class="jynlo-owned-league-table" [attr.aria-label]="'Classificação provisória da liga' | t">
                           <div class="jynlo-owned-league-title">
-                            <strong>{{ event.status === 'COMPLETED' ? 'Classificação final da liga' : 'Classificação provisória' }}</strong>
-                            <small>{{ table.playedMatches }} / {{ table.totalMatches }} jogos com resultado</small>
+                            <strong>{{ event.status === 'COMPLETED' ? ('Classificação final da liga' | t) : ('Classificação provisória' | t) }}</strong>
+                            <small>{{ '{{playedMatches}} / {{totalMatches}} jogos com resultado' | t:{playedMatches: (table.playedMatches), totalMatches: (table.totalMatches)} }}</small>
                           </div>
                           <div class="jynlo-owned-league-scroll">
                             <table>
                               <thead>
                                 <tr>
-                                  <th scope="col">Pos.</th><th scope="col">Equipa</th>
+                                  <th scope="col">{{ 'Pos.' | t }}</th><th scope="col">{{ 'Equipa' | t }}</th>
                                   <th scope="col">J</th><th scope="col">V</th>
                                   <th scope="col">E</th><th scope="col">D</th>
-                                  <th scope="col">GM</th><th scope="col">GS</th>
-                                  <th scope="col">DG</th><th scope="col">Pts</th>
+                                  <th scope="col">{{ 'GM' | t }}</th><th scope="col">{{ 'GS' | t }}</th>
+                                  <th scope="col">{{ 'DG' | t }}</th><th scope="col">{{ 'Pts' | t }}</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -1261,35 +1245,35 @@
                             </table>
                           </div>
                           @if (table.firstPlaceTied) {
-                            <small>Há equipas empatadas no primeiro lugar. O desempate ainda não está resolvido.</small>
+                            <small>{{ 'Há equipas empatadas no primeiro lugar. O desempate ainda não está resolvido.' | t }}</small>
                           }
                           @if (event.status === 'COMPLETED') {
                             <p class="jynlo-league-winner" role="status">
-                              <strong>Vencedor da liga: {{ event.winnerTeamName }}</strong>
-                              <span>Resultado confirmado. Esta prova está concluída e deixa de aceitar alterações aos jogos.</span>
+                              <strong>{{ 'Vencedor da liga: {{winnerTeamName}}' | t:{winnerTeamName: (event.winnerTeamName)} }}</strong>
+                              <span>{{ 'Resultado confirmado. Esta prova está concluída e deixa de aceitar alterações aos jogos.' | t }}</span>
                             </p>
                           } @else {
-                            <small>3 pontos por vitória, 1 por empate. A classificação da liga ainda não está concluída.</small>
+                            <small>{{ '3 pontos por vitória, 1 por empate. A classificação da liga ainda não está concluída.' | t }}</small>
                             @if (canManage && !championship.closedAt) {
                               <div class="jynlo-league-finalize">
                                 <label>
                                   <input type="checkbox"
                                     [checked]="championshipLeagueFinalizeConfirm[event.id] || false"
                                     (change)="championshipLeagueFinalizeConfirm[event.id] = $any($event.target).checked">
-                                  Confirmo que os resultados e a classificação estão corretos
+                                  {{ 'Confirmo que os resultados e a classificação estão corretos' | t }}
                                 </label>
                                 <button type="button" class="t-btn t-btn-primary"
                                   [disabled]="!table.completed || table.firstPlaceTied || table.standings.length < 2 || !championshipLeagueFinalizeConfirm[event.id] || championshipLeagueFinalizeBusy[event.id]"
                                   (click)="finalizeChampionshipLeague(championship, event)">
-                                  {{ championshipLeagueFinalizeBusy[event.id] ? 'A concluir…' : 'Concluir liga e guardar vencedor' }}
+                                  {{ championshipLeagueFinalizeBusy[event.id] ? ('A concluir…' | t) : ('Concluir liga e guardar vencedor' | t) }}
                                 </button>
                                 @if (!table.completed) {
-                                  <small>É necessário registar o resultado de todos os jogos.</small>
+                                  <small>{{ 'É necessário registar o resultado de todos os jogos.' | t }}</small>
                                 }
                               </div>
                             }
                           }
-                          <small>O vencedor desta prova não é automaticamente o campeão geral da época.</small>
+                          <small>{{ 'O vencedor desta prova não é automaticamente o campeão geral da época.' | t }}</small>
                         </section>
                       }
 
@@ -1369,15 +1353,15 @@
                                     <strong>{{ fixture.awayTeamName }}</strong>
                                   </div>
                                   @if (championshipFixtureWinner(fixture); as outcome) {
-                                    <div class="jynlo-fixture-outcome" aria-label="Desfecho do jogo">
+                                    <div class="jynlo-fixture-outcome" [attr.aria-label]="'Desfecho do jogo' | t">
                                       @if (outcome === 'DRAW') {
-                                        <span>Empate</span>
+                                        <span>{{ 'Empate' | t }}</span>
                                       } @else {
-                                        <span>Vencedor: <strong>{{ outcome === 'HOME' ? fixture.homeTeamName : fixture.awayTeamName }}</strong></span>
+                                        <span>{{ 'Vencedor:' | t }} <strong>{{ outcome === 'HOME' ? fixture.homeTeamName : fixture.awayTeamName }}</strong></span>
                                       }
                                     </div>
                                   } @else {
-                                    <p class="jynlo-fixture-pending">Resultado por registar</p>
+                                    <p class="jynlo-fixture-pending">{{ 'Resultado por registar' | t }}</p>
                                   }
                                   @if ((championship.sport === 'Futebol' || championship.sport === 'Futsal')
                                       && ((canManage && !championship.closedAt && event.status === 'SCHEDULED')
@@ -1392,12 +1376,12 @@
                                   @if (canManage && !championship.closedAt && event.status === 'SCHEDULED'
                                     && (championship.sport === 'Futebol' || championship.sport === 'Futsal')) {
                                     <div class="jynlo-match-score-edit">
-                                      <label [for]="'home-score-' + fixture.id">Casa</label>
+                                      <label [for]="'home-score-' + fixture.id">{{ 'Casa' | t }}</label>
                                       <input [id]="'home-score-' + fixture.id" type="number" min="0" max="999"
                                             [disabled]="championshipFixtureSaving[fixture.id]"
                                         [value]="championshipFixtureScoreDrafts[fixture.id] ? (championshipFixtureScoreDrafts[fixture.id].home ?? '') : (fixture.homeScore ?? '')"
                                         (input)="updateChampionshipLeagueScoreDraft(fixture, 'home', $any($event.target).value)">
-                                      <label [for]="'away-score-' + fixture.id">Fora</label>
+                                      <label [for]="'away-score-' + fixture.id">{{ 'Fora' | t }}</label>
                                       <input [id]="'away-score-' + fixture.id" type="number" min="0" max="999"
                                             [disabled]="championshipFixtureSaving[fixture.id]"
                                         [value]="championshipFixtureScoreDrafts[fixture.id] ? (championshipFixtureScoreDrafts[fixture.id].away ?? '') : (fixture.awayScore ?? '')"
@@ -1405,12 +1389,12 @@
                                       <button type="button" class="t-btn t-btn-secondary"
                                         [disabled]="championshipFixtureSaving[fixture.id] || championshipFixtureGoalBusy[fixture.id] || !championshipScoreChanged(championshipFixtureScoreDrafts[fixture.id], fixture) || !championshipScoreRespectsAssignedGoals(fixture, championshipFixtureScoreDrafts[fixture.id])"
                                         (click)="saveChampionshipFixtureScore(championship, event, fixture)">
-                                        {{ championshipFixtureSaving[fixture.id] ? 'A guardar…' : 'Guardar resultado' }}
+                                        {{ championshipFixtureSaving[fixture.id] ? ('A guardar…' | t) : ('Guardar resultado' | t) }}
                                       </button>
                                       @if (championshipFixtureScoreDrafts[fixture.id] && !championshipScoreDraftValid(championshipFixtureScoreDrafts[fixture.id])) {
-                                        <small class="jynlo-score-guidance" role="status">Indica um resultado inteiro entre 0 e 999 para cada equipa.</small>
+                                        <small class="jynlo-score-guidance" role="status">{{ 'Indica um resultado inteiro entre 0 e 999 para cada equipa.' | t }}</small>
                                       } @else if (championshipFixtureScoreDrafts[fixture.id] && !championshipScoreRespectsAssignedGoals(fixture, championshipFixtureScoreDrafts[fixture.id])) {
-                                        <small class="jynlo-score-guidance" role="alert">Este resultado é inferior aos golos já atribuídos aos jogadores. Remove ou corrige primeiro esses registos.</small>
+                                        <small class="jynlo-score-guidance" role="alert">{{ 'Este resultado é inferior aos golos já atribuídos aos jogadores. Remove ou corrige primeiro esses registos.' | t }}</small>
                                       }
                                     </div>
                                   }
@@ -1438,13 +1422,13 @@
                                       </button>
                                     }
                                     <details class="jynlo-goal-timeline jynlo-discipline-panel">
-                                      <summary><strong>Escalação do jogo</strong>
-                                        <small>({{ (championshipFixtureLineups[fixture.id] || []).length }} selecionados)</small>
+                                      <summary><strong>{{ 'Escalação do jogo' | t }}</strong>
+                                        <small>{{ '({{id}} selecionados)' | t:{id: ((championshipFixtureLineups[fixture.id] || []).length)} }}</small>
                                       </summary>
                                       @for (teamId of [fixture.homeTeamId, fixture.awayTeamId]; track teamId) {
                                         <div class="jynlo-lineup-team">
                                           <strong>{{ teamId === fixture.homeTeamId ? fixture.homeTeamName : fixture.awayTeamName }}</strong>
-                                          <p>Titulares</p>
+                                          <p>{{ 'Titulares' | t }}</p>
                                           @for (entry of championshipFixtureLineups[fixture.id] || []; track entry.id) {
                                             @if (entry.teamId === teamId && entry.selection === 'STARTER') {
                                               <div class="jynlo-goal-row">
@@ -1452,12 +1436,12 @@
                                                 @if (canManage && !championship.closedAt) {
                                                   <button type="button" class="t-btn t-btn-secondary"
                                                     [disabled]="championshipLineupBusy[fixture.id]"
-                                                    (click)="removeFixtureLineupPlayer(championship, event, fixture.id, entry.profileId)">Remover</button>
+                                                    (click)="removeFixtureLineupPlayer(championship, event, fixture.id, entry.profileId)">{{ 'Remover' | t }}</button>
                                                 }
                                               </div>
                                             }
                                           }
-                                          <p>Suplentes</p>
+                                          <p>{{ 'Suplentes' | t }}</p>
                                           @for (entry of championshipFixtureLineups[fixture.id] || []; track entry.id) {
                                             @if (entry.teamId === teamId && entry.selection === 'BENCH') {
                                               <div class="jynlo-goal-row">
@@ -1465,7 +1449,7 @@
                                                 @if (canManage && !championship.closedAt) {
                                                   <button type="button" class="t-btn t-btn-secondary"
                                                     [disabled]="championshipLineupBusy[fixture.id]"
-                                                    (click)="removeFixtureLineupPlayer(championship, event, fixture.id, entry.profileId)">Remover</button>
+                                                    (click)="removeFixtureLineupPlayer(championship, event, fixture.id, entry.profileId)">{{ 'Remover' | t }}</button>
                                                 }
                                               </div>
                                             }
@@ -1474,39 +1458,39 @@
                                       }
                                       @if (canManage && !championship.closedAt && event.status === 'SCHEDULED') {
                                         <div class="jynlo-goal-form">
-                                          <label [for]="'lineup-team-' + fixture.id">Equipa</label>
+                                          <label [for]="'lineup-team-' + fixture.id">{{ 'Equipa' | t }}</label>
                                           <select [id]="'lineup-team-' + fixture.id"
                                             [value]="championshipLineupTeamDrafts[fixture.id] ?? ''"
                                             (change)="championshipLineupTeamDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null; championshipLineupPlayerDrafts[fixture.id] = null">
-                                            <option value="">Selecionar equipa</option>
+                                            <option value="">{{ 'Selecionar equipa' | t }}</option>
                                             <option [value]="fixture.homeTeamId">{{ fixture.homeTeamName }}</option>
                                             <option [value]="fixture.awayTeamId">{{ fixture.awayTeamName }}</option>
                                           </select>
-                                          <label [for]="'lineup-player-' + fixture.id">Jogador</label>
+                                          <label [for]="'lineup-player-' + fixture.id">{{ 'Jogador' | t }}</label>
                                           <select [id]="'lineup-player-' + fixture.id"
                                             [value]="championshipLineupPlayerDrafts[fixture.id] ?? ''"
                                             (change)="championshipLineupPlayerDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null">
-                                            <option value="">Selecionar jogador</option>
+                                            <option value="">{{ 'Selecionar jogador' | t }}</option>
                                             @for (player of fixtureTeamPlayerOptions(championship.id, championshipLineupTeamDrafts[fixture.id]); track player.profileId) {
                                               <option [value]="player.profileId">{{ player.displayName }}</option>
                                             }
                                           </select>
-                                          <label [for]="'lineup-type-' + fixture.id">Participação inicial</label>
+                                          <label [for]="'lineup-type-' + fixture.id">{{ 'Participação inicial' | t }}</label>
                                           <select [id]="'lineup-type-' + fixture.id"
                                             [value]="championshipLineupSelectionDrafts[fixture.id] || 'STARTER'"
                                             (change)="championshipLineupSelectionDrafts[fixture.id] = $any($event.target).value">
-                                            <option value="STARTER">Titular</option>
-                                            <option value="BENCH">Suplente</option>
+                                            <option value="STARTER">{{ 'Titular' | t }}</option>
+                                            <option value="BENCH">{{ 'Suplente' | t }}</option>
                                           </select>
                                           <button type="button" class="t-btn t-btn-secondary"
                                             [disabled]="championshipLineupBusy[fixture.id] || !championshipLineupPlayerDrafts[fixture.id]"
-                                            (click)="saveFixtureLineupPlayer(championship, event, fixture)">Guardar escalação</button>
+                                            (click)="saveFixtureLineupPlayer(championship, event, fixture)">{{ 'Guardar escalação' | t }}</button>
                                         </div>
-                                        <small>Guardar a escalação não confirma presenças nem calcula minutos jogados.</small>
+                                        <small>{{ 'Guardar a escalação não confirma presenças nem calcula minutos jogados.' | t }}</small>
                                       }
                                     </details>
                                     <details class="jynlo-goal-timeline jynlo-discipline-panel">
-                                      <summary><strong>Substituições</strong>
+                                      <summary><strong>{{ 'Substituições' | t }}</strong>
                                         <small>({{ (championshipFixtureSubstitutions[fixture.id] || []).length }})</small>
                                       </summary>
                                       @for (change of championshipFixtureSubstitutions[fixture.id] || []; track change.id) {
@@ -1517,55 +1501,55 @@
                                           @if (canManage && !championship.closedAt) {
                                             <button type="button" class="t-btn t-btn-secondary"
                                               [disabled]="championshipSubBusy[fixture.id]"
-                                              (click)="removeFixtureSubstitution(championship, event, fixture.id, change.id)">Remover</button>
+                                              (click)="removeFixtureSubstitution(championship, event, fixture.id, change.id)">{{ 'Remover' | t }}</button>
                                           }
                                         </div>
                                       } @empty {
-                                        <small>Sem substituições registadas.</small>
+                                        <small>{{ 'Sem substituições registadas.' | t }}</small>
                                       }
                                       @if (canManage && !championship.closedAt && event.status === 'SCHEDULED') {
                                         <div class="jynlo-goal-form">
-                                          <label [for]="'sub-team-' + fixture.id">Equipa</label>
+                                          <label [for]="'sub-team-' + fixture.id">{{ 'Equipa' | t }}</label>
                                           <select [id]="'sub-team-' + fixture.id"
                                             [value]="championshipSubTeamDrafts[fixture.id] ?? ''"
                                             (change)="championshipSubTeamDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null; championshipSubOutDrafts[fixture.id] = null; championshipSubInDrafts[fixture.id] = null">
-                                            <option value="">Selecionar equipa</option>
+                                            <option value="">{{ 'Selecionar equipa' | t }}</option>
                                             <option [value]="fixture.homeTeamId">{{ fixture.homeTeamName }}</option>
                                             <option [value]="fixture.awayTeamId">{{ fixture.awayTeamName }}</option>
                                           </select>
-                                          <label [for]="'sub-out-' + fixture.id">Sai</label>
+                                          <label [for]="'sub-out-' + fixture.id">{{ 'Sai' | t }}</label>
                                           <select [id]="'sub-out-' + fixture.id"
                                             [value]="championshipSubOutDrafts[fixture.id] ?? ''"
                                             (change)="championshipSubOutDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null">
-                                            <option value="">Selecionar jogador</option>
+                                            <option value="">{{ 'Selecionar jogador' | t }}</option>
                                             @for (player of fixtureTeamPlayerOptions(championship.id, championshipSubTeamDrafts[fixture.id]); track player.profileId) {
                                               <option [value]="player.profileId">{{ player.displayName }}</option>
                                             }
                                           </select>
-                                          <label [for]="'sub-in-' + fixture.id">Entra</label>
+                                          <label [for]="'sub-in-' + fixture.id">{{ 'Entra' | t }}</label>
                                           <select [id]="'sub-in-' + fixture.id"
                                             [value]="championshipSubInDrafts[fixture.id] ?? ''"
                                             (change)="championshipSubInDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null">
-                                            <option value="">Selecionar jogador</option>
+                                            <option value="">{{ 'Selecionar jogador' | t }}</option>
                                             @for (player of fixtureTeamPlayerOptions(championship.id, championshipSubTeamDrafts[fixture.id]); track player.profileId) {
                                               @if (player.profileId !== championshipSubOutDrafts[fixture.id]) {
                                                 <option [value]="player.profileId">{{ player.displayName }}</option>
                                               }
                                             }
                                           </select>
-                                          <label [for]="'sub-minute-' + fixture.id">Minuto</label>
+                                          <label [for]="'sub-minute-' + fixture.id">{{ 'Minuto' | t }}</label>
                                           <input [id]="'sub-minute-' + fixture.id" type="number" min="0" max="200"
                                             [value]="championshipSubMinuteDrafts[fixture.id] ?? ''"
                                             (input)="championshipSubMinuteDrafts[fixture.id] = $any($event.target).value === '' ? null : +$any($event.target).value">
                                           <button type="button" class="t-btn t-btn-secondary"
                                             [disabled]="championshipSubBusy[fixture.id] || !championshipSubOutDrafts[fixture.id] || !championshipSubInDrafts[fixture.id] || championshipSubMinuteDrafts[fixture.id] == null"
-                                            (click)="addFixtureSubstitution(championship, event, fixture)">Registar substituição</button>
+                                            (click)="addFixtureSubstitution(championship, event, fixture)">{{ 'Registar substituição' | t }}</button>
                                         </div>
-                                        <small>Este registo não calcula minutos jogados nem valida uma escalação inicial.</small>
+                                        <small>{{ 'Este registo não calcula minutos jogados nem valida uma escalação inicial.' | t }}</small>
                                       }
                                     </details>
                                     <details class="jynlo-goal-timeline jynlo-discipline-panel">
-                                      <summary><strong>Cartões amarelos e vermelhos</strong>
+                                      <summary><strong>{{ 'Cartões amarelos e vermelhos' | t }}</strong>
                                         <small>({{ (championshipFixtureCards[fixture.id] || []).length }})</small>
                                       </summary>
                                       @for (card of championshipFixtureCards[fixture.id] || []; track card.id) {
@@ -1577,60 +1561,60 @@
                                           @if (canManage && !championship.closedAt) {
                                             <button type="button" class="t-btn t-btn-secondary"
                                               [disabled]="championshipCardBusy[fixture.id]"
-                                              (click)="removeFixtureCard(championship, event, fixture.id, card.id)">Remover</button>
+                                              (click)="removeFixtureCard(championship, event, fixture.id, card.id)">{{ 'Remover' | t }}</button>
                                           }
                                         </div>
                                       } @empty {
-                                        <small>Sem cartões registados.</small>
+                                        <small>{{ 'Sem cartões registados.' | t }}</small>
                                       }
                                       @if (canManage && !championship.closedAt && event.status === 'SCHEDULED') {
                                         <div class="jynlo-goal-form">
-                                          <label [for]="'card-team-' + fixture.id">Equipa</label>
+                                          <label [for]="'card-team-' + fixture.id">{{ 'Equipa' | t }}</label>
                                           <select [id]="'card-team-' + fixture.id"
                                             [value]="championshipCardTeamDrafts[fixture.id] ?? ''"
                                             (change)="championshipCardTeamDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null; championshipCardPlayerDrafts[fixture.id] = null">
-                                            <option value="">Escolher equipa</option>
+                                            <option value="">{{ 'Escolher equipa' | t }}</option>
                                             <option [value]="fixture.homeTeamId">{{ fixture.homeTeamName }}</option>
                                             <option [value]="fixture.awayTeamId">{{ fixture.awayTeamName }}</option>
                                           </select>
-                                          <label [for]="'card-player-' + fixture.id">Jogador</label>
+                                          <label [for]="'card-player-' + fixture.id">{{ 'Jogador' | t }}</label>
                                           <select [id]="'card-player-' + fixture.id"
                                             [value]="championshipCardPlayerDrafts[fixture.id] ?? ''"
                                             (change)="championshipCardPlayerDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null">
-                                            <option value="">Escolher jogador</option>
+                                            <option value="">{{ 'Escolher jogador' | t }}</option>
                                             @for (player of fixtureTeamPlayerOptions(championship.id, championshipCardTeamDrafts[fixture.id]); track player.profileId) {
                                               <option [value]="player.profileId">{{ player.displayName }}</option>
                                             }
                                           </select>
-                                          <label [for]="'card-type-' + fixture.id">Cartão</label>
+                                          <label [for]="'card-type-' + fixture.id">{{ 'Cartão' | t }}</label>
                                           <select [id]="'card-type-' + fixture.id"
                                             [value]="championshipCardTypeDrafts[fixture.id] || 'YELLOW'"
                                             (change)="championshipCardTypeDrafts[fixture.id] = $any($event.target).value">
-                                            <option value="YELLOW">Amarelo</option>
-                                            <option value="RED">Vermelho</option>
+                                            <option value="YELLOW">{{ 'Amarelo' | t }}</option>
+                                            <option value="RED">{{ 'Vermelho' | t }}</option>
                                           </select>
-                                          <label [for]="'card-minute-' + fixture.id">Minuto</label>
+                                          <label [for]="'card-minute-' + fixture.id">{{ 'Minuto' | t }}</label>
                                           <input [id]="'card-minute-' + fixture.id" type="number" min="0" max="200"
                                             [value]="championshipCardMinuteDrafts[fixture.id] ?? ''"
                                             (input)="championshipCardMinuteDrafts[fixture.id] = $any($event.target).value === '' ? null : +$any($event.target).value">
                                           <button type="button" class="t-btn t-btn-secondary"
                                             [disabled]="championshipCardBusy[fixture.id] || !championshipCardPlayerDrafts[fixture.id]"
-                                            (click)="addFixtureCard(championship, event, fixture)">Registar cartão</button>
+                                            (click)="addFixtureCard(championship, event, fixture)">{{ 'Registar cartão' | t }}</button>
                                         </div>
                                       }
                                     </details>
                                     <div class="jynlo-goal-timeline">
-                                      <strong>Marcadores do jogo</strong>
+                                      <strong>{{ 'Marcadores do jogo' | t }}</strong>
                                       @if (championshipFixtureGoalAttribution(fixture); as attribution) {
                                         <div class="jynlo-goal-attribution" [class.needs-review]="attribution.homeRemaining < 0 || attribution.awayRemaining < 0">
-                                          <span>{{ fixture.homeTeamName }}: {{ attribution.homeAssigned }} de {{ fixture.homeScore }} golos atribuídos</span>
-                                          <span>{{ fixture.awayTeamName }}: {{ attribution.awayAssigned }} de {{ fixture.awayScore }} golos atribuídos</span>
+                                          <span>{{ '{{homeTeamName}}: {{homeAssigned}} de {{homeScore}} golos atribuídos' | t:{homeTeamName: (fixture.homeTeamName), homeAssigned: (attribution.homeAssigned), homeScore: (fixture.homeScore)} }}</span>
+                                          <span>{{ '{{awayTeamName}}: {{awayAssigned}} de {{awayScore}} golos atribuídos' | t:{awayTeamName: (fixture.awayTeamName), awayAssigned: (attribution.awayAssigned), awayScore: (fixture.awayScore)} }}</span>
                                           @if (attribution.homeRemaining < 0 || attribution.awayRemaining < 0) {
-                                            <small role="alert">Há mais golos atribuídos do que o resultado permite. Revê o marcador ou os registos dos jogadores.</small>
+                                            <small role="alert">{{ 'Há mais golos atribuídos do que o resultado permite. Revê o marcador ou os registos dos jogadores.' | t }}</small>
                                           } @else if (attribution.homeRemaining > 0 || attribution.awayRemaining > 0) {
-                                            <small>Faltam atribuir golos a jogadores. O resultado da partida não é alterado automaticamente.</small>
+                                            <small>{{ 'Faltam atribuir golos a jogadores. O resultado da partida não é alterado automaticamente.' | t }}</small>
                                           } @else {
-                                            <small>Todos os golos do resultado estão atribuídos a jogadores.</small>
+                                            <small>{{ 'Todos os golos do resultado estão atribuídos a jogadores.' | t }}</small>
                                           }
                                         </div>
                                       }
@@ -1638,59 +1622,59 @@
                                         <div class="jynlo-goal-row">
                                           <span>⚽ {{ goal.scorerName }} · {{ goal.teamName }}
                                             @if (goal.minute != null) { · {{ goal.minute }}' }
-                                            @if (goal.assisterName) { · Assistência: {{ goal.assisterName }} }
+                                            @if (goal.assisterName) { {{ '· Assistência: {{assisterName}}' | t:{assisterName: (goal.assisterName)} }} }
                                           </span>
                                           @if (canManage && !championship.closedAt) {
                                             <button type="button" class="t-btn t-btn-secondary"
                                               [disabled]="championshipFixtureSaving[fixture.id] || championshipFixtureGoalBusy[fixture.id]"
-                                              (click)="removeFixtureGoal(championship, event, fixture.id, goal.id)">Remover</button>
+                                              (click)="removeFixtureGoal(championship, event, fixture.id, goal.id)">{{ 'Remover' | t }}</button>
                                           }
                                         </div>
                                       } @empty {
-                                        <small>Ainda não há golos atribuídos a jogadores.</small>
+                                        <small>{{ 'Ainda não há golos atribuídos a jogadores.' | t }}</small>
                                       }
                                       @if (canManage && !championship.closedAt && event.status === 'SCHEDULED') {
                                         <div class="jynlo-goal-form">
-                                          <label [for]="'goal-team-' + fixture.id">Equipa</label>
+                                          <label [for]="'goal-team-' + fixture.id">{{ 'Equipa' | t }}</label>
                                           <select [id]="'goal-team-' + fixture.id"
                                             [value]="championshipFixtureGoalTeamDrafts[fixture.id] ?? ''"
                                             (change)="championshipFixtureGoalTeamDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null; championshipFixtureGoalPlayerDrafts[fixture.id] = null; championshipFixtureGoalAssistDrafts[fixture.id] = null">
-                                            <option value="">Escolher equipa</option>
+                                            <option value="">{{ 'Escolher equipa' | t }}</option>
                                             <option [value]="fixture.homeTeamId">{{ fixture.homeTeamName }}</option>
                                             <option [value]="fixture.awayTeamId">{{ fixture.awayTeamName }}</option>
                                           </select>
-                                          <label [for]="'goal-player-' + fixture.id">Marcador</label>
+                                          <label [for]="'goal-player-' + fixture.id">{{ 'Marcador' | t }}</label>
                                           <select [id]="'goal-player-' + fixture.id"
                                             [value]="championshipFixtureGoalPlayerDrafts[fixture.id] ?? ''"
                                             (change)="championshipFixtureGoalPlayerDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null">
-                                            <option value="">Escolher jogador</option>
+                                            <option value="">{{ 'Escolher jogador' | t }}</option>
                                             @for (player of fixtureTeamPlayerOptions(championship.id, championshipFixtureGoalTeamDrafts[fixture.id]); track player.profileId) {
                                               <option [value]="player.profileId">{{ player.displayName }}</option>
                                             }
                                           </select>
-                                          <label [for]="'goal-assist-' + fixture.id">Assistência (opcional)</label>
+                                          <label [for]="'goal-assist-' + fixture.id">{{ 'Assistência (opcional)' | t }}</label>
                                           <select [id]="'goal-assist-' + fixture.id"
                                             [value]="championshipFixtureGoalAssistDrafts[fixture.id] ?? ''"
                                             (change)="championshipFixtureGoalAssistDrafts[fixture.id] = $any($event.target).value ? +$any($event.target).value : null">
-                                            <option value="">Sem assistência</option>
+                                            <option value="">{{ 'Sem assistência' | t }}</option>
                                             @for (player of fixtureTeamPlayerOptions(championship.id, championshipFixtureGoalTeamDrafts[fixture.id]); track player.profileId) {
                                               @if (player.profileId !== championshipFixtureGoalPlayerDrafts[fixture.id]) {
                                                 <option [value]="player.profileId">{{ player.displayName }}</option>
                                               }
                                             }
                                           </select>
-                                          <label [for]="'goal-minute-' + fixture.id">Minuto (opcional)</label>
+                                          <label [for]="'goal-minute-' + fixture.id">{{ 'Minuto (opcional)' | t }}</label>
                                           <input [id]="'goal-minute-' + fixture.id" type="number" min="0" max="200"
                                             [value]="championshipFixtureGoalMinuteDrafts[fixture.id] ?? ''"
                                             (input)="championshipFixtureGoalMinuteDrafts[fixture.id] = $any($event.target).value === '' ? null : +$any($event.target).value">
                                           <button type="button" class="t-btn t-btn-secondary"
                                             [disabled]="championshipFixtureSaving[fixture.id] || championshipFixtureGoalBusy[fixture.id] || !championshipFixtureGoalPlayerDrafts[fixture.id] || !championshipFixtureCanAssignGoal(fixture, championshipFixtureGoalTeamDrafts[fixture.id])"
-                                            (click)="addFixtureGoal(championship, event, fixture)">Registar golo</button>
+                                            (click)="addFixtureGoal(championship, event, fixture)">{{ 'Registar golo' | t }}</button>
                                           @if (!championshipFixtureGoals[fixture.id]) {
-                                            <small class="jynlo-score-guidance" role="status">A consultar os golos registados antes de permitir novas atribuições.</small>
+                                            <small class="jynlo-score-guidance" role="status">{{ 'A consultar os golos registados antes de permitir novas atribuições.' | t }}</small>
                                           } @else if (championshipFixtureGoalTeamDrafts[fixture.id]
                                             && !championshipFixtureCanAssignGoal(fixture, championshipFixtureGoalTeamDrafts[fixture.id])) {
-                                            <small class="jynlo-score-guidance" role="status">Não é possível atribuir mais golos a esta equipa. Confirma o resultado e os golos já registados.</small>
+                                            <small class="jynlo-score-guidance" role="status">{{ 'Não é possível atribuir mais golos a esta equipa. Confirma o resultado e os golos já registados.' | t }}</small>
                                           }
                                         </div>
                                       }
@@ -1729,9 +1713,9 @@
                       <h6>{{ 'communities.championshipOwned.cupTitle' | t }}</h6>
                       @if (championshipCupDraws[event.id]; as draw) {
                         @if (draw.matches.length || draw.byes.length) {
-                          <strong>{{ event.status === 'COMPLETED' ? 'Taça concluída' : 'Eliminatórias da taça' }}</strong>
+                          <strong>{{ event.status === 'COMPLETED' ? ('Taça concluída' | t) : ('Eliminatórias da taça' | t) }}</strong>
                           @if (event.status === 'COMPLETED') {
-                            <p class="jynlo-league-winner" role="status">Vencedor da taça: <strong>{{ event.winnerTeamName }}</strong></p>
+                            <p class="jynlo-league-winner" role="status">{{ 'Vencedor da taça:' | t }} <strong>{{ event.winnerTeamName }}</strong></p>
                           }
                           @if (cupRounds(event.id).length) {
                             @if (event.status === 'SCHEDULED' && championship.sport !== 'Futebol' && championship.sport !== 'Futsal') {
@@ -1810,15 +1794,15 @@
                                         <strong>{{ match.awayTeamName }}</strong>
                                       </div>
                                       @if (championshipFixtureWinner(match); as outcome) {
-                                        <div class="jynlo-fixture-outcome" aria-label="Vencedor do jogo">
+                                        <div class="jynlo-fixture-outcome" [attr.aria-label]="'Vencedor do jogo' | t">
                                           @if (outcome === 'DRAW') {
-                                            <span>Empate — falta definir o vencedor</span>
+                                            <span>{{ 'Empate — falta definir o vencedor' | t }}</span>
                                           } @else {
-                                            <span>Vencedor: <strong>{{ outcome === 'HOME' ? match.homeTeamName : match.awayTeamName }}</strong></span>
+                                            <span>{{ 'Vencedor:' | t }} <strong>{{ outcome === 'HOME' ? match.homeTeamName : match.awayTeamName }}</strong></span>
                                           }
                                         </div>
                                       } @else {
-                                        <p class="jynlo-fixture-pending">Resultado por registar</p>
+                                        <p class="jynlo-fixture-pending">{{ 'Resultado por registar' | t }}</p>
                                       }
                                       @if (canManage && !championship.closedAt && event.status === 'SCHEDULED'
                                           && (championship.sport === 'Futebol' || championship.sport === 'Futsal')
@@ -1831,12 +1815,12 @@
                                             }
                                           </summary>
                                         <div class="jynlo-match-score-edit">
-                                          <label [for]="'cup-home-' + match.id">Casa</label>
+                                          <label [for]="'cup-home-' + match.id">{{ 'Casa' | t }}</label>
                                           <input [id]="'cup-home-' + match.id" type="number" min="0" max="999"
                                             [disabled]="championshipCupBusy || championshipCupScoreBusy[match.id]"
                                             [value]="championshipCupResultDrafts[match.id] ? (championshipCupResultDrafts[match.id].home ?? '') : (match.homeScore ?? '')"
                                             (input)="updateChampionshipCupScoreDraft(event.id, match, 'home', $any($event.target).value)">
-                                          <label [for]="'cup-away-' + match.id">Fora</label>
+                                          <label [for]="'cup-away-' + match.id">{{ 'Fora' | t }}</label>
                                           <input [id]="'cup-away-' + match.id" type="number" min="0" max="999"
                                             [disabled]="championshipCupBusy || championshipCupScoreBusy[match.id]"
                                             [value]="championshipCupResultDrafts[match.id] ? (championshipCupResultDrafts[match.id].away ?? '') : (match.awayScore ?? '')"
@@ -1844,10 +1828,10 @@
                                           <button type="button" class="t-btn t-btn-secondary"
                                             [disabled]="championshipCupBusy || championshipCupScoreBusy[match.id] || !championshipScoreChanged(championshipCupResultDrafts[match.id], match, true)"
                                             (click)="saveChampionshipCupScore(championship, event, match)">
-                                            {{ championshipCupScoreBusy[match.id] ? 'A guardar…' : 'Guardar resultado' }}
+                                            {{ championshipCupScoreBusy[match.id] ? ('A guardar…' | t) : ('Guardar resultado' | t) }}
                                           </button>
                                           @if (championshipCupResultDrafts[match.id] && !championshipScoreDraftValid(championshipCupResultDrafts[match.id], true)) {
-                                            <small class="jynlo-score-guidance" role="status">Preenche os dois resultados (0 a 999). A eliminatória precisa de um vencedor; não são permitidos empates.</small>
+                                            <small class="jynlo-score-guidance" role="status">{{ 'Preenche os dois resultados (0 a 999). A eliminatória precisa de um vencedor; não são permitidos empates.' | t }}</small>
                                           }
                                         </div>
                                         </details>
@@ -1858,7 +1842,7 @@
                             </details>
                           }
                           @if (draw.byes.length) {
-                            <p>Apuramento direto na primeira ronda:</p>
+                            <p>{{ 'Apuramento direto na primeira ronda:' | t }}</p>
                             <ul>
                               @for (bye of draw.byes; track bye.id) {
                                 <li>{{ bye.teamName }}</li>
@@ -1873,14 +1857,14 @@
                                   [disabled]="!cupRoundCanAdvance(event.id)"
                                   [checked]="championshipCupAdvanceConfirm[event.id] || false"
                                   (change)="championshipCupAdvanceConfirm[event.id] = $any($event.target).checked">
-                                Confirmo os resultados desta ronda
+                                {{ 'Confirmo os resultados desta ronda' | t }}
                               </label>
                               <button type="button" class="t-btn t-btn-primary"
                                 [disabled]="!cupRoundCanAdvance(event.id) || !championshipCupAdvanceConfirm[event.id]"
                                 (click)="advanceChampionshipCup(championship, event)">
-                                {{ championshipCupBusy ? 'A avançar…' : 'Confirmar vencedores e avançar' }}
+                                {{ championshipCupBusy ? ('A avançar…' | t) : ('Confirmar vencedores e avançar' | t) }}
                               </button>
-                              <small>Todos os jogos precisam de vencedor. Se houver empate, regista primeiro o resultado após desempate. Guarda todas as alterações antes de avançar.</small>
+                              <small>{{ 'Todos os jogos precisam de vencedor. Se houver empate, regista primeiro o resultado após desempate. Guarda todas as alterações antes de avançar.' | t }}</small>
                             </div>
                           }
                         } @else if (canManage && !championship.closedAt && event.status === 'DRAFT') {
@@ -1904,9 +1888,7 @@
           }
           @if (canManage && !championship.closedAt && !championshipOwnedTeamEventsAvailable(championship.sport)) {
             <p class="championship-sport-mode" role="note">
-              As ligas e taças internas disponíveis aqui funcionam com equipas e confrontos.
-              Esta modalidade ainda não tem um motor de equipas compatível.
-              Podes manter o campeonato e consultar provas existentes, mas não criar provas novas neste formato.
+              {{ 'As ligas e taças internas disponíveis aqui funcionam com equipas e confrontos. Esta modalidade ainda não tem um motor de equipas compatível. Podes manter o campeonato e consultar provas existentes, mas não criar provas novas neste formato.' | t }}
             </p>
           }
           @if (canManage && !championship.closedAt && championshipOwnedTeamEventsAvailable(championship.sport)) {
@@ -1924,8 +1906,8 @@
                   (change)="championshipEventFormats[championship.id] = $any($event.target).value">
                   <option value="LEAGUE">{{ 'communities.championshipOwned.format.LEAGUE' | t }}</option>
                   <option value="CUP">{{ 'communities.championshipOwned.format.CUP' | t }}</option>
-                  <option value="SUPERCUP" disabled>Supertaça — em preparação</option>
-                  <option value="OTHER" disabled>Outro formato — em preparação</option>
+                  <option value="SUPERCUP" disabled>{{ 'Supertaça — em preparação' | t }}</option>
+                  <option value="OTHER" disabled>{{ 'Outro formato — em preparação' | t }}</option>
                 </select>
               </div>
               <button type="button" class="t-btn t-btn-primary"
@@ -1935,7 +1917,7 @@
               </button>
             </div>
           }
-          <p class="team-honours-muted">As Ligas e Taças internas de Futebol e Futsal permitem registar resultados e vencedores. Cada prova interna concluída atribui 10 pontos ao vencedor na classificação geral da época; no modo independente, guarda apenas o respetivo título. Os restantes formatos terão regras próprias antes de serem ativados.</p>
+          <p class="team-honours-muted">{{ 'As Ligas e Taças internas de Futebol e Futsal permitem registar resultados e vencedores. Cada prova interna concluída atribui 10 pontos ao vencedor na classificação geral da época; no modo independente, guarda apenas o respetivo título. Os restantes formatos terão regras próprias antes de serem ativados.' | t }}</p>
         </details>
         </details>
       </div>
@@ -2024,7 +2006,7 @@
             @for (item of visibleCommunitySportOptions; track item) {
               <button type="button" class="t-sport-chip" [disabled]="busy"
                 [attr.aria-pressed]="sportDraft === item"
-                (click)="chooseSport(item)">{{ item }}</button>
+                (click)="chooseSport(item)">{{ item | sportName }}</button>
             }
             @if (communitySportOptions.length > communitySportPreviewSize) {
               <button type="button" class="t-sport-chip"
@@ -2046,7 +2028,7 @@
           <div class="t-sport-suggestions" role="group" [attr.aria-label]="'communities.tournaments.createUi.suggestions' | t">
             @for (item of suggestedSports; track item) {
               <button type="button" class="t-sport-chip" [disabled]="busy"
-                (click)="chooseSport(item)">{{ item }}</button>
+                (click)="chooseSport(item)">{{ item | sportName }}</button>
             }
           </div>
         } @else if (sportSearch.trim()) {
@@ -2503,29 +2485,29 @@
         </header>
         @if (tournamentTeamPromotion[team.id]; as promotion) {
           @if (promotion.canPromote) {
-            <section class="team-page-identity-choice" aria-label="Decidir futuro da equipa">
-              <strong>Queres guardar esta equipa na Jynlo?</strong>
-              <p>Podes mantê-la apenas neste torneio ou transformá-la numa equipa permanente. A decisão é tua enquanto capitão.</p>
+            <section class="team-page-identity-choice" [attr.aria-label]="'Decidir futuro da equipa' | t">
+              <strong>{{ 'Queres guardar esta equipa na Jynlo?' | t }}</strong>
+              <p>{{ 'Podes mantê-la apenas neste torneio ou transformá-la numa equipa permanente. A decisão é tua enquanto capitão.' | t }}</p>
               <button type="button" class="t-btn t-btn-primary"
                 [disabled]="tournamentTeamPromotionBusy[team.id]"
                 (click)="promoteTournamentTeam(team)">
-                {{ tournamentTeamPromotionBusy[team.id] ? 'A guardar…' : 'Tornar equipa permanente' }}
+                {{ tournamentTeamPromotionBusy[team.id] ? ('A guardar…' | t) : ('Tornar equipa permanente' | t) }}
               </button>
-              <small>Se não converteres, a equipa fica apenas associada ao torneio. O histórico é preservado.</small>
+              <small>{{ 'Se não converteres, a equipa fica apenas associada ao torneio. O histórico é preservado.' | t }}</small>
               @if (tournamentTeamPromotionError[team.id]) {
                 <p role="alert">{{ tournamentTeamPromotionError[team.id] }}</p>
               }
             </section>
           } @else if (promotion.archived && !promotion.globalTeamId) {
-            <section class="team-page-identity-choice" aria-label="Equipa temporária arquivada">
-              <strong>Equipa temporária arquivada</strong>
-              <p>O torneio terminou. Os resultados ficam no histórico, mas esta equipa não foi criada como equipa permanente na Jynlo.</p>
+            <section class="team-page-identity-choice" [attr.aria-label]="'Equipa temporária arquivada' | t">
+              <strong>{{ 'Equipa temporária arquivada' | t }}</strong>
+              <p>{{ 'O torneio terminou. Os resultados ficam no histórico, mas esta equipa não foi criada como equipa permanente na Jynlo.' | t }}</p>
             </section>
           } @else if (promotion.globalTeamId) {
-            <section class="team-page-identity-choice" aria-label="Equipa permanente">
-              <strong>Esta equipa já tem identidade permanente na Jynlo.</strong>
+            <section class="team-page-identity-choice" [attr.aria-label]="'Equipa permanente' | t">
+              <strong>{{ 'Esta equipa já tem identidade permanente na Jynlo.' | t }}</strong>
               <a class="t-btn t-btn-secondary" [routerLink]="['/menu/teams', promotion.globalTeamId]">
-                Abrir equipa na Jynlo
+                {{ 'Abrir equipa na Jynlo' | t }}
               </a>
             </section>
           }
@@ -2617,7 +2599,7 @@
                 <div class="team-page-fixture">
                   <span>{{ (heat.stage === 'FINAL' ? 'communities.inlineSpeed.stage.FINAL'
                     : 'communities.relay.qual') | t }} · {{ 'communities.inlineSpeed.heat' | t }} {{ heat.heatNumber }}</span>
-                  <strong>{{ heat.decisionStatus === 'DISQUALIFIED' ? 'DSQ'
+                  <strong>{{ heat.decisionStatus === 'DISQUALIFIED' ? ('DSQ' | t)
                     : ((heat.elapsedSeconds | number:'1.2-3') + ' s') }}</strong>
                 </div>
               }
@@ -3028,7 +3010,7 @@
           </div>
           @if (tournamentTeamAdministrators[team.id]; as administrator) {
             <section class="jynlo-team-admin-card team-page-admin" [class.is-waiting]="!administrator.adminProfileId"
-              [attr.aria-label]="'Administração de ' + team.name">
+              [attr.aria-label]="('Administração de {{name}}' | t:{name: team.name})">
               <div class="jynlo-team-admin-card-header">
                 <div class="jynlo-team-admin-identity">
                   <span class="jynlo-team-admin-avatar" aria-hidden="true">✦</span>
@@ -3243,7 +3225,7 @@
                           <a class="t-btn t-btn-primary" [href]="teamWhatsAppUrl(team)"
                             target="_blank" rel="noopener noreferrer"
                             [attr.aria-label]="'communities.tournaments.teamUi.whatsappAria' | t:{team:team.name}">
-                            WhatsApp
+                            {{ 'WhatsApp' | t }}
                           </a>
                           <button type="button" class="t-btn t-btn-secondary"
                             [disabled]="busy || detailsLoading" (click)="copyTeamInvite(team)">
@@ -3988,7 +3970,7 @@
                           <small>{{ (heat.stage === 'FINAL' ? 'communities.inlineSpeed.stage.FINAL' : 'communities.relay.qual') | t }}
                             · {{ relayRunnerNames(heat.teamId,heat.runnerProfileIds) }}</small>
                         </span>
-                        <strong>{{ heat.decisionStatus==='DISQUALIFIED' ? 'DSQ' : ((heat.elapsedSeconds | number:'1.2-3') + ' s') }}</strong>
+                        <strong>{{ heat.decisionStatus==='DISQUALIFIED' ? ('DSQ' | t) : ((heat.elapsedSeconds | number:'1.2-3') + ' s') }}</strong>
                       </div>
                       @if (canDecideRelayHeat(heat)) {
                         <details class="race-round-card">
@@ -4390,7 +4372,7 @@
                              <span class="team-fixture-numbers"><b>{{ game.homeScore }}</b><i>:</i><b>{{ game.awayScore }}</b></span>
                              <small>{{ 'communities.tournaments.fixturesUi.filterCompleted' | t }}</small>
                            } @else {
-                             <span class="team-fixture-versus">VS</span>
+                             <span class="team-fixture-versus">{{ 'VS' | t }}</span>
                              <small>{{ 'communities.tournaments.fixturesUi.pending' | t }}</small>
                            }
                          </div>
@@ -4589,7 +4571,7 @@
                                 [attr.aria-label]="teamMatchStageLabel(game) + ' · ' + game.homeTeamName + ' · ' + game.awayTeamName">
                                 <small>{{ teamMatchStageLabel(game) }}</small>
                                 <span><strong>{{ game.homeTeamName }}</strong>
-                                  <b>VS</b><strong>{{ game.awayTeamName }}</strong></span>
+                                  <b>{{ 'VS' | t }}</b><strong>{{ game.awayTeamName }}</strong></span>
                                 <em>{{ 'communities.tournaments.fixturesUi.filterPending' | t }} ↗</em>
                               </button>
                             }
@@ -4783,7 +4765,7 @@
                       <tbody>
                         @for (skater of heat.skaters; track skater.playerId) {
                           <tr>
-                            <td>{{ skater.disqualified ? 'DSQ' : (skater.position ?? '—') }}</td>
+                            <td>{{ skater.disqualified ? ('DSQ' | t) : (skater.position ?? '—') }}</td>
                             <td>{{ skater.name }}</td>
                             <td>{{ skater.seconds == null ? '—' : (skater.seconds | number:'1.2-2') + ' s' }}</td>
                           </tr>
@@ -4874,8 +4856,7 @@
                       </details>
                     }
                     @if (canManage && selected.status !== 'COMPLETED' && !speedDecision('FIRST')
-                         && speedTrialCandidates().length >= 3
-                         && speedTrialCandidates().length <= 6) {
+                         && speedTrialCandidates().length >= 3 && speedTrialCandidates().length <= 6) {
                       <div class="inline-speed-trial-panel">
                         <p class="t-muted">{{ 'communities.inlineSpeed.trialIntro' | t }}</p>
                         @if (!speedTrialOpen) {
@@ -5546,7 +5527,7 @@
                     <span class="match-round">{{ 'communities.tournaments.stageUi.leagueRound' | t:{round:match.roundNumber} }}</span>
                     <div class="match-teams">
                       <strong>&#64;{{ match.homeUsername }}</strong>
-                      <span class="vs">VS</span>
+                      <span class="vs">{{ 'VS' | t }}</span>
                       <strong>&#64;{{ match.awayUsername }}</strong>
                     </div>
                     @if (canManage && selected.status === 'IN_PROGRESS') {

@@ -1,3 +1,4 @@
+import { sportMatchesQuery } from '../../shared/venue-catalogue-display';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
@@ -105,8 +106,7 @@ export class VenueSuggestEditComponent implements OnInit {
     const query = this.sportSearch.trim().normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '').toLowerCase();
     const candidates = query
-      ? this.sportsCatalog.filter(s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-          .toLowerCase().includes(query))
+      ? this.sportsCatalog.filter(s => sportMatchesQuery(s, query))
       : this.sportsCatalog;
     return candidates.filter(s => !this.selectedSports.includes(s)).slice(0, 12);
   }

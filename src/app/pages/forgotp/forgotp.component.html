@@ -21,7 +21,7 @@
           [(ngModel)]="email"
           autocomplete="email"
           [disabled]="loading"
-          placeholder="teu@email.pt">
+          [placeholder]="'teu@email.pt' | t">
       </label>
 
       <button type="submit" class="primary-action jynlo-action jynlo-action--primary" [disabled]="loading">

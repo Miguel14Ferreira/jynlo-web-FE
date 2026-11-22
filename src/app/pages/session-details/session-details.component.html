@@ -37,13 +37,13 @@
 
         <div class="detail-content">
           @if (session.status === 'CANCELLED') {
-            <section class="session-cancelled-banner" role="status" aria-label="Sessão cancelada">
+            <section class="session-cancelled-banner" role="status" [attr.aria-label]="'Sessão cancelada' | t">
               <span class="session-cancelled-cross" aria-hidden="true">×</span>
               <div>
                 <strong>{{ 'mySessions.statusCancelled' | t }}</strong>
-                <p>Esta sessão foi cancelada. Já não é possível confirmar presença ou juntar novos participantes.</p>
+                <p>{{ 'Esta sessão foi cancelada. Já não é possível confirmar presença ou juntar novos participantes.' | t }}</p>
                 @if (isCreator()) {
-                  <p>Os participantes inscritos e em lista de espera são avisados automaticamente pela Jynlo, conforme as suas preferências. Os convidados externos que não usam a Jynlo têm de ser informados pelo canal de convite.</p>
+                  <p>{{ 'Os participantes inscritos e em lista de espera são avisados automaticamente pela Jynlo, conforme as suas preferências. Os convidados externos que não usam a Jynlo têm de ser informados pelo canal de convite.' | t }}</p>
                 }
               </div>
             </section>
@@ -75,9 +75,9 @@
                   <label for="session-share-url">{{ 'sessionDetail.sessionLink' | t }}</label>
                   <div class="manual-share-controls">
                     <input id="session-share-url" #shareLinkInput type="text" [value]="manualShareUrl"
-                           readonly aria-label="Ligação pública da sessão para copiar">
+                           readonly [attr.aria-label]="'Ligação pública da sessão para copiar' | t">
                     <button class="jynlo-action jynlo-action--neutral" type="button"
-                            (click)="shareLinkInput.select()">Selecionar ligação</button>
+                            (click)="shareLinkInput.select()">{{ 'Selecionar ligação' | t }}</button>
                   </div>
                 </div>
               }
@@ -280,7 +280,7 @@
             @if (canShareSession() && !canOpenOrganizerShare()) {
               <button type="button" class="share-session-action jynlo-action jynlo-action--neutral"
                       [disabled]="sharingSession" (click)="shareSession()">
-                {{ sharingSession ? 'A partilhar...' : 'Partilhar sessão' }}
+                {{ sharingSession ? ('A partilhar...' | t) : ('Partilhar sessão' | t) }}
               </button>
               @if (shareFeedback && !showCreationSharePanel()) {
                 <span class="share-feedback" role="status">{{ shareFeedback }}</span>
@@ -291,8 +291,8 @@
                   <div class="manual-share-controls">
                     <input id="session-share-url" #shareLinkInput type="text"
                            [value]="manualShareUrl" readonly
-                           aria-label="Ligação pública da sessão para copiar">
-                    <button class="jynlo-action jynlo-action--neutral" type="button" (click)="shareLinkInput.select()">Selecionar ligação</button>
+                           [attr.aria-label]="'Ligação pública da sessão para copiar' | t">
+                    <button class="jynlo-action jynlo-action--neutral" type="button" (click)="shareLinkInput.select()">{{ 'Selecionar ligação' | t }}</button>
                   </div>
                 </div>
               }
@@ -355,7 +355,7 @@
                       <button type="button" class="session-chat-attachment-download"
                         [disabled]="attachmentDownloadingId !== null"
                         (click)="downloadSessionAttachment(message)"
-                        [attr.aria-label]="'Descarregar anexo ' + message.attachmentName">
+                        [attr.aria-label]="('Descarregar anexo {{attachmentName}}' | t:{attachmentName: message.attachmentName})">
                         <span aria-hidden="true">📎</span>
                         <span>{{ message.attachmentName }}</span>
                         @if (message.attachmentSize != null) {
@@ -366,7 +366,7 @@
                         <button type="button" class="session-chat-preview-toggle"
                           [disabled]="attachmentDownloadingId !== null"
                           (click)="previewSessionAttachment(message)">
-                          {{ attachmentPreviewId === message.id ? 'Fechar imagem' : 'Ver imagem' }}
+                          {{ attachmentPreviewId === message.id ? ('Fechar imagem' | t) : ('Ver imagem' | t) }}
                         </button>
                         @if (attachmentPreviewId === message.id && attachmentPreviewUrl) {
                           <div class="session-chat-attachment-preview">
@@ -403,24 +403,24 @@
                   <p class="session-chat-attachment-feedback" role="alert">{{ attachmentFeedback }}</p>
                 }
                 @if (attachmentChecking) {
-                  <p class="session-chat-attachment-help" role="status">A verificar se os anexos privados estão disponíveis…</p>
+                  <p class="session-chat-attachment-help" role="status">{{ 'A verificar se os anexos privados estão disponíveis…' | t }}</p>
                 }
                 @if (attachmentAvailable) {
                   <div class="session-chat-attachment-compose">
-                    <label class="jynlo-action jynlo-action--neutral" for="session-chat-attachment-file">📎 Anexar ficheiro</label>
+                    <label class="jynlo-action jynlo-action--neutral" for="session-chat-attachment-file">{{ '📎 Anexar ficheiro' | t }}</label>
                     <input id="session-chat-attachment-file" type="file"
                       [disabled]="attachmentSending || messageSending || chatDeliveryUncertain"
                       accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,audio/webm,audio/ogg"
-                      (change)="chooseSessionAttachment($event)" aria-label="Escolher anexo privado">
+                      (change)="chooseSessionAttachment($event)" [attr.aria-label]="'Escolher anexo privado' | t">
                     @if (attachmentFile) {
                       <span class="session-chat-attachment-name">{{ attachmentFile.name }}</span>
                       <button type="button" class="jynlo-action jynlo-action--neutral"
-                        [disabled]="attachmentSending" (click)="clearSessionAttachment()">Remover</button>
+                        [disabled]="attachmentSending" (click)="clearSessionAttachment()">{{ 'Remover' | t }}</button>
                       <button type="button" class="jynlo-action jynlo-action--primary"
                         [disabled]="attachmentSending || messageSending || chatDeliveryUncertain"
-                        (click)="sendSessionAttachment()">{{ attachmentSending ? 'A enviar…' : 'Enviar anexo' }}</button>
+                        (click)="sendSessionAttachment()">{{ attachmentSending ? ('A enviar…' | t) : ('Enviar anexo' | t) }}</button>
                     }
-                    <small>Imagens, PDF e áudio até 5 MB · privado entre participantes · também podes colar uma imagem na mensagem.</small>
+                    <small>{{ 'Imagens, PDF e áudio até 5 MB · privado entre participantes · também podes colar uma imagem na mensagem.' | t }}</small>
                   </div>
                 }
                 <div class="session-inline-chat-compose">
@@ -677,11 +677,11 @@
                   <input type="text" maxlength="255" [(ngModel)]="detailsDraft.address"
                     [disabled]="detailsSaving || !!session.venue">
                 </label>
-                <label class="session-details-editor-wide">Descrição da sessão (opcional)
+                <label class="session-details-editor-wide">{{ 'Descrição da sessão (opcional)' | t }}
                   <textarea maxlength="1000" rows="4"
                     [(ngModel)]="detailsDraft.description" [disabled]="detailsSaving"
-                    placeholder="Ex.: Jogo amigável, todos os níveis são bem-vindos."></textarea>
-                  <small>{{ detailsDraft.description.length }}/1000 caracteres</small>
+                    [placeholder]="'Ex.: Jogo amigável, todos os níveis são bem-vindos.' | t"></textarea>
+                  <small>{{ '{{descriptionCount}}/1000 caracteres' | t:{descriptionCount: (detailsDraft.description.length)} }}</small>
                 </label>
                 <label class="session-details-editor-wide">{{ 'createSession.meetingPointLabel' | t }}
                   <input type="text" maxlength="240"
@@ -709,7 +709,7 @@
           }
           @if (session.description) {
             <section class="session-description-panel" aria-labelledby="session-description-heading">
-              <h2 id="session-description-heading">Sobre esta sessão</h2>
+              <h2 id="session-description-heading">{{ 'Sobre esta sessão' | t }}</h2>
               <p>{{ session.description }}</p>
             </section>
           }
@@ -1006,12 +1006,12 @@
             <div class="calendar-actions">
               @if (googleCalendarUrl(); as googleUrl) {
                 <a class="calendar-action jynlo-action jynlo-action--neutral" [href]="googleUrl" target="_blank" rel="noopener noreferrer">
-                  Google Calendar
+                  {{ 'Google Calendar' | t }}
                 </a>
               }
               @if (outlookCalendarUrl(); as outlookUrl) {
                 <a class="calendar-action jynlo-action jynlo-action--neutral" [href]="outlookUrl" target="_blank" rel="noopener noreferrer">
-                  Outlook
+                  {{ 'Outlook' | t }}
                 </a>
               }
               <button type="button" class="calendar-action jynlo-action jynlo-action--neutral" (click)="downloadIcs()">
@@ -1026,7 +1026,7 @@
                 <h2>{{ 'sessionDetail.creatorReliability' | t }}</h2>
                 @if (session.creatorUsername) {
                   <p><a class="session-profile-link" [routerLink]="['/menu/perfis',session.creatorUsername]">{{ session.creatorUsername }}</a></p>
-                } @else { <p>Utilizador</p> }
+                } @else { <p>{{ 'Utilizador' | t }}</p> }
               </div>
               @if (reliabilityLoading) {
                 <span class="reliability-loading">{{ 'common.loading' | t }}</span>
@@ -1099,12 +1099,12 @@
               </div>
               @if (exactEmbeddedMapUrl(); as embeddedMap) {
                 <div class="session-embedded-map">
-                  <iframe [src]="embeddedMap" title="Mapa com a localização do recinto desta sessão"
+                  <iframe [src]="embeddedMap" [title]="'Mapa com a localização do recinto desta sessão' | t"
                           loading="lazy" referrerpolicy="no-referrer"
-                          aria-label="Mapa de referência para a localização da sessão"></iframe>
+                          [attr.aria-label]="'Mapa de referência para a localização da sessão' | t"></iframe>
                   <small>{{ hasVenueMapCoordinates()
-                    ? 'O mapa mostra o ponto GPS registado para o recinto. Confirma o ponto de encontro com o organizador.'
-                    : 'Mapa aproximado pela morada. Para o ponto exato, usa o link Google Maps escolhido pelo organizador.' }}</small>
+                    ? ('O mapa mostra o ponto GPS registado para o recinto. Confirma o ponto de encontro com o organizador.' | t)
+                    : ('Mapa aproximado pela morada. Para o ponto exato, usa o link Google Maps escolhido pelo organizador.' | t) }}</small>
                 </div>
               }
               @if (hasVenueMapCoordinates()) {
@@ -1135,22 +1135,22 @@
                 <div class="session-maps-editor">
                   @if (!googleMapsEditorOpen) {
                     <button type="button" class="jynlo-action jynlo-action--neutral"
-                            (click)="beginGoogleMapsEdit()">Corrigir localização no Google Maps</button>
+                            (click)="beginGoogleMapsEdit()">{{ 'Corrigir localização no Google Maps' | t }}</button>
                   } @else {
-                    <label for="session-google-maps-url">Link exato Google Maps da sessão</label>
+                    <label for="session-google-maps-url">{{ 'Link exato Google Maps da sessão' | t }}</label>
                     <input id="session-google-maps-url" type="url"
                            [ngModel]="googleMapsDraft" (ngModelChange)="googleMapsDraft = $event"
                            [disabled]="googleMapsSaving" maxlength="512"
                            placeholder="https://maps.app.goo.gl/..." autocomplete="off">
-                    <small>Cola o link partilhado pelo Google Maps para que os participantes abram esse mesmo ponto. Deixa vazio para voltar à localização do recinto.</small>
+                    <small>{{ 'Cola o link partilhado pelo Google Maps para que os participantes abram esse mesmo ponto. Deixa vazio para voltar à localização do recinto.' | t }}</small>
                     @if (googleMapsError) { <p role="alert">{{ googleMapsError }}</p> }
                     <div class="session-maps-editor-actions">
                       <button type="button" class="jynlo-action jynlo-action--primary"
                               [disabled]="googleMapsSaving" (click)="saveGoogleMapsLink()">
-                        {{ googleMapsSaving ? 'A guardar…' : 'Guardar localização' }}
+                        {{ googleMapsSaving ? ('A guardar…' | t) : ('Guardar localização' | t) }}
                       </button>
                       <button type="button" class="jynlo-action jynlo-action--neutral"
-                              [disabled]="googleMapsSaving" (click)="googleMapsEditorOpen = false">Cancelar</button>
+                              [disabled]="googleMapsSaving" (click)="googleMapsEditorOpen = false">{{ 'Cancelar' | t }}</button>
                     </div>
                   }
                   @if (googleMapsNotice) { <small role="status">{{googleMapsNotice}}</small> }
@@ -1250,7 +1250,7 @@
                       [disabled]="teamsLoading || teamsConfirming"
                       [attr.aria-pressed]="teamsScoreSource === 'AUTO'"
                       (click)="generateTeams('AUTO')">
-                      Equipas equilibradas · classificação da comunidade
+                      {{ 'Equipas equilibradas · classificação da comunidade' | t }}
                     </button>
                     <button
                       type="button"
@@ -1258,7 +1258,7 @@
                       [disabled]="teamsLoading || teamsConfirming"
                       [attr.aria-pressed]="teamsScoreSource === 'EXCEL_POINTS'"
                       (click)="generateTeams('EXCEL_POINTS')">
-                      Equipas equilibradas · pontuação Excel
+                      {{ 'Equipas equilibradas · pontuação Excel' | t }}
                     </button>
                     }
                     <button
@@ -1578,22 +1578,22 @@
                             @if (canContactSessionMember(participant.username)) {
                               <details class="session-player-card__contact-actions"
                                    [attr.aria-label]="'Contactar ' + participant.username">
-                                <summary class="session-player-card__contact-toggle" [attr.aria-label]="'Opções para contactar ' + participant.username">
-                                  <span aria-hidden="true">•••</span><span>Contactar</span>
+                                <summary class="session-player-card__contact-toggle" [attr.aria-label]="('Opções para contactar {{username}}' | t:{username: participant.username})">
+                                  <span aria-hidden="true">•••</span><span>{{ 'Contactar' | t }}</span>
                                 </summary>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
                                   (click)="contactSessionMember(participant.username)">
-                                  <span aria-hidden="true">💬</span> Mensagem
+                                  <span aria-hidden="true">💬</span> {{ 'Mensagem' | t }}
                                 </button>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
                                   [disabled]="!(sessionCallAvailability$ | async) || (sessionCallState$ | async) !== null"
                                   (click)="callSessionMember(participant.username, 'voice')">
-                                  <span aria-hidden="true">📞</span> Voz
+                                  <span aria-hidden="true">📞</span> {{ 'Voz' | t }}
                                 </button>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
                                   [disabled]="!(sessionCallAvailability$ | async) || (sessionCallState$ | async) !== null"
                                   (click)="callSessionMember(participant.username, 'video')">
-                                  <span aria-hidden="true">📹</span> Vídeo
+                                  <span aria-hidden="true">📹</span> {{ 'Vídeo' | t }}
                                 </button>
                               </details>
                             }
@@ -1665,22 +1665,22 @@
                             @if (canContactSessionMember(participant.username)) {
                               <details class="session-player-card__contact-actions"
                                    [attr.aria-label]="'Contactar ' + participant.username">
-                                <summary class="session-player-card__contact-toggle" [attr.aria-label]="'Opções para contactar ' + participant.username">
-                                  <span aria-hidden="true">•••</span><span>Contactar</span>
+                                <summary class="session-player-card__contact-toggle" [attr.aria-label]="('Opções para contactar {{username}}' | t:{username: participant.username})">
+                                  <span aria-hidden="true">•••</span><span>{{ 'Contactar' | t }}</span>
                                 </summary>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
                                   (click)="contactSessionMember(participant.username)">
-                                  <span aria-hidden="true">💬</span> Mensagem
+                                  <span aria-hidden="true">💬</span> {{ 'Mensagem' | t }}
                                 </button>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
                                   [disabled]="!(sessionCallAvailability$ | async) || (sessionCallState$ | async) !== null"
                                   (click)="callSessionMember(participant.username, 'voice')">
-                                  <span aria-hidden="true">📞</span> Voz
+                                  <span aria-hidden="true">📞</span> {{ 'Voz' | t }}
                                 </button>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
                                   [disabled]="!(sessionCallAvailability$ | async) || (sessionCallState$ | async) !== null"
                                   (click)="callSessionMember(participant.username, 'video')">
-                                  <span aria-hidden="true">📹</span> Vídeo
+                                  <span aria-hidden="true">📹</span> {{ 'Vídeo' | t }}
                                 </button>
                               </details>
                             }
@@ -1752,22 +1752,22 @@
                             @if (canContactSessionMember(participant.username)) {
                               <details class="session-player-card__contact-actions"
                                    [attr.aria-label]="'Contactar ' + participant.username">
-                                <summary class="session-player-card__contact-toggle" [attr.aria-label]="'Opções para contactar ' + participant.username">
-                                  <span aria-hidden="true">•••</span><span>Contactar</span>
+                                <summary class="session-player-card__contact-toggle" [attr.aria-label]="('Opções para contactar {{username}}' | t:{username: participant.username})">
+                                  <span aria-hidden="true">•••</span><span>{{ 'Contactar' | t }}</span>
                                 </summary>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
                                   (click)="contactSessionMember(participant.username)">
-                                  <span aria-hidden="true">💬</span> Mensagem
+                                  <span aria-hidden="true">💬</span> {{ 'Mensagem' | t }}
                                 </button>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
                                   [disabled]="!(sessionCallAvailability$ | async) || (sessionCallState$ | async) !== null"
                                   (click)="callSessionMember(participant.username, 'voice')">
-                                  <span aria-hidden="true">📞</span> Voz
+                                  <span aria-hidden="true">📞</span> {{ 'Voz' | t }}
                                 </button>
                                 <button type="button" class="jynlo-action jynlo-action--neutral"
                                   [disabled]="!(sessionCallAvailability$ | async) || (sessionCallState$ | async) !== null"
                                   (click)="callSessionMember(participant.username, 'video')">
-                                  <span aria-hidden="true">📹</span> Vídeo
+                                  <span aria-hidden="true">📹</span> {{ 'Vídeo' | t }}
                                 </button>
                               </details>
                             }
@@ -1958,7 +1958,7 @@
                               class="remove-participant-action jynlo-action jynlo-action--danger"
                               [disabled]="removeLoadingId !== null || attendanceUpdatingId !== null || attendanceBulkUpdating"
                               (click)="requestRemoveParticipant(participant)">
-                              Remover
+                              {{ 'Remover' | t }}
                             </button>
                           }
                         }
@@ -2029,13 +2029,13 @@
           @if (session.canSharePublicly === true && currentUsername) {
             <section class="session-memories" aria-labelledby="session-memories-heading">
               @if (shareableOfficialScore) {
-                <div class="session-social-result" aria-label="Resultado oficial desta sessão">
-                  <div><span class="section-kicker">MARCADOR OFICIAL</span>
-                    <strong>Equipa A {{officialSocialScore!.scoreA}} — {{officialSocialScore!.scoreB}} Equipa B</strong>
-                    <small>Marcador confirmado para esta sessão pública</small>
+                <div class="session-social-result" [attr.aria-label]="'Resultado oficial desta sessão' | t">
+                  <div><span class="section-kicker">{{ 'MARCADOR OFICIAL' | t }}</span>
+                    <strong>{{ 'Equipa A {{scoreA}} — {{scoreB}} Equipa B' | t:{scoreA: (officialSocialScore!.scoreA), scoreB: (officialSocialScore!.scoreB)} }}</strong>
+                    <small>{{ 'Marcador confirmado para esta sessão pública' | t }}</small>
                   </div>
                   <button type="button" class="jynlo-action jynlo-action--primary"
-                    (click)="shareOfficialSocialScore()">Partilhar resultado</button>
+                    (click)="shareOfficialSocialScore()">{{ 'Partilhar resultado' | t }}</button>
                 </div>
                 @if (officialSocialShareFeedback) {
                   <p class="session-memories-hint" role="status">{{officialSocialShareFeedback}}</p>
@@ -2045,38 +2045,38 @@
               }
               <div class="session-memories-heading">
                 <div>
-                  <p class="section-kicker">JYNLO · MOMENTOS</p>
-                  <h2 id="session-memories-heading">Recordações deste jogo</h2>
-                  <p>Fotografias, vídeos e histórias partilhadas pelos jogadores. Nada é publicado automaticamente.</p>
+                  <p class="section-kicker">{{ 'JYNLO · MOMENTOS' | t }}</p>
+                  <h2 id="session-memories-heading">{{ 'Recordações deste jogo' | t }}</h2>
+                  <p>{{ 'Fotografias, vídeos e histórias partilhadas pelos jogadores. Nada é publicado automaticamente.' | t }}</p>
                 </div>
                 <div class="session-memories-actions">
                   @if (session.status === 'COMPLETED' && (session.joined || isCreator())) {
                     <a class="jynlo-action jynlo-action--primary" routerLink="/menu/feed"
-                      [queryParams]="{momentSession:session.id}">Partilhar um momento</a>
+                      [queryParams]="{momentSession:session.id}">{{ 'Partilhar um momento' | t }}</a>
                     @if (isCreator()) {
                       <a class="jynlo-action jynlo-action--neutral" routerLink="/menu/createEvent"
                         [queryParams]="repeatParams()">{{ 'session.playAgain' | t }}</a>
                     }
                   } @else if (session.status !== 'COMPLETED') {
-                    <span class="session-memories-hint">A partilha das recordações abre depois do jogo.</span>
+                    <span class="session-memories-hint">{{ 'A partilha das recordações abre depois do jogo.' | t }}</span>
                   }
                 </div>
               </div>
               @if (sessionMemoriesLoading) {
-                <p role="status" class="session-memories-hint">A carregar recordações…</p>
+                <p role="status" class="session-memories-hint">{{ 'A carregar recordações…' | t }}</p>
               } @else if (sessionMemoriesError) {
                 <p role="alert" class="session-memories-hint">{{sessionMemoriesError}}</p>
               } @else if (sessionMemories.length === 0) {
-                <p class="session-memories-hint">Ainda não há recordações. Podes partilhar a primeira fotografia ou história.</p>
+                <p class="session-memories-hint">{{ 'Ainda não há recordações. Podes partilhar a primeira fotografia ou história.' | t }}</p>
               } @else {
                 <div class="session-memories-grid">
                   @for (memory of sessionMemories; track memory.postId) {
                     <a class="session-memory-card" routerLink="/menu/feed"
-                      [queryParams]="{post:memory.postId}" [attr.aria-label]="'Abrir publicação de @' + memory.authorUsername">
+                      [queryParams]="{post:memory.postId}" [attr.aria-label]="('Abrir publicação de @{{authorUsername}}' | t:{authorUsername: memory.authorUsername})">
                       @if (memoryMedia(memory); as image) {
                         <img [src]="image" alt="" loading="lazy" decoding="async">
                       } @else if (memory.videoUrl) {
-                        <div class="session-memory-video" aria-hidden="true">▶ Vídeo</div>
+                        <div class="session-memory-video" aria-hidden="true">{{ '▶ Vídeo' | t }}</div>
                       }
                       <div class="session-memory-copy">
                         <strong>@{{memory.authorUsername}}</strong>

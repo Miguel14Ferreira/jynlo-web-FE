@@ -49,15 +49,15 @@
 
   @if (composerOpen) {
     <div class="story-create-backdrop" role="presentation" (click)="closeComposer()">
-      <section class="story-composer" role="dialog" aria-modal="true" aria-label="Criar Story"
+      <section class="story-composer" role="dialog" aria-modal="true" [attr.aria-label]="'Criar Story' | t"
                (click)="$event.stopPropagation()">
         <header class="story-create-header">
           <div>
-            <span class="story-create-kicker">O teu momento</span>
-            <h3>Criar Story</h3>
+            <span class="story-create-kicker">{{ 'O teu momento' | t }}</span>
+            <h3>{{ 'Criar Story' | t }}</h3>
           </div>
           <button type="button" class="story-create-close" [disabled]="uploading"
-                  (click)="closeComposer()" aria-label="Fechar editor">×</button>
+                  (click)="closeComposer()" [attr.aria-label]="'Fechar editor' | t">×</button>
         </header>
         <div class="story-create-layout">
           <div class="story-create-stage" [class.story-create-stage--empty]="!filePreview">
@@ -74,7 +74,7 @@
                 @if (storyLocation.trim()) {
                   <a class="story-place-overlay" [href]="storyPlaceUrl(storyLocation)"
                      target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()"
-                     [attr.aria-label]="'Abrir ' + storyLocation + ' no mapa'">📍 {{ storyLocation }}</a>
+                     [attr.aria-label]="('Abrir {{storyLocation}} no mapa' | t:{storyLocation: storyLocation})">📍 {{ storyLocation }}</a>
                 }
                 @if (storyTaggedProfiles.length) {
                   <div class="story-tag-overlay">
@@ -95,11 +95,11 @@
             } @else {
               <div class="story-create-empty-stage">
                 <span aria-hidden="true">✦</span>
-                <strong>Partilha um momento desportivo</strong>
-                <p>Escolhe uma fotografia ou vídeo para começares.</p>
+                <strong>{{ 'Partilha um momento desportivo' | t }}</strong>
+                <p>{{ 'Escolhe uma fotografia ou vídeo para começares.' | t }}</p>
               </div>
             }
-            <span class="story-create-stage-label">Pré-visualização 9:16 · 24 horas</span>
+            <span class="story-create-stage-label">{{ 'Pré-visualização 9:16 · 24 horas' | t }}</span>
           </div>
           <div class="story-create-tools">
             @if (groups.length > 0 || ownedTeams.length > 0) {
@@ -111,7 +111,7 @@
                     <option [value]="group.id">{{ group.name }} ({{ 'stories.community' | t }})</option>
                   }
                   @for (team of ownedTeams; track team.id) {
-                    <option [value]="'team:' + team.id">{{ team.name }} (Equipa)</option>
+                    <option [value]="'team:' + team.id">{{ '{{name}} (Equipa)' | t:{name: (team.name)} }}</option>
                   }
                 </select>
               </div>
@@ -133,63 +133,63 @@
             <label for="storyCaption">{{ 'stories.caption' | t }}</label>
             <textarea id="storyCaption" [(ngModel)]="caption" maxlength="180" rows="3"
               [disabled]="uploading" [placeholder]="'stories.captionHint' | t"></textarea>
-            <div class="story-text-options" aria-label="Personalizar a legenda">
+            <div class="story-text-options" [attr.aria-label]="'Personalizar a legenda' | t">
               <button type="button" [disabled]="uploading" (click)="toggleTextStyle()">
-                {{ storyTextStyle === 'pill' ? 'Texto simples' : 'Texto destacado' }}
+                {{ storyTextStyle === 'pill' ? ('Texto simples' | t) : ('Texto destacado' | t) }}
               </button>
               <div class="story-text-theme">
-                <label for="storyTextColor">Cor do texto
+                <label for="storyTextColor">{{ 'Cor do texto' | t }}
                   <select id="storyTextColor" [(ngModel)]="storyTextColor" [disabled]="uploading">
-                    <option value="white">Branco</option>
-                    <option value="black">Preto</option>
-                    <option value="yellow">Amarelo</option>
-                    <option value="mint">Verde Jynlo</option>
-                    <option value="pink">Rosa</option>
-                    <option value="blue">Azul</option>
+                    <option value="white">{{ 'Branco' | t }}</option>
+                    <option value="black">{{ 'Preto' | t }}</option>
+                    <option value="yellow">{{ 'Amarelo' | t }}</option>
+                    <option value="mint">{{ 'Verde Jynlo' | t }}</option>
+                    <option value="pink">{{ 'Rosa' | t }}</option>
+                    <option value="blue">{{ 'Azul' | t }}</option>
                   </select>
                 </label>
-                <label for="storyTextBackground">Fundo
+                <label for="storyTextBackground">{{ 'Fundo' | t }}
                   <select id="storyTextBackground" [(ngModel)]="storyTextBackground" [disabled]="uploading">
-                    <option value="dark">Escuro</option>
-                    <option value="light">Claro</option>
-                    <option value="none">Sem fundo</option>
+                    <option value="dark">{{ 'Escuro' | t }}</option>
+                    <option value="light">{{ 'Claro' | t }}</option>
+                    <option value="none">{{ 'Sem fundo' | t }}</option>
                   </select>
                 </label>
-                <label for="storyTextFont">Tipo de letra
+                <label for="storyTextFont">{{ 'Tipo de letra' | t }}
                   <select id="storyTextFont" [(ngModel)]="storyTextFont" [disabled]="uploading">
-                    <option value="modern">Moderno</option>
-                    <option value="classic">Clássico</option>
-                    <option value="mono">Monoespaçado</option>
+                    <option value="modern">{{ 'Moderno' | t }}</option>
+                    <option value="classic">{{ 'Clássico' | t }}</option>
+                    <option value="mono">{{ 'Monoespaçado' | t }}</option>
                   </select>
                 </label>
               </div>
-              <p class="story-drag-hint">Arrasta o texto na fotografia. ↻ roda e ↘ ajusta o tamanho.</p>
+              <p class="story-drag-hint">{{ 'Arrasta o texto na fotografia. ↻ roda e ↘ ajusta o tamanho.' | t }}</p>
 
             </div>
-            <section class="story-discovery-options" aria-label="Identificar local e pessoas">
-              <label for="storyLocation">Localização (opcional)</label>
+            <section class="story-discovery-options" [attr.aria-label]="'Identificar local e pessoas' | t">
+              <label for="storyLocation">{{ 'Localização (opcional)' | t }}</label>
               <input id="storyLocation" type="search" [(ngModel)]="storyLocation"
                      (ngModelChange)="searchStoryLocation($event)"
                      maxlength="160" autocomplete="off" [disabled]="uploading"
-                     placeholder="Benfica, Lisboa, Portugal ou um recinto">
+                     [placeholder]="'Benfica, Lisboa, Portugal ou um recinto' | t">
               @if (storyLocationSearchOpen) {
-                <div class="story-discovery-results" aria-label="Sugestões de locais">
-                  @if (storyLocationSearching) { <p>A pesquisar locais reais…</p> }
+                <div class="story-discovery-results" [attr.aria-label]="'Sugestões de locais' | t">
+                  @if (storyLocationSearching) { <p>{{ 'A pesquisar locais reais…' | t }}</p> }
                   @for (place of storyRealPlaces; track place.id) {
                     <button type="button" (click)="chooseStoryRealPlace(place)">
                       <strong>📍 {{ place.label }}</strong><small>{{ place.subtitle }}</small>
                     </button>
                   }
                   @if (!storyLocationSearching && !storyRealPlaces.length) {
-                    <p>Não foram encontrados locais. Experimenta escrever o nome completo.</p>
+                    <p>{{ 'Não foram encontrados locais. Experimenta escrever o nome completo.' | t }}</p>
                   }
                   @if (storyRealPlaces.length && storyRealPlaces[0].provider === 'google') {
                     <div class="place-google-attribution">
                       <img src="https://maps.gstatic.com/mapfiles/api-3/images/powered-by-google-on-white3.png"
-                        alt="Powered by Google" width="120" height="16">
+                        [alt]="'Powered by Google' | t" width="120" height="16">
                     </div>
                   } @else {
-                    <small>Dados de <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo / GeoNames</a> e <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a></small>
+                    <small>{{ 'Dados de' | t }} <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">{{ 'Open-Meteo / GeoNames' | t }}</a> e <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">{{ 'OpenStreetMap' | t }}</a></small>
                   }
                 </div>
               }
@@ -199,14 +199,14 @@
               </button>
               @if (storyTagOpen) {
                 <div class="story-tag-search">
-                  <label for="storyTagQuery">Pesquisar perfis pelo nome ou @utilizador</label>
+                  <label for="storyTagQuery">{{ 'Pesquisar perfis pelo nome ou @utilizador' | t }}</label>
                   <input id="storyTagQuery" type="search" [(ngModel)]="storyTagQuery"
                          (ngModelChange)="searchStoryTag($event)"
-                         autocomplete="off" placeholder="Escreve pelo menos 3 caracteres">
-                  @if (storyTagLoading) { <p>A procurar perfis…</p> }
+                         autocomplete="off" [placeholder]="'Escreve pelo menos 3 caracteres' | t">
+                  @if (storyTagLoading) { <p>{{ 'A procurar perfis…' | t }}</p> }
                   <div class="story-discovery-results">
                     @if (!storyTagLoading && storyTagResults.length === 0) {
-                      <p>{{ storyTagQuery.trim().replace('@','').length < 3 ? 'Escreve pelo menos 3 caracteres.' : 'Nenhum perfil encontrado.' }}</p>
+                      <p>{{ storyTagQuery.trim().replace('@','').length < 3 ? ('Escreve pelo menos 3 caracteres.' | t) : ('Nenhum perfil encontrado.' | t) }}</p>
                     }
                     @for (profile of storyTagResults; track profile.username) {
                       <button type="button" (click)="addStoryTag(profile)"
@@ -219,10 +219,10 @@
                 </div>
               }
               @if (storyTaggedProfiles.length) {
-                <div class="story-selected-tags" aria-label="Perfis identificados">
+                <div class="story-selected-tags" [attr.aria-label]="'Perfis identificados' | t">
                   @for (profile of storyTaggedProfiles; track profile.username) {
                     <button type="button" (click)="removeStoryTag(profile.username)"
-                            [disabled]="uploading" [attr.aria-label]="'Remover ' + profile.username">
+                            [disabled]="uploading" [attr.aria-label]="('Remover {{username}}' | t:{username: profile.username})">
                       &#64;{{ profile.username }} ×
                     </button>
                   }
@@ -232,14 +232,14 @@
             <div class="story-extra-options">
               <label class="story-time-toggle">
                 <input type="checkbox" [(ngModel)]="storyShowTime" [disabled]="uploading">
-                <span>Mostrar dia e hora na Story</span>
+                <span>{{ 'Mostrar dia e hora na Story' | t }}</span>
               </label>
-              <label for="storyAltText">Texto alternativo (acessibilidade)</label>
+              <label for="storyAltText">{{ 'Texto alternativo (acessibilidade)' | t }}</label>
               <textarea id="storyAltText" [(ngModel)]="storyAltText" [disabled]="uploading"
                         maxlength="350" rows="2"
-                        placeholder="Descreve a imagem para quem utiliza leitores de ecrã"></textarea>
+                        [placeholder]="'Descreve a imagem para quem utiliza leitores de ecrã' | t"></textarea>
             </div>
-            <small class="story-create-hint">A imagem aparece inteira na pré-visualização. A legenda é opcional.</small>
+            <small class="story-create-hint">{{ 'A imagem aparece inteira na pré-visualização. A legenda é opcional.' | t }}</small>
             @if (publishError) {
               <p class="story-publish-error" role="alert">{{ publishError }}</p>
             }
@@ -294,13 +294,13 @@
             <a class="story-place-overlay story-viewer-place"
                [href]="storyPlaceUrl(story.locationLabel)" target="_blank" rel="noopener noreferrer"
                (click)="$event.stopPropagation()"
-               [attr.aria-label]="'Abrir ' + story.locationLabel + ' no mapa'">📍 {{ story.locationLabel }}</a>
+               [attr.aria-label]="('Abrir {{locationLabel}} no mapa' | t:{locationLabel: story.locationLabel})">📍 {{ story.locationLabel }}</a>
           }
           @if (storyViewerTags(story).length) {
-            <nav class="story-tag-overlay story-viewer-tags" aria-label="Pessoas identificadas">
+            <nav class="story-tag-overlay story-viewer-tags" [attr.aria-label]="'Pessoas identificadas' | t">
               @for (username of storyViewerTags(story); track username) {
                 <a [routerLink]="['/menu/perfis', username]" (click)="$event.stopPropagation()"
-                   [attr.aria-label]="'Abrir perfil de ' + username">&#64;{{ username }}</a>
+                   [attr.aria-label]="('Abrir perfil de {{username}}' | t:{username: username})">&#64;{{ username }}</a>
               }
             </nav>
           }
@@ -407,7 +407,7 @@
               <span>{{ story.teamName || story.communityName || ('stories.yourStory' | t) }}</span>
               @if (isStoryAuthor(story)) {
                 <button type="button" class="story-owner-share" (click)="openAudience()"
-                  aria-label="Ver quem viu esta Story">👁 {{ audienceData ? audienceData.viewCount + ' visualizações' : 'Quem viu' }}</button>
+                  [attr.aria-label]="'Ver quem viu esta Story' | t">👁 {{ audienceData ? ('{{viewCount}} visualizações' | t:{viewCount: audienceData.viewCount}) : ('Quem viu' | t) }}</button>
               }
               <button type="button" class="story-owner-share" (click)="shareStory()">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4zM22 2 11 13"/></svg>
@@ -418,16 +418,16 @@
         </div>
 
         @if (audienceOpen && isStoryAuthor(story)) {
-          <aside class="story-audience-panel" aria-label="Visualizações da Story">
+          <aside class="story-audience-panel" [attr.aria-label]="'Visualizações da Story' | t">
             <div class="story-audience-header">
-              <strong>Quem viu a tua Story</strong>
-              <button type="button" aria-label="Fechar visualizações" (click)="closeAudience()">✕</button>
+              <strong>{{ 'Quem viu a tua Story' | t }}</strong>
+              <button type="button" [attr.aria-label]="'Fechar visualizações' | t" (click)="closeAudience()">✕</button>
             </div>
-            @if (audienceBusy) { <p>A carregar visualizações…</p> }
+            @if (audienceBusy) { <p>{{ 'A carregar visualizações…' | t }}</p> }
             @if (audienceError) { <p role="alert">{{ audienceError }}</p> }
             @if (audienceData) {
-              <p>{{ audienceData.viewCount }} visualizações únicas</p>
-              @if (audienceData.viewers.length === 0) { <p>Sem visualizações registadas.</p> }
+              <p>{{ '{{viewCount}} visualizações únicas' | t:{viewCount: (audienceData.viewCount)} }}</p>
+              @if (audienceData.viewers.length === 0) { <p>{{ 'Sem visualizações registadas.' | t }}</p> }
               <div class="story-audience-people">
                 @for (person of audienceData.viewers; track person.username) {
                   <a [routerLink]="['/menu/perfis', person.username]" (click)="closeAudience(); close()">
@@ -437,7 +437,7 @@
                 }
               </div>
               @if (audienceData.viewCount > audienceData.viewers.length) {
-                <p>Lista limitada às 100 visualizações mais recentes disponíveis.</p>
+                <p>{{ 'Lista limitada às 100 visualizações mais recentes disponíveis.' | t }}</p>
               }
             }
           </aside>

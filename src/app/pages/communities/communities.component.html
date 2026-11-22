@@ -139,7 +139,7 @@
                     <div class="sport-tags community-discovery-sports" role="list"
                       [attr.aria-label]="('communities.sportLabel' | t) + ': ' + communitySports(community).join(', ')">
                       @for (item of communitySports(community).slice(0, 3); track item) {
-                        <span class="sport-tag" role="listitem">{{ item }}</span>
+                        <span class="sport-tag" role="listitem">{{ item | sportName }}</span>
                       } @empty {
                         <span class="sport-blank">{{ 'communities.noSportsSelected' | t }}</span>
                       }
@@ -272,7 +272,7 @@
                   <div class="sport-tags community-discovery-sports" role="list"
                     [attr.aria-label]="('communities.sportLabel' | t) + ': ' + communitySports(community).join(', ')">
                     @for (item of communitySports(community).slice(0, 3); track item) {
-                      <span class="sport-tag" role="listitem">{{ item }}</span>
+                      <span class="sport-tag" role="listitem">{{ item | sportName }}</span>
                     } @empty {
                       <span class="sport-blank">{{ 'communities.noSportsSelected' | t }}</span>
                     }
@@ -335,7 +335,7 @@
                   <div class="sport-tags community-discovery-sports" role="list"
                     [attr.aria-label]="'communities.sportLabel' | t">
                     @for (item of communitySports(communityPresentation); track item) {
-                      <span class="sport-tag" role="listitem">{{ item }}</span>
+                      <span class="sport-tag" role="listitem">{{ item | sportName }}</span>
                     } @empty {
                       <span class="sport-blank">{{ 'communities.noSportsSelected' | t }}</span>
                     }
@@ -531,7 +531,7 @@
                   <h2>{{ selected.name }}</h2>
                   <p>{{ selected.description || ('communities.noDescription' | t) }}</p>
                   @if (selected.visibility === 'PUBLIC') {
-                    <div class="community-follow-control" aria-label="Seguir comunidade">
+                    <div class="community-follow-control" [attr.aria-label]="'Seguir comunidade' | t">
                       @if (communityFollowState; as followState) {
                         <span class="community-follow-count">
                           <strong>{{ followState.count }}</strong>
@@ -540,11 +540,11 @@
                         <button type="button" [disabled]="communityFollowBusy"
                           [attr.aria-pressed]="followState.following"
                           (click)="toggleCommunityFollow()">
-                          {{ communityFollowBusy ? 'A atualizar…' : followState.following ? 'A seguir ✓' : 'Seguir comunidade +' }}
+                          {{ communityFollowBusy ? ('A atualizar…' | t) : followState.following ? ('A seguir ✓' | t) : ('Seguir comunidade +' | t) }}
                         </button>
                       } @else if (communityFollowError) {
                         <span role="status">{{communityFollowError}}</span>
-                        <button type="button" (click)="loadCommunityFollow(selected.id)">Tentar novamente</button>
+                        <button type="button" (click)="loadCommunityFollow(selected.id)">{{ 'Tentar novamente' | t }}</button>
                       }
                     </div>
                   }
@@ -569,7 +569,7 @@
             ></app-community-tabs>
 
             @if (activeTab === 'chat' && selected?.id) {
-              <section class="community-unified-chat" aria-label="Chat da comunidade">
+              <section class="community-unified-chat" [attr.aria-label]="'Chat da comunidade' | t">
                 <app-messages-center [embeddedCommunityId]="selected!.id"></app-messages-center>
               </section>
             }
@@ -587,8 +587,8 @@
                     <h3>{{ 'communities.timelineFeedTitle' | t }}</h3>
                     <p>{{ 'communities.timelineFeedHint' | t }}</p>
                   </div>
-                  <span class="community-feed-auto-sync" aria-label="Atualização do feed em tempo real">
-                    <span aria-hidden="true">●</span> Em tempo real
+                  <span class="community-feed-auto-sync" [attr.aria-label]="'Atualização do feed em tempo real' | t">
+                    <span aria-hidden="true">●</span> {{ 'Em tempo real' | t }}
                   </span>
                 </div>
 
@@ -608,9 +608,9 @@
                               [disabled]="timelineSending"
                               [placeholder]="'communities.timelineFeedPlaceholder' | t"></textarea>
                     @if (feedMentionOpen) {
-                      <div class="community-feed-mentions" role="listbox" aria-label="Sugestões de pessoas">
-                        <div class="community-feed-mention-heading"><span aria-hidden="true">@</span> Identificar pessoa</div>
-                        @if (feedMentionBusy) { <span class="community-feed-mention-status">A procurar pessoas…</span> }
+                      <div class="community-feed-mentions" role="listbox" [attr.aria-label]="'Sugestões de pessoas' | t">
+                        <div class="community-feed-mention-heading"><span aria-hidden="true">@</span> {{ 'Identificar pessoa' | t }}</div>
+                        @if (feedMentionBusy) { <span class="community-feed-mention-status">{{ 'A procurar pessoas…' | t }}</span> }
                         @for (person of feedMentionMatches; track person.username) {
                           <button type="button" role="option" [disabled]="timelineSending"
                             (mousedown)="$event.preventDefault()"
@@ -623,7 +623,7 @@
                           </button>
                         }
                         @if (!feedMentionBusy && !feedMentionMatches.length) {
-                          <span class="community-feed-mention-status">Escreve o nome ou username para encontrar pessoas.</span>
+                          <span class="community-feed-mention-status">{{ 'Escreve o nome ou username para encontrar pessoas.' | t }}</span>
                         }
                       </div>
                     }
@@ -648,7 +648,7 @@
                     </div>
                   }
                   @if (feedGallery.length) {
-                    <div class="community-feed-gallery-draft" aria-label="Media selecionados">
+                    <div class="community-feed-gallery-draft" [attr.aria-label]="'Media selecionados' | t">
                       @for (item of feedGallery; track item.url; let i = $index) {
                         <div class="community-feed-media-preview">
                           @if (item.file.type.startsWith('video/')) {
@@ -657,16 +657,16 @@
                             <img [src]="item.url" [alt]="item.file.name">
                           }
                           <div class="community-feed-gallery-controls">
-                            @if (i === 0) { <strong>Capa</strong> }
+                            @if (i === 0) { <strong>{{ 'Capa' | t }}</strong> }
                             <button type="button" [disabled]="timelineSending || i === 0"
                               (click)="moveCommunityFeedGalleryItem(i, -1)"
-                              [attr.aria-label]="'Mover ' + item.file.name + ' para trás'">↑</button>
+                              [attr.aria-label]="('Mover {{name}} para trás' | t:{name: item.file.name})">↑</button>
                             <button type="button" [disabled]="timelineSending || i === feedGallery.length - 1"
                               (click)="moveCommunityFeedGalleryItem(i, 1)"
-                              [attr.aria-label]="'Mover ' + item.file.name + ' para a frente'">↓</button>
+                              [attr.aria-label]="('Mover {{name}} para a frente' | t:{name: item.file.name})">↓</button>
                             <button type="button" [disabled]="timelineSending"
                               (click)="removeCommunityFeedGalleryItem(i)"
-                              [attr.aria-label]="'Remover ' + item.file.name">Remover</button>
+                              [attr.aria-label]="('Remover {{name}}' | t:{name: item.file.name})">{{ 'Remover' | t }}</button>
                           </div>
                         </div>
                       }
@@ -691,7 +691,7 @@
                       [class.disabled]="timelineSending">
                       <input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
                         [disabled]="timelineSending" (change)="onCommunityFeedGalleryChange($event)">
-                      <span aria-hidden="true">▦</span> Álbum (até 6)
+                      <span aria-hidden="true">▦</span> {{ 'Álbum (até 6)' | t }}
                     </label>
                   </div>
                   <div class="community-feed-composer-actions">
@@ -745,7 +745,7 @@
                           @if (entry.kind === 'POST' && isMyChatEntry(entry)) {
                             <button type="button" class="jynlo-action jynlo-action--neutral"
                                     [disabled]="savingCommunityPostId !== null"
-                                    (click)="startCommunityPostEdit(entry)">Editar</button>
+                                    (click)="startCommunityPostEdit(entry)">{{ 'Editar' | t }}</button>
                           }
                           @if (canDeleteCommunityPost(entry)) {
                             <button type="button" class="community-feed-delete jynlo-action jynlo-action--danger"
@@ -755,20 +755,20 @@
                           }
                         </div>
                         @if (editingCommunityPostId === entry.id) {
-                          <div class="community-feed-edit" aria-label="Editar publicação">
-                            <label [attr.for]="'community-edit-' + entry.id">Descrição</label>
+                          <div class="community-feed-edit" [attr.aria-label]="'Editar publicação' | t">
+                            <label [attr.for]="'community-edit-' + entry.id">{{ 'Descrição' | t }}</label>
                             <textarea [id]="'community-edit-' + entry.id" maxlength="1000" rows="3"
                                       [(ngModel)]="editingCommunityPostText"
                                       [disabled]="savingCommunityPostId !== null"></textarea>
-                            <small>As fotografias e os vídeos são mantidos.</small>
+                            <small>{{ 'As fotografias e os vídeos são mantidos.' | t }}</small>
                             <div class="community-feed-edit-actions">
                               <button type="button" class="jynlo-action jynlo-action--neutral"
                                       [disabled]="savingCommunityPostId !== null"
-                                      (click)="cancelCommunityPostEdit()">Cancelar</button>
+                                      (click)="cancelCommunityPostEdit()">{{ 'Cancelar' | t }}</button>
                               <button type="button" class="jynlo-action jynlo-action--primary"
                                       [disabled]="savingCommunityPostId !== null"
                                       (click)="saveCommunityPostEdit(entry)">
-                                {{ savingCommunityPostId === entry.id ? 'A guardar…' : 'Guardar alterações' }}
+                                {{ savingCommunityPostId === entry.id ? ('A guardar…' | t) : ('Guardar alterações' | t) }}
                               </button>
                             </div>
                           </div>
@@ -776,13 +776,13 @@
                           <p class="community-feed-body">@for (piece of communityMentionParts(entry.body); track $index) {
                             @if (piece.username) {
                               <a class="community-feed-mention-link" [routerLink]="['/menu/perfis',piece.username]"
-                                [attr.aria-label]="'Abrir perfil de @' + piece.username">{{piece.text}}</a>
+                                [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: piece.username})">{{piece.text}}</a>
                             } @else {<span>{{piece.text}}</span>}
                           }</p>
                         }
                         @if (communityPostMedia(entry); as postMedia) {
                           @if (postMedia.length) {
-                            <div class="community-feed-carousel" [attr.aria-label]="'Álbum de ' + communityFeedAuthorName(entry.username)"
+                            <div class="community-feed-carousel" [attr.aria-label]="('Álbum de {{username}}' | t:{username: communityFeedAuthorName(entry.username)})"
                                  (touchstart)="startCommunityPostSwipe($event, entry)"
                                  (touchend)="endCommunityPostSwipe($event, entry)">
                               <div class="community-feed-carousel-stage">
@@ -790,14 +790,14 @@
                                   @if (selectedMedia.mimeType.startsWith('video/')) {
                                     <video class="community-feed-post-media community-feed-post-video"
                                       [src]="communityFeedMediaUrl(selectedMedia.url)" controls playsinline preload="metadata"
-                                      [attr.aria-label]="'Vídeo ' + (communityPostCurrentIndex(entry) + 1)"></video>
+                                      [attr.aria-label]="('Vídeo {{v}}' | t:{v: (communityPostCurrentIndex(entry) + 1)})"></video>
                                   } @else {
                                     <button type="button" class="community-feed-expand-photo"
                                             (click)="openCommunityPostMedia(entry)"
-                                            [attr.aria-label]="'Ampliar fotografia ' + (communityPostCurrentIndex(entry) + 1)">
+                                            [attr.aria-label]="('Ampliar fotografia {{v}}' | t:{v: (communityPostCurrentIndex(entry) + 1)})">
                                       <img class="community-feed-post-media"
                                         [src]="communityFeedMediaUrl(selectedMedia.url)"
-                                        [alt]="'Fotografia ' + (communityPostCurrentIndex(entry) + 1) + ' de ' + communityFeedAuthorName(entry.username)"
+                                        [alt]="('Fotografia {{v}} de {{username}}' | t:{v: (communityPostCurrentIndex(entry) + 1), username: communityFeedAuthorName(entry.username)})"
                                         loading="lazy">
                                     </button>
                                   }
@@ -809,18 +809,18 @@
                                   <button type="button" class="community-feed-carousel-prev"
                                           [disabled]="communityPostCurrentIndex(entry) === 0"
                                           (click)="changeCommunityPostMedia(entry, -1)"
-                                          aria-label="Anexo anterior">‹</button>
+                                          [attr.aria-label]="'Anexo anterior' | t">‹</button>
                                   <button type="button" class="community-feed-carousel-next"
                                           [disabled]="communityPostCurrentIndex(entry) === postMedia.length - 1"
                                           (click)="changeCommunityPostMedia(entry, 1)"
-                                          aria-label="Anexo seguinte">›</button>
+                                          [attr.aria-label]="'Anexo seguinte' | t">›</button>
                                 }
                               </div>
                               @if (postMedia.length > 1) {
-                                <div class="community-feed-carousel-dots" role="group" aria-label="Escolher anexo">
+                                <div class="community-feed-carousel-dots" role="group" [attr.aria-label]="'Escolher anexo' | t">
                                   @for (media of postMedia; track $index; let i = $index) {
                                     <button type="button" [class.active]="communityPostCurrentIndex(entry) === i"
-                                            [attr.aria-label]="'Mostrar anexo ' + (i + 1)"
+                                            [attr.aria-label]="('Mostrar anexo {{v}}' | t:{v: (i + 1)})"
                                             [attr.aria-current]="communityPostCurrentIndex(entry) === i ? 'true' : null"
                                             (click)="selectCommunityPostMedia(entry, i)"></button>
                                   }
@@ -1543,19 +1543,19 @@
                                     <strong>{{ match.riderA || ('communities.trackCycling.bracketTbd' | t) }}</strong>
                                     <span>{{ match.winsA }}</span>
                                   </div>
-                                  <span class="racket-result-vs">VS</span>
+                                  <span class="racket-result-vs">{{ 'VS' | t }}</span>
                                   <div class="racket-result-side">
                                     <strong>{{ match.riderB || ('communities.trackCycling.bracketTbd' | t) }}</strong>
                                     <span>{{ match.winsB }}</span>
                                   </div>
                                   @if (match.riderC) {
-                                    <span class="racket-result-vs">VS</span>
+                                    <span class="racket-result-vs">{{ 'VS' | t }}</span>
                                     <div class="racket-result-side">
                                       <strong>{{ match.riderC }}</strong>
                                     </div>
                                   }
                                   @if (match.riderD) {
-                                    <span class="racket-result-vs">VS</span>
+                                    <span class="racket-result-vs">{{ 'VS' | t }}</span>
                                     <div class="racket-result-side">
                                       <strong>{{ match.riderD }}</strong>
                                     </div>
@@ -2994,7 +2994,7 @@
                                   </label>
                                   <label class="check-stat">
                                     <input type="checkbox" [(ngModel)]="entry.mvp">
-                                    <span>MVP</span>
+                                    <span>{{ 'MVP' | t }}</span>
                                   </label>
                                   <label class="check-stat">
                                     <input type="checkbox" [(ngModel)]="entry.cleanSheet">
@@ -3347,7 +3347,7 @@
                             <button type="button" class="secondary-action small jynlo-action jynlo-action--neutral jynlo-action--compact"
                               [attr.aria-expanded]="roundsExpanded"
                               (click)="roundsExpanded = !roundsExpanded">
-                              {{ roundsExpanded ? 'Recolher todas' : 'Expandir todas' }}
+                              {{ roundsExpanded ? ('Recolher todas' | t) : ('Expandir todas' | t) }}
                             </button>
                           }
                         </div>
@@ -3407,9 +3407,9 @@
                           </div>
                           <details class="round-card-details" [open]="roundsExpanded">
                             <summary class="round-card-details-toggle">
-                              <span>Participantes e resultados</span>
-                              <small>{{ round.entries.length }} participante(s)</small>
-                              <span class="round-card-details-hint">Expandir / recolher</span>
+                              <span>{{ 'Participantes e resultados' | t }}</span>
+                              <small>{{ '{{entriesCount}} participante(s)' | t:{entriesCount: (round.entries.length)} }}</small>
+                              <span class="round-card-details-hint">{{ 'Expandir / recolher' | t }}</span>
                             </summary>
 
                           @if (roundView(round) === 'race') {
@@ -3743,7 +3743,7 @@
                                   <span>{{ (round.entries[0].result === 'WIN'
                                     ? 'communities.trackCycling.winner' : 'communities.trackCycling.loser') | t }}</span>
                                 </div>
-                                <span class="racket-result-vs">VS</span>
+                                <span class="racket-result-vs">{{ 'VS' | t }}</span>
                                 <div class="racket-result-side" [class.racket-set-winner]="round.entries[1].result === 'WIN'">
                                   <strong>{{ round.entries[1].fullName || round.entries[1].username }}</strong>
                                   <span>{{ (round.entries[1].result === 'WIN'
@@ -3766,7 +3766,7 @@
                                     <span>{{ player.fullName || player.username }}</span>
                                   }
                                 </div>
-                                <span class="racket-result-vs">VS</span>
+                                <span class="racket-result-vs">{{ 'VS' | t }}</span>
                                 <div class="racket-result-side">
                                   <strong>{{ 'communities.racket.sideB' | t }}</strong>
                                   @for (player of racketSidePlayers(round, 'B'); track $index) {
@@ -3813,15 +3813,15 @@
                                         <div class="round-matchup-player-stats">
                                           @if (entry.goals) { <span>{{ entry.goals }} G</span> }
                                           @if (entry.assists) { <span>{{ entry.assists }} A</span> }
-                                          @if (entry.mvp) { <span class="mini-badge">MVP</span> }
-                                          @if (entry.cleanSheet) { <span class="mini-badge">CS</span> }
+                                          @if (entry.mvp) { <span class="mini-badge">{{ 'MVP' | t }}</span> }
+                                          @if (entry.cleanSheet) { <span class="mini-badge">{{ 'CS' | t }}</span> }
                                         </div>
                                       }
                                     </div>
                                   }
                                 </div>
                               </section>
-                              <div class="round-matchup-vs" aria-hidden="true">VS</div>
+                              <div class="round-matchup-vs" aria-hidden="true">{{ 'VS' | t }}</div>
                               <section class="round-matchup-side round-matchup-side--b"
                                 [attr.aria-label]="matchup.right.label">
                                 <div class="round-matchup-side-head">
@@ -3848,8 +3848,8 @@
                                         <div class="round-matchup-player-stats">
                                           @if (entry.goals) { <span>{{ entry.goals }} G</span> }
                                           @if (entry.assists) { <span>{{ entry.assists }} A</span> }
-                                          @if (entry.mvp) { <span class="mini-badge">MVP</span> }
-                                          @if (entry.cleanSheet) { <span class="mini-badge">CS</span> }
+                                          @if (entry.mvp) { <span class="mini-badge">{{ 'MVP' | t }}</span> }
+                                          @if (entry.cleanSheet) { <span class="mini-badge">{{ 'CS' | t }}</span> }
                                         </div>
                                       }
                                     </div>
@@ -4088,8 +4088,8 @@
                                 }
                                 @if (entry.goals) { <span>{{ entry.goals }} G</span> }
                                 @if (entry.assists) { <span>{{ entry.assists }} A</span> }
-                                @if (entry.mvp) { <span class="mini-badge">MVP</span> }
-                                @if (entry.cleanSheet) { <span class="mini-badge">CS</span> }
+                                @if (entry.mvp) { <span class="mini-badge">{{ 'MVP' | t }}</span> }
+                                @if (entry.cleanSheet) { <span class="mini-badge">{{ 'CS' | t }}</span> }
                               </div>
                             }
                           </div>
@@ -5339,7 +5339,7 @@
                     }
 
                     @if (inviteSearchLoading) {
-                      <p class="invite-search-empty" role="status">A procurar perfis semelhantes…</p>
+                      <p class="invite-search-empty" role="status">{{ 'A procurar perfis semelhantes…' | t }}</p>
                     }
                     @if (inviteSearchResults.length > 0) {
                       <div class="invite-search-results">
@@ -5373,7 +5373,7 @@
                   @for (member of selected.members; track member.profileId) {
                     <div class="member-row">
                       <a class="community-member-profile" [routerLink]="['/menu/perfis',member.username]"
-                         [attr.aria-label]="'Abrir perfil de @' + member.username">
+                         [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: member.username})">
                         <span class="community-member-avatar" aria-hidden="true">
                           @if (communityFeedAvatar(member.username); as avatar) {
                             <img [src]="avatar" alt="" loading="lazy">
@@ -5443,7 +5443,7 @@
                       </button>
                     </div>
                     @if (ownershipSuggestionsOpen && ownershipSuggestions.length > 0) {
-                      <div class="invite-search-results" role="listbox" aria-label="Membros elegíveis para ownership">
+                      <div class="invite-search-results" role="listbox" [attr.aria-label]="'Membros elegíveis para ownership' | t">
                         @for (member of ownershipSuggestions; track member.profileId) {
                           <button type="button" class="invite-profile-result" role="option"
                                   [attr.aria-selected]="ownershipUsername === member.username"
@@ -5506,27 +5506,27 @@
   @if (communityExpandedMedia.length) {
     <div class="community-feed-lightbox" (click)="closeCommunityPostMedia()">
       <section class="community-feed-lightbox-dialog" role="dialog" aria-modal="true"
-               aria-label="Fotografias e vídeos da comunidade" (click)="$event.stopPropagation()">
+               [attr.aria-label]="'Fotografias e vídeos da comunidade' | t" (click)="$event.stopPropagation()">
         <header>
           <span>{{ communityExpandedMediaIndex + 1 }} / {{ communityExpandedMedia.length }}</span>
-          <button type="button" (click)="closeCommunityPostMedia()" aria-label="Fechar visualização">×</button>
+          <button type="button" (click)="closeCommunityPostMedia()" [attr.aria-label]="'Fechar visualização' | t">×</button>
         </header>
         <div class="community-feed-lightbox-stage">
           @if (communityExpandedMedia.length > 1) {
             <button type="button" class="community-feed-lightbox-arrow"
-                    (click)="shiftCommunityExpandedMedia(-1)" aria-label="Anterior">‹</button>
+                    (click)="shiftCommunityExpandedMedia(-1)" [attr.aria-label]="'Anterior' | t">‹</button>
           }
           @if (communityExpandedMedia[communityExpandedMediaIndex].mimeType.startsWith('video/')) {
             <video controls playsinline preload="metadata"
                    [src]="communityFeedMediaUrl(communityExpandedMedia[communityExpandedMediaIndex].url)"
-                   aria-label="Vídeo ampliado"></video>
+                   [attr.aria-label]="'Vídeo ampliado' | t"></video>
           } @else {
             <img [src]="communityFeedMediaUrl(communityExpandedMedia[communityExpandedMediaIndex].url)"
-                 alt="Fotografia completa da comunidade">
+                 [alt]="'Fotografia completa da comunidade' | t">
           }
           @if (communityExpandedMedia.length > 1) {
             <button type="button" class="community-feed-lightbox-arrow"
-                    (click)="shiftCommunityExpandedMedia(1)" aria-label="Seguinte">›</button>
+                    (click)="shiftCommunityExpandedMedia(1)" [attr.aria-label]="'Seguinte' | t">›</button>
           }
         </div>
       </section>

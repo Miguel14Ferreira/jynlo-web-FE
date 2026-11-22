@@ -1,3 +1,4 @@
+import { sportMatchesQuery } from '../../shared/venue-catalogue-display';
 import { HttpErrorResponse } from '@angular/common/http';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { ChangeDetectionStrategy, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
@@ -809,7 +810,7 @@ export class Events2Component implements OnInit, OnDestroy {
   get customSportMatches(): string[] {
     const query = this.normalizeVenueSearch(this.customSportName.trim());
     return query.length < 2 ? [] : this.sportsCatalog.filter(sport =>
-      this.normalizeVenueSearch(sport).includes(query) || query.includes(this.normalizeVenueSearch(sport))
+      sportMatchesQuery(sport, query) || query.includes(this.normalizeVenueSearch(sport))
     ).slice(0, 5);
   }
   onCustomSportName(value: string): void {

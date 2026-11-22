@@ -236,16 +236,16 @@
       <div class="form-grid">
         @if (communityId && communitySportLoaded && communitySports.length) {
           <div class="community-sport-choices">
-            <span class="community-sport-label">Modalidades do grupo</span>
-            <div class="community-sport-options" role="group" aria-label="Escolher modalidade da comunidade">
+            <span class="community-sport-label">{{ 'Modalidades do grupo' | t }}</span>
+            <div class="community-sport-options" role="group" [attr.aria-label]="'Escolher modalidade da comunidade' | t">
               @for (item of communitySports; track item) {
                 <button type="button" class="community-sport-option"
                   [class.active]="sport === item"
                   [attr.aria-pressed]="sport === item"
-                  [disabled]="loading" (click)="chooseCommunitySport(item)">{{ item }}</button>
+                  [disabled]="loading" (click)="chooseCommunitySport(item)">{{ item | sportName }}</button>
               }
             </div>
-            <small>Também podes escolher outra modalidade no campo abaixo.</small>
+            <small>{{ 'Também podes escolher outra modalidade no campo abaixo.' | t }}</small>
           </div>
         }
         <label>
@@ -260,35 +260,34 @@
           </app-jynlo-select>
         </label>
         @if (customSportMode) {
-          <div class="custom-sport-field" role="group" aria-label="Sugerir nova modalidade">
+          <div class="custom-sport-field" role="group" [attr.aria-label]="'Sugerir nova modalidade' | t">
             @if (communitySessionSelected) {
-              <p role="status">As modalidades novas ainda não têm classificações nem regras oficiais para comunidades.</p>
+              <p role="status">{{ 'As modalidades novas ainda não têm classificações nem regras oficiais para comunidades.' | t }}</p>
               <button type="button" class="community-sport-option" [disabled]="loading"
                 (click)="detachCommunityForCustomSport()">
-                Continuar como sessão independente
+                {{ 'Continuar como sessão independente' | t }}
               </button>
-              <small>A comunidade e as opções de convocatórias serão retiradas deste formulário.</small>
+              <small>{{ 'A comunidade e as opções de convocatórias serão retiradas deste formulário.' | t }}</small>
             }
-            <label for="jynlo-custom-sport">Como se chama o desporto?</label>
+            <label for="jynlo-custom-sport">{{ 'Como se chama o desporto?' | t }}</label>
             <input id="jynlo-custom-sport" name="customSportName" type="text"
               [ngModel]="customSportName" (ngModelChange)="onCustomSportName($event)"
               maxlength="60" autocomplete="off" [disabled]="loading"
-              placeholder="Ex.: Bossaball" aria-describedby="custom-sport-help">
+              [placeholder]="'Ex.: Bossaball' | t" aria-describedby="custom-sport-help">
             <small id="custom-sport-help">
-              Podes criar já uma sessão independente. A modalidade será enviada para revisão;
-              torneios, classificações e recintos oficiais ainda não estão disponíveis.
+              {{ 'Podes criar já uma sessão independente. A modalidade será enviada para revisão; torneios, classificações e recintos oficiais ainda não estão disponíveis.' | t }}
             </small>
             @if (customSportMatches.length) {
-              <div class="community-sport-options" aria-label="Modalidades semelhantes no catálogo">
-                <small>Já temos algo parecido?</small>
+              <div class="community-sport-options" [attr.aria-label]="'Modalidades semelhantes no catálogo' | t">
+                <small>{{ 'Já temos algo parecido?' | t }}</small>
                 @for (similar of customSportMatches; track similar) {
                   <button type="button" class="community-sport-option"
-                    [disabled]="loading" (click)="onSportChoice(similar)">{{similar}}</button>
+                    [disabled]="loading" (click)="onSportChoice(similar)">{{ similar | sportName }}</button>
                 }
               </div>
             }
             @if (customSportName.trim() && !customSportValid) {
-              <small role="alert">Verifica o nome ou escolhe uma modalidade existente.</small>
+              <small role="alert">{{ 'Verifica o nome ou escolhe uma modalidade existente.' | t }}</small>
             }
           </div>
         }
@@ -425,7 +424,7 @@
           }
         </div>
         @if (recurrence === 'WEEKLY' && weeklySessionsPerWeek > 1) {
-          <section class="venue-section" aria-label="Horários semanais">
+          <section class="venue-section" [attr.aria-label]="'Horários semanais' | t">
             <div class="venue-heading">
               <div>
                 <span class="section-kicker">{{ 'createSession.weeklyScheduleTitle' | t }}</span>
@@ -461,7 +460,7 @@
       }
 
       @if (communitySessionSelected) {
-        <section class="venue-section" aria-label="Convocatória">
+        <section class="venue-section" [attr.aria-label]="'Convocatória' | t">
           <div class="venue-heading">
             <div>
               <span class="section-kicker">{{ 'createSession.callupTitle' | t }}</span>
@@ -671,7 +670,7 @@
               <small class="venue-current-location">
                 {{ 'createSession.gpsAddressPrivacy' | t }}
                 <a href="https://www.openstreetmap.org/copyright" target="_blank"
-                   rel="noopener noreferrer">© OpenStreetMap contributors</a>
+                   rel="noopener noreferrer">{{ '© OpenStreetMap contributors' | t }}</a>
               </small>
             </div>
           }
@@ -691,7 +690,7 @@
                 </iframe>
                 <p class="venue-current-location" style="margin-top:.6rem;">
                   {{ locationSource === 'gps' && gpsAccuracyIsLow
-                     ? 'Ponto do browser não confirmado — não será guardado como recinto.'
+                     ? ('Ponto do browser não confirmado — não será guardado como recinto.' | t)
                      : ((locationSource === 'gps' ? 'createSession.gpsLocationFound' : 'venue.mapLink.found') | t) }}
                 </p>
                 @if (locationMethod === 'maps') {
@@ -705,29 +704,27 @@
                   <small class="venue-current-location">
                     {{ 'createSession.gpsAddressPrivacy' | t }}
                     <a href="https://www.openstreetmap.org/copyright" target="_blank"
-                       rel="noopener noreferrer">© OpenStreetMap contributors</a>
+                       rel="noopener noreferrer">{{ '© OpenStreetMap contributors' | t }}</a>
                   </small>
                 }
                 @if (locationSource === 'gps' && gpsRefining) {
                   <p class="venue-current-location" role="status">
-                    <span aria-hidden="true">◎</span> A tentar obter uma localização mais precisa…
-                    No computador, o browser pode usar Wi-Fi em vez de GPS.
+                    <span aria-hidden="true">◎</span> {{ 'A tentar obter uma localização mais precisa… No computador, o browser pode usar Wi-Fi em vez de GPS.' | t }}
                   </p>
                 }
                 @if (locationSource === 'gps' && gpsAccuracyIsLow) {
-                  <div class="gps-precision-review" role="group" aria-label="Confirmar localização aproximada">
-                    <strong>O pino pode estar bastante afastado do campo.</strong>
-                    <p>O browser pode estar a usar a localização aproximada da rede, até de outra zona da cidade.
-                      <strong>Esta posição não será guardada como recinto.</strong> Podes tentar novamente
-                      ou escolher <b>Ligação Google Maps</b> e colocar o link do campo correto.</p>
+                  <div class="gps-precision-review" role="group" [attr.aria-label]="'Confirmar localização aproximada' | t">
+                    <strong>{{ 'O pino pode estar bastante afastado do campo.' | t }}</strong>
+                    <p>{{ 'O browser pode estar a usar a localização aproximada da rede, até de outra zona da cidade.' | t }}
+                      <strong>{{ 'Esta posição não será guardada como recinto.' | t }}</strong> {{ 'Podes tentar novamente ou escolher' | t }} <b>{{ 'Ligação Google Maps' | t }}</b> {{ 'e colocar o link do campo correto.' | t }}</p>
                     <div class="header-actions">
                       <button type="button" class="secondary-action jynlo-action jynlo-action--neutral"
                         [disabled]="locating || gpsRefining" (click)="captureCurrentLocation()">
-                        Tentar novamente
+                        {{ 'Tentar novamente' | t }}
                       </button>
                       <button type="button" class="secondary-action jynlo-action jynlo-action--neutral"
                         (click)="chooseLocationMethod('maps')">
-                        Indicar campo no Google Maps
+                        {{ 'Indicar campo no Google Maps' | t }}
                       </button>
                     </div>
                   </div>
@@ -766,7 +763,7 @@
 
             @if (venuePhotoLoading) {
               <div style="margin-top: 1rem;color:#94a3b8;font-size:.8rem;">
-                A carregar fotografia do recinto...
+                {{ 'A carregar fotografia do recinto...' | t }}
               </div>
             }
 
@@ -775,7 +772,7 @@
                 <img
                   style="display:block;width:100%;max-height:320px;object-fit:cover;border-radius:14px;"
                   [src]="selectedVenuePhoto.photoUrl"
-                  [alt]="venue.name + ' · fotografia do recinto'">
+                  [alt]="('{{name}} · fotografia do recinto' | t:{name: venue.name})">
               </div>
             }
 
@@ -784,7 +781,7 @@
                 <iframe
                   style="display:block;width:100%;height:260px;border:0;border-radius:14px;"
                   [src]="selectedVenueMapUrl"
-                  [title]="venue.name + ' · localização no mapa'"
+                  [title]="('{{name}} · localização no mapa' | t:{name: venue.name})"
                   loading="lazy"
                   referrerpolicy="no-referrer-when-downgrade">
                 </iframe>
@@ -795,7 +792,7 @@
                     + venue.latitude + ',' + venue.longitude"
                   target="_blank"
                   rel="noopener noreferrer">
-                  Abrir no Maps
+                  {{ 'Abrir no Maps' | t }}
                 </a>
               </div>
             }
@@ -1035,17 +1032,17 @@
 
       <section class="create-meeting-point-panel" aria-labelledby="create-description-title">
         <div>
-          <h2 id="create-description-title">Descrição da sessão <small>(opcional)</small></h2>
-          <p id="create-description-help">Explica o nível do jogo, regras combinadas, material necessário ou outras informações úteis para quem quer participar.</p>
+          <h2 id="create-description-title">{{ 'Descrição da sessão' | t }} <small>{{ '(opcional)' | t }}</small></h2>
+          <p id="create-description-help">{{ 'Explica o nível do jogo, regras combinadas, material necessário ou outras informações úteis para quem quer participar.' | t }}</p>
         </div>
         <label for="create-session-description">
-          <span>Descrição</span>
+          <span>{{ 'Descrição' | t }}</span>
           <textarea id="create-session-description" name="description"
                     [(ngModel)]="description" maxlength="1000" rows="4"
                     [disabled]="loading" aria-describedby="create-description-help"
-                    placeholder="Ex.: Jogo amigável, todos os níveis são bem-vindos. Trazer camisola clara e escura."></textarea>
+                    [placeholder]="'Ex.: Jogo amigável, todos os níveis são bem-vindos. Trazer camisola clara e escura.' | t"></textarea>
         </label>
-        <small>{{ description.length }}/1000 caracteres. Visível a quem consultar a sessão; não incluas códigos de acesso ou dados privados.</small>
+        <small>{{ '{{descriptionCount}}/1000 caracteres. Visível a quem consultar a sessão; não incluas códigos de acesso ou dados privados.' | t:{descriptionCount: (description.length)} }}</small>
       </section>
 
       <section class="create-meeting-point-panel" aria-labelledby="create-meeting-point-title">
@@ -1161,7 +1158,7 @@
       </section>
 
       @if (presetEditorOpen) {
-        <section class="create-preset-save-editor" aria-label="Guardar configuração">
+        <section class="create-preset-save-editor" [attr.aria-label]="'Guardar configuração' | t">
           <div>
             <strong>{{ 'createSession.presets.saveNew' | t }}</strong>
             <p>{{ 'createSession.presets.noDateHint' | t }}</p>

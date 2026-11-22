@@ -1,3 +1,4 @@
+import { sportMatchesQuery } from '../../shared/venue-catalogue-display';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
@@ -94,7 +95,7 @@ export class NearbyAlertsPanelComponent implements OnInit {
     const q = key(this.search.trim());
     if (!q) return [];
     const taken = new Set(this.draft.sports.map(key));
-    return SPORTS_CATALOG.filter(s => key(s).includes(q) && !taken.has(key(s))).slice(0, 8);
+    return SPORTS_CATALOG.filter(s => sportMatchesQuery(s, q) && !taken.has(key(s))).slice(0, 8);
   }
 
   isPlace(place: { label: string; latitude: number }): boolean {

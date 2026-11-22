@@ -14,7 +14,7 @@
       <select [ngModel]="sport" (ngModelChange)="sportChange.emit($event)" [disabled]="saving">
         <option value="">{{ 'communities.seasonAllSports' | t }}</option>
         @for (option of sports; track option) {
-          <option [value]="option">{{ option }}</option>
+          <option [value]="option">{{ option | sportName }}</option>
         }
       </select>
     </label>

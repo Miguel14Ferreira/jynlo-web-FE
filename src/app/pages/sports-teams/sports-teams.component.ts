@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { timeout } from 'rxjs';
@@ -11,7 +12,7 @@ import { SportNamePipe } from '../../i18n/sport-name.pipe';
 @Component({
   selector: 'app-sports-teams',
   standalone: true,
-  imports: [SportNamePipe, CommonModule, FormsModule, RouterLink],
+  imports: [TranslatePipe, SportNamePipe, CommonModule, FormsModule, RouterLink],
   templateUrl: './sports-teams.component.html',
   styleUrls: ['./sports-teams.component.css']
 })

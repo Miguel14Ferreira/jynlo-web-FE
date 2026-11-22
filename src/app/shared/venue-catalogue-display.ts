@@ -208,3 +208,12 @@ export function venueCatalogueDisplayLabel(
   if (language !== 'en') return value;
   return EN_LABELS[kind][normalized(value)] ?? value;
 }
+
+/** True when a catalogue sport matches the search in Portuguese or English
+ * (accents and case ignored). Used by the sport pickers. */
+export function sportMatchesQuery(sport: string, query: string | null | undefined): boolean {
+  const q = normalized(query ?? '');
+  if (!q) return true;
+  const english = EN_LABELS.sport[normalized(sport)];
+  return normalized(sport).includes(q) || (!!english && normalized(english).includes(q));
+}

@@ -11,7 +11,7 @@
         <button type="button" class="chat-search-toggle jynlo-action jynlo-action--neutral"
                 [attr.aria-expanded]="searchOpen" aria-controls="direct-chat-search"
                 (click)="toggleMessageSearch()">
-          <span aria-hidden="true">⌕</span> {{ searchOpen ? 'Fechar pesquisa' : 'Pesquisar mensagens' }}
+          <span aria-hidden="true">⌕</span> {{ searchOpen ? ('Fechar pesquisa' | t) : ('Pesquisar mensagens' | t) }}
         </button>
         @if (!(chatInfo?.chatBlocked === true) || isBlockedByMe()) {
           <button
@@ -76,34 +76,34 @@
       }
 
       @if (searchOpen) {
-        <section class="direct-chat-search" id="direct-chat-search" aria-label="Pesquisar nesta conversa">
+        <section class="direct-chat-search" id="direct-chat-search" [attr.aria-label]="'Pesquisar nesta conversa' | t">
           <div class="direct-chat-search-controls">
-            <label for="direct-chat-search-input">Pesquisar nesta conversa</label>
+            <label for="direct-chat-search-input">{{ 'Pesquisar nesta conversa' | t }}</label>
             <input id="direct-chat-search-input" type="search"
                    [(ngModel)]="searchQuery" (ngModelChange)="onMessageSearchChange()"
                    (keydown)="onMessageSearchKeydown($event)"
-                   placeholder="Mensagem, resposta ou nome de ficheiro"
+                   [placeholder]="'Mensagem, resposta ou nome de ficheiro' | t"
                    autocomplete="off" maxlength="120">
             <button type="button" class="jynlo-action jynlo-action--neutral"
-                    (click)="toggleMessageSearch()" aria-label="Fechar pesquisa">×</button>
+                    (click)="toggleMessageSearch()" [attr.aria-label]="'Fechar pesquisa' | t">×</button>
           </div>
           @if (searchQuery.trim()) {
             <div class="direct-chat-search-results" role="status" aria-live="polite">
               <span>
                 @if (searchMatches.length) {
-                  {{ searchMatchIndex + 1 }} de {{ searchMatches.length }} resultados carregados
+                  {{ '{{searchMatchIndex}} de {{searchMatchesCount}} resultados carregados' | t:{searchMatchIndex: (searchMatchIndex + 1), searchMatchesCount: (searchMatches.length)} }}
                 } @else {
                   Sem resultados nas mensagens carregadas
                 }
               </span>
               <button type="button" [disabled]="!searchMatches.length"
-                      (click)="navigateSearch(-1)" aria-label="Resultado anterior">↑</button>
+                      (click)="navigateSearch(-1)" [attr.aria-label]="'Resultado anterior' | t">↑</button>
               <button type="button" [disabled]="!searchMatches.length"
-                      (click)="navigateSearch(1)" aria-label="Resultado seguinte">↓</button>
+                      (click)="navigateSearch(1)" [attr.aria-label]="'Resultado seguinte' | t">↓</button>
               @if (hasOlderMessages) {
                 <button type="button" class="jynlo-action jynlo-action--neutral"
                         [disabled]="loadingOlder" (click)="loadOlderMessages()">
-                  {{ loadingOlder ? 'A carregar…' : 'Procurar também no histórico anterior' }}
+                  {{ loadingOlder ? ('A carregar…' | t) : ('Procurar também no histórico anterior' | t) }}
                 </button>
               }
             </div>
@@ -141,7 +141,7 @@
               </div>
               @if (message.replyToMessageId && message.replyToText) {
                 <button type="button" class="message-quote direct-quote-jump"
-                        (click)="jumpToQuotedMessage(message)" aria-label="Encontrar mensagem original">
+                        (click)="jumpToQuotedMessage(message)" [attr.aria-label]="'Encontrar mensagem original' | t">
                   <strong>{{ message.replyToSender }}</strong>
                   <span>{{ message.replyToText }}</span>
                   <span class="direct-quote-jump-hint" aria-hidden="true">↗</span>
@@ -151,7 +151,7 @@
               @if (message.attachmentName && message.id) {
                 <button type="button" class="direct-attachment-button" (click)="openAttachment(message)"
                   [disabled]="attachmentLoading.has(message.id)">
-                  {{ attachmentPreviews.has(message.id) ? 'Fechar anexo' : (attachmentLoading.has(message.id) ? 'A abrir anexo…' : 'Abrir: ' + message.attachmentName) }}
+                  {{ attachmentPreviews.has(message.id) ? ('Fechar anexo' | t) : (attachmentLoading.has(message.id) ? ('A abrir anexo…' | t) : ('Abrir: {{attachmentName}}' | t:{attachmentName: message.attachmentName})) }}
                 </button>
                 @if (attachmentPreviews.get(message.id); as imageUrl) {
                   @if (message.attachmentMimeType?.startsWith('video/')) {
@@ -164,7 +164,7 @@
                 }
               }
               @if (message.attachments?.length) {
-                <div class="direct-multi-gallery" aria-label="Ficheiros adicionais da mensagem">
+                <div class="direct-multi-gallery" [attr.aria-label]="'Ficheiros adicionais da mensagem' | t">
                   @for (asset of message.attachments; track asset.index) {
                     @if (asset.index > 0) {
                       <div class="direct-extra-file">
@@ -180,7 +180,7 @@
                         <button type="button" class="direct-attachment-button"
                           [disabled]="extraAttachmentLoading.has(extraAttachmentKey(message, asset.index))"
                           (click)="openExtraAttachment(message, asset)">
-                          {{ extraAttachmentPreviews.has(extraAttachmentKey(message, asset.index)) ? 'Fechar' : 'Abrir' }}
+                          {{ extraAttachmentPreviews.has(extraAttachmentKey(message, asset.index)) ? ('Fechar' | t) : ('Abrir' | t) }}
                           {{ asset.filename }}
                         </button>
                       </div>
@@ -226,18 +226,18 @@
           }
           @if (selectedAttachment; as image) {
             <div class="direct-image-draft" role="status">
-              <span>Ficheiro pronto a enviar: {{ image.name }}</span>
-              <button type="button" (click)="removeAttachment()" [disabled]="sending">Remover</button>
+              <span>{{ 'Ficheiro pronto a enviar: {{name}}' | t:{name: (image.name)} }}</span>
+              <button type="button" (click)="removeAttachment()" [disabled]="sending">{{ 'Remover' | t }}</button>
             </div>
           }
           @for (file of extraSelectedAttachments; track file; let i = $index) {
             <div class="direct-image-draft" role="status">
-              <span>Ficheiro pronto a enviar: {{ file.name }}</span>
-              <button type="button" (click)="removeAttachment(i + 1)" [disabled]="sending">Remover</button>
+              <span>{{ 'Ficheiro pronto a enviar: {{name}}' | t:{name: (file.name)} }}</span>
+              <button type="button" (click)="removeAttachment(i + 1)" [disabled]="sending">{{ 'Remover' | t }}</button>
             </div>
           }
           @if (selectedFiles.length) {
-            <small>{{ selectedFiles.length }}/4 ficheiros · 40 MB no total</small>
+            <small>{{ '{{selectedFilesCount}}/4 ficheiros · 40 MB no total' | t:{selectedFilesCount: (selectedFiles.length)} }}</small>
           }
           <label>
             <span>{{ 'chat.message' | t }}</span>
@@ -258,7 +258,7 @@
           <div class="composer-tools">
             @if (attachmentReady && chatInfo?.chatBlocked !== true) {
               <label class="direct-attachment-picker">
-                <span>Adicionar ficheiro</span>
+                <span>{{ 'Adicionar ficheiro' | t }}</span>
                 <input type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,video/mp4,video/webm,audio/mpeg,audio/mp4,audio/ogg,audio/webm"
                   [disabled]="sending || deliveryUncertain" (change)="onAttachmentSelected($event)" />
               </label>

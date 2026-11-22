@@ -30,7 +30,7 @@
         <input name="sport" [(ngModel)]="sport" maxlength="90" list="catalog-sports"
                [placeholder]="'venue.catalog.sportHint' | t">
         <datalist id="catalog-sports">
-          @for (item of sportsCatalog; track item) { <option [value]="item"></option> }
+          @for (item of sportsCatalog; track item) { <option [value]="item" [label]="item | sportName"></option> }
         </datalist>
       </label>
       <div class="venue-directory-actions">
@@ -71,9 +71,9 @@
           {{ 'venue.catalog.nearby.radius' | t }}
           <select [value]="nearbyRadiusKm" [disabled]="loading"
                   (change)="setNearbyRadius(+$any($event.target).value)">
-            <option [value]="10">10 km</option>
-            <option [value]="25">25 km</option>
-            <option [value]="50">50 km</option>
+            <option [value]="10">{{ '10 km' | t }}</option>
+            <option [value]="25">{{ '25 km' | t }}</option>
+            <option [value]="50">{{ '50 km' | t }}</option>
           </select>
         </label>
         <button class="venue-directory-clear" type="button" (click)="search(0)" [disabled]="loading">
@@ -142,7 +142,7 @@
       </nav>
     }
     <p class="venue-directory-source">{{ 'venue.catalog.dataNotice' | t }}
-      <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a>
+      <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">{{ '© OpenStreetMap contributors' | t }}</a>
     </p>
   </div>
 </section>

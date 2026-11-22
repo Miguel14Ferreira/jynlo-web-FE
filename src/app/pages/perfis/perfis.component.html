@@ -41,7 +41,7 @@
             [placeholder]="'community.sportPlaceholder' | t">
           <datalist id="community-sport-options">
             @for (sportOption of sportsCatalog; track sportOption) {
-              <option [value]="sportOption"></option>
+              <option [value]="sportOption" [label]="sportOption | sportName"></option>
             }
           </datalist>
         </label>
@@ -210,7 +210,7 @@
             <button type="button" class="avatar large-avatar profile-story-avatar"
               [class.profile-story-avatar--active]="profileStories.length > 0"
               [disabled]="!profileStories.length || selectedBlocked || blockStatusPending || !privacyStatus?.canViewContent"
-              [attr.aria-label]="profileStories.length ? 'Ver stories de ' + selectedProfile.username : 'Sem stories ativas'"
+              [attr.aria-label]="profileStories.length ? ('Ver stories de {{username}}' | t:{username: selectedProfile.username}): ('Sem stories ativas' | t)"
               (click)="openProfileStories()">
               @if (profileImage(selectedProfile); as image) {
                 <img [src]="image" [alt]="selectedProfile.username">
@@ -305,7 +305,7 @@
                 <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
                 <path d="m8.7 10.7 6.6-4.4m-6.6 8 6.6 4.4"/>
               </svg>
-              {{ profileShareBusy ? 'A partilhar…' : 'Partilhar perfil' }}
+              {{ profileShareBusy ? ('A partilhar…' | t) : ('Partilhar perfil' | t) }}
             </button>
             @if (profileShareMessage) {
               <span class="profile-share-feedback" role="status" aria-live="polite">{{ profileShareMessage }}</span>
@@ -482,44 +482,44 @@
           </section>
 
           @if (isOwnProfile(selectedProfile)) {
-            <section class="profile-real-memberships" aria-label="As minhas equipas e comunidades">
+            <section class="profile-real-memberships" [attr.aria-label]="'As minhas equipas e comunidades' | t">
               <div class="profile-membership-heading">
                 <div>
-                  <h2>As minhas equipas e comunidades</h2>
-                  <p>Associações confirmadas pela tua conta Jynlo.</p>
+                  <h2>{{ 'As minhas equipas e comunidades' | t }}</h2>
+                  <p>{{ 'Associações confirmadas pela tua conta Jynlo.' | t }}</p>
                 </div>
               </div>
               @if (ownMembershipLoading) {
-                <p role="status" class="profile-membership-state">A carregar associações…</p>
+                <p role="status" class="profile-membership-state">{{ 'A carregar associações…' | t }}</p>
               } @else {
                 @if (ownVerifiedTeams.length) {
-                  <h3>Equipas</h3>
+                  <h3>{{ 'Equipas' | t }}</h3>
                   <div class="profile-membership-grid">
                     @for (team of ownVerifiedTeams; track team.id) {
                       <a [routerLink]="['/menu/teams', team.id]" class="profile-membership-card">
                         <strong>{{ team.name }}</strong>
-                        <span>{{ (team.sport | sportName) || 'Equipa desportiva' }}</span>
+                        <span>{{ (team.sport | sportName) || ('Equipa desportiva' | t) }}</span>
                       </a>
                     }
                   </div>
                 }
                 @if (ownVerifiedCommunities.length) {
-                  <h3>Comunidades</h3>
+                  <h3>{{ 'Comunidades' | t }}</h3>
                   <div class="profile-membership-grid">
                     @for (group of ownVerifiedCommunities; track group.id) {
                       <a [routerLink]="['/menu/communities', group.id]"
                          class="profile-membership-card">
                         <strong>{{ group.name }}</strong>
-                        <span>{{ (group.sport | sportName) || 'Comunidade desportiva' }}</span>
+                        <span>{{ (group.sport | sportName) || ('Comunidade desportiva' | t) }}</span>
                       </a>
                     }
                   </div>
                 }
                 @if (!ownVerifiedTeams.length && !ownVerifiedCommunities.length && !ownMembershipError) {
-                  <p class="profile-membership-state">Ainda não tens equipas ou comunidades confirmadas.</p>
+                  <p class="profile-membership-state">{{ 'Ainda não tens equipas ou comunidades confirmadas.' | t }}</p>
                 }
                 @if (ownMembershipError) {
-                  <p role="status" class="profile-membership-state">Não foi possível verificar todas as associações.</p>
+                  <p role="status" class="profile-membership-state">{{ 'Não foi possível verificar todas as associações.' | t }}</p>
                 }
               }
             </section>
@@ -527,29 +527,29 @@
 
           @if (!isOwnProfile(selectedProfile) && publicAffiliations &&
               (publicAffiliations.teams.length || publicAffiliations.communities.length)) {
-            <section class="profile-real-memberships" aria-label="Equipas e comunidades públicas">
+            <section class="profile-real-memberships" [attr.aria-label]="'Equipas e comunidades públicas' | t">
               <div class="profile-membership-heading">
-                <h2>Equipas e comunidades públicas</h2>
-                <p>Associações confirmadas e visíveis publicamente.</p>
+                <h2>{{ 'Equipas e comunidades públicas' | t }}</h2>
+                <p>{{ 'Associações confirmadas e visíveis publicamente.' | t }}</p>
               </div>
               @if (publicAffiliations.teams.length) {
-                <h3>Equipas</h3>
+                <h3>{{ 'Equipas' | t }}</h3>
                 <div class="profile-membership-grid">
                   @for (team of publicAffiliations.teams; track team.id) {
                     <a [routerLink]="['/menu/teams',team.id]" class="profile-membership-card">
                       <strong>{{ team.name }}</strong>
-                      <span>{{ (team.sport | sportName) || 'Equipa desportiva' }}</span>
+                      <span>{{ (team.sport | sportName) || ('Equipa desportiva' | t) }}</span>
                     </a>
                   }
                 </div>
               }
               @if (publicAffiliations.communities.length) {
-                <h3>Comunidades</h3>
+                <h3>{{ 'Comunidades' | t }}</h3>
                 <div class="profile-membership-grid">
                   @for (group of publicAffiliations.communities; track group.id) {
                     <a [routerLink]="['/menu/communities',group.id]" class="profile-membership-card">
                       <strong>{{ group.name }}</strong>
-                      <span>{{ (group.sport | sportName) || 'Comunidade desportiva' }}</span>
+                      <span>{{ (group.sport | sportName) || ('Comunidade desportiva' | t) }}</span>
                     </a>
                   }
                 </div>
@@ -557,22 +557,22 @@
             </section>
           }
 
-          <nav class="profile-discovery-links" aria-label="Explorar desporto na Jynlo">
+          <nav class="profile-discovery-links" [attr.aria-label]="'Explorar desporto na Jynlo' | t">
             <div class="profile-discovery-intro">
-              <strong>Continuar a descobrir</strong>
-              <span>Encontra sessões, equipas e comunidades na Jynlo.</span>
+              <strong>{{ 'Continuar a descobrir' | t }}</strong>
+              <span>{{ 'Encontra sessões, equipas e comunidades na Jynlo.' | t }}</span>
             </div>
             <div class="profile-discovery-actions">
               <a routerLink="/menu/discover" [queryParams]="{ sport: selectedProfile.favoriteSports?.split(',')[0]?.trim() || null, city: selectedProfile.location || null }">
-                <span aria-hidden="true">⌖</span> Procurar sessões
+                <span aria-hidden="true">⌖</span> {{ 'Procurar sessões' | t }}
               </a>
-              <a routerLink="/menu/teams"><span aria-hidden="true">♜</span> Explorar equipas</a>
-              <a routerLink="/menu/communities"><span aria-hidden="true">♧</span> Explorar comunidades</a>
+              <a routerLink="/menu/teams"><span aria-hidden="true">♜</span> {{ 'Explorar equipas' | t }}</a>
+              <a routerLink="/menu/communities"><span aria-hidden="true">♧</span> {{ 'Explorar comunidades' | t }}</a>
             </div>
           </nav>
 
           @if (completedIndividualParticipations.length > 0) {
-            <section class="profile-competition-participations" aria-label="Participações individuais concluídas">
+            <section class="profile-competition-participations" [attr.aria-label]="'Participações individuais concluídas' | t">
               <div class="profile-individual-titles-heading">
                 <span class="section-kicker">{{ 'profileData.competitionsKicker' | t }}</span>
                 <h2>{{ 'profileData.completedParticipations' | t }}</h2>
@@ -606,7 +606,7 @@
           }
 
           @if (publicIndividualTitles.length > 0) {
-            <section class="profile-individual-titles" aria-label="Títulos individuais oficiais">
+            <section class="profile-individual-titles" [attr.aria-label]="'Títulos individuais oficiais' | t">
               <div class="profile-individual-titles-heading">
                 <span class="section-kicker">{{ 'profileData.honoursKicker' | t }}</span>
                 <h2>{{ 'profileData.officialTitles' | t }}</h2>
@@ -693,18 +693,18 @@
           }
 
           @if (isOwnProfile(selectedProfile)) {
-            <section class="profile-privacy-settings" aria-label="Privacidade do perfil">
+            <section class="profile-privacy-settings" [attr.aria-label]="'Privacidade do perfil' | t">
               <div class="profile-privacy-heading">
                 <div>
-                  <strong>Privacidade do perfil</strong>
+                  <strong>{{ 'Privacidade do perfil' | t }}</strong>
                   @if (privacyLoading || !privacyStatus) {
-                    <p role="status">A verificar as opções de privacidade…</p>
+                    <p role="status">{{ 'A verificar as opções de privacidade…' | t }}</p>
                   } @else {
-                    <p>O teu perfil está <strong>{{ privacyStatus.privateProfile ? 'privado' : 'público' }}</strong>.</p>
+                    <p>{{ 'O teu perfil está' | t }} <strong>{{ privacyStatus.privateProfile ? 'privado' : ('público' | t) }}</strong>.</p>
                   }
                 </div>
                 @if (privacyStatus) {
-                  <span class="profile-privacy-state">{{ privacyStatus.privateProfile ? 'Privado' : 'Público' }}</span>
+                  <span class="profile-privacy-state">{{ privacyStatus.privateProfile ? ('Privado' | t) : ('Público' | t) }}</span>
                 }
               </div>
               @if (privacyStatus) {
@@ -727,7 +727,7 @@
                 @if (privacyStatus.privateModeAvailable) {
                   <button type="button" class="profile-privacy-action" [disabled]="privacyBusy"
                     (click)="changeProfilePrivacy(!privacyStatus.privateProfile)">
-                    {{ privacyBusy ? 'A guardar…' : (privacyStatus.privateProfile ? 'Tornar público' : 'Tornar privado') }}
+                    {{ privacyBusy ? ('A guardar…' | t) : (privacyStatus.privateProfile ? ('Tornar público' | t) : ('Tornar privado' | t)) }}
                   </button>
                 } @else {
                   <button type="button" class="profile-privacy-action" disabled
@@ -738,14 +738,14 @@
                 }
               }
               @if (privacyPending.length) {
-                <h3>Pedidos para seguir ({{ privacyPending.length }})</h3>
+                <h3>{{ 'Pedidos para seguir ({{privacyPendingCount}})' | t:{privacyPendingCount: (privacyPending.length)} }}</h3>
                 @for (request of privacyPending; track request.id) {
                   <div class="profile-follow-request">
                     <a [routerLink]="['/menu/perfis',request.username]">&#64;{{request.username}}</a>
                     <button type="button" [disabled]="privacyBusy"
-                      (click)="decidePendingFollow(request.id,true)">Aceitar</button>
+                      (click)="decidePendingFollow(request.id,true)">{{ 'Aceitar' | t }}</button>
                     <button type="button" [disabled]="privacyBusy"
-                      (click)="decidePendingFollow(request.id,false)">Recusar</button>
+                      (click)="decidePendingFollow(request.id,false)">{{ 'Recusar' | t }}</button>
                   </div>
                 }
               }
@@ -753,8 +753,8 @@
             </section>
           } @else if (privacyStatus?.privateProfile && !privacyStatus?.canViewContent) {
             <div class="profile-private-notice" role="status">
-              <strong>Perfil privado</strong>
-              <p>Segue esta pessoa e aguarda a aprovação para veres as suas stories e publicações.</p>
+              <strong>{{ 'Perfil privado' | t }}</strong>
+              <p>{{ 'Segue esta pessoa e aguarda a aprovação para veres as suas stories e publicações.' | t }}</p>
             </div>
           }
 
@@ -795,7 +795,7 @@
                     <article class="profile-publication-card">
                       <button type="button" class="profile-publication-open"
                         (click)="openExpandedPost(post)"
-                        [attr.aria-label]="'Abrir publicação de ' + post.authorDisplayName + ' em tamanho maior'">
+                        [attr.aria-label]="('Abrir publicação de {{authorDisplayName}} em tamanho maior' | t:{authorDisplayName: post.authorDisplayName})">
                       @if (post.imageUrl) {
                         <img class="profile-publication-image" [jynloProtectedSrc]="post.imageUrl"
                           [alt]="'profilePosts.imageAlt' | t" loading="lazy">
@@ -910,7 +910,7 @@
                  (click)="$event.stopPropagation()">
           <header class="social-list-head">
             <h3>{{ (followListMode === 'followers' ? 'social.followers' : 'social.following') | t }}</h3>
-            <button type="button" class="jynlo-action jynlo-action--neutral" (click)="closeFollowList()" aria-label="Fechar">×</button>
+            <button type="button" class="jynlo-action jynlo-action--neutral" (click)="closeFollowList()" [attr.aria-label]="'Fechar' | t">×</button>
           </header>
           @if (followListLoading) {
             <p role="status">{{ 'home.preview.loading' | t }}</p>

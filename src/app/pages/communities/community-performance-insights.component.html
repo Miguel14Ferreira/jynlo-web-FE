@@ -63,7 +63,7 @@
       (selectionChange)="compareAChange.emit($event)"
       (clearRequested)="clearRequested.emit('A')"
     ></app-community-compare-picker>
-    <span class="versus">VS</span>
+    <span class="versus">{{ 'VS' | t }}</span>
     <app-community-compare-picker
       [label]="'communities.playerB' | t" side="B" [rows]="rows"
       [selectedKey]="compareSelectionB"
@@ -84,7 +84,7 @@
       <div><strong>{{ comparePlayerA?.wins }}</strong><span>{{ 'communities.winsShort' | t }}</span><strong>{{ comparePlayerB?.wins }}</strong></div>
       <div><strong>{{ comparePlayerA?.goals }}</strong><span>{{ 'communities.goals' | t }}</span><strong>{{ comparePlayerB?.goals }}</strong></div>
       <div><strong>{{ comparePlayerA?.assists }}</strong><span>{{ 'communities.assists' | t }}</span><strong>{{ comparePlayerB?.assists }}</strong></div>
-      <div><strong>{{ comparePlayerA?.mvps }}</strong><span>MVP</span><strong>{{ comparePlayerB?.mvps }}</strong></div>
+      <div><strong>{{ comparePlayerA?.mvps }}</strong><span>{{ 'MVP' | t }}</span><strong>{{ comparePlayerB?.mvps }}</strong></div>
       <div><strong>{{ comparePlayerA?.winRate }}%</strong><span>{{ 'communities.winRate' | t }}</span><strong>{{ comparePlayerB?.winRate }}%</strong></div>
     </div>
   }

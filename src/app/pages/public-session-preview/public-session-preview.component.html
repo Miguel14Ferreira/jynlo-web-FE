@@ -10,19 +10,19 @@
     </header>
 
     @if (!loading && session && !mobileAppBannerDismissed && nativeAppUrl()) {
-      <aside class="native-app-banner" aria-label="Abrir a Jynlo no telemóvel">
+      <aside class="native-app-banner" [attr.aria-label]="'Abrir a Jynlo no telemóvel' | t">
         <span class="native-app-banner-icon" aria-hidden="true">J</span>
         <div class="native-app-banner-copy">
           <strong>Jynlo</strong>
-          <span>Já tens a aplicação? Abre o detalhe da sessão na Jynlo.</span>
+          <span>{{ 'Já tens a aplicação? Abre o detalhe da sessão na Jynlo.' | t }}</span>
           @if (guestToken) {
-            <small>Para confirmar presença sem conta, continua nesta página e mantém o convite.</small>
+            <small>{{ 'Para confirmar presença sem conta, continua nesta página e mantém o convite.' | t }}</small>
           }
         </div>
-        <a class="native-app-banner-open" [href]="nativeAppUrl()" aria-label="Abrir detalhe da sessão na aplicação Jynlo">
-          Abrir app
+        <a class="native-app-banner-open" [href]="nativeAppUrl()" [attr.aria-label]="'Abrir detalhe da sessão na aplicação Jynlo' | t">
+          {{ 'Abrir app' | t }}
         </a>
-        <button class="native-app-banner-dismiss" type="button" aria-label="Dispensar sugestão da app"
+        <button class="native-app-banner-dismiss" type="button" [attr.aria-label]="'Dispensar sugestão da app' | t"
                 (click)="mobileAppBannerDismissed = true">×</button>
       </aside>
     }
@@ -502,8 +502,8 @@
             </a>
             @if (nativeAppUrl()) {
               <a class="secondary-action jynlo-action jynlo-action--primary"
-                 [href]="nativeAppUrl()" aria-label="Abrir sessão na aplicação Jynlo">
-                Abrir na app Jynlo
+                 [href]="nativeAppUrl()" [attr.aria-label]="'Abrir sessão na aplicação Jynlo' | t">
+                {{ 'Abrir na app Jynlo' | t }}
               </a>
             }
             @if (shareFeedbackKey) {

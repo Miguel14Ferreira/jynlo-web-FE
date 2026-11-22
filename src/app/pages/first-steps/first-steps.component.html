@@ -15,7 +15,7 @@
     </div>
     <p class="fsteps__count">{{ selected.length }}/{{ max }}</p>
     <label class="fsteps__label" for="fsteps-city">{{ 'firstSteps.city' | t }}</label>
-    <input id="fsteps-city" class="fsteps__input" [(ngModel)]="city" maxlength="120" placeholder="Porto" autocomplete="address-level2">
+    <input id="fsteps-city" class="fsteps__input" [(ngModel)]="city" maxlength="120" [placeholder]="'Porto' | t" autocomplete="address-level2">
     <div class="fsteps__actions">
       <button type="button" class="fsteps__save" (click)="save()" [disabled]="busy || !selected.length">{{ (busy ? 'firstSteps.saving' : 'firstSteps.save') | t }}</button>
       <button type="button" class="fsteps__later" (click)="later()" [disabled]="busy">{{ 'firstSteps.later' | t }}</button>

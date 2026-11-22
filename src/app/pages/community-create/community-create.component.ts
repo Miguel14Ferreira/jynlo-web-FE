@@ -1,3 +1,4 @@
+import { sportMatchesQuery } from '../../shared/venue-catalogue-display';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, finalize, of, switchMap, timeout } from 'rxjs';
@@ -35,7 +36,7 @@ export class CommunityCreateComponent implements OnInit {
     const query = this.sportSearch.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
     if (!query) return [];
     return this.sportsCatalog.filter(sport =>
-      sport.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(query)
+      sportMatchesQuery(sport, query)
       && !this.sports.includes(sport)
     ).slice(0, 8);
   }

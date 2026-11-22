@@ -2,78 +2,78 @@
   <div class="teams-shell">
     <header class="teams-hero">
       <div class="teams-hero-copy">
-        <p class="eyebrow">DO GRUPO DE AMIGOS À EQUIPA QUE COMPETE</p>
-        <h1>A tua equipa começa aqui. <span>Joguem juntos. Vão mais longe.</span></h1>
-        <p class="hero-description">Cria uma identidade para a tua equipa, reúne o plantel, junta-te a comunidades e participa em torneios e campeonatos.</p>
+        <p class="eyebrow">{{ 'DO GRUPO DE AMIGOS À EQUIPA QUE COMPETE' | t }}</p>
+        <h1>{{ 'A tua equipa começa aqui.' | t }} <span>{{ 'Joguem juntos. Vão mais longe.' | t }}</span></h1>
+        <p class="hero-description">{{ 'Cria uma identidade para a tua equipa, reúne o plantel, junta-te a comunidades e participa em torneios e campeonatos.' | t }}</p>
         <div class="hero-actions">
-          <button type="button" class="action action-primary" (click)="toggleCreate()" [attr.aria-expanded]="createExpanded" aria-controls="team-create-panel">{{ createExpanded ? 'Fechar criação' : '+ Criar a minha equipa' }}</button>
-          <a class="action action-secondary" routerLink="/menu/teams" fragment="explorar-equipas">Explorar equipas</a>
-          <a class="action action-secondary" routerLink="/menu/teams/competitions">Encontrar competições</a>
+          <button type="button" class="action action-primary" (click)="toggleCreate()" [attr.aria-expanded]="createExpanded" aria-controls="team-create-panel">{{ createExpanded ? ('Fechar criação' | t) : ('+ Criar a minha equipa' | t) }}</button>
+          <a class="action action-secondary" routerLink="/menu/teams" fragment="explorar-equipas">{{ 'Explorar equipas' | t }}</a>
+          <a class="action action-secondary" routerLink="/menu/teams/competitions">{{ 'Encontrar competições' | t }}</a>
         </div>
       </div>
-      <div class="hero-benefits" aria-label="O que podes fazer com uma equipa">
-        <div><span aria-hidden="true">⚽</span><strong>Um plantel, uma identidade</strong><small>Reúne os jogadores e gere os convites.</small></div>
-        <div><span aria-hidden="true">🏆</span><strong>Torneios e campeonatos</strong><small>Participa e acompanha as competições.</small></div>
-        <div><span aria-hidden="true">📊</span><strong>Histórico e troféus</strong><small>Guarda o percurso e as conquistas.</small></div>
-        <div><span aria-hidden="true">🤝</span><strong>Comunidades desportivas</strong><small>Liga a tua equipa a comunidades.</small></div>
+      <div class="hero-benefits" [attr.aria-label]="'O que podes fazer com uma equipa' | t">
+        <div><span aria-hidden="true">⚽</span><strong>{{ 'Um plantel, uma identidade' | t }}</strong><small>{{ 'Reúne os jogadores e gere os convites.' | t }}</small></div>
+        <div><span aria-hidden="true">🏆</span><strong>{{ 'Torneios e campeonatos' | t }}</strong><small>{{ 'Participa e acompanha as competições.' | t }}</small></div>
+        <div><span aria-hidden="true">📊</span><strong>{{ 'Histórico e troféus' | t }}</strong><small>{{ 'Guarda o percurso e as conquistas.' | t }}</small></div>
+        <div><span aria-hidden="true">🤝</span><strong>{{ 'Comunidades desportivas' | t }}</strong><small>{{ 'Liga a tua equipa a comunidades.' | t }}</small></div>
       </div>
     </header>
 
-    <section id="team-create-panel" class="teams-section create-panel" *ngIf="createExpanded" aria-label="Criar equipa">
-      <div class="section-heading"><div><p class="eyebrow">COMEÇA A JOGAR</p><h2>Criar nova equipa</h2><p>Escolhe o nome, a modalidade e a localização. Podes completar a identidade da equipa mais tarde.</p></div><button type="button" class="icon-close" (click)="toggleCreate()" aria-label="Fechar criação">×</button></div>
+    <section id="team-create-panel" class="teams-section create-panel" *ngIf="createExpanded" [attr.aria-label]="'Criar equipa' | t">
+      <div class="section-heading"><div><p class="eyebrow">{{ 'COMEÇA A JOGAR' | t }}</p><h2>{{ 'Criar nova equipa' | t }}</h2><p>{{ 'Escolhe o nome, a modalidade e a localização. Podes completar a identidade da equipa mais tarde.' | t }}</p></div><button type="button" class="icon-close" (click)="toggleCreate()" [attr.aria-label]="'Fechar criação' | t">×</button></div>
       <form (ngSubmit)="create()" #teamForm="ngForm" class="create-form">
-        <label>Nome da equipa <input name="name" [(ngModel)]="draft.name" placeholder="Ex.: Amigos da Bola" required maxlength="100"></label>
-        <label>Modalidade
-          <select name="sport" [(ngModel)]="draft.sport" aria-label="Escolher modalidade">
-            <option value="">Selecionar modalidade (opcional)</option>
-            <option *ngFor="let item of sportsCatalog" [value]="item">{{ item }}</option>
+        <label>{{ 'Nome da equipa' | t }} <input name="name" [(ngModel)]="draft.name" [placeholder]="'Ex.: Amigos da Bola' | t" required maxlength="100"></label>
+        <label>{{ 'Modalidade' | t }}
+          <select name="sport" [(ngModel)]="draft.sport" [attr.aria-label]="'Escolher modalidade' | t">
+            <option value="">{{ 'Selecionar modalidade (opcional)' | t }}</option>
+            <option *ngFor="let item of sportsCatalog" [value]="item">{{ item | sportName }}</option>
           </select>
         </label>
-        <label>Localização <input name="location" [(ngModel)]="draft.location" placeholder="Ex.: Lisboa" maxlength="100"></label>
-        <label class="full">Descrição <textarea name="description" [(ngModel)]="draft.description" placeholder="Conta um pouco sobre a tua equipa..." maxlength="500"></textarea></label>
-        <div class="form-footer"><small>O feed e o chat ficam disponíveis para os membros confirmados. O responsável pode gerir ambos.</small><button type="submit" class="action action-primary" [disabled]="saving || teamForm.invalid">{{ saving ? 'A criar…' : 'Criar equipa' }}</button></div>
+        <label>{{ 'Localização' | t }} <input name="location" [(ngModel)]="draft.location" [placeholder]="'Ex.: Lisboa' | t" maxlength="100"></label>
+        <label class="full">{{ 'Descrição' | t }} <textarea name="description" [(ngModel)]="draft.description" [placeholder]="'Conta um pouco sobre a tua equipa...' | t" maxlength="500"></textarea></label>
+        <div class="form-footer"><small>{{ 'O feed e o chat ficam disponíveis para os membros confirmados. O responsável pode gerir ambos.' | t }}</small><button type="submit" class="action action-primary" [disabled]="saving || teamForm.invalid">{{ saving ? ('A criar…' | t) : ('Criar equipa' | t) }}</button></div>
       </form>
     </section>
 
     <p class="teams-error" role="alert" *ngIf="error">{{ error }}</p>
 
-    <section class="teams-section" aria-label="As minhas equipas">
+    <section class="teams-section" [attr.aria-label]="'As minhas equipas' | t">
       <div class="section-heading">
-        <div><p class="eyebrow">O TEU BALNEÁRIO</p><h2>As minhas equipas</h2><p>Continua a gerir os teus jogadores e as tuas competições.</p></div>
+        <div><p class="eyebrow">{{ 'O TEU BALNEÁRIO' | t }}</p><h2>{{ 'As minhas equipas' | t }}</h2><p>{{ 'Continua a gerir os teus jogadores e as tuas competições.' | t }}</p></div>
 
       </div>
-      <p *ngIf="mineLoading" role="status" class="loading-message">A carregar as tuas equipas…</p>
+      <p *ngIf="mineLoading" role="status" class="loading-message">{{ 'A carregar as tuas equipas…' | t }}</p>
       <p *ngIf="mineError" role="alert" class="teams-error">{{ mineError }}</p>
-      <button *ngIf="mineError" type="button" class="action action-secondary" (click)="loadMine()" [disabled]="mineLoading">Tentar novamente</button>
+      <button *ngIf="mineError" type="button" class="action action-secondary" (click)="loadMine()" [disabled]="mineLoading">{{ 'Tentar novamente' | t }}</button>
       <div class="teams-grid" *ngIf="!mineLoading && mine.length">
         <a class="team-card" *ngFor="let team of mine" [routerLink]="['/menu/teams',team.id]" (click)="openTeam(team)">
           <div class="team-card-top"><span class="team-emblem" aria-hidden="true" [style.--team-kit]="team.kitPrimary || '#16caba'">
             <img *ngIf="logoSrc(team.logoUrl) && !brokenTeamLogos.has(team.id)"
               [src]="logoSrc(team.logoUrl)!" (error)="logoFailed(team.id)" alt="">
             <ng-container *ngIf="!logoSrc(team.logoUrl) || brokenTeamLogos.has(team.id)">{{ (team.name || 'E').charAt(0).toUpperCase() }}</ng-container>
-          </span><span class="team-role">A tua equipa</span></div>
+          </span><span class="team-role">{{ 'A tua equipa' | t }}</span></div>
           <h3>{{team.name}}</h3>
-          <p>{{ (team.sport | sportName) || 'Várias modalidades' }} <span *ngIf="team.location">· {{team.location}}</span></p>
-          <span class="card-link">Ver equipa <span aria-hidden="true">→</span></span>
+          <p>{{ (team.sport | sportName) || ('Várias modalidades' | t) }} <span *ngIf="team.location">· {{team.location}}</span></p>
+          <span class="card-link">{{ 'Ver equipa' | t }} <span aria-hidden="true">→</span></span>
         </a>
       </div>
       <div class="empty-state" *ngIf="!mineLoading && !mineError && !mine.length">
         <span class="empty-icon" aria-hidden="true">⚽</span>
-        <h3>Ainda não criaste nenhuma equipa</h3>
-        <p>O teu primeiro plantel começa com um nome. Cria a equipa e convida a malta a juntar-se.</p>
-        <button type="button" class="action action-primary" (click)="createExpanded = true">Criar a primeira equipa</button>
+        <h3>{{ 'Ainda não criaste nenhuma equipa' | t }}</h3>
+        <p>{{ 'O teu primeiro plantel começa com um nome. Cria a equipa e convida a malta a juntar-se.' | t }}</p>
+        <button type="button" class="action action-primary" (click)="createExpanded = true">{{ 'Criar a primeira equipa' | t }}</button>
       </div>
     </section>
 
-    <section class="teams-section" aria-label="Equipas onde participas">
+    <section class="teams-section" [attr.aria-label]="'Equipas onde participas' | t">
       <div class="section-heading">
-        <div><p class="eyebrow">O TEU PLANTEL</p><h2>Equipas onde és jogador</h2>
-          <p>Entra no chat, consulta as publicações e acompanha a tua equipa.</p></div>
+        <div><p class="eyebrow">{{ 'O TEU PLANTEL' | t }}</p><h2>{{ 'Equipas onde és jogador' | t }}</h2>
+          <p>{{ 'Entra no chat, consulta as publicações e acompanha a tua equipa.' | t }}</p></div>
       </div>
-      <p *ngIf="joinedLoading" role="status">A confirmar as equipas onde participas…</p>
+      <p *ngIf="joinedLoading" role="status">{{ 'A confirmar as equipas onde participas…' | t }}</p>
       <p *ngIf="joinedError" role="alert" class="teams-error">{{joinedError}}</p>
       <button *ngIf="joinedError" type="button" class="action action-secondary"
-        (click)="loadJoined()" [disabled]="joinedLoading">Verificar equipas</button>
+        (click)="loadJoined()" [disabled]="joinedLoading">{{ 'Verificar equipas' | t }}</button>
       <div class="teams-grid" *ngIf="!joinedLoading && joined.length">
         <a class="team-card" *ngFor="let team of joined" [routerLink]="['/menu/teams',team.id]" (click)="openTeam(team)">
           <div class="team-card-top"><span class="team-emblem" aria-hidden="true" [style.--team-kit]="team.kitPrimary || '#16caba'">
@@ -81,64 +81,64 @@
               [src]="logoSrc(team.logoUrl)!" (error)="logoFailed(team.id)" alt="">
             <ng-container *ngIf="!logoSrc(team.logoUrl) || brokenTeamLogos.has(team.id)">{{ (team.name || 'E').charAt(0).toUpperCase() }}</ng-container>
           </span>
-            <span class="team-role">Jogador</span></div>
+            <span class="team-role">{{ 'Jogador' | t }}</span></div>
           <h3>{{team.name}}</h3>
-          <p>{{ (team.sport | sportName) || 'Várias modalidades' }} <span *ngIf="team.location">· {{team.location}}</span></p>
-          <span class="card-link">Abrir equipa →</span>
+          <p>{{ (team.sport | sportName) || ('Várias modalidades' | t) }} <span *ngIf="team.location">· {{team.location}}</span></p>
+          <span class="card-link">{{ 'Abrir equipa →' | t }}</span>
         </a>
       </div>
     </section>
 
-    <section class="teams-section" aria-label="Convites para plantéis" *ngIf="teamInvitations.length || teamInvitationError">
-      <div class="section-heading"><div><p class="eyebrow">PLANTÉIS</p><h2>Convites para entrares em equipas</h2>
-        <p>Confirma a entrada na equipa antes de participares no chat e nas publicações do plantel.</p></div></div>
+    <section class="teams-section" [attr.aria-label]="'Convites para plantéis' | t" *ngIf="teamInvitations.length || teamInvitationError">
+      <div class="section-heading"><div><p class="eyebrow">{{ 'PLANTÉIS' | t }}</p><h2>{{ 'Convites para entrares em equipas' | t }}</h2>
+        <p>{{ 'Confirma a entrada na equipa antes de participares no chat e nas publicações do plantel.' | t }}</p></div></div>
       <p *ngIf="teamInvitationError" role="alert" class="teams-error">{{teamInvitationError}}</p>
       <button *ngIf="teamInvitationError" type="button" class="action action-secondary" [disabled]="teamResponding"
-        (click)="loadTeamInvitations()">Verificar convites</button>
+        (click)="loadTeamInvitations()">{{ 'Verificar convites' | t }}</button>
       <article class="invite-card" *ngFor="let invitation of teamInvitations">
-        <div><strong>{{invitation.teamName}}</strong><p>Convite para integrar o plantel</p></div>
+        <div><strong>{{invitation.teamName}}</strong><p>{{ 'Convite para integrar o plantel' | t }}</p></div>
         <div class="invite-actions" *ngIf="teamInvitationsVerified">
           <button class="action action-primary" type="button" [disabled]="teamResponding"
-            (click)="respondTeam(invitation.teamId,true)">Aceitar</button>
+            (click)="respondTeam(invitation.teamId,true)">{{ 'Aceitar' | t }}</button>
           <button class="action action-secondary" type="button" [disabled]="teamResponding"
-            (click)="respondTeam(invitation.teamId,false)">Recusar</button>
+            (click)="respondTeam(invitation.teamId,false)">{{ 'Recusar' | t }}</button>
         </div>
       </article>
     </section>
 
-    <section class="teams-section" *ngIf="invitations.length" aria-label="Convites para competições">
-      <div class="section-heading"><div><p class="eyebrow">CONVITES</p><h2>Convites para as tuas equipas</h2><p>Aceitar um convite não inscreve automaticamente os jogadores.</p></div></div>
+    <section class="teams-section" *ngIf="invitations.length" [attr.aria-label]="'Convites para competições' | t">
+      <div class="section-heading"><div><p class="eyebrow">{{ 'CONVITES' | t }}</p><h2>{{ 'Convites para as tuas equipas' | t }}</h2><p>{{ 'Aceitar um convite não inscreve automaticamente os jogadores.' | t }}</p></div></div>
       <article class="invite-card" *ngFor="let invitation of invitations">
-        <div><strong>{{invitation.teamName}}</strong><p>{{invitation.competitionType === 'TOURNAMENT' ? 'Torneio' : 'Campeonato'}} · {{invitation.status === 'PENDING' ? 'Pendente' : invitation.status === 'ACCEPTED' ? 'Aceite' : 'Recusado'}}</p></div>
+        <div><strong>{{invitation.teamName}}</strong><p>{{invitation.competitionType === 'TOURNAMENT' ? ('Torneio' | t) : ('Campeonato' | t)}} · {{invitation.status === 'PENDING' ? ('Pendente' | t) : invitation.status === 'ACCEPTED' ? ('Aceite' | t) : ('Recusado' | t)}}</p></div>
         <div class="invite-actions" *ngIf="invitation.status === 'PENDING'">
-          <button class="action action-primary" type="button" (click)="respond(invitation.id, true)" [disabled]="responding">Aceitar</button>
-          <button class="action action-secondary" type="button" (click)="respond(invitation.id, false)" [disabled]="responding">Recusar</button>
+          <button class="action action-primary" type="button" (click)="respond(invitation.id, true)" [disabled]="responding">{{ 'Aceitar' | t }}</button>
+          <button class="action action-secondary" type="button" (click)="respond(invitation.id, false)" [disabled]="responding">{{ 'Recusar' | t }}</button>
         </div>
       </article>
     </section>
 
-    <section id="explorar-equipas" class="teams-section" aria-label="Explorar equipas">
-      <div class="section-heading"><div><p class="eyebrow">ENCONTRA O TEU PRÓXIMO JOGO</p><h2>Explorar equipas</h2><p>Descobre equipas desportivas, conhece os plantéis e encontra adversários.</p></div></div>
+    <section id="explorar-equipas" class="teams-section" [attr.aria-label]="'Explorar equipas' | t">
+      <div class="section-heading"><div><p class="eyebrow">{{ 'ENCONTRA O TEU PRÓXIMO JOGO' | t }}</p><h2>{{ 'Explorar equipas' | t }}</h2><p>{{ 'Descobre equipas desportivas, conhece os plantéis e encontra adversários.' | t }}</p></div></div>
       <form class="search-row" (ngSubmit)="search()">
-        <label for="team-search" class="visually-hidden">Nome da equipa</label>
-        <input id="team-search" type="search" [(ngModel)]="query" name="query" maxlength="100" placeholder="Pesquisar pelo nome da equipa…" autocomplete="off">
-        <button type="submit" class="action action-primary" [disabled]="loading">{{loading ? 'A procurar…' : 'Pesquisar'}}</button>
+        <label for="team-search" class="visually-hidden">{{ 'Nome da equipa' | t }}</label>
+        <input id="team-search" type="search" [(ngModel)]="query" name="query" maxlength="100" [placeholder]="'Pesquisar pelo nome da equipa…' | t" autocomplete="off">
+        <button type="submit" class="action action-primary" [disabled]="loading">{{loading ? ('A procurar…' | t) : ('Pesquisar' | t)}}</button>
       </form>
-      <p class="loading-message" *ngIf="loading" role="status">A procurar equipas…</p>
+      <p class="loading-message" *ngIf="loading" role="status">{{ 'A procurar equipas…' | t }}</p>
       <div class="teams-grid" *ngIf="!loading && teams.length">
         <a class="team-card" *ngFor="let team of teams" [routerLink]="['/menu/teams',team.id]" (click)="openTeam(team)">
           <div class="team-card-top"><span class="team-emblem" aria-hidden="true" [style.--team-kit]="team.kitPrimary || '#16caba'">
             <img *ngIf="logoSrc(team.logoUrl) && !brokenTeamLogos.has(team.id)"
               [src]="logoSrc(team.logoUrl)!" (error)="logoFailed(team.id)" alt="">
             <ng-container *ngIf="!logoSrc(team.logoUrl) || brokenTeamLogos.has(team.id)">{{ (team.name || 'E').charAt(0).toUpperCase() }}</ng-container>
-          </span><span class="team-role">Equipa</span></div>
+          </span><span class="team-role">{{ 'Equipa' | t }}</span></div>
           <h3>{{team.name}}</h3>
-          <p>{{ (team.sport | sportName) || 'Várias modalidades' }} <span *ngIf="team.location">· {{team.location}}</span></p>
+          <p>{{ (team.sport | sportName) || ('Várias modalidades' | t) }} <span *ngIf="team.location">· {{team.location}}</span></p>
           <small *ngIf="team.description">{{team.description}}</small>
-          <span class="card-link">Conhecer equipa <span aria-hidden="true">→</span></span>
+          <span class="card-link">{{ 'Conhecer equipa' | t }} <span aria-hidden="true">→</span></span>
         </a>
       </div>
-      <div *ngIf="!loading && !error && searched && teams.length === 0" class="empty-state"><span class="empty-icon" aria-hidden="true">⌕</span><h3>Nenhuma equipa encontrada</h3><p>Experimenta pesquisar por outro nome.</p></div>
+      <div *ngIf="!loading && !error && searched && teams.length === 0" class="empty-state"><span class="empty-icon" aria-hidden="true">⌕</span><h3>{{ 'Nenhuma equipa encontrada' | t }}</h3><p>{{ 'Experimenta pesquisar por outro nome.' | t }}</p></div>
     </section>
   </div>
 </main>

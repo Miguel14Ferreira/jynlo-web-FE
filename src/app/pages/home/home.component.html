@@ -86,7 +86,7 @@
                  [placeholder]="'events.sportPlaceholder' | t">
           <datalist id="home-sports">
             @for (sport of sportsCatalog; track sport) {
-              <option [value]="sport"></option>
+              <option [value]="sport" [label]="sport | sportName"></option>
             }
           </datalist>
         </label>

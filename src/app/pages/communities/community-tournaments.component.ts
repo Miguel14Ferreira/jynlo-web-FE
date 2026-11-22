@@ -1,3 +1,4 @@
+import { sportMatchesQuery } from '../../shared/venue-catalogue-display';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -3216,7 +3217,7 @@ export class CommunityTournamentsComponent implements OnChanges {
       .replace(/[\u0300-\u036f]/g, '').toLowerCase();
     return [...new Set([...this.communitySportOptions, ...SPORTS_CATALOG])]
       .map((sport, index) => ({ sport, index, key: normalize(sport) }))
-      .filter(item => item.key.includes(normalized))
+      .filter(item => item.key.includes(normalized) || sportMatchesQuery(item.sport, normalized))
       .sort((a, b) => {
         const rank = (key: string) => key === normalized ? 0 : key.startsWith(normalized) ? 1 : 2;
         return rank(a.key) - rank(b.key) || a.index - b.index;

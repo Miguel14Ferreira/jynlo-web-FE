@@ -1,5 +1,5 @@
 import { SPORTS_CATALOG } from './sports-catalog';
-import { venueCatalogueDisplayLabel as display } from './venue-catalogue-display';
+import { venueCatalogueDisplayLabel as display, sportMatchesQuery } from './venue-catalogue-display';
 
 describe('venue catalogue labels PT/EN', () => {
   it('covers every maintained sport without overwriting the original data', () => {
@@ -28,5 +28,16 @@ describe('venue catalogue labels PT/EN', () => {
     expect(display('Nova modalidade', 'sport', 'en')).toBe('Nova modalidade');
     expect(display('Canoagem', 'venueType', 'en')).toBe('Canoagem');
     expect(display(null, 'sport', 'en')).toBe('');
+  });
+});
+
+describe('sportMatchesQuery', () => {
+  it('finds catalogue sports by their Portuguese or English name', () => {
+    expect(sportMatchesQuery('Futebol', 'foot')).toBeTrue();
+    expect(sportMatchesQuery('Futebol', 'fute')).toBeTrue();
+    expect(sportMatchesQuery('Natação', 'natacao')).toBeTrue();
+    expect(sportMatchesQuery('Natação', 'Swim')).toBeTrue();
+    expect(sportMatchesQuery('Padel', 'swim')).toBeFalse();
+    expect(sportMatchesQuery('Padel', '')).toBeTrue();
   });
 });

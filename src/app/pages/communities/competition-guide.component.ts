@@ -1,3 +1,4 @@
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { SPORTS_CATALOG } from '../../shared/sports-catalog';
@@ -7,7 +8,7 @@ import { tournamentSportCapabilities, TournamentCreationModel } from './communit
 @Component({
   selector: 'app-competition-guide',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [SportNamePipe, TranslatePipe],
   templateUrl: './competition-guide.component.html',
   styleUrls: ['./competition-guide.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
