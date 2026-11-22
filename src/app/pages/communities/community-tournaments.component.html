@@ -124,7 +124,7 @@
           <label for="championship-sport">{{ 'communities.championshipUi.sport' | t }}</label>
           <select id="championship-sport" [(ngModel)]="championshipSportDraft">
             @for (sport of championshipSports; track sport) {
-              <option [value]="sport">{{ sport }}</option>
+              <option [value]="sport">{{ sport | sportName }}</option>
             }
           </select>
           <small class="championship-sport-support" role="status">
@@ -220,7 +220,7 @@
                 [value]="selectedRankingChart?.sport || ''"
                 (change)="chooseRankingChartSport($any($event.target).value)">
                 @for (sport of availableRankingChartSports; track sport) {
-                  <option [value]="sport">{{ sport }}</option>
+                  <option [value]="sport">{{ sport | sportName }}</option>
                 }
               </select>
             }
@@ -270,7 +270,7 @@
                         <span class="team-honours-champion">🏆 Campeã</span>
                       }
                     </div>
-                    <div>{{ season.name }} · {{ season.sport }}</div>
+                    <div>{{ season.name }} · {{ season.sport | sportName }}</div>
                     <div class="team-honours-muted">Equipa inscrita: {{ season.teamName }}</div>
                     @if (season.position !== null && season.closedAt) {
                       <div class="team-honours-result">
@@ -317,7 +317,7 @@
                     <option value="">Selecionar época</option>
                     @for (season of selectableTeamSeasons; track season.championshipId) {
                       <option [value]="season.championshipId">
-                        {{ season.seasonLabel }} · {{ season.name }} · {{ season.sport }}
+                        {{ season.seasonLabel }} · {{ season.name }} · {{ season.sport | sportName }}
                       </option>
                     }
                   </select>
@@ -330,7 +330,7 @@
                     <option value="">Selecionar época</option>
                     @for (season of selectableTeamSeasons; track season.championshipId) {
                       <option [value]="season.championshipId">
-                        {{ season.seasonLabel }} · {{ season.name }} · {{ season.sport }}
+                        {{ season.seasonLabel }} · {{ season.name }} · {{ season.sport | sportName }}
                       </option>
                     }
                   </select>
@@ -340,7 +340,7 @@
                 <div class="team-honours-comparison">
                   <article class="team-honours-comparison-side">
                     <h6>{{ comparison.older.season.seasonLabel }}</h6>
-                    <p>{{ comparison.older.season.name }} · {{ comparison.older.season.sport }}</p>
+                    <p>{{ comparison.older.season.name }} · {{ comparison.older.season.sport | sportName }}</p>
                     <p><strong>{{ comparison.older.season.position }}.º lugar</strong> · {{ comparison.older.season.points }} pontos</p>
                     <p>🏆 {{ comparison.older.championships }} Campeonato(s)
                       · 🥇 {{ comparison.older.leagues }} Liga(s)
@@ -348,7 +348,7 @@
                   </article>
                   <article class="team-honours-comparison-side">
                     <h6>{{ comparison.newer.season.seasonLabel }}</h6>
-                    <p>{{ comparison.newer.season.name }} · {{ comparison.newer.season.sport }}</p>
+                    <p>{{ comparison.newer.season.name }} · {{ comparison.newer.season.sport | sportName }}</p>
                     <p><strong>{{ comparison.newer.season.position }}.º lugar</strong> · {{ comparison.newer.season.points }} pontos</p>
                     <p>🏆 {{ comparison.newer.championships }} Campeonato(s)
                       · 🥇 {{ comparison.newer.leagues }} Liga(s)
@@ -380,7 +380,7 @@
               <ul>
                 @for (title of profile.seasonTitles; track title.championshipId) {
                   <li>{{ title.championshipName }} · {{ title.seasonLabel }}
-                    · {{ title.sport }} · {{ title.closedAt | date:'dd/MM/yyyy' }}</li>
+                    · {{ title.sport | sportName }} · {{ title.closedAt | date:'dd/MM/yyyy' }}</li>
                 }
               </ul>
             } @else {
@@ -393,7 +393,7 @@
               <ul>
                 @for (trophy of profile.competitionTitles; track trophy.championshipId + '-' + (trophy.ownedEventId != null ? 'event-' + trophy.ownedEventId : 'tournament-' + trophy.tournamentId)) {
                   <li>{{ trophy.format === 'LEAGUE' ? 'Liga' : 'Taça / Eliminatórias' }}
-                    · {{ trophy.tournamentName }} · {{ trophy.seasonLabel }} · {{ trophy.sport }}</li>
+                    · {{ trophy.tournamentName }} · {{ trophy.seasonLabel }} · {{ trophy.sport | sportName }}</li>
                 }
               </ul>
             } @else {
@@ -452,7 +452,7 @@
                   <li>
                     <strong>{{ trophy.winnerName }}</strong> · {{ trophy.tournamentName }}
                     · {{ trophy.format === 'LEAGUE' ? 'Liga' : 'Taça / Eliminatórias' }}
-                    · {{ trophy.seasonLabel }} · {{ trophy.sport }}
+                    · {{ trophy.seasonLabel }} · {{ trophy.sport | sportName }}
                     @if (trophy.entryType === 'TEAM' && !trophy.permanentTeamId) {
                       <small>Equipa ainda sem identidade permanente</small>
                     }
@@ -469,14 +469,14 @@
             <select id="championship-honours-sport-filter" [(ngModel)]="championshipHonoursSportFilter">
               <option value="">Todas as modalidades</option>
               @for (sport of championshipHonoursSports; track sport) {
-                <option [value]="sport">{{ sport }}</option>
+                <option [value]="sport">{{ sport | sportName }}</option>
               }
             </select>
             <ul>
               @for (title of filteredChampionshipTitles; track title.championshipId) {
                 <li>
                   <strong>{{ title.championName }}</strong>
-                  · {{ title.seasonLabel }} · {{ title.sport }}
+                  · {{ title.seasonLabel }} · {{ title.sport | sportName }}
                   · {{ title.championshipName }}
                   <span>({{ title.entryType === 'TEAM' ? 'Equipa' : 'Individual' }})</span>
                 </li>
@@ -501,7 +501,7 @@
             <div class="create-step-heading">
               <div>
                 <h5>{{ championship.name }} · {{ championship.seasonLabel }}</h5>
-                <p>{{ championship.sport }} · Encerrado a {{ championship.closedAt | date:'dd/MM/yyyy' }}</p>
+                <p>{{ championship.sport | sportName }} · Encerrado a {{ championship.closedAt | date:'dd/MM/yyyy' }}</p>
                 @if (championship.standingsMode === 'INDEPENDENT') {
                   <p>Época encerrada com vencedores independentes por prova.</p>
                 } @else if (championship.championDisplayName) {
@@ -593,7 +593,7 @@
         <div class="create-step-heading jynlo-season-heading">
           <div>
             <h5>{{ championship.name }}</h5>
-            <p>{{ championship.sport }} · {{ championship.seasonLabel }}</p>
+            <p>{{ championship.sport | sportName }} · {{ championship.seasonLabel }}</p>
             <p class="championship-sport-mode" role="note">
               <strong>Tipo de classificação:</strong>
               {{ championship.standingsMode === 'INDEPENDENT' ? 'Vencedores de cada prova, sem campeão geral' : 'Classificação geral por pontos' }}

@@ -247,7 +247,7 @@
         @for (session of sessions; track session.id) {
           <article class="session-row" [class.session-row--full]="vacancies(session) === 0">
             <div class="session-identity">
-              <span class="sport-label">{{ session.sport }}</span>
+              <span class="sport-label">{{ session.sport | sportName }}</span>
               <strong>{{ session.city }}</strong>
               @if (session.distanceKm !== null) {
                 <small>📍 {{ session.distanceKm | number:'1.1-1' }} km</small>

@@ -53,7 +53,7 @@
             <ng-container *ngIf="!logoSrc(team.logoUrl) || brokenTeamLogos.has(team.id)">{{ (team.name || 'E').charAt(0).toUpperCase() }}</ng-container>
           </span><span class="team-role">A tua equipa</span></div>
           <h3>{{team.name}}</h3>
-          <p>{{team.sport || 'Várias modalidades'}} <span *ngIf="team.location">· {{team.location}}</span></p>
+          <p>{{ (team.sport | sportName) || 'Várias modalidades' }} <span *ngIf="team.location">· {{team.location}}</span></p>
           <span class="card-link">Ver equipa <span aria-hidden="true">→</span></span>
         </a>
       </div>
@@ -83,7 +83,7 @@
           </span>
             <span class="team-role">Jogador</span></div>
           <h3>{{team.name}}</h3>
-          <p>{{team.sport || 'Várias modalidades'}} <span *ngIf="team.location">· {{team.location}}</span></p>
+          <p>{{ (team.sport | sportName) || 'Várias modalidades' }} <span *ngIf="team.location">· {{team.location}}</span></p>
           <span class="card-link">Abrir equipa →</span>
         </a>
       </div>
@@ -133,7 +133,7 @@
             <ng-container *ngIf="!logoSrc(team.logoUrl) || brokenTeamLogos.has(team.id)">{{ (team.name || 'E').charAt(0).toUpperCase() }}</ng-container>
           </span><span class="team-role">Equipa</span></div>
           <h3>{{team.name}}</h3>
-          <p>{{team.sport || 'Várias modalidades'}} <span *ngIf="team.location">· {{team.location}}</span></p>
+          <p>{{ (team.sport | sportName) || 'Várias modalidades' }} <span *ngIf="team.location">· {{team.location}}</span></p>
           <small *ngIf="team.description">{{team.description}}</small>
           <span class="card-link">Conhecer equipa <span aria-hidden="true">→</span></span>
         </a>

@@ -63,7 +63,7 @@
                   @for (sport of visibleFavoriteSports; track sport) {
                     <span class="favorite-sport-chip">
                       <span>{{ iconForSport(sport) }}</span>
-                      {{ sport }}
+                      {{ sport | sportName }}
                     </span>
                   }
 

@@ -6,11 +6,12 @@ import { forkJoin } from 'rxjs';
 import { AuthenticationService } from '../../services/authethication.service';
 import { FIRST_STEPS_MAX_SPORTS, FirstStepsService, firstStepsChoices } from '../../services/first-steps.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 @Component({
   selector: 'app-first-steps',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe],
+  imports: [SportNamePipe, CommonModule, FormsModule, TranslatePipe],
   templateUrl: './first-steps.component.html',
   styleUrls: ['./first-steps.component.css']
 })

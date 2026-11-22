@@ -5,12 +5,13 @@ import { Title } from '@angular/platform-browser';
 import { Subscription, timeout } from 'rxjs';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { PublicRankingPage, PublicRankingService } from '../../services/public-ranking.service';
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 /** /classificacao/:id — the community's season ranking, readable without an account. */
 @Component({
   selector: 'app-public-ranking',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslatePipe],
+  imports: [SportNamePipe, CommonModule, RouterModule, TranslatePipe],
   templateUrl: './public-ranking.component.html',
   styleUrls: ['../public-tournament/public-tournament.component.css']
 })

@@ -10,7 +10,7 @@
   @for (group of raceGroups; track group.sport) {
     <article class="specialized-stats__sport">
       <div class="specialized-stats__sport-heading">
-        <h4>🏁 {{ group.sport }}</h4>
+        <h4>🏁 {{ group.sport | sportName }}</h4>
         <span>{{ (group.rule ? 'communities.race.scoringOn' : 'communities.race.noScoring') | t }}</span>
       </div>
       @if (group.standings.length) {
@@ -47,7 +47,7 @@
     <div class="specialized-stats__unavailable" role="note">
       <p>{{ 'communities.specializedStats.unavailable' | t }}</p>
       <ul>
-        @for (sport of unsupportedSports; track sport) { <li>{{ sport }}</li> }
+        @for (sport of unsupportedSports; track sport) { <li>{{ sport | sportName }}</li> }
       </ul>
     </div>
   }

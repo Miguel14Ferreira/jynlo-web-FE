@@ -7,6 +7,7 @@ import { environment } from '../../../environment/environment';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { SPORTS_CATALOG } from '../../shared/sports-catalog';
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 export interface NearbyAlertPreference {
   enabled: boolean;
@@ -45,7 +46,7 @@ export function emptyNearbyPreference(): NearbyAlertPreference {
 @Component({
   selector: 'app-nearby-alerts-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe],
+  imports: [SportNamePipe, CommonModule, FormsModule, TranslatePipe],
   templateUrl: './nearby-alerts-panel.component.html',
   styleUrls: ['./nearby-alerts-panel.component.css'],
 })

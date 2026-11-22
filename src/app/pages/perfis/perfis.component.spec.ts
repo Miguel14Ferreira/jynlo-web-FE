@@ -1,3 +1,4 @@
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, Subject, BehaviorSubject, throwError } from 'rxjs';
 
@@ -118,7 +119,7 @@ describe('PerfisComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [PerfisComponent],
-      imports: [...TEST_IMPORTS, VenueSportsBadgesComponent, ProtectedMediaDirective, ProfilePostViewerComponent, ProfileStoryViewerComponent],
+      imports: [SportNamePipe, ...TEST_IMPORTS, VenueSportsBadgesComponent, ProtectedMediaDirective, ProfilePostViewerComponent, ProfileStoryViewerComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: CommunityService, useValue: service },

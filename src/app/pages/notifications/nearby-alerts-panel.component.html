@@ -53,7 +53,7 @@
         <div class="nearby-alerts__chips">
           @for (sport of prefs.sports; track sport) {
             <button type="button" class="nearby-chip nearby-chip--on" [disabled]="saving" (click)="toggleSport(sport)"
-              [attr.aria-label]="('nearbyAlerts.removeSport' | t: { sport: sport })">{{ sport }} ×</button>
+              [attr.aria-label]="('nearbyAlerts.removeSport' | t: { sport: sport })">{{ sport | sportName }} ×</button>
           }
         </div>
       }
@@ -62,7 +62,7 @@
       @if (suggestions.length) {
         <div class="nearby-alerts__chips">
           @for (sport of suggestions; track sport) {
-            <button type="button" class="nearby-chip" [disabled]="saving" (click)="toggleSport(sport)">{{ sport }}</button>
+            <button type="button" class="nearby-chip" [disabled]="saving" (click)="toggleSport(sport)">{{ sport | sportName }}</button>
           }
         </div>
       }

@@ -1,3 +1,4 @@
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -31,7 +32,7 @@ describe('HomeComponent public discovery', () => {
 
     await TestBed.configureTestingModule({
       declarations: [HomeComponent],
-      imports: [CommonModule, TranslatePipe, VenueSportsBadgesComponent, RouterModule.forRoot([])],
+      imports: [CommonModule, TranslatePipe, SportNamePipe, VenueSportsBadgesComponent, RouterModule.forRoot([])],
       providers: [
         { provide: SessionService, useValue: sessions },
         { provide: VenueService, useValue: venues }

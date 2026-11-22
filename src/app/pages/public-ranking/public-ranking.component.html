@@ -18,7 +18,7 @@
         <span class="pt-status is-live">{{ 'publicRanking.kicker' | t }}</span>
         <h1>{{ page.communityName }}</h1>
         <p class="pt-muted">
-          @if (page.sport) { {{ page.sport }} }
+          @if (page.sport) { {{ page.sport | sportName }} }
           @if (page.sport && selectedSeasonName()) { · }
           @if (selectedSeasonName()) { {{ selectedSeasonName() }} }
         </p>

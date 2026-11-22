@@ -412,7 +412,7 @@
                       <div class="profile-invite-option">
                         <span class="profile-invite-option-icon" aria-hidden="true">⚽</span>
                         <div class="profile-invite-option-info">
-                          <strong>{{ session.sport }} · {{ session.city }}</strong>
+                          <strong>{{ session.sport | sportName }} · {{ session.city }}</strong>
                           <small>{{ session.gameDate | date:'dd/MM/yyyy HH:mm' }}</small>
                         </div>
                         <button type="button"
@@ -498,7 +498,7 @@
                     @for (team of ownVerifiedTeams; track team.id) {
                       <a [routerLink]="['/menu/teams', team.id]" class="profile-membership-card">
                         <strong>{{ team.name }}</strong>
-                        <span>{{ team.sport || 'Equipa desportiva' }}</span>
+                        <span>{{ (team.sport | sportName) || 'Equipa desportiva' }}</span>
                       </a>
                     }
                   </div>
@@ -510,7 +510,7 @@
                       <a [routerLink]="['/menu/communities', group.id]"
                          class="profile-membership-card">
                         <strong>{{ group.name }}</strong>
-                        <span>{{ group.sport || 'Comunidade desportiva' }}</span>
+                        <span>{{ (group.sport | sportName) || 'Comunidade desportiva' }}</span>
                       </a>
                     }
                   </div>
@@ -538,7 +538,7 @@
                   @for (team of publicAffiliations.teams; track team.id) {
                     <a [routerLink]="['/menu/teams',team.id]" class="profile-membership-card">
                       <strong>{{ team.name }}</strong>
-                      <span>{{ team.sport || 'Equipa desportiva' }}</span>
+                      <span>{{ (team.sport | sportName) || 'Equipa desportiva' }}</span>
                     </a>
                   }
                 </div>
@@ -549,7 +549,7 @@
                   @for (group of publicAffiliations.communities; track group.id) {
                     <a [routerLink]="['/menu/communities',group.id]" class="profile-membership-card">
                       <strong>{{ group.name }}</strong>
-                      <span>{{ group.sport || 'Comunidade desportiva' }}</span>
+                      <span>{{ (group.sport | sportName) || 'Comunidade desportiva' }}</span>
                     </a>
                   }
                 </div>
@@ -584,7 +584,7 @@
                     [routerLink]="['/menu/communities', entry.communityId]">
                     <span class="profile-competition-participation-main">
                       <strong>{{ entry.tournamentName }}</strong>
-                      <small>{{ entry.communityName }}@if (entry.sport) { · {{ entry.sport }} }</small>
+                      <small>{{ entry.communityName }}@if (entry.sport) { · {{ entry.sport | sportName }} }</small>
                     </span>
                     <span class="profile-competition-participation-status">
                       @if (entry.individualChampion) {
@@ -620,7 +620,7 @@
                     <strong>{{ title.tournamentName }}</strong>
                     <span>{{ title.communityName }}</span>
                     @if (title.sport) {
-                      <span>{{ title.sport }}</span>
+                      <span>{{ title.sport | sportName }}</span>
                     }
                     <small>{{ 'profileData.officialTitlesCompleted' | t }}: {{ title.completedAt | date:'MMM yyyy' }}</small>
                   </a>

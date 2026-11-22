@@ -2,7 +2,7 @@
                         class="community-session-card"
                         [routerLink]="['/menu/events', session.id]">
                         <div class="community-session-main">
-                          <strong>{{ session.sport }}</strong>
+                          <strong>{{ session.sport | sportName }}</strong>
                           <span>{{ session.city }} · {{ formattedDate }}</span>
                         </div>
                         <div class="community-session-meta">

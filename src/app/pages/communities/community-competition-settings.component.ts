@@ -3,12 +3,13 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { CommunitySwitchComponent } from './community-switch.component';
 import { formatForSport } from './community-round-sport';
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 /** Display and draft editing only: permission, persistence and official point rules stay in the page. */
 @Component({
   selector: 'app-community-competition-settings',
   standalone: true,
-  imports: [FormsModule, TranslatePipe, CommunitySwitchComponent],
+  imports: [SportNamePipe, FormsModule, TranslatePipe, CommunitySwitchComponent],
   templateUrl: './community-competition-settings.component.html',
   styleUrls: ['./community-competition-settings.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -162,7 +162,7 @@
                  (click)="$event.stopPropagation()">
           <h3 id="feed-cancel-session-title">Cancelar sessão?</h3>
           <p id="feed-cancel-session-description">
-            Vais cancelar a tua sessão de {{ sessionToCancel.sport || 'desporto' }}
+            Vais cancelar a tua sessão de {{ (sessionToCancel.sport | sportName) || 'desporto' }}
             @if (sessionToCancel.gameDate) { de {{ sessionToCancel.gameDate | date:'dd/MM/yyyy' }} }.
             Os participantes deixarão de poder inscrever-se. Esta ação não pode ser anulada.
           </p>
@@ -235,7 +235,7 @@
         <div class="postgame-session-card">
           <div class="postgame-session-summary">
             <span class="postgame-session-kicker">{{ 'feed.newSessionLinked' | t }}</span>
-            <strong>{{ newSession.sport }} · {{ newSession.city }}</strong>
+            <strong>{{ newSession.sport | sportName }} · {{ newSession.city }}</strong>
             <span>{{ newSession.gameDate | date:'dd/MM/yyyy HH:mm' }}</span>
           </div>
           <button type="button" class="postgame-detach jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small"
@@ -247,7 +247,7 @@
         <div class="postgame-session-card">
           <div class="postgame-session-summary">
             <span class="postgame-session-kicker">{{ 'feed.postGameLinkedSession' | t }}</span>
-            <strong>{{ completedSession.sport }} · {{ completedSession.city }}</strong>
+            <strong>{{ completedSession.sport | sportName }} · {{ completedSession.city }}</strong>
             <span>{{ completedSession.gameDate | date:'dd/MM/yyyy HH:mm' }}</span>
           </div>
           <button type="button" class="postgame-detach jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small" [disabled]="posting"
@@ -573,7 +573,7 @@
           } @else {
             @for (session of myWeekGames; track session.id) {
               <a class="week-item" [routerLink]="['/menu/events', session.id]">
-                <strong>{{ session.sport }} <span aria-hidden="true">↗</span></strong>
+                <strong>{{ session.sport | sportName }} <span aria-hidden="true">↗</span></strong>
                 <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
                 <small>{{ 'week.confirmed' | t }}</small>
               </a>
@@ -590,7 +590,7 @@
             }
             @for (session of myWeekWaitlist; track session.id) {
               <a class="week-item" [routerLink]="['/menu/events', session.id]">
-                <strong>{{ session.sport }} <span aria-hidden="true">↗</span></strong>
+                <strong>{{ session.sport | sportName }} <span aria-hidden="true">↗</span></strong>
                 <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
                 <small class="week-waitlist">{{ 'week.waitlist' | t }}</small>
               </a>
@@ -610,7 +610,7 @@
             @for (session of myWeekOffers; track session.id) {
               <a class="week-item" [routerLink]="['/menu/events', session.id]"
                  [queryParams]="{ join: '1' }">
-                <strong>{{ session.sport }} <span aria-hidden="true">↗</span></strong>
+                <strong>{{ session.sport | sportName }} <span aria-hidden="true">↗</span></strong>
                 <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
                 <small>{{ 'week.needs' | t }} {{ session.maxParticipants - session.participantCount }}
                   {{ (session.maxParticipants - session.participantCount) === 1 ? ('week.player' | t) : ('week.players' | t) }}</small>
@@ -912,7 +912,7 @@
               @if (item.sessionId !== null) {
                 <a class="session-preview" [routerLink]="['/menu/events', item.sessionId]">
                   <div>
-                    <strong>{{ item.sport }}</strong>
+                    <strong>{{ item.sport | sportName }}</strong>
                     <span>{{ item.city }}</span>
                   </div>
                   <div>
@@ -1123,7 +1123,7 @@
                 class="session-preview"
                 [routerLink]="['/menu/events', item.sessionId]">
                 <div>
-                  <strong>{{ item.sport }}</strong>
+                  <strong>{{ item.sport | sportName }}</strong>
                   <span>{{ item.city }}</span>
                 </div>
                 <div>
@@ -1271,7 +1271,7 @@
                 class="session-preview"
                 [routerLink]="['/menu/events', item.sessionId]">
                 <div>
-                  <strong>{{ item.sport }}</strong>
+                  <strong>{{ item.sport | sportName }}</strong>
                   <span>{{ item.city }}</span>
                 </div>
                 <div>
@@ -1337,7 +1337,7 @@
                   <span class="feed-session-spotlight-top">
                     <span class="feed-session-sport-icon" aria-hidden="true">✦</span>
                     <span class="feed-suggested-details">
-                      <strong>{{ session.sport }}</strong>
+                      <strong>{{ session.sport | sportName }}</strong>
                       <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
                     </span>
                     <span class="feed-session-chevron" aria-hidden="true">↗</span>

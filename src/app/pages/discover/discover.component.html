@@ -362,7 +362,7 @@
                     <small>{{ sessionDisplayDate(session) | date:'dd/MM' }}</small>
                   </span>
                   <div class="session-main">
-                    <strong>{{ session.sport }}</strong>
+                    <strong>{{ session.sport | sportName }}</strong>
                     <span>{{ session.city }} · {{ (sessionDisplayDate(session) | date:'dd/MM HH:mm') || ('publicSession.notSpecified' | t) }}</span>
                     <span class="session-summary-meta">
                       @if (session.priceAmount > 0) {

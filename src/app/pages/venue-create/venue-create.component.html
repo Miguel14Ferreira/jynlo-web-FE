@@ -128,7 +128,7 @@
               <button type="button" class="jynlo-action jynlo-action--neutral jynlo-action--compact"
                 (click)="toggleSport(sport, false)"
                 [attr.aria-label]="('venue.create.removeSport' | t) + ': ' + sport">
-                {{ sport }} <span aria-hidden="true">×</span>
+                {{ sport | sportName }} <span aria-hidden="true">×</span>
               </button>
             }
           </div>

@@ -19,7 +19,7 @@
         <span class="pt-status" [class.is-live]="page.status === 'IN_PROGRESS'">{{ statusKey(page.status) | t }}</span>
         <h1>{{ page.name }}</h1>
         <p class="pt-muted">
-          @if (page.sport) { {{ page.sport }} }
+          @if (page.sport) { {{ page.sport | sportName }} }
           @if (page.sport && page.communityName) { · }
           @if (page.communityName) { {{ page.communityName }} }
         </p>
