@@ -636,3 +636,18 @@ button:is([aria-label^="Fechar " i],[aria-label^="Close " i],
 .feedback.success-feedback {
   display: none !important;
 }
+
+/* Text-only action inside a panel (e.g. "Recebeste uma palavra-passe? Usa-a aqui."). */
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #5ee6c8;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.link-button:hover { color: #8ff3dc; }
+.link-button:focus-visible { outline: 2px solid #5ee6c8; outline-offset: 3px; border-radius: 4px; }

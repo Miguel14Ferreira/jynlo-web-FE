@@ -133,7 +133,14 @@ import { SportsTeamMember, SportsTeamPlayerCandidate, SportsTeamsService, TeamRo
       border: 1px dashed rgba(83, 188, 180, .45); }
     .team-roster-import h3 { margin: 0; }
     .team-roster-import__actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    .team-roster-import__template { font-weight: 700; }
+    .team-roster-import__template { font-weight: 700; color: #5ee6c8; text-decoration: none; }
+    .team-roster-import__template:hover { text-decoration: underline; }
+    .team-roster-import .team-member-remove { min-width: 32px; height: 32px; border-radius: 999px; border: 1px solid rgba(248, 113, 113, .45);
+      background: transparent; color: #fca5a5; font-weight: 800; cursor: pointer; }
+    .team-roster-import .team-member-remove:hover:not(:disabled) { background: rgba(248, 113, 113, .12); }
+    .team-roster-import input:not([type=file]) { min-height: 36px; padding: 6px 10px; border-radius: 10px;
+      border: 1px solid rgba(83, 188, 180, .35); background: rgba(6, 22, 32, .6); color: inherit; }
+    .team-roster-import details summary { cursor: pointer; font-weight: 700; }
     .team-roster-import__picker { position: relative; display: inline-flex; padding: 8px 14px; border-radius: 999px;
       border: 1px solid rgba(83, 188, 180, .5); cursor: pointer; font-weight: 700; }
     .team-roster-import__picker input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }

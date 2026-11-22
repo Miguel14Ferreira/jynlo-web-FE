@@ -19,13 +19,9 @@ import { SportsTeamsService, TeamRosterClaim } from '../../services/sports-teams
         <a routerLink="/menu/teams">{{ 'Ver as minhas equipas' | t }}</a>
       }
       @if (claim && !done) {
-        <span class="section-kicker">{{ 'Convite para o plantel' | t }}</span>
+        <span class="team-roster-claim__kicker">{{ 'Convite para o plantel' | t }}</span>
         <h1>{{ claim.teamName }}</h1>
-        <p class="team-roster-claim__line">
-          {{ 'És' | t }} <strong>{{ claim.name }}</strong>
-          @if (claim.shirtNumber !== null) { · nº {{ claim.shirtNumber }} }
-          @if (claim.position) { · {{ claim.position }} }?
-        </p>
+        <p class="team-roster-claim__line">{{ 'És' | t }} <strong>{{ claim.name }}</strong>{{ claimDetails() }}?</p>
         <p>{{ 'Ao aceitar, entras na equipa com a tua conta e ficas com este lugar no plantel.' | t }}</p>
         <div class="team-roster-claim__actions">
           <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy" (click)="accept()">
@@ -37,7 +33,8 @@ import { SportsTeamsService, TeamRosterClaim } from '../../services/sports-teams
     </main>
   `,
   styles: [`
-    .team-roster-claim { max-width: 560px; margin: 48px auto; padding: 28px 22px; display: grid; gap: 14px;
+    .team-roster-claim__kicker { color: #5ee6c8; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .team-roster-claim { max-width: 560px; margin: clamp(96px, 14vh, 140px) auto 64px; padding: 28px 22px; display: grid; gap: 14px;
       border-radius: 20px; border: 1px solid rgba(83, 188, 180, .35); background: rgba(13, 44, 60, .58); }
     h1 { margin: 0; }
     .team-roster-claim__line { font-size: 1.15rem; margin: 0; }
@@ -69,6 +66,12 @@ export class TeamRosterClaimComponent implements OnInit {
         },
         error: e => this.error = e?.error?.message || appTranslate('Link inválido ou já usado')
       });
+  }
+
+  claimDetails(): string {
+    if (!this.claim) return '';
+    return (this.claim.shirtNumber != null ? ' · nº ' + this.claim.shirtNumber : '')
+      + (this.claim.position ? ' · ' + this.claim.position : '');
   }
 
   accept(): void {

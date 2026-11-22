@@ -245,7 +245,7 @@
               @if (session.privateGame) {
                 <!-- Invite-only sessions: the participation panel explains how to get in. -->
                 <button type="button" class="join-shortcut join-now" (click)="scrollToParticipation()">
-                  {{ joinButtonLabel() }}
+                  {{ 'Como entrar' | t }}
                   <span aria-hidden="true">↓</span>
                 </button>
               } @else {

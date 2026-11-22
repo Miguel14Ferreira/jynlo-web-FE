@@ -8046,6 +8046,7 @@ export const EN: Record<string, string> = {
   'Feed e Stories': 'Feed and Stories',
   'Quem pode publicar?': 'Who can post?',
   'Algo correu mal': 'Something went wrong',
+  'Como entrar': 'How to join',
   'A abrir o convite…': 'Opening the invite…',
   'Ver as minhas equipas': 'See my teams',
   'Convite para o plantel': 'Squad invite',
