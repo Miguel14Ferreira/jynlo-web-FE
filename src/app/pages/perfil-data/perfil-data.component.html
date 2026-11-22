@@ -27,7 +27,7 @@
         <div class="identity">
           <div class="avatar">
             @if (profileImage(); as image) {
-              <img [src]="image" [alt]="profile.username">
+              <img data-zoomable [src]="image" [alt]="profile.username">
             } @else {
               <span>{{ initials() }}</span>
             }

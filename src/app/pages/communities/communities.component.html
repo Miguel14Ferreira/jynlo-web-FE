@@ -313,7 +313,7 @@
                         <img class="community-cover-backdrop" [src]="communityPresentation.photoUrl"
                           alt="" aria-hidden="true" loading="lazy">
                       }
-                      <img class="community-cover-foreground" [src]="communityPresentation.photoUrl" [alt]="communityPresentation.name"
+                      <img data-zoomable class="community-cover-foreground" [src]="communityPresentation.photoUrl" [alt]="communityPresentation.name"
                         [style.object-fit]="communityCoverFit(communityPresentation)"
                         [style.object-position]="communityCoverPosition(communityPresentation)"
                         [style.transform-origin]="communityCoverOrigin(communityPresentation)"

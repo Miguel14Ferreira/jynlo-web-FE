@@ -32,7 +32,7 @@
     @if (!loading && session) {
       <article class="detail-card">
         @if (photoUrl(session.gamePhoto); as imageUrl) {
-          <img class="session-photo" [src]="imageUrl" [alt]="'sessionDetail.photoAlt' | t:{ sport: session.sport }">
+          <img data-zoomable class="session-photo" [src]="imageUrl" [alt]="'sessionDetail.photoAlt' | t:{ sport: session.sport }">
         }
 
         <div class="detail-content">

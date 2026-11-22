@@ -18,6 +18,7 @@ import { TranslatePipe } from './i18n/translate.pipe';
 
 import { ProfileQuickViewComponent } from './shared/profile-quick-view.component';
 import { PageNoticePopupComponent } from './shared/page-notice-popup.component';
+import { ImageZoomComponent } from './shared/image-zoom.component';
 import { VenueSportsBadgesComponent } from './shared/venue-sports-badges/venue-sports-badges.component';
 import { LegalPageComponent } from './pages/legal-page/legal-page.component';
 import { JynloSelectComponent } from './shared/jynlo-select/jynlo-select.component';
@@ -43,5 +44,6 @@ import { SportNamePipe } from './i18n/sport-name.pipe';
     VenueSportsBadgesComponent,
         ProfileQuickViewComponent,
         PageNoticePopupComponent,
+        ImageZoomComponent,
         VenueSportsBadgesComponent], providers: [AuthenticationGuard, AuthenticationService, { provide: ErrorHandler, useClass: ClientErrorHandler }, { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }, provideHttpClient(withXhr(), withInterceptorsFromDi())] })
 export class AppModule { }
