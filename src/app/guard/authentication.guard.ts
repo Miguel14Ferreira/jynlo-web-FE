@@ -50,7 +50,9 @@ export class AuthenticationGuard {
     localStorage.removeItem('t');
     return this.router.createUrlTree(
       ['/login'],
-      { queryParams: { returnUrl: state.url, sessionExpired: '1' } }
+      // "Session expired" only makes sense to someone who had a session;
+      // a visitor who taps "Join" just gets the sign-in page.
+      { queryParams: token ? { returnUrl: state.url, sessionExpired: '1' } : { returnUrl: state.url } }
     );
   }
 

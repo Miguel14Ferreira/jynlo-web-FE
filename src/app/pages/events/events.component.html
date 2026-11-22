@@ -293,7 +293,7 @@
             <a
               class="session-action jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet"
               [class.session-action--join]="canJoin(session) || canJoinWaitlist(session)"
-              [routerLink]="['/menu/events', session.id]"
+              [routerLink]="visitor && !(canJoin(session) || canJoinWaitlist(session)) ? ['/sessions', session.id] : ['/menu/events', session.id]"
                 [queryParams]="canJoin(session) || canJoinWaitlist(session) ? { join: 1 } : null">
               {{ (canJoin(session) ? 'events.joinNow'
                 : (canJoinWaitlist(session) ? 'session.joinWaitlist' : 'mySessions.details')) | t }}

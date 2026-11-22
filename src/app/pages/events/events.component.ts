@@ -1,4 +1,6 @@
+import { AuthenticationService } from '../../services/authethication.service';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { finalize, retry, Subscription, timeout } from 'rxjs';
 
@@ -54,6 +56,9 @@ export class EventsComponent implements OnInit, OnDestroy {
   private locationRequestId = 0;
   private currentSearch?: Subscription;
   private destroyed = false;
+
+  /** Signed-out visitors see the public game page; joining still asks them to sign in. */
+  readonly visitor = !inject(AuthenticationService).isLoggedIn();
 
   constructor(
     private sessionService: SessionService,

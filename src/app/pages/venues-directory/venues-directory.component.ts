@@ -40,6 +40,9 @@ export class VenuesDirectoryComponent implements OnInit, OnDestroy {
   private requestVersion = 0;
   private readonly destroyed = new Subject<void>();
 
+  /** Signed-out visitors open the public venue page. */
+  readonly visitor = typeof localStorage === 'undefined' || !localStorage.getItem('t');
+
   constructor(
     private readonly venuesApi: VenueService,
     private readonly route: ActivatedRoute,

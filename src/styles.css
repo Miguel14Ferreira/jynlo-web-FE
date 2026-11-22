@@ -659,3 +659,6 @@ img[data-zoomable], :has(> img[data-zoomable]) { cursor: zoom-in; }
    instead of squeezing names and headers one letter per line. */
 .racket-standings-group .t-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .racket-standings-group .t-table-scroll table { min-width: 520px; white-space: nowrap; }
+
+/* Explore for signed-out visitors: account prompt where an account is needed. */
+.visitor-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .75rem; }
