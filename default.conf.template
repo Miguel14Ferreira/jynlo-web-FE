@@ -82,6 +82,13 @@ server {
         expires -1;
     }
 
+    # iPhone universal links: Apple reads this file (no extension) as JSON.
+    location = /.well-known/apple-app-site-association {
+        default_type application/json;
+        add_header Cache-Control "public, max-age=3600";
+        try_files $uri =404;
+    }
+
     # Never serve hidden config or key files.
     location ~ /\.(?!well-known) {
         return 404;
