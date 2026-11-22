@@ -14,3 +14,9 @@
 .members-block .community-member-open{margin-left:auto;color:#73e2d0;font-size:1.1rem}
 .members-block .member-row>.row-actions{display:flex;flex-wrap:wrap;gap:7px}
 @media(max-width:620px){.members-block .member-row{align-items:stretch;flex-direction:column}.members-block .member-row>.row-actions{padding-left:8px}.members-block .community-member-avatar{width:44px;height:44px;flex-basis:44px}}
+
+/* Name and role on one line, handle underneath, always left-aligned. */
+.members-block .community-member-profile{text-align:left;justify-content:flex-start}
+.members-block .community-member-identity{display:grid;gap:3px;justify-items:start;text-align:left;flex:1 1 auto}
+.members-block .community-member-line{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0}
+.members-block .community-member-line strong{flex-basis:auto;font-size:1rem}
