@@ -58,3 +58,20 @@ test('the sitemap comes from the backend', () => {
   assert.ok(config.includes('location = /sitemap.xml {'));
   assert.ok(config.includes('rewrite ^ /api/public/sitemap.xml last;'));
 });
+
+test('Vercel sends the same crawlers to the same share pages, before the app fallback', () => {
+  const vercel = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '../../vercel.json'), 'utf8'));
+  const rules = vercel.rewrites;
+  const nginxBots = config.match(/"~\*\((.*?)\)"/)[1];
+  for (const [source, target] of [['/sessions/:id(\\d+)', '/api/share/sessions/:id'],
+    ['/menu/communities/:id(\\d+)', '/api/share/communities/:id'],
+    ['/menu/perfis/:username([A-Za-z0-9._-]+)', '/api/share/profiles/:username']]) {
+    const rule = rules.find(r => r.source === source);
+    assert.ok(rule, source);
+    assert.ok(rule.destination.endsWith(target), source);
+    assert.ok(rule.has[0].value.includes(nginxBots), 'same crawler list as nginx');
+    assert.ok(rules.indexOf(rule) < rules.findIndex(r => r.source === '/(.*)'));
+  }
+  const robots = require('node:fs').readFileSync(require('node:path').join(__dirname, '../../src/robots.txt'), 'utf8');
+  assert.match(robots, /Sitemap: https:\/\/api\.d24sports\.com\/api\/public\/sitemap\.xml/);
+});

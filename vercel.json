@@ -5,6 +5,39 @@
   "outputDirectory": "dist/desporto24",
   "rewrites": [
     {
+      "source": "/sessions/:id(\\d+)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|meta-externalagent|whatsapp|twitterbot|linkedinbot|slackbot|telegrambot|discordbot|skypeuripreview|pinterest|embedly).*"
+        }
+      ],
+      "destination": "https://api.d24sports.com/api/share/sessions/:id"
+    },
+    {
+      "source": "/menu/communities/:id(\\d+)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|meta-externalagent|whatsapp|twitterbot|linkedinbot|slackbot|telegrambot|discordbot|skypeuripreview|pinterest|embedly).*"
+        }
+      ],
+      "destination": "https://api.d24sports.com/api/share/communities/:id"
+    },
+    {
+      "source": "/menu/perfis/:username([A-Za-z0-9._-]+)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|meta-externalagent|whatsapp|twitterbot|linkedinbot|slackbot|telegrambot|discordbot|skypeuripreview|pinterest|embedly).*"
+        }
+      ],
+      "destination": "https://api.d24sports.com/api/share/profiles/:username"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
