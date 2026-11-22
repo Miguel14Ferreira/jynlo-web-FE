@@ -243,7 +243,7 @@
             }
             @if (canJoinSession()) {
               @if (session.privateGame) {
-                <!-- Private sessions need the password field in the participation panel. -->
+                <!-- Invite-only sessions: the participation panel explains how to get in. -->
                 <button type="button" class="join-shortcut join-now" (click)="scrollToParticipation()">
                   {{ joinButtonLabel() }}
                   <span aria-hidden="true">↓</span>
