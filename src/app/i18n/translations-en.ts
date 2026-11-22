@@ -1706,6 +1706,7 @@ export const EN: Record<string, string> = {
   'notifications.tournament.open': 'View tournament',
   'notifications.preferences.type.PAYMENT_REMINDER': 'Game payment reminders',
   'notifications.preferences.type.NEARBY_SESSION': 'New games near you',
+  'notifications.preferences.type.COMMUNITY_SESSION_CREATED': 'New games in your communities',
   'notifications.preferences.type.AVAILABILITY_REQUEST': 'Availability requests (who can play?)',
   'notifications.preferences.type.AVAILABILITY_REMINDER': 'Reminders to answer availability requests',
   'nearbyAlerts.title': 'New games near you',
