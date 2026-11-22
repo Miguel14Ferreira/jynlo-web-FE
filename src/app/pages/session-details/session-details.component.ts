@@ -359,6 +359,8 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   joinStatusMessage = '';
   inviteFriendsOpen = false;
   guestLinkUrl = '';
+  /** Older private games still use a password; new ones are invite-only. */
+  legacyPasswordOpen = false;
   guestLinkWorking = false;
   guestPanelError = '';
   guestPanelSuccess = '';
@@ -2888,7 +2890,6 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   canShareGuestInvites(): boolean {
     return !!this.session && this.isCreator()
       && (this.session.audience === 'PUBLIC' || this.session.audience === 'COMMUNITY_ONLY')
-      && !this.session.privateGame
       && (this.session.status === 'OPEN' || this.session.status === 'FULL')
       && Date.parse(this.session.gameDate) > Date.now();
   }

@@ -4962,8 +4962,8 @@ export const EN: Record<string, string> = {
   'createSession.mapPointAddress': 'Map point ({{latitude}}, {{longitude}})',
   'createSession.venueNoLongerAvailable': 'The selected venue is no longer available. Choose another venue.',
   'createSession.venueSportMismatch': 'The selected sport is not available at this venue. Choose another venue.',
-  'createSession.private': 'Private session',
-  'createSession.privateHint': 'Anyone joining will need the password.',
+  'createSession.private': 'Invite only',
+  'createSession.privateHint': "Won't appear in Explore. After creating it, share the invitation link (with or without an account) or invite people directly.",
   'createSession.sessionPassword': 'Session password',
   'createSession.hasCost': 'Cost per player',
   'createSession.costHint': 'If disabled, the session will appear as free.',
@@ -8066,4 +8066,6 @@ export const EN: Record<string, string> = {
   'Não foi possível seguir a comunidade. Tenta novamente.': "Could not follow the community. Please try again.",
   'A preparar as tuas fotografias…': 'Preparing your photos…',
   'Presença nos jogos': 'Game attendance',
+  'Este jogo é só por convite. Pede o link de convite ao organizador.': 'This game is invite-only. Ask the organiser for the invitation link.',
+  'Recebeste uma palavra-passe? Usa-a aqui.': 'Got a password? Use it here.',
 };

@@ -2119,12 +2119,11 @@ describe('SessionDetailsComponent', () => {
     expect(root.textContent).toContain('Classificações e estatísticas');
   });
 
-  it('does not expose guest invitations to non-creators or closed/private games', () => {
+  it('does not expose guest invitations to non-creators or closed games', () => {
     (component as any).currentUsername='creator-user';
     for(const detail of [
       {gameDate:'2020-10-01T18:00:00Z',status:'OPEN' as const,privateGame:false},
-      {gameDate:'2099-10-01T18:00:00Z',status:'CANCELLED' as const,privateGame:false},
-      {gameDate:'2099-10-01T18:00:00Z',status:'OPEN' as const,privateGame:true}
+      {gameDate:'2099-10-01T18:00:00Z',status:'CANCELLED' as const,privateGame:false}
     ]){
       component.session={...session,audience:'COMMUNITY_ONLY',...detail};
       fixture.detectChanges();
@@ -2136,18 +2135,15 @@ describe('SessionDetailsComponent', () => {
     expect(fixture.nativeElement.querySelector('.session-invite-toggle')).toBeNull();
   });
 
-  it('only offers a restricted internal share for private games', () => {
+  it('private (invite-only) games give the organiser the invitation link', () => {
     const route=TestBed.inject(ActivatedRoute);
     spyOn(route.snapshot.queryParamMap,'get').and.callFake(key=>key==='created'?'1':null);
     (component as any).currentUsername='creator-user';
     component.session={...session,gameDate:'2099-10-01T18:00:00Z',
       audience:'PUBLIC',privateGame:true,canSharePublicly:false};
     fixture.detectChanges();
-    const panel=fixture.nativeElement.querySelector('.session-created-share') as HTMLElement;
-    expect(panel).not.toBeNull();
-    expect(panel.textContent).toContain('Convidar jogadores');
-    expect(panel.querySelector('a[href^="/menu/feed"]')).toBeNull();
-    expect(component.organizerShareUrl()).toContain('/menu/events/7');
+    expect(component.canShareGuestInvites()).toBeTrue();
+    expect(fixture.nativeElement.querySelector('.session-created-share')).toBeNull();
   });
 
   it('shows the organiser confirmed players and remaining slots before a future game', () => {
