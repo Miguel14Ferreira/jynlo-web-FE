@@ -18,6 +18,8 @@ describe('Jynlo story shares in inbox',()=>{
   it('recognizes the old heart and official story link without showing its raw URL',()=>{
     expect(storyIdFromChatText('❤️\nhttps://d24sports.com/menu/feed?story=9')).toBe(9);
     expect(storyIdFromChatText('https://d24sports.com/menu/feed?story=9')).toBe(9);
+    expect(storyIdFromChatText('https://jynlosports.com/menu/feed?story=9')).toBe(9);
+    expect(storyIdFromChatText('https://jynlosports.com.evil.test/menu/feed?story=9')).toBeNull();
     expect(storyShareFromChatText('hehe que giro\nhttps://d24sports.com/menu/feed?story=9'))
       .toEqual({id:9,caption:'hehe que giro'});
     expect(storyIdFromChatText('❤️\nhttps://evil.test/menu/feed?story=9')).toBeNull();
