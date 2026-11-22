@@ -2090,6 +2090,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   }
 
   rankingsEnabledDraft = false;
+  overallStandingsDraft = false;
   winPointsDraft = 3;
   drawPointsDraft = 1;
   lossPointsDraft = 0;
@@ -4531,6 +4532,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
           if (this.deletingSeasonId !== null &&
               !competition.seasons.some(item => item.id === this.deletingSeasonId)) this.deletingSeasonId = null;
           this.rankingsEnabledDraft = competition.settings.rankingsEnabled;
+          this.overallStandingsDraft = competition.settings.overallStandingsEnabled === true;
           this.winPointsDraft = competition.settings.winPoints;
           this.drawPointsDraft = competition.settings.drawPoints;
           this.lossPointsDraft = competition.settings.lossPoints;
@@ -4821,7 +4823,9 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       rankingsEnabled: this.rankingsEnabledDraft,
       winPoints: this.usesMatchPointsModel() ? Math.max(0, Number(this.winPointsDraft) || 0) : null,
       drawPoints: this.usesMatchPointsModel() ? Math.max(0, Number(this.drawPointsDraft) || 0) : null,
-      lossPoints: this.usesMatchPointsModel() ? Math.max(0, Number(this.lossPointsDraft) || 0) : null
+      lossPoints: this.usesMatchPointsModel() ? Math.max(0, Number(this.lossPointsDraft) || 0) : null,
+      ...(typeof this.overallStandingsDraft === 'boolean'
+        ? { overallStandingsEnabled: this.overallStandingsDraft } : {})
     })
       .pipe(
         timeout(10_000),

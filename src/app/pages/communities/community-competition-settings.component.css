@@ -42,3 +42,17 @@ input{
 .sport-scoring-guidance strong { font-size: .9rem; }
 .sport-scoring-guidance span { font-weight: 700; }
 .sport-scoring-guidance p { margin: 0; }
+
+.overall-standings-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 12px 0;
+}
+
+.overall-standings-setting p {
+  margin: 4px 0 0;
+  color: var(--jynlo-text-muted, #5c6470);
+  font-size: 0.9rem;
+}

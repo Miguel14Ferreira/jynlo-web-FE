@@ -21,6 +21,8 @@ export class CommunityCompetitionSettingsComponent {
   @Input() drawPoints = 1;
   @Input() lossPoints = 0;
   @Input() saving = false;
+  @Input() overallEnabled = false;
+  @Output() overallEnabledChange = new EventEmitter<boolean>();
   @Output() enabledChange = new EventEmitter<boolean>();
   @Output() winPointsChange = new EventEmitter<number>();
   @Output() drawPointsChange = new EventEmitter<number>();

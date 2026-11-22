@@ -58,6 +58,21 @@ export interface CommunityCompetitionSettings {
   winPoints: number;
   drawPoints: number;
   lossPoints: number;
+  /** Optional "Geral" table across sports; older backends omit it. */
+  overallStandingsEnabled?: boolean;
+}
+
+/** One row of the "Geral" table: games and wins across sports, never summed sport points. */
+export interface CommunityOverallStanding {
+  position: number;
+  profileId: number | null;
+  username: string | null;
+  fullName: string | null;
+  profilePicUrl: string | null;
+  games: number;
+  wins: number;
+  sports: number;
+  winRate: number;
 }
 
 export interface CommunityRoundEntry {
@@ -256,6 +271,7 @@ export interface CommunityCompetitionOverview {
    * Optional until all deployments expose sport-scoped responses. */
   sportStandings?: { sport: string; standings: CommunityStanding[];
     scoring?: { sport: string; winPoints: number; drawPoints: number; lossPoints: number } | null }[];
+  overallStandings?: CommunityOverallStanding[];
 }
 
 export interface CommunityRoundEntryDraft {
