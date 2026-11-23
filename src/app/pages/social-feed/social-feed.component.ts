@@ -748,6 +748,10 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     };
     image.src = previewUrl;
     this.photoTextError = '';
+    // The editor opens below the post (one wide column): bring it into view.
+    setTimeout(() => {
+      try { document.querySelector('.feed-photo-text-editor')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch { /* ignore */ }
+    }, 80);
   }
 
   closePhotoTextEditor(): void {
