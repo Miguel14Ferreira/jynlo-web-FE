@@ -26,6 +26,12 @@ class SessionPaymentsPanelStubComponent {
   @NgInput() priceAmount: number | null = null;
 }
 
+@NgComponent({ selector: 'app-session-court-booking', standalone: true, template: '' })
+class SessionCourtBookingStubComponent {
+  @NgInput() sessionId: number | null = null;
+  @NgInput() allowed = false;
+}
+
 @NgComponent({ selector: 'app-previous-unpaid-warning', standalone: true, template: '' })
 class PreviousUnpaidWarningStubComponent {
   @NgInput() sessionId!: number;
@@ -219,7 +225,7 @@ describe('SessionDetailsComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [SessionDetailsComponent],
-      imports: [SportNamePipe, ...TEST_IMPORTS, ChatReactionsStubComponent, SessionPaymentsPanelStubComponent, PreviousUnpaidWarningStubComponent],
+      imports: [SportNamePipe, ...TEST_IMPORTS, ChatReactionsStubComponent, SessionPaymentsPanelStubComponent, PreviousUnpaidWarningStubComponent, SessionCourtBookingStubComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: ChatReadSyncService, useValue: readSync },

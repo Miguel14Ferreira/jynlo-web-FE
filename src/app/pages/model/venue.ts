@@ -57,6 +57,10 @@ export interface Venue {
   informationSource: VenueInformationSource;
   createdByUsername: string | null;
   createdAt: string;
+  /** Where people book (club page, Playtomic, municipal portal…). */
+  bookingUrl?: string | null;
+  /** Public space with free access: no booking needed. */
+  freeAccess?: boolean | null;
 }
 
 export interface CreateVenueRequest {

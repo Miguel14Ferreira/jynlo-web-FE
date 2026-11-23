@@ -662,3 +662,13 @@ img[data-zoomable], :has(> img[data-zoomable]) { cursor: zoom-in; }
 
 /* Explore for signed-out visitors: account prompt where an account is needed. */
 .visitor-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .75rem; }
+
+/* Venue page: main "Reservar" action under the venue name. */
+.venue-book { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem; margin: .4rem 0 .2rem; }
+.venue-book__main { min-height: 44px; }
+.venue-book__free { display: inline-flex; align-items: center; min-height: 36px; padding: .3rem .8rem; border-radius: 999px;
+  background: rgba(94,230,200,.14); color: #7ae5c5; font-weight: 800; font-size: .88rem; }
+.venue-book__suggest { color: #7ae5c5; font-size: .85rem; font-weight: 700; }
+/* Session lists: the organiser marked the court as booked. */
+.court-booked-badge { display: inline-flex; align-items: center; width: fit-content; padding: .1rem .5rem; border-radius: 999px;
+  background: rgba(94,230,200,.14); color: #7ae5c5; font-size: .74rem; font-weight: 800; white-space: nowrap; }

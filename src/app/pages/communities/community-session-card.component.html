@@ -15,6 +15,7 @@
                             {{ session.participantCount }}/{{ session.maxParticipants }}
                             {{ 'communities.participantsShort' | t }}
                           </span>
+                          @if (session.courtBooked) { <span class="court-booked-badge">{{ '✓ Campo reservado' | t }}</span> }
                           @if (seasonGame) {
                             <span class="competition-badge" data-testid="community-season-game">
                               {{ 'createSession.seasonGameTitle' | t }}

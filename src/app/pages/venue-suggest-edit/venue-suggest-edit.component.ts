@@ -33,6 +33,7 @@ export class VenueSuggestEditComponent implements OnInit {
     { key: 'openingHours', label: 'venue.openingHours', limit: 1000 },
     { key: 'website', label: 'venue.website', limit: 255 },
     { key: 'contact', label: 'venue.contact', limit: 255 },
+    { key: 'bookingUrl', label: 'Link de reserva (Playtomic, site do clube…)', limit: 500 },
     { key: 'latitude', label: 'venue.edit.field.latitude', limit: 16 },
     { key: 'longitude', label: 'venue.edit.field.longitude', limit: 16 }
   ];
@@ -88,6 +89,8 @@ export class VenueSuggestEditComponent implements OnInit {
           openingHours: venue.openingHours || '',
           website: venue.website || '',
           contact: venue.contact || '',
+          bookingUrl: venue.bookingUrl || '',
+          freeAccess: venue.freeAccess == null ? '' : String(venue.freeAccess),
           latitude: venue.latitude?.toString() || '',
           longitude: venue.longitude?.toString() || ''
         };
@@ -134,6 +137,8 @@ export class VenueSuggestEditComponent implements OnInit {
       const value = (this.draft[field.key] || '').trim();
       if (value !== this.original(field.key)) result[field.key] = value;
     }
+    const freeAccess = (this.draft.freeAccess || '').trim();
+    if (freeAccess && freeAccess !== this.original('freeAccess')) result.freeAccess = freeAccess;
     // A coordinate correction is always sent as a pair for atomic review.
     const lat = (this.draft.latitude || '').trim();
     const lon = (this.draft.longitude || '').trim();
