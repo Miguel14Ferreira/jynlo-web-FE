@@ -42,6 +42,7 @@ const EN_SPORTS: Readonly<Record<string, string>> = {
   "Cricket": "Cricket",
   "Curling": "Curling",
   "Damas": "Checkers",
+  "Dança Contemporânea": "Contemporary dance",
   "Dança Desportiva": "DanceSport",
   "Escalada": "Climbing",
   "Esgrima": "Fencing",

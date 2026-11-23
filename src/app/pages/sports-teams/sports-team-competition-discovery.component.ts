@@ -1,3 +1,4 @@
+import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
@@ -13,7 +14,7 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
 @Component({
   standalone:true,
   selector:'app-team-competition-discovery',
-  imports:[TranslatePipe, CommonModule,FormsModule,RouterLink],
+  imports:[TranslatePipe, SportNamePipe, CommonModule,FormsModule,RouterLink],
   template:`
     <main class="team-discover">
       <a class="team-back" routerLink="/menu/teams">{{ '← Voltar às equipas' | t }}</a>
@@ -24,7 +25,7 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
         <label>{{ 'Modalidade' | t }}
           <select [(ngModel)]="sport" [attr.aria-label]="'Filtrar modalidade' | t">
             <option value="">{{ 'Todas as modalidades' | t }}</option>
-            <option *ngFor="let item of sportsCatalog" [value]="item">{{item}}</option>
+            <option *ngFor="let item of sportsCatalog" [value]="item">{{ item | sportName }}</option>
           </select>
         </label>
         <button type="button" (click)="search()">{{ 'Pesquisar' | t }}</button>
