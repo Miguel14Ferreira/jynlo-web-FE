@@ -187,7 +187,7 @@
               </div>
             </div>
             <div class="reliability-grid">
-              <div><span>{{ 'profileData.attendanceRate' | t }}</span><strong>{{ reliability.attendanceRate | number:'1.0-0' }}%</strong></div>
+              <div><span>{{ 'profileData.attendanceRate' | t }}</span><strong>@if (reliability.completedSessions) { {{ reliability.attendanceRate | number:'1.0-0' }}% } @else { — }</strong></div>
               <div><span>{{ 'profileData.completedSessions' | t }}</span><strong>{{ reliability.completedSessions }}</strong></div>
               <div><span>{{ 'profileData.noShows' | t }}</span><strong>{{ reliability.noShows }}</strong></div>
               <div><span>{{ 'profileData.lateCancellations' | t }}</span><strong>{{ reliability.lateCancellations }}</strong></div>

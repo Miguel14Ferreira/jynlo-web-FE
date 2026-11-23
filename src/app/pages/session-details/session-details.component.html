@@ -1069,7 +1069,7 @@
               <div class="reliability-grid">
                 <div>
                   <span>{{ 'profileData.attendanceRate' | t }}</span>
-                  <strong>{{ creatorReliability.attendanceRate | number:'1.0-0' }}%</strong>
+                  <strong>@if (creatorReliability.completedSessions) { {{ creatorReliability.attendanceRate | number:'1.0-0' }}% } @else { — }</strong>
                 </div>
                 <div>
                   <span>{{ 'profileData.completedSessions' | t }}</span>
