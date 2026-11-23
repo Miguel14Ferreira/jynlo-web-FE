@@ -67,6 +67,13 @@ export class AlterardadosComponent implements OnInit {
     private host: ElementRef<HTMLElement>
   ) {}
 
+  /** The email field is read-only: jump to the secure "Mudar email" box. */
+  goToEmailChange(): void {
+    const box = this.host.nativeElement.querySelector('app-account-email-change');
+    box?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => (box?.querySelector('.account-box__head button') as HTMLButtonElement | null)?.click(), 400);
+  }
+
   ngOnInit(): void {
     this.load();
     this.loadDeviceSessions();

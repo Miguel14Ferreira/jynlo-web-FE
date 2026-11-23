@@ -127,16 +127,20 @@
           <label>
             <span>{{ 'common.email' | t }} *</span>
             <input
+              class="email-locked"
               type="email"
               name="email"
               [(ngModel)]="profile.email"
               autocomplete="email"
               required
               readonly
+              tabindex="-1"
               [title]="'Muda o email em «Email da conta», mais abaixo.' | t"
               [disabled]="saving"
               [attr.aria-invalid]="fieldErrors.email ? 'true' : 'false'"
               (input)="clearFieldError('email')">
+            <small class="email-locked-hint">🔒 {{ 'Por segurança, o email muda-se à parte.' | t }}
+              <button type="button" class="email-locked-link" (click)="goToEmailChange()">{{ 'Mudar email' | t }}</button></small>
             @if (fieldErrors.email) {
               <small class="field-error">{{ fieldErrors.email }}</small>
             }

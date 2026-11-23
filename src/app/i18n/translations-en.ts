@@ -8239,4 +8239,5 @@ export const EN: Record<string, string> = {
   'Este link não é válido ou expirou.': 'This link is invalid or has expired.',
   'Muda o email em «Email da conta», mais abaixo.': 'Change your email under “Account email”, further down.',
   'Quando entrares numa comunidade ou num jogo, a conversa do grupo aparece aqui.': 'When you join a community or a game, the group chat shows up here.',
+  'Por segurança, o email muda-se à parte.': 'For security, your email is changed separately.',
 };

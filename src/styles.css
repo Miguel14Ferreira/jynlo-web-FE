@@ -743,3 +743,7 @@ app-venue-details .venue-detail-page .venue-route-planner { padding: 14px 16px !
 app-messages-center .inbox-empty-side { display: grid; gap: .35rem; }
 app-messages-center .inbox-empty-side .inbox-empty-hint { color: #a9c7cf; font-size: .82rem; margin: 0 0 .3rem; }
 app-messages-center .inbox-empty-side a { display: inline-flex; align-items: center; min-height: 40px; }
+/* Edit profile: the email field is read-only (changed via "Mudar email"). */
+app-alterardados input.email-locked { opacity: .62; cursor: not-allowed; background: rgba(255,255,255,.03) !important; }
+app-alterardados .email-locked-hint { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; color: #a9c7cf; font-size: .8rem; margin-top: .3rem; }
+app-alterardados .email-locked-link { min-height: 36px; padding: 0 .2rem; border: 0; background: none; color: #7ae5c5; font-weight: 800; cursor: pointer; text-decoration: underline; }
