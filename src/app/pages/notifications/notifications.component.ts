@@ -39,9 +39,21 @@ export class NotificationsComponent implements OnInit {
     'ATTENDANCE_DISPUTE_ACCEPTED', 'ATTENDANCE_DISPUTE_REJECTED',
     'TEAM_MEMBER_INVITE', 'TEAM_ADMIN_TRANSFER', 'TEAM_ADMIN_ASSIGNED',
     'CHAT_MESSAGE', 'VENUE_EDIT_DECISION', 'SOCIAL_POST_LIKED',
-    'SOCIAL_POST_COMMENTED', 'SOCIAL_NEW_FOLLOWER', 'FRIEND_REQUEST', 'OTHER'
+    'SOCIAL_POST_COMMENTED', 'SOCIAL_NEW_FOLLOWER', 'FRIEND_REQUEST', 'CALL_INCOMING', 'CALL_MISSED', 'OTHER'
   ] as const;
   preferencesOpen = false;
+  /** Browser notification permission; only asked for when the person taps "Ativar avisos". */
+  browserAlertsState: 'unsupported' | 'default' | 'granted' | 'denied' =
+    typeof Notification === 'undefined' ? 'unsupported' : Notification.permission;
+
+  enableBrowserAlerts(): void {
+    if (typeof Notification === 'undefined') return;
+    try {
+      void Notification.requestPermission().then(state => {
+        this.browserAlertsState = state;
+      });
+    } catch { /* old browsers: leave as is */ }
+  }
   preferencesLoading = false;
   preferencesRefreshFailed = false;
   preferencesSaving = false;
@@ -392,6 +404,17 @@ export class NotificationsComponent implements OnInit {
     if (notification.type === 'CHAT_MESSAGE' && notification.relatedUsername?.trim()) {
       return t('notification.chatSubject', { username: notification.relatedUsername.trim() });
     }
+    if (notification.type === 'CALL_INCOMING' && notification.relatedUsername?.trim()) {
+      return t('Chamada de {{username}}', { username: notification.relatedUsername.trim() });
+    }
+    if (notification.type === 'CALL_MISSED') return t('Chamada perdida');
+    if (notification.type === 'CHAT_MESSAGE' && notification.sessionId && !notification.relatedUsername) {
+      return t('Nova mensagem no chat do jogo');
+    }
+    if (notification.type === 'CHAT_MESSAGE' && notification.communityId && !notification.relatedUsername) {
+      const name = (notification.subject || '').replace(/^Novas mensagens em /, '').trim();
+      return name ? t('Novas mensagens em {{community}}', { community: name }) : t('Novas mensagens na comunidade');
+    }
     if (notification.type === 'SESSION_MEETING_POINT_UPDATED') {
       return t('notification.meetingPointChangedSubject');
     }
@@ -431,6 +454,12 @@ export class NotificationsComponent implements OnInit {
       notification.type === 'CHAT_MESSAGE' ? notification.relatedUsername : null);
     if (chatMediaKey) {
       return t(chatMediaKey, { username: notification.relatedUsername?.trim() ?? '' });
+    }
+    if (notification.type === 'CALL_INCOMING' && notification.relatedUsername?.trim()) {
+      return t('{{username}} está a ligar-te.', { username: notification.relatedUsername.trim() });
+    }
+    if (notification.type === 'CALL_MISSED' && notification.relatedUsername?.trim()) {
+      return t('Chamada perdida de {{username}}.', { username: notification.relatedUsername.trim() });
     }
     if (notification.type === 'SESSION_MEETING_POINT_UPDATED') {
       // Never render meeting instructions from the alert itself. Always send
@@ -560,6 +589,14 @@ export class NotificationsComponent implements OnInit {
     if (this.validCompetitionLinkId(notification.communityId)) {
       void this.router.navigate(['/menu/communities', notification.communityId]);
     }
+  }
+
+  /** Game and community chat alerts open that conversation in Messages. */
+  openGroupChat(notification: AppNotification): void {
+    const kind = notification.sessionId ? 'session' : notification.communityId ? 'community' : null;
+    const id = Number(notification.sessionId ?? notification.communityId);
+    if (!kind || !Number.isSafeInteger(id) || id <= 0) return;
+    void this.router.navigate(['/menu/messages'], { queryParams: { kind, id } });
   }
 
   openChat(notification: AppNotification): void {

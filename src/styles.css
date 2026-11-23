@@ -683,3 +683,7 @@ img[data-zoomable], :has(> img[data-zoomable]) { cursor: zoom-in; }
   }
   .site-nav--authed .site-nav__links > a.nav-tab--create { padding-inline: .1rem !important; }
 }
+/* Notifications page: opt-in browser alerts. */
+.browser-alerts { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem;
+  margin: .5rem 0 1rem; padding: .85rem 1rem; border-radius: 14px; border: 1px solid rgba(94,230,200,.25); background: rgba(10,41,55,.55); }
+.browser-alerts p { margin: .2rem 0 0; color: #b9d4d6; font-size: .88rem; }
