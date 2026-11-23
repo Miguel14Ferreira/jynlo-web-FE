@@ -757,3 +757,6 @@ app-alterardados .email-locked-link { min-height: 36px; padding: 0 .2rem; border
 .account-pw { position: relative; }
 .account-pw input { padding-right: 6.2rem; }
 .account-pw button { position: absolute; right: .35rem; top: 50%; transform: translateY(-50%); min-height: 36px !important; }
+/* Edit profile grid: keep every field at the top of its row (a hint under one field must not stretch its neighbour). */
+app-alterardados .form-grid { align-items: start; }
+app-alterardados .form-grid > label { align-content: start; align-self: start; }
