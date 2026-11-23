@@ -132,6 +132,8 @@
               [(ngModel)]="profile.email"
               autocomplete="email"
               required
+              readonly
+              [title]="'Muda o email em «Email da conta», mais abaixo.' | t"
               [disabled]="saving"
               [attr.aria-invalid]="fieldErrors.email ? 'true' : 'false'"
               (input)="clearFieldError('email')">
@@ -431,6 +433,9 @@
           </div>
           <a class="jynlo-action jynlo-action--neutral" routerLink="/menu/alterarPassword">{{ 'Alterar palavra-passe' | t }}</a>
         </section>
+
+        <app-account-email-change [currentEmail]="profile?.email || null"></app-account-email-change>
+        <app-account-blocked-people></app-account-blocked-people>
 
         <section class="device-sessions" aria-labelledby="device-sessions-heading">
           <header class="device-sessions__header">

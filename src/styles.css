@@ -714,3 +714,20 @@ app-venue-details .venue-detail-page *:not(input):not(textarea):not(select) {
   border-color: transparent !important;
 }
 app-venue-details .venue-detail-page .venue-route-planner { padding: 14px 16px !important; }
+/* Account security boxes (email change, blocked people, confirm page). */
+.account-box { margin: 1.2rem 0; padding: 1rem 1.1rem; border-radius: 16px; background: rgba(10,41,55,.5); }
+.account-box h1, .account-box h2 { margin: .15rem 0 .3rem; font-size: 1.1rem; overflow-wrap: anywhere; }
+.account-box p { margin: 0; color: #b9d4d6; font-size: .9rem; }
+.account-box__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem; }
+.account-box__form { display: grid; gap: .8rem; margin-top: .9rem; max-width: 460px; }
+.account-box__form label { display: grid; gap: .3rem; }
+.account-box__form small { color: #9fb9c0; font-size: .8rem; }
+.account-box__actions { display: flex; flex-wrap: wrap; gap: .6rem; }
+.account-box .jynlo-action { min-height: 44px !important; }
+.account-box__ok { margin-top: .7rem !important; color: #7ae5c5 !important; }
+.account-box__error { margin-top: .7rem !important; color: #ffb4b4 !important; }
+.account-blocked-list { list-style: none; margin: .7rem 0 0; padding: 0; display: grid; gap: .5rem; }
+.account-blocked-list li { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .55rem 0; }
+.account-blocked-list a { display: grid; color: inherit; text-decoration: none; min-width: 0; }
+.account-blocked-list a span { color: #9fb9c0; font-size: .85rem; }
+.confirm-email-page { max-width: 560px; margin: 0 auto; padding: 8rem 16px 4rem; }

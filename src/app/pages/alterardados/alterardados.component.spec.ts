@@ -1,3 +1,4 @@
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { DeviceSession } from '../../services/my-profile.service';
@@ -49,6 +50,8 @@ describe('AlterardadosComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [AlterardadosComponent],
       imports: TEST_IMPORTS,
+      // Email change and blocked people are their own components with their own specs.
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
         ...TEST_PROVIDERS,
         { provide: MyProfileService, useValue: service }

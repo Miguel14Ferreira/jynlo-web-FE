@@ -63,6 +63,7 @@ const routes: Routes = [
   {path:'menu/perfis',loadChildren:() => import('./pages/perfis/perfis.module').then(m => m.PerfisModule),canActivate:[AuthenticationGuard]},
   {path:'menu/perfis/menu',redirectTo:'menu',pathMatch:'full'},
   {path:'menu/perfis/:username',loadChildren:() => import('./pages/perfis/perfis.module').then(m => m.PerfisModule),canActivate:[AuthenticationGuard]},
+  {path:'login/confirmar-email/:token', loadComponent:() => import('./pages/account-security/confirm-email-change.component').then(m => m.ConfirmEmailChangeComponent), pathMatch:'full'},
   {path:'login/resetPassword/:token',loadComponent:() => import('./pages/forgotp2/forgotp2.component').then(m => m.Forgotp2Component), pathMatch:'full'},
   {path:'login/registerNewUser/confirmTokenRegistration/:token', loadComponent:() => import('./pages/confirm-token-registration/confirm-token-registration.component').then(m => m.ConfirmTokenRegistrationComponent), pathMatch:'full'},
   {path:'menu/dadosPerfil',loadComponent:() => import('./pages/perfil-data/perfil-data.component').then(m => m.PerfilDataComponent),canActivate:[AuthenticationGuard], pathMatch:'full'},
