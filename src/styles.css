@@ -689,3 +689,15 @@ img[data-zoomable], :has(> img[data-zoomable]) { cursor: zoom-in; }
 .browser-alerts { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem;
   margin: .5rem 0 1rem; padding: .85rem 1rem; border-radius: 14px; border: 1px solid rgba(94,230,200,.25); background: rgba(10,41,55,.55); }
 .browser-alerts p { margin: .2rem 0 0; color: #b9d4d6; font-size: .88rem; }
+
+/* Community home: "Por onde começar" for managers of a new community. */
+.community-start { margin: 0 0 1.2rem; padding: 1rem 1.1rem 1.15rem; border-radius: 18px;
+  border: 1px solid rgba(94,230,200,.3); background: linear-gradient(160deg, rgba(20,70,76,.55), rgba(8,30,40,.7)); }
+.community-start__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .6rem; }
+.community-start__close { min-width: 44px; min-height: 44px; border: 0; background: transparent; color: #b9d4d6; font-size: 1.5rem; cursor: pointer; }
+.community-start__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .8rem; }
+.community-start__grid article { display: flex; flex-direction: column; gap: .45rem; padding: .9rem; border-radius: 14px;
+  background: rgba(4,22,30,.55); border: 1px solid rgba(255,255,255,.07); }
+.community-start__grid h3 { margin: 0; font-size: 1rem; }
+.community-start__grid p { margin: 0; color: #b9d4d6; font-size: .88rem; line-height: 1.4; flex: 1; }
+.community-start__grid .jynlo-action { align-self: flex-start; min-height: 44px !important; }
