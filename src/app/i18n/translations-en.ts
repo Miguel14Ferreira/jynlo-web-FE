@@ -8241,4 +8241,9 @@ export const EN: Record<string, string> = {
   'Muda o email em «Email da conta», mais abaixo.': 'Change your email under “Account email”, further down.',
   'Quando entrares numa comunidade ou num jogo, a conversa do grupo aparece aqui.': 'When you join a community or a game, the group chat shows up here.',
   'Por segurança, o email muda-se à parte.': 'For security, your email is changed separately.',
+  // Server-generated security notifications (stored in Portuguese).
+  "Palavra-passe alterada": "Password changed",
+  "A tua palavra-passe foi alterada. Se não foste tu, redefine-a imediatamente.": "Your password was changed. If this wasn't you, reset it right away.",
+  "Alteração de email": "Email changed",
+  "O endereço de email associado à tua conta foi alterado. Se não foste tu, redefine imediatamente a tua palavra-passe.": "The email address on your account was changed. If this wasn't you, reset your password right away.",
 };

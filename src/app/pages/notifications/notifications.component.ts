@@ -434,7 +434,7 @@ export class NotificationsComponent implements OnInit {
     const community = this.invitedCommunityName(notification);
     return community
       ? t('notification.communityInviteSubject', { community })
-      : this.legacyBrand(notification.subject);
+      : this.legacyBrand(t(notification.subject));
   }
 
   notificationMessage(notification: AppNotification): string {
@@ -495,7 +495,7 @@ export class NotificationsComponent implements OnInit {
           username: notification.relatedUsername,
           community
         })
-      : this.legacyBrand(notification.message);
+      : this.legacyBrand(t(notification.message));
   }
 
   private joinNotificationCommunityName(notification: AppNotification): string | null {
