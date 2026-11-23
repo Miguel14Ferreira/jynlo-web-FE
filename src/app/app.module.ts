@@ -7,7 +7,6 @@ import { NavbarComponent } from './sharepage/navbar/navbar.component';
 import { FooterComponent } from './sharepage/footer/footer.component';
 import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
-import { MenuComponent } from './pages/menu/menu.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { AuthInterceptor } from './auth.interceptor';
@@ -30,7 +29,6 @@ import { SportNamePipe } from './i18n/sport-name.pipe';
         FooterComponent,
         HomeComponent,
         LoginComponent,
-        MenuComponent,
         NotFoundComponent,
 
         LegalPageComponent
