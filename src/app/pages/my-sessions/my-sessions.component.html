@@ -83,6 +83,7 @@
                   </div>
                   <div class="upcoming-meta">
                     <div><span>{{ 'mySessions.participants' | t }}</span><strong>{{ session.participantCount }}/{{ session.maxParticipants }}</strong></div>
+                    @if (session.courtBooked) { <span class="court-booked-badge">{{ '✓ Campo reservado' | t }}</span> }
                     <div><span>{{ 'mySessions.vacancies' | t }}</span><strong>{{ vacancies(session) }}</strong></div>
                     <div><span>{{ 'mySessions.price' | t }}</span>
                       <strong>@if (session.priceAmount > 0) { {{ session.priceAmount | number:'1.2-2' }} € } @else { {{ 'common.free' | t }} }</strong>

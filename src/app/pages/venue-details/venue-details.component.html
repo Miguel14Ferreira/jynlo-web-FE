@@ -33,6 +33,34 @@
             ✎ {{ 'venue.edit.suggest' | t }}
           </a>
         }
+        @if (bookingAction; as action) {
+          <div class="venue-book">
+            @switch (action.kind) {
+              @case ('free') {
+                <span class="venue-book__free">✓ {{ 'Acesso livre · não precisa de reserva' | t }}</span>
+              }
+              @case ('link') {
+                <a class="jynlo-action jynlo-action--primary venue-book__main" [href]="$any(action).url"
+                  target="_blank" rel="noopener noreferrer">{{ 'Reservar campo' | t }} ↗</a>
+              }
+              @case ('phone') {
+                <a class="jynlo-action jynlo-action--primary venue-book__main" [href]="$any(action).url">📞 {{ 'Ligar para reservar' | t }}</a>
+                @if ($any(action).whatsapp) {
+                  <a class="jynlo-action jynlo-action--neutral" [href]="$any(action).whatsapp"
+                    target="_blank" rel="noopener noreferrer">{{ 'WhatsApp' | t }}</a>
+                }
+              }
+              @case ('search') {
+                <a class="jynlo-action jynlo-action--neutral venue-book__main" [href]="$any(action).url"
+                  target="_blank" rel="noopener noreferrer">🔎 {{ 'Procurar como reservar' | t }}</a>
+              }
+            }
+            @if (action.kind !== 'link' && action.kind !== 'free' && !isPublicView) {
+              <a class="venue-book__suggest" [routerLink]="['/menu/venues', venue.id, 'suggest-edit']"
+                [queryParams]="{ field: 'bookingUrl' }">{{ 'Sugerir link de reserva' | t }}</a>
+            }
+          </div>
+        }
         @if (venue.sports) {
           <div class="venue-hero-sports">
             <app-venue-sports-badges [sports]="venue.sports"

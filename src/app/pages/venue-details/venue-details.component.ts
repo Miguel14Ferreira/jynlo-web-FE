@@ -1,3 +1,4 @@
+import { venueBookingAction, type VenueBookingAction } from '../../shared/venue-booking-action';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -292,6 +293,11 @@ export class VenueDetailsComponent implements OnInit, OnDestroy {
       this.trustedMapSource = this.sanitizer.bypassSecurityTrustResourceUrl(source);
     }
     return this.trustedMapSource;
+  }
+
+  /** Main "Reservar" action: booking link, phone/WhatsApp, a search, or "free access". */
+  get bookingAction(): VenueBookingAction | null {
+    return venueBookingAction(this.venue);
   }
 
   get publicTelephoneUrl(): string | null {

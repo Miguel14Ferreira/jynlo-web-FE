@@ -42,7 +42,7 @@
             @for (field of fields; track field.key) {
               <label>
                 <span>{{ field.label | t }}</span>
-                <input [type]="field.key === 'website' ? 'url' : 'text'"
+                <input [type]="field.key === 'website' || field.key === 'bookingUrl' ? 'url' : 'text'"
                   [name]="field.key" [(ngModel)]="draft[field.key]"
                   [maxlength]="field.limit"
                   [attr.inputmode]="field.key === 'latitude' || field.key === 'longitude' ? 'decimal' : null"
@@ -52,6 +52,14 @@
                 }
               </label>
             }
+            <label>
+              <span>{{ 'Precisa de reserva?' | t }}</span>
+              <select name="freeAccess" [(ngModel)]="draft.freeAccess">
+                <option value="">{{ 'Não sei' | t }}</option>
+                <option value="false">{{ 'Sim, é preciso reservar' | t }}</option>
+                <option value="true">{{ 'Não, acesso livre (espaço público)' | t }}</option>
+              </select>
+            </label>
             <label>
               <span>{{ 'venue.create.districtLabel' | t }}</span>
               <select name="district" [(ngModel)]="draft.district">

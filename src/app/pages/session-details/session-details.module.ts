@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { SessionCourtBookingComponent } from './session-court-booking.component';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
@@ -16,6 +17,6 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [SessionDetailsComponent],
-  imports: [SportNamePipe, CommonModule, FormsModule, ReactiveFormsModule, RouterModule.forChild(routes), TranslatePipe, ChatReactionsComponent, SessionPaymentsPanelComponent, PreviousUnpaidWarningComponent]
+  imports: [SportNamePipe, CommonModule, FormsModule, ReactiveFormsModule, RouterModule.forChild(routes), TranslatePipe, ChatReactionsComponent, SessionPaymentsPanelComponent, PreviousUnpaidWarningComponent, SessionCourtBookingComponent]
 })
 export class SessionDetailsModule {}

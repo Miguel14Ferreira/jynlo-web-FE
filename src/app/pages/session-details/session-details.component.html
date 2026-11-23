@@ -980,6 +980,10 @@
             </section>
           }
 
+          @if (session.status !== 'CANCELLED' && (session.joined || isCreator())) {
+            <app-session-court-booking [sessionId]="session.id" [allowed]="session.joined || isCreator()"></app-session-court-booking>
+          }
+
           @if (session.venue) {
             <section class="venue-detail-panel">
               <div class="venue-detail-heading">

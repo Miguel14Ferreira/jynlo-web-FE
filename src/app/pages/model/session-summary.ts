@@ -21,5 +21,7 @@ export interface SessionSummary {
   recurrenceSeriesId?: string | null;
   /** Level the session is aimed at; null = all levels. */
   skillLevel?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | null;
+  /** Organiser marked the court as booked. */
+  courtBooked?: boolean | null;
   status: string;
 }

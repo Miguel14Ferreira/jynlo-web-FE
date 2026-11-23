@@ -264,6 +264,7 @@
 
             <div class="session-fact session-vacancies" [class.available]="vacancies(session) > 0">
               <span>👥 {{ session.participantCount }}/{{ session.maxParticipants }}</span>
+              @if (session.courtBooked) { <span class="court-booked-badge">{{ '✓ Campo reservado' | t }}</span> }
               @if (vacancies(session) > 0) {
                 <strong>{{ 'events.vacanciesAvailable' | t:{ count: vacancies(session) } }}</strong>
               } @else {

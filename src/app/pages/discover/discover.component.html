@@ -364,6 +364,7 @@
                   <div class="session-main">
                     <strong>{{ session.sport | sportName }}</strong>
                     <span>{{ session.city }} · {{ (sessionDisplayDate(session) | date:'dd/MM HH:mm') || ('publicSession.notSpecified' | t) }}</span>
+                    @if (session.courtBooked) { <span class="court-booked-badge">{{ '✓ Campo reservado' | t }}</span> }
                     <span class="session-summary-meta">
                       @if (session.priceAmount > 0) {
                         {{ session.priceAmount | number:'1.2-2' }} €
