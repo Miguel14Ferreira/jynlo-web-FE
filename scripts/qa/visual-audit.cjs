@@ -76,9 +76,18 @@ async function discoverRoutes(token) {
     for (const x of (t || []).slice(0, 2)) routes.push(['equipa-' + x.id, '/menu/teams/' + x.id]);
   });
   await safe(async () => {
-    const v = await api('/api/venues?page=0&size=1', token);
-    const first = Array.isArray(v) ? v[0] : v?.content?.[0];
-    if (first?.id) routes.push(['recinto-' + first.id, '/menu/venues/' + first.id]);
+    // One venue per "Reservar" variant: booking link/site, phone only, nothing known.
+    const v = await api('/api/venues?page=0&size=60', token);
+    const list = Array.isArray(v) ? v : (v?.content || []);
+    const phone = x => /^\+?[\d\s().-]{9,}$/.test((x.contact || '').trim());
+    const picks = [
+      list.find(x => x.bookingUrl || x.website),
+      list.find(x => !x.bookingUrl && !x.website && phone(x)),
+      list.find(x => !x.bookingUrl && !x.website && !x.contact),
+      list.find(x => x.freeAccess === true),
+    ].filter(Boolean);
+    if (!picks.length && list[0]) picks.push(list[0]);
+    for (const x of [...new Map(picks.map(x => [x.id, x])).values()]) routes.push(['recinto-' + x.id, '/menu/venues/' + x.id]);
   });
   routes.push(['perfil-publico', '/menu/perfis/' + USER]);
   if (VISITOR) {
