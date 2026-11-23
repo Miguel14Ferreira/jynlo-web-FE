@@ -5,6 +5,7 @@
       <button type="button" class="availability__primary" [disabled]="busy" (click)="openForm()">＋ {{ 'availability.ask' | t }}</button>
     }
   </div>
+  @if (!creating && !requests.length && !error) { <p class="availability__hint">{{ 'availability.emptyHint' | t }}</p> }
   @if (error) { <p role="alert" class="availability__error">{{ error }}</p> }
 
   @if (creating) {

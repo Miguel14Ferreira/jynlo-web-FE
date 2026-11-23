@@ -16,3 +16,4 @@
 .availability button:focus-visible { outline: 2px solid var(--jynlo-mint, #7AE5C5); outline-offset: 2px; }
 .availability__remove { border: 0; background: transparent; color: #F2A19B; font-size: 1.4rem; cursor: pointer; min-width: 40px; min-height: 40px; }
 .availability__error { margin: 0; color: #F2A19B; }
+.availability__hint{margin:.35rem 0 0;color:#a9c7cf;font-size:.85rem;line-height:1.45;}

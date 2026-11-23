@@ -238,3 +238,13 @@
     width:100%;min-height:48px;font-size:1rem;
   }
 }
+
+/* Data e hora logo por baixo do título: é a primeira coisa que um jogador procura. */
+:host .detail-page .title-row .session-when {
+  margin: 6px 0 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #eafff9;
+  letter-spacing: .01em;
+}
+:host .detail-page .session-level-edit { margin: 0 0 14px; }

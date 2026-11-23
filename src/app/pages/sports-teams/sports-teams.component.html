@@ -65,7 +65,7 @@
       </div>
     </section>
 
-    <section class="teams-section" [attr.aria-label]="'Equipas onde participas' | t">
+    <section class="teams-section" *ngIf="joinedLoading || joinedError || joined.length" [attr.aria-label]="'Equipas onde participas' | t">
       <div class="section-heading">
         <div><p class="eyebrow">{{ 'O TEU PLANTEL' | t }}</p><h2>{{ 'Equipas onde és jogador' | t }}</h2>
           <p>{{ 'Entra no chat, consulta as publicações e acompanha a tua equipa.' | t }}</p></div>

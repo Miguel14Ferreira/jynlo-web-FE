@@ -1777,6 +1777,7 @@ export const EN: Record<string, string> = {
   'notifications.openChat': 'Open chat',
   'notifications.openGroup': 'Open group',
   'availability.title': 'Who can play?',
+  'availability.emptyHint': 'Suggest days and times and see who in the group can play.',
   'availability.ask': 'Ask',
   'availability.loadError': 'Could not load availability requests.',
   'availability.pickWhen': 'Choose the day and time.',

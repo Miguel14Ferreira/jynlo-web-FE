@@ -263,6 +263,15 @@ describe('SessionDetailsComponent', () => {
     fixture.detectChanges();
   });
 
+  it('shows the game date and time right under the title', () => {
+    component.session = { ...session, gameDate: '2026-10-01T18:00:00' };
+    fixture.detectChanges();
+    const when = fixture.nativeElement.querySelector('.title-row .session-when') as HTMLElement;
+    expect(when).not.toBeNull();
+    expect(when.textContent).toContain('01/10/2026');
+    expect(when.textContent).toContain('18:00');
+  });
+
   it('does not display an unknown Airsoft format from the API', () => {
     component.session = {
       ...session, sport: 'Airsoft',

@@ -90,6 +90,9 @@
                 <p id="session-airsoft-game-type" class="eyebrow">{{ 'createSession.airsoftType.' + session.airsoftGameType | t }}</p>
               }
               <h1>{{ session.city }}</h1>
+              @if (session.gameDate) {
+                <p class="session-when">🗓 <time [attr.datetime]="session.gameDate">{{ session.gameDate | date:'dd/MM/yyyy' }} · {{ session.gameDate | date:'HH:mm' }}</time></p>
+              }
             </div>
             <div class="badges">
               <span [class.session-status-cancelled]="session.status === 'CANCELLED'">
@@ -101,33 +104,6 @@
               <span class="session-level-badge">🎯 {{ levelLabel(session.skillLevel) }}</span>
             </div>
           </div>
-          @if (canEditLevel) {
-            <div class="session-level-edit">
-              <label>
-                <span>{{ 'sessionLevel.label' | t }}</span>
-                <select [value]="session.skillLevel || ''" [disabled]="levelSaving"
-                  (change)="changeLevel($any($event.target).value)">
-                  @for (option of levelOptions; track option.value) {
-                    <option [value]="option.value">{{ option.label | t }}</option>
-                  }
-                </select>
-              </label>
-              @if (levelError) { <small role="alert">{{ levelError }}</small> }
-              <label>
-                <span>{{ 'Confirmados fora da Jynlo' | t }}</span>
-                <input type="number" min="0" max="99" step="1" inputmode="numeric"
-                  [ngModel]="externalDraft ?? session.externalConfirmedParticipants ?? 0"
-                  (ngModelChange)="externalDraft = $event" [disabled]="externalSaving"
-                  [attr.aria-describedby]="'external-confirmed-hint'">
-              </label>
-              <small id="external-confirmed-hint">{{ 'Amigos que confirmaram por WhatsApp ou telefone. Ocupam lugares no jogo.' | t }}</small>
-              <button type="button" class="jynlo-action jynlo-action--neutral"
-                [disabled]="externalSaving || externalDraft === null || externalDraft === (session.externalConfirmedParticipants ?? 0)"
-                (click)="saveExternalConfirmations()">{{ (externalSaving ? 'A guardar…' : 'Guardar') | t }}</button>
-              @if (externalError) { <small role="alert">{{ externalError }}</small> }
-              @if (externalSuccess) { <small role="status">{{ externalSuccess }}</small> }
-            </div>
-          }
 
           @if (sessionContext && (sessionContext.communities.length > 0 || sessionContext.seasonGame)) {
             <section class="session-community-context" [attr.aria-label]="'sessionDetail.contextTitle' | t">
@@ -572,6 +548,34 @@
                 }
               </div>
             </section>
+          }
+
+          @if (canEditLevel) {
+            <div class="session-level-edit">
+              <label>
+                <span>{{ 'sessionLevel.label' | t }}</span>
+                <select [value]="session.skillLevel || ''" [disabled]="levelSaving"
+                  (change)="changeLevel($any($event.target).value)">
+                  @for (option of levelOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label | t }}</option>
+                  }
+                </select>
+              </label>
+              @if (levelError) { <small role="alert">{{ levelError }}</small> }
+              <label>
+                <span>{{ 'Confirmados fora da Jynlo' | t }}</span>
+                <input type="number" min="0" max="99" step="1" inputmode="numeric"
+                  [ngModel]="externalDraft ?? session.externalConfirmedParticipants ?? 0"
+                  (ngModelChange)="externalDraft = $event" [disabled]="externalSaving"
+                  [attr.aria-describedby]="'external-confirmed-hint'">
+              </label>
+              <small id="external-confirmed-hint">{{ 'Amigos que confirmaram por WhatsApp ou telefone. Ocupam lugares no jogo.' | t }}</small>
+              <button type="button" class="jynlo-action jynlo-action--neutral"
+                [disabled]="externalSaving || externalDraft === null || externalDraft === (session.externalConfirmedParticipants ?? 0)"
+                (click)="saveExternalConfirmations()">{{ (externalSaving ? 'A guardar…' : 'Guardar') | t }}</button>
+              @if (externalError) { <small role="alert">{{ externalError }}</small> }
+              @if (externalSuccess) { <small role="status">{{ externalSuccess }}</small> }
+            </div>
           }
 
           @if (canFindPlayers()) {
