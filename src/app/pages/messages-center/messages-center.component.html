@@ -66,6 +66,9 @@
           <div class="inbox-empty-side">
             <p>{{ (search || filter !== 'all' ? 'inbox.noMatches' : 'inbox.empty') | t }}</p>
             @if (filter === 'all' && !search) {
+              <p class="inbox-empty-hint">{{ 'Quando entrares numa comunidade ou num jogo, a conversa do grupo aparece aqui.' | t }}</p>
+              <a routerLink="/menu/communities">{{ 'Encontrar comunidades' | t }}</a>
+              <a routerLink="/menu/discover">{{ 'menu.findSessions' | t }}</a>
               <a routerLink="/menu/friendList">{{ 'inbox.findPeople' | t }}</a>
             }
           </div>

@@ -739,3 +739,7 @@ app-venue-details .venue-detail-page .venue-route-planner { padding: 14px 16px !
     display: inline-flex !important; align-items: center; min-height: 44px !important;
   }
 }
+/* Messages: empty inbox for someone new — explain where chats come from, with ways in. */
+app-messages-center .inbox-empty-side { display: grid; gap: .35rem; }
+app-messages-center .inbox-empty-side .inbox-empty-hint { color: #a9c7cf; font-size: .82rem; margin: 0 0 .3rem; }
+app-messages-center .inbox-empty-side a { display: inline-flex; align-items: center; min-height: 40px; }
