@@ -5,7 +5,8 @@ import { environment } from 'src/environment/environment';
 
 export interface BookingCourt { id: number; name: string; sport: string | null; priceCents: number | null; slotMinutes: number; active: boolean; }
 export interface BookingHours { dayOfWeek: number; openTime: string; closeTime: string; }
-export interface BookingOffer { venueId: number; acceptsBookings: boolean; courts: BookingCourt[]; hours: BookingHours[]; }
+export interface BookingOffer { venueId: number; acceptsBookings: boolean; courts: BookingCourt[]; hours: BookingHours[];
+  paymentMethod?: 'MBWAY' | 'IN_PERSON' | null; mbwayPhone?: string | null; }
 export interface BookingSlot { start: string; end: string; free: boolean; }
 export interface CourtSlots { courtId: number; name: string; sport: string | null; priceCents: number | null; slotMinutes: number; slots: BookingSlot[]; }
 export interface DaySlots { venueId: number; date: string; courts: CourtSlots[]; }
@@ -20,6 +21,7 @@ export interface VenueBooking {
   requesterUsername: string; startAt: string; endAt: string; status: 'PENDING' | 'CONFIRMED' | 'DECLINED' | 'CANCELLED';
   priceCents: number | null; playerNote: string | null; ownerNote: string | null; sessionId: number | null;
   createdAt: string; decidedAt: string | null;
+  paymentMethod?: 'MBWAY' | 'IN_PERSON' | null; mbwayPhone?: string | null; paidClaimedAt?: string | null; paidConfirmedAt?: string | null;
 }
 export interface ManagedVenue { venueId: number; name: string; city: string; pendingRequests: number; acceptsBookings: boolean; }
 export interface CourtInput { id?: number | null; name: string; sport?: string | null; priceCents?: number | null; slotMinutes: number; active: boolean; }
@@ -48,6 +50,11 @@ export class VenueBookingService {
   managerOffer(venueId: number) { return this.get<BookingOffer>(`/venues/${venueId}/management/offer`); }
   saveCourts(venueId: number, courts: CourtInput[]) { return this.put<BookingOffer>(`/venues/${venueId}/management/courts`, courts); }
   saveHours(venueId: number, hours: BookingHours[]) { return this.put<BookingOffer>(`/venues/${venueId}/management/hours`, hours); }
+  savePayment(venueId: number, method: 'MBWAY' | 'IN_PERSON' | null, phone: string | null) {
+    return this.put<BookingOffer>(`/venues/${venueId}/management/payment`, { method, phone });
+  }
+  markPaid(id: number, paid: boolean) { return this.post<VenueBooking>(`/venue-bookings/${id}/paid`, { paid }); }
+  confirmPaid(id: number, paid: boolean) { return this.post<VenueBooking>(`/venue-bookings/${id}/payment-received`, { paid }); }
   venueRequests(venueId: number) { return this.get<VenueBooking[]>(`/venues/${venueId}/management/requests`); }
   mine() { return this.get<VenueBooking[]>('/venue-bookings/mine'); }
   managed() { return this.get<ManagedVenue[]>('/venue-bookings/managed'); }

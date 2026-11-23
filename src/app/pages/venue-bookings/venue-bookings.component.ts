@@ -5,6 +5,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { ManagedVenue, VenueBooking, VenueBookingService, formatPrice, lisbonDateTime, lisbonTime } from '../../services/venue-booking.service';
 import { bookingError, currentLang } from '../../shared/venue-jynlo-booking/venue-jynlo-booking.component';
+import { phoneLabel } from '../../shared/tournament-payments-panel/tournament-payments-panel.component';
 
 /** "As minhas reservas": court requests the person made and the venues they manage. */
 @Component({
@@ -48,6 +49,26 @@ import { bookingError, currentLang } from '../../shared/venue-jynlo-booking/venu
               @if (b.ownerNote) { <span class="vb__note">{{ 'Recinto' | t }}: “{{ b.ownerNote }}”</span> }
             </div>
             <span class="vb__chip">{{ statusLabel(b.status) }}</span>
+            @if (b.status === 'CONFIRMED') {
+              <div class="vb__pay">
+                @if (b.paidConfirmedAt) {
+                  <span class="vb__ok">✅ {{ 'O recinto confirmou o teu pagamento.' | t }}</span>
+                } @else {
+                  @if (b.paymentMethod === 'MBWAY' && b.mbwayPhone) {
+                    <span>{{ 'Paga por MB WAY ao recinto:' | t }} <strong>{{ phone(b.mbwayPhone) }}</strong>@if (price(b.priceCents); as p) { · {{ p }} }</span>
+                    <button type="button" class="jynlo-action" (click)="copy(b.mbwayPhone)">{{ (copied === b.id ? 'payments.copied' : 'payments.copy') | t }}</button>
+                  } @else {
+                    <span class="vb__muted">{{ 'Pagas no recinto.' | t }}</span>
+                  }
+                  @if (b.paidClaimedAt) {
+                    <span class="vb__muted">⏳ {{ 'Disseste que já pagaste. Falta o recinto confirmar.' | t }}</span>
+                    <button type="button" class="jynlo-action" [disabled]="busy" (click)="markPaid(b, false)">{{ 'payments.undoClaim' | t }}</button>
+                  } @else {
+                    <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy" (click)="markPaid(b, true)">{{ 'payments.claim' | t }}</button>
+                  }
+                }
+              </div>
+            }
             @if (canCancel(b)) {
               <button type="button" class="jynlo-action jynlo-action--neutral" [disabled]="busy" (click)="cancel(b)">{{ 'Cancelar pedido' | t }}</button>
             }
@@ -75,6 +96,8 @@ import { bookingError, currentLang } from '../../shared/venue-jynlo-booking/venu
     .vb__chip.is-alert, .vb__booking[data-status=PENDING] .vb__chip { background:rgba(252,211,77,.15); color:#fcd34d; }
     .vb__booking[data-status=DECLINED] .vb__chip, .vb__booking[data-status=CANCELLED] .vb__chip { background:rgba(255,180,180,.12); color:#ffb4b4; }
     .vb__error { margin:0; color:#ffb4b4; }
+    .vb__pay { grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
+    .vb__ok { color:#7ae5c5; font-weight:800; }
   `]
 })
 export class VenueBookingsComponent implements OnInit {
@@ -83,6 +106,7 @@ export class VenueBookingsComponent implements OnInit {
   loading = true;
   busy = false;
   error = '';
+  copied = 0;
 
   private readonly api = inject(VenueBookingService);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -104,6 +128,29 @@ export class VenueBookingsComponent implements OnInit {
 
   statusLabel(status: VenueBooking['status']): string {
     return t({ PENDING: 'À espera do recinto', CONFIRMED: 'Confirmada', DECLINED: 'Recusada', CANCELLED: 'Cancelada' }[status]);
+  }
+
+  phone(value: string): string { return phoneLabel(value); }
+
+  copy(phone: string | null | undefined): void {
+    if (!phone) return;
+    const id = this.bookings.find(b => b.mbwayPhone === phone)?.id ?? 0;
+    try {
+      void navigator.clipboard?.writeText(phone).then(() => {
+        this.copied = id; this.cdr.markForCheck();
+        setTimeout(() => { this.copied = 0; this.cdr.markForCheck(); }, 2000);
+      }, () => {});
+    } catch { /* clipboard unavailable */ }
+  }
+
+  markPaid(b: VenueBooking, paid: boolean): void {
+    if (this.busy) return;
+    this.busy = true;
+    this.error = '';
+    this.api.markPaid(b.id, paid).pipe(finalize(() => { this.busy = false; this.cdr.markForCheck(); })).subscribe({
+      next: updated => { this.bookings = this.bookings.map(x => x.id === updated.id ? updated : x); },
+      error: e => { this.error = bookingError(e, 'Não foi possível guardar. Tenta outra vez.'); }
+    });
   }
 
   canCancel(b: VenueBooking): boolean {

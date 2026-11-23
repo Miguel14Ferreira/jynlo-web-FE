@@ -71,6 +71,9 @@ export function currentLang(): 'pt' | 'en' {
           <div class="vjb__confirm">
             <strong>{{ p.court.name }} · {{ dayLabel(selectedDay) }} · {{ time(p.slot.start) }}–{{ time(p.slot.end) }}</strong>
             <span class="vjb__muted">{{ priceLine(p.court) }}</span>
+            @if (offer?.paymentMethod === 'MBWAY') {
+              <span class="vjb__muted">📱 {{ 'Depois de o recinto confirmar, pagas por MB WAY ao recinto.' | t }}</span>
+            }
             @if (loggedIn) {
               <label class="vjb__field">
                 <span>{{ 'Mensagem para o recinto (opcional)' | t }}</span>
@@ -277,6 +280,7 @@ export class VenueJynloBookingComponent implements OnChanges {
 
   priceLine(court: CourtSlots): string {
     const price = formatPrice(court.priceCents, currentLang());
+    if (this.offer?.paymentMethod === 'MBWAY') return price ?? t('Preço no recinto');
     return price ? t('{{price}} · pagas no recinto', { price }) : t('Preço no recinto');
   }
 

@@ -3415,6 +3415,9 @@
             }
           </div>
         </header>
+        @if (!selected.historicalArchiveId) {
+          <app-tournament-payments-panel [communityId]="community.id" [tournamentId]="selected.id"></app-tournament-payments-panel>
+        }
         <app-tournament-public-share [communityId]="community.id" [tournamentId]="selected.id" [canManage]="canManage"></app-tournament-public-share>
 
         @if (canManage) {

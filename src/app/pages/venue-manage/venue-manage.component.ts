@@ -48,6 +48,13 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
               @if (r.playerNote) { <span class="vm__note">“{{ r.playerNote }}”</span> }
             </div>
             <span class="vm__chip">{{ statusLabel(r.status) }}</span>
+            @if (r.status === 'CONFIRMED') {
+              <div class="vm__actions">
+                <span class="vm__muted">{{ (r.paidConfirmedAt ? 'payments.stateConfirmed' : r.paidClaimedAt ? 'payments.stateClaimed' : 'payments.stateUnpaid') | t }}</span>
+                <button type="button" class="jynlo-action" [class.jynlo-action--primary]="!r.paidConfirmedAt" [disabled]="busy"
+                  (click)="confirmPaid(r, !r.paidConfirmedAt)">{{ (r.paidConfirmedAt ? 'payments.undoConfirm' : 'Pagamento recebido') | t }}</button>
+              </div>
+            }
             @if (r.status === 'PENDING') {
               <div class="vm__actions">
                 <input type="text" maxlength="300" [placeholder]="'Mensagem (opcional)' | t" [(ngModel)]="notes[r.id]"
@@ -84,6 +91,28 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
         </div>
         @if (courtsMessage) { <p class="vm__ok" role="status">{{ courtsMessage }}</p> }
         @if (courtsError) { <p class="vm__error" role="alert">{{ courtsError }}</p> }
+      </section>
+
+      <section class="vm__card" aria-labelledby="vm-payment">
+        <h2 id="vm-payment">{{ 'Pagamento das reservas' | t }}</h2>
+        <p class="vm__muted">{{ 'Recebe por MB WAY no teu número ou no local. A Jynlo não recebe nem guarda dinheiro.' | t }}</p>
+        <div class="vm__actions" role="radiogroup" [attr.aria-label]="'Pagamento das reservas' | t">
+          <button type="button" class="jynlo-action" role="radio" [attr.aria-checked]="payMethod === 'MBWAY'"
+            [class.jynlo-action--primary]="payMethod === 'MBWAY'" (click)="payMethod = 'MBWAY'">📱 {{ 'MB WAY' | t }}</button>
+          <button type="button" class="jynlo-action" role="radio" [attr.aria-checked]="payMethod === 'IN_PERSON'"
+            [class.jynlo-action--primary]="payMethod === 'IN_PERSON'" (click)="payMethod = 'IN_PERSON'">🤝 {{ 'No local' | t }}</button>
+        </div>
+        @if (payMethod === 'MBWAY') {
+          <label class="vm__field"><span>{{ 'Número MB WAY do recinto' | t }}</span>
+            <input type="tel" inputmode="tel" maxlength="20" placeholder="912 345 678" [(ngModel)]="payPhone"></label>
+          <p class="vm__muted">{{ 'Só quem tem uma reserva confirmada vê este número.' | t }}</p>
+        }
+        <div class="vm__actions">
+          <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="savingPayment || !payMethod" (click)="savePayment()">
+            {{ (savingPayment ? 'A guardar…' : 'Guardar pagamento') | t }}</button>
+        </div>
+        @if (paymentMessage) { <p class="vm__ok" role="status">{{ paymentMessage }}</p> }
+        @if (paymentError) { <p class="vm__error" role="alert">{{ paymentError }}</p> }
       </section>
 
       <section class="vm__card" aria-labelledby="vm-hours">
@@ -148,6 +177,7 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
     .vm__remove, .vm__add { min-height:44px; min-width:44px; border-radius:10px; border:1px solid rgba(96,176,182,.35); background:transparent;
       color:#dff7f1; font:inherit; font-weight:700; cursor:pointer; padding:0 .6rem; }
     .vm__ok { margin:0; color:#7ae5c5; font-weight:700; }
+    .vm__field { display:grid; gap:.25rem; font-size:.78rem; font-weight:700; color:#bfe9df; max-width:20rem; }
     .vm__error { margin:0; color:#ffb4b4; }
     @media (max-width:700px) { .vm__court { grid-template-columns:1fr 1fr; } }
   `]
@@ -166,6 +196,11 @@ export class VenueManageComponent implements OnInit {
   busy = false;
   savingCourts = false;
   savingHours = false;
+  savingPayment = false;
+  payMethod: 'MBWAY' | 'IN_PERSON' | null = null;
+  payPhone = '';
+  paymentMessage = '';
+  paymentError = '';
   loadError = '';
   requestError = '';
   courtsMessage = '';
@@ -185,7 +220,7 @@ export class VenueManageComponent implements OnInit {
       error: () => { /* name is optional */ }
     });
     this.api.managerOffer(this.venueId).subscribe({
-      next: offer => { this.loaded = true; this.applyOffer(offer, true); },
+      next: offer => { this.loaded = true; this.applyOffer(offer, true); this.applyPayment(offer); },
       error: e => { this.loadError = bookingError(e, 'Não foi possível carregar a gestão do recinto.'); this.cdr.markForCheck(); }
     });
     this.loadRequests();
@@ -257,6 +292,35 @@ export class VenueManageComponent implements OnInit {
         next: updated => { this.requests = this.requests.map(x => x.id === updated.id ? updated : x); },
         error: e => { this.requestError = bookingError(e, 'Não foi possível responder ao pedido.'); }
       });
+  }
+
+  savePayment(): void {
+    this.savingPayment = true;
+    this.paymentError = '';
+    this.paymentMessage = '';
+    this.api.savePayment(this.venueId, this.payMethod, this.payMethod === 'MBWAY' ? this.payPhone.trim() : null)
+      .pipe(finalize(() => { this.savingPayment = false; this.cdr.markForCheck(); }))
+      .subscribe({
+        next: offer => { this.applyPayment(offer); this.paymentMessage = t('Pagamento guardado.'); },
+        error: e => { this.paymentError = bookingError(e, 'Não foi possível guardar. Tenta outra vez.'); }
+      });
+  }
+
+  confirmPaid(r: VenueBooking, paid: boolean): void {
+    if (this.busy) return;
+    this.busy = true;
+    this.requestError = '';
+    this.api.confirmPaid(r.id, paid)
+      .pipe(finalize(() => { this.busy = false; this.cdr.markForCheck(); }))
+      .subscribe({
+        next: updated => { this.requests = this.requests.map(x => x.id === updated.id ? updated : x); },
+        error: e => { this.requestError = bookingError(e, 'Não foi possível guardar. Tenta outra vez.'); }
+      });
+  }
+
+  private applyPayment(offer: BookingOffer): void {
+    this.payMethod = offer.paymentMethod ?? null;
+    this.payPhone = offer.mbwayPhone ? offer.mbwayPhone.replace(/^(\d{3})(\d{3})(\d{3})$/, '$1 $2 $3') : this.payPhone;
   }
 
   private loadRequests(): void {

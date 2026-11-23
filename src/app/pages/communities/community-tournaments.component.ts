@@ -1,3 +1,4 @@
+import { TournamentPaymentsPanelComponent } from '../../shared/tournament-payments-panel/tournament-payments-panel.component';
 import { appTranslate } from '../../i18n/i18n.service';
 import { sportMatchesQuery } from '../../shared/venue-catalogue-display';
 import { CommonModule } from '@angular/common';
@@ -65,7 +66,7 @@ interface TournamentTeamAdministrationState {
   templateUrl: './community-tournaments.component.html',
   styleUrls: ['./community-tournaments.component.css', './community-tournaments-v3-finish.css', './community-tournaments-team-journey.css', './community-team-honours-timeline.css', './community-competitions-dashboard.css', './community-team-autonomy.css', './community-championship-round-centre.css'],
   standalone: true,
-  imports: [SportNamePipe, CommonModule, FormsModule, RouterLink, TranslatePipe, CommunityTournamentEligibilityPanelComponent, CompetitionFormatChooserComponent, CompetitionGuideComponent, CompetitionTeamSearchComponent, EventRankingPanelComponent, KartingPalmaresComponent, KartingPodiumComponent, KartingRaceTableComponent, RaceStandingsCardComponent, TeamCompetitionApplicationsComponent, TournamentClassificationNoteComponent, TournamentPublicShareComponent]
+  imports: [SportNamePipe, CommonModule, FormsModule, RouterLink, TranslatePipe, CommunityTournamentEligibilityPanelComponent, CompetitionFormatChooserComponent, CompetitionGuideComponent, CompetitionTeamSearchComponent, EventRankingPanelComponent, KartingPalmaresComponent, KartingPodiumComponent, KartingRaceTableComponent, RaceStandingsCardComponent, TeamCompetitionApplicationsComponent, TournamentClassificationNoteComponent, TournamentPublicShareComponent, TournamentPaymentsPanelComponent]
 })
 export class CommunityTournamentsComponent implements OnChanges {
   @Input({ required: true }) community!: CommunityGroup;
