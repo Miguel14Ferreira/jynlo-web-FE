@@ -61,23 +61,16 @@ jobs:
           name: jynlo-auditoria-visual
           path: visual-audit/
           retention-days: 5
-      - name: Publicar resultados num ramo próprio (qa-audit/run-ID)
+      # Results stay in the run (log + artifact): never create branches (only develop/master exist).
+      - name: Resumo no registo
         if: always()
         run: |
-          [ -d visual-audit ] || exit 0
-          python3 -m pip install --quiet pillow
-          python3 - <<'PY'
-          from PIL import Image; import glob, os
-          for f in glob.glob('visual-audit/screens/*.png'):
-              im = Image.open(f).convert('RGB')
-              if im.height > 6000: im = im.crop((0, 0, im.width, 6000))
-              im.save(f[:-4] + '.jpg', quality=70); os.remove(f)
-          PY
-          sed -i 's/\.png"/.jpg"/g' visual-audit/relatorio.json
-          branch="qa-audit/run-${{ github.run_id }}"
-          cd visual-audit
-          git init -q -b "$branch"
-          git config user.name "jynlo-qa-bot"; git config user.email "qa-bot@users.noreply.github.com"
-          git add -A && git commit -qm "Auditoria visual ${{ github.run_id }}"
-          git push -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" "$branch"
-          echo "::notice::Resultados no ramo $branch"
+          [ -f visual-audit/relatorio.json ] || exit 0
+          node -e '
+            const r = require("./visual-audit/relatorio.json");
+            const lines = [];
+            for (const p of r) for (const pr of (p.problemas || []))
+              lines.push([p.ecra, p.pagina, pr.tipo, String(pr.detalhe || "").slice(0, 160)].join(" | "));
+            console.log("QA-RESUMO paginas=" + r.length + " problemas=" + lines.length);
+            for (const l of lines) console.log("QA-PROBLEMA " + l);
+          ' | tee -a "$GITHUB_STEP_SUMMARY"
