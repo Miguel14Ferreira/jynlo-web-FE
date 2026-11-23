@@ -701,3 +701,9 @@ img[data-zoomable], :has(> img[data-zoomable]) { cursor: zoom-in; }
 .community-start__grid h3 { margin: 0; font-size: 1rem; }
 .community-start__grid p { margin: 0; color: #b9d4d6; font-size: .88rem; line-height: 1.4; flex: 1; }
 .community-start__grid .jynlo-action { align-self: flex-start; min-height: 44px !important; }
+/* Edit profile: entry point to change the password. */
+.password-entry { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem;
+  margin: 1.2rem 0; padding: 1rem 1.1rem; border-radius: 16px; border: 1px solid rgba(255,255,255,.08); background: rgba(10,41,55,.5); }
+.password-entry h2 { margin: .15rem 0; font-size: 1.1rem; }
+.password-entry p { margin: 0; color: #b9d4d6; font-size: .9rem; }
+.password-entry .jynlo-action { min-height: 44px !important; }

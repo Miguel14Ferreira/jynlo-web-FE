@@ -8212,4 +8212,6 @@ export const EN: Record<string, string> = {
   'Marca o próximo jogo': 'Schedule the next game',
   'Cria a sessão e partilha no WhatsApp: cada um confirma a presença.': 'Create the session and share it on WhatsApp: everyone confirms whether they\'re in.',
   'Ver jogos': 'See games',
+  'Palavra-passe': 'Password',
+  'Alterar palavra-passe': 'Change password',
 };
