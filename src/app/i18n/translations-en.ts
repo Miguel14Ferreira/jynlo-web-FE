@@ -8353,4 +8353,5 @@ export const EN: Record<string, string> = {
   "Reserva cancelada": "Booking cancelled",
   "Pedido de gestão aprovado": "Venue management approved",
   "Pedido de gestão recusado": "Venue management declined",
+  "Administração": "Administration",
 };

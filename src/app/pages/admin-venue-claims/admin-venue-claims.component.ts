@@ -14,6 +14,7 @@ import { bookingError } from '../../shared/venue-jynlo-booking/venue-jynlo-booki
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="avc">
+      <a class="avc__back" routerLink="/menu/admin">← {{ 'Administração' | t }}</a>
       <h2>{{ 'Pedidos para gerir recintos' | t }}</h2>
       <p class="avc__muted">{{ 'Confirma que a pessoa trabalha no recinto (por exemplo, ligando para o número do clube) antes de aprovar.' | t }}</p>
       @if (!pending.length) { <p class="avc__muted">{{ 'Não há pedidos à espera.' | t }}</p> }
@@ -40,7 +41,8 @@ import { bookingError } from '../../shared/venue-jynlo-booking/venue-jynlo-booki
     </section>
   `,
   styles: [`
-    .avc { display:grid; gap:.7rem; }
+    .avc { display:grid; gap:.7rem; max-width:900px; margin:0 auto; padding:6.4rem 1rem 4rem; color:#eafff9; }
+    .avc__back { color:#7ae5c5; font-weight:700; text-decoration:none; min-height:44px; display:inline-flex; align-items:center; }
     .avc__muted { color:#b9d4d6; margin:0; }
     .avc__item { display:grid; gap:.35rem; padding:.9rem; border-radius:14px; border:1px solid rgba(96,176,182,.3); }
     .avc__item p { margin:0; }

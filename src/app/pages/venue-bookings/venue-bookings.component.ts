@@ -58,7 +58,7 @@ import { bookingError, currentLang } from '../../shared/venue-jynlo-booking/venu
     </main>
   `,
   styles: [`
-    .vb { max-width:860px; margin:0 auto; padding:1.5rem 1rem 4rem; display:grid; gap:1rem; color:#eafff9; }
+    .vb { max-width:860px; margin:0 auto; padding:6.4rem 1rem 4rem; display:grid; gap:1rem; color:#eafff9; }
     .vb h1 { margin:.2rem 0 .4rem; font-size:1.9rem; }
     .vb__kicker { color:#62e6c4; font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
     .vb__muted { color:#b9d4d6; font-size:.88rem; margin:0; }
