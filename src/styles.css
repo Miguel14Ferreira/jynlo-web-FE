@@ -666,8 +666,10 @@ img[data-zoomable], :has(> img[data-zoomable]) { cursor: zoom-in; }
 /* Venue page: main "Reservar" action under the venue name. */
 .venue-book { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem; margin: .4rem 0 .2rem; }
 .venue-book__main { min-height: 46px; }
-.venue-book .venue-book__main.jynlo-action--primary { background: linear-gradient(135deg,#5ee6c8,#2bb8a0); color: #04212a;
-  border-color: transparent; font-weight: 900; box-shadow: 0 8px 22px rgba(43,184,160,.28); }
+.venue-book .venue-book__main.jynlo-action--primary {
+  /* .jynlo-action paints through these variables with !important. */
+  --jynlo-action-bg: #3fd8b4; --jynlo-action-hover: #5ee6c8; --jynlo-action-text: #04212a;
+  --jynlo-action-border: transparent; font-weight: 900 !important; box-shadow: 0 8px 22px rgba(43,184,160,.28); }
 .venue-book__free { display: inline-flex; align-items: center; min-height: 36px; padding: .3rem .8rem; border-radius: 999px;
   background: rgba(94,230,200,.14); color: #7ae5c5; font-weight: 800; font-size: .88rem; }
 .venue-book__suggest { display: inline-flex; align-items: center; min-height: 44px; padding: 0 .3rem; color: #7ae5c5; font-size: .88rem; font-weight: 700; }
