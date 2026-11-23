@@ -63,6 +63,7 @@
             <a class="mobile-only-link" routerLink="/menu/my-sessions" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'mySessions.title' | t }}</a>
             <a class="desktop-primary-link" routerLink="/menu/my-sessions" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'mySessions.title' | t }}</a>
             <a class="desktop-primary-link" routerLink="/menu/messages" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'nav.messages' | t }}</a>
+            <a routerLink="/menu/venue-bookings" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'As minhas reservas' | t }}</a>
             <a [routerLink]="['/menu/perfis', activeAccountUsername]" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'nav.account.viewProfile' | t }}</a>
             @if (admin) {
               <a routerLink="/menu/admin" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'admin.eyebrow' | t }}</a>

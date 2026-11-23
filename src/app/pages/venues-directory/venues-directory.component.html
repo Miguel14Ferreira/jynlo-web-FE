@@ -107,6 +107,9 @@
                 ? 'venue.detail.sourceOpenStreetMap' : venue.informationSource === 'OFFICIAL'
                 ? 'venue.detail.sourceOfficial' : 'venue.detail.sourceCommunity') | t }}</span>
             </div>
+            @if (acceptingIds.has(venue.id)) {
+              <span class="venue-directory-bookable">✓ {{ 'Aceita reservas na Jynlo' | t }}</span>
+            }
             <h3>{{ venue.name }}</h3>
             <p class="venue-directory-location">📍 {{ venue.city }}@if (venue.district && venue.district !== venue.city) {, {{ venue.district }}}</p>
             @if (nearbyMode && nearbyDistanceById[venue.id] != null) {

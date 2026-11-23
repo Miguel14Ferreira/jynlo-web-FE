@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { VenueBookingService } from '../../services/venue-booking.service';
 import { finalize, timeout } from 'rxjs';
 import { environment } from 'src/environment/environment';
 import { TranslatePipe } from '../../i18n/translate.pipe';
@@ -19,7 +21,7 @@ export interface CourtBooking {
 @Component({
   selector: 'app-session-court-booking',
   standalone: true,
-  imports: [FormsModule, TranslatePipe],
+  imports: [FormsModule, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (data; as booking) {
@@ -36,6 +38,10 @@ export interface CourtBooking {
               [(ngModel)]="draftUrl" [disabled]="saving">
           </label>
           <div class="court-booking__actions">
+            @if (jynloBookable && !booking.booked) {
+              <a class="jynlo-action jynlo-action--primary" [routerLink]="['/menu/venues', venueId]" [queryParams]="{ session: sessionId }">
+                ✓ {{ 'Reservar na Jynlo' | t }}</a>
+            }
             @if (openUrl; as url) {
               <a class="jynlo-action jynlo-action--primary" [href]="url" target="_blank" rel="noopener noreferrer">{{ 'Reservar campo' | t }} ↗</a>
             }
@@ -76,6 +82,10 @@ export class SessionCourtBookingComponent implements OnChanges {
   @Input() sessionId: number | null = null;
   /** Only organisers and players who joined can see the court booking. */
   @Input() allowed = false;
+  /** Venue of the game: when it takes Jynlo bookings the organiser books it here. */
+  @Input() venueId: number | null = null;
+  jynloBookable = false;
+  private readonly bookingsApi = inject(VenueBookingService, { optional: true });
 
   data: CourtBooking | null = null;
   draftUrl = '';
@@ -93,6 +103,14 @@ export class SessionCourtBookingComponent implements OnChanges {
 
   ngOnChanges(): void {
     this.data = null;
+    this.jynloBookable = false;
+    const venueId = this.venueId;
+    if (venueId && this.bookingsApi) {
+      this.bookingsApi.accepting().subscribe(ids => {
+        this.jynloBookable = venueId === this.venueId && ids.includes(venueId);
+        this.cdr.markForCheck();
+      });
+    }
     if (!this.sessionId || !this.allowed) return;
     this.http.get<CourtBooking>(this.url()).pipe(timeout(10000)).subscribe({
       next: data => { this.apply(data); },

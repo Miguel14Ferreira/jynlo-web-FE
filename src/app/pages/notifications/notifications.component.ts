@@ -39,7 +39,7 @@ export class NotificationsComponent implements OnInit {
     'ATTENDANCE_DISPUTE_ACCEPTED', 'ATTENDANCE_DISPUTE_REJECTED',
     'TEAM_MEMBER_INVITE', 'TEAM_ADMIN_TRANSFER', 'TEAM_ADMIN_ASSIGNED',
     'CHAT_MESSAGE', 'VENUE_EDIT_DECISION', 'SOCIAL_POST_LIKED',
-    'SOCIAL_POST_COMMENTED', 'SOCIAL_NEW_FOLLOWER', 'FRIEND_REQUEST', 'CALL_INCOMING', 'CALL_MISSED', 'OTHER'
+    'SOCIAL_POST_COMMENTED', 'SOCIAL_NEW_FOLLOWER', 'FRIEND_REQUEST', 'CALL_INCOMING', 'CALL_MISSED', 'VENUE_BOOKING', 'OTHER'
   ] as const;
   preferencesOpen = false;
   /** Browser notification permission; only asked for when the person taps "Ativar avisos". */
@@ -796,6 +796,8 @@ export class NotificationsComponent implements OnInit {
         return t('notifications.preferences.type.SOCIAL_NEW_FOLLOWER');
       case 'VENUE_EDIT_DECISION':
         return t('notification.venueEditType');
+      case 'VENUE_BOOKING':
+        return t('notifications.preferences.type.VENUE_BOOKING');
       default:
         return notification.friendRequest ? t('notification.friendRequest') : t('notification.generic');
     }

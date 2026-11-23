@@ -1,6 +1,7 @@
+import { VenueBookingService } from '../../services/venue-booking.service';
 import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, Optional } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subject, takeUntil, timeout } from 'rxjs';
@@ -46,10 +47,18 @@ export class VenuesDirectoryComponent implements OnInit, OnDestroy {
   constructor(
     private readonly venuesApi: VenueService,
     private readonly route: ActivatedRoute,
-    private readonly changeDetector: ChangeDetectorRef
+    private readonly changeDetector: ChangeDetectorRef,
+    @Optional() private readonly bookingsApi: VenueBookingService | null = null
   ) {}
 
+  /** Venues that take bookings on Jynlo get the "Aceita reservas na Jynlo" badge. */
+  acceptingIds = new Set<number>();
+
   ngOnInit(): void {
+    this.bookingsApi?.accepting().pipe(takeUntil(this.destroyed)).subscribe(ids => {
+      this.acceptingIds = new Set(ids);
+      this.changeDetector.markForCheck();
+    });
     const params = this.route.snapshot.queryParamMap;
     this.name = params.get('name') || '';
     this.city = params.get('city') || '';

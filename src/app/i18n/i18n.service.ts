@@ -1717,6 +1717,7 @@ const PT: Dictionary = {
   'notifications.preferences.type.COMMUNITY_SESSION_CREATED': 'Novos jogos nas tuas comunidades',
   'notifications.preferences.type.CALL_INCOMING': 'Chamadas a entrar',
   'notifications.preferences.type.CALL_MISSED': 'Chamadas perdidas',
+  'notifications.preferences.type.VENUE_BOOKING': 'Reservas de campos',
   'notifications.preferences.type.AVAILABILITY_REQUEST': 'Pedidos de disponibilidade (quem pode?)',
   'notifications.preferences.type.AVAILABILITY_REMINDER': 'Lembretes para responder à disponibilidade',
   'nearbyAlerts.title': 'Novos jogos perto de ti',

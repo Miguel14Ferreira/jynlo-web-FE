@@ -43,6 +43,8 @@ const routes: Routes = [
   {path:'menu/venues',loadComponent:() => import('./pages/venues-directory/venues-directory.component').then(m => m.VenuesDirectoryComponent),data:{publicBrowse:true}},
   {path:'menu/venues/new',loadChildren:() => import('./pages/venue-create/venue-create.module').then(m => m.VenueCreateModule),canActivate:[AuthenticationGuard]},
   {path:'menu/venues/:id/suggest-edit',loadComponent:() => import('./pages/venue-suggest-edit/venue-suggest-edit.component').then(m => m.VenueSuggestEditComponent),canActivate:[AuthenticationGuard]},
+  {path:'menu/venues/:id/manage',loadComponent:() => import('./pages/venue-manage/venue-manage.component').then(m => m.VenueManageComponent),canActivate:[AuthenticationGuard]},
+  {path:'menu/venue-bookings',loadComponent:() => import('./pages/venue-bookings/venue-bookings.component').then(m => m.VenueBookingsComponent),canActivate:[AuthenticationGuard]},
   {path:'menu/venues/:id',loadChildren:() => import('./pages/venue-details/venue-details.module').then(m => m.VenueDetailsModule),canActivate:[AuthenticationGuard]},
   {path:'menu/events',loadChildren:() => import('./pages/events/events.module').then(m => m.EventsModule),data:{publicBrowse:true}},
   {path:'menu/login',redirectTo:'/login', pathMatch:'full'},

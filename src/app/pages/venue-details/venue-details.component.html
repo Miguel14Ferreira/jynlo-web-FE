@@ -55,6 +55,8 @@
             }
           </div>
         }
+        <app-venue-jynlo-booking [venueId]="venue.id" [loggedIn]="!isPublicView"
+          [sessionId]="bookingSessionId"></app-venue-jynlo-booking>
         @if (!isPublicView) {
           <a class="jynlo-action jynlo-action--neutral venue-edit-link"
             [routerLink]="['/menu/venues', venue.id, 'suggest-edit']">

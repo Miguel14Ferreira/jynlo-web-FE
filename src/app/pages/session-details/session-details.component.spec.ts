@@ -30,6 +30,7 @@ class SessionPaymentsPanelStubComponent {
 class SessionCourtBookingStubComponent {
   @NgInput() sessionId: number | null = null;
   @NgInput() allowed = false;
+  @NgInput() venueId: number | null = null;
 }
 
 @NgComponent({ selector: 'app-previous-unpaid-warning', standalone: true, template: '' })

@@ -374,6 +374,11 @@
                     {{ 'notifications.openChat' | t }}
                   </button>
                 }
+                @if (selected.type === 'VENUE_BOOKING') {
+                  <a class="primary-action jynlo-action jynlo-action--primary" routerLink="/menu/venue-bookings">
+                    {{ 'Ver as reservas' | t }}
+                  </a>
+                }
                 @if ((selected.type === 'CALL_INCOMING' || selected.type === 'CALL_MISSED') && selected.relatedUsername) {
                   <button type="button" class="primary-action jynlo-action jynlo-action--primary" (click)="openChat(selected)">
                     {{ 'notifications.openChat' | t }}

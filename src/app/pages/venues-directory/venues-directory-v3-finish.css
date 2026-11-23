@@ -173,3 +173,6 @@
   :host .venue-directory-page.jynlo-social .venue-directory-card{transition:none;}
   :host .venue-directory-page.jynlo-social .venue-directory-card:hover{transform:none;}
 }
+
+:host .venue-directory-bookable { justify-self:start; display:inline-flex; margin:.1rem 0 .2rem; padding:.2rem .6rem; border-radius:999px;
+  background:#62e6c4; color:#063a35; font-size:.74rem; font-weight:800; }

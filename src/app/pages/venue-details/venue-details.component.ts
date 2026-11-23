@@ -54,6 +54,13 @@ export class VenueDetailsComponent implements OnInit, OnDestroy {
       || this.route.snapshot?.parent?.data?.['publicVenueView'] === true;
   }
 
+  /** Game a "Reservar na Jynlo" request is for, when the organiser came from a session. */
+  get bookingSessionId(): number | null {
+    const raw = this.route.snapshot?.queryParamMap?.get('session');
+    const id = raw ? Number(raw) : NaN;
+    return Number.isInteger(id) && id > 0 ? id : null;
+  }
+
   constructor(
     private route: ActivatedRoute,
     private venueService: VenueService,

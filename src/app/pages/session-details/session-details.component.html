@@ -985,7 +985,7 @@
           }
 
           @if (session.status !== 'CANCELLED' && (session.joined || isCreator())) {
-            <app-session-court-booking [sessionId]="session.id" [allowed]="session.joined || isCreator()"></app-session-court-booking>
+            <app-session-court-booking [sessionId]="session.id" [allowed]="session.joined || isCreator()" [venueId]="session.venue?.id ?? null"></app-session-court-booking>
           }
 
           @if (session.venue) {
