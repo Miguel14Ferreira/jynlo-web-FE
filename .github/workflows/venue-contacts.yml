@@ -26,4 +26,16 @@ jobs:
                   print('QA-VENUE|%s|%s|%s|%s|%s|%s|%s' % (v.get('id'), v.get('name'), v.get('city'), v.get('district') or '',
                         (v.get('sports') or '').replace('|', '/')[:80], site, ','.join(emails)))
           print('QA-RESUMO total=%d com_site=%d com_email=%d com_telefone=%d' % (len(venues), with_site, with_email, with_phone))
+          # Venues that rent courts by the hour: racket sports and small-sided football.
+          rent = re.compile(r'padel|t[ée]nis|squash|badminton|pickleball|futsal|futebol', re.I)
+          from collections import Counter
+          kinds = Counter(); districts = Counter()
+          for v in venues:
+              if not rent.search(v.get('sports') or ''): continue
+              kinds[(v.get('ownershipType') or '?') + '/' + (v.get('venueType') or '?')] += 1
+              districts[v.get('district') or '?'] += 1
+              print('QA-RENT|%s|%s|%s|%s|%s|%s|%s|%s' % (v.get('id'), v.get('name'), v.get('city'), v.get('district') or '',
+                    (v.get('sports') or '')[:60], v.get('ownershipType') or '', v.get('venueType') or '', (v.get('website') or '').strip()))
+          print('QA-TIPOS', dict(kinds.most_common(15)))
+          print('QA-DISTRITOS', dict(districts.most_common(25)))
           PY
