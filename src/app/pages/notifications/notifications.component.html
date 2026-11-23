@@ -62,6 +62,23 @@
             {{ 'notifications.preferences.close' | t }}
           </button>
         </div>
+        @if (browserAlertsState !== 'unsupported') {
+          <div class="browser-alerts">
+            <div>
+              <strong>{{ 'Avisos no computador' | t }}</strong>
+              <p>{{ (browserAlertsState === 'granted'
+                ? 'Ativos: avisamos mensagens e chamadas enquanto a Jynlo estiver aberta noutro separador.'
+                : browserAlertsState === 'denied'
+                  ? 'Bloqueados no browser. Podes permitir nas definições do site (cadeado na barra de endereço).'
+                  : 'Recebe um aviso de mensagens e chamadas quando a Jynlo está aberta noutro separador.') | t }}</p>
+            </div>
+            @if (browserAlertsState === 'default') {
+              <button type="button" class="secondary-button jynlo-action jynlo-action--primary" (click)="enableBrowserAlerts()">
+                {{ 'Ativar avisos' | t }}
+              </button>
+            }
+          </div>
+        }
         @if (preferencesError) {
           <p role="alert" class="preferences-error">{{ preferencesError }}
             @if (preferencesRefreshFailed) {
@@ -349,6 +366,17 @@
                 @if (selected.type === 'CHAT_MESSAGE' && selected.sportsTeamId) {
                   <button type="button" class="primary-action jynlo-action jynlo-action--primary" (click)="openTeamChat(selected)">
                     {{ 'notifications.openTeamChat' | t }}
+                  </button>
+                }
+                @if (selected.type === 'CHAT_MESSAGE' && !selected.relatedUsername && (selected.sessionId || selected.communityId)
+                     && !selected.privateGroupId && !selected.sportsTeamId) {
+                  <button type="button" class="primary-action jynlo-action jynlo-action--primary" (click)="openGroupChat(selected)">
+                    {{ 'notifications.openChat' | t }}
+                  </button>
+                }
+                @if ((selected.type === 'CALL_INCOMING' || selected.type === 'CALL_MISSED') && selected.relatedUsername) {
+                  <button type="button" class="primary-action jynlo-action jynlo-action--primary" (click)="openChat(selected)">
+                    {{ 'notifications.openChat' | t }}
                   </button>
                 }
                 @if (selected.type === 'CHAT_MESSAGE' && selected.relatedUsername && !selected.privateGroupId && !selected.sportsTeamId) {

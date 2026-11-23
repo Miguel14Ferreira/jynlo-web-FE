@@ -1,3 +1,4 @@
+import { appTranslate } from 'src/app/i18n/i18n.service';
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { SeoService } from 'src/app/shared/seo.service';
@@ -90,18 +91,29 @@ export class NavbarComponent implements OnInit, OnDestroy {
           if (!this.authenticated) return;
           this.loadUnreadNotifications();
           this.maybeShowChatToast(message);
+          const me = this.authService.loggedInPerfilname?.toLowerCase();
+          if (me && message?.username2?.toLowerCase() === me && message.username1?.toLowerCase() !== me
+              && !message.editedAt && !message.deletedAt) {
+            this.maybeShowBrowserNotice('direct', message.username1, message.username1);
+          }
         })
       );
 
       // Community and session read counts are server-owned. Private group
       // authorization uses its own current-member endpoint.
       this.subscriptions.add(
-        this.realtimeService.communityMessages$.pipe(auditTime(300)).subscribe(message =>
-          this.maybeShowGroupToast('community', message))
+        this.realtimeService.communityMessages$.pipe(auditTime(300)).subscribe(message => {
+          this.maybeShowGroupToast('community', message);
+          if (message?.kind === 'CHAT' && !message.editedAt && !message.deletedAt)
+            this.maybeShowBrowserNotice('community', String(message.communityId), message.username);
+        })
       );
       this.subscriptions.add(
-        this.realtimeService.sessionMessages$.pipe(auditTime(300)).subscribe(message =>
-          this.maybeShowGroupToast('session', message))
+        this.realtimeService.sessionMessages$.pipe(auditTime(300)).subscribe(message => {
+          this.maybeShowGroupToast('session', message);
+          if (!message?.editedAt && !message?.deletedAt)
+            this.maybeShowBrowserNotice('session', String(message?.sessionId), message?.senderUsername);
+        })
       );
       this.subscriptions.add(
         this.realtimeService.groupMessages$.pipe(auditTime(300)).subscribe(message =>
@@ -207,6 +219,38 @@ export class NavbarComponent implements OnInit, OnDestroy {
         });
     }
     
+    /**
+     * System notification while Jynlo is open in a background tab, only if the
+     * person enabled it (Notifications page). Never shows message text, and
+     * respects per-conversation mutes.
+     */
+    private maybeShowBrowserNotice(kind: 'direct' | 'community' | 'session', id: string, sender?: string | null): void {
+      const me = this.authService.loggedInPerfilname?.toLowerCase();
+      if (!this.authenticated || !me || !sender || sender.toLowerCase() === me || !id || id === 'undefined'
+          || typeof Notification === 'undefined' || Notification.permission !== 'granted'
+          || document.visibilityState !== 'hidden') return;
+      this.conversationMutes.list().pipe(timeout(8_000)).subscribe({
+        next: mutes => {
+          if (isConversationMuted(mutes, kind, kind === 'direct' ? id.toLowerCase() : Number(id))) return;
+          try {
+            const title = kind === 'direct' ? appTranslate('Nova mensagem de {{username}}', { username: sender })
+              : kind === 'session' ? appTranslate('Nova mensagem no chat do jogo')
+              : appTranslate('Nova mensagem na comunidade');
+            const notice = new Notification(title, {
+              body: kind === 'direct' ? appTranslate('Abre a Jynlo para responder.') : sender,
+              tag: 'jynlo-chat-' + kind + '-' + id
+            });
+            notice.onclick = () => {
+              window.focus();
+              void this.router.navigate(['/menu/messages'], { queryParams: { kind, id } });
+              notice.close();
+            };
+          } catch { /* best effort */ }
+        },
+        error: () => {}
+      });
+    }
+
     /** In-app alert only after the authenticated API confirms an unmuted,
      * unread, newly persisted notification. Never trust raw WebSocket text as
      * proof of notification visibility or expose private media URLs. */
