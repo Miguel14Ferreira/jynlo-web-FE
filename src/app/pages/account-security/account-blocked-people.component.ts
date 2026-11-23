@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -12,6 +12,8 @@ interface BlockedPerson { username: string; fullName?: string | null; blockedAt?
 @Component({
   selector: 'app-account-blocked-people',
   standalone: true,
+  // Angular 22 defaults to OnPush; these update plain fields from HTTP callbacks.
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, RouterLink, TranslatePipe],
   template: `
     <section class="account-box" aria-labelledby="blocked-heading">

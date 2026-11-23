@@ -747,3 +747,13 @@ app-messages-center .inbox-empty-side a { display: inline-flex; align-items: cen
 app-alterardados input.email-locked { opacity: .62; cursor: not-allowed; background: rgba(255,255,255,.03) !important; }
 app-alterardados .email-locked-hint { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; color: #a9c7cf; font-size: .8rem; margin-top: .3rem; }
 app-alterardados .email-locked-link { min-height: 36px; padding: 0 .2rem; border: 0; background: none; color: #7ae5c5; font-weight: 800; cursor: pointer; text-decoration: underline; }
+/* Account boxes: same fields as the rest of "Editar perfil". */
+.account-box__form label > span { color: #cbd5e1; font-size: .8rem; font-weight: 800; }
+.account-box__form input {
+  width: 100%; box-sizing: border-box; border: 1px solid rgba(255,255,255,.16); border-radius: .75rem;
+  padding: .8rem .9rem; background: rgba(255,255,255,.07); color: #fff; font: inherit; outline: none;
+}
+.account-box__form input:focus { border-color: rgba(94,230,200,.6); }
+.account-pw { position: relative; }
+.account-pw input { padding-right: 6.2rem; }
+.account-pw button { position: absolute; right: .35rem; top: 50%; transform: translateY(-50%); min-height: 36px !important; }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -10,6 +10,8 @@ import { appTranslate as t } from 'src/app/i18n/i18n.service';
 @Component({
   selector: 'app-confirm-email-change',
   standalone: true,
+  // Angular 22 defaults to OnPush; these update plain fields from HTTP callbacks.
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, RouterLink, TranslatePipe],
   template: `
     <main class="confirm-email-page">

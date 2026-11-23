@@ -40,3 +40,19 @@ describe('Account security', () => {
     expect(f.componentInstance.people.map(p => p.username)).toEqual(['rui']);
   });
 });
+
+describe('Account security rendering', () => {
+  it('shows the blocked list once it arrives (not stuck on loading)', () => {
+    TestBed.configureTestingModule({
+      imports: [AccountBlockedPeopleComponent],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
+    });
+    const http = TestBed.inject(HttpTestingController);
+    const f = TestBed.createComponent(AccountBlockedPeopleComponent);
+    f.detectChanges();
+    http.expectOne(r => r.url.endsWith('/api/blocks/users')).flush([]);
+    f.detectChanges();
+    expect(f.nativeElement.textContent).not.toContain('common.loading');
+    expect(f.nativeElement.textContent).toMatch(/bloqueaste|blocked/i);
+  });
+});

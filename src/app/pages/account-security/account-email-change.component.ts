@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -13,6 +13,8 @@ import { appTranslate as t } from 'src/app/i18n/i18n.service';
 @Component({
   selector: 'app-account-email-change',
   standalone: true,
+  // Angular 22 defaults to OnPush; these update plain fields from HTTP callbacks.
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, TranslatePipe],
   template: `
     <section class="account-box" aria-labelledby="email-change-heading">
@@ -36,7 +38,13 @@ import { appTranslate as t } from 'src/app/i18n/i18n.service';
           </label>
           <label>
             <span>{{ 'Palavra-passe atual' | t }}</span>
-            <input type="password" name="currentPassword" [(ngModel)]="currentPassword" autocomplete="current-password" [disabled]="busy">
+            <div class="account-pw">
+              <input [type]="showPassword ? 'text' : 'password'" id="email-change-password" name="currentPassword"
+                [(ngModel)]="currentPassword" autocomplete="current-password" [disabled]="busy">
+              <button type="button" class="jynlo-action jynlo-action--neutral" aria-controls="email-change-password"
+                [attr.aria-pressed]="showPassword" [attr.aria-label]="(showPassword ? 'common.hide' : 'common.show') | t"
+                (click)="showPassword = !showPassword">{{ (showPassword ? 'common.hide' : 'common.show') | t }}</button>
+            </div>
             <small>{{ 'Se entras só com Google ou Apple, deixa em branco.' | t }}</small>
           </label>
           <div class="account-box__actions">
@@ -57,6 +65,7 @@ export class AccountEmailChangeComponent {
   busy = false;
   newEmail = '';
   currentPassword = '';
+  showPassword = false;
   message = '';
   error = '';
 
@@ -66,6 +75,7 @@ export class AccountEmailChangeComponent {
     this.open = false;
     this.newEmail = '';
     this.currentPassword = '';
+    this.showPassword = false;
     this.error = '';
   }
 
