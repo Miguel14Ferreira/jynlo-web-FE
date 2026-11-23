@@ -2958,6 +2958,39 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     );
   }
 
+  /** "Por onde começar" for managers of a community with no results yet. */
+  showGettingStarted(): boolean {
+    const id = this.selected?.id;
+    if (!id || this.competitionLoading || this.gettingStartedHidden === id) return false;
+    if ((this.competition?.rounds?.length ?? 0) > 0 || (this.competition?.standings?.length ?? 0) > 0) return false;
+    try { return localStorage.getItem('jynlo.communityStart.hidden.' + id) !== '1'; } catch { return true; }
+  }
+
+  dismissGettingStarted(): void {
+    const id = this.selected?.id;
+    if (!id) return;
+    try { localStorage.setItem('jynlo.communityStart.hidden.' + id, '1'); } catch { /* private mode */ }
+    this.gettingStartedHidden = id;
+  }
+  private gettingStartedHidden: number | null = null;
+
+  openHistoryImport(): void {
+    if (!this.selected?.rankingsEnabled) { this.editFeatures(); this.scrollTo('app-community-feature-settings'); return; }
+    this.setTab('ranking');
+    this.scrollTo('.import-wizard');
+  }
+
+  openTournamentsStart(): void {
+    if (!this.hasCompetitions(this.selected)) { this.editFeatures(); this.scrollTo('app-community-feature-settings'); return; }
+    this.setTab('tournaments');
+  }
+
+  private scrollTo(selector: string): void {
+    setTimeout(() => {
+      try { document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch { /* ignore */ }
+    }, 350);
+  }
+
   setTab(tab: CommunityTab): void {
     if ((tab === 'tournaments' && !this.hasCompetitions(this.selected))
         || (tab === 'ranking' && !this.canBrowseHistoricalArchives)

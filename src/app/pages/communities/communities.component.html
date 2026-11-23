@@ -836,6 +836,39 @@
               </section>
             }
 
+            @if (canManage() && activeTab === 'home' && showGettingStarted()) {
+              <section class="community-start" [attr.aria-label]="'Por onde começar' | t">
+                <div class="community-start__head">
+                  <span class="section-kicker">{{ 'Por onde começar' | t }}</span>
+                  <button type="button" class="community-start__close" (click)="dismissGettingStarted()"
+                    [attr.aria-label]="'Esconder' | t">×</button>
+                </div>
+                <div class="community-start__grid">
+                  <article>
+                    <h3>📊 {{ 'Já tens o histórico num Excel?' | t }}</h3>
+                    <p>{{ 'Importa o ficheiro (Excel, CSV ou TSV). Revês tudo antes de confirmar e cada jogador fica com a sua classificação e estatísticas.' | t }}</p>
+                    <button type="button" class="jynlo-action jynlo-action--primary" (click)="openHistoryImport()">
+                      {{ (selected.rankingsEnabled ? 'Importar histórico' : 'Ativar classificações para importar') | t }}
+                    </button>
+                  </article>
+                  <article>
+                    <h3>🏆 {{ 'Organiza um torneio' | t }}</h3>
+                    <p>{{ 'Individual ou por equipas, só para o grupo ou aberto a quem quiser.' | t }}</p>
+                    <button type="button" class="jynlo-action jynlo-action--neutral" (click)="openTournamentsStart()">
+                      {{ (hasCompetitions(selected) ? 'Criar torneio' : 'Ativar torneios') | t }}
+                    </button>
+                  </article>
+                  <article>
+                    <h3>⚽ {{ 'Marca o próximo jogo' | t }}</h3>
+                    <p>{{ 'Cria a sessão e partilha no WhatsApp: cada um confirma a presença.' | t }}</p>
+                    <button type="button" class="jynlo-action jynlo-action--neutral" (click)="setTab('sessions')">
+                      {{ 'Ver jogos' | t }}
+                    </button>
+                  </article>
+                </div>
+              </section>
+            }
+
             @if (canManage() && activeTab === 'home') {
               <app-community-feature-settings
                 [editing]="featuresEditing"
