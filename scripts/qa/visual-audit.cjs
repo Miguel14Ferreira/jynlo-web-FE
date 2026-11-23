@@ -193,6 +193,8 @@ async function auditPage(page, name, route, vp, consoleErrors, httpErrors) {
     if (!VISITOR) await context.addInitScript(([t, u, l]) => {
       try { localStorage.setItem('t', t); localStorage.setItem('jynlo.firstSteps.skipped.' + u.toLowerCase(), String(Date.now())); if (l === 'en') { localStorage.setItem('d24-language', 'en'); window.__auditLang = 'en'; } } catch {}
     }, [token, USER, LANG]);
+    // Visitors have no session, but the requested language must still apply.
+    if (VISITOR && LANG === 'en') await context.addInitScript(() => { try { localStorage.setItem('d24-language', 'en'); } catch {} });
     const page = await context.newPage();
     const consoleErrors = []; const httpErrors = [];
     page.on('console', m => { if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 200)); });

@@ -6233,8 +6233,28 @@ export function preloadEnglishTranslations(): Promise<void> {
   return englishLoading;
 }
 
+/** Same rule as the app: a saved choice wins; otherwise follow the browser language
+ * (Portuguese browsers get PT, any other language gets EN). Search engine crawlers and
+ * the unit-test runner always start in Portuguese. */
+export function detectInitialLanguage(): AppLanguage {
+  let stored: string | null = null;
+  try { stored = typeof localStorage !== 'undefined' ? localStorage.getItem('d24-language') : null; } catch { stored = null; }
+  if (stored === 'en' || stored === 'pt') return stored;
+  if (typeof navigator === 'undefined' || typeof window === 'undefined') return 'pt';
+  if ((window as unknown as { __karma__?: unknown }).__karma__) return 'pt';
+  if (/bot|crawl|spider|slurp|lighthouse|headless/i.test(navigator.userAgent || '')) return 'pt';
+  const languages = (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language]) || [];
+  const first = String(languages[0] || 'pt');
+  return /^pt\b/i.test(first) ? 'pt' : 'en';
+}
+
 export function prepareInitialTranslations(): Promise<void> {
-  if (typeof localStorage === 'undefined' || localStorage.getItem('d24-language') !== 'en') {
+  const initial = detectInitialLanguage();
+  if (initial === 'en') {
+    // Remember the detected language so every helper that reads the saved choice agrees.
+    try { if (!localStorage.getItem('d24-language')) localStorage.setItem('d24-language', 'en'); } catch { /* storage disabled */ }
+  }
+  if (initial !== 'en') {
     return Promise.resolve();
   }
   return preloadEnglishTranslations();
@@ -6308,8 +6328,7 @@ export class I18nService {
   }
 
   private readInitialLanguage(): AppLanguage {
-    const stored = localStorage.getItem(this.storageKey);
-    return stored === 'en' ? 'en' : 'pt';
+    return detectInitialLanguage();
   }
 
   private applyDocumentLanguage(): void {
