@@ -1,0 +1,29 @@
+name: Venue contacts (diretório)
+on:
+  workflow_dispatch:
+jobs:
+  contacts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Ler o diretório público de recintos e resumir contactos
+        run: |
+          curl -s --max-time 300 https://api.jynlosports.com/api/venues -o venues.json
+          python3 - <<'PY'
+          import json, re
+          data = json.load(open('venues.json'))
+          venues = data if isinstance(data, list) else data.get('venues') or data.get('content') or []
+          email_re = re.compile(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}')
+          with_site = with_email = with_phone = 0
+          for v in venues:
+              contact = ' '.join(str(v.get(k) or '') for k in ('contact', 'website', 'services', 'priceInfo'))
+              emails = sorted(set(e.lower() for e in email_re.findall(contact)))
+              site = (v.get('website') or '').strip()
+              if site: with_site += 1
+              if emails: with_email += 1
+              if re.search(r'\d{9}', re.sub(r'\D', '', v.get('contact') or '')): with_phone += 1
+              if site or emails:
+                  print('QA-VENUE|%s|%s|%s|%s|%s|%s|%s' % (v.get('id'), v.get('name'), v.get('city'), v.get('district') or '',
+                        (v.get('sports') or '').replace('|', '/')[:80], site, ','.join(emails)))
+          print('QA-RESUMO total=%d com_site=%d com_email=%d com_telefone=%d' % (len(venues), with_site, with_email, with_phone))
+          PY
