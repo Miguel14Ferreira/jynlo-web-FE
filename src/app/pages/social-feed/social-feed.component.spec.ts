@@ -1468,7 +1468,8 @@ describe('SocialFeedComponent discovery sidebar', () => {
         '/menu/perfis/bruno?from=feed',
         '/menu/perfis/carla?from=feed'
       ]);
-    expect(links[0].textContent).toContain('Padel');
+    // Suggestions stay compact: name and @ only (no sport chips).
+    expect(links[0].textContent).not.toContain('Padel');
   }));
 
   it('keeps the people search available if profile discovery fails', fakeAsync(() => {
