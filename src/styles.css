@@ -707,3 +707,10 @@ img[data-zoomable], :has(> img[data-zoomable]) { cursor: zoom-in; }
 .password-entry h2 { margin: .15rem 0; font-size: 1.1rem; }
 .password-entry p { margin: 0; color: #b9d4d6; font-size: .9rem; }
 .password-entry .jynlo-action { min-height: 44px !important; }
+
+/* Venue pages: no outline strokes around cards, boxes, buttons, photos or the map
+   (the owner prefers clean surfaces). Text fields keep their border so they stay visible. */
+app-venue-details .venue-detail-page *:not(input):not(textarea):not(select) {
+  border-color: transparent !important;
+}
+app-venue-details .venue-detail-page .venue-route-planner { padding: 14px 16px !important; }
