@@ -26,7 +26,7 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
       <header class="vm__hero">
         <span class="vm__kicker">{{ 'Gestão do recinto' | t }}</span>
         <h1>{{ venueName || ('Recinto' | t) }}</h1>
-        @if (offer) {
+        @if (offer && loaded) {
           @if (offer.acceptsBookings) {
             <p class="vm__state is-on">✓ {{ 'Aceita reservas na Jynlo. Os jogadores já veem os teus horários livres.' | t }}</p>
           } @else {
@@ -36,6 +36,7 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
       </header>
       @if (loadError) { <p class="vm__error" role="alert">{{ loadError }}</p> }
 
+      @if (loaded) {
       <section class="vm__card" aria-labelledby="vm-requests">
         <h2 id="vm-requests">{{ 'Pedidos de reserva' | t }}</h2>
         @if (!requests.length) { <p class="vm__muted">{{ 'Ainda não há pedidos.' | t }}</p> }
@@ -113,6 +114,7 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
         @if (hoursMessage) { <p class="vm__ok" role="status">{{ hoursMessage }}</p> }
         @if (hoursError) { <p class="vm__error" role="alert">{{ hoursError }}</p> }
       </section>
+      }
     </main>
   `,
   styles: [`
@@ -153,6 +155,8 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
 export class VenueManageComponent implements OnInit {
   venueId = 0;
   venueName = '';
+  /** The management data loaded, so this person really manages the venue. */
+  loaded = false;
   offer: BookingOffer | null = null;
   requests: VenueBooking[] = [];
   notes: Record<number, string> = {};
@@ -181,7 +185,7 @@ export class VenueManageComponent implements OnInit {
       error: () => { /* name is optional */ }
     });
     this.api.managerOffer(this.venueId).subscribe({
-      next: offer => this.applyOffer(offer, true),
+      next: offer => { this.loaded = true; this.applyOffer(offer, true); },
       error: e => { this.loadError = bookingError(e, 'Não foi possível carregar a gestão do recinto.'); this.cdr.markForCheck(); }
     });
     this.loadRequests();
@@ -258,7 +262,7 @@ export class VenueManageComponent implements OnInit {
   private loadRequests(): void {
     this.api.venueRequests(this.venueId).subscribe({
       next: list => { this.requests = list; this.cdr.markForCheck(); },
-      error: e => { this.requestError = bookingError(e, 'Não foi possível carregar os pedidos.'); this.cdr.markForCheck(); }
+      error: e => { if (this.loaded) this.requestError = bookingError(e, 'Não foi possível carregar os pedidos.'); this.cdr.markForCheck(); }
     });
   }
 
