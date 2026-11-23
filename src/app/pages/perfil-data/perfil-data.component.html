@@ -113,7 +113,7 @@
                   ○ {{ ('profileCompletion.item.' + item.key) | t }}
                 </span>
               }
-              <a routerLink="/menu/alterardados">{{ 'profileCompletion.improve' | t }}</a>
+              <a class="profile-improve-link" routerLink="/menu/alterardados">{{ 'profileCompletion.improve' | t }}</a>
             </div>
           } @else {
             <span class="profile-complete-badge">🏅 {{ 'profileCompletion.badge' | t }}</span>

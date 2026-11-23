@@ -16,7 +16,7 @@ import { OpenTeamCompetition, TeamCompetitionApplication,
   imports:[TranslatePipe, CommonModule,FormsModule,RouterLink],
   template:`
     <main class="team-discover">
-      <a routerLink="/menu/teams">{{ '← Voltar às equipas' | t }}</a>
+      <a class="team-back" routerLink="/menu/teams">{{ '← Voltar às equipas' | t }}</a>
       <h1>{{ 'Encontrar torneios e campeonatos' | t }}</h1>
       <p>{{ 'Encontra competições públicas com candidaturas abertas e pede participação como responsável de uma equipa.' | t }}</p>
       <div class="filters">
