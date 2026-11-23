@@ -63,6 +63,20 @@ describe('AlterardadosComponent', () => {
     fixture.detectChanges();
   });
 
+  it('keeps Alcunha and Email aligned even with the hint under the email', () => {
+    document.body.style.width = '1200px';
+    fixture.nativeElement.style.display = 'block';
+    fixture.nativeElement.style.width = '1100px';
+    fixture.detectChanges();
+    const nick = fixture.nativeElement.querySelector('input[name="nickname"]') as HTMLElement;
+    const email = fixture.nativeElement.querySelector('input[name="email"]') as HTMLElement;
+    expect(nick).toBeTruthy();
+    expect(email).toBeTruthy();
+    const a = nick.getBoundingClientRect(), b = email.getBoundingClientRect();
+    expect(Math.abs(a.top - b.top)).toBeLessThan(2);
+    expect(Math.abs(a.height - b.height)).toBeLessThan(2);
+  });
+
   it('keeps photo upload controls visually disabled while the photo is saving', () => {
     component.photoEditing = true;
     component.photoSaving = true;
