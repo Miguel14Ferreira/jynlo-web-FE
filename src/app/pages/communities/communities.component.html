@@ -791,12 +791,16 @@
                                       [attr.aria-label]="('Vídeo {{v}}' | t:{v: (communityPostCurrentIndex(entry) + 1)})"></video>
                                   } @else {
                                     <button type="button" class="community-feed-expand-photo"
-                                            (click)="openCommunityPostMedia(entry)"
+                                            (click)="onCommunityPhotoClick(entry, $event)"
+                                            (dblclick)="onCommunityPhotoDoubleClick(entry, $event)"
                                             [attr.aria-label]="('Ampliar fotografia {{v}}' | t:{v: (communityPostCurrentIndex(entry) + 1)})">
                                       <img class="community-feed-post-media"
                                         [src]="communityFeedMediaUrl(selectedMedia.url)"
                                         [alt]="('Fotografia {{v}} de {{username}}' | t:{v: (communityPostCurrentIndex(entry) + 1), username: communityFeedAuthorName(entry.username)})"
                                         loading="lazy">
+                                      @if (communityHeartBurstId === entry.id) {
+                                        <span class="community-feed-heart-burst" aria-hidden="true">♥</span>
+                                      }
                                     </button>
                                   }
                                 }
@@ -826,6 +830,19 @@
                               }
                             </div>
                           }
+                        }
+                        @if (entry.kind === 'POST') {
+                          <div class="community-feed-like-row">
+                            <button type="button" class="community-feed-like"
+                                    [class.is-liked]="communityPostLike(entry).likedByMe"
+                                    [disabled]="communityPostLikeBusy === entry.id"
+                                    [attr.aria-pressed]="communityPostLike(entry).likedByMe"
+                                    [attr.aria-label]="(communityPostLike(entry).likedByMe ? 'Retirar gosto' : 'Gostar') | t"
+                                    (click)="toggleCommunityPostLike(entry)">
+                              <span aria-hidden="true">{{ communityPostLike(entry).likedByMe ? '♥' : '♡' }}</span>
+                              @if (communityPostLike(entry).likeCount > 0) { <span>{{ communityPostLike(entry).likeCount }}</span> }
+                            </button>
+                          </div>
                         }
                       </article>
                     }

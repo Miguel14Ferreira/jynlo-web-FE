@@ -26,6 +26,8 @@ export interface CommunityTimelineEntry {
   replyToText?: string | null;
 }
 
+export interface CommunityPostLikeSummary { likeCount: number; likedByMe: boolean; }
+
 @Injectable({ providedIn: 'root' })
 export class CommunityTimelineService {
   private readonly api = environment.apiUrl + '/api/communities';
@@ -37,6 +39,16 @@ export class CommunityTimelineService {
 
   list(id: number, kind: CommunityTimelineKind): Observable<CommunityTimelineEntry[]> {
     return this.http.get<CommunityTimelineEntry[]>(this.url(id, kind));
+  }
+
+  postLikes(id: number): Observable<Record<string, CommunityPostLikeSummary>> {
+    return this.http.get<Record<string, CommunityPostLikeSummary>>(this.url(id, 'POST') + '/likes');
+  }
+
+  setPostLike(id: number, postId: number, like: boolean): Observable<CommunityPostLikeSummary> {
+    const url = this.url(id, 'POST') + '/' + postId + '/likes';
+    return like ? this.http.post<CommunityPostLikeSummary>(url, null)
+                : this.http.delete<CommunityPostLikeSummary>(url);
   }
 
   olderMessages(id: number, beforeId: number): Observable<CommunityTimelineEntry[]> {

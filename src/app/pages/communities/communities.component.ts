@@ -1014,6 +1014,67 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
 
 
 
+  communityPostLikes: Record<number, {likeCount: number; likedByMe: boolean}> = {};
+  communityPostLikeBusy: number | null = null;
+  communityHeartBurstId: number | null = null;
+  private communityPhotoClickTimer?: ReturnType<typeof setTimeout>;
+  private communityHeartTimer?: ReturnType<typeof setTimeout>;
+
+  loadCommunityPostLikes(communityId: number): void {
+    const svc: any = this.timelineService;
+    if (typeof svc?.postLikes !== 'function') return;
+    svc.postLikes(communityId).subscribe({
+      next: (map: Record<string, {likeCount: number; likedByMe: boolean}>) => {
+        if (this.selected?.id !== communityId) return;
+        const next: Record<number, {likeCount: number; likedByMe: boolean}> = {};
+        for (const [key, value] of Object.entries(map || {})) next[Number(key)] = value;
+        this.communityPostLikes = next;
+      },
+      error: () => { /* Likes are a bonus: the feed stays usable without them. */ }
+    });
+  }
+
+  communityPostLike(entry: {id: number}): {likeCount: number; likedByMe: boolean} {
+    return this.communityPostLikes[entry.id] ?? {likeCount: 0, likedByMe: false};
+  }
+
+  toggleCommunityPostLike(entry: {id: number}, onlyLike = false): void {
+    if (!this.selected || this.communityPostLikeBusy === entry.id) return;
+    const current = this.communityPostLike(entry);
+    if (onlyLike && current.likedByMe) return;
+    const like = !current.likedByMe;
+    const communityId = this.selected.id;
+    this.communityPostLikes = {...this.communityPostLikes,
+      [entry.id]: {likeCount: Math.max(0, current.likeCount + (like ? 1 : -1)), likedByMe: like}};
+    this.communityPostLikeBusy = entry.id;
+    this.timelineService.setPostLike(communityId, entry.id, like)
+      .pipe(finalize(() => { this.communityPostLikeBusy = null; }))
+      .subscribe({
+        next: summary => { this.communityPostLikes = {...this.communityPostLikes, [entry.id]: summary}; },
+        error: () => { this.communityPostLikes = {...this.communityPostLikes, [entry.id]: current}; }
+      });
+  }
+
+  onCommunityPhotoClick(entry: any, event?: MouseEvent): void {
+    if (this.communityPhotoClickTimer) clearTimeout(this.communityPhotoClickTimer);
+    if (!event || event.detail === 0) { this.communityPhotoClickTimer = undefined; this.openCommunityPostMedia(entry); return; }
+    this.communityPhotoClickTimer = setTimeout(() => {
+      this.communityPhotoClickTimer = undefined;
+      this.openCommunityPostMedia(entry);
+    }, 260);
+  }
+
+  onCommunityPhotoDoubleClick(entry: any, event?: Event): void {
+    event?.preventDefault();
+    if (this.communityPhotoClickTimer) clearTimeout(this.communityPhotoClickTimer);
+    this.communityPhotoClickTimer = undefined;
+    this.communityHeartBurstId = entry.id;
+    if (this.communityHeartTimer) clearTimeout(this.communityHeartTimer);
+    this.communityHeartTimer = setTimeout(() => { this.communityHeartBurstId = null; }, 900);
+    // A double tap only ever likes, like Instagram.
+    this.toggleCommunityPostLike(entry, true);
+  }
+
   loadTimeline(silent = false): void {
     if (!this.selected || (this.activeTab !== 'feed' && this.activeTab !== 'chat')) return;
     if (silent && (this.timelineLoading || this.timelineSending || this.feedSyncInFlight)) return;
@@ -1055,7 +1116,10 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
                   && this.timelineEntries.some(entry => this.matchesPendingChatDelivery(entry))) {
                 this.confirmChatDelivery();
               }
-            } else this.timelineEntries = entries;
+            } else {
+              this.timelineEntries = entries;
+              this.loadCommunityPostLikes(communityId);
+            }
           }
         },
         error: () => {
