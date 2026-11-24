@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 
@@ -21,8 +21,12 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
           </div>
         </div>
         <figure class="fv__shot">
-          <img src="assets/marketing/recintos-reservas.jpg" width="800" height="1078" loading="lazy"
-               [alt]="'A página de reservas e o painel do recinto na Jynlo, com dados de exemplo' | t">
+          <button type="button" class="fv__zoom" (click)="open('assets/marketing/recintos-reservas.jpg', 'A página de reservas e o painel do recinto na Jynlo, com dados de exemplo')"
+                  [attr.aria-label]="'Ampliar imagem' | t">
+            <img src="assets/marketing/recintos-reservas.jpg" width="800" height="1078" loading="lazy"
+                 [alt]="'A página de reservas e o painel do recinto na Jynlo, com dados de exemplo' | t">
+            <span class="fv__zoom-hint" aria-hidden="true">🔍 {{ 'Ampliar' | t }}</span>
+          </button>
           <figcaption>{{ 'Imagens com dados de exemplo.' | t }}</figcaption>
         </figure>
       </section>
@@ -65,7 +69,11 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
               <p>{{ step.text | t }}</p>
             </div>
             <figure class="fv__step-shot">
-              <img [src]="'assets/marketing/' + step.img + '.jpg'" width="900" [attr.height]="step.h" loading="lazy" [alt]="step.title | t">
+              <button type="button" class="fv__zoom" (click)="open('assets/marketing/' + step.img + '.jpg', step.title)"
+                      [attr.aria-label]="'Ampliar imagem' | t">
+                <img [src]="'assets/marketing/' + step.img + '.jpg'" width="900" [attr.height]="step.h" loading="lazy" [alt]="step.title | t">
+                <span class="fv__zoom-hint" aria-hidden="true">🔍 {{ 'Ampliar' | t }}</span>
+              </button>
             </figure>
           </article>
         }
@@ -113,7 +121,13 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
         <a class="fv__mail" href="mailto:geral@jynlosports.com?subject=Recinto%20na%20Jynlo">geral&#64;jynlosports.com</a>
       </section>
     </main>
-  `,
+      @if (zoomed(); as z) {
+      <div class="fv__lightbox" role="dialog" aria-modal="true" [attr.aria-label]="z.alt | t" (click)="close()">
+        <button type="button" class="fv__lightbox-close" (click)="close()" [attr.aria-label]="'Fechar' | t">✕</button>
+        <img [src]="z.src" [alt]="z.alt | t" (click)="$event.stopPropagation()">
+      </div>
+    }
+`,
   styles: [`
     .fv { max-width:1100px; margin:0 auto; padding:6.4rem 1.2rem 4rem; display:grid; gap:2.2rem; color:#eafff9; }
     .fv h1 { margin:.3rem 0 .8rem; font-size:clamp(2rem, 4.4vw, 3.1rem); line-height:1.1; }
@@ -147,10 +161,31 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
     .fv__faq details p { margin-top:.5rem; }
     .fv__contact { text-align:center; display:grid; gap:.5rem; justify-items:center; }
     .fv__mail { color:#62e6c4; font-size:1.2rem; font-weight:800; }
+    .fv__zoom { position:relative; display:block; width:100%; padding:0; border:0; background:none; cursor:zoom-in; border-radius:inherit; }
+    .fv__zoom img { display:block; }
+    .fv__zoom-hint { position:absolute; right:.6rem; bottom:.6rem; padding:.3rem .6rem; border-radius:999px; font-size:.78rem; font-weight:800;
+      color:#06231d; background:rgba(98,230,196,.92); opacity:.85; transition:opacity .15s; }
+    .fv__zoom:hover .fv__zoom-hint, .fv__zoom:focus-visible .fv__zoom-hint { opacity:1; }
+    .fv__zoom:focus-visible { outline:3px solid #62e6c4; outline-offset:3px; }
+    .fv__lightbox { position:fixed; inset:0; z-index:10000; display:grid; place-items:start center; overflow-y:auto; overscroll-behavior:contain; padding:3.5rem 1rem 1.5rem;
+      background:rgba(2,10,14,.9); cursor:zoom-out; }
+    .fv__lightbox img { max-width:min(1000px,100%); width:auto; height:auto; object-fit:contain; border-radius:12px;
+      box-shadow:0 20px 60px rgba(0,0,0,.6); cursor:default; }
+    .fv__lightbox-close { position:fixed; top:.8rem; right:.8rem; width:44px; height:44px; border-radius:50%; border:1px solid rgba(255,255,255,.3);
+      background:rgba(10,30,36,.9); color:#fff; font-size:1.2rem; cursor:pointer; z-index:1; }
     @media (max-width: 820px) { .fv__hero, .fv__step { grid-template-columns:1fr; } .fv__step--flip .fv__step-copy { order:0; } }
   `]
 })
 export class ForVenuesComponent {
+  /** The screenshot opened full size; people want to read the screens. */
+  readonly zoomed = signal<{ src: string; alt: string } | null>(null);
+
+  open(src: string, alt: string): void { this.zoomed.set({ src, alt }); }
+  close(): void { this.zoomed.set(null); }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void { this.close(); }
+
   readonly steps = [
     { img: 'painel-campos', h: 365, who: 'No vosso painel', title: 'Indicam os campos e os preços',
       text: 'Nome, modalidade, preço e duração de cada reserva. Podem desligar um campo quando quiserem.' },

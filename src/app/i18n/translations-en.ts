@@ -8489,4 +8489,6 @@ export const EN: Record<string, string> = {
   "Criar o meu recinto": "Create my venue",
   "Pede para gerir o recinto": "Asks to manage the venue",
   "Aprovar também o torna gestor.": "Approving also makes them its manager.",
+  "Ampliar imagem": "Enlarge image",
+  "Ampliar": "Enlarge",
 };
