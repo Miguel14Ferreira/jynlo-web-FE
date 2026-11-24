@@ -897,11 +897,15 @@
                           </video>
                         } @else {
                           <button type="button" class="feed-media-open feed-post-carousel-image"
-                                  (click)="openPostMedia(item, selectedPostMediaIndex(item))"
+                                  (click)="onPostImageClick(item, selectedPostMediaIndex(item), $event)"
+                                  (dblclick)="onPostImageDoubleClick(item, $event)"
                                   [attr.aria-label]="('Ampliar fotografia {{v}} de {{length}}' | t:{v: (selectedPostMediaIndex(item) + 1), length: postMedia.length})">
                             <img class="post-image" [jynloProtectedSrc]="resolvePostMedia(selectedMedia.url)"
                                  [alt]="('Fotografia {{v}} de {{authorDisplayName}}' | t:{v: (selectedPostMediaIndex(item) + 1), authorDisplayName: item.authorDisplayName})"
                                  loading="lazy">
+                            @if (heartBurstPostId === item.postId) {
+                              <span class="feed-heart-burst" aria-hidden="true">♥</span>
+                            }
                           </button>
                         }
                       }

@@ -1582,3 +1582,8 @@ h1 {
 .composer-destination:hover:not(:disabled){border-color:#2ee6d0}
 .composer-destination--on{background:#2ee6d0;border-color:#2ee6d0;color:#03242a}
 .composer-destination:disabled{opacity:.55;cursor:default}
+.feed-post-carousel-image{position:relative}
+.feed-heart-burst{position:absolute;inset:0;display:grid;place-items:center;font-size:6rem;color:#fff;pointer-events:none;
+  text-shadow:0 6px 24px #0008;animation:feed-heart-burst .9s ease-out forwards}
+@keyframes feed-heart-burst{0%{opacity:0;transform:scale(.4)}20%{opacity:1;transform:scale(1.15)}35%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.feed-heart-burst{animation:none;opacity:.9}}

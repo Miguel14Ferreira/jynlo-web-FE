@@ -1779,6 +1779,32 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.shiftPostMedia(item, dx < 0 ? 1 : -1);
   }
 
+  /** Instagram-style: one click opens the photo, a double click likes the post with a heart. */
+  heartBurstPostId: number | null = null;
+  private postImageClickTimer?: ReturnType<typeof setTimeout>;
+  private heartBurstTimer?: ReturnType<typeof setTimeout>;
+
+  onPostImageClick(item: FeedItem, index: number, event?: MouseEvent): void {
+    if (this.postImageClickTimer) clearTimeout(this.postImageClickTimer);
+    // Keyboard (Enter/Space) has no double click: open straight away.
+    if (!event || event.detail === 0) { this.postImageClickTimer = undefined; this.openPostMedia(item, index); return; }
+    this.postImageClickTimer = setTimeout(() => {
+      this.postImageClickTimer = undefined;
+      this.openPostMedia(item, index);
+    }, 260);
+  }
+
+  onPostImageDoubleClick(item: FeedItem, event?: Event): void {
+    event?.preventDefault();
+    if (this.postImageClickTimer) clearTimeout(this.postImageClickTimer);
+    this.postImageClickTimer = undefined;
+    this.heartBurstPostId = item.postId ?? null;
+    if (this.heartBurstTimer) clearTimeout(this.heartBurstTimer);
+    this.heartBurstTimer = setTimeout(() => { this.heartBurstPostId = null; }, 900);
+    // A double tap only ever likes (never removes a like), like Instagram.
+    if (!item.likedByMe) this.toggleLike(item);
+  }
+
   openPostMedia(item: FeedItem, index: number): void {
     const media = this.mediaForPost(item);
     if (index < 0 || index >= media.length) return;
