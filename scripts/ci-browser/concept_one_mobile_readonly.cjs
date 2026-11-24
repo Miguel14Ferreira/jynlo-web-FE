@@ -417,6 +417,17 @@ async function main() {
               return respond(route, 200, fictionalGroupStanding);
             }
           }
+          // Organiser-only reads: a clean eligibility report and no entry fee.
+          const organiserRead = endpoint.match(/^\/api\/communities\/77\/tournaments\/(\d+)\/(eligibility|payments)$/);
+          if (organiserRead) {
+            const tournamentId = Number(organiserRead[1]);
+            if (organiserRead[2] === 'eligibility') return respond(route, 200, {
+              tournamentId, entryType: tournamentId === 9010 ? 'INDIVIDUAL' : 'TEAM',
+              checkedAt: '2026-09-01T12:00:00Z', ineligibleEntries: []
+            });
+            return respond(route, 200, { entryFeeCents: null, method: null, mbwayPhone: null,
+              organiser: true, participant: false, mine: null, confirmedCount: 0, playerCount: 0, players: [] });
+          }
           if (endpoint === '/api/communities/77/tournaments/9010/participants') {
             return respond(route, 200, { participants: [
               { profileId: 1, username: 'mobile-fixture', displayName: 'Jogadora Fictícia',
