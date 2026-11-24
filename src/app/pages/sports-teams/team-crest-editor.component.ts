@@ -186,10 +186,12 @@ export interface TeamCrestDesign {
           <label *ngIf="showInitials">{{ 'Posição das iniciais' | t }}
             <input type="range" min="165" max="265" step="5" [(ngModel)]="initialsY" [disabled]="disabled">
           </label>
-          <button type="button" class="crest-reset" [disabled]="disabled" (click)="reset()">{{ 'Repor desenho' | t }}</button>
-          <button type="button" class="crest-save" (click)="save()" [disabled]="disabled">
-            {{disabled ? ('A guardar…' | t) : ('Guardar emblema da equipa' | t)}}
-          </button>
+          <div class="crest-buttons">
+            <button type="button" class="crest-reset" [disabled]="disabled" (click)="reset()">{{ 'Repor desenho' | t }}</button>
+            <button type="button" class="crest-save" (click)="save()" [disabled]="disabled">
+              {{disabled ? ('A guardar…' | t) : ('Guardar emblema da equipa' | t)}}
+            </button>
+          </div>
           <small *ngIf="error" role="alert">{{error}}</small>
         </div>
       </div>
@@ -231,8 +233,10 @@ export interface TeamCrestDesign {
     .crest-layer-settings input[type=color]{height:35px;width:55px;border:0;background:transparent}
     .crest-layer-actions button:disabled{opacity:.45}
     @media(max-width:450px){.crest-layer-settings{grid-template-columns:1fr}}
-    .crest-reset{background:#153d4b;color:#d9fff7;border:1px solid #458e86;border-radius:10px;padding:10px;cursor:pointer}
-    .crest-save{border:0;background:#55edc4;color:#062c31;border-radius:10px;padding:12px;font-weight:850;cursor:pointer}
+    .crest-buttons{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch}
+    .crest-reset{background:#153d4b;color:#d9fff7;border:1px solid #458e86;border-radius:10px;padding:12px;min-height:46px;font-weight:700;cursor:pointer}
+    .crest-save{border:1px solid #55edc4;background:#55edc4;color:#062c31;border-radius:10px;padding:12px;min-height:46px;font-weight:850;cursor:pointer}
+    @media (max-width:520px){.crest-buttons{grid-template-columns:1fr}}
     .crest-save:disabled{opacity:.6;cursor:wait}
     .crest-fields small{grid-column:1/-1;color:#ffc3c3}
     .crest-fields :is(button,input,select):focus-visible{outline:3px solid #a6ffe0;outline-offset:2px}
