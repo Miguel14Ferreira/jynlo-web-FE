@@ -111,6 +111,9 @@ def parse_city(slug, label):
 SOCIAL = re.compile(r'facebook\.com/sharer|twitter\.com/intent|wa\.me|linkedin\.com/share|x\.com/intent|amazon\.|awin|tradedoubler', re.I)
 
 
+DBG = [0]
+
+
 def read_detail(club):
     if not club.get('detalhe') or club.get('site'):
         return
@@ -123,7 +126,11 @@ def read_detail(club):
     text = main.get_text(' ', strip=True)
     cut = text.find('Nearby')
     own = text[:cut] if cut > 0 else text[:4000]
-    h1 = main.find('h1')
+    h1 = soup.find('h1')
+    if DBG and len(DBG) < 4:
+        DBG.append(1)
+        print('QA-DBG', club['detalhe'], '|', h1.get_text(' ', strip=True) if h1 else None, '|',
+              [a['href'][:80] for a in soup.find_all('a', href=True) if 'utm_source' in a['href']][:3])
     if not (h1 and fold(club['nome'])[:12] in fold(h1.get_text(' ', strip=True))):
         return  # not this club's own page (a city listing)
     if True:
