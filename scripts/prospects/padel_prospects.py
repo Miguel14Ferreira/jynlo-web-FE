@@ -111,10 +111,21 @@ def parse_city(slug, label):
 SOCIAL = re.compile(r'facebook\.com/sharer|twitter\.com/intent|wa\.me|linkedin\.com/share|x\.com/intent|amazon\.|awin|tradedoubler', re.I)
 
 
+DEBUGGED = []
+
+
 def read_detail(club):
     if not club.get('detalhe') or club.get('site'):
         return
     html, _ = get(club['detalhe'])
+    if len(DEBUGGED) < 2:
+        DEBUGGED.append(1)
+        r = session.get(club['detalhe'], timeout=15)
+        soup_dbg = BeautifulSoup(r.text, 'html.parser')
+        print('QA-DEBUG-DETAIL', club['detalhe'], r.status_code, r.headers.get('content-type'), len(r.text))
+        for a in soup_dbg.find_all('a', href=True):
+            if a['href'].startswith('http') and 'padeldir' not in a['href']:
+                print('QA-DEBUG-LINK', a['href'][:120], '|', a.get_text(' ', strip=True)[:60], '|', (a.parent.get_text(' ', strip=True) if a.parent else '')[:80])
     time.sleep(0.4)
     if not html:
         return
