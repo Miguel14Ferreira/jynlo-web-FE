@@ -711,3 +711,4 @@
   .create-menu { top:auto !important; left:8px !important; right:8px; width:auto;
     bottom:calc(76px + env(safe-area-inset-bottom)); }
 }
+.nav-messages-badge { background:#ff4d6d !important; color:#fff !important; }

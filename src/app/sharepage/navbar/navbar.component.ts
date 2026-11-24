@@ -175,6 +175,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.activeChat.read$.pipe(auditTime(300)).subscribe(() => {
           if (this.authenticated) this.loadUnreadNotifications();
         }));
+      for (const stream of [this.realtimeService.groupMessages$, this.realtimeService.teamContentInvalidated$,
+          this.realtimeService.ownReads$] as Array<Observable<unknown> | undefined>) {
+        if (stream) this.subscriptions.add(stream.pipe(auditTime(500)).subscribe(() => this.loadUnreadMessages()));
+      }
       this.subscriptions.add(
         this.realtimeService.messages$.pipe(auditTime(300)).subscribe(message => {
           if (!this.authenticated) return;
@@ -193,6 +197,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.subscriptions.add(
         this.realtimeService.communityMessages$.pipe(auditTime(300)).subscribe(message => {
           this.maybeShowGroupToast('community', message);
+          this.loadUnreadMessages();
           if (message?.kind === 'CHAT' && !message.editedAt && !message.deletedAt)
             this.maybeShowBrowserNotice('community', String(message.communityId), message.username);
         })
@@ -200,6 +205,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.subscriptions.add(
         this.realtimeService.sessionMessages$.pipe(auditTime(300)).subscribe(message => {
           this.maybeShowGroupToast('session', message);
+          this.loadUnreadMessages();
           if (!message?.editedAt && !message?.deletedAt)
             this.maybeShowBrowserNotice('session', String(message?.sessionId), message?.senderUsername);
         })
@@ -286,8 +292,22 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.loadUnreadNotifications();
     }
 
+    /** Unread chat messages for the "Mensagens" tab badge (like Instagram's messages icon). */
+    unreadMessages = 0;
+    private unreadMessagesRequest?: Subscription;
+    loadUnreadMessages(): void {
+      if (!this.authenticated || !this.inboxApi) return;
+      this.unreadMessagesRequest?.unsubscribe();
+      if (typeof this.inboxApi.unreadTotal !== 'function') return;
+      this.unreadMessagesRequest = this.inboxApi.unreadTotal().pipe(timeout(10_000)).subscribe({
+        next: result => { if (this.authenticated && Number.isFinite(result?.total)) this.unreadMessages = Math.max(0, result.total); },
+        error: () => { /* keep the last known count */ }
+      });
+    }
+
     loadUnreadNotifications(): void {
       if (!this.authenticated) return;
+      this.loadUnreadMessages();
       // Discard older responses if a new refresh occurs (logout, navigation,
       // incoming chat message). They must not replace the latest server count.
       this.unreadRequest?.unsubscribe();
