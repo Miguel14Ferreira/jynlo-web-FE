@@ -92,30 +92,59 @@ def parse_city(slug, label):
             if h.startswith('http') and 'padeldir.com' not in h and 'google.' not in h and 'goo.gl' not in h:
                 website = clean_url(h)
                 break
-        if slug == 'aveiro' and not clubs:
-            for el in card.find_all(True):
-                attrs = {k: v for k, v in el.attrs.items() if 'http' in str(v) or k in ('href', 'data-href', 'data-url', 'onclick')}
-                if attrs:
-                    print('QA-DEBUG-ATTR', el.name, attrs)
+        anchor = card.find('a', href=re.compile(r'#'))
+        detail = ''
+        if anchor:
+            m = re.match(r'^/en/portugal/([a-z0-9-]+)/#([a-z0-9-]+)$', anchor['href'])
+            if m:
+                detail = BASE + m.group(1) + '/' + m.group(2)
         addr = card.find('p', title=True)
         address = addr['title'] if addr else ''
         text = card.get_text(' ', strip=True).lower()
         clubs.append({
             'nome': name, 'cidade_padeldir': label, 'telefone': tels[0]['href'][4:].strip(),
-            'site': website, 'morada': address, 'perto_de_outra_cidade': 'sim' if 'nearby' in text else '',
+            'site': website, 'detalhe': detail, 'morada': address, 'perto_de_outra_cidade': 'sim' if 'nearby' in text else '',
         })
     return clubs
 
 
+SOCIAL = re.compile(r'facebook\.com/sharer|twitter\.com/intent|wa\.me|linkedin\.com/share|x\.com/intent|amazon\.|awin|tradedoubler', re.I)
+
+
+def read_detail(club):
+    if not club.get('detalhe') or club.get('site'):
+        return
+    html, _ = get(club['detalhe'])
+    time.sleep(0.4)
+    if not html:
+        return
+    soup = BeautifulSoup(html, 'html.parser')
+    main = soup.find('main') or soup
+    for a in main.find_all('a', href=True):
+        h = a['href']
+        if not h.startswith('http') or 'padeldir.com' in h or 'google.' in h or SOCIAL.search(h):
+            continue
+        for name, rx in PLATFORMS.items():
+            if rx.search(h) and not club.get('plataforma_detalhe'):
+                club['plataforma_detalhe'] = name
+        label = a.get_text(' ', strip=True)
+        context = (a.parent.get_text(' ', strip=True) if a.parent else '')[:120]
+        looks_like_site = re.fullmatch(r'[\w.-]+\.[a-z]{2,}(/\S*)?', label or '') or context.lower().startswith('website')
+        if looks_like_site and not club.get('site') and not any(rx.search(h) for rx in PLATFORMS.values()):
+            club['site'] = clean_url(h)
+
+
 def inspect_site(club):
+    read_detail(club)
     site = club['site']
-    club.update({'email': '', 'plataforma': '', 'notas_site': ''})
+    club.update({'email': '', 'plataforma': club.get('plataforma_detalhe', ''), 'notas_site': ''})
     if not site:
         return club
     host = urlparse(site).netloc.lower()
     for name, rx in PLATFORMS.items():
         if rx.search(host):
             club['plataforma'] = name
+            club['site'] = ''
             return club
     if any(h in host for h in ('facebook.com', 'instagram.com')):
         club['notas_site'] = 'só redes sociais'
@@ -151,6 +180,8 @@ def inspect_site(club):
         if e and not BAD_EMAIL.search(e) and e not in seen:
             seen.append(e)
     club['email'] = '; '.join(seen[:3])
+    if club.get('plataforma_detalhe'):
+        found_platforms.add(club['plataforma_detalhe'])
     club['plataforma'] = ', '.join(sorted(found_platforms))
     if not found_platforms and re.search(r'reserv|book', html, re.I):
         club['notas_site'] = 'fala em reservas (ver se é sistema próprio)'
@@ -170,7 +201,7 @@ def main():
             clubs.append(c)
         time.sleep(1)
     print('QA-CLUBES', len(clubs))
-    with ThreadPoolExecutor(max_workers=6) as pool:
+    with ThreadPoolExecutor(max_workers=4) as pool:
         clubs = list(pool.map(inspect_site, clubs))
     fields = ['nome', 'cidade_padeldir', 'morada', 'telefone', 'site', 'email', 'plataforma', 'notas_site', 'perto_de_outra_cidade']
     with open('prospects.csv', 'w', newline='', encoding='utf-8') as f:
