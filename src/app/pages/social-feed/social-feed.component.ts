@@ -1076,8 +1076,6 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadHiddenFeedEntries();
     this.load();
-    // "Criar → Publicação" opens the composer directly.
-    if (this.route.snapshot?.queryParamMap?.get('compose') === 'post') this.openPostComposer();
     this.connectLiveCounters();
     this.loadSuggestedPeople();
     this.preparePostGameMoment();
@@ -1085,6 +1083,15 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     this.loadCompletedSessions();
     this.loadMyWeekCommunities();
     this.route.queryParamMap.pipe(takeUntil(this.destroyed)).subscribe(params => {
+      // "Criar → Publicação" opens the composer, also when the feed is already open.
+      // The flag is removed afterwards so the same menu item works every time.
+      if (params.get('compose') === 'post') {
+        this.openPostComposer();
+        try {
+          void this.router.navigate?.([], { relativeTo: this.route, queryParams: { compose: null },
+            queryParamsHandling: 'merge', replaceUrl: true })?.catch(() => undefined);
+        } catch { /* Opening the composer matters more than tidying the URL. */ }
+      }
       const raw = params.get('personalLive');
       const valid = raw && /^[1-9][0-9]{0,12}$/.test(raw) && Number.isSafeInteger(Number(raw));
       const id = valid ? Number(raw) : null;
