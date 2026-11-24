@@ -79,6 +79,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   get embedded(): boolean { return this.embeddedCommunityId !== null || this.embeddedTeamId !== null; }
   private embeddedReady = false;
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['dockHidden'] && !changes['dockHidden'].firstChange) this.syncViewing();
     if (changes['embeddedCommunityId'] && this.embeddedReady && this.embeddedCommunityId) {
       this.queueDeepLink('community', String(this.embeddedCommunityId));
     }
@@ -544,6 +545,36 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   private teamPollTimer: ReturnType<typeof setInterval> | undefined;
+  private viewingTimer: ReturnType<typeof setInterval> | undefined;
+  private viewingKey: string | null = null;
+  private viewingSentAt = 0;
+
+  /** The conversation on screen right now, as the server should know it (no alerts for it). */
+  private visibleConversation(): InboxConversation | null {
+    if (this.dockHidden || typeof document === 'undefined' || document.visibilityState !== 'visible') return null;
+    return this.selected ?? null;
+  }
+
+  private syncViewing(force = false): void {
+    if (typeof this.inboxApi?.viewing !== 'function') return;
+    const current = this.visibleConversation();
+    const key = current?.key ?? null;
+    const now = Date.now();
+    if (key !== this.viewingKey && this.viewingKey) {
+      const [kind, ...rest] = this.viewingKey.split(':');
+      this.inboxApi.viewing({ kind: kind as InboxApiKind, id: rest.join(':') }, false)
+        .pipe(timeout(8000), catchError(() => of(undefined))).subscribe();
+    }
+    if (current && (force || key !== this.viewingKey || now - this.viewingSentAt > 20_000)) {
+      this.viewingSentAt = now;
+      this.inboxApi.viewing({ kind: current.kind, id: String(current.id) }, true)
+        .pipe(timeout(8000), catchError(() => of(undefined))).subscribe();
+    }
+    this.viewingKey = key;
+  }
+
+  @HostListener('document:visibilitychange')
+  onViewingVisibility(): void { this.syncViewing(true); }
 
   ngOnInit(): void {
     this.activeChat?.register(this, () =>
@@ -551,6 +582,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
         ? null : this.selectedKey);
     this.loadConversationMutes();
     if (this.teams) this.teamPollTimer = setInterval(() => this.pollSelectedTeam(), 8000);
+    this.viewingTimer = setInterval(() => this.syncViewing(), 2000);
     // Angular reuses the component when only the query changes.
     this.embeddedReady = true;
     if (this.embeddedCommunityId) {
@@ -662,6 +694,9 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
 
   ngOnDestroy(): void {
     this.activeChat?.unregister(this);
+    if (this.viewingTimer) clearInterval(this.viewingTimer);
+    this.dockHidden = true;
+    this.syncViewing();
     if (this.teamPollTimer) clearInterval(this.teamPollTimer);
     if(this.mentionTimer)clearTimeout(this.mentionTimer);
     this.mentionQueryVersion++;
@@ -1111,6 +1146,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.previewLoading = false;
     this.previewError = false;
     this.composerAllowed = false;
+    this.syncViewing();
   }
 
   selectConversation(conversation: InboxConversation): void {
@@ -1174,6 +1210,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     // Revalidate authorization on every visit; the cache is never the source of truth.
     // Opening a conversation is not proof the messages were displayed.
     this.loadComposerAccess(conversation);
+    this.syncViewing();
     this.loadAttachmentAvailability(conversation);
     this.loadHistory(conversation);
     this.refreshPeerReadReceipt(true);

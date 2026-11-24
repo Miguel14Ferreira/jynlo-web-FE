@@ -71,6 +71,11 @@ export class InboxApiService {
     );
   }
 
+  /** Tells the server this conversation is on screen (or not anymore), so it creates no alerts for it. */
+  viewing(conversation: InboxReference, open: boolean): Observable<void> {
+    return this.http.put<void>(this.url + '/viewing', { kind: conversation.kind, id: conversation.id, open });
+  }
+
   markRead(conversation: InboxReference, lastSeenMessageId: number): Observable<InboxSummary> {
     return this.http.put<InboxSummary>(this.url + '/read', {
       kind: conversation.kind, id: conversation.id, lastSeenMessageId
