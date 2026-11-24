@@ -71,6 +71,11 @@ export class InboxApiService {
     );
   }
 
+  /** Unread messages across all chats (muted chats excluded), for the Messages badge. */
+  unreadTotal(): Observable<{ total: number }> {
+    return this.http.get<{ total: number }>(this.url + '/unread-count');
+  }
+
   /** Tells the server this conversation is on screen (or not anymore), so it creates no alerts for it. */
   viewing(conversation: InboxReference, open: boolean): Observable<void> {
     return this.http.put<void>(this.url + '/viewing', { kind: conversation.kind, id: conversation.id, open });

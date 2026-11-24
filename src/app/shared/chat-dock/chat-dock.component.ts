@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
-import { filter, Subscription } from 'rxjs';
+import { auditTime, catchError, filter, merge, of, Subscription, timeout } from 'rxjs';
+import { InboxApiService } from '../../services/inbox-api.service';
+import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
+import { ActiveChatService } from '../../services/active-chat.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { AuthenticationService } from '../../services/authethication.service';
 import { MessagesCenterComponent } from '../../pages/messages-center/messages-center.component';
@@ -20,10 +23,13 @@ const MIN_WIDTH = 1024;
   template: `
     @if (available) {
       @if (!open) {
-        <button type="button" class="chat-dock-pill" (click)="toggle(true)" [attr.aria-label]="'Abrir mensagens' | t">
+        <button type="button" class="chat-dock-pill" [class.has-unread]="unread > 0" (click)="toggle(true)" [attr.aria-label]="'Abrir mensagens' | t">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H8l-4 2v-6.3A7.5 7.5 0 1 1 20 11.5Z"/></svg>
           <span>{{ 'Mensagens' | t }}</span>
+          @if (unread > 0) {
+            <span class="chat-dock-badge" [attr.aria-label]="('{{n}} mensagens por ler' | t:{n: unread})">{{ unread > 99 ? '99+' : unread }}</span>
+          }
         </button>
       }
       @if (started) {
@@ -51,6 +57,9 @@ const MIN_WIDTH = 1024;
       box-shadow:0 10px 28px #00121a88}
     .chat-dock-pill:hover{background:#145564}
     .chat-dock-pill svg{width:20px;height:20px;color:#5ee6c8}
+    .chat-dock-pill.has-unread{border-color:#6dffda;box-shadow:0 0 0 3px #3fe4c033,0 10px 28px #00121a88}
+    .chat-dock-badge{min-width:22px;height:22px;padding:0 6px;border-radius:999px;display:inline-grid;place-items:center;
+      background:#ff4d6d;color:#fff;font-size:.75rem;font-weight:900;line-height:1;box-sizing:border-box}
     .chat-dock{width:380px;height:min(600px,calc(100vh - 110px));display:flex;flex-direction:column;overflow:hidden;
       border:1px solid #2f7380;border-radius:18px;background:#0a2734;box-shadow:0 18px 48px #00101899}
     .chat-dock[hidden]{display:none}
@@ -69,10 +78,23 @@ export class ChatDockComponent implements OnInit, OnDestroy {
   /** The inbox is created on first open, and then kept so drafts and the chosen chat survive. */
   started = false;
   available = false;
+  unread = 0;
   private url = '';
   private sub?: Subscription;
+  private unreadSub?: Subscription;
+  private unreadTimer?: ReturnType<typeof setInterval>;
 
-  constructor(private readonly router: Router, private readonly auth: AuthenticationService) {}
+  constructor(private readonly router: Router, private readonly auth: AuthenticationService,
+              private readonly inbox: InboxApiService, private readonly realtime: DirectChatRealtimeService,
+              private readonly activeChat: ActiveChatService) {}
+
+  /** Instagram-style: the closed button shows how many messages are waiting, updated live. */
+  private loadUnread(): void {
+    if (!this.available) { this.unread = 0; return; }
+    this.inbox.unreadTotal().pipe(timeout(8000), catchError(() => of(null))).subscribe(result => {
+      if (result && Number.isFinite(result.total)) this.unread = Math.max(0, result.total);
+    });
+  }
 
   ngOnInit(): void {
     this.url = this.router.url;
@@ -82,9 +104,18 @@ export class ChatDockComponent implements OnInit, OnDestroy {
     try { remembered = sessionStorage.getItem(OPEN_KEY) === '1'; } catch { /* private mode */ }
     this.refresh();
     if (remembered && this.available) this.toggle(true);
+    this.unreadSub = merge(this.realtime.messages$, this.realtime.communityMessages$, this.realtime.sessionMessages$,
+        this.realtime.groupMessages$, this.realtime.teamContentInvalidated$, this.realtime.ownReads$, this.activeChat.read$)
+      .pipe(auditTime(600)).subscribe(() => this.loadUnread());
+    this.unreadTimer = setInterval(() => this.loadUnread(), 45_000);
+    this.loadUnread();
   }
 
-  ngOnDestroy(): void { this.sub?.unsubscribe(); }
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+    this.unreadSub?.unsubscribe();
+    if (this.unreadTimer) clearInterval(this.unreadTimer);
+  }
 
   @HostListener('window:resize')
   refresh(): void {

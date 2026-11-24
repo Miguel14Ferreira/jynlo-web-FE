@@ -152,3 +152,4 @@
 :host .inbox-page.inbox-dock .inbox-bubble.is-mine .inbox-bubble-meta{display:none!important}
 :host .inbox-page.inbox-dock.inbox-dock--direct .inbox-bubble-meta{display:none!important}
 :host .inbox-page.inbox-dock .inbox-bubble p{margin:2px 0 0}
+:host .inbox-page.inbox-dock .inbox-message-log{overflow-x:hidden!important}
