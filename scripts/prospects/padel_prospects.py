@@ -22,7 +22,7 @@ ISLANDS = {'camara-de-lobos', 'canico', 'funchal', 'ponta-delgada', 'santa-cruz'
 PLATFORMS = {
     'Playtomic': re.compile(r'playtomic', re.I),
     'Aircourts': re.compile(r'aircourts', re.I),
-    'Tie Player': re.compile(r'tie ?player|tietennis', re.I),
+    'Tie Player': re.compile(r'tie ?player|tietennis|tiepadel', re.I),
     'Matchi': re.compile(r'matchi\.se', re.I),
     'Padel Manager': re.compile(r'padelmanager|padel manager', re.I),
     'Doinsport': re.compile(r'doinsport', re.I),
@@ -73,39 +73,34 @@ def parse_city(slug, label):
         print('QA-ERRO cidade', slug, file=sys.stderr)
         return []
     soup = BeautifulSoup(html, 'html.parser')
-    clubs = []
-    for heading in soup.find_all('h3'):
-        card = heading
-        for _ in range(10):
-            card = card.parent
-            if card is None or card.select_one('a[href^="tel:"]'):
-                break
-        if card is None:
+    main = soup.find('main') or soup
+    # Walk the page in order: every h3 opens a club; the phone, website and address
+    # that follow belong to it until the next h3.
+    clubs, current = [], None
+    for el in main.find_all(['h3', 'a', 'p']):
+        if el.name == 'h3':
+            current = {'nome': re.sub(r'\s+', ' ', el.get_text(' ', strip=True)), 'cidade_padeldir': label,
+                       'telefone': '', 'site': '', 'morada': '', 'perto_de_outra_cidade': '', 'plataforma_detalhe': ''}
+            clubs.append(current)
             continue
-        tels = card.select('a[href^="tel:"]')
-        if len(card.find_all('h3')) != 1 or not tels:
-            continue  # reached a container holding several clubs
-        name = re.sub(r'\s+', ' ', heading.get_text(' ', strip=True))
-        website = ''
-        for a in card.find_all('a', href=True):
-            h = a['href']
-            if h.startswith('http') and 'padeldir.com' not in h and 'google.' not in h and 'goo.gl' not in h:
-                website = clean_url(h)
-                break
-        anchor = card.find('a', href=re.compile(r'#'))
-        detail = ''
-        if anchor:
-            m = re.match(r'^/en/portugal/([a-z0-9-]+)/#([a-z0-9-]+)$', anchor['href'])
-            if m:
-                detail = BASE + m.group(1) + '/' + m.group(2)
-        addr = card.find('p', title=True)
-        address = addr['title'] if addr else ''
-        text = card.get_text(' ', strip=True).lower()
-        clubs.append({
-            'nome': name, 'cidade_padeldir': label, 'telefone': tels[0]['href'][4:].strip(),
-            'site': website, 'detalhe': detail, 'morada': address, 'perto_de_outra_cidade': 'sim' if 'nearby' in text else '',
-        })
-    return clubs
+        if current is None:
+            continue
+        if el.name == 'p' and el.get('title') and not current['morada']:
+            current['morada'] = el['title']
+        elif el.name == 'a':
+            h = el.get('href', '')
+            if h.startswith('tel:') and not current['telefone']:
+                current['telefone'] = h[4:].strip()
+            elif 'utm_source=padeldir' in h and not current['site'] and not current['plataforma_detalhe']:
+                url = clean_url(h)
+                platform = next((n for n, rx in PLATFORMS.items() if rx.search(url)), '')
+                if platform:
+                    current['plataforma_detalhe'] = platform
+                else:
+                    current['site'] = url
+            elif re.match(r'^/en/portugal/([a-z0-9-]+)/#', h) and not h.startswith('/en/portugal/' + slug + '/'):
+                current['perto_de_outra_cidade'] = 'sim'
+    return [c for c in clubs if c['telefone'] or c['site']]
 
 
 SOCIAL = re.compile(r'facebook\.com/sharer|twitter\.com/intent|wa\.me|linkedin\.com/share|x\.com/intent|amazon\.|awin|tradedoubler', re.I)
@@ -168,7 +163,6 @@ def read_detail(club):
 
 
 def inspect_site(club):
-    read_detail(club)
     site = club['site']
     club.update({'email': '', 'plataforma': club.get('plataforma_detalhe', ''), 'notas_site': ''})
     if not site:
