@@ -116,6 +116,16 @@
                   (change)="changeGlobal('email', $any($event.target).checked)">
               </label>
             </div>
+            <div class="notification-preferences__row">
+              <span>{{ 'Mostrar quem escreveu e a mensagem nos avisos do telemóvel' | t }}</span>
+              <label>
+                <span class="sr-only">{{ 'Mostrar quem escreveu e a mensagem nos avisos do telemóvel' | t }}</span>
+                <input type="checkbox" [checked]="prefs.inAppEnabled && preferenceEnabled('CHAT_PREVIEW', 'inApp')"
+                  [disabled]="preferencesSaving || preferencesLoading || preferencesRefreshFailed || !prefs.inAppEnabled"
+                  (change)="changeType('CHAT_PREVIEW', 'inApp', $any($event.target).checked)">
+              </label>
+              <span aria-hidden="true"></span>
+            </div>
             @for (type of preferenceTypes; track type) {
               <div class="notification-preferences__row">
                 <span>{{ ('notifications.preferences.type.' + type) | t }}</span>

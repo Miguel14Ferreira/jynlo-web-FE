@@ -8487,4 +8487,5 @@ export const EN: Record<string, string> = {
   "Repor a barra inicial": "Reset the bar",
   "Reservas": "Bookings",
   "Painel": "Dashboard",
+  "Mostrar quem escreveu e a mensagem nos avisos do telemóvel": "Show who wrote and the message in phone alerts",
 };
