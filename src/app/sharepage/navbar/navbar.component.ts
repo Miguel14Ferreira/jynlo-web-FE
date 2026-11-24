@@ -22,6 +22,7 @@ import { PrivateGroupMessage } from 'src/app/services/private-group.service';
 import { GroupChatToast, allowsGroupChatToast, confirmsGroupUnread, recentGroupChatEvent } from 'src/app/shared/group-chat-notice';
 import { ConversationMuteService, isConversationMuted } from 'src/app/services/conversation-mute.service';
 
+import { NAV_SLOTS, NavTab, PHONE_SLOTS, availableNavTabs, navTab, readNavTabs, resolveNavTabs, setNavSlot, writeNavTabs } from './nav-tabs';
 @Component({
     selector: 'app-navbar',
     templateUrl: './navbar.component.html',
@@ -61,6 +62,45 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return this.managedVenues.length === 1 ? ['/menu/venues', this.managedVenues[0].venueId, 'manage'] : ['/menu/venue-bookings'];
   }
   get managedPending(): number { return this.managedVenues.reduce((n, v) => n + (v.pendingRequests || 0), 0); }
+
+  /** The sections each person keeps in the bar (see nav-tabs.ts). */
+  private navTabsCache: { user: string; saved: unknown } | null = null;
+  private navSaved(): unknown {
+    const user = this.activeAccountUsername.toLowerCase();
+    if (!this.navTabsCache || this.navTabsCache.user !== user) this.navTabsCache = { user, saved: readNavTabs(user) };
+    return this.navTabsCache.saved;
+  }
+  get navTabs(): NavTab[] {
+    return resolveNavTabs(this.navSaved(), this.managedVenues.length > 0).map(id => navTab(id)!).filter(Boolean);
+  }
+  /** Sections not in the bar go in the account menu; slots 3 and 4 only show on a computer. */
+  get menuNavTabs(): { tab: NavTab; phoneOnly: boolean }[] {
+    const ids = resolveNavTabs(this.navSaved(), this.managedVenues.length > 0);
+    return availableNavTabs(this.managedVenues.length > 0)
+      .filter(tab => tab.id !== 'my-venues' && tab.id !== 'my-bookings')
+      .filter(tab => ids.indexOf(tab.id) < 0 || ids.indexOf(tab.id) >= PHONE_SLOTS)
+      .map(tab => ({ tab, phoneOnly: ids.includes(tab.id) }));
+  }
+  navRoute(tab: NavTab): string | (string | number)[] {
+    return tab.id === 'my-venues' ? this.managedVenuesLink : tab.route;
+  }
+  readonly navSlots = Array.from({ length: NAV_SLOTS }, (_, i) => i);
+  readonly phoneSlots = PHONE_SLOTS;
+  navEditing = false;
+  navDraft: string[] = [];
+  get navChoices(): NavTab[] { return availableNavTabs(this.managedVenues.length > 0); }
+
+  openNavEditor(): void {
+    this.closeAccountMenu();
+    this.navDraft = resolveNavTabs(this.navSaved(), this.managedVenues.length > 0);
+    this.navEditing = true;
+  }
+  pickNavSlot(slot: number, id: string): void { this.navDraft = setNavSlot(this.navDraft, slot, id); }
+  saveNavTabs(ids: string[] | null): void {
+    writeNavTabs(this.activeAccountUsername, ids);
+    this.navTabsCache = { user: this.activeAccountUsername.toLowerCase(), saved: ids };
+    this.navEditing = false;
+  }
 
   constructor(
     private elementRef: ElementRef<HTMLElement>,
@@ -533,6 +573,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     @HostListener('document:keydown.escape')
     closeAccountMenuOnEscape(): void {
+      this.navEditing = false;
       this.closeAccountMenu();
     }
 

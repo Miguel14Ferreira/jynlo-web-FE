@@ -1,4 +1,3 @@
-import { HomeShortcutsComponent } from '../../shared/home-shortcuts/home-shortcuts.component';
 import { FirstStepsPromptComponent } from '../first-steps/first-steps-prompt.component';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
@@ -16,7 +15,7 @@ import { SportNamePipe } from '../../i18n/sport-name.pipe';
 // Load this screen only when its route is opened, not on the public home page.
 @NgModule({
   declarations: [SocialFeedComponent],
-  imports: [HomeShortcutsComponent, SportNamePipe, 
+  imports: [SportNamePipe, 
     CommonModule,
     ProtectedMediaDirective,
     FormsModule,

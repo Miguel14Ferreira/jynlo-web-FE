@@ -348,32 +348,35 @@ describe('NavbarComponent', () => {
     )).map(anchor => anchor.getAttribute('href'));
     expect(primaryLinks).toEqual(['/menu/feed', '/menu/create']);
     expect(nav.querySelector('a[href="/menu/discover"]')).toBeTruthy();
-    expect(nav.querySelector(':scope > a.nav-activities-link[href="/menu/events"]')).toBeTruthy();
+    expect(nav.querySelector(':scope > a.nav-custom-link--activities[href="/menu/events"]')).toBeTruthy();
     expect(nav.querySelector('.feed-v3-top-search')).toBeNull();
-    expect(nav.querySelector(':scope > a.nav-communities-link[href="/menu/communities"]')).toBeTruthy();
+    expect(nav.querySelector(':scope > a.nav-custom-link--communities[href="/menu/communities"]')).toBeTruthy();
     expect(nav.querySelector('a[href="/menu/notifications"]')).toBeTruthy();
 
     const menu = nav.querySelector('details.account-menu');
     expect(menu?.querySelector('a[href="/menu/my-sessions"]')).toBeTruthy();
     // On phones the bottom tab bar keeps five destinations; Communities moves to the menu (mobile only).
     expect(menu?.querySelector('a.mobile-only-link[href="/menu/communities"]')).toBeTruthy();
+    expect(menu?.querySelector('a[href="/menu/teams"]:not(.mobile-only-link)')).toBeTruthy();
+    expect(menu?.querySelector('.account-menu__customize')).toBeTruthy();
     expect(nav.querySelectorAll(':scope > a.nav-tab').length).toBe(5);
-    expect(menu?.querySelector('a[href="/menu/messages"]')).toBeTruthy();
+    expect(nav.querySelector(':scope > a.nav-custom-link--messages.nav-tab[href="/menu/messages"]')).toBeTruthy();
     expect(menu?.querySelector('.account-menu__panel a[href="/menu/profiles/bea"]')).toBeTruthy();
     expect(menu?.querySelector('.language-switch')).toBeTruthy();
     expect(menu?.querySelector('.logout-action')).toBeTruthy();
   });
 
-  it('keeps a single desktop Communities link when authenticated', () => {
+  it('shows Communities once in the bar and keeps a phone-only copy in the menu', () => {
     component.authenticated = true;
     fixture.detectChanges();
 
     const nav: HTMLElement = fixture.nativeElement.querySelector('.site-nav__links');
-    const links = Array.from(nav.querySelectorAll<HTMLAnchorElement>('a[href="/menu/communities"]'))
-      .filter(link => !link.classList.contains('mobile-only-link'));
-    expect(links.length).toBe(1);
-    expect(links[0].classList.contains('nav-communities-link')).toBeTrue();
+    const links = Array.from(nav.querySelectorAll<HTMLAnchorElement>('a[href="/menu/communities"]'));
+    expect(links.length).toBe(2);
+    expect(links[0].classList.contains('nav-custom-link--communities')).toBeTrue();
+    expect(links[1].classList.contains('mobile-only-link')).toBeTrue();
     expect(links[0].closest('.account-menu')).toBeNull();
+    expect(links[1].closest('.account-menu')).not.toBeNull();
   });
 
   it('uses the shared pill shape for the account menu without losing toggle behaviour', () => {

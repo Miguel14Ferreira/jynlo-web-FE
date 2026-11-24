@@ -677,3 +677,21 @@
 }
 
 .nav-managed-badge { display:inline-grid; place-items:center; min-width:1.25rem; height:1.25rem; margin-left:.4rem; padding:0 .3rem; border-radius:999px; background:#62e6c4; color:#04212b; font-size:.72rem; font-weight:800; }
+
+.account-menu__customize { display:block; width:100%; text-align:left; padding:.6rem .8rem; border:0; border-radius:10px; background:none;
+  color:#62e6c4; font:inherit; font-weight:800; cursor:pointer; }
+.account-menu__customize:hover { background:rgba(98,230,196,.08); }
+.nav-editor-backdrop { position:fixed; inset:0; z-index:3000; display:grid; place-items:center; padding:1rem; background:rgba(2,10,14,.75); }
+.nav-editor { width:min(440px,100%); display:grid; gap:.8rem; padding:1.3rem; border-radius:20px; border:1px solid rgba(140,195,203,.25);
+  background:#0a1d27; color:#eaf6f6; box-shadow:0 20px 60px rgba(0,0,0,.5); }
+.nav-editor h2 { margin:0; font-size:1.2rem; }
+.nav-editor__hint { margin:0; color:#a9c7cf; font-size:.9rem; }
+.nav-editor__slot { display:grid; gap:.3rem; font-weight:800; }
+.nav-editor__slot small { margin-left:.4rem; color:#62e6c4; font-weight:700; }
+.nav-editor__slot select { min-height:44px; padding:0 .7rem; border-radius:12px; border:1px solid rgba(140,195,203,.3); background:#0f2a35; color:#eaf6f6; font:inherit; }
+.nav-editor__actions { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.3rem; }
+
+.nav-custom-link { position:relative; }
+@media (max-width: 900px) {
+  .site-nav--authed .site-nav__links > .nav-custom-link .nav-managed-badge { position:absolute; top:.15rem; right:22%; margin:0; }
+}
