@@ -8489,4 +8489,7 @@ export const EN: Record<string, string> = {
   "Painel": "Dashboard",
   "Mostrar quem escreveu e a mensagem nos avisos do telemóvel": "Show who wrote and the message in phone alerts",
   "Acrescenta um recinto à Jynlo, ou o teu": "Add a venue to Jynlo, or your own",
+  "Site": "Website",
+  "Contacto": "Contact",
+  "A resposta demorou e não sabemos se a decisão ficou guardada. Atualizámos a lista: vê se a proposta ainda está por analisar antes de repetir.": "The answer took too long and we don't know whether the decision was saved. We refreshed the list: check whether the proposal is still pending before trying again.",
 };

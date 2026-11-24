@@ -31,8 +31,8 @@ export class VenueSuggestEditComponent implements OnInit {
     { key: 'city', label: 'venue.detail.city', limit: 120 },
     { key: 'address', label: 'common.address', limit: 255 },
     { key: 'openingHours', label: 'venue.openingHours', limit: 1000 },
-    { key: 'website', label: 'venue.website', limit: 255 },
-    { key: 'contact', label: 'venue.contact', limit: 255 },
+    { key: 'website', label: 'Site', limit: 255 },
+    { key: 'contact', label: 'Contacto', limit: 255 },
     { key: 'bookingUrl', label: 'Link de reserva (Playtomic, site do clube…)', limit: 500 },
     { key: 'latitude', label: 'venue.edit.field.latitude', limit: 16 },
     { key: 'longitude', label: 'venue.edit.field.longitude', limit: 16 }

@@ -59,8 +59,11 @@
       </button>
     </nav>
 
+    @if (actionErrorMessage && !selected) {
+      <p class="admin-edit-error" role="alert">{{ actionErrorMessage | t }}</p>
+    }
     @if (selected; as item) {
-      <div class="admin-edit-overlay" (click)="close()">
+    <div class="admin-edit-overlay" (click)="close()">
         <section class="admin-edit-dialog" role="dialog" aria-modal="true"
           [attr.aria-label]="'venue.edit.admin.title' | t"
           (click)="$event.stopPropagation()">
@@ -140,7 +143,7 @@
               maxlength="1000" [placeholder]="'venue.edit.admin.noteHint' | t"></textarea>
           </label>
           @if (actionError) {
-            <p class="admin-edit-error" role="alert">{{ 'venue.edit.admin.error' | t }}</p>
+            <p class="admin-edit-error" role="alert">{{ (actionErrorMessage || 'venue.edit.admin.error') | t }}</p>
           }
           @if (action) {
             <p class="admin-edit-confirm" role="alert">

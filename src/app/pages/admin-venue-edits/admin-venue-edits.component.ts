@@ -21,6 +21,8 @@ export class AdminVenueEditsComponent implements OnInit, OnDestroy {
   mode: 'pending' | 'history' = 'pending';
   selected: VenueEditSuggestion | null = null;
   action: 'approve' | 'reject' | null = null;
+  /** What the server or the timeout said, shown instead of the generic message. */
+  actionErrorMessage: string | null = null;
   note = '';
   sourceReviewed = false;
   page = 0;
@@ -115,6 +117,7 @@ export class AdminVenueEditsComponent implements OnInit, OnDestroy {
     this.note = '';
     this.sourceReviewed = false;
     this.actionError = false;
+    this.actionErrorMessage = null;
   }
 
   close(): void {
@@ -138,6 +141,7 @@ export class AdminVenueEditsComponent implements OnInit, OnDestroy {
     const id = this.selected.id, decision = this.action;
     this.updating = true;
     this.actionError = false;
+    this.actionErrorMessage = null;
     // The server must receive the moderator's explicit attestation; the UI-only
     // checkbox must never be mistaken for an authorization check.
     const decisionRequest = decision === 'approve' && this.needsEvidenceReview(this.selected)
@@ -154,9 +158,15 @@ export class AdminVenueEditsComponent implements OnInit, OnDestroy {
           if (!this.suggestions.length && this.hasMore) this.load(this.page);
           this.cdr.markForCheck();
         },
-        error: () => {
+        error: (error: unknown) => {
           // Includes 409 for a stale venue field; never auto-repeat a write.
           this.actionError = true;
+          const timedOut = !!error && typeof error === 'object' && (error as { name?: string }).name === 'TimeoutError';
+          const server = (error as { error?: { message?: string } } | null)?.error?.message;
+          this.actionErrorMessage = timedOut
+            ? 'A resposta demorou e não sabemos se a decisão ficou guardada. Atualizámos a lista: vê se a proposta ainda está por analisar antes de repetir.'
+            : (typeof server === 'string' && server.trim() ? server.trim() : null);
+          if (timedOut) { this.selected = null; this.action = null; this.load(this.page); }
           this.cdr.markForCheck();
         }
       });
