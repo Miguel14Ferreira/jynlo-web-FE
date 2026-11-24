@@ -675,3 +675,5 @@
 @media (max-width: 620px) {
   .site-nav__links .nav-public-secondary { display: none; }
 }
+
+.nav-managed-badge { display:inline-grid; place-items:center; min-width:1.25rem; height:1.25rem; margin-left:.4rem; padding:0 .3rem; border-radius:999px; background:#62e6c4; color:#04212b; font-size:.72rem; font-weight:800; }

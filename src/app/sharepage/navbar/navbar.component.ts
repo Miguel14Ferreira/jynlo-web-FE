@@ -1,6 +1,6 @@
 import { appTranslate } from 'src/app/i18n/i18n.service';
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
-import { VenueBookingService } from 'src/app/services/venue-booking.service';
+import { ManagedVenue, VenueBookingService } from 'src/app/services/venue-booking.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { SeoService } from 'src/app/shared/seo.service';
 import { AuthenticationService } from 'src/app/services/authethication.service';
@@ -55,8 +55,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
   chatToast?: AppNotification;
   private readonly subscriptions = new Subscription();
   private readonly venueBookings = inject(VenueBookingService);
-  /** "Reservar campo" only shows once at least one venue takes Jynlo bookings. */
-  bookingsOpen = false;
+  /** "Os meus recintos" shows only to people who manage a venue. */
+  managedVenues: ManagedVenue[] = [];
+  get managedVenuesLink(): (string | number)[] {
+    return this.managedVenues.length === 1 ? ['/menu/venues', this.managedVenues[0].venueId, 'manage'] : ['/menu/venue-bookings'];
+  }
+  get managedPending(): number { return this.managedVenues.reduce((n, v) => n + (v.pendingRequests || 0), 0); }
 
   constructor(
     private elementRef: ElementRef<HTMLElement>,
@@ -73,7 +77,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.subscriptions.add(this.venueBookings.accepting().subscribe(ids => { this.bookingsOpen = ids.length > 0; }));
+    let signedIn = false;
+    try { signedIn = this.authService.isLoggedIn(); } catch { signedIn = false; }
+    if (signedIn) {
+      this.subscriptions.add(this.venueBookings.managed().subscribe({
+        next: list => { this.managedVenues = list || []; },
+        error: () => { this.managedVenues = []; }
+      }));
+    }
     var theme = localStorage.getItem('theme');
     if (theme == 'claro'){
       this.dark = false
