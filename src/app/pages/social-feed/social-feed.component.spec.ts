@@ -558,7 +558,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     const root = fixture.nativeElement as HTMLElement;
 
     expect(root.querySelector('.feed-rail-links')).toBeNull();
-    expect(root.querySelectorAll('.composer-actions .jynlo-premium-btn').length).toBe(4);
+    expect(root.querySelectorAll('.composer-actions .jp-tool, .composer-actions .jp-publish').length).toBe(4);
 
     expect(root.querySelector('.feed-hero-cta')).toBeNull();
     expect(root.querySelector('.feed-create-prompt')).not.toBeNull();
@@ -570,11 +570,11 @@ describe('SocialFeedComponent discovery sidebar', () => {
     const composer = root.querySelector('.composer')!;
     const pickers = Array.from(composer.querySelectorAll<HTMLLabelElement>('.image-picker'));
     expect(pickers.length).toBe(3);
-    expect(pickers.every(label => label.classList.contains('jynlo-premium-btn--quiet'))).toBeTrue();
+    expect(pickers.every(label => label.classList.contains('jp-tool'))).toBeTrue();
     expect(pickers.every(label => label.querySelector('input[type="file"]') !== null)).toBeTrue();
     expect(pickers.every(label => label.querySelector('svg.feed-ui-icon') !== null)).toBeTrue();
 
-    const submit = composer.querySelector('button.jynlo-premium-btn--primary') as HTMLButtonElement;
+    const submit = composer.querySelector('button.jp-publish') as HTMLButtonElement;
     expect(submit.disabled).toBeTrue();
     expect(root.querySelector('.feed-v3-join-action[href="/menu/communities"]')).not.toBeNull();
     expect(root.querySelectorAll('.feed-v3-side-heading > a.feed-inline-link[href="/menu/profiles"]').length).toBe(1);
@@ -606,7 +606,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(root.querySelector('.week-hub-heading .week-hub-create')?.getAttribute('href')).toBe('/menu/my-sessions');
     expect(root.querySelector('.composer textarea')).not.toBeNull();
     expect(root.querySelectorAll('.composer-actions .image-picker').length).toBe(3);
-    expect(root.querySelector('.composer-actions button.jynlo-action--primary')).not.toBeNull();
+    expect(root.querySelector('.composer-actions button.jp-publish')).not.toBeNull();
     expect(root.querySelector('.feed-layout .feed-main')).not.toBeNull();
     expect(root.querySelector('.feed-layout .feed-sidebar')).not.toBeNull();
     component.ngOnDestroy();

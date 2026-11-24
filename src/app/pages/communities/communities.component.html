@@ -672,34 +672,32 @@
                       }
                     </div>
                   }
-                  <div class="community-feed-media-actions">
-                    <label class="community-feed-file-picker jynlo-action jynlo-action--neutral"
-                      [class.disabled]="timelineSending">
-                      <input type="file" accept="image/jpeg,image/png,image/webp"
-                        [disabled]="timelineSending" (change)="onCommunityFeedImageChange($event)">
-                      <span aria-hidden="true">▧</span>
-                      {{ feedImageFile ? ('feed.changeImage' | t) : ('feed.addImage' | t) }}
-                    </label>
-                    <label class="community-feed-file-picker jynlo-action jynlo-action--neutral"
-                      [class.disabled]="timelineSending">
-                      <input type="file" accept="video/mp4,video/webm"
-                        [disabled]="timelineSending" (change)="onCommunityFeedVideoChange($event)">
-                      <span aria-hidden="true">▶</span>
-                      {{ feedVideoFile ? ('feed.changeVideo' | t) : ('feed.addVideo' | t) }}
-                    </label>
-                    <label class="community-feed-file-picker jynlo-action jynlo-action--neutral"
-                      [class.disabled]="timelineSending">
-                      <input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
-                        [disabled]="timelineSending" (change)="onCommunityFeedGalleryChange($event)">
-                      <span aria-hidden="true">▦</span> {{ 'Álbum (até 6)' | t }}
-                    </label>
-                  </div>
-                  <div class="community-feed-composer-actions">
-                    <span class="community-feed-composer-note">
-                      <span aria-hidden="true">✦</span>
-                      {{ 'communities.timelineComposerNote' | t }}
-                    </span>
-                    <button type="submit" class="primary-action jynlo-action jynlo-action--primary"
+                  <span class="community-feed-composer-note jp-note">
+                    <span aria-hidden="true">✦</span>
+                    {{ 'communities.timelineComposerNote' | t }}
+                  </span>
+                  <div class="community-feed-composer-actions jp-bar">
+                    <div class="community-feed-media-actions jp-tools" role="group" [attr.aria-label]="'Adicionar fotografias e vídeos' | t">
+                      <label class="community-feed-file-picker jp-tool" [class.disabled]="timelineSending">
+                        <input type="file" accept="image/jpeg,image/png,image/webp"
+                          [disabled]="timelineSending" (change)="onCommunityFeedImageChange($event)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.4"/><path d="m3 17 5.5-5.5 3.6 3.6 3-3L21 18"/></svg>
+                        <span>{{ feedImageFile ? ('feed.changeImage' | t) : ('feed.addImage' | t) }}</span>
+                      </label>
+                      <label class="community-feed-file-picker jp-tool" [class.disabled]="timelineSending">
+                        <input type="file" accept="video/mp4,video/webm"
+                          [disabled]="timelineSending" (change)="onCommunityFeedVideoChange($event)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="m17 10 4-3v10l-4-3"/></svg>
+                        <span>{{ feedVideoFile ? ('feed.changeVideo' | t) : ('feed.addVideo' | t) }}</span>
+                      </label>
+                      <label class="community-feed-file-picker jp-tool" [class.disabled]="timelineSending">
+                        <input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+                          [disabled]="timelineSending" (change)="onCommunityFeedGalleryChange($event)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="6" width="13" height="13" rx="2"/><path d="M8 3h10a3 3 0 0 1 3 3v11"/><path d="m5 16 3-3 3 3 2-2 3 3"/></svg>
+                        <span>{{ 'Álbum (até 6)' | t }}</span>
+                      </label>
+                    </div>
+                    <button type="submit" class="primary-action jp-publish"
                             [disabled]="!canPublishCommunityPost">
                       {{ timelineSending ? ('common.processing' | t) : ('communities.timelinePublish' | t) }}
                     </button>

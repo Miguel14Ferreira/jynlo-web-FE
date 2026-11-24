@@ -8099,6 +8099,7 @@ export const EN: Record<string, string> = {
   '{{n}} jornadas já existiam e ficam como estão.': '{{n}} rounds already existed and stay as they are.',
   'Plantel por Excel': 'Squad from Excel',
   'Já tens o plantel noutro sítio?': 'Already have your squad somewhere else?',
+  'Fotografias ou vídeos': 'Photos or videos',
   'Colar lista': 'Paste a list',
   'Aceitamos Excel (.xlsx, .xls), LibreOffice (.ods), CSV e TSV. No Google Sheets ou no Numbers: Ficheiro → Transferir/Exportar → Excel ou CSV.': 'We accept Excel (.xlsx, .xls), LibreOffice (.ods), CSV and TSV. In Google Sheets or Numbers: File → Download/Export → Excel or CSV.',
   'Um jogador por linha, por exemplo «10 João Silva» ou «João Silva; 10; Defesa». Também podes colar células copiadas de uma folha de cálculo.': 'One player per line, for example “10 João Silva” or “João Silva; 10; Defender”. You can also paste cells copied from a spreadsheet.',

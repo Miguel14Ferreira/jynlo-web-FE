@@ -447,28 +447,28 @@
       }
 
       </div>
-      <div class="composer-note" aria-live="polite">
+      <div class="composer-note jp-note" aria-live="polite">
         @if (postImagePreview || postVideoPreview || postGallery.length) {
           A imagem é apresentada completa. A descrição não é obrigatória.
         } @else {
           Adiciona uma descrição, fotografia ou vídeo para publicar.
         }
       </div>
-      <div class="composer-actions">
-        <div class="composer-media-tools" role="group" [attr.aria-label]="'Adicionar fotografias e vídeos' | t">
-          <label class="image-picker jynlo-action jynlo-premium-btn jynlo-premium-btn--quiet" [class.disabled]="posting">
+      <div class="composer-actions jp-bar">
+        <div class="composer-media-tools jp-tools" role="group" [attr.aria-label]="'Adicionar fotografias e vídeos' | t">
+          <label class="image-picker jp-tool" [class.disabled]="posting">
             <input type="file" accept="image/jpeg,image/png,image/webp"
               [disabled]="posting" (change)="onPostImageChange($event)">
             <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.4"/><path d="m3 17 5.5-5.5 3.6 3.6 3-3L21 18"/></svg>
             <span>{{ postImagePreview ? ('feed.changeImage' | t) : ('feed.addImage' | t) }}</span>
           </label>
-          <label class="image-picker jynlo-action jynlo-premium-btn jynlo-premium-btn--quiet" [class.disabled]="posting">
+          <label class="image-picker jp-tool" [class.disabled]="posting">
             <input type="file" accept="video/mp4,video/webm" [disabled]="posting"
               (change)="onPostVideoChange($event)">
             <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="m17 10 4-3v10l-4-3"/></svg>
             <span>{{ postVideoPreview ? ('feed.changeVideo' | t) : ('feed.addVideo' | t) }}</span>
           </label>
-          <label class="image-picker jynlo-action jynlo-premium-btn jynlo-premium-btn--quiet" [class.disabled]="posting">
+          <label class="image-picker jp-tool" [class.disabled]="posting">
             <input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
               [disabled]="posting" (change)="onPostGalleryChange($event)">
             <svg class="feed-ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="6" width="13" height="13" rx="2"/><path d="M8 3h10a3 3 0 0 1 3 3v11"/><path d="m5 16 3-3 3 3 2-2 3 3"/></svg>
@@ -476,7 +476,7 @@
           </label>
         </div>
         <button
-          class="composer-publish jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary"
+          class="composer-publish jp-publish"
           type="button"
           [disabled]="!canPublishPost"
           (click)="publish()">

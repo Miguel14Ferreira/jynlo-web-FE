@@ -236,14 +236,18 @@ import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
         <div *ngIf="kind === 'chat'" class="jc-bottom">
           <span>{{ 'Enter para enviar · Shift + Enter para nova linha · Podes colar imagens' | t }} · {{ draft.length }}/2000</span>
         </div>
-        <div *ngIf="kind !== 'chat'" class="team-composer-footer">
-          <small>{{ 'Partilha notícias, fotografias ou momentos da equipa.' | t }}</small>
-          <label *ngIf="attachmentsEnabled" class="team-icon-button" [for]="'team-upload-' + kind + '-' + teamId"
-                 [attr.aria-label]="'Anexar fotografias, vídeos ou PDF (até 4)' | t" [title]="'Anexar fotografias, vídeos ou PDF (até 4)' | t">📎</label>
-          <button type="submit" [disabled]="sending || (!draft.trim() && !files.length)">
-            {{sending ? ('A enviar…' | t) : replyTargetId ? ('Comentar' | t) : ('Publicar' | t)}}
-          </button>
-        </div>
+        <ng-container *ngIf="kind !== 'chat'">
+          <small class="jp-note">{{ 'Partilha notícias, fotografias ou momentos da equipa.' | t }}</small>
+          <div class="jp-bar">
+            <div class="jp-tools">
+              <label *ngIf="attachmentsEnabled" class="jp-tool" [for]="'team-upload-' + kind + '-' + teamId"
+                     [title]="'Anexar fotografias, vídeos ou PDF (até 4)' | t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.4"/><path d="m3 17 5.5-5.5 3.6 3.6 3-3L21 18"/></svg><span>{{ 'Fotografias ou vídeos' | t }}</span></label>
+            </div>
+            <button type="submit" class="jp-publish" [disabled]="sending || (!draft.trim() && !files.length)">
+              {{sending ? ('A enviar…' | t) : replyTargetId ? ('Comentar' | t) : ('Publicar' | t)}}
+            </button>
+          </div>
+        </ng-container>
       </form>
       </ng-template>
       <ng-template #accessRevokedState><p role="alert" class="team-content-error">{{blockedReason}}</p></ng-template>

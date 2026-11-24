@@ -1,0 +1,17 @@
+/* One composer look for every "publicação" (main feed, community groups, teams). */
+.jp-note {display:block;margin:6px 0 0;font-size:.78rem;color:#9fc3cb;}
+.jp-bar {display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  margin-top:12px;padding-top:12px;border-top:1px solid rgba(62,150,160,.28);}
+.jp-tools {display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;}
+.jp-tool {position:relative;display:inline-flex!important;align-items:center;gap:7px;min-height:40px;padding:8px 13px!important;
+  border:1px solid #2f6b76!important;border-radius:12px!important;background:rgba(15,57,72,.75)!important;color:#e6fbf7!important;
+  font-size:.82rem!important;font-weight:750!important;line-height:1.1;cursor:pointer;box-shadow:none!important;width:auto!important;}
+.jp-tool:hover {background:#1b5662!important;border-color:#4aa9a1!important;}
+.jp-tool.disabled, .jp-tool:has(input:disabled) {opacity:.55;cursor:not-allowed;}
+.jp-tool input[type=file] {position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;}
+.jp-tool svg {width:18px;height:18px;flex:none;}
+.jp-publish {margin-left:auto;min-height:42px;padding:10px 24px!important;border:1px solid #4fe8c6!important;border-radius:12px!important;
+  background:#3fe4c0!important;color:#053e3c!important;font-weight:850!important;font-size:.9rem!important;cursor:pointer;box-shadow:none!important;width:auto!important;}
+.jp-publish:hover:not(:disabled) {background:#6dffda!important;}
+.jp-publish:disabled {opacity:.45;cursor:not-allowed;}
+@media (max-width:520px){ .jp-publish{width:100%!important;margin-left:0;} }
