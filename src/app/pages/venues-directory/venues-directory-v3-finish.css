@@ -176,3 +176,8 @@
 
 :host .venue-directory-bookable { justify-self:start; display:inline-flex; margin:.1rem 0 .2rem; padding:.2rem .6rem; border-radius:999px;
   background:#62e6c4; color:#063a35; font-size:.74rem; font-weight:800; }
+/* Mobile: the hero stacks in a column, so the 350px flex-basis became an empty 350px block of height. */
+@media (max-width:620px){
+  :host .venue-directory-page.jynlo-social .venue-directory-hero>div:first-child{flex:0 0 auto;}
+  :host .venue-directory-page.jynlo-social .venue-directory-add{width:100%;}
+}
