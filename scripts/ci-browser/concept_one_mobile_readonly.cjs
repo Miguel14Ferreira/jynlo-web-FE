@@ -521,19 +521,19 @@ async function main() {
                 'Team detail must not issue a redundant owned-teams request');
               assert.equal(initialReads.filter(x=>x.endsWith('/honours')||x.endsWith('/history')).length,0,
                 'Opening the team profile must not fetch trophies before the trophy tab');
-              await page.locator('.team-tabs').getByRole('button',{name:/Troféus/i}).click();
+              await page.locator('.team-tabs').getByRole('button',{name:/Troféus|Trophies/i}).click();
               await page.waitForFunction(()=>document.querySelector('.team-trophies')!==null);
               await page.waitForTimeout(120);
               assert.equal(teamHttpReads.filter(x=>x.endsWith('/honours')).length,1,
                 'Trophies tab must fetch honours exactly once');
               assert.equal(teamHttpReads.filter(x=>x.endsWith('/history')).length,1,
                 'Trophies tab must fetch history exactly once');
-              await page.locator('.team-tabs').getByRole('button',{name:/Desafios/i}).click();
+              await page.locator('.team-tabs').getByRole('button',{name:/Desafios|Challenges/i}).click();
               await page.locator('.challenges .challenge-card').first()
                 .waitFor({state:'visible',timeout:10000});
-              assert.equal(await page.getByRole('button',{name:'Cancelar convite'}).count(),1,
+              assert.equal(await page.getByRole('button',{name:/^(Cancelar convite|Cancel invitation)$/}).count(),1,
                 'Only the challenger captain should have a pending cancellation action');
-              assert.equal(await page.getByRole('button',{name:'Aceitar desafio'}).count(),0,
+              assert.equal(await page.getByRole('button',{name:/^(Aceitar desafio|Accept challenge)$/}).count(),0,
                 'The challenger must never approve its own challenge');
             }
             console.log('TEAM_NAVIGATION_SYNTHETIC',JSON.stringify({route,width,language,
