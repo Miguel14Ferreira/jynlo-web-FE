@@ -1196,9 +1196,9 @@ async function main() {
             }
           }
           if (route === '/home') {
-            assert.equal(await page.locator('.community-teaser').count(), 1,
+            assert.equal(await page.locator('.community-teaser:not(.venue-teaser)').count(), 1,
               'Community teaser must remain in public homepage');
-            assert.equal(await page.locator('.community-teaser-cta').getAttribute('href'),
+            assert.equal(await page.locator('.community-teaser:not(.venue-teaser) .community-teaser-cta').getAttribute('href'),
               '/login/registerNewUser', 'CTA must keep registration destination');
           }
         }
