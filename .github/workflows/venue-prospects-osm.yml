@@ -1,0 +1,15 @@
+name: Venue prospects (OpenStreetMap, todas as modalidades)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prospects:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependências
+        run: pip install requests beautifulsoup4
+      - name: Recintos com contacto público em Portugal continental
+        run: python3 scripts/prospects/osm_prospects.py
