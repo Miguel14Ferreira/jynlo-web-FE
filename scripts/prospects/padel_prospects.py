@@ -123,7 +123,20 @@ def read_detail(club):
     text = main.get_text(' ', strip=True)
     cut = text.find('Nearby')
     own = text[:cut] if cut > 0 else text[:4000]
-    m = re.search(r'Website:\s*((?:https?://)?[\w.-]+\.[a-z]{2,}(?:/[^\s]*)?)', own, re.I)
+    h1 = main.find('h1')
+    if not (h1 and fold(club['nome'])[:12] in fold(h1.get_text(' ', strip=True))):
+        return  # not this club's own page (a city listing)
+    if True:
+        for a in main.find_all('a', href=True):
+            if 'utm_source=padeldir' in a['href']:
+                host = clean_url(a['href'])
+                platform = next((n for n, rx in PLATFORMS.items() if rx.search(host)), '')
+                if platform:
+                    club['plataforma_detalhe'] = platform
+                elif not club.get('site'):
+                    club['site'] = host
+                break
+    m = None if club.get('site') else re.search(r'Website:\s*((?:https?://)?[\w.-]+\.[a-z]{2,}(?:/[^\s]*)?)', own, re.I)
     if m:
         host = m.group(1)
         platform = next((n for n, rx in PLATFORMS.items() if rx.search(host)), '')
