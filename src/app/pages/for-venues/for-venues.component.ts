@@ -83,7 +83,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
         <h2 id="fv-steps">{{ 'Como aderir, em 3 passos' | t }}</h2>
         <ol>
           <li><strong>{{ 'Encontrem o vosso recinto na Jynlo, ou criem-no.' | t }}</strong>
-            {{ 'Já temos mais de 3600 recintos no diretório. Se o vosso não estiver, criem-no em poucos minutos.' | t }}</li>
+            {{ 'Já temos mais de 4000 recintos no diretório. Se o vosso não estiver, criem-no em poucos minutos ou peçam-nos para o criar, nós tratamos disso.' | t }}</li>
           <li><strong>{{ 'Digam-nos que são os responsáveis.' | t }}</strong>
             {{ 'Na página do recinto, ou ao criá-lo, marquem “Sou o responsável por este recinto”. Precisam de uma conta Jynlo, que é grátis. Confirmamos e ficam a gerir o recinto.' | t }}</li>
           <li><strong>{{ 'Indiquem os campos, os preços e o horário.' | t }}</strong>
@@ -92,6 +92,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
         <div class="fv__ctas">
           <a class="jynlo-action jynlo-action--primary" routerLink="/menu/venues">{{ 'Encontrar o meu recinto' | t }}</a>
           <a class="jynlo-action jynlo-action--neutral" routerLink="/menu/venues/new" [queryParams]="{ owner: 1 }">{{ 'Criar o meu recinto' | t }}</a>
+          <a class="jynlo-action jynlo-action--neutral" href="mailto:geral@jynlosports.com?subject=Criar%20o%20nosso%20recinto%20na%20Jynlo">{{ 'Pedir para criarem o nosso recinto' | t }}</a>
         </div>
       </section>
 

@@ -121,7 +121,7 @@
                   <img class="inbox-avatar-image" [src]="conversation.avatarUrl" alt=""
                     referrerpolicy="no-referrer" (error)="failedAvatarKeys.add(conversation.key)">
                 } @else {
-                  {{ conversation.kind === 'community' ? '👥' : conversation.kind === 'team' ? '🛡️' : '⚽' }}
+                  {{ conversation.kind === 'community' ? '👥' : conversation.kind === 'team' ? conversation.title.slice(0, 1).toUpperCase() : '⚽' }}
                 }
               </span>
               <div class="inbox-detail-info">
