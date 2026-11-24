@@ -74,38 +74,30 @@ def parse_city(slug, label):
         return []
     soup = BeautifulSoup(html, 'html.parser')
     clubs = []
-    for tel in soup.select('a[href^="tel:"]'):
-        card = tel
-        heading = None
-        for _ in range(8):
+    for heading in soup.find_all('h3'):
+        card = heading
+        for _ in range(10):
             card = card.parent
-            if card is None:
+            if card is None or card.select_one('a[href^="tel:"]'):
                 break
-            heading = card.find(['h2', 'h3', 'h4'])
-            if heading:
-                break
-        if card is None or heading is None:
+        if card is None:
             continue
+        tels = card.select('a[href^="tel:"]')
+        if len(card.find_all('h3')) != 1 or not tels:
+            continue  # reached a container holding several clubs
         name = re.sub(r'\s+', ' ', heading.get_text(' ', strip=True))
-        name = re.sub(r'\s*\d(\.\d)?\s*\(based on.*$', '', name).strip()
         website = ''
         for a in card.find_all('a', href=True):
             h = a['href']
             if h.startswith('http') and 'padeldir.com' not in h and 'google.' not in h and 'goo.gl' not in h:
                 website = clean_url(h)
                 break
-        text = card.get_text(' ', strip=True)
-        address = ''
-        m = POSTAL.search(text)
-        if m:
-            start = max(0, text.rfind('  ', 0, m.start()))
-            address = text[max(0, m.start() - 70):m.end() + 40].strip()
-        nearby = 'nearby' in text.lower()[:200]
-        if slug == 'aveiro' and not clubs:
-            print('QA-DEBUG-CARD', re.sub(r'\s+', ' ', str(card))[:3000])
+        addr = card.find('p', title=True)
+        address = addr['title'] if addr else ''
+        text = card.get_text(' ', strip=True).lower()
         clubs.append({
-            'nome': name, 'cidade_padeldir': label, 'telefone': tel['href'][4:].strip(),
-            'site': website, 'morada': address, 'perto_de_outra_cidade': 'sim' if nearby else '',
+            'nome': name, 'cidade_padeldir': label, 'telefone': tels[0]['href'][4:].strip(),
+            'site': website, 'morada': address, 'perto_de_outra_cidade': 'sim' if 'nearby' in text else '',
         })
     return clubs
 
