@@ -21,6 +21,8 @@ export const NAV_TAB_CATALOG: NavTab[] = [
 export const NAV_SLOTS = 4;
 export const PHONE_SLOTS = 2;
 export const DEFAULT_NAV_TABS = ['discover', 'messages', 'activities', 'communities'];
+/** Someone who runs a venue starts with the venue panel first (they can still change the bar). */
+export const MANAGER_DEFAULT_NAV_TABS = ['my-venues', 'discover', 'messages', 'activities'];
 const STORAGE_PREFIX = 'jynlo-nav-tabs:';
 
 export function navTab(id: string): NavTab | undefined {
@@ -40,7 +42,7 @@ export function resolveNavTabs(saved: unknown, manager: boolean, bookingsOpen = 
     if (typeof id === 'string' && allowed.has(id) && !picked.includes(id) && picked.length < NAV_SLOTS) picked.push(id);
   };
   if (Array.isArray(saved)) saved.forEach(take);
-  DEFAULT_NAV_TABS.forEach(take);
+  (manager ? MANAGER_DEFAULT_NAV_TABS : DEFAULT_NAV_TABS).forEach(take);
   availableNavTabs(manager, bookingsOpen).forEach(tab => take(tab.id));
   return picked;
 }

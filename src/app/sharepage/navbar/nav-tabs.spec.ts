@@ -28,4 +28,8 @@ describe('nav tabs', () => {
     writeNavTabs('ana', null);
     expect(readNavTabs('ana')).toBeNull();
   });
+  it('starts a venue manager with the venue panel first', () => {
+    expect(resolveNavTabs(null, true)[0]).toBe('my-venues');
+    expect(resolveNavTabs(null, false)[0]).toBe('discover');
+  });
 });
