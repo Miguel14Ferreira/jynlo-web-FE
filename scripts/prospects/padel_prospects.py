@@ -120,6 +120,19 @@ def read_detail(club):
         return
     soup = BeautifulSoup(html, 'html.parser')
     main = soup.find('main') or soup
+    text = main.get_text(' ', strip=True)
+    cut = text.find('Nearby')
+    own = text[:cut] if cut > 0 else text[:4000]
+    m = re.search(r'Website:\s*((?:https?://)?[\w.-]+\.[a-z]{2,}(?:/[^\s]*)?)', own, re.I)
+    if m:
+        host = m.group(1)
+        platform = next((n for n, rx in PLATFORMS.items() if rx.search(host)), '')
+        if platform:
+            club['plataforma_detalhe'] = platform
+        else:
+            club['site'] = host if host.startswith('http') else 'https://' + host
+    if re.search(r'Online booking not available', own):
+        club['sem_reserva_online'] = 'sim'
     for a in main.find_all('a', href=True):
         h = a['href']
         if not h.startswith('http') or 'padeldir.com' in h or 'google.' in h or SOCIAL.search(h):
@@ -203,7 +216,7 @@ def main():
     print('QA-CLUBES', len(clubs))
     with ThreadPoolExecutor(max_workers=4) as pool:
         clubs = list(pool.map(inspect_site, clubs))
-    fields = ['nome', 'cidade_padeldir', 'morada', 'telefone', 'site', 'email', 'plataforma', 'notas_site', 'perto_de_outra_cidade']
+    fields = ['nome', 'cidade_padeldir', 'morada', 'telefone', 'site', 'email', 'plataforma', 'notas_site', 'perto_de_outra_cidade', 'sem_reserva_online']
     with open('prospects.csv', 'w', newline='', encoding='utf-8') as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
