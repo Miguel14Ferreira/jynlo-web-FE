@@ -1,0 +1,20 @@
+name: Venue prospects (clubes de padel e ténis)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prospects:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependências
+        run: pip install requests beautifulsoup4
+      - name: Recolher clubes de Portugal continental
+        run: python3 scripts/prospects/padel_prospects.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prospects
+          path: prospects.csv
+          retention-days: 7
