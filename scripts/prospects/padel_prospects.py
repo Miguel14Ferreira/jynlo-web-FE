@@ -101,6 +101,8 @@ def parse_city(slug, label):
             start = max(0, text.rfind('  ', 0, m.start()))
             address = text[max(0, m.start() - 70):m.end() + 40].strip()
         nearby = 'nearby' in text.lower()[:200]
+        if slug == 'aveiro' and not clubs:
+            print('QA-DEBUG-CARD', re.sub(r'\s+', ' ', str(card))[:3000])
         clubs.append({
             'nome': name, 'cidade_padeldir': label, 'telefone': tel['href'][4:].strip(),
             'site': website, 'morada': address, 'perto_de_outra_cidade': 'sim' if nearby else '',
@@ -179,6 +181,8 @@ def main():
         w.writeheader()
         for c in clubs:
             w.writerow({k: c.get(k, '') for k in fields})
+    for c in clubs:
+        print('QA-ROW|' + '|'.join((c.get(k, '') or '').replace('|', '/') for k in fields))
     print('QA-COM-EMAIL', sum(1 for c in clubs if c['email']))
     print('QA-COM-PLATAFORMA', sum(1 for c in clubs if c['plataforma']))
     print('QA-SEM-PLATAFORMA', sum(1 for c in clubs if not c['plataforma']))
