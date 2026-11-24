@@ -216,7 +216,7 @@ export class VenueDetailsComponent implements OnInit, OnDestroy {
       }))
       .subscribe({
         next: summary => {
-          if (summary.venueId === venueId && summary.ratingCount >= 3
+          if (summary && summary.venueId === venueId && summary.ratingCount >= 3
               && summary.averageScore !== null) {
             this.ratingSummary = summary;
           } else {
