@@ -1,4 +1,4 @@
-<section class="inbox-page jynlo-c1 jynlo-secondary" [class.inbox-embedded]="embedded">
+<section class="inbox-page jynlo-c1 jynlo-secondary" [class.inbox-embedded]="embedded" [class.inbox-dock]="dock" [class.inbox-dock--open]="dock && !!selected">
   <div class="inbox-shell">
     <div class="inbox-layout">
       <aside class="inbox-sidebar" [attr.aria-label]="'inbox.listLabel' | t">
@@ -90,6 +90,10 @@
       <main class="inbox-detail" [class.inbox-detail--empty]="!selected">
         @if (selected; as conversation) {
           <header class="inbox-detail-heading">
+            @if (dock) {
+              <button type="button" class="inbox-dock-back" (click)="backToList()"
+                [attr.aria-label]="'Voltar às conversas' | t" [title]="'Voltar às conversas' | t">←</button>
+            }
             @if (conversation.kind === 'direct') {
               <button type="button" class="inbox-chat-identity inbox-contact-opener"
                   [attr.aria-label]="('chat.viewProfile' | t) + ': ' + conversation.title"

@@ -119,6 +119,12 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }).catch(() => {
       // A transient chunk download failure must not crash the rest of Jynlo.
     });
+    // The floating Messages window (desktop) is its own chunk, loaded after boot.
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      void import('./shared/chat-dock/chat-dock.component').then(({ChatDockComponent}) => {
+        if (!this.disposed && this.callOverlayOutlet) this.callOverlayOutlet.createComponent(ChatDockComponent);
+      }).catch(() => { /* optional convenience only */ });
+    }
   }
 
   ngOnDestroy(): void {

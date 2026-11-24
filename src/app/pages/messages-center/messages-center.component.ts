@@ -68,6 +68,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   @Input() embeddedCommunityId: number | null = null;
   /** Same for a team's "Mensagens" tab: the team chat is the Messages conversation. */
   @Input() embeddedTeamId: number | null = null;
+  /** Compact single-column mode for the floating chat window (list, then one conversation). */
+  @Input() dock = false;
   get embedded(): boolean { return this.embeddedCommunityId !== null || this.embeddedTeamId !== null; }
   private embeddedReady = false;
   ngOnChanges(changes: SimpleChanges): void {
@@ -1065,6 +1067,40 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.selectedKey = null;
     this.conversations = this.conversations.filter(item => item.key !== conversation.key);
     this.sessionKickoffs.delete(Number(conversation.id));
+  }
+
+  /** Dock mode: go back from a conversation to the list, keeping its draft. */
+  backToList(): void {
+    if (!this.selectedKey) return;
+    this.drafts.set(this.selectedKey, this.draft);
+    if (this.replyingTo?.key === this.selectedKey && this.replyingTo.id > 0)
+      this.replyDrafts.set(this.selectedKey, this.replyingTo);
+    ++this.mutationVersion;
+    this.cancelMessageMutation();
+    this.typing.stop();
+    this.cancelVoiceRecording();
+    this.closeEmojiPicker();
+    this.closeSharePicker();
+    this.closeAttachmentMenu();
+    this.setSelectedAttachment(null);
+    this.selectedGif = null;
+    this.selectedShare = null;
+    this.selectedCallUp = null;
+    this.selectedPoll = null;
+    this.clearAttachmentRetry();
+    this.attachmentReady = false;
+    ++this.attachmentViewVersion;
+    this.clearAttachmentPreviews();
+    ++this.selectionVersion;
+    ++this.composerVersion;
+    this.resetMessageSearch();
+    this.selectedKey = null;
+    this.messages = [];
+    this.draft = '';
+    this.replyingTo = null;
+    this.previewLoading = false;
+    this.previewError = false;
+    this.composerAllowed = false;
   }
 
   selectConversation(conversation: InboxConversation): void {
