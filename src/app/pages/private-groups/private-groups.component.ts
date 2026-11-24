@@ -522,4 +522,10 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
       error:()=>{this.busy=false;this.groupError=t('groups.addError');}
     });
   }
+
+  onDraftEnter(event: KeyboardEvent): void {
+    if (event.shiftKey || event.isComposing) return;
+    event.preventDefault();
+    if (!this.busy && this.draft.trim()) this.send();
+  }
 }

@@ -43,24 +43,24 @@
            </div>
          </div>
          <div class="group-header-actions">
+           <button type="button" class="group-header-button" (click)="searchOpen=!searchOpen" [attr.aria-expanded]="searchOpen" [attr.aria-label]="'groups.search' | t" [title]="'groups.search' | t"><span aria-hidden="true">🔍</span></button>
            <button class="group-header-button" type="button" [disabled]="muteLoading"
              [attr.aria-label]="(selectedMuted ? 'chat.unmuteConversation' : 'chat.muteConversation') | t"
              [attr.title]="(selectedMuted ? 'chat.unmuteConversation' : 'chat.muteConversation') | t"
              (click)="toggleMute()">
-             {{ selectedMuted ? '🔕' : '🔔' }}
-             {{ (selectedMuted ? 'chat.unmuteConversation' : 'chat.muteConversation') | t }}
+             <span aria-hidden="true">{{ selectedMuted ? '🔕' : '🔔' }}</span>
            </button>
            @if (isCreator) {
              <input #groupPhotoInput type="file" accept="image/jpeg,image/png,image/webp,image/gif"
                class="group-photo-input" [attr.aria-label]="'groups.changePhoto' | t"
                (change)="uploadPhoto($event)">
              <button class="group-header-button" type="button" [disabled]="photoUploading"
-               (click)="groupPhotoInput.click()">
-               {{ photoUploading ? ('groups.uploadingPhoto' | t) : ('groups.changePhoto' | t) }}
-             </button>
-             <button class="group-header-button" type="button" (click)="openRename()">{{ 'groups.rename' | t }}</button>
-             <button class="group-header-button" type="button" (click)="openAdd()">
-               <span aria-hidden="true">＋</span> {{ 'groups.addMembers' | t }}
+               [attr.aria-label]="(photoUploading ? 'groups.uploadingPhoto' : 'groups.changePhoto') | t"
+               [title]="(photoUploading ? 'groups.uploadingPhoto' : 'groups.changePhoto') | t"
+               (click)="groupPhotoInput.click()"><span aria-hidden="true">{{ photoUploading ? '…' : '📷' }}</span></button>
+             <button class="group-header-button" type="button" (click)="openRename()" [attr.aria-label]="'groups.rename' | t" [title]="'groups.rename' | t"><span aria-hidden="true">✏️</span></button>
+             <button class="group-header-button" type="button" (click)="openAdd()" [attr.aria-label]="'groups.addMembers' | t" [title]="'groups.addMembers' | t">
+               <span aria-hidden="true">👤＋</span>
              </button>
            } @else {
              <button class="group-header-button" type="button" (click)="askRemove(me)">{{ 'groups.leave' | t }}</button>
@@ -85,9 +85,7 @@
        </div>
        <app-availability-panel kind="private" [targetId]="group.id"></app-availability-panel>
        <div class="group-search">
-         @if (!searchOpen) {
-           <button type="button" class="group-header-button" (click)="searchOpen=true">⌕ {{ 'groups.search' | t }}</button>
-         } @else {
+         @if (searchOpen) {
            <form (ngSubmit)="runSearch()" class="group-search-form">
              <input name="groupSearch" [(ngModel)]="searchTerm" minlength="2" maxlength="80" [attr.aria-label]="'groups.search' | t"
                [placeholder]="'groups.searchPlaceholder' | t">
@@ -107,7 +105,7 @@
            </button>
          }
          @for (message of messages; track message.id) {
-           <article class="group-bubble" [class.mine]="message.sender.toLowerCase()===me">
+           <article class="group-bubble jc-bubble" [class.mine]="message.sender.toLowerCase()===me" [class.is-mine]="message.sender.toLowerCase()===me">
              <a [routerLink]="['/menu/profiles',message.sender]">{{ message.sender }}</a>
              @if (quote(message); as q) {
                <blockquote class="group-quote">{{ q.sender ? q.sender + ': ' : '' }}{{ q.text }}</blockquote>
@@ -161,22 +159,32 @@
            <button type="button" [disabled]="busy" (click)="sendFiles()">{{ 'groups.sendFiles' | t }}</button>
          </div>
        }
-       <div class="group-tools">
-         @if (filesAvailable) {
-           <input #groupFiles type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,application/pdf"
-             class="group-photo-input" (change)="chooseFiles($event)" [attr.aria-label]="'groups.attach' | t">
-           <button type="button" class="group-header-button" [disabled]="busy || pendingFiles.length >= 4" (click)="groupFiles.click()">📎 {{ 'groups.attach' | t }}</button>
-         }
-         <button type="button" class="group-header-button" (click)="shareLocation()">📍 {{ 'groups.shareLocation' | t }}</button>
-         <button type="button" class="group-header-button" [disabled]="busy" (click)="pollOpen = !pollOpen">📊 {{ 'chat.poll.title' | t }}</button>
-       </div>
        @if (pollOpen) {
          <app-poll-composer (send)="sendPoll($event)" (closed)="pollOpen = false"></app-poll-composer>
        }
        <form class="group-compose" (ngSubmit)="send()">
-         <textarea name="draft" [(ngModel)]="draft" rows="2" maxlength="2000"
-           [placeholder]="'groups.messagePlaceholder' | t"></textarea>
-         <button type="submit" [disabled]="busy || !draft.trim()">{{ 'chat.send' | t }}</button>
+         <input #groupFiles type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,application/pdf"
+           class="group-photo-input" (change)="chooseFiles($event)" [attr.aria-label]="'groups.attach' | t">
+         <div class="jc-toolbar">
+           <div class="jc-grow">
+             <textarea name="draft" [(ngModel)]="draft" rows="2" maxlength="2000"
+               [placeholder]="'groups.messagePlaceholder' | t" [attr.aria-label]="'groups.messagePlaceholder' | t"
+               (keydown.enter)="onDraftEnter($any($event))"></textarea>
+           </div>
+           <div class="jc-actions">
+             @if (filesAvailable) {
+               <button type="button" class="jc-icon" [disabled]="busy || pendingFiles.length >= 4" (click)="groupFiles.click()"
+                 [attr.aria-label]="'groups.attach' | t" [title]="'groups.attach' | t">📎</button>
+             }
+             <button type="button" class="jc-icon" (click)="shareLocation()"
+               [attr.aria-label]="'groups.shareLocation' | t" [title]="'groups.shareLocation' | t">📍</button>
+             <button type="button" class="jc-icon" [class.is-on]="pollOpen" [disabled]="busy" (click)="pollOpen = !pollOpen"
+               [attr.aria-label]="'chat.poll.title' | t" [title]="'chat.poll.title' | t">📊</button>
+             <button type="submit" class="jc-send" [disabled]="busy || !draft.trim()"
+               [attr.aria-label]="'chat.send' | t" [title]="'chat.send' | t">➤</button>
+           </div>
+         </div>
+         <div class="jc-bottom"><span>{{ 'chat.enterHint' | t }} · {{ draft.length }}/2000</span></div>
        </form>
      } @else if (groups.length > 0) {
        <div class="group-welcome">

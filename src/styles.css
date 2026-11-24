@@ -1,6 +1,7 @@
 @import 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css';
 @import 'https://use.fontawesome.com/releases/v5.8.1/css/all.css';
 @import './styles/jynlo-foundations.css';
+@import './styles/jynlo-chat-unified.css';
 @import './styles/jynlo-admin-concept-one.css';
 @import './styles/jynlo-communities-concept-one.css';
 @import './styles/jynlo-sessions-concept-one.css';

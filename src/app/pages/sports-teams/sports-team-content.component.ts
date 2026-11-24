@@ -28,14 +28,15 @@ import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
         <div class="team-content-heading-icon" aria-hidden="true">{{kind === 'chat' ? '💬' : '📰'}}</div>
         <div class="team-heading-copy"><h3>{{kind === 'chat' ? ('Conversa do plantel' | t) : ('Publicações da equipa' | t)}}</h3>
           <p class="team-content-note">{{ 'Só os membros confirmados podem participar. Atualização automática.' | t }}</p></div>
-        <button *ngIf="kind === 'chat'" class="team-search-toggle" type="button" [disabled]="chatMuteBusy" (click)="toggleChatMute()"
-          [attr.aria-label]="chatMuted ? ('Ativar avisos do chat da equipa' | t) : ('Silenciar o chat da equipa' | t)">
-          {{chatMuted ? ('🔕 Ativar avisos' | t) : ('🔔 Silenciar' | t)}}
+        <button *ngIf="kind === 'chat'" class="team-search-toggle jc-icon jc-head" type="button" [disabled]="chatMuteBusy" (click)="toggleChatMute()"
+          [attr.aria-label]="chatMuted ? ('Ativar avisos do chat da equipa' | t) : ('Silenciar o chat da equipa' | t)"
+          [title]="chatMuted ? ('Ativar avisos do chat da equipa' | t) : ('Silenciar o chat da equipa' | t)">
+          <span aria-hidden="true">{{chatMuted ? '🔕' : '🔔'}}</span>
         </button>
-        <button class="team-search-toggle" type="button" (click)="toggleSearchPanel()"
+        <button class="team-search-toggle" [class.jc-icon]="kind === 'chat'" [class.jc-head]="kind === 'chat'" type="button" (click)="toggleSearchPanel()"
           [attr.aria-expanded]="searchOpen" [attr.aria-controls]="'team-search-panel-' + kind + '-' + teamId"
           [attr.aria-label]="searchOpen ? ('Fechar pesquisa' | t) : ('Pesquisar nesta {{v}}' | t:{v: (kind === 'chat' ? 'conversa' : 'equipa')})">
-          <span aria-hidden="true">⌕</span> <span>{{searchOpen ? ('Fechar pesquisa' | t) : ('Pesquisar' | t)}}</span>
+          <span aria-hidden="true">{{kind === 'chat' ? (searchOpen ? '✕' : '🔍') : '⌕'}}</span> <span *ngIf="kind !== 'chat'">{{searchOpen ? ('Fechar pesquisa' | t) : ('Pesquisar' | t)}}</span>
         </button>
       </div>
       <ng-container *ngIf="showFeedComposerAtTop()" [ngTemplateOutlet]="teamComposer"></ng-container>
@@ -66,7 +67,7 @@ import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
           </button>
           <span *ngIf="olderError" role="status">{{olderError}}</span>
         </div>
-        <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry" [class.team-feed-comment]="isFeedComment(item)" [class.team-own-message]="kind === 'chat' && item.canEdit" [class.team-removed-message]="item.deleted"
+        <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry" [class.jc-bubble]="kind === 'chat'" [class.is-mine]="kind === 'chat' && item.canEdit" [class.team-feed-comment]="isFeedComment(item)" [class.team-own-message]="kind === 'chat' && item.canEdit" [class.team-removed-message]="item.deleted"
           [class.team-actions-expanded]="activeActionMessageId === item.id" [attr.data-team-message-id]="item.id" tabindex="-1">
           <div class="team-entry-header">
             <a class="team-entry-avatar team-avatar-link" [routerLink]="['/menu/profiles', item.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: item.username})">
@@ -183,7 +184,8 @@ import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
         <label class="team-composer-label" [class.team-sr-only]="kind === 'chat'" [for]="'team-content-' + kind + '-' + teamId">
           {{kind === 'chat' ? ('Mensagem' | t) : replyTargetId ? ('Comentário' | t) : ('Nova publicação' | t)}}
         </label>
-        <div class="team-mention-anchor">
+        <div [class.jc-toolbar]="kind === 'chat'">
+        <div class="team-mention-anchor" [class.jc-grow]="kind === 'chat'">
           <textarea #teamComposerInput [id]="'team-content-' + kind + '-' + teamId" name="body"
             [(ngModel)]="draft" maxlength="2000" [disabled]="sending"
             [attr.aria-expanded]="mentionOpen" [attr.aria-haspopup]="'listbox'"
@@ -207,6 +209,15 @@ import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
             <span *ngIf="!mentionBusy && !mentionOptions.length" class="team-mention-status">{{mentionQuery ? ('Nenhum perfil encontrado.' | t) : ('Escreve o nome ou username para encontrar alguém.' | t)}}</span>
           </div>
         </div>
+        <div *ngIf="kind === 'chat'" class="jc-actions">
+          <label *ngIf="attachmentsEnabled" class="jc-icon" [for]="'team-upload-' + kind + '-' + teamId"
+                 [attr.aria-label]="'Anexar fotografias, vídeos ou PDF (até 4)' | t" [title]="'Anexar fotografias, vídeos ou PDF (até 4)' | t">📎</label>
+          <button type="button" class="jc-icon" [class.is-on]="pollOpen" [disabled]="sending"
+                  (click)="pollOpen = !pollOpen" [attr.aria-label]="'Criar sondagem' | t" [title]="'Criar sondagem' | t" [attr.aria-expanded]="pollOpen">📊</button>
+          <button type="submit" class="jc-send" [disabled]="sending || (!draft.trim() && !files.length)"
+                  [attr.aria-label]="(sending ? 'A enviar…' : 'Enviar mensagem') | t" [title]="'Enviar mensagem' | t">{{ sending ? '…' : '➤' }}</button>
+        </div>
+        </div>
         <div *ngIf="attachmentsEnabled" class="team-upload-selector">
           <input class="team-sr-only" [id]="'team-upload-' + kind + '-' + teamId" type="file"
             multiple accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,application/pdf"
@@ -222,18 +233,14 @@ import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
           </div>
           <button type="button" *ngIf="files.length" [disabled]="sending" (click)="clearFiles()">{{ 'Retirar todos' | t }}</button>
         </div>
-        <div class="team-composer-footer">
-          <div class="team-composer-tools">
-            <label *ngIf="attachmentsEnabled" class="team-icon-button" [for]="'team-upload-' + kind + '-' + teamId"
-                   [attr.aria-label]="'Anexar fotografias, vídeos ou PDF (até 4)' | t" [title]="'Anexar fotografias, vídeos ou PDF (até 4)' | t"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 11-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l9-9a3.7 3.7 0 0 1 5.2 5.2l-9 9a1.8 1.8 0 0 1-2.6-2.6l8.3-8.3"/></svg></label>
-            <button *ngIf="kind === 'chat'" type="button" class="team-icon-button" [class.team-icon-button--on]="pollOpen" [disabled]="sending"
-                    (click)="pollOpen = !pollOpen" [attr.aria-label]="'Criar sondagem' | t" [title]="'Criar sondagem' | t" [attr.aria-expanded]="pollOpen"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
-          </div>
-          <small *ngIf="kind === 'chat'">{{ 'Enter para enviar · Shift + Enter para nova linha · Podes colar imagens' | t }}</small>
-          <small *ngIf="kind === 'feed'">{{ 'Partilha notícias, fotografias ou momentos da equipa.' | t }}</small>
-          <button *ngIf="kind === 'chat'" type="submit" class="team-send-icon" [disabled]="sending || (!draft.trim() && !files.length)"
-                  [attr.aria-label]="(sending ? 'A enviar…' : 'Enviar mensagem') | t" [title]="'Enviar mensagem' | t"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
-          <button *ngIf="kind !== 'chat'" type="submit" [disabled]="sending || (!draft.trim() && !files.length)">
+        <div *ngIf="kind === 'chat'" class="jc-bottom">
+          <span>{{ 'Enter para enviar · Shift + Enter para nova linha · Podes colar imagens' | t }} · {{ draft.length }}/2000</span>
+        </div>
+        <div *ngIf="kind !== 'chat'" class="team-composer-footer">
+          <small>{{ 'Partilha notícias, fotografias ou momentos da equipa.' | t }}</small>
+          <label *ngIf="attachmentsEnabled" class="team-icon-button" [for]="'team-upload-' + kind + '-' + teamId"
+                 [attr.aria-label]="'Anexar fotografias, vídeos ou PDF (até 4)' | t" [title]="'Anexar fotografias, vídeos ou PDF (até 4)' | t">📎</label>
+          <button type="submit" [disabled]="sending || (!draft.trim() && !files.length)">
             {{sending ? ('A enviar…' | t) : replyTargetId ? ('Comentar' | t) : ('Publicar' | t)}}
           </button>
         </div>
