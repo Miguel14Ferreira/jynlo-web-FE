@@ -2,7 +2,7 @@ import { appTranslate } from '../../i18n/i18n.service';
 import { sportMatchesQuery } from '../../shared/venue-catalogue-display';
 import { HttpErrorResponse } from '@angular/common/http';
 import { appTranslate as t } from '../../i18n/i18n.service';
-import { ChangeDetectionStrategy, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, NgZone, OnDestroy, OnInit, inject } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { debounceTime, finalize, retry, Subject, timeout } from 'rxjs';
@@ -14,6 +14,7 @@ import { SessionPresetService } from '../../services/session-preset.service';
 import { SessionPreset, SessionPresetSettings } from '../model/session-preset';
 import { CommunityGroupsService } from '../../services/community-groups.service';
 import { VenuePhoto, VenueService } from '../../services/venue.service';
+import { VenueBookingService } from '../../services/venue-booking.service';
 import { Venue, VenueOwnershipType } from '../model/venue';
 import { SPORTS_CATALOG } from '../../shared/sports-catalog';
 import { suggestedMinimumPlayers } from '../../shared/session-minimum-players';
@@ -183,6 +184,9 @@ export class Events2Component implements OnInit, OnDestroy {
       error: () => { /* A missing habitual venue must never block the organiser. */ }
     });
   }
+  /** A court booked in "Reservar campo": once the game exists it is linked to that booking. */
+  bookingId: number | null = null;
+  private readonly venueBookings = inject(VenueBookingService);
   seasonGame = false;
   seasonGameCommunityId: number | null = null;
   confirmActivateRankings = false;
@@ -1038,6 +1042,12 @@ export class Events2Component implements OnInit, OnDestroy {
       this.gameDate = when;
     }
 
+    // "Criar jogo" from a court booking opens creation at that venue.
+    const bookedVenue = Number(params.get('venue'));
+    const bookingId = Number(params.get('booking'));
+    if (Number.isSafeInteger(bookingId) && bookingId > 0) this.bookingId = bookingId;
+    if (Number.isSafeInteger(bookedVenue) && bookedVenue > 0) this.prefillBookedVenue(bookedVenue);
+
     if (this.sportSelected) this.loadVenues();
 
     this.creationMode = params.get('intent') === 'findPlayers' ? 'COMPLETE' : 'START';
@@ -1086,6 +1096,24 @@ export class Events2Component implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  private prefillBookedVenue(venueId: number): void {
+    this.locationMethod = 'venue';
+    this.venueService.get(venueId).pipe(timeout(10_000)).subscribe({
+      next: venue => {
+        // The organiser may already have picked something else while this loaded.
+        if (this.locationMethod !== 'venue' || this.selectedVenueId !== null || this.venueSearch.trim()) return;
+        if (!this.newlyCreatedVenues.some(item => item.id === venue.id)) {
+          this.newlyCreatedVenues = [...this.newlyCreatedVenues, venue];
+        }
+        if (!this.venues.some(item => item.id === venue.id)) this.venues = [...this.venues, venue];
+        this.venueDistrict = this.districts.find(d => d === venue.district) || this.allDistrictsOption;
+        this.venueSearch = venue.name + ' · ' + venue.city;
+        this.selectVenue(venue.id);
+      },
+      error: () => { /* The organiser can still choose the venue by hand. */ }
+    });
   }
 
   ngOnDestroy(): void {
@@ -1173,7 +1201,12 @@ export class Events2Component implements OnInit, OnDestroy {
             { queryParams: invited === undefined ? { created: 1 } : { created: 1, invitedAgain: invited } }
           );
           // "Jogar outra vez": invite last time's players once the new session exists.
-          if (this.repeatFrom) {
+          // Link the court booking to the new game; a failure never blocks opening it.
+          if (this.bookingId) {
+            this.venueBookings.linkSession(this.bookingId, session.id).pipe(timeout(15_000)).subscribe({
+              next: () => void open(), error: () => void open(),
+            });
+          } else if (this.repeatFrom) {
             this.sessionService.inviteFromPrevious(session.id, this.repeatFrom).pipe(timeout(15_000)).subscribe({
               next: summary => void open(summary.invited),
               error: () => void open(),

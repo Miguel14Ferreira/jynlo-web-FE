@@ -21,6 +21,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
     <h2>{{ 'Também podes criar' | t }}</h2>
     <nav class="create-grid" [attr.aria-label]="'Também podes criar' | t">
       <a routerLink="/menu/feed" [queryParams]="{compose: 'post'}"><strong>{{ 'Publicação' | t }}</strong><span>{{ 'Partilha um momento' | t }}</span></a>
+      <a routerLink="/menu/reservar"><strong>{{ 'Reservar campo' | t }}</strong><span>{{ 'Vê os horários livres e reserva' | t }}</span></a>
       <a routerLink="/menu/communities/create"><strong>{{ 'Comunidade' | t }}</strong><span>{{ 'Junta a tua malta' | t }}</span></a>
       <a routerLink="/menu/teams" [queryParams]="{create: '1'}"><strong>{{ 'Equipa' | t }}</strong><span>{{ 'Cria a tua equipa' | t }}</span></a>
       <a routerLink="/menu/communities"><strong>{{ 'Torneio' | t }}</strong><span>{{ 'Numa comunidade tua, no separador Torneios' | t }}</span></a>

@@ -5,6 +5,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { ManagedVenue, VenueBooking, VenueBookingService, formatPrice, lisbonDateTime, lisbonTime } from '../../services/venue-booking.service';
 import { bookingError, currentLang } from '../../shared/venue-jynlo-booking/venue-jynlo-booking.component';
+import { createGameParams } from '../court-search/court-search.component';
 import { phoneLabel } from '../../shared/tournament-payments-panel/tournament-payments-panel.component';
 
 /** "As minhas reservas": court requests the person made and the venues they manage. */
@@ -38,8 +39,8 @@ import { phoneLabel } from '../../shared/tournament-payments-panel/tournament-pa
         <h2 id="vb-mine">{{ 'Os meus pedidos' | t }}</h2>
         @if (loading) { <p class="vb__muted" role="status">{{ 'A carregar…' | t }}</p> }
         @if (!loading && !bookings.length) {
-          <p class="vb__muted">{{ 'Ainda não pediste nenhuma reserva. Procura um recinto com o selo “Aceita reservas na Jynlo”.' | t }}</p>
-          <a class="jynlo-action jynlo-action--primary" routerLink="/menu/venues">{{ 'Ver recintos' | t }}</a>
+          <p class="vb__muted">{{ 'Ainda não pediste nenhuma reserva. Vê os horários livres em “Reservar campo”.' | t }}</p>
+          <a class="jynlo-action jynlo-action--primary" routerLink="/menu/reservar">{{ 'Reservar campo' | t }}</a>
         }
         @for (b of bookings; track b.id) {
           <article class="vb__booking" [attr.data-status]="b.status">
@@ -69,6 +70,12 @@ import { phoneLabel } from '../../shared/tournament-payments-panel/tournament-pa
                 }
               </div>
             }
+            @if (canCancel(b) && !b.sessionId) {
+              <a class="jynlo-action jynlo-action--primary" routerLink="/menu/createEvent" [queryParams]="gameParams(b)">{{ 'Criar jogo neste campo' | t }}</a>
+            }
+            @if (b.sessionId) {
+              <a class="jynlo-action" [routerLink]="['/menu/events', b.sessionId]">{{ 'Ver o jogo' | t }}</a>
+            }
             @if (canCancel(b)) {
               <button type="button" class="jynlo-action jynlo-action--neutral" [disabled]="busy" (click)="cancel(b)">{{ 'Cancelar pedido' | t }}</button>
             }
@@ -88,7 +95,7 @@ import { phoneLabel } from '../../shared/tournament-payments-panel/tournament-pa
     .vb__venue { display:flex; justify-content:space-between; align-items:center; gap:.6rem; min-height:44px; color:inherit; text-decoration:none;
       padding:.5rem 0; border-top:1px solid rgba(96,176,182,.2); }
     .vb__booking { display:grid; grid-template-columns:1fr auto; gap:.5rem; align-items:center; padding:.7rem 0; border-top:1px solid rgba(96,176,182,.2); }
-    .vb__booking > button { grid-column:1 / -1; justify-self:start; }
+    .vb__booking > button, .vb__booking > a.jynlo-action { grid-column:1 / -1; justify-self:start; }
     .vb__main { display:grid; gap:.2rem; }
     .vb__main a { color:#eafff9; }
     .vb__note { color:#dff7f1; font-style:italic; }
@@ -129,6 +136,8 @@ export class VenueBookingsComponent implements OnInit {
   statusLabel(status: VenueBooking['status']): string {
     return t({ PENDING: 'À espera do recinto', CONFIRMED: 'Confirmada', DECLINED: 'Recusada', CANCELLED: 'Cancelada' }[status]);
   }
+
+  gameParams(b: VenueBooking): Record<string, string | number> { return createGameParams(b, null); }
 
   phone(value: string): string { return phoneLabel(value); }
 

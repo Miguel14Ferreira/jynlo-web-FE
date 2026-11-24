@@ -23,6 +23,10 @@ export interface VenueBooking {
   createdAt: string; decidedAt: string | null;
   paymentMethod?: 'MBWAY' | 'IN_PERSON' | null; mbwayPhone?: string | null; paidClaimedAt?: string | null; paidConfirmedAt?: string | null;
 }
+export interface VenueAvailability {
+  venueId: number; name: string; city: string | null; district: string | null; latitude: number | null; longitude: number | null;
+  paymentMethod: 'MBWAY' | 'IN_PERSON' | null; courts: CourtSlots[];
+}
 export interface ManagedVenue { venueId: number; name: string; city: string; pendingRequests: number; acceptsBookings: boolean; }
 export interface CourtInput { id?: number | null; name: string; sport?: string | null; priceCents?: number | null; slotMinutes: number; active: boolean; }
 
@@ -46,6 +50,17 @@ export class VenueBookingService {
   }
   request(venueId: number, courtId: number, startAt: string, note: string | null, sessionId: number | null) {
     return this.post<VenueBooking>(`/venues/${venueId}/booking-requests`, { courtId, startAt, note, sessionId });
+  }
+  search(date: string, sport: string, place: string, from: string, to: string) {
+    const q = new URLSearchParams({ date });
+    if (sport.trim()) q.set('sport', sport.trim());
+    if (place.trim()) q.set('place', place.trim());
+    if (from) q.set('from', from);
+    if (to) q.set('to', to);
+    return this.get<VenueAvailability[]>('/venue-bookings/search?' + q.toString());
+  }
+  linkSession(bookingId: number, sessionId: number) {
+    return this.post<VenueBooking>(`/venue-bookings/${bookingId}/session`, { sessionId });
   }
   managerOffer(venueId: number) { return this.get<BookingOffer>(`/venues/${venueId}/management/offer`); }
   saveCourts(venueId: number, courts: CourtInput[]) { return this.put<BookingOffer>(`/venues/${venueId}/management/courts`, courts); }
