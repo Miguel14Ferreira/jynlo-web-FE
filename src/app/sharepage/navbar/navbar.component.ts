@@ -1,3 +1,4 @@
+import { ActiveChatService } from '../../services/active-chat.service';
 import { appTranslate } from 'src/app/i18n/i18n.service';
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { ManagedVenue, VenueBookingService } from 'src/app/services/venue-booking.service';
@@ -56,6 +57,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   chatToast?: AppNotification;
   private readonly subscriptions = new Subscription();
   private readonly venueBookings = inject(VenueBookingService);
+  private readonly activeChat = inject(ActiveChatService, { optional: true });
   /** "Os meus recintos" shows only to people who manage a venue. */
   managedVenues: ManagedVenue[] = [];
   /** Some venue takes bookings on Jynlo; until then "As minhas reservas" stays hidden. */
@@ -169,6 +171,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
       // A socket event is not necessarily a visible notification: chat alerts
       // may be disabled, already read, or suppressed by the server.
       // Coalesce bursts and ask the authoritative, preference-filtered endpoint.
+      if (this.activeChat) this.subscriptions.add(
+        this.activeChat.read$.pipe(auditTime(300)).subscribe(() => {
+          if (this.authenticated) this.loadUnreadNotifications();
+        }));
       this.subscriptions.add(
         this.realtimeService.messages$.pipe(auditTime(300)).subscribe(message => {
           if (!this.authenticated) return;
@@ -349,6 +355,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       const token = localStorage.getItem('t');
       if (!token) return;
       const sender = message.username1.toLowerCase();
+      if (this.activeChat?.isOpen('direct:' + sender)) return;
       const attachmentKind = chatMediaPreviewForAttachment(message.attachmentMimeType);
       const messageKind = attachmentKind ?? chatMediaPreviewKind(message.text);
       this.toastLookup?.unsubscribe();
@@ -422,7 +429,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
           || document.visibilityState !== 'visible' || !document.hasFocus()
           || this.router.url.startsWith('/menu/messages')
           || this.router.url.startsWith('/menu/notifications')
-          || this.router.url.startsWith('/menu/groups')) return;
+          || this.router.url.startsWith('/menu/groups')
+          || this.activeChat?.isOpen(kind + ':' + id)) return;
       const token = localStorage.getItem('t');
       if (!token) return;
       this.groupToastLookup?.unsubscribe();

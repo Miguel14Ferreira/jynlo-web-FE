@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environment/environment';
 
-export type InboxKind = 'direct' | 'community' | 'session';
+export type InboxKind = 'direct' | 'community' | 'session' | 'team';
 
 export interface InboxReference {
   kind: InboxKind;

@@ -1,4 +1,5 @@
 import { AutoGrowDirective } from '../../shared/auto-grow.directive';
+import { ActiveChatService } from '../../services/active-chat.service';
 import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -71,6 +72,10 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   @Input() embeddedTeamId: number | null = null;
   /** Compact single-column mode for the floating chat window (list, then one conversation). */
   @Input() dock = false;
+  /** The floating window is minimised: its chat is not on screen. */
+  @Input() dockHidden = false;
+  // Unit tests construct this component with `new` (no injection context).
+  private readonly activeChat = (() => { try { return inject(ActiveChatService, { optional: true }); } catch { return null; } })();
   get embedded(): boolean { return this.embeddedCommunityId !== null || this.embeddedTeamId !== null; }
   private embeddedReady = false;
   ngOnChanges(changes: SimpleChanges): void {
@@ -541,6 +546,9 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   private teamPollTimer: ReturnType<typeof setInterval> | undefined;
 
   ngOnInit(): void {
+    this.activeChat?.register(this, () =>
+      this.dockHidden || (typeof document !== 'undefined' && document.visibilityState !== 'visible')
+        ? null : this.selectedKey);
     this.loadConversationMutes();
     if (this.teams) this.teamPollTimer = setInterval(() => this.pollSelectedTeam(), 8000);
     // Angular reuses the component when only the query changes.
@@ -653,6 +661,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   ngOnDestroy(): void {
+    this.activeChat?.unregister(this);
     if (this.teamPollTimer) clearInterval(this.teamPollTimer);
     if(this.mentionTimer)clearTimeout(this.mentionTimer);
     this.mentionQueryVersion++;
@@ -3163,9 +3172,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     const requestVersion = ++this.summaryVersion;
     const batches = [];
     for (let offset = 0; offset < this.conversations.length; offset += 150) {
-      // Team chats have no server read markers yet.
-      const chunk = this.conversations.filter(item => item.kind !== 'team').slice(offset, offset + 150);
-      if (!chunk.length) continue;
+      const chunk = this.conversations.slice(offset, offset + 150);
       batches.push(this.inboxApi.summaries(chunk.map(item => ({
         kind: item.kind as InboxApiKind, id: String(item.id)
       }))).pipe(timeout(15_000)));
@@ -3233,11 +3240,12 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     // clear the unread badge on an unconfirmed read.
     if (!this.serverSummariesAvailable) return;
     const conversation = this.selected;
-    if (!conversation || conversation.kind === 'team') return;
+    if (!conversation) return;
     const readVersion = ++this.readVersion;
     this.inboxApi.markRead({ kind: conversation.kind, id: String(conversation.id) }, lastSeen)
       .pipe(timeout(10_000)).subscribe({
         next: snapshot => {
+          this.activeChat?.read$.next();
           if (readVersion !== this.readVersion || this.selectedKey !== key) return;
           ++this.summaryVersion; // invalidate snapshots taken before this read acknowledgement
           this.conversations = this.conversations.map(item => item.key === key
@@ -3309,7 +3317,6 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.ownReadSyncVersions.set(key, version);
     const inboxVersion = this.inboxVersion;
     ++this.summaryVersion; // Discard a global snapshot sampled before this commit.
-    if (conversation.kind === 'team') return;
     this.inboxApi.summaries([{ kind: conversation.kind, id: String(conversation.id) }])
       .pipe(timeout(10_000)).subscribe({
         next: values => {

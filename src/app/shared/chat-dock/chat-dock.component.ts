@@ -39,7 +39,7 @@ const MIN_WIDTH = 1024;
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
                 <path d="M6 6l12 12M18 6 6 18"/></svg></button>
           </header>
-          <div class="chat-dock__body"><app-messages-center [dock]="true"></app-messages-center></div>
+          <div class="chat-dock__body"><app-messages-center [dock]="true" [dockHidden]="!open"></app-messages-center></div>
         </section>
       }
     }
