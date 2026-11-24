@@ -3,7 +3,7 @@ import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthenticationService } from '../../services/authethication.service';
-import { Component, OnDestroy, OnInit, ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef, ElementRef, ViewChild, inject } from '@angular/core';
 import { Subscription, interval, fromEvent, merge, timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -16,6 +16,7 @@ import { TeamCrestEditorComponent } from './team-crest-editor.component';
 type KitDesign = Omit<TeamKitVariant,'type'>;
 
 import { TeamRosterImportComponent } from './team-roster-import.component';
+import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
 @Component({
   standalone: true,
   selector: 'app-sports-team-detail',
@@ -427,6 +428,7 @@ import { TeamRosterImportComponent } from './team-roster-import.component';
   styleUrls: ['./sports-team-detail.component.css']
 })
 export class SportsTeamDetailComponent implements OnInit, OnDestroy {
+  private readonly appDialog = injectAppDialog();
   private readonly rosterSubscriptions = new Subscription();
   private rosterRequest = 0;
   private rosterLoading = false;
@@ -744,12 +746,14 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   }
   removeTeamLogo():void {
     if(!this.team||!this.isOwner||this.brandingSaving||!this.team.logoUrl)return;
-    if(typeof window==='undefined'||!window.confirm(appTranslate('Remover o logótipo da equipa?')))return;
+    void this.appDialog.confirm(appTranslate('Remover o logótipo da equipa?'),{danger:true}).then(ok=>{
+    if(!ok||!this.team)return;
     this.brandingSaving=true;this.feedback='';
     this.api.removeLogo(this.team.id).pipe(timeout(15000)).subscribe({
       next:updated=>{this.team=updated;this.api.rememberTeam(updated);this.brandingSaving=false;
         this.feedback=appTranslate('Logótipo removido.');this.render();},
       error:()=>{this.brandingSaving=false;this.feedback=appTranslate('Não foi possível confirmar a remoção. Consulta a equipa antes de repetir.');this.render();}
+    });
     });
   }
 
@@ -757,10 +761,9 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     if(!this.team||!this.isOwner||this.deletingTeam||this.busy||
        this.brandingSaving||this.featureSaving||typeof window==='undefined')return;
     const current=this.team;
-    const confirmed=window.confirm(
-      appTranslate('Eliminar definitivamente a equipa "{{name}}"?',{name:current.name})+'\n\n'
-      +appTranslate('Esta ação não pode ser anulada. Se houver jogadores, convites, mensagens, competições ou histórico, o servidor não permitirá a eliminação.'));
-    if(!confirmed)return;
+    void this.appDialog.confirm(appTranslate('Eliminar definitivamente a equipa "{{name}}"?',{name:current.name})+'\n\n'
+      +appTranslate('Esta ação não pode ser anulada. Se houver jogadores, convites, mensagens, competições ou histórico, o servidor não permitirá a eliminação.'),{danger:true}).then(ok=>{
+    if(!ok||!this.team)return;
     this.deletingTeam=true;this.feedback='';
     this.api.deleteEmptyTeam(current.id).pipe(timeout(15000)).subscribe({
       next:()=>{
@@ -776,6 +779,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
           : appTranslate('Não foi possível confirmar a eliminação. Consulta a equipa antes de tentares novamente.');
         this.render();
       }
+    });
     });
   }
 
@@ -837,7 +841,8 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   }
   leaveCommunity(item:TeamCommunityMembership):void{
     if(!this.team||!this.isOwner||!this.communitiesVerified||this.busy)return;
-    if(typeof window==='undefined'||!window.confirm(appTranslate('Retirar a equipa de {{name}}?',{name:item.communityName})))return;
+    void this.appDialog.confirm(appTranslate('Retirar a equipa de {{name}}?',{name:item.communityName}),{danger:true}).then(ok=>{
+    if(!ok||!this.team)return;
     this.busy=true;this.feedback='';
     this.communityMemberships.remove(item.id).subscribe({
       next:()=>{
@@ -849,6 +854,7 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         this.busy=false;this.communitiesVerified=false;
         this.feedback=appTranslate('Não foi possível confirmar a saída. Atualiza as comunidades antes de repetir.');
       }
+    });
     });
   }
   loadCommunities():void{
@@ -898,12 +904,14 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
   cancelPendingInvitation(invite:TeamPendingPlayerInvitation):void {
     if(!this.team||!this.isOwner||!this.invitationsVerified||this.busy||
       !this.pendingPlayers.some(p=>p.profileId===invite.profileId))return;
-    if(typeof window==='undefined'||!window.confirm(appTranslate('Cancelar convite para @{{user}}?',{user:invite.username})))return;
+    void this.appDialog.confirm(appTranslate('Cancelar convite para @{{user}}?',{user:invite.username}),{danger:true}).then(ok=>{
+    if(!ok||!this.team)return;
     const teamId=this.team.id;
     this.busy=true;this.feedback='';
     this.api.remove(teamId,invite.profileId).subscribe({
       next:()=>{this.busy=false;this.feedback='Convite cancelado.';this.loadPendingInvitations();},
       error:()=>{this.busy=false;this.invitationsVerified=false;this.pendingPlayers=[];this.feedback=appTranslate('Não foi possível confirmar o cancelamento. Verifica os convites antes de repetir.');}
+    });
     });
   }
   invitePlayer(player:SportsTeamPlayerCandidate):void{
@@ -960,8 +968,8 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
     const player=this.members.find(member=>member.role==='PLAYER'
       && member.username.toLowerCase()===currentUsername);
     if(!player)return;
-    if(typeof window==='undefined'||!window.confirm(
-      appTranslate('Sair desta equipa? Deixarás de ter acesso ao chat e às publicações privadas.')))return;
+    void this.appDialog.confirm(appTranslate('Sair desta equipa? Deixarás de ter acesso ao chat e às publicações privadas.'),{danger:true}).then(ok=>{
+    if(!ok||!this.team)return;
     const teamId=this.team.id;
     this.busy=true;this.feedback='';
     this.api.remove(teamId,player.profileId).subscribe({
@@ -979,14 +987,17 @@ export class SportsTeamDetailComponent implements OnInit, OnDestroy {
         this.feedback=appTranslate('Não foi possível confirmar a saída. Verifica o plantel antes de tentares novamente.');
       }
     });
+    });
   }
   removePlayer(player:SportsTeamMember):void{
     if(!this.team||!this.isOwner||!this.rosterVerified||this.busy||player.role==='OWNER')return;
-    if(typeof window==='undefined'||!window.confirm(appTranslate('Remover @{{user}} do plantel?',{user:player.username})))return;
+    void this.appDialog.confirm(appTranslate('Remover @{{user}} do plantel?',{user:player.username}),{danger:true}).then(ok=>{
+    if(!ok||!this.team)return;
     this.busy=true;this.feedback='';
     this.api.remove(this.team.id,player.profileId).subscribe({
       next:()=>{this.members=this.members.filter(m=>m.profileId!==player.profileId);this.busy=false;this.feedback=appTranslate('Jogador removido do plantel.');this.refreshRoster();},
       error:()=>{this.rosterVerified=false;this.isMember=false;this.busy=false;this.feedback=appTranslate('Não foi possível confirmar a remoção. Recarrega o plantel antes de repetir.');}
+    });
     });
   }
   ngOnInit(): void {

@@ -2,7 +2,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
 import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subscription, interval, fromEvent, merge, timeout, retry, timer, throwError } from 'rxjs';
@@ -15,6 +15,7 @@ import { PollComposerComponent } from '../../shared/poll-composer/poll-composer.
 import { InboxPollCardComponent } from '../messages-center/inbox-poll-card.component';
 import { readPoll } from '../messages-center/poll-message';
 import { ConversationMuteService, isConversationMuted } from '../../services/conversation-mute.service';
+import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
 
 @Component({
   selector: 'app-sports-team-content',
@@ -177,10 +178,9 @@ import { ConversationMuteService, isConversationMuted } from '../../services/con
           <span>{{replyPreview(replyTargetId)}}</span></span>
         <button type="button" class="team-reply-dismiss" (click)="cancelReply()" [attr.aria-label]="'Cancelar resposta' | t" [title]="'Cancelar resposta' | t">×</button>
       </div>
-      <button *ngIf="kind === 'chat'" type="button" class="team-search-toggle" [disabled]="sending" (click)="pollOpen = !pollOpen">{{ '📊 Sondagem' | t }}</button>
       <app-poll-composer *ngIf="kind === 'chat' && pollOpen" (send)="sendPoll($event)" (closed)="pollOpen = false"></app-poll-composer>
       <form (ngSubmit)="send()" class="team-content-editor">
-        <label [for]="'team-content-' + kind + '-' + teamId">
+        <label class="team-composer-label" [class.team-sr-only]="kind === 'chat'" [for]="'team-content-' + kind + '-' + teamId">
           {{kind === 'chat' ? ('Mensagem' | t) : replyTargetId ? ('Comentário' | t) : ('Nova publicação' | t)}}
         </label>
         <div class="team-mention-anchor">
@@ -208,8 +208,7 @@ import { ConversationMuteService, isConversationMuted } from '../../services/con
           </div>
         </div>
         <div *ngIf="attachmentsEnabled" class="team-upload-selector">
-          <label [for]="'team-upload-' + kind + '-' + teamId">{{ '📎 Anexar fotografias, vídeos ou PDF (até 4)' | t }}</label>
-          <input [id]="'team-upload-' + kind + '-' + teamId" type="file"
+          <input class="team-sr-only" [id]="'team-upload-' + kind + '-' + teamId" type="file"
             multiple accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,application/pdf"
             (change)="chooseFiles($event)" [disabled]="sending" />
           <p class="team-content-note" *ngIf="files.length">{{ '{{filesCount}} ficheiro(s) selecionado(s) · Legenda opcional.' | t:{filesCount: (files.length)} }}</p>
@@ -224,10 +223,18 @@ import { ConversationMuteService, isConversationMuted } from '../../services/con
           <button type="button" *ngIf="files.length" [disabled]="sending" (click)="clearFiles()">{{ 'Retirar todos' | t }}</button>
         </div>
         <div class="team-composer-footer">
+          <div class="team-composer-tools">
+            <label *ngIf="attachmentsEnabled" class="team-icon-button" [for]="'team-upload-' + kind + '-' + teamId"
+                   [attr.aria-label]="'Anexar fotografias, vídeos ou PDF (até 4)' | t" [title]="'Anexar fotografias, vídeos ou PDF (até 4)' | t"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 11-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l9-9a3.7 3.7 0 0 1 5.2 5.2l-9 9a1.8 1.8 0 0 1-2.6-2.6l8.3-8.3"/></svg></label>
+            <button *ngIf="kind === 'chat'" type="button" class="team-icon-button" [class.team-icon-button--on]="pollOpen" [disabled]="sending"
+                    (click)="pollOpen = !pollOpen" [attr.aria-label]="'Criar sondagem' | t" [title]="'Criar sondagem' | t" [attr.aria-expanded]="pollOpen"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
+          </div>
           <small *ngIf="kind === 'chat'">{{ 'Enter para enviar · Shift + Enter para nova linha · Podes colar imagens' | t }}</small>
           <small *ngIf="kind === 'feed'">{{ 'Partilha notícias, fotografias ou momentos da equipa.' | t }}</small>
-          <button type="submit" [disabled]="sending || (!draft.trim() && !files.length)">
-            {{sending ? ('A enviar…' | t) : kind === 'chat' ? ('Enviar mensagem' | t) : replyTargetId ? ('Comentar' | t) : ('Publicar' | t)}}
+          <button *ngIf="kind === 'chat'" type="submit" class="team-send-icon" [disabled]="sending || (!draft.trim() && !files.length)"
+                  [attr.aria-label]="(sending ? 'A enviar…' : 'Enviar mensagem') | t" [title]="'Enviar mensagem' | t"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+          <button *ngIf="kind !== 'chat'" type="submit" [disabled]="sending || (!draft.trim() && !files.length)">
+            {{sending ? ('A enviar…' | t) : replyTargetId ? ('Comentar' | t) : ('Publicar' | t)}}
           </button>
         </div>
       </form>
@@ -235,6 +242,14 @@ import { ConversationMuteService, isConversationMuted } from '../../services/con
       <ng-template #accessRevokedState><p role="alert" class="team-content-error">{{blockedReason}}</p></ng-template>
     </div>`,
   styles: [`
+    .team-sr-only {position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .team-composer-tools {display:flex;gap:.4rem;align-items:center}
+    .team-icon-button {display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;cursor:pointer;
+      border:1px solid rgba(98,230,196,.35);background:rgba(98,230,196,.08);color:#62e6c4;padding:0}
+    .team-icon-button:hover,.team-icon-button--on {background:rgba(98,230,196,.2)}
+    .team-icon-button:focus-within,.team-icon-button:focus-visible {outline:2px solid #62e6c4;outline-offset:2px}
+    .team-composer-footer .team-send-icon {display:inline-grid;place-items:center;width:46px!important;height:46px;min-height:46px;border-radius:50%;padding:0!important;min-width:0!important;flex:0 0 auto}
+    .team-composer-footer .team-icon-button {width:40px!important;min-height:40px;flex:0 0 auto}
     .team-content {display:grid;gap:.75rem;min-width:0}
     .team-content-note {color:#b9d0d9;font-size:.85rem;margin:0}
     .team-content-error {color:#ff9eaf}
@@ -565,6 +580,7 @@ import { ConversationMuteService, isConversationMuted } from '../../services/con
   `]
 })
 export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy {
+  private readonly appDialog = injectAppDialog();
   @Input({required:true}) teamId = 0;
   @ViewChild('historyPane') historyPane?:ElementRef<HTMLDivElement>;
   @ViewChild('teamComposerInput') teamComposerInput?:ElementRef<HTMLTextAreaElement>;
@@ -1511,7 +1527,11 @@ export class SportsTeamContentComponent implements OnInit, OnChanges, OnDestroy 
   }
   remove(entry:TeamContentEntry):void {
     if(this.sending || !entry.canManage || entry.deleted)return;
-    if(!window.confirm(appTranslate('Eliminar esta mensagem da equipa?')))return;
+    void this.appDialog.confirm(appTranslate('Eliminar esta mensagem da equipa?'),{confirmLabel:'Eliminar',danger:true}).then(ok=>{if(ok)this.removeConfirmed(entry);});
+  }
+
+  private removeConfirmed(entry:TeamContentEntry):void {
+    if(this.sending || !entry.canManage || entry.deleted)return;
     this.invalidatePendingRead();
     this.sending=true;this.error='';
     const version=this.generation;

@@ -8492,4 +8492,8 @@ export const EN: Record<string, string> = {
   "Site": "Website",
   "Contacto": "Contact",
   "A resposta demorou e não sabemos se a decisão ficou guardada. Atualizámos a lista: vê se a proposta ainda está por analisar antes de repetir.": "The answer took too long and we don't know whether the decision was saved. We refreshed the list: check whether the proposal is still pending before trying again.",
+  "Denunciar": "Report",
+  "Explica o que se passa": "Explain what is going on",
+  "Anexar fotografias, vídeos ou PDF (até 4)": "Attach photos, videos or PDF (up to 4)",
+  "Criar sondagem": "Create poll",
 };

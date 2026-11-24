@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize, timeout } from 'rxjs';
 import { environment } from '../../../environment/environment';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
+import { injectAppDialog } from '../app-dialog/app-dialog.service';
 
 export type AvailabilityAnswer = 'YES' | 'MAYBE' | 'NO';
 export interface AvailabilitySlot { id: number; startsAt: string; yes: string[]; maybe: string[]; no: number; mine: AvailabilityAnswer | null; }
@@ -43,6 +44,7 @@ export function localDateTimeValue(date: Date): string {
   styleUrls: ['./availability-panel.component.css'],
 })
 export class AvailabilityPanelComponent implements OnChanges {
+  private readonly appDialog = injectAppDialog();
   @Input({ required: true }) kind!: 'private' | 'community';
   @Input({ required: true }) targetId!: number;
   @Input() communityId: number | null = null;
@@ -133,13 +135,16 @@ export class AvailabilityPanelComponent implements OnChanges {
   }
 
   close(request: AvailabilityRequest): void {
-    if (this.busy || !globalThis.confirm?.(t('availability.closeConfirm'))) return;
-    this.busy = true;
-    this.http.post<void>(`${this.base}/${request.id}/close`, null)
-      .pipe(timeout(10_000), finalize(() => this.busy = false)).subscribe({
-        next: () => this.requests = this.requests.filter(r => r.id !== request.id),
-        error: () => this.error = t('availability.closeError'),
-      });
+    if (this.busy) return;
+    void this.appDialog.confirm(t('availability.closeConfirm'), {}).then(ok => {
+      if (!ok || this.busy) return;
+      this.busy = true;
+      this.http.post<void>(`${this.base}/${request.id}/close`, null)
+        .pipe(timeout(10_000), finalize(() => this.busy = false)).subscribe({
+          next: () => this.requests = this.requests.filter(r => r.id !== request.id),
+          error: () => this.error = t('availability.closeError'),
+        });
+    });
   }
 
   best(request: AvailabilityRequest): AvailabilitySlot | null {

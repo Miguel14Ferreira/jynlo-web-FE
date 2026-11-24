@@ -22,7 +22,7 @@ import { CommunityChampionshipsService, ChampionshipOwnedEvent, ChampionshipOwne
 import { championshipTeamProfile, ChampionshipTeamProfile } from './community-championship-team-profile';
 import { compareTeamSeasons, comparableTeamSeasons, TeamSeasonComparison } from './community-championship-team-comparison';
 import { teamRankingChart, teamRankingSports, TeamRankingChart } from './community-championship-team-ranking-chart';
-import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { finalize, firstValueFrom, forkJoin, Observable, timeout } from 'rxjs';
 import { CommunityGroup } from '../model/community-group';
 import { HistoricalMatchArchive } from '../../services/community-groups.service';
@@ -52,6 +52,7 @@ import { appTranslate as t } from '../../i18n/i18n.service';
 import { buildTournamentTeamInviteUrl, teamInvitationWhatsAppUrl } from './community-team-invite';
 import { formatKartingDuration, kartingRaceAward, orderedKartingRaceEntries } from './community-karting-race-display';
 import { SportNamePipe } from '../../i18n/sport-name.pipe';
+import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
 
 interface TournamentTeamAdministrationState {
   teamId: number;
@@ -69,6 +70,7 @@ interface TournamentTeamAdministrationState {
   imports: [SportNamePipe, CommonModule, FormsModule, RouterLink, TranslatePipe, CommunityTournamentEligibilityPanelComponent, CompetitionFormatChooserComponent, CompetitionGuideComponent, CompetitionTeamSearchComponent, EventRankingPanelComponent, KartingPalmaresComponent, KartingPodiumComponent, KartingRaceTableComponent, RaceStandingsCardComponent, TeamCompetitionApplicationsComponent, TournamentClassificationNoteComponent, TournamentPublicShareComponent, TournamentPaymentsPanelComponent]
 })
 export class CommunityTournamentsComponent implements OnChanges {
+  private readonly appDialog = injectAppDialog();
   @Input({ required: true }) community!: CommunityGroup;
   @Input() invitedTournamentId: number | null = null;
   @Input() requestedChampionshipId: number | null = null;
@@ -2766,7 +2768,8 @@ export class CommunityTournamentsComponent implements OnChanges {
   async promoteTournamentTeam(team: TournamentTeam): Promise<void> {
     const current = this.tournamentTeamPromotion[team.id];
     if (!this.selected || !current?.canPromote || this.tournamentTeamPromotionBusy[team.id]) return;
-    if (!window.confirm(appTranslate('Guardar esta equipa permanentemente na Jynlo? O torneio e os resultados mantêm-se.'))) return;
+    if (!(await this.appDialog.confirm(appTranslate('Guardar esta equipa permanentemente na Jynlo? O torneio e os resultados mantêm-se.')))) return;
+    if (!this.selected || this.tournamentTeamPromotionBusy[team.id]) return;
     const communityId = this.community.id, tournamentId = this.selected.id;
     const revision = this.detailRevision;
     this.tournamentTeamPromotionBusy[team.id] = true;

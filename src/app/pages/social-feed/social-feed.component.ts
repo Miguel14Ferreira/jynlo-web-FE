@@ -31,6 +31,7 @@ import { addTextToPhoto } from './social-photo-text';
 import { TextPlacement } from './movable-text.component';
 import { CommunityLiveEvent, CommunityLiveService } from '../../services/community-live.service';
 import { PersonalLiveEvent, PersonalLiveService } from '../../services/personal-live.service';
+import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
 
 export interface PostDestination { kind: 'community' | 'team'; id: number; name: string; }
 
@@ -42,6 +43,7 @@ export interface PostDestination { kind: 'community' | 'team'; id: number; name:
   standalone: false
 })
 export class SocialFeedComponent implements OnInit, OnDestroy {
+  private readonly appDialog = injectAppDialog();
   readonly t = t;
   items: FeedItem[] = [];
   // An eventual feed refresh must not erase a newly confirmed publication.
@@ -2057,24 +2059,24 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const reason = window.prompt(t('feed.reportCommentReasonPrompt'))?.trim();
-    if (!reason) {
-      return;
-    }
+    void this.appDialog.prompt(t('feed.reportCommentReasonPrompt'), { confirmLabel: 'Denunciar', maxLength: 1000, placeholder: t('Explica o que se passa') }).then(reason => {
+      if (!reason) return;
 
-    const postId = item.postId;
-    this.reportingCommentId = comment.id;
-    this.actionError = '';
+      const postId = item.postId;
+      if (postId === null) return;
+      this.reportingCommentId = comment.id;
+      this.actionError = '';
 
-    this.feedService.reportComment(postId, comment.id, reason.slice(0, 1000))
-      .pipe(
-        timeout(10_000),
-        finalize(() => this.reportingCommentId = null)
-      )
-      .subscribe({
-        next: () => this.reportedCommentIds.add(comment.id),
-        error: () => this.actionError = t('feedback.feed.commentReportError')
-      });
+      this.feedService.reportComment(postId, comment.id, reason.slice(0, 1000))
+        .pipe(
+          timeout(10_000),
+          finalize(() => this.reportingCommentId = null)
+        )
+        .subscribe({
+          next: () => this.reportedCommentIds.add(comment.id),
+          error: () => this.actionError = t('feedback.feed.commentReportError')
+        });
+    });
   }
 
   reportPost(item: FeedItem): void {
@@ -2088,24 +2090,24 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const reason = window.prompt(t('feed.reportReasonPrompt'))?.trim();
-    if (!reason) {
-      return;
-    }
+    void this.appDialog.prompt(t('feed.reportReasonPrompt'), { confirmLabel: 'Denunciar', maxLength: 1000, placeholder: t('Explica o que se passa') }).then(reason => {
+      if (!reason) return;
 
-    const postId = item.postId;
-    this.reportingPostId = postId;
-    this.actionError = '';
+      const postId = item.postId;
+      if (postId === null) return;
+      this.reportingPostId = postId;
+      this.actionError = '';
 
-    this.feedService.reportPost(postId, reason.slice(0, 1000))
-      .pipe(
-        timeout(10_000),
-        finalize(() => this.reportingPostId = null)
-      )
-      .subscribe({
-        next: () => this.reportedPostIds.add(postId),
-        error: () => this.actionError = t('feedback.feed.reportError')
-      });
+      this.feedService.reportPost(postId, reason.slice(0, 1000))
+        .pipe(
+          timeout(10_000),
+          finalize(() => this.reportingPostId = null)
+        )
+        .subscribe({
+          next: () => this.reportedPostIds.add(postId),
+          error: () => this.actionError = t('feedback.feed.reportError')
+        });
+    });
   }
 
   hideAttendanceActivity(item: FeedItem): void {

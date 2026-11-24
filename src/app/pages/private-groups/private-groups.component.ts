@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -18,6 +18,7 @@ import { ChatReactionsComponent } from '../../shared/chat-reactions/chat-reactio
 import { PollComposerComponent } from '../../shared/poll-composer/poll-composer.component';
 import { InboxPollCardComponent } from '../messages-center/inbox-poll-card.component';
 import { readPoll } from '../messages-center/poll-message';
+import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
 
 @Component({
   selector:'app-private-groups',
@@ -28,6 +29,7 @@ import { readPoll } from '../messages-center/poll-message';
   changeDetection:ChangeDetectionStrategy.Eager
 })
 export class PrivateGroupsComponent implements OnInit,OnDestroy {
+  private readonly appDialog = injectAppDialog();
   groups:PrivateGroup[]=[];
   friends:FriendSummary[]=[];
   selected:PrivateGroup|null=null;
@@ -301,11 +303,14 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
   }
   removeMessage(message:PrivateGroupMessage):void{
     const group=this.selected;
-    if(!group||!this.canDelete(message)||this.busy||!globalThis.confirm?.(t('groups.deleteConfirm')))return;
+    if(!group||!this.canDelete(message)||this.busy)return;
+    void this.appDialog.confirm(t('groups.deleteConfirm'),{danger:true}).then(ok=>{
+    if(!ok)return;
     this.busy=true;this.groupError='';
     this.api.deleteMessage(group.id,message.id).subscribe({
       next:()=>{this.messages=this.messages.map(m=>m.id===message.id?{...m,deleted:true,text:'',attachments:[]}:m);this.busy=false;},
       error:()=>{this.groupError=t('groups.deleteError');this.busy=false;}
+    });
     });
   }
   chooseFiles(event:Event):void{
