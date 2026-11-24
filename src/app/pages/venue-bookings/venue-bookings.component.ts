@@ -39,8 +39,13 @@ import { phoneLabel } from '../../shared/tournament-payments-panel/tournament-pa
         <h2 id="vb-mine">{{ 'Os meus pedidos' | t }}</h2>
         @if (loading) { <p class="vb__muted" role="status">{{ 'A carregar…' | t }}</p> }
         @if (!loading && !bookings.length) {
-          <p class="vb__muted">{{ 'Ainda não pediste nenhuma reserva. Vê os horários livres em “Reservar campo”.' | t }}</p>
-          <a class="jynlo-action jynlo-action--primary" routerLink="/menu/reservar">{{ 'Reservar campo' | t }}</a>
+          @if (bookingsOpen) {
+            <p class="vb__muted">{{ 'Ainda não pediste nenhuma reserva. Vê os horários livres em “Reservar campo”.' | t }}</p>
+            <a class="jynlo-action jynlo-action--primary" routerLink="/menu/reservar">{{ 'Reservar campo' | t }}</a>
+          } @else {
+            <p class="vb__muted">{{ 'Ainda não pediste nenhuma reserva. Procura um recinto com o selo “Aceita reservas na Jynlo”.' | t }}</p>
+            <a class="jynlo-action jynlo-action--primary" routerLink="/menu/venues">{{ 'Ver recintos' | t }}</a>
+          }
         }
         @for (b of bookings; track b.id) {
           <article class="vb__booking" [attr.data-status]="b.status">
@@ -118,7 +123,10 @@ export class VenueBookingsComponent implements OnInit {
   private readonly api = inject(VenueBookingService);
   private readonly cdr = inject(ChangeDetectorRef);
 
+  bookingsOpen = false;
+
   ngOnInit(): void {
+    this.api.accepting().subscribe(ids => { this.bookingsOpen = ids.length > 0; this.cdr.markForCheck(); });
     this.api.mine().pipe(finalize(() => { this.loading = false; this.cdr.markForCheck(); })).subscribe({
       next: list => { this.bookings = list; },
       error: e => { this.error = bookingError(e, 'Não foi possível carregar as tuas reservas.'); }

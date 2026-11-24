@@ -1,5 +1,6 @@
 import { appTranslate } from 'src/app/i18n/i18n.service';
-import { Component, ElementRef, HostListener, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { VenueBookingService } from 'src/app/services/venue-booking.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { SeoService } from 'src/app/shared/seo.service';
 import { AuthenticationService } from 'src/app/services/authethication.service';
@@ -53,6 +54,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private readonly seenToastIds = new Set<number>();
   chatToast?: AppNotification;
   private readonly subscriptions = new Subscription();
+  private readonly venueBookings = inject(VenueBookingService);
+  /** "Reservar campo" only shows once at least one venue takes Jynlo bookings. */
+  bookingsOpen = false;
 
   constructor(
     private elementRef: ElementRef<HTMLElement>,
@@ -69,6 +73,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    this.subscriptions.add(this.venueBookings.accepting().subscribe(ids => { this.bookingsOpen = ids.length > 0; }));
     var theme = localStorage.getItem('theme');
     if (theme == 'claro'){
       this.dark = false

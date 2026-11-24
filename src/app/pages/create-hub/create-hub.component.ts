@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { VenueBookingService } from '../../services/venue-booking.service';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 
@@ -21,7 +22,9 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
     <h2>{{ 'Também podes criar' | t }}</h2>
     <nav class="create-grid" [attr.aria-label]="'Também podes criar' | t">
       <a routerLink="/menu/feed" [queryParams]="{compose: 'post'}"><strong>{{ 'Publicação' | t }}</strong><span>{{ 'Partilha um momento' | t }}</span></a>
-      <a routerLink="/menu/reservar"><strong>{{ 'Reservar campo' | t }}</strong><span>{{ 'Vê os horários livres e reserva' | t }}</span></a>
+      @if (bookingsOpen) {
+        <a routerLink="/menu/reservar"><strong>{{ 'Reservar campo' | t }}</strong><span>{{ 'Vê os horários livres e reserva' | t }}</span></a>
+      }
       <a routerLink="/menu/communities/create"><strong>{{ 'Comunidade' | t }}</strong><span>{{ 'Junta a tua malta' | t }}</span></a>
       <a routerLink="/menu/teams" [queryParams]="{create: '1'}"><strong>{{ 'Equipa' | t }}</strong><span>{{ 'Cria a tua equipa' | t }}</span></a>
       <a routerLink="/menu/communities"><strong>{{ 'Torneio' | t }}</strong><span>{{ 'Numa comunidade tua, no separador Torneios' | t }}</span></a>
@@ -45,4 +48,13 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
     .create-grid span{font-size:13px;color:var(--jynlo-muted,#9fb8bd)}
   `]
 })
-export class CreateHubComponent {}
+export class CreateHubComponent implements OnInit {
+  /** "Reservar campo" only shows once at least one venue takes Jynlo bookings. */
+  bookingsOpen = false;
+  private readonly venueBookings = inject(VenueBookingService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  ngOnInit(): void {
+    this.venueBookings.accepting().subscribe(ids => { this.bookingsOpen = ids.length > 0; this.cdr.markForCheck(); });
+  }
+}

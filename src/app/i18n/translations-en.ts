@@ -8403,4 +8403,5 @@ export const EN: Record<string, string> = {
   "Vê os horários livres e reserva": "See free slots and book",
   "Zona": "Area",
   "Não foi possível enviar o pedido. Tenta outra vez.": "Couldn't send the request. Please try again.",
+  "Ainda não pediste nenhuma reserva. Procura um recinto com o selo “Aceita reservas na Jynlo”.": "You haven't requested any booking yet. Look for a venue with the “Takes bookings on Jynlo” badge.",
 };
