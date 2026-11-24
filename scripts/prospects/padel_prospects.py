@@ -92,6 +92,11 @@ def parse_city(slug, label):
             if h.startswith('http') and 'padeldir.com' not in h and 'google.' not in h and 'goo.gl' not in h:
                 website = clean_url(h)
                 break
+        if slug == 'aveiro' and not clubs:
+            for el in card.find_all(True):
+                attrs = {k: v for k, v in el.attrs.items() if 'http' in str(v) or k in ('href', 'data-href', 'data-url', 'onclick')}
+                if attrs:
+                    print('QA-DEBUG-ATTR', el.name, attrs)
         addr = card.find('p', title=True)
         address = addr['title'] if addr else ''
         text = card.get_text(' ', strip=True).lower()
