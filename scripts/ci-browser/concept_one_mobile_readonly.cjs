@@ -311,6 +311,10 @@ async function main() {
               && url.pathname === '/api/messages/inbox/summaries') {
             return respond(route, 200, []);
           }
+          if (request.method() === 'POST' && url.pathname === '/api/client-errors') {
+            // A browser error report: still a failure, but print what broke.
+            console.error('CLIENT_ERROR_REPORT', String(request.postData() || '').slice(0, 600));
+          }
           if (request.method() !== 'GET') {
             // The UI can attempt background telemetry/token refresh. Do not send it.
             if (url.pathname !== '/api/presence/heartbeat'
