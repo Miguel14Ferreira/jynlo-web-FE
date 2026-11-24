@@ -25,7 +25,7 @@
           <span class="nav-label-full">{{ tab.label | t }}</span><span class="nav-label-short">{{ (tab.short || tab.label) | t }}</span>@if (tab.id === 'my-venues' && managedPending) { <span class="nav-managed-badge">{{ managedPending }}</span> }
         </a>
         }
-        <a class="desktop-primary-link nav-tab nav-tab--create nav-create-action jynlo-action jynlo-action--accent" routerLink="/menu/create" routerLinkActive="active-link"><svg class="jynlo-nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> <span class="nav-label-full">{{ 'nav.create' | t }}</span><span class="nav-label-short">{{ 'nav.create' | t }}</span></a>
+        <a class="desktop-primary-link nav-tab nav-tab--create nav-create-action jynlo-action jynlo-action--accent" href="/menu/create" [class.active-link]="createMenuOpen" aria-haspopup="menu" [attr.aria-expanded]="createMenuOpen" (click)="toggleCreateMenu($event)"><svg class="jynlo-nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> <span class="nav-label-full">{{ 'nav.create' | t }}</span><span class="nav-label-short">{{ 'nav.create' | t }}</span></a>
         <a class="nav-search-link nav-secondary" routerLink="/menu/search" routerLinkActive="active-link" [attr.aria-label]="'nav.search' | t" [title]="'nav.search' | t"><svg class="jynlo-nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></a>
         <a class="notification-link nav-tab" routerLink="/menu/notifications" routerLinkActive="active-link" [attr.aria-label]="'menu.notifications' | t" [title]="'menu.notifications' | t">
           <svg class="jynlo-nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg> <span class="nav-text">{{ 'menu.notifications' | t }}</span>
@@ -178,3 +178,16 @@
       </section>
     </div>
   }
+@if (createMenuOpen) {
+  <div class="create-menu-backdrop" (click)="createMenuOpen = false"></div>
+  <nav class="create-menu" role="menu" [attr.aria-label]="'O que vamos criar?' | t" [style.top.px]="createMenuTop" [style.left.px]="createMenuLeft">
+    <a role="menuitem" class="create-menu__main" routerLink="/menu/createEvent" (click)="createMenuOpen = false">
+      <strong>{{ 'Criar sessão' | t }}</strong><span>{{ 'Marca um jogo, convida pessoas e gere as equipas.' | t }}</span>
+    </a>
+    <a role="menuitem" routerLink="/menu/feed" [queryParams]="{compose: 'post'}" (click)="createMenuOpen = false"><strong>{{ 'Publicação' | t }}</strong><span>{{ 'Partilha um momento' | t }}</span></a>
+    <a role="menuitem" routerLink="/menu/communities/create" (click)="createMenuOpen = false"><strong>{{ 'Comunidade' | t }}</strong><span>{{ 'Junta a tua malta' | t }}</span></a>
+    <a role="menuitem" routerLink="/menu/teams" [queryParams]="{create: '1'}" (click)="createMenuOpen = false"><strong>{{ 'Equipa' | t }}</strong><span>{{ 'Cria a tua equipa' | t }}</span></a>
+    <a role="menuitem" routerLink="/menu/communities" (click)="createMenuOpen = false"><strong>{{ 'Torneio' | t }}</strong><span>{{ 'Numa comunidade tua, no separador Torneios' | t }}</span></a>
+    <a role="menuitem" routerLink="/menu/venues/new" (click)="createMenuOpen = false"><strong>{{ 'Recinto' | t }}</strong><span>{{ 'Acrescenta um recinto à Jynlo, ou o teu' | t }}</span></a>
+  </nav>
+}

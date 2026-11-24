@@ -8488,4 +8488,5 @@ export const EN: Record<string, string> = {
   "Reservas": "Bookings",
   "Painel": "Dashboard",
   "Mostrar quem escreveu e a mensagem nos avisos do telemóvel": "Show who wrote and the message in phone alerts",
+  "Acrescenta um recinto à Jynlo, ou o teu": "Add a venue to Jynlo, or your own",
 };

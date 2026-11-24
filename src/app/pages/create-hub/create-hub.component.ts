@@ -24,7 +24,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
       <a routerLink="/menu/communities/create"><strong>{{ 'Comunidade' | t }}</strong><span>{{ 'Junta a tua malta' | t }}</span></a>
       <a routerLink="/menu/teams" [queryParams]="{create: '1'}"><strong>{{ 'Equipa' | t }}</strong><span>{{ 'Cria a tua equipa' | t }}</span></a>
       <a routerLink="/menu/communities"><strong>{{ 'Torneio' | t }}</strong><span>{{ 'Numa comunidade tua, no separador Torneios' | t }}</span></a>
-      <a routerLink="/menu/venues/new"><strong>{{ 'Sugerir recinto' | t }}</strong><span>{{ 'Acrescenta um espaço desportivo à Jynlo' | t }}</span></a>
+      <a routerLink="/menu/venues/new"><strong>{{ 'Recinto' | t }}</strong><span>{{ 'Acrescenta um recinto à Jynlo, ou o teu' | t }}</span></a>
     </nav>
   </main>`,
   styles: [`

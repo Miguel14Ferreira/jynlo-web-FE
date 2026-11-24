@@ -770,4 +770,19 @@ describe('NavbarComponent', () => {
   });
 
 
+
+  it('opens the Criar menu in place instead of leaving the page', () => {
+    component.authenticated = true;
+    fixture.detectChanges();
+    const create = fixture.nativeElement.querySelector('a.nav-create-action') as HTMLAnchorElement;
+    create.click();
+    fixture.detectChanges();
+    const menu = fixture.nativeElement.querySelector('.create-menu');
+    expect(menu).not.toBeNull();
+    expect(menu.querySelector('a[href="/menu/createEvent"]')).not.toBeNull();
+    expect(menu.querySelector('a[href="/menu/venues/new"]')).not.toBeNull();
+    create.click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.create-menu')).toBeNull();
+  });
 });

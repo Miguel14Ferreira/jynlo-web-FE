@@ -87,6 +87,27 @@ export class NavbarComponent implements OnInit, OnDestroy {
   readonly navSlots = Array.from({ length: NAV_SLOTS }, (_, i) => i);
   readonly phoneSlots = PHONE_SLOTS;
   navEditing = false;
+  /** "Criar" opens a small menu instead of a separate page (like the app's + sheet). */
+  createMenuOpen = false;
+  createMenuTop: number | null = null;
+  createMenuLeft: number | null = null;
+  toggleCreateMenu(event: MouseEvent): void {
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.button === 1) return;
+    event.preventDefault();
+    this.closeAccountMenu();
+    if (this.createMenuOpen) { this.createMenuOpen = false; return; }
+    const button = (event.currentTarget as HTMLElement | null)?.getBoundingClientRect();
+    const phone = typeof window !== 'undefined' && window.innerWidth <= 900;
+    if (button && !phone) {
+      const width = 340;
+      this.createMenuTop = Math.round(button.bottom + 8);
+      this.createMenuLeft = Math.round(Math.max(12, Math.min(window.innerWidth - width - 12, button.left + button.width / 2 - width / 2)));
+    } else {
+      this.createMenuTop = null;
+      this.createMenuLeft = null;
+    }
+    this.createMenuOpen = true;
+  }
   navDraft: string[] = [];
   get navChoices(): NavTab[] { return availableNavTabs(this.managedVenues.length > 0); }
 
@@ -574,6 +595,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     @HostListener('document:keydown.escape')
     closeAccountMenuOnEscape(): void {
       this.navEditing = false;
+      this.createMenuOpen = false;
       this.closeAccountMenu();
     }
 
