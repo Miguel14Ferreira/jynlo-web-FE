@@ -167,7 +167,7 @@
            class="group-photo-input" (change)="chooseFiles($event)" [attr.aria-label]="'groups.attach' | t">
          <div class="jc-toolbar">
            <div class="jc-grow">
-             <textarea name="draft" [(ngModel)]="draft" rows="2" maxlength="2000"
+             <textarea appAutoGrow name="draft" [(ngModel)]="draft" rows="1" maxlength="2000"
                [placeholder]="'groups.messagePlaceholder' | t" [attr.aria-label]="'groups.messagePlaceholder' | t"
                (keydown.enter)="onDraftEnter($any($event))"></textarea>
            </div>

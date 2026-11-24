@@ -1,3 +1,4 @@
+import { AutoGrowDirective } from '../../shared/auto-grow.directive';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -23,7 +24,7 @@ import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
 @Component({
   selector:'app-private-groups',
   standalone:true,
-  imports:[CommonModule,FormsModule,RouterLink,TranslatePipe,AvailabilityPanelComponent,ChatReactionsComponent,PollComposerComponent,InboxPollCardComponent],
+  imports:[CommonModule,FormsModule,RouterLink,TranslatePipe,AvailabilityPanelComponent,ChatReactionsComponent,PollComposerComponent,InboxPollCardComponent,AutoGrowDirective],
   templateUrl:'./private-groups.component.html',
   styleUrls:['./private-groups.component.css'],
   changeDetection:ChangeDetectionStrategy.Eager

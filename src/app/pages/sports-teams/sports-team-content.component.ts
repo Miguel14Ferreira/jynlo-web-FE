@@ -1,3 +1,4 @@
+import { AutoGrowDirective } from '../../shared/auto-grow.directive';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
@@ -20,7 +21,7 @@ import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
 @Component({
   selector: 'app-sports-team-content',
   standalone: true,
-  imports: [TranslatePipe, CommonModule, FormsModule, RouterLink, PollComposerComponent, InboxPollCardComponent],
+  imports: [TranslatePipe, CommonModule, FormsModule, RouterLink, PollComposerComponent, InboxPollCardComponent, AutoGrowDirective],
   template: `
     <div class="team-content" [class.team-chat-mode]="kind === 'chat'" [class.team-feed-mode]="kind === 'feed'">
       <ng-container *ngIf="!accessRevoked; else accessRevokedState">
@@ -186,7 +187,7 @@ import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
         </label>
         <div [class.jc-toolbar]="kind === 'chat'">
         <div class="team-mention-anchor" [class.jc-grow]="kind === 'chat'">
-          <textarea #teamComposerInput [id]="'team-content-' + kind + '-' + teamId" name="body"
+          <textarea #teamComposerInput appAutoGrow [appAutoGrowMax]="kind === 'chat' ? 124 : 320" [id]="'team-content-' + kind + '-' + teamId" name="body"
             [(ngModel)]="draft" maxlength="2000" [disabled]="sending"
             [attr.aria-expanded]="mentionOpen" [attr.aria-haspopup]="'listbox'"
             (ngModelChange)="onMentionDraftChange($event)" (keydown)="onComposerKeydown($event)"

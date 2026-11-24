@@ -1,4 +1,4 @@
-<section class="inbox-page jynlo-c1 jynlo-secondary" [class.inbox-embedded]="embedded" [class.inbox-dock]="dock" [class.inbox-dock--open]="dock && !!selected">
+<section class="inbox-page jynlo-c1 jynlo-secondary" [class.inbox-embedded]="embedded" [class.inbox-dock]="dock" [class.inbox-dock--open]="dock && !!selected" [class.inbox-dock--direct]="dock && selected?.kind === 'direct'">
   <div class="inbox-shell">
     <div class="inbox-layout">
       <aside class="inbox-sidebar" [attr.aria-label]="'inbox.listLabel' | t">
@@ -659,8 +659,8 @@
             <div class="inbox-compose-toolbar">
               <label for="inbox-reply">{{ 'inbox.writeMessage' | t }}</label>
               <div class="inbox-mention-anchor">
-                <textarea #composerTextarea id="inbox-reply" name="inboxDraft" [(ngModel)]="draft"
-                  [placeholder]="'chat.placeholder' | t" rows="2" maxlength="2000"
+                <textarea #composerTextarea appAutoGrow id="inbox-reply" name="inboxDraft" [(ngModel)]="draft"
+                  [placeholder]="'chat.placeholder' | t" rows="1" maxlength="2000"
                   [readOnly]="sending"
                   [disabled]="composerAccessLoading || !composerAllowed || !isSelectedSessionOpen() || previewLoading || previewError || deliveryUncertain || deliveryChecking"
                   (ngModelChange)="onTypingInput()" (blur)="typing.stop()"

@@ -1,3 +1,4 @@
+import { AutoGrowDirective } from '../../shared/auto-grow.directive';
 import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -58,7 +59,7 @@ const VOICE_NOTE_AUDIO_BITRATE = 48_000;
 @Component({
   selector: 'app-messages-center',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, ChatReactionsComponent, GiphyEmbedComponent, InboxConversationListComponent, InboxEmojiGifPickerComponent, InboxShareMenuComponent, InboxSharePickerComponent, InboxHistorySearchComponent, ChatImageInViewDirective, InboxStoryCardComponent, InboxCallUpCardComponent, InboxPollCardComponent],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, ChatReactionsComponent, GiphyEmbedComponent, InboxConversationListComponent, InboxEmojiGifPickerComponent, InboxShareMenuComponent, InboxSharePickerComponent, InboxHistorySearchComponent, ChatImageInViewDirective, InboxStoryCardComponent, InboxCallUpCardComponent, InboxPollCardComponent, AutoGrowDirective],
   templateUrl: './messages-center.component.html',
   styleUrls: ['./messages-center.component.css', './messages-center-premium.component.css', './messages-center-v3-finish.css', './messages-center-embedded.css'],
   changeDetection: ChangeDetectionStrategy.Eager

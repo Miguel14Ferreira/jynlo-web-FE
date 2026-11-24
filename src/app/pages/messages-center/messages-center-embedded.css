@@ -144,3 +144,11 @@
 :host .inbox-page.inbox-dock .inbox-composer-actions{gap:2px}
 :host .inbox-page.inbox-dock .inbox-composer-actions>button[type="submit"]{width:40px;height:40px;min-width:40px}
 :host .inbox-page.inbox-dock .inbox-attachment-trigger,:host .inbox-page.inbox-dock .inbox-emoji-trigger,:host .inbox-page.inbox-dock .inbox-voice-trigger{width:32px;min-width:32px;height:32px}
+/* Floating window, Instagram-style: just the message. No "Tu", no time; the sender's
+   name only in group chats; date and time stay in the full Messages screen. */
+:host .inbox-page.inbox-dock .inbox-bubble{padding:8px 12px!important;min-width:0}
+:host .inbox-page.inbox-dock .inbox-bubble-meta time,
+:host .inbox-page.inbox-dock .inbox-read-check,
+:host .inbox-page.inbox-dock .inbox-bubble.is-mine .inbox-bubble-meta{display:none!important}
+:host .inbox-page.inbox-dock.inbox-dock--direct .inbox-bubble-meta{display:none!important}
+:host .inbox-page.inbox-dock .inbox-bubble p{margin:2px 0 0}
