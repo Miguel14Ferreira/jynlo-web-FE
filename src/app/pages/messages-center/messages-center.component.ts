@@ -742,7 +742,30 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     return !log || log.scrollHeight - log.scrollTop - log.clientHeight < 120;
   }
 
+  /** Close a composer warning (never the "delivery not confirmed" one, which needs an answer). */
+  dismissComposerError(): void {
+    if (this.deliveryUncertain) return;
+    this.composerError = '';
+    if (this.selectedKey) this.sendErrorsByConversation.delete(this.selectedKey);
+  }
+
+  /** Opening a chat shows the latest messages, even while images and GIFs are still loading. */
+  private stickToBottomUntil = 0;
+  private lastAutoScrollTop = -1;
+  private observedLog: HTMLElement | null = null;
+  private readonly onLogMediaLoaded = (): void => {
+    const log = this.previewLog?.nativeElement;
+    if (!log || this.historicalPreview || this.pendingScrollToMessageId !== null) return;
+    if (Date.now() < this.stickToBottomUntil || this.isNearPreviewBottom()) {
+      log.scrollTop = log.scrollHeight;
+      this.lastAutoScrollTop = log.scrollTop;
+    }
+  };
+
   onPreviewLogScroll(): void {
+    const log = this.previewLog?.nativeElement;
+    // The person scrolled up by themselves: stop pulling the view to the bottom.
+    if (log && this.lastAutoScrollTop >= 0 && log.scrollTop < this.lastAutoScrollTop - 40) this.stickToBottomUntil = 0;
     if (this.isNearPreviewBottom()) {
       this.newMessagesPending = 0;
       if (this.selectedKey) this.markRenderedRead(this.selectedKey);
@@ -760,6 +783,16 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   ngAfterViewChecked(): void {
     const log = this.previewLog?.nativeElement;
     if (!log) return;
+    if (this.observedLog !== log && typeof log.addEventListener === 'function') {
+      this.observedLog?.removeEventListener?.('load', this.onLogMediaLoaded, true);
+      log.addEventListener('load', this.onLogMediaLoaded, true);
+      this.observedLog = log;
+    }
+    if (this.dock && Date.now() < this.stickToBottomUntil && this.pendingScrollToMessageId === null && !this.historicalPreview
+        && log.scrollHeight - log.scrollTop - log.clientHeight > 2) {
+      log.scrollTop = log.scrollHeight;
+      this.lastAutoScrollTop = log.scrollTop;
+    }
     if (this.pendingScrollToMessageId !== null) {
       const target = log.querySelector<HTMLElement>(
         '[data-message-id="' + this.pendingScrollToMessageId + '"]');
@@ -1210,6 +1243,9 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     // Revalidate authorization on every visit; the cache is never the source of truth.
     // Opening a conversation is not proof the messages were displayed.
     this.loadComposerAccess(conversation);
+    this.stickToBottomUntil = Date.now() + 5000;
+    this.lastAutoScrollTop = -1;
+    this.scrollRequested = true;
     this.syncViewing();
     this.loadAttachmentAvailability(conversation);
     this.loadHistory(conversation);

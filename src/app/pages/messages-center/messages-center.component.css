@@ -363,3 +363,8 @@
  width:34px;height:34px;padding:0;border:0;border-radius:8px;
  background:transparent;color:#dbfff6;font-size:1.35rem;line-height:1}
 .inbox-reply-banner .inbox-reply-dismiss:hover:not(:disabled){background:#255661}
+.inbox-compose-alert { position:relative; }
+.inbox-compose-alert:has(.inbox-compose-alert-close) { padding-right:44px; }
+.inbox-compose-alert-close { position:absolute; top:8px; right:8px; width:28px; height:28px; display:grid; place-items:center;
+  border:0; border-radius:50%; background:transparent; color:inherit; font-size:.85rem; cursor:pointer; opacity:.8; }
+.inbox-compose-alert-close:hover { background:#ffffff1a; opacity:1; }

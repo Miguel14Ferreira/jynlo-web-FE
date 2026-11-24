@@ -513,6 +513,10 @@
           }
           @if (composerError) {
             <section class="inbox-compose-alert inbox-compose-alert--error" role="alert">
+              @if (!deliveryUncertain) {
+                <button type="button" class="inbox-compose-alert-close" (click)="dismissComposerError()"
+                  [attr.aria-label]="'common.close' | t" [title]="'common.close' | t">✕</button>
+              }
               {{ composerError }}
               @if (deliveryUncertain) {
                 <div class="inbox-compose-alert-actions">

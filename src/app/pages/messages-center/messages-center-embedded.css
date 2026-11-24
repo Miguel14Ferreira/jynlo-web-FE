@@ -153,3 +153,17 @@
 :host .inbox-page.inbox-dock.inbox-dock--direct .inbox-bubble-meta{display:none!important}
 :host .inbox-page.inbox-dock .inbox-bubble p{margin:2px 0 0}
 :host .inbox-page.inbox-dock .inbox-message-log{overflow-x:hidden!important}
+/* Floating window: pickers open inside the window, full width above the composer. */
+:host .inbox-page.inbox-dock .inbox-composer{position:relative}
+:host .inbox-page.inbox-dock .inbox-compose-toolbar,:host .inbox-page.inbox-dock .inbox-composer-actions,
+:host .inbox-page.inbox-dock .inbox-emoji-controls,:host .inbox-page.inbox-dock .inbox-share-controls{position:static}
+:host .inbox-page.inbox-dock .inbox-picker-panel,:host .inbox-page.inbox-dock .inbox-share-menu,
+:host .inbox-page.inbox-dock .inbox-share-picker,:host .inbox-page.inbox-dock .inbox-callup-picker{
+  position:absolute!important;left:8px!important;right:8px!important;width:auto!important;
+  bottom:calc(100% + 6px)!important;top:auto!important;max-height:min(360px,60vh)!important;z-index:60}
+/* Message hover actions stay inside the bubble's side of the window. */
+:host .inbox-page.inbox-dock .inbox-bubble:not(.is-mine)>.inbox-message-actions{left:4px;right:auto}
+:host .inbox-page.inbox-dock .inbox-bubble.is-mine>.inbox-message-actions{right:4px;left:auto}
+:host .inbox-page.inbox-dock .inbox-bubble:not(.is-mine) ::ng-deep .reaction-picker{left:0;right:auto}
+:host .inbox-page.inbox-dock .inbox-bubble ::ng-deep .reaction-picker{max-width:300px;flex-wrap:wrap}
+:host .inbox-page.inbox-dock .inbox-message-log{padding-top:40px}
