@@ -58,7 +58,7 @@ body .communities-page.jynlo-c1 .community-pitch {
   border: 1px solid rgba(65, 233, 176, .25);
   border-radius: var(--jynlo-ui-radius-lg);
   gap: clamp(1.5rem, 4vw, 3.4rem);
-  padding: clamp(1.5rem, 4vw, 3.25rem);
+  padding: clamp(1.5rem, 3.2vw, 2.75rem);
   background:
     radial-gradient(ellipse at 85% 10%, var(--jynlo-community-glow), transparent 62%),
     linear-gradient(125deg, rgba(17, 34, 52, .98), rgba(12, 45, 55, .9));
@@ -75,11 +75,11 @@ body .communities-page.jynlo-c1 .community-pitch-lead {
   line-height: 1.75;
 }
 body .communities-page.jynlo-c1 .community-pitch-benefits {
-  gap: .9rem;
+  gap: .8rem;
 }
 body .communities-page.jynlo-c1 .community-pitch-benefit {
-  min-height: 155px;
-  padding: clamp(.95rem, 1.6vw, 1.4rem);
+  min-height: 140px;
+  padding: clamp(.9rem, 1.25vw, 1.15rem);
   border-radius: var(--jynlo-ui-radius-md);
   border: 1px solid var(--jynlo-ui-outline);
   background: rgba(139, 190, 209, .064);
