@@ -3,7 +3,7 @@
  * menu always stay; the slots in between show the sections the person picked, in their order.
  * On a computer all 4 slots show; on a phone the bottom bar has room for the first 2.
  */
-export interface NavTab { id: string; label: string; short?: string; route: string; icon: NavTabIcon; managerOnly?: boolean; }
+export interface NavTab { id: string; label: string; short?: string; route: string; icon: NavTabIcon; managerOnly?: boolean; bookingsOnly?: boolean; }
 export type NavTabIcon = 'discover' | 'messages' | 'calendar' | 'list' | 'communities' | 'teams' | 'trophy' | 'pin' | 'ticket' | 'venue';
 
 export const NAV_TAB_CATALOG: NavTab[] = [
@@ -15,7 +15,7 @@ export const NAV_TAB_CATALOG: NavTab[] = [
   { id: 'teams', label: 'Equipas', route: '/menu/teams', icon: 'teams' },
   { id: 'tournaments', label: 'Torneios', route: '/menu/teams/competitions', icon: 'trophy' },
   { id: 'venues', label: 'Recintos', route: '/menu/venues', icon: 'pin' },
-  { id: 'my-bookings', label: 'As minhas reservas', short: 'Reservas', route: '/menu/venue-bookings', icon: 'ticket' },
+  { id: 'my-bookings', label: 'As minhas reservas', short: 'Reservas', route: '/menu/venue-bookings', icon: 'ticket', bookingsOnly: true },
   { id: 'my-venues', label: 'Os meus recintos', short: 'Painel', route: '/menu/venue-bookings', icon: 'venue', managerOnly: true },
 ];
 export const NAV_SLOTS = 4;
@@ -27,20 +27,21 @@ export function navTab(id: string): NavTab | undefined {
   return NAV_TAB_CATALOG.find(tab => tab.id === id);
 }
 
-export function availableNavTabs(manager: boolean): NavTab[] {
-  return NAV_TAB_CATALOG.filter(tab => !tab.managerOnly || manager);
+/** "As minhas reservas" only appears once some venue takes bookings on Jynlo. */
+export function availableNavTabs(manager: boolean, bookingsOpen = false): NavTab[] {
+  return NAV_TAB_CATALOG.filter(tab => (!tab.managerOnly || manager) && (!tab.bookingsOnly || bookingsOpen));
 }
 
 /** Exactly NAV_SLOTS ids, no repeats: the saved choice where valid, gaps filled from the defaults. */
-export function resolveNavTabs(saved: unknown, manager: boolean): string[] {
-  const allowed = new Set(availableNavTabs(manager).map(tab => tab.id));
+export function resolveNavTabs(saved: unknown, manager: boolean, bookingsOpen = false): string[] {
+  const allowed = new Set(availableNavTabs(manager, bookingsOpen).map(tab => tab.id));
   const picked: string[] = [];
   const take = (id: unknown) => {
     if (typeof id === 'string' && allowed.has(id) && !picked.includes(id) && picked.length < NAV_SLOTS) picked.push(id);
   };
   if (Array.isArray(saved)) saved.forEach(take);
   DEFAULT_NAV_TABS.forEach(take);
-  NAV_TAB_CATALOG.forEach(tab => take(tab.id));
+  availableNavTabs(manager, bookingsOpen).forEach(tab => take(tab.id));
   return picked;
 }
 

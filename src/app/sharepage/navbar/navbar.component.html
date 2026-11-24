@@ -76,7 +76,9 @@
             @if (managedVenues.length) {
               <a [routerLink]="managedVenuesLink" (click)="closeAccountMenu()">{{ 'Os meus recintos' | t }}@if (managedPending) { <span class="nav-managed-badge">{{ managedPending }}</span> }</a>
             }
+            @if (bookingsOpen) {
             <a routerLink="/menu/venue-bookings" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'As minhas reservas' | t }}</a>
+            }
             <a [routerLink]="['/menu/profiles', activeAccountUsername]" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'nav.account.viewProfile' | t }}</a>
             @if (admin) {
               <a routerLink="/menu/admin" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'admin.eyebrow' | t }}</a>

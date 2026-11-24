@@ -58,6 +58,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private readonly venueBookings = inject(VenueBookingService);
   /** "Os meus recintos" shows only to people who manage a venue. */
   managedVenues: ManagedVenue[] = [];
+  /** Some venue takes bookings on Jynlo; until then "As minhas reservas" stays hidden. */
+  bookingsOpen = false;
   get managedVenuesLink(): (string | number)[] {
     return this.managedVenues.length === 1 ? ['/menu/venues', this.managedVenues[0].venueId, 'manage'] : ['/menu/venue-bookings'];
   }
@@ -71,12 +73,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return this.navTabsCache.saved;
   }
   get navTabs(): NavTab[] {
-    return resolveNavTabs(this.navSaved(), this.managedVenues.length > 0).map(id => navTab(id)!).filter(Boolean);
+    return resolveNavTabs(this.navSaved(), this.managedVenues.length > 0, this.bookingsOpen).map(id => navTab(id)!).filter(Boolean);
   }
   /** Sections not in the bar go in the account menu; slots 3 and 4 only show on a computer. */
   get menuNavTabs(): { tab: NavTab; phoneOnly: boolean }[] {
-    const ids = resolveNavTabs(this.navSaved(), this.managedVenues.length > 0);
-    return availableNavTabs(this.managedVenues.length > 0)
+    const ids = resolveNavTabs(this.navSaved(), this.managedVenues.length > 0, this.bookingsOpen);
+    return availableNavTabs(this.managedVenues.length > 0, this.bookingsOpen)
       .filter(tab => tab.id !== 'my-venues' && tab.id !== 'my-bookings')
       .filter(tab => ids.indexOf(tab.id) < 0 || ids.indexOf(tab.id) >= PHONE_SLOTS)
       .map(tab => ({ tab, phoneOnly: ids.includes(tab.id) }));
@@ -109,11 +111,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.createMenuOpen = true;
   }
   navDraft: string[] = [];
-  get navChoices(): NavTab[] { return availableNavTabs(this.managedVenues.length > 0); }
+  get navChoices(): NavTab[] { return availableNavTabs(this.managedVenues.length > 0, this.bookingsOpen); }
 
   openNavEditor(): void {
     this.closeAccountMenu();
-    this.navDraft = resolveNavTabs(this.navSaved(), this.managedVenues.length > 0);
+    this.navDraft = resolveNavTabs(this.navSaved(), this.managedVenues.length > 0, this.bookingsOpen);
     this.navEditing = true;
   }
   pickNavSlot(slot: number, id: string): void { this.navDraft = setNavSlot(this.navDraft, slot, id); }
@@ -144,6 +146,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.subscriptions.add(this.venueBookings.managed().subscribe({
         next: list => { this.managedVenues = list || []; },
         error: () => { this.managedVenues = []; }
+      }));
+      this.subscriptions.add(this.venueBookings.accepting().subscribe({
+        next: ids => { this.bookingsOpen = (ids || []).length > 0; },
+        error: () => { this.bookingsOpen = false; }
       }));
     }
     var theme = localStorage.getItem('theme');
