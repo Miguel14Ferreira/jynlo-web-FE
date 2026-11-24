@@ -564,6 +564,7 @@ export const EN: Record<string, string> = {
   'inbox.all': 'All',
   'inbox.private': 'Private',
   'inbox.community': 'Communities',
+  'inbox.team': 'Teams',
   'inbox.session': 'Sessions',
   'inbox.newHere': 'Unread',
   'inbox.newCount': '{{count}} unread messages',

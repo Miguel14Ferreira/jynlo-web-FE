@@ -1,4 +1,4 @@
-export type InboxKind = 'direct' | 'community' | 'session';
+export type InboxKind = 'direct' | 'community' | 'session' | 'team';
 export type InboxFilter = 'all' | InboxKind | 'recent';
 
 export interface InboxConversation {

@@ -570,6 +570,7 @@ const PT: Dictionary = {
   'inbox.all': 'Todas',
   'inbox.private': 'Privadas',
   'inbox.community': 'Comunidades',
+  'inbox.team': 'Equipas',
   'inbox.session': 'Sessões',
   'inbox.newHere': 'Não lidas',
   'inbox.newCount': '{{count}} mensagens não lidas',

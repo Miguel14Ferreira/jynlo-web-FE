@@ -1,4 +1,4 @@
-<section class="inbox-page jynlo-c1 jynlo-secondary" [class.inbox-embedded]="embeddedCommunityId !== null">
+<section class="inbox-page jynlo-c1 jynlo-secondary" [class.inbox-embedded]="embedded">
   <div class="inbox-shell">
     <div class="inbox-layout">
       <aside class="inbox-sidebar" [attr.aria-label]="'inbox.listLabel' | t">
@@ -47,6 +47,7 @@
             <button type="button" [class.active]="filter === 'direct'" [attr.aria-pressed]="filter === 'direct'" (click)="setFilter('direct')">{{ 'inbox.private' | t }}</button>
             <button type="button" [class.active]="filter === 'community'" [attr.aria-pressed]="filter === 'community'" (click)="setFilter('community')">{{ 'inbox.community' | t }}</button>
             <button type="button" [class.active]="filter === 'session'" [attr.aria-pressed]="filter === 'session'" (click)="setFilter('session')">{{ 'inbox.session' | t }}</button>
+            <button type="button" [class.active]="filter === 'team'" [attr.aria-pressed]="filter === 'team'" (click)="setFilter('team')">{{ 'inbox.team' | t }}</button>
             <button type="button" [class.active]="filter === 'recent'" [attr.aria-pressed]="filter === 'recent'" (click)="setFilter('recent')">
               {{ 'inbox.newHere' | t }}
               @if (recentCount > 0) { <span class="inbox-filter-count">{{ recentCount }}</span> }
@@ -116,7 +117,7 @@
                   <img class="inbox-avatar-image" [src]="conversation.avatarUrl" alt=""
                     referrerpolicy="no-referrer" (error)="failedAvatarKeys.add(conversation.key)">
                 } @else {
-                  {{ conversation.kind === 'community' ? '👥' : '⚽' }}
+                  {{ conversation.kind === 'community' ? '👥' : conversation.kind === 'team' ? '🛡️' : '⚽' }}
                 }
               </span>
               <div class="inbox-detail-info">
@@ -463,10 +464,10 @@
                     (click)="toggleMessageActions(message.id)">···</button>
                   <div class="inbox-message-actions" role="toolbar"
                     [attr.aria-label]="('Ações da mensagem de @{{sender}}' | t:{sender: message.sender})">
-                    @if (message.id > 0) {
+                    @if (message.id > 0 && conversation.kind !== 'team') {
                       <app-chat-reactions class="inbox-toolbar-reactions"
                         [class.own-reaction]="isMine(message)" [toolbarMode]="true"
-                        [kind]="conversation.kind" [conversationId]="conversation.id"
+                        [kind]="$any(conversation.kind)" [conversationId]="conversation.id"
                         [messageId]="message.id" [disabled]="!composerAllowed"></app-chat-reactions>
                     }
                     <button type="button" class="inbox-reply-action"
@@ -523,7 +524,7 @@
               }
             </section>
           }
-          @if (typing.label(conversation.kind, conversation.id); as typingLabel) {
+          @if (conversation.kind !== 'team' && typing.label($any(conversation.kind), conversation.id); as typingLabel) {
             <p class="chat-typing-indicator" role="status" aria-live="off">{{ typingLabel }}</p>
           }
           <form class="inbox-composer" (ngSubmit)="sendMessage()">

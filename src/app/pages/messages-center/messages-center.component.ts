@@ -8,7 +8,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { catchError, finalize, forkJoin, map, Observable, of, Subscription, TimeoutError, timeout } from 'rxjs';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { SessionDetail } from '../model/session-detail';
-import { InboxApiService, InboxSummary } from '../../services/inbox-api.service';
+import { ChatSearchResponse, InboxApiService, InboxKind as InboxApiKind, InboxSummary } from '../../services/inbox-api.service';
 import { ConversationMuteService, MutedConversation, isConversationMuted } from '../../services/conversation-mute.service';
 
 import { TranslatePipe } from '../../i18n/translate.pipe';
@@ -50,6 +50,7 @@ import { CallUpChoice, encodeCallUp, readCallUp } from './callup-message';
 import { InboxPollCardComponent } from './inbox-poll-card.component';
 import { ChatPollContent, encodePoll, POLL_MAX_OPTION, POLL_MAX_OPTIONS, POLL_MAX_QUESTION, readPoll } from './poll-message';
 import { storyIdFromChatText, storyShareFromChatText } from './inbox-story-share';
+import { SportsTeamsService, TeamContentEntry } from '../../services/sports-teams.service';
 
 export const VOICE_NOTE_MAX_DURATION_MS = 5 * 60_000;
 const VOICE_NOTE_AUDIO_BITRATE = 48_000;
@@ -65,10 +66,16 @@ const VOICE_NOTE_AUDIO_BITRATE = 48_000;
 export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChecked, OnChanges {
   /** Reuse the exact Messages conversation in the community detail, without a second chat client. */
   @Input() embeddedCommunityId: number | null = null;
+  /** Same for a team's "Mensagens" tab: the team chat is the Messages conversation. */
+  @Input() embeddedTeamId: number | null = null;
+  get embedded(): boolean { return this.embeddedCommunityId !== null || this.embeddedTeamId !== null; }
   private embeddedReady = false;
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['embeddedCommunityId'] && this.embeddedReady && this.embeddedCommunityId) {
       this.queueDeepLink('community', String(this.embeddedCommunityId));
+    }
+    if (changes['embeddedTeamId'] && this.embeddedReady && this.embeddedTeamId) {
+      this.queueDeepLink('team', String(this.embeddedTeamId));
     }
   }
   /** Stable wrappers preserve the existing date, preview and unread formatting rules. */
@@ -469,7 +476,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     @Optional() private readonly route: ActivatedRoute | null = null,
     @Optional() public readonly calls: DirectCallClientService | null = null,
     @Optional() private readonly profilePeek: ProfileQuickViewService | null = null,
-    @Optional() private readonly conversationMutes: ConversationMuteService | null = null
+    @Optional() private readonly conversationMutes: ConversationMuteService | null = null,
+    @Optional() private readonly teams: SportsTeamsService | null = null
   ) {
     this.typing = new ChatTypingTracker(realtime);
   }
@@ -527,13 +535,19 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     void this.calls?.start(String(conversation.id), media);
   }
 
+  private teamPollTimer: ReturnType<typeof setInterval> | undefined;
+
   ngOnInit(): void {
     this.loadConversationMutes();
+    if (this.teams) this.teamPollTimer = setInterval(() => this.pollSelectedTeam(), 8000);
     // Angular reuses the component when only the query changes.
     this.embeddedReady = true;
     if (this.embeddedCommunityId) {
       this.filter = 'community';
       this.queueDeepLink('community', String(this.embeddedCommunityId));
+    } else if (this.embeddedTeamId) {
+      this.filter = 'team';
+      this.queueDeepLink('team', String(this.embeddedTeamId));
     } else if (this.route?.queryParamMap) {
       this.subscriptions.add(this.route.queryParamMap.subscribe(params =>
         this.queueDeepLink(params.get('kind'), params.get('id'))));
@@ -636,6 +650,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   ngOnDestroy(): void {
+    if (this.teamPollTimer) clearInterval(this.teamPollTimer);
     if(this.mentionTimer)clearTimeout(this.mentionTimer);
     this.mentionQueryVersion++;
     this.recentThreadCache.clear();
@@ -778,10 +793,14 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       sessions: this.sessions.mine().pipe(timeout(10000), catchError(() => {
         failed('session');
         return of({ created: [], joined: [], waitlisted: [] });
+      })),
+      teamList: (this.teams ? this.teams.mine() : of([])).pipe(timeout(10000), catchError(() => {
+        failed('team');
+        return of([]);
       }))
     }).pipe(finalize(() => {
       if (request === this.inboxVersion) this.loading = false;
-    })).subscribe(({ friends, communities, sessions }) => {
+    })).subscribe(({ friends, communities, sessions, teamList }) => {
       if (request !== this.inboxVersion || this.accountSessionRevoked
           || (this.receiptSessionToken && !this.isAttachmentIdentityCurrent())
           || (recoverAfterReconnect && !this.isReceiptSessionCurrent())) return;
@@ -833,6 +852,20 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
           // Session summaries do not expose a dedicated image. Reuse the
           // associated community photo only when its membership was returned.
           avatarUrl: communities.find(group => group.id === session.communityId)?.photoUrl ?? null,
+          newThisVisit: 0
+        });
+      }
+
+      // Team chats (only where the owner left the chat switched on).
+      for (const team of teamList) {
+        if (!team.chatEnabled) continue;
+        entries.push({
+          key: inboxKey('team', team.id),
+          kind: 'team',
+          id: team.id,
+          title: team.name,
+          subtitle: team.sport || '',
+          avatarUrl: this.teams?.logoSrc?.(team.logoUrl ?? null) ?? null,
           newThisVisit: 0
         });
       }
@@ -913,7 +946,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   private queueDeepLink(kind: string | null, id: string | null): void {
-    const supported = kind === 'direct' || kind === 'community' || kind === 'session';
+    const supported = kind === 'direct' || kind === 'community' || kind === 'session' || kind === 'team';
     const value = id?.trim() || '';
     const numericId = /^[1-9][0-9]*$/.test(value) && Number.isSafeInteger(Number(value));
     const next = supported && value && value.length <= 128
@@ -1141,13 +1174,18 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       return;
     }
 
+    if (conversation.kind === 'team') {
+      // Team history is loaded whole; a hit outside it cannot be located here.
+      this.searchResultNotInPreview = true;
+      return;
+    }
     // Never append a detached old hit to the newest messages. Fetch an
     // authorized, bounded chronological window around it instead.
     const version = ++this.historyLocateVersion;
     this.searchResultNotInPreview = true;
     this.historyLocateLoading = true;
     const key = conversation.key;
-    this.inboxApi.messageContext({ kind: conversation.kind, id: String(conversation.id) }, result.id)
+    this.inboxApi.messageContext({ kind: conversation.kind as InboxApiKind, id: String(conversation.id) }, result.id)
       .pipe(timeout(10_000), finalize(() => {
         if (version === this.historyLocateVersion) this.historyLocateLoading = false;
       })).subscribe({
@@ -1165,7 +1203,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
           this.previewError = false;
           this.historicalPreview = true;
           this.newMessagesPending = 0;
-          if (conversation.kind === 'community') {
+          if (conversation.kind === 'community' || conversation.kind === 'team') {
             this.composerAllowed = true;
             this.composerAccessLoading = false;
           }
@@ -1227,7 +1265,15 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.messageSearchLoading = true;
     this.messageSearchError = false;
     this.messageSearchSearched = true;
-    this.inboxApi.searchMessages({ kind: conversation.kind, id: String(conversation.id) }, term, page)
+    const search: Observable<ChatSearchResponse> = conversation.kind === 'team'
+      ? (this.teams && page === 0
+          ? this.teams.searchContent(Number(conversation.id), 'chat', term).pipe(map(entries => ({
+              page: 0, hasMore: false,
+              results: entries.map(entry => ({ id: entry.id, sender: entry.username, text: entry.body,
+                createdAt: entry.createdAt, replyToMessageId: entry.replyToId })) })))
+          : of({ page, hasMore: false, results: [] }))
+      : this.inboxApi.searchMessages({ kind: conversation.kind, id: String(conversation.id) }, term, page);
+    search
       .pipe(timeout(10_000), finalize(() => {
         if (version === this.messageSearchVersion) this.messageSearchLoading = false;
       }))
@@ -1276,6 +1322,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     } else if (conversation.kind === 'community') {
       result = this.timeline.list(Number(conversation.id), 'CHAT').pipe(
         map(entries => entries.map(entry => this.fromCommunity(entry))));
+    } else if (conversation.kind === 'team') {
+      result = this.teamHistory(Number(conversation.id));
     } else {
       result = this.sessions.messages(Number(conversation.id)).pipe(
         map(entries => entries.map(entry => this.fromSession(entry))));
@@ -1311,7 +1359,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
         }
         if (follow) this.newMessagesPending = 0;
         this.realtimeDuringLoad.clear();
-        if (conversation.kind === 'community') {
+        if (conversation.kind === 'community' || conversation.kind === 'team') {
           this.composerAllowed = true;
           this.composerAccessLoading = false;
         }
@@ -1372,6 +1420,46 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       attachmentName: entry.attachmentName,
       attachmentMimeType: entry.attachmentMimeType,
       attachmentSize: entry.attachmentSize };
+  }
+
+  private fromTeam(entry: TeamContentEntry): InboxMessage {
+    const files = entry.attachments || [];
+    const first = files[0];
+    return { key: inboxKey('team', entry.teamId), id: entry.id,
+      sender: entry.username, text: entry.deleted ? '' : entry.body, createdAt: entry.createdAt,
+      editedAt: entry.editedAt, deletedAt: entry.deleted ? (entry.editedAt || entry.createdAt) : null,
+      replyToMessageId: entry.replyToId,
+      attachments: files.length > 1 ? files : undefined,
+      attachmentName: first?.filename ?? null,
+      attachmentMimeType: first?.mimeType ?? null,
+      attachmentSize: first?.size ?? null };
+  }
+
+  private teamHistory(teamId: number): Observable<InboxMessage[]> {
+    if (!this.teams) return of([]);
+    return this.teams.content(teamId, 'chat').pipe(map(entries => {
+      const byId = new Map(entries.map(entry => [entry.id, entry]));
+      return entries.map(entry => {
+        const message = this.fromTeam(entry);
+        const parent = entry.replyToId != null ? byId.get(entry.replyToId) : undefined;
+        if (parent) { message.replyToSender = parent.username; message.replyToText = parent.deleted ? '' : parent.body; }
+        return message;
+      });
+    }));
+  }
+
+  /** Team chats have no socket here: poll the open team chat for new messages. */
+  private pollSelectedTeam(): void {
+    const conversation = this.selected;
+    if (!conversation || conversation.kind !== 'team' || this.historicalPreview || this.previewLoading
+        || this.sending || typeof document !== 'undefined' && document.hidden) return;
+    const key = conversation.key;
+    this.teamHistory(Number(conversation.id)).pipe(timeout(10000), catchError(() => of([] as InboxMessage[])))
+      .subscribe(list => {
+        if (key !== this.selectedKey) return;
+        const known = new Set(this.messages.map(item => item.id));
+        for (const message of list) if (!known.has(message.id)) this.acceptRealtime(key, message);
+      });
   }
 
   private acceptRealtime(key: string, message: InboxMessage): void {
@@ -1516,6 +1604,16 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
         : this.timeline.editChatMessage(communityId, id, text))
         .pipe(map(entry => this.fromCommunity(entry)));
     }
+    if (conversation.kind === 'team' && this.teams) {
+      const teamId = Number(conversation.id);
+      if (text === null) {
+        const original = this.messages.find(item => item.id === id);
+        return this.teams.deleteContent(teamId, 'chat', id).pipe(map(() => ({
+          ...(original as InboxMessage), text: '', deletedAt: new Date().toISOString(),
+          attachments: undefined, attachmentName: null, attachmentMimeType: null, attachmentSize: null })));
+      }
+      return this.teams.editContent(teamId, 'chat', id, text).pipe(map(entry => this.fromTeam(entry)));
+    }
     const sessionId = Number(conversation.id);
     return (text === null ? this.sessions.deleteMessage(sessionId, id)
       : this.sessions.editMessage(sessionId, id, text))
@@ -1571,8 +1669,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   private loadComposerAccess(conversation: InboxConversation): void {
     const version = ++this.composerVersion;
     this.composerAccessError = false;
-    if (conversation.kind === 'community') {
-      // Community history independently confirms membership before enabling writes.
+    if (conversation.kind === 'community' || conversation.kind === 'team') {
+      // Community/team history independently confirms membership before enabling writes.
       return;
     }
     const access: Observable<boolean> = conversation.kind === 'direct'
@@ -1693,7 +1791,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     }
     const conversation = this.selected;
     if (!conversation) return;
-    this.typing.input(conversation.kind, conversation.id, this.draft, this.canSendMessage());
+    if (conversation.kind !== 'team') this.typing.input(conversation.kind, conversation.id, this.draft, this.canSendMessage());
   }
 
   private clearAttachmentRetry(): void {
@@ -1710,6 +1808,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       : conversation.kind === 'community'
       ? (typeof this.timeline.chatAttachmentsAvailable === 'function'
           ? this.timeline.chatAttachmentsAvailable(Number(conversation.id)) : of({available: false}))
+      : conversation.kind === 'team'
+      ? (this.teams ? this.teams.attachmentsAvailable(Number(conversation.id), 'chat') : of({available: false}))
       : (typeof this.sessions.attachmentsAvailable === 'function'
           ? this.sessions.attachmentsAvailable(Number(conversation.id)) : of({available: false}));
     const viewVersion = this.attachmentViewVersion;
@@ -2200,6 +2300,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       ? this.direct.downloadAttachment(String(conversation.id), message.id)
       : conversation.kind === 'community'
       ? this.timeline.downloadChatAttachment(Number(conversation.id), message.id)
+      : conversation.kind === 'team' && this.teams
+      ? this.teams.downloadContentFile(Number(conversation.id), 'chat', message.id, 0)
       : this.sessions.downloadAttachment(Number(conversation.id), message.id);
     download.pipe(timeout(30000), finalize(() => {
         if (viewVersion === this.attachmentViewVersion) this.attachmentLoading.delete(message.id);
@@ -2260,6 +2362,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       ? this.direct.downloadAttachmentAt(String(conversation.id), message.id, attachment.index)
       : conversation.kind === 'community'
         ? this.timeline.downloadChatAttachmentAt(Number(conversation.id), message.id, attachment.index)
+        : conversation.kind === 'team' && this.teams
+        ? this.teams.downloadContentFile(Number(conversation.id), 'chat', message.id, attachment.index)
         : this.sessions.downloadAttachmentAt(Number(conversation.id), message.id, attachment.index);
     request.pipe(timeout(30000), finalize(() => this.extraAttachmentLoading.delete(key))).subscribe({
       next: blob => {
@@ -2678,6 +2782,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       .pipe(map(page => page.content.map(item => this.fromDirect(item, String(conversation.id)))));
     if (conversation.kind === 'community') return this.timeline.list(Number(conversation.id), 'CHAT')
       .pipe(map(entries => entries.map(item => this.fromCommunity(item))));
+    if (conversation.kind === 'team') return this.teamHistory(Number(conversation.id));
     return this.sessions.messages(Number(conversation.id))
       .pipe(map(entries => entries.map(item => this.fromSession(item))));
   }
@@ -2728,6 +2833,12 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
         ? this.timeline.send(Number(conversation.id), 'CHAT', text, replyId)
         : this.timeline.send(Number(conversation.id), 'CHAT', text);
       send = request.pipe(map(message => this.fromCommunity(message)));
+    } else if (conversation.kind === 'team' && this.teams) {
+      const files = attachmentFiles.length ? attachmentFiles : file ? [file] : [];
+      const request = files.length
+        ? this.teams.uploadContentFiles(Number(conversation.id), 'chat', files, caption, replyId)
+        : this.teams.sendContent(Number(conversation.id), 'chat', text, replyId);
+      send = request.pipe(map(message => this.fromTeam(message)));
     } else {
       const request = attachmentFiles.length > 1
         ? this.sessions.sendAttachments(Number(conversation.id), attachmentFiles, caption, replyId || undefined)
@@ -3015,9 +3126,11 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     const requestVersion = ++this.summaryVersion;
     const batches = [];
     for (let offset = 0; offset < this.conversations.length; offset += 150) {
-      const chunk = this.conversations.slice(offset, offset + 150);
+      // Team chats have no server read markers yet.
+      const chunk = this.conversations.filter(item => item.kind !== 'team').slice(offset, offset + 150);
+      if (!chunk.length) continue;
       batches.push(this.inboxApi.summaries(chunk.map(item => ({
-        kind: item.kind, id: String(item.id)
+        kind: item.kind as InboxApiKind, id: String(item.id)
       }))).pipe(timeout(15_000)));
     }
     forkJoin(batches).subscribe({
@@ -3083,7 +3196,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     // clear the unread badge on an unconfirmed read.
     if (!this.serverSummariesAvailable) return;
     const conversation = this.selected;
-    if (!conversation) return;
+    if (!conversation || conversation.kind === 'team') return;
     const readVersion = ++this.readVersion;
     this.inboxApi.markRead({ kind: conversation.kind, id: String(conversation.id) }, lastSeen)
       .pipe(timeout(10_000)).subscribe({
@@ -3159,6 +3272,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     this.ownReadSyncVersions.set(key, version);
     const inboxVersion = this.inboxVersion;
     ++this.summaryVersion; // Discard a global snapshot sampled before this commit.
+    if (conversation.kind === 'team') return;
     this.inboxApi.summaries([{ kind: conversation.kind, id: String(conversation.id) }])
       .pipe(timeout(10_000)).subscribe({
         next: values => {
@@ -3243,7 +3357,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   kindLabel(kind: InboxKind): string {
-    return kind === 'direct' ? 'inbox.private' : kind === 'community' ? 'inbox.community' : 'inbox.session';
+    return kind === 'direct' ? 'inbox.private' : kind === 'community' ? 'inbox.community'
+      : kind === 'team' ? 'inbox.team' : 'inbox.session';
   }
 
   /** Compact inbox timestamp; keep full date/time in the title attribute. */

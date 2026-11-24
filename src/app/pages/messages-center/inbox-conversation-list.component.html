@@ -11,7 +11,7 @@
                       loading="lazy" referrerpolicy="no-referrer"
                       (error)="failedAvatars.add(conversation.key)">
                   } @else {
-                    {{ conversation.kind === 'direct' ? conversation.title.slice(0, 1).toUpperCase() : conversation.kind === 'community' ? '👥' : '⚽' }}
+                    {{ conversation.kind === 'direct' ? conversation.title.slice(0, 1).toUpperCase() : conversation.kind === 'community' ? '👥' : conversation.kind === 'team' ? '🛡️' : '⚽' }}
                   }
                 </span>
                 <span class="inbox-entry-content">

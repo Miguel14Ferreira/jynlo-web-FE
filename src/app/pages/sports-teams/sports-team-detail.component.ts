@@ -1,3 +1,5 @@
+import { ChangeDetectionStrategy } from '@angular/core';
+import { MessagesCenterComponent } from '../messages-center/messages-center.component';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
@@ -20,7 +22,9 @@ import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
 @Component({
   standalone: true,
   selector: 'app-sports-team-detail',
-  imports: [TranslatePipe, CommonModule, RouterLink, FormsModule, SportsTeamContentComponent, SportsTeamChallengesComponent, TeamCrestEditorComponent, TeamRosterImportComponent],
+  // The embedded Messages conversation updates from its own subscriptions.
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [TranslatePipe, CommonModule, RouterLink, FormsModule, SportsTeamContentComponent, SportsTeamChallengesComponent, TeamCrestEditorComponent, TeamRosterImportComponent, MessagesCenterComponent],
   template: `
   <main class="team-detail" *ngIf="team as t; else state">
     <a class="team-back" routerLink="/menu/teams">{{ '← Voltar às equipas' | t }}</a>
@@ -418,7 +422,7 @@ import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
           </details>
         </div>
         <p *ngIf="!t.chatEnabled">{{ 'Desativado pelo responsável da equipa.' | t }}</p>
-        <app-sports-team-content *ngIf="t.chatEnabled && rosterVerified && isMember" [teamId]="t.id" kind="chat"></app-sports-team-content>
+        <app-messages-center *ngIf="t.chatEnabled && rosterVerified && isMember" [embeddedTeamId]="t.id"></app-messages-center>
         <p *ngIf="t.chatEnabled && (!rosterVerified || !isMember)">{{ 'Disponível apenas para membros confirmados da equipa.' | t }}</p>
       </section>
     </div>
