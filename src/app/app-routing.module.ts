@@ -22,6 +22,7 @@ const routes: Routes = [
   // `seo` feeds SeoService (title, description, canonical, robots, share tags).
   // A route without `seo` data is treated as private and marked noindex.
   {path:'home',component:HomeComponent,canActivate:[homeRedirectGuard],data:{seo:{path:'/',index:true,description:'Encontra onde, quando e com quem jogar. Descobre jogos de padel, futebol, ténis e muito mais perto de ti.'}}},
+  {path:'para-recintos',loadComponent:() => import('./pages/for-venues/for-venues.component').then(m => m.ForVenuesComponent),data:{seo:{title:'Jynlo para recintos',index:true,description:'Reservas de campos sem custos para clubes e recintos: os jogadores pedem, vocês confirmam e recebem por MB WAY.'}}},
   {path:'about',loadComponent:() => import('./pages/about/about.component').then(m => m.AboutComponent),data:{seo:{title:'Sobre a Jynlo',index:true,description:'Conhece a Jynlo, a forma mais simples de encontrar jogos, locais e pessoas para praticar desporto em Portugal.'}}},
   {path:'contact',loadComponent:() => import('./pages/contact/contact.component').then(m => m.ContactComponent),data:{seo:{title:'Contacto',index:true,description:'Fala com a equipa da Jynlo: dúvidas, sugestões e apoio.'}}},
   {path:'privacy',component:LegalPageComponent,data:{document:'privacy',seo:{title:'Política de privacidade',index:true,description:'Como a Jynlo trata e protege os teus dados pessoais.'}}},
