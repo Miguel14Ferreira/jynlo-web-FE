@@ -8298,7 +8298,7 @@ export const EN: Record<string, string> = {
   "Nota para a pessoa": "Note to the person",
   "Nota para a pessoa (opcional)": "Note to the person (optional)",
   "Não há pedidos à espera.": "No requests waiting.",
-  "O preço é por reserva e pago no recinto. Deixa em branco se preferires combinar no local.": "The price is per booking and paid at the venue. Leave it blank to agree on it there.",
+  "O preço é por reserva. Recebes por MB WAY ou no local, como escolheres em baixo. Deixa em branco se preferires combinar no local.": "The price is per booking. You get paid by MB WAY or at the venue, as you choose below. Leave it blank to agree on it at the venue.",
   "O teu pedido para gerir este recinto está a ser analisado.": "Your request to manage this venue is being reviewed.",
   "O teu último pedido não foi aprovado.": "Your last request was not approved.",
   "Os horários livres são criados a partir deste horário e da duração de cada campo.": "Free times are made from these hours and each court's booking length.",

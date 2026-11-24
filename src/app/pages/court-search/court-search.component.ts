@@ -139,7 +139,7 @@ interface PickedSlot { venue: VenueAvailability; court: CourtSlots; slot: Bookin
     .cs__filters { grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); align-items:end; }
     .cs__filters label { display:grid; gap:.3rem; font-size:.82rem; font-weight:700; color:#b9d4d6; }
     .cs__filters select, .cs__filters input, .cs__confirm input { min-height:44px; border-radius:12px; border:1px solid rgba(96,176,182,.4);
-      background:rgba(4,24,33,.8); color:#eafff9; padding:0 .7rem; font:inherit; }
+      background:rgba(4,24,33,.8); color:#eafff9; padding:0 .7rem; font:inherit; width:100%; box-sizing:border-box; min-width:0; }
     .cs__days { grid-column:1 / -1; display:flex; gap:.4rem; overflow-x:auto; padding-bottom:.2rem; }
     .cs__day, .cs__slot { min-height:40px; padding:0 .8rem; border-radius:999px; border:1px solid rgba(96,176,182,.4);
       background:transparent; color:#eafff9; font:inherit; font-weight:700; cursor:pointer; white-space:nowrap; }

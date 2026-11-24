@@ -70,7 +70,7 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
 
       <section class="vm__card" aria-labelledby="vm-courts">
         <h2 id="vm-courts">{{ 'Campos' | t }}</h2>
-        <p class="vm__muted">{{ 'O preço é por reserva e pago no recinto. Deixa em branco se preferires combinar no local.' | t }}</p>
+        <p class="vm__muted">{{ 'O preço é por reserva. Recebes por MB WAY ou no local, como escolheres em baixo. Deixa em branco se preferires combinar no local.' | t }}</p>
         @for (c of courts; track $index) {
           <div class="vm__court">
             <label><span>{{ 'Nome' | t }}</span><input type="text" maxlength="80" [(ngModel)]="c.name" [placeholder]="'Ex.: Campo 1' | t"></label>
