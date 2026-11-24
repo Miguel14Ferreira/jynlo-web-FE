@@ -55,6 +55,8 @@ export interface Venue {
   latitude: number | null;
   longitude: number | null;
   informationSource: VenueInformationSource;
+  /** Attribution for imported open data (e.g. IPDJ – SNID, CC BY 4.0). */
+  dataCredit?: string | null;
   createdByUsername: string | null;
   createdAt: string;
   /** Where people book (club page, Playtomic, municipal portal…). */

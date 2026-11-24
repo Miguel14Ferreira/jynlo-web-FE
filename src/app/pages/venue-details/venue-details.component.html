@@ -79,6 +79,9 @@
                 : ('venue.detail.sourceCommunity' | t) }}
           </span>
 
+          @if (venue.dataCredit && venue.informationSource !== 'OPENSTREETMAP') {
+            <span class="venue-created-by">{{ 'Fonte dos dados:' | t }} {{ venue.dataCredit }}</span>
+          }
           @if (venue.informationSource === 'OPENSTREETMAP') {
             <a class="venue-created-by" href="https://www.openstreetmap.org/copyright"
                target="_blank" rel="noopener noreferrer">
