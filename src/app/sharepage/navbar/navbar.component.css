@@ -712,3 +712,7 @@
     bottom:calc(76px + env(safe-area-inset-bottom)); }
 }
 .nav-messages-badge { background:#ff4d6d !important; color:#fff !important; }
+.jynlo-chat-toast__actions { display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+.jynlo-chat-toast__list { margin:6px 0 4px; padding:0 0 0 18px; display:grid; gap:4px; max-height:220px; overflow-y:auto;
+  color:#d5ecf1; font-size:.86rem; line-height:1.35; }
+.jynlo-chat-toast__list li { overflow-wrap:anywhere; }

@@ -55,6 +55,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private toastAccount: string | null = null;
   private readonly seenToastIds = new Set<number>();
   chatToast?: AppNotification;
+  /** Earlier messages from the same person while the alert is on screen (Instagram-style stack). */
+  chatToastHistory: AppNotification[] = [];
+  chatToastExpanded = false;
   private readonly subscriptions = new Subscription();
   private readonly venueBookings = inject(VenueBookingService);
   private readonly activeChat = inject(ActiveChatService, { optional: true });
@@ -408,9 +411,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
           }
           this.groupToastLookup?.unsubscribe();
           this.dismissGroupToast();
+          const previous = this.chatToast;
+          if (previous && previous.relatedUsername?.toLowerCase() === sender) {
+            this.chatToastHistory = [...this.chatToastHistory, previous].slice(-9);
+          } else {
+            this.chatToastHistory = [];
+            this.chatToastExpanded = false;
+          }
           this.chatToast = notice;
           if (this.toastTimer) clearTimeout(this.toastTimer);
-          this.toastTimer = setTimeout(() => this.dismissChatToast(), 6500);
+          if (!this.chatToastExpanded) this.toastTimer = setTimeout(() => this.dismissChatToast(), 8000);
         },
         error: () => { /* A failed confirmation must never show an unverified alert. */ }
       });
@@ -543,8 +553,17 @@ export class NavbarComponent implements OnInit, OnDestroy {
       });
     }
 
+    toggleChatToastDetail(): void {
+      this.chatToastExpanded = !this.chatToastExpanded;
+      // Reading the list: keep it open until the person closes it.
+      if (this.toastTimer) clearTimeout(this.toastTimer);
+      this.toastTimer = this.chatToastExpanded ? undefined : setTimeout(() => this.dismissChatToast(), 6000);
+    }
+
     dismissChatToast(): void {
       this.chatToast = undefined;
+      this.chatToastHistory = [];
+      this.chatToastExpanded = false;
       if (this.toastTimer) clearTimeout(this.toastTimer);
       this.toastTimer = undefined;
     }

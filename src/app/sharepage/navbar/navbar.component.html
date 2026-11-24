@@ -133,11 +133,30 @@
     [attr.aria-label]="i18n.translate('notification.chatSubject', { username: notice.relatedUsername || '' })">
     <span class="jynlo-chat-toast__icon" aria-hidden="true"><svg class="jynlo-nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.9-5.5a9 9 0 1 1 16.1-4z"/></svg></span>
     <div class="jynlo-chat-toast__content">
-      <strong>{{ i18n.translate('notification.chatSubject', { username: notice.relatedUsername || '' }) }}</strong>
-      <p>{{ toastMessage(notice) }}</p>
-      <button type="button" class="jynlo-chat-toast__open" (click)="openChatToast()">
-        {{ 'chat.toastOpen' | t }}
-      </button>
+      <strong>
+        @if (chatToastHistory.length) {
+          {{ '{{u}} enviou {{n}} mensagens' | t:{u: notice.relatedUsername || '', n: chatToastHistory.length + 1} }}
+        } @else {
+          {{ i18n.translate('notification.chatSubject', { username: notice.relatedUsername || '' }) }}
+        }
+      </strong>
+      @if (chatToastExpanded && chatToastHistory.length) {
+        <ol class="jynlo-chat-toast__list">
+          @for (earlier of chatToastHistory; track earlier.id) { <li>{{ toastMessage(earlier) }}</li> }
+          <li>{{ toastMessage(notice) }}</li>
+        </ol>
+      } @else {
+        <p>{{ toastMessage(notice) }}</p>
+      }
+      <div class="jynlo-chat-toast__actions">
+        <button type="button" class="jynlo-chat-toast__open" (click)="openChatToast()">
+          {{ 'chat.toastOpen' | t }}
+        </button>
+        @if (chatToastHistory.length) {
+          <button type="button" class="jynlo-chat-toast__open jynlo-chat-toast__more" [attr.aria-expanded]="chatToastExpanded"
+            (click)="toggleChatToastDetail()">{{ chatToastExpanded ? ('Ver menos' | t) : ('Ver todas ({{n}})' | t:{n: chatToastHistory.length + 1}) }}</button>
+        }
+      </div>
     </div>
     <button type="button" class="jynlo-chat-toast__close"
       [attr.aria-label]="'chat.toastDismiss' | t" (click)="dismissChatToast()">×</button>
