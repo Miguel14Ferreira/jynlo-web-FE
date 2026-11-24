@@ -1913,7 +1913,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     }
     const conversation = this.selected;
     if (!conversation) return;
-    if (conversation.kind !== 'team') this.typing.input(conversation.kind, conversation.id, this.draft, this.canSendMessage());
+    this.typing.input(conversation.kind as any, conversation.id, this.draft, this.canSendMessage());
   }
 
   private clearAttachmentRetry(): void {

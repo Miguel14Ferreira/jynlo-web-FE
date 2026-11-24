@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, map, of } from 'rxjs';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environment/environment';
 import { ChatReactionEvent, DirectChatRealtimeService } from './direct-chat-realtime.service';
 
-export type ChatReactionKind = 'direct' | 'session' | 'community' | 'private';
+export type ChatReactionKind = 'direct' | 'session' | 'community' | 'private' | 'team';
 export interface ChatReactionSummary {
   messageId: number;
   counts: Record<string, number>;
@@ -149,7 +149,7 @@ export class ChatReactionStoreService {
           return [key, this.touch(key)] as const;
         }));
         const params = new HttpParams().set('ids', page.join(','));
-        this.http.get<ChatReactionSummary[]>(this.url(kind, id), { params }).subscribe({
+        this.read(kind, id, page, params).subscribe({
           next: summaries => {
             const byId = new Map(summaries.map(item => [item.messageId, item]));
             for (const msgId of page) {
@@ -180,9 +180,40 @@ export class ChatReactionStoreService {
     }
   }
 
+  /** Team chats keep their reactions under /api/teams/{id}/chat: same emojis, different shape. */
+  private teamUrl(id: string | number): string {
+    return environment.apiUrl + '/api/teams/' + encodeURIComponent(String(id)) + '/chat';
+  }
+
+  private read(kind: ChatReactionKind, id: string, page: number[], params: HttpParams): Observable<ChatReactionSummary[]> {
+    if (kind !== 'team') return this.http.get<ChatReactionSummary[]>(this.url(kind, id), { params });
+    return this.http.get<Record<string, {counts: Record<string, number>; mine: string | null}>>(
+      this.teamUrl(id) + '/reactions', { params }).pipe(map(byId => page.map(messageId => {
+        const state = byId?.[String(messageId)];
+        return { messageId, counts: state?.counts || {}, myEmoji: state?.mine ?? null };
+      })));
+  }
+
+  private write(kind: ChatReactionKind, id: string | number, messageId: number, current: ChatReactionSummary,
+                emoji: string): Observable<ChatReactionSummary> {
+    const removing = current.myEmoji === emoji;
+    if (kind !== 'team') {
+      const url = this.url(kind, id) + '/' + messageId;
+      return removing ? this.http.delete<ChatReactionSummary>(url) : this.http.put<ChatReactionSummary>(url, { emoji });
+    }
+    const url = this.teamUrl(id) + '/' + messageId + '/reaction';
+    const counts = { ...current.counts };
+    if (current.myEmoji) counts[current.myEmoji] = Math.max(0, (counts[current.myEmoji] || 0) - 1);
+    if (!removing) counts[emoji] = (counts[emoji] || 0) + 1;
+    for (const key of Object.keys(counts)) if (!counts[key]) delete counts[key];
+    const next: ChatReactionSummary = { messageId, counts, myEmoji: removing ? null : emoji };
+    return (removing ? this.http.delete<void>(url) : this.http.put<void>(url, { emoji })).pipe(map(() => next));
+  }
+
   /** Fetch names only when a member opens a particular message's reaction details. */
   participants(kind: ChatReactionKind, id: string | number,
       messageId: number): Observable<ChatReactionParticipant[]> {
+    if (kind === 'team') return of([]);
     return this.http.get<ChatReactionParticipant[]>(
       this.url(kind, id) + '/' + encodeURIComponent(String(messageId)) + '/participants'
     );
@@ -197,10 +228,7 @@ export class ChatReactionStoreService {
     this.busy.add(key);
     const revision = this.touch(key); // Invalidate pre-write GET requests.
     const expectedEmoji = current.myEmoji === emoji ? null : emoji;
-    const url = this.url(kind, id) + '/' + messageId;
-    const request = current.myEmoji === emoji
-      ? this.http.delete<ChatReactionSummary>(url)
-      : this.http.put<ChatReactionSummary>(url, { emoji });
+    const request = this.write(kind, id, messageId, current, emoji);
     request.subscribe({
       next: result => {
         this.busy.delete(key);

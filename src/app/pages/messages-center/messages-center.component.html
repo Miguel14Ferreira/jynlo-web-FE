@@ -469,7 +469,7 @@
                     (click)="toggleMessageActions(message.id)">···</button>
                   <div class="inbox-message-actions" role="toolbar"
                     [attr.aria-label]="('Ações da mensagem de @{{sender}}' | t:{sender: message.sender})">
-                    @if (message.id > 0 && conversation.kind !== 'team') {
+                    @if (message.id > 0) {
                       <app-chat-reactions class="inbox-toolbar-reactions"
                         [class.own-reaction]="isMine(message)" [toolbarMode]="true"
                         [kind]="$any(conversation.kind)" [conversationId]="conversation.id"
@@ -533,7 +533,7 @@
               }
             </section>
           }
-          @if (conversation.kind !== 'team' && typing.label($any(conversation.kind), conversation.id); as typingLabel) {
+          @if (typing.label($any(conversation.kind), conversation.id); as typingLabel) {
             <p class="chat-typing-indicator" role="status" aria-live="off">{{ typingLabel }}</p>
           }
           <form class="inbox-composer" (ngSubmit)="sendMessage()">

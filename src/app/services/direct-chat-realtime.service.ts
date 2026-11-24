@@ -50,7 +50,7 @@ export interface InboxOwnReadEvent {
 }
 
 export interface ChatTypingEvent {
-  kind: 'direct' | 'session' | 'community';
+  kind: 'direct' | 'session' | 'community' | 'team';
   conversationId: string;
   username: string;
   active: boolean;
@@ -253,7 +253,7 @@ export class DirectChatRealtimeService {
 
         if (envelope.type === 'CHAT_TYPING' && envelope.typing) {
           const event = envelope.typing;
-          if (['direct', 'session', 'community'].includes(event.kind)
+          if (['direct', 'session', 'community', 'team'].includes(event.kind)
               && typeof event.conversationId === 'string'
               && typeof event.username === 'string'
               && typeof event.active === 'boolean') this.typingSubject.next(event);
