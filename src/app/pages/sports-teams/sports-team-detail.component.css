@@ -713,3 +713,7 @@
 .team-kit-remove-variant{display:block;max-width:100%;margin:-5px 0 14px auto;
   padding:9px 12px;border:1px solid #b77d87;border-radius:9px;
   color:#ffdfe1;background:#3f2834;font-weight:750;cursor:pointer}
+/* Role badge and actions sit side by side on the right, vertically centred (no stacking). */
+.team-roster .team-member-role{position:static;flex:none;align-self:center;white-space:nowrap}
+.team-roster .team-member-actions{align-self:center}
+@media(max-width:600px){.team-roster .team-member-actions{align-self:center}}

@@ -16,15 +16,27 @@ import { SportsTeamMember, SportsTeamPlayerCandidate, SportsTeamsService, TeamRo
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="team-roster-import" [attr.aria-label]="'Plantel por Excel' | t">
-      <h3>{{ 'Tens o plantel num Excel?' | t }}</h3>
+      <h3>{{ 'Já tens o plantel noutro sítio?' | t }}</h3>
       <p class="team-content-note">{{ 'Importa nome, número e posição. Quem tiver o utilizador Jynlo na folha recebe convite; os restantes ficam no plantel e só tu os vês. Emails e telefones do ficheiro não são lidos.' | t }}</p>
       <div class="team-roster-import__actions">
         <a class="team-roster-import__template" href="/assets/modelo-jynlo-plantel.csv" download="modelo-jynlo-plantel.csv">{{ 'Descarregar modelo' | t }}</a>
         <label class="team-roster-import__picker">
-          <input #fileInput type="file" accept=".xlsx,.xls,.csv,.tsv" (change)="choose($event)" [disabled]="busy">
+          <input #fileInput type="file" accept=".xlsx,.xls,.ods,.csv,.tsv,.txt" (change)="choose($event)" [disabled]="busy">
           <span>{{ busy && !preview ? ('A ler o ficheiro…' | t) : ('Escolher ficheiro' | t) }}</span>
         </label>
+        <button type="button" class="team-roster-import__picker team-roster-import__paste-toggle" [attr.aria-expanded]="pasteOpen"
+          [disabled]="busy" (click)="pasteOpen = !pasteOpen">{{ 'Colar lista' | t }}</button>
       </div>
+      <p class="team-content-note team-roster-import__formats">{{ 'Aceitamos Excel (.xlsx, .xls), LibreOffice (.ods), CSV e TSV. No Google Sheets ou no Numbers: Ficheiro → Transferir/Exportar → Excel ou CSV.' | t }}</p>
+      @if (pasteOpen) {
+        <div class="team-roster-import__paste">
+          <label for="roster-paste">{{ 'Um jogador por linha, por exemplo «10 João Silva» ou «João Silva; 10; Defesa». Também podes colar células copiadas de uma folha de cálculo.' | t }}</label>
+          <textarea id="roster-paste" rows="6" maxlength="20000" [(ngModel)]="pasteText" [disabled]="busy"
+            [placeholder]="'10 João Silva\n7 Rui Costa; Médio\nAna Santos'"></textarea>
+          <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy || !pasteText.trim()" (click)="usePasted()">
+            {{ 'Ver plantel' | t }}</button>
+        </div>
+      }
       @if (error) { <p role="alert" class="team-roster-import__error">{{ error }}</p> }
       @if (result) {
         <p role="status" class="team-roster-import__ok">{{ 'Plantel importado: {{a}} convites enviados, {{b}} jogadores adicionados.' | t:{a: result.invited, b: result.added} }}</p>
@@ -144,6 +156,13 @@ import { SportsTeamMember, SportsTeamPlayerCandidate, SportsTeamsService, TeamRo
     .team-roster-import__picker { position: relative; display: inline-flex; padding: 8px 14px; border-radius: 999px;
       border: 1px solid rgba(83, 188, 180, .5); cursor: pointer; font-weight: 700; }
     .team-roster-import__picker input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .team-roster-import__paste-toggle { font: inherit; font-weight: 700; cursor: pointer; background: transparent; color: inherit; }
+    .team-roster-import__formats { margin-top: 8px; font-size: .8rem; }
+    .team-roster-import__paste { display: grid; gap: 8px; margin-top: 10px; }
+    .team-roster-import__paste label { font-size: .85rem; color: #c3dce5; }
+    .team-roster-import__paste textarea { width: 100%; box-sizing: border-box; border-radius: 12px; padding: 10px;
+      background: #092c3d; color: #f1fffc; border: 1px solid rgba(48,184,196,.36); font: inherit; }
+    .team-roster-import__paste button { justify-self: start; }
     .team-roster-import ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-height: 320px; overflow: auto; }
     .team-roster-import li { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
     .team-roster-import li b { min-width: 24px; }
@@ -286,9 +305,22 @@ export class TeamRosterImportComponent implements OnChanges {
       .subscribe({ next, error: e => this.error = e?.error?.message || appTranslate('Não foi possível guardar') });
   }
 
+  pasteOpen = false;
+  pasteText = '';
+
+  /** A pasted list goes through the same preview → confirm flow as a file. */
+  usePasted(): void {
+    const text = this.pasteText.trim();
+    if (!text || this.busy) return;
+    this.previewFile(new File([text], 'lista.txt', { type: 'text/plain' }));
+  }
+
   choose(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0] ?? null;
+    this.previewFile(input.files?.[0] ?? null);
+  }
+
+  private previewFile(file: File | null): void {
     this.result = null; this.error = ''; this.preview = null; this.file = file;
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) { this.error = appTranslate('O ficheiro não pode ultrapassar 2 MB'); return; }
