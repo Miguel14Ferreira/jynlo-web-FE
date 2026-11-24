@@ -471,7 +471,7 @@
           } @else {
             <div class="result-list">
               @for (profile of topPeople; track profile.username) {
-                <a class="result-card person-card" [routerLink]="['/menu/perfis', profile.username]"
+                <a class="result-card person-card" [routerLink]="['/menu/profiles', profile.username]"
                    [queryParams]="{ from: 'discover', sport: sport.trim(), city: location.trim(), player: appliedPlayerName }">
                   <div class="person-avatar">
                     @if (playerPhotoUrl(profile); as photo) {
@@ -506,7 +506,7 @@
             </button>
           }
 
-          <a class="pillar-action jynlo-action jynlo-action--neutral" routerLink="/menu/perfis"
+          <a class="pillar-action jynlo-action jynlo-action--neutral" routerLink="/menu/profiles"
              [queryParams]="appliedPlayerName
                ? { from: 'discover', player: appliedPlayerName }
                : { from: 'discover', sport: sport.trim() || null, city: location.trim() || null }">

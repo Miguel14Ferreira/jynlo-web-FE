@@ -146,7 +146,7 @@ describe('DiscoverComponent', () => {
       expect(communityService.findProfiles).toHaveBeenCalledWith(jasmine.objectContaining({ name: 'Ana' }));
       const link: HTMLAnchorElement = page.nativeElement.querySelector('.person-card');
       expect(link.getAttribute('href'))
-        .toBe('/menu/perfis/ana?from=discover&sport=T%C3%A9nis&city=Sintra&player=Ana');
+        .toBe('/menu/profiles/ana?from=discover&sport=T%C3%A9nis&city=Sintra&player=Ana');
       page.destroy();
     } finally {
       Object.defineProperty(route.snapshot, 'queryParamMap', {
@@ -466,9 +466,9 @@ describe('DiscoverComponent', () => {
     const heading: HTMLElement = fixture.nativeElement.querySelector('.explore-results-heading');
     expect(heading.hasAttribute('hidden')).toBeTrue();
     expect(panel.querySelector('.pillar-heading h2')?.textContent).toContain('Pessoas para conhecer');
-    const directory: HTMLAnchorElement = panel.querySelector('a[href^="/menu/perfis?"]')!;
+    const directory: HTMLAnchorElement = panel.querySelector('a[href^="/menu/profiles?"]')!;
     expect(directory.textContent).toContain('Ver todos os jogadores');
-    expect(directory.getAttribute('href')).toBe('/menu/perfis?from=discover&sport=Padel&city=Lisboa');
+    expect(directory.getAttribute('href')).toBe('/menu/profiles?from=discover&sport=Padel&city=Lisboa');
   });
 
   it('does not duplicate the people heading in the focused tab while keeping other headings', () => {
@@ -663,21 +663,21 @@ describe('DiscoverComponent', () => {
 
   it('carries sport and locality into the full player search', () => {
     const morePeople = (): HTMLAnchorElement =>
-      fixture.nativeElement.querySelector('a[routerLink="/menu/perfis"], a[href^="/menu/perfis?"]');
+      fixture.nativeElement.querySelector('a[routerLink="/menu/profiles"], a[href^="/menu/profiles?"]');
 
     expect(morePeople().getAttribute('href'))
-      .toBe('/menu/perfis?from=discover&sport=Padel&city=Lisboa');
+      .toBe('/menu/profiles?from=discover&sport=Padel&city=Lisboa');
 
     component.onSportChange('Ténis');
     component.onLocationChange('Sintra');
     component.search();
     fixture.detectChanges();
     expect(morePeople().getAttribute('href'))
-      .toBe('/menu/perfis?from=discover&sport=T%C3%A9nis&city=Sintra');
+      .toBe('/menu/profiles?from=discover&sport=T%C3%A9nis&city=Sintra');
 
     component.clear();
     fixture.detectChanges();
-    expect(morePeople().getAttribute('href')).toBe('/menu/perfis?from=discover');
+    expect(morePeople().getAttribute('href')).toBe('/menu/profiles?from=discover');
   });
 
   it('uses name-only filtering in full people search when a name was applied', () => {
@@ -685,8 +685,8 @@ describe('DiscoverComponent', () => {
     component.searchPlayers();
     fixture.detectChanges();
 
-    const link: HTMLAnchorElement = fixture.nativeElement.querySelector('a[href^="/menu/perfis?"]');
-    expect(link.getAttribute('href')).toBe('/menu/perfis?from=discover&player=Ana');
+    const link: HTMLAnchorElement = fixture.nativeElement.querySelector('a[href^="/menu/profiles?"]');
+    expect(link.getAttribute('href')).toBe('/menu/profiles?from=discover&player=Ana');
   });
 
   it('opens discovered people directly in their public profiles', () => {
@@ -711,7 +711,7 @@ describe('DiscoverComponent', () => {
 
     const link: HTMLAnchorElement | null = fixture.nativeElement.querySelector('.person-card');
     expect(link?.getAttribute('href'))
-      .toBe('/menu/perfis/teammate?from=discover&sport=Padel&city=Lisboa&player=');
+      .toBe('/menu/profiles/teammate?from=discover&sport=Padel&city=Lisboa&player=');
     expect(link?.textContent).toContain('Teammate');
     expect(link?.textContent).toContain('Ver perfil e interagir');
   });

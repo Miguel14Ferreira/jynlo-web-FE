@@ -29,7 +29,7 @@ interface BlockedPerson { username: string; fullName?: string | null; blockedAt?
         <ul class="account-blocked-list">
           @for (person of people; track person.username) {
             <li>
-              <a [routerLink]="['/menu/perfis', person.username]">
+              <a [routerLink]="['/menu/profiles', person.username]">
                 <strong>{{ person.fullName || person.username }}</strong>
                 <span>&#64;{{ person.username }}</span>
               </a>

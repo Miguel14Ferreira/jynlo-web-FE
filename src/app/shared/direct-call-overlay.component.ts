@@ -1392,7 +1392,7 @@ export class DirectCallOverlayComponent implements OnDestroy {
     const username=peer.trim();
     if (!username || !this.calls.state$.value || !this.router) return;
     this.minimize();
-    void this.router.navigate(['/menu/perfis',username]);
+    void this.router.navigate(['/menu/profiles',username]);
   }
 
   openChat(peer: string): void {

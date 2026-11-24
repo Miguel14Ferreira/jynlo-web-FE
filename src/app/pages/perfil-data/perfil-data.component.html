@@ -7,7 +7,7 @@
       </div>
 
       <div class="header-actions">
-        <a class="primary-action jynlo-action jynlo-action--primary" routerLink="/menu/alterardados">{{ 'menu.editProfile' | t }}</a>
+        <a class="primary-action jynlo-action jynlo-action--primary" routerLink="/menu/edit-profile">{{ 'menu.editProfile' | t }}</a>
       </div>
     </header>
 
@@ -113,7 +113,7 @@
                   ○ {{ ('profileCompletion.item.' + item.key) | t }}
                 </span>
               }
-              <a class="profile-improve-link" routerLink="/menu/alterardados">{{ 'profileCompletion.improve' | t }}</a>
+              <a class="profile-improve-link" routerLink="/menu/edit-profile">{{ 'profileCompletion.improve' | t }}</a>
             </div>
           } @else {
             <span class="profile-complete-badge">🏅 {{ 'profileCompletion.badge' | t }}</span>
@@ -244,7 +244,7 @@
           } @else {
             <div class="social-list-people">
               @for (person of followListProfiles; track person.username) {
-                <a [routerLink]="['/menu/perfis', person.username]" (click)="closeFollowList()">
+                <a [routerLink]="['/menu/profiles', person.username]" (click)="closeFollowList()">
                   <strong>{{ person.nickname || person.fullName || person.username }}</strong>
                   <span>@{{ person.username }}</span>
                 </a>

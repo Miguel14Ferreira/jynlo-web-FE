@@ -511,7 +511,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     if(!username?.trim())return;
     const safeUsername=username.trim().replace(/^@/,'');
     if(!/^[\p{L}\p{N}_.-]{1,80}$/u.test(safeUsername))return;
-    void this.profileRouter.navigate(['/menu/perfis',safeUsername]);
+    void this.profileRouter.navigate(['/menu/profiles',safeUsername]);
   }
 
   get callsEnabled(): boolean {

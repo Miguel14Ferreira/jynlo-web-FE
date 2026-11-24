@@ -71,7 +71,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
 
   async shareProfile(profile: CommunityProfile): Promise<void> {
     if (this.profileShareBusy || !profile.username?.trim()) return;
-    const url = window.location.origin + '/menu/perfis/' + encodeURIComponent(profile.username.trim());
+    const url = window.location.origin + '/menu/profiles/' + encodeURIComponent(profile.username.trim());
     const text = appTranslate('Vê o perfil de @{{user}} na Jynlo', {user: profile.username});
     this.profileShareBusy = true;
     this.profileShareMessage = '';

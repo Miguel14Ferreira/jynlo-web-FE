@@ -103,9 +103,9 @@ describe('NavbarComponent', () => {
     const portrait = (fixture.nativeElement as HTMLElement)
       .querySelector('.account-avatar-profile-link') as HTMLAnchorElement;
     expect(portrait).toBeTruthy();
-    expect(portrait.getAttribute('href')).toBe('/menu/perfis/bea');
+    expect(portrait.getAttribute('href')).toBe('/menu/profiles/bea');
     const menuProfile = (fixture.nativeElement as HTMLElement)
-      .querySelector('.account-menu__panel a[href="/menu/perfis/bea"]') as HTMLAnchorElement;
+      .querySelector('.account-menu__panel a[href="/menu/profiles/bea"]') as HTMLAnchorElement;
     expect(menuProfile).toBeTruthy();
   });
 
@@ -359,7 +359,7 @@ describe('NavbarComponent', () => {
     expect(menu?.querySelector('a.mobile-only-link[href="/menu/communities"]')).toBeTruthy();
     expect(nav.querySelectorAll(':scope > a.nav-tab').length).toBe(5);
     expect(menu?.querySelector('a[href="/menu/messages"]')).toBeTruthy();
-    expect(menu?.querySelector('.account-menu__panel a[href="/menu/perfis/bea"]')).toBeTruthy();
+    expect(menu?.querySelector('.account-menu__panel a[href="/menu/profiles/bea"]')).toBeTruthy();
     expect(menu?.querySelector('.language-switch')).toBeTruthy();
     expect(menu?.querySelector('.logout-action')).toBeTruthy();
   });
@@ -665,7 +665,7 @@ describe('NavbarComponent', () => {
     fixture.detectChanges();
     expect(details.textContent).not.toContain('Trocar de conta');
     expect(details.querySelectorAll('.logout-action').length).toBe(1);
-    expect(details.querySelector('.account-menu__panel a[href="/menu/perfis/bea"]')?.textContent).toContain('Ver o meu perfil');
+    expect(details.querySelector('.account-menu__panel a[href="/menu/profiles/bea"]')?.textContent).toContain('Ver o meu perfil');
     expect(details.querySelector('.language-switch')).not.toBeNull();
   });
 

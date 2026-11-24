@@ -18,7 +18,7 @@ export const SHORTCUT_CATALOG: HomeShortcut[] = [
   { id: 'venues', label: 'Recintos', icon: '📍', route: '/menu/venues' },
   { id: 'people', label: 'Pessoas', icon: '🙋', route: '/menu/discover' },
   { id: 'my-bookings', label: 'As minhas reservas', icon: '🎟️', route: '/menu/venue-bookings' },
-  { id: 'book-court', label: 'Reservar campo', icon: '🗓️', route: '/menu/reservar' },
+  { id: 'book-court', label: 'Reservar campo', icon: '🗓️', route: '/menu/book-court' },
   { id: 'my-venues', label: 'Os meus recintos', icon: '🏟️', route: '/menu/venue-bookings' },
 ];
 export const DEFAULT_SHORTCUTS = ['create', 'my-games', 'communities', 'tournaments'];

@@ -33,7 +33,7 @@ describe('GlobalSearchComponent', () => {
     http.expectOne(r => r.url.includes('/api/venues/suggest')).flush({ venues: [{ id: 1, name: 'Campo', city: 'Porto' }] });
     http.expectOne(r => r.url.includes('/api/sessions?city=Porto')).flush([{ id: 2, sport: 'Padel', city: 'Porto', gameDate: '2026-12-01T10:00:00', participantCount: 1, maxParticipants: 4, status: 'OPEN' }, { id: 3, status: 'CANCELLED' }]);
     const view = fixture.componentInstance.view!;
-    expect(view.people[0].link).toEqual(['/menu/perfis', 'ana']);
+    expect(view.people[0].link).toEqual(['/menu/profiles', 'ana']);
     expect(view.sessions.length).toBe(1);
     expect(view.venues.length).toBe(1);
     expect(view.failed).toEqual(['search.communities']);

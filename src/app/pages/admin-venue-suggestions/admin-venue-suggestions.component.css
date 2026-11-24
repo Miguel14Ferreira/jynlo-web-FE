@@ -40,3 +40,5 @@
 @media(max-width:620px){.admin-venue-header{align-items:flex-start;flex-direction:column}.admin-venue-info{grid-template-columns:1fr}.admin-venue-dialog{padding:16px}}
 
 .admin-venue-nav{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+
+.admin-suggestion-manager { display:block; margin-top:.3rem; color:#62e6c4; font-weight:700; }

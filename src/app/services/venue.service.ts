@@ -262,4 +262,9 @@ export class VenueService {
   submitSuggestion(request: CreateVenueRequest): Observable<{ id: number; status: string }> {
     return this.http.post<{ id: number; status: string }>(this.baseUrl, request);
   }
+
+  /** "Criar o meu recinto": the new venue and the request to manage it, reviewed together. */
+  submitMine(request: CreateVenueRequest, roleDescription: string, contactPhone: string | null): Observable<{ id: number; status: string }> {
+    return this.http.post<{ id: number; status: string }>(this.baseUrl + '/mine', { venue: request, roleDescription, contactPhone });
+  }
 }

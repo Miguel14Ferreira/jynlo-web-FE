@@ -57,7 +57,7 @@ describe('FriendsComponent', () => {
     fixture.detectChanges();
 
     const findPlayers: HTMLAnchorElement = fixture.nativeElement.querySelector(
-      '.state-card a[href="/menu/perfis"]'
+      '.state-card a[href="/menu/profiles"]'
     );
     expect(findPlayers).toBeTruthy();
     expect(findPlayers.classList.contains('jynlo-action')).toBeTrue();
@@ -71,7 +71,7 @@ describe('FriendsComponent', () => {
 
   it('keeps all friend-card actions on the same pill style and tracks expanded state', () => {
     const root: HTMLElement = fixture.nativeElement;
-    const profile = root.querySelector('.friend-actions a[href*="/menu/perfis"]') as HTMLAnchorElement;
+    const profile = root.querySelector('.friend-actions a[href*="/menu/profiles"]') as HTMLAnchorElement;
     const chat = root.querySelector('.friend-actions a[href*="/menu/messages?kind=direct"]') as HTMLAnchorElement;
     expect(chat.getAttribute('href')).toContain('id=ana');
     const more = root.querySelector('.friend-more__trigger') as HTMLButtonElement;

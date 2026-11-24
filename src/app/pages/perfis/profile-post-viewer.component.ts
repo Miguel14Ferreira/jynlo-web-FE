@@ -41,7 +41,7 @@ import { SocialFeedService } from '../../services/social-feed.service';
         </div>
         <aside class="post-viewer-details">
           <header>
-            <a [routerLink]="['/menu/perfis',post.authorUsername]" (click)="closed.emit()">
+            <a [routerLink]="['/menu/profiles',post.authorUsername]" (click)="closed.emit()">
               <strong>{{post.authorDisplayName}}</strong><small>&#64;{{post.authorUsername}}</small>
             </a>
             <time>{{post.createdAt | date:('dd/MM/yyyy HH:mm' | t)}}</time>
@@ -61,7 +61,7 @@ import { SocialFeedService } from '../../services/social-feed.service';
             @if(error){<p role="alert">{{error}}</p>}
             @for(comment of comments;track comment.id){
               <div class="post-viewer-comment">
-                <a [routerLink]="['/menu/perfis',comment.authorUsername]" (click)="closed.emit()">
+                <a [routerLink]="['/menu/profiles',comment.authorUsername]" (click)="closed.emit()">
                   <strong>{{comment.authorDisplayName}}</strong>
                 </a>
                 @if (editingCommentId === comment.id) {

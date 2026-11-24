@@ -32,6 +32,6 @@ describe('FooterComponent', () => {
     ) as HTMLAnchorElement[];
 
     expect(links.map(link => link.getAttribute('href')))
-      .toEqual(['/terms', '/privacy', '/para-recintos', '/contact', 'mailto:geral@jynlosports.com']);
+      .toEqual(['/terms', '/privacy', '/for-venues', '/contact', 'mailto:geral@jynlosports.com']);
   });
 });

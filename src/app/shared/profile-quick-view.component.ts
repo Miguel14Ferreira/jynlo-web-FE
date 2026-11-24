@@ -55,7 +55,7 @@ import { VenueSportsBadgesComponent } from './venue-sports-badges/venue-sports-b
            @if (person.bio) { <p class="contact-bio">{{ person.bio }}</p> }
          </div>
          <div class="contact-actions">
-           <a [routerLink]="['/menu/perfis', person.username]"
+           <a [routerLink]="['/menu/profiles', person.username]"
               (click)="close()" class="contact-primary">{{ 'profile.openFullProfile' | t }}</a>
            <a routerLink="/menu/messages" [queryParams]="{kind:'direct',id:person.username}"
               (click)="close()" class="contact-secondary">{{ 'friends.chatAction' | t }}</a>

@@ -9,7 +9,7 @@ import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 interface Round { round: number; group: number | null; games: PublicTournamentGame[]; }
 
-/** /torneio/:id — shareable table and results, readable without an account. */
+/** /tournaments/:id — shareable table and results, readable without an account. */
 @Component({
   selector: 'app-public-tournament',
   standalone: true,

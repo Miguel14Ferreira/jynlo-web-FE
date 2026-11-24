@@ -5,7 +5,7 @@ describe('Jynlo chat entity sharing', () => {
   it('encodes and decodes a profile link without exposing arbitrary URLs', () => {
     const text=encodeShareMessage(profile,'Bora jogar!');
     expect(readSharedMessage(text)).toEqual({...profile,caption:'Bora jogar!',
-      route:'/menu/perfis/joao_7'});
+      route:'/menu/profiles/joao_7'});
     expect(text).not.toContain('https://');
   });
   it('supports only legitimate session and community routes', () => {

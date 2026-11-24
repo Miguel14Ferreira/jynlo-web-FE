@@ -86,7 +86,7 @@ describe('PerfilDataComponent', () => {
     expect(root.querySelector('.page-header .eyebrow')).toBeNull();
     expect(root.querySelector('.page-header h1')).not.toBeNull();
     expect(root.querySelector('.profile-card .identity')).not.toBeNull();
-    expect(root.querySelector('a[href="/menu/alterardados"]')).not.toBeNull();
+    expect(root.querySelector('a[href="/menu/edit-profile"]')).not.toBeNull();
   });
 
   it('should create and load the authenticated profile', () => {
@@ -103,7 +103,7 @@ describe('PerfilDataComponent', () => {
     fixture.detectChanges();
     expect(socialGraphService.followers).toHaveBeenCalledOnceWith('miguel');
     expect((fixture.nativeElement as HTMLElement).querySelector('.social-list-people')?.textContent).toContain('Ana');
-    expect((fixture.nativeElement as HTMLElement).querySelector('.social-list-people a')?.getAttribute('href')).toBe('/menu/perfis/ana');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.social-list-people a')?.getAttribute('href')).toBe('/menu/profiles/ana');
   });
 
   it('should collapse favorite sports after five', () => {

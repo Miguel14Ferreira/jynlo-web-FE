@@ -350,7 +350,7 @@ export class ChatReactionsComponent implements OnInit, OnChanges, OnDestroy {
 
   openParticipantProfile(username:string):void {
     this.closeDetails(false);
-    if(this.router)void this.router.navigate(['/menu/perfis',username]);
+    if(this.router)void this.router.navigate(['/menu/profiles',username]);
     else this.profilePeek?.open(username);
   }
 

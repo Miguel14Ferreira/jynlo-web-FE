@@ -586,7 +586,7 @@
                   <h3>{{ 'sessionDetail.findPlayers.title' | t }}</h3>
                   <p>{{ (missingPlayers() === 1 ? 'sessionDetail.findPlayers.oneMissing' : 'sessionDetail.findPlayers.manyMissing') | t:{count: missingPlayers()} }}</p>
                 </div>
-                <a class="jynlo-action jynlo-action--primary" routerLink="/menu/perfis"
+                <a class="jynlo-action jynlo-action--primary" routerLink="/menu/profiles"
                    [queryParams]="{ from: 'people', sport: session.sport, city: session.city }">
                   {{ 'sessionDetail.findPlayers.search' | t }}
                 </a>
@@ -782,7 +782,7 @@
             <div>
               <span>{{ 'sessionDetail.creator' | t }}</span>
               @if (session.creatorUsername) {
-                <a class="session-profile-link" [routerLink]="['/menu/perfis',session.creatorUsername]">{{ session.creatorUsername }}</a>
+                <a class="session-profile-link" [routerLink]="['/menu/profiles',session.creatorUsername]">{{ session.creatorUsername }}</a>
               } @else { <strong>{{ 'sessionDetail.user' | t }}</strong> }
             </div>
           </div>
@@ -955,7 +955,7 @@
                   <div class="player-compliments-list">
                     @for (participant of eligibleComplimentPlayers(); track participant.id) {
                       <article class="player-compliment-row">
-                        <a class="session-profile-link" [routerLink]="['/menu/perfis',participant.username]">{{ '@' + participant.username }}</a>
+                        <a class="session-profile-link" [routerLink]="['/menu/profiles',participant.username]">{{ '@' + participant.username }}</a>
                         <div class="player-compliment-actions" role="group"
                              [attr.aria-label]="'sessionDetail.complimentsFor' | t:{ username: participant.username }">
                           @for (kind of complimentTypes; track kind) {
@@ -1053,7 +1053,7 @@
               <div>
                 <h2>{{ 'sessionDetail.creatorReliability' | t }}</h2>
                 @if (session.creatorUsername) {
-                  <p><a class="session-profile-link" [routerLink]="['/menu/perfis',session.creatorUsername]">{{ session.creatorUsername }}</a></p>
+                  <p><a class="session-profile-link" [routerLink]="['/menu/profiles',session.creatorUsername]">{{ session.creatorUsername }}</a></p>
                 } @else { <p>{{ 'Utilizador' | t }}</p> }
               </div>
               @if (reliabilityLoading) {
@@ -1313,7 +1313,7 @@
                           @if(player.guest){
                             <span class="team-guest-label">{{ player.displayName || ('guestAdmin.guestPlayer' | t) }}</span>
                           } @else {
-                            <a class="session-profile-link" [routerLink]="['/menu/perfis',player.username]">{{ '@' + player.username }}</a>
+                            <a class="session-profile-link" [routerLink]="['/menu/profiles',player.username]">{{ '@' + player.username }}</a>
                           }
                           @if (teamsScoreSource === 'RANDOM' || teamsScoreSource === 'MANUAL') {
                             <small>{{ (teamsScoreSource === 'MANUAL' ? 'sessionDetail.manualTeamsPlayer' : 'sessionDetail.randomTeamsNoRanking') | t }}</small>
@@ -1344,7 +1344,7 @@
                           @if(player.guest){
                             <span class="team-guest-label">{{ player.displayName || ('guestAdmin.guestPlayer' | t) }}</span>
                           } @else {
-                            <a class="session-profile-link" [routerLink]="['/menu/perfis',player.username]">{{ '@' + player.username }}</a>
+                            <a class="session-profile-link" [routerLink]="['/menu/profiles',player.username]">{{ '@' + player.username }}</a>
                           }
                           @if (teamsScoreSource === 'RANDOM' || teamsScoreSource === 'MANUAL') {
                             <small>{{ (teamsScoreSource === 'MANUAL' ? 'sessionDetail.manualTeamsPlayer' : 'sessionDetail.randomTeamsNoRanking') | t }}</small>
@@ -1599,7 +1599,7 @@
                       <div class="session-participant-list">
                         @for (participant of teamParticipants('A'); track participant.id) {
                           <div class="session-player-card session-player-card--member">
-                            <a class="session-player-card__profile" [routerLink]="['/menu/perfis',participant.username]">
+                            <a class="session-player-card__profile" [routerLink]="['/menu/profiles',participant.username]">
 
                             <span class="session-player-card__avatar" aria-hidden="true">
                               <span>{{ rosterInitials(participant.username) }}</span>
@@ -1686,7 +1686,7 @@
                       <div class="session-participant-list">
                         @for (participant of teamParticipants('B'); track participant.id) {
                           <div class="session-player-card session-player-card--member">
-                            <a class="session-player-card__profile" [routerLink]="['/menu/perfis',participant.username]">
+                            <a class="session-player-card__profile" [routerLink]="['/menu/profiles',participant.username]">
 
                             <span class="session-player-card__avatar" aria-hidden="true">
                               <span>{{ rosterInitials(participant.username) }}</span>
@@ -1773,7 +1773,7 @@
                   <div class="session-participant-list">
                     @for (participant of sessionParticipants; track participant.id) {
                       <div class="session-player-card session-player-card--member">
-                            <a class="session-player-card__profile" [routerLink]="['/menu/perfis',participant.username]">
+                            <a class="session-player-card__profile" [routerLink]="['/menu/profiles',participant.username]">
 
                             <span class="session-player-card__avatar" aria-hidden="true">
                               <span>{{ rosterInitials(participant.username) }}</span>
@@ -1941,7 +1941,7 @@
                   @for (participant of participants; track participant.id) {
                     <article class="participant-row">
                       <div class="participant-identity">
-                        <a class="session-profile-link" [routerLink]="['/menu/perfis',participant.username]">{{ participant.username }}</a>
+                        <a class="session-profile-link" [routerLink]="['/menu/profiles',participant.username]">{{ participant.username }}</a>
                         <span>{{ 'sessionDetail.joinedAt' | t:{ date: (participant.joinedAt | date:'dd/MM/yyyy HH:mm')! } }}</span>
                       </div>
 

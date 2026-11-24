@@ -41,7 +41,7 @@ import { phoneLabel } from '../../shared/tournament-payments-panel/tournament-pa
         @if (!loading && !bookings.length) {
           @if (bookingsOpen) {
             <p class="vb__muted">{{ 'Ainda não pediste nenhuma reserva. Vê os horários livres em “Reservar campo”.' | t }}</p>
-            <a class="jynlo-action jynlo-action--primary" routerLink="/menu/reservar">{{ 'Reservar campo' | t }}</a>
+            <a class="jynlo-action jynlo-action--primary" routerLink="/menu/book-court">{{ 'Reservar campo' | t }}</a>
           } @else {
             <p class="vb__muted">{{ 'Ainda não pediste nenhuma reserva. Procura um recinto com o selo “Aceita reservas na Jynlo”.' | t }}</p>
             <a class="jynlo-action jynlo-action--primary" routerLink="/menu/venues">{{ 'Ver recintos' | t }}</a>

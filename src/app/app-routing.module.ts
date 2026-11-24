@@ -22,7 +22,7 @@ const routes: Routes = [
   // `seo` feeds SeoService (title, description, canonical, robots, share tags).
   // A route without `seo` data is treated as private and marked noindex.
   {path:'home',component:HomeComponent,canActivate:[homeRedirectGuard],data:{seo:{path:'/',index:true,description:'Encontra onde, quando e com quem jogar. Descobre jogos de padel, futebol, ténis e muito mais perto de ti.'}}},
-  {path:'para-recintos',loadComponent:() => import('./pages/for-venues/for-venues.component').then(m => m.ForVenuesComponent),data:{seo:{title:'Jynlo para recintos',index:true,description:'Reservas de campos sem custos para clubes e recintos: os jogadores pedem, vocês confirmam e recebem por MB WAY.'}}},
+  {path:'for-venues',loadComponent:() => import('./pages/for-venues/for-venues.component').then(m => m.ForVenuesComponent),data:{seo:{title:'Jynlo para recintos',index:true,description:'Reservas de campos sem custos para clubes e recintos: os jogadores pedem, vocês confirmam e recebem por MB WAY.'}}},
   {path:'about',loadComponent:() => import('./pages/about/about.component').then(m => m.AboutComponent),data:{seo:{title:'Sobre a Jynlo',index:true,description:'Conhece a Jynlo, a forma mais simples de encontrar jogos, locais e pessoas para praticar desporto em Portugal.'}}},
   {path:'contact',loadComponent:() => import('./pages/contact/contact.component').then(m => m.ContactComponent),data:{seo:{title:'Contacto',index:true,description:'Fala com a equipa da Jynlo: dúvidas, sugestões e apoio.'}}},
   {path:'privacy',component:LegalPageComponent,data:{document:'privacy',seo:{title:'Política de privacidade',index:true,description:'Como a Jynlo trata e protege os teus dados pessoais.'}}},
@@ -31,8 +31,8 @@ const routes: Routes = [
   // Sessions are short-lived, so they are not indexed; they still need a share title.
   {path:'sessions/:id',loadComponent:() => import('./pages/public-session-preview/public-session-preview.component').then(m => m.PublicSessionPreviewComponent),data:{seo:{index:false}}},
   // Opt-in shareable tournament table and results, readable without an account.
-  {path:'classificacao/:id',loadComponent:() => import('./pages/public-ranking/public-ranking.component').then(m => m.PublicRankingComponent),data:{seo:{index:false}}},
-  {path:'torneio/:id',loadComponent:() => import('./pages/public-tournament/public-tournament.component').then(m => m.PublicTournamentComponent),data:{seo:{index:false}}},
+  {path:'rankings/:id',loadComponent:() => import('./pages/public-ranking/public-ranking.component').then(m => m.PublicRankingComponent),data:{seo:{index:false}}},
+  {path:'tournaments/:id',loadComponent:() => import('./pages/public-tournament/public-tournament.component').then(m => m.PublicTournamentComponent),data:{seo:{index:false}}},
   // The same venue details page can be read by visitors. The authenticated route
   // below still exposes photo uploads, community contributions and suggestions.
   {path:'venues/:id',loadChildren:() => import('./pages/venue-details/venue-details.module').then(m => m.VenueDetailsModule),data:{publicVenueView:true,seo:{index:true}}},
@@ -45,7 +45,7 @@ const routes: Routes = [
   {path:'menu/venues/new',loadChildren:() => import('./pages/venue-create/venue-create.module').then(m => m.VenueCreateModule),canActivate:[AuthenticationGuard]},
   {path:'menu/venues/:id/suggest-edit',loadComponent:() => import('./pages/venue-suggest-edit/venue-suggest-edit.component').then(m => m.VenueSuggestEditComponent),canActivate:[AuthenticationGuard]},
   {path:'menu/venues/:id/manage',loadComponent:() => import('./pages/venue-manage/venue-manage.component').then(m => m.VenueManageComponent),canActivate:[AuthenticationGuard]},
-  {path:'menu/reservar',loadComponent:() => import('./pages/court-search/court-search.component').then(m => m.CourtSearchComponent),data:{publicBrowse:true}},
+  {path:'menu/book-court',loadComponent:() => import('./pages/court-search/court-search.component').then(m => m.CourtSearchComponent),data:{publicBrowse:true}},
   {path:'menu/venue-bookings',loadComponent:() => import('./pages/venue-bookings/venue-bookings.component').then(m => m.VenueBookingsComponent),canActivate:[AuthenticationGuard]},
   {path:'menu/venues/:id',loadChildren:() => import('./pages/venue-details/venue-details.module').then(m => m.VenueDetailsModule),canActivate:[AuthenticationGuard]},
   {path:'menu/events',loadChildren:() => import('./pages/events/events.module').then(m => m.EventsModule),data:{publicBrowse:true}},
@@ -57,22 +57,22 @@ const routes: Routes = [
   {path:'menu/createEvent',loadChildren:() => import('./pages/events2/create-event.module').then(m => m.CreateEventModule),canActivate:[AuthenticationGuard]},
   {path:'menu/createEvent/menu', redirectTo:'menu',pathMatch:'full'},
   {path:'login/registerNewUser/login', redirectTo:'login',pathMatch:'full'},
-  {path:'menu/alterardados',loadChildren:() => import('./pages/alterardados/alterardados.module').then(m => m.AlterardadosModule),canActivate:[AuthenticationGuard]},
+  {path:'menu/edit-profile',loadChildren:() => import('./pages/alterardados/alterardados.module').then(m => m.AlterardadosModule),canActivate:[AuthenticationGuard]},
   {path:'menu/alterardados/menu', redirectTo:'menu',pathMatch:'full'},
   {path:'menu/alterarPassword/menu', redirectTo:'menu',pathMatch:'full'},
-  {path:'menu/alterarPassword', loadComponent:() => import('./pages/changepassword/changepassword.component').then(m => m.ChangepasswordComponent),canActivate:[AuthenticationGuard]},
+  {path:'menu/change-password', loadComponent:() => import('./pages/changepassword/changepassword.component').then(m => m.ChangepasswordComponent),canActivate:[AuthenticationGuard]},
   {path:'menu/createEvents',loadChildren:() => import('./pages/events2/create-event.module').then(m => m.CreateEventModule),canActivate:[AuthenticationGuard]},
   {path:'menu/createEvents/menu',redirectTo:'menu',pathMatch:'full'},
   {path:'login/resetPassword',loadComponent:() => import('./pages/forgotp/forgotp.component').then(m => m.ForgotpComponent)},
-  {path:'menu/perfis',loadChildren:() => import('./pages/perfis/perfis.module').then(m => m.PerfisModule),canActivate:[AuthenticationGuard]},
+  {path:'menu/profiles',loadChildren:() => import('./pages/perfis/perfis.module').then(m => m.PerfisModule),canActivate:[AuthenticationGuard]},
   {path:'menu/perfis/menu',redirectTo:'menu',pathMatch:'full'},
-  {path:'menu/perfis/:username',loadChildren:() => import('./pages/perfis/perfis.module').then(m => m.PerfisModule),canActivate:[AuthenticationGuard]},
-  {path:'login/confirmar-email/:token', loadComponent:() => import('./pages/account-security/confirm-email-change.component').then(m => m.ConfirmEmailChangeComponent), pathMatch:'full'},
+  {path:'menu/profiles/:username',loadChildren:() => import('./pages/perfis/perfis.module').then(m => m.PerfisModule),canActivate:[AuthenticationGuard]},
+  {path:'login/confirm-email/:token', loadComponent:() => import('./pages/account-security/confirm-email-change.component').then(m => m.ConfirmEmailChangeComponent), pathMatch:'full'},
   {path:'login/resetPassword/:token',loadComponent:() => import('./pages/forgotp2/forgotp2.component').then(m => m.Forgotp2Component), pathMatch:'full'},
   {path:'login/registerNewUser/confirmTokenRegistration/:token', loadComponent:() => import('./pages/confirm-token-registration/confirm-token-registration.component').then(m => m.ConfirmTokenRegistrationComponent), pathMatch:'full'},
-  {path:'menu/dadosPerfil',loadComponent:() => import('./pages/perfil-data/perfil-data.component').then(m => m.PerfilDataComponent),canActivate:[AuthenticationGuard], pathMatch:'full'},
+  {path:'menu/profile',loadComponent:() => import('./pages/perfil-data/perfil-data.component').then(m => m.PerfilDataComponent),canActivate:[AuthenticationGuard], pathMatch:'full'},
   {path:'menu/dadosPerfil/menu',redirectTo:'menu',pathMatch:'full'},  
-  {path:'menu/dadosPerfil/alterardados',redirectTo:'menu/alterardados',pathMatch:'full'},
+  {path:'menu/dadosPerfil/alterardados',redirectTo:'menu/edit-profile',pathMatch:'full'},
   {path:'login/MFAauthentication', loadComponent:() => import('./pages/login-mfa/login-mfa.component').then(m => m.LoginMFAComponent)},
   {path:'menu', redirectTo:'/menu/feed', pathMatch:'full'},
   {path:'menu/friendList',loadChildren:() => import('./pages/friends/friends.module').then(m => m.FriendsModule),canActivate:[AuthenticationGuard]},
@@ -91,6 +91,17 @@ const routes: Routes = [
   {path:'menu/communities',loadChildren:() => import('./pages/communities/communities.module').then(m => m.CommunitiesModule),canActivate:[AuthenticationGuard]},
   {path:'menu/admin',loadChildren:() => import('./pages/admin/admin.module').then(m => m.AdminModule),canActivate:[AuthenticationGuard,AdminGuard]},
   {path:'menu/terminarSessao',redirectTo:'menu',pathMatch:'full'},
+  // Old Portuguese addresses, kept so links already shared or emailed keep working.
+  {path:'para-recintos',redirectTo:'for-venues',pathMatch:'full'},
+  {path:'classificacao/:id',redirectTo:'rankings/:id',pathMatch:'full'},
+  {path:'torneio/:id',redirectTo:'tournaments/:id',pathMatch:'full'},
+  {path:'menu/reservar',redirectTo:'menu/book-court',pathMatch:'full'},
+  {path:'menu/alterardados',redirectTo:'menu/edit-profile',pathMatch:'full'},
+  {path:'menu/alterarPassword',redirectTo:'menu/change-password',pathMatch:'full'},
+  {path:'menu/perfis',redirectTo:'menu/profiles',pathMatch:'full'},
+  {path:'menu/perfis/:username',redirectTo:'menu/profiles/:username',pathMatch:'full'},
+  {path:'login/confirmar-email/:token',redirectTo:'login/confirm-email/:token',pathMatch:'full'},
+  {path:'menu/dadosPerfil',redirectTo:'menu/profile',pathMatch:'full'},
   {path:'**',component:NotFoundComponent}
 ];
 

@@ -26,7 +26,7 @@ import { appTranslate as t } from 'src/app/i18n/i18n.service';
         } @else {
           <h1>{{ 'Não foi possível confirmar' | t }}</h1>
           <p role="alert">{{ error }}</p>
-          <a class="jynlo-action jynlo-action--neutral" routerLink="/menu/alterardados">{{ 'Pedir outra vez' | t }}</a>
+          <a class="jynlo-action jynlo-action--neutral" routerLink="/menu/edit-profile">{{ 'Pedir outra vez' | t }}</a>
         }
       </section>
     </main>`

@@ -1867,7 +1867,7 @@ describe('SessionDetailsComponent', () => {
     expect(region.textContent).toContain('COM CONTA');
     expect(region.textContent).toContain('SEM CONTA');
     const links = region.querySelectorAll('a.session-player-card__profile');
-    expect(links[0].getAttribute('href')).toContain('/menu/perfis/creator-user');
+    expect(links[0].getAttribute('href')).toContain('/menu/profiles/creator-user');
   });
 
   it('preserves the same identity cards in two confirmed teams of five', () => {
@@ -2286,7 +2286,7 @@ describe('SessionDetailsComponent', () => {
     expect(component.canFindPlayers()).toBeTrue();
     const action = fixture.nativeElement.querySelector('.session-player-search a') as HTMLAnchorElement;
     expect(action.textContent).toContain('Procurar jogadores');
-    expect(action.getAttribute('href')).toBe('/menu/perfis?from=people&sport=Padel&city=Lisboa');
+    expect(action.getAttribute('href')).toBe('/menu/profiles?from=people&sport=Padel&city=Lisboa');
   });
 
   it('uses localized player-search labels and the singular when one player is missing', () => {

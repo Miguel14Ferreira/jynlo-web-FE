@@ -37,8 +37,8 @@ describe('PublicTournamentComponent', () => {
 describe('TournamentPublicShareComponent', () => {
   it('lets an admin turn the page on and then offers the link', () => {
     const api = jasmine.createSpyObj<PublicTournamentService>('PublicTournamentService', ['setting', 'update']);
-    api.setting.and.returnValue(of({ enabled: false, path: '/torneio/9' }));
-    api.update.and.returnValue(of({ enabled: true, path: '/torneio/9' }));
+    api.setting.and.returnValue(of({ enabled: false, path: '/tournaments/9' }));
+    api.update.and.returnValue(of({ enabled: true, path: '/tournaments/9' }));
     TestBed.configureTestingModule({ imports: [TournamentPublicShareComponent],
       providers: [{ provide: PublicTournamentService, useValue: api }] });
     const fixture = TestBed.createComponent(TournamentPublicShareComponent);
@@ -50,12 +50,12 @@ describe('TournamentPublicShareComponent', () => {
     Array.from(el.querySelectorAll('button')).find(b => b.textContent?.includes('Ativar'))!.click();
     fixture.detectChanges();
     expect(api.update).toHaveBeenCalledWith(5, 9, true);
-    expect(el.querySelector('a')?.getAttribute('href')).toContain(encodeURIComponent('/torneio/9'));
+    expect(el.querySelector('a')?.getAttribute('href')).toContain(encodeURIComponent('/tournaments/9'));
   });
 
   it('shows nothing to members while the page is off', () => {
     const api = jasmine.createSpyObj<PublicTournamentService>('PublicTournamentService', ['setting', 'update']);
-    api.setting.and.returnValue(of({ enabled: false, path: '/torneio/9' }));
+    api.setting.and.returnValue(of({ enabled: false, path: '/tournaments/9' }));
     TestBed.configureTestingModule({ imports: [TournamentPublicShareComponent],
       providers: [{ provide: PublicTournamentService, useValue: api }] });
     const fixture = TestBed.createComponent(TournamentPublicShareComponent);

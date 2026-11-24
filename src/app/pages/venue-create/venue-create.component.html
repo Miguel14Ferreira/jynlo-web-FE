@@ -7,7 +7,11 @@
     @if (submitted) {
       <div class="venue-submission-success" role="status" aria-live="polite">
         <strong>{{ 'venue.submission.success' | t }}</strong>
-        <p>{{ 'venue.submission.successHint' | t }}</p>
+        @if (runsVenue) {
+          <p>{{ 'Recebemos também o teu pedido para gerir o recinto. Quando for aprovado, avisamos-te e podes configurar os campos, os preços e o horário.' | t }}</p>
+        } @else {
+          <p>{{ 'venue.submission.successHint' | t }}</p>
+        }
         <a class="jynlo-action jynlo-action--primary" routerLink="/menu/venues">{{ 'venue.catalog.backToList' | t }}</a>
       </div>
     } @else {
@@ -533,6 +537,23 @@
         @if (validationError && !environmentType) {
           <span class="venue-create-error" role="alert">{{ 'venue.create.environmentRequired' | t }}</span>
         }
+        <fieldset class="venue-owner-box">
+          <label class="venue-owner-check">
+            <input type="checkbox" name="runsVenue" [(ngModel)]="runsVenue" [disabled]="saving">
+            <span><strong>{{ 'Sou o responsável por este recinto' | t }}</strong>
+              <small>{{ 'Quero geri-lo na Jynlo e receber reservas, sem custos. Analisamos o recinto e o pedido ao mesmo tempo.' | t }}</small></span>
+          </label>
+          @if (runsVenue) {
+            <label>{{ 'A tua função no recinto' | t }} *
+              <input name="managerRole" [(ngModel)]="managerRole" maxlength="120" [disabled]="saving"
+                     [placeholder]="'Ex.: dono, gerente, direção do clube' | t">
+            </label>
+            @if (managerRoleError) { <span class="venue-create-error" role="alert">{{ 'Diz-nos qual é a tua função no recinto.' | t }}</span> }
+            <label>{{ 'Telefone para confirmarmos (opcional)' | t }}
+              <input name="managerPhone" [(ngModel)]="managerPhone" maxlength="20" inputmode="tel" [disabled]="saving" placeholder="9xx xxx xxx">
+            </label>
+          }
+        </fieldset>
         @if (validationError && hasInvalidGpsCoordinates) {
           <span class="venue-create-error" role="alert">{{ 'venue.create.invalidGps' | t }}</span>
         }

@@ -301,7 +301,7 @@ describe('PerfisComponent', () => {
     component.search();
     fixture.detectChanges();
 
-    const originalHref = '/menu/perfis/ana?from=people&sport=Padel&city=Lisboa';
+    const originalHref = '/menu/profiles/ana?from=people&sport=Padel&city=Lisboa';
     expect(fixture.nativeElement.querySelector('a.profile-card').getAttribute('href')).toBe(originalHref);
 
     const pending = new Subject<typeof profile[]>();
@@ -347,7 +347,7 @@ describe('PerfisComponent', () => {
     fixture.detectChanges();
 
     const link = (): HTMLAnchorElement => fixture.nativeElement.querySelector('a.profile-card');
-    const originalHref = '/menu/perfis/ana?from=people&player=Ana&sport=Padel&city=Lisboa&minAge=20&maxAge=40&level=BEGINNER';
+    const originalHref = '/menu/profiles/ana?from=people&player=Ana&sport=Padel&city=Lisboa&minAge=20&maxAge=40&level=BEGINNER';
     expect(link().getAttribute('href')).toBe(originalHref);
 
     component.searchTerm = 'Rui';
@@ -368,7 +368,7 @@ describe('PerfisComponent', () => {
     fixture.detectChanges();
 
     const link = (): HTMLAnchorElement => fixture.nativeElement.querySelector('a.profile-card');
-    expect(link().getAttribute('href')).toBe('/menu/perfis/ana?from=people&sport=Padel&city=Lisboa');
+    expect(link().getAttribute('href')).toBe('/menu/profiles/ana?from=people&sport=Padel&city=Lisboa');
 
     const pending = new Subject<typeof profile[]>();
     service.findProfiles.and.returnValue(pending);
@@ -377,13 +377,13 @@ describe('PerfisComponent', () => {
     component.locationFilter = 'Sintra';
     fixture.detectChanges();
 
-    expect(link().getAttribute('href')).toBe('/menu/perfis/ana?from=people&sport=Padel&city=Lisboa');
+    expect(link().getAttribute('href')).toBe('/menu/profiles/ana?from=people&sport=Padel&city=Lisboa');
 
     pending.next([profile]);
     pending.complete();
     fixture.detectChanges();
 
-    expect(link().getAttribute('href')).toBe('/menu/perfis/ana?from=people&sport=T%C3%A9nis&city=Lisboa');
+    expect(link().getAttribute('href')).toBe('/menu/profiles/ana?from=people&sport=T%C3%A9nis&city=Lisboa');
   });
 
   it('resets applied filters after clearing the player search', () => {
@@ -416,7 +416,7 @@ describe('PerfisComponent', () => {
 
     const link: HTMLAnchorElement | null = fixture.nativeElement.querySelector('a.profile-card');
     expect(link?.getAttribute('href'))
-      .toBe('/menu/perfis/ana?from=people&player=Ana&sport=T%C3%A9nis&city=Sintra&minAge=25&maxAge=40&level=INTERMEDIATE');
+      .toBe('/menu/profiles/ana?from=people&player=Ana&sport=T%C3%A9nis&city=Sintra&minAge=25&maxAge=40&level=INTERMEDIATE');
   });
 
   it('returns from a player profile to the advanced search with its filters', () => {
@@ -436,7 +436,7 @@ describe('PerfisComponent', () => {
       const link: HTMLAnchorElement | null = fixture.nativeElement.querySelector('a.back-to-search');
       expect(link?.textContent).toContain(t('community.backToSearch'));
       expect(link?.getAttribute('href'))
-        .toBe('/menu/perfis?from=people&player=Ana&sport=T%C3%A9nis&city=Sintra&minAge=25&maxAge=40&level=INTERMEDIATE');
+        .toBe('/menu/profiles?from=people&player=Ana&sport=T%C3%A9nis&city=Sintra&minAge=25&maxAge=40&level=INTERMEDIATE');
     } finally {
       Object.defineProperty(route.snapshot, 'queryParamMap', {
         configurable: true, value: previous
@@ -492,7 +492,7 @@ describe('PerfisComponent', () => {
 
       const profileLink: HTMLAnchorElement = fixture.nativeElement.querySelector('a.profile-card');
       expect(profileLink.getAttribute('href')).toBe(
-        '/menu/perfis/ana?from=people&sport=T%C3%A9nis&city=Sintra&via=discover&discoverSport=Padel&discoverCity=Lisboa&discoverPlayer='
+        '/menu/profiles/ana?from=people&sport=T%C3%A9nis&city=Sintra&via=discover&discoverSport=Padel&discoverCity=Lisboa&discoverPlayer='
       );
       expect(component.discoverReturnParams).toEqual({
         sport: 'Padel', city: 'Lisboa', player: ''
@@ -520,7 +520,7 @@ describe('PerfisComponent', () => {
 
       const profileBack: HTMLAnchorElement = fixture.nativeElement.querySelector('a.back-to-search');
       expect(profileBack.getAttribute('href')).toBe(
-        '/menu/perfis?from=people&sport=T%C3%A9nis&city=Sintra&via=discover&discoverSport=Padel&discoverCity=Lisboa&discoverPlayer=Ana'
+        '/menu/profiles?from=people&sport=T%C3%A9nis&city=Sintra&via=discover&discoverSport=Padel&discoverCity=Lisboa&discoverPlayer=Ana'
       );
 
       routeParams.next(convertToParamMap({}));
@@ -556,7 +556,7 @@ describe('PerfisComponent', () => {
 
       const profileLink: HTMLAnchorElement = fixture.nativeElement.querySelector('a.profile-card');
       expect(profileLink.getAttribute('href'))
-        .toBe('/menu/perfis/ana?from=people&sport=T%C3%A9nis&via=discover&discoverSport=&discoverCity=&discoverPlayer=');
+        .toBe('/menu/profiles/ana?from=people&sport=T%C3%A9nis&via=discover&discoverSport=&discoverCity=&discoverPlayer=');
     } finally {
       Object.defineProperty(route.snapshot, 'queryParamMap', {
         configurable: true, value: previous
@@ -578,7 +578,7 @@ describe('PerfisComponent', () => {
       fixture.detectChanges();
       const profileLink: HTMLAnchorElement | null = fixture.nativeElement.querySelector('a.profile-card');
       expect(profileLink?.getAttribute('href'))
-        .toBe('/menu/perfis/ana?from=people&sport=Padel&city=Lisboa&via=discover&discoverSport=Padel&discoverCity=Lisboa&discoverPlayer=');
+        .toBe('/menu/profiles/ana?from=people&sport=Padel&city=Lisboa&via=discover&discoverSport=Padel&discoverCity=Lisboa&discoverPlayer=');
 
       Object.defineProperty(route.snapshot, 'queryParamMap', {
         configurable: true,
@@ -959,7 +959,7 @@ describe('PerfisComponent', () => {
     spyOn(component, 'isOwnProfile').and.returnValue(true);
     fixture.detectChanges();
     const edit: HTMLAnchorElement | null = fixture.nativeElement.querySelector('a.profile-edit-action');
-    expect(edit?.getAttribute('href')).toBe('/menu/alterardados');
+    expect(edit?.getAttribute('href')).toBe('/menu/edit-profile');
     expect(edit?.textContent).toContain(t('profile.edit.title'));
     expect(fixture.nativeElement.querySelector('.profile-relation-note')).toBeNull();
     expect(fixture.nativeElement.querySelector('.profile-primary-actions')?.children.length).toBe(0);
@@ -1128,7 +1128,7 @@ describe('PerfisComponent', () => {
     fixture.detectChanges();
     expect(component.isOwnProfile(component.selectedProfile)).toBeTrue();
     expect((fixture.nativeElement as HTMLElement).querySelector('a.profile-edit-action')?.getAttribute('href'))
-      .toBe('/menu/alterardados');
+      .toBe('/menu/edit-profile');
 
     component.selectedProfile = { ...profile, username: 'another-player' };
     fixture.detectChanges();
@@ -1153,7 +1153,7 @@ describe('PerfisComponent', () => {
     (component.isOwnProfile as jasmine.Spy).and.returnValue(true);
     fixture.detectChanges();
     root = fixture.nativeElement;
-    expect(root.querySelector('a.profile-edit-action')?.getAttribute('href')).toBe('/menu/alterardados');
+    expect(root.querySelector('a.profile-edit-action')?.getAttribute('href')).toBe('/menu/edit-profile');
     expect(root.querySelector('.profile-invite-trigger')).toBeNull();
   });
 

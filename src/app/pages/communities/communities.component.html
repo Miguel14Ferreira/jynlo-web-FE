@@ -727,7 +727,7 @@
                       <article class="community-timeline-entry community-feed-card">
                         <div class="community-feed-author">
                           <a class="community-feed-author-link"
-                             [routerLink]="['/menu/perfis', entry.username]"
+                             [routerLink]="['/menu/profiles', entry.username]"
                              [queryParams]="{ from: 'communities' }"
                              [attr.aria-label]="communityFeedAuthorName(entry.username) + ' (@' + entry.username + ')'">
                             <span class="community-feed-avatar">
@@ -775,7 +775,7 @@
                         } @else if (entry.body) {
                           <p class="community-feed-body">@for (piece of communityMentionParts(entry.body); track $index) {
                             @if (piece.username) {
-                              <a class="community-feed-mention-link" [routerLink]="['/menu/perfis',piece.username]"
+                              <a class="community-feed-mention-link" [routerLink]="['/menu/profiles',piece.username]"
                                 [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: piece.username})">{{piece.text}}</a>
                             } @else {<span>{{piece.text}}</span>}
                           }</p>
@@ -5476,7 +5476,7 @@
 
                   @for (member of selected.members; track member.profileId) {
                     <div class="member-row">
-                      <a class="community-member-profile" [routerLink]="['/menu/perfis',member.username]"
+                      <a class="community-member-profile" [routerLink]="['/menu/profiles',member.username]"
                          [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: member.username})">
                         <span class="community-member-avatar" aria-hidden="true">
                           @if (communityFeedAvatar(member.username); as avatar) {

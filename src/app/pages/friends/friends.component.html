@@ -7,7 +7,7 @@
       </div>
 
       <div class="header-actions">
-        <a class="secondary-action jynlo-action jynlo-action--neutral" routerLink="/menu/perfis">{{ 'friends.findPlayers' | t }}</a>
+        <a class="secondary-action jynlo-action jynlo-action--neutral" routerLink="/menu/profiles">{{ 'friends.findPlayers' | t }}</a>
       </div>
     </header>
 
@@ -43,7 +43,7 @@
       <div class="state-card">
         <h2>{{ 'friends.emptyTitle' | t }}</h2>
         <p>{{ 'friends.emptyText' | t }}</p>
-        <a class="jynlo-action jynlo-action--primary" routerLink="/menu/perfis">{{ 'friends.goCommunity' | t }}</a>
+        <a class="jynlo-action jynlo-action--primary" routerLink="/menu/profiles">{{ 'friends.goCommunity' | t }}</a>
       </div>
     }
 
@@ -57,7 +57,7 @@
       <div class="friend-grid">
         @for (friend of filteredFriends; track friend.username) {
           <article class="friend-card">
-            <a class="avatar" [routerLink]="['/menu/perfis',friend.username]"
+            <a class="avatar" [routerLink]="['/menu/profiles',friend.username]"
               [attr.aria-label]="('friends.profileAction' | t) + ': ' + friend.username">
               @if (profileImage(friend); as image) {
                 <img [src]="image" [alt]="friend.username">
@@ -67,7 +67,7 @@
             </a>
 
             <div class="friend-copy">
-              <a [routerLink]="['/menu/perfis', friend.username]">{{ friend.username }}</a>
+              <a [routerLink]="['/menu/profiles', friend.username]">{{ friend.username }}</a>
               <span>{{ friend.nickname || friend.fullName || ('friends.player' | t) }}</span>
             </div>
 
@@ -78,7 +78,7 @@
 
               <a
                 class="friend-action friend-action--secondary jynlo-action jynlo-action--neutral"
-                [routerLink]="['/menu/perfis', friend.username]"
+                [routerLink]="['/menu/profiles', friend.username]"
                 [queryParams]="{ from: 'friends' }">
                 <span>👤</span>
                 {{ 'friends.profileAction' | t }}

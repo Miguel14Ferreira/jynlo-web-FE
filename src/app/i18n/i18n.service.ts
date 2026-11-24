@@ -858,15 +858,15 @@ const PT: Dictionary = {
   'footer.contact': 'Contacto',
 
   'legal.eyebrow': 'Informação legal',
-  'legal.pilotNotice': 'Esta informação aplica-se à Jynlo no website e nas aplicações para Android e iPhone. Para dúvidas sobre privacidade e proteção de dados, contacta desporto24app@gmail.com.',
+  'legal.pilotNotice': 'Esta informação aplica-se à Jynlo no website e nas aplicações para Android e iPhone. Para dúvidas sobre privacidade e proteção de dados, contacta geral@jynlosports.com.',
   'legal.updated': 'Atualizado em 22 de novembro de 2026',
   'legal.back': 'Voltar ao início',
-  'legal.contact': 'Contacto: desporto24app@gmail.com',
+  'legal.contact': 'Contacto: geral@jynlosports.com',
 
   'privacy.title': 'Política de Privacidade',
   'privacy.intro': 'Esta página explica, em linguagem simples, que dados a Jynlo utiliza, para que servem e quais são os teus direitos.',
   'privacy.controller.title': 'Responsável pelo tratamento',
-  'privacy.controller.text': 'A Jynlo é gerida por Miguel Ferreira, pessoa singular, que é o responsável pelo tratamento dos dados pessoais na plataforma (website e aplicação). Para qualquer questão sobre privacidade ou para exercer os teus direitos, contacta desporto24app@gmail.com.',
+  'privacy.controller.text': 'A Jynlo é gerida por Miguel Ferreira, pessoa singular, que é o responsável pelo tratamento dos dados pessoais na plataforma (website e aplicação). Para qualquer questão sobre privacidade ou para exercer os teus direitos, contacta geral@jynlosports.com.',
   'privacy.purposes.title': 'Dados e finalidades',
   'privacy.purposes.text': 'Usamos os dados de conta e perfil para autenticação, gestão da conta, descoberta de pessoas e atividades, participação em sessões, comunicação, segurança, suporte e funcionamento da plataforma. Dados opcionais devem ser usados apenas quando necessários às funcionalidades escolhidas.',
   'privacy.location.title': 'Localização',
@@ -893,7 +893,7 @@ const PT: Dictionary = {
   'delete.data.title': 'O que acontece aos dados',
   'delete.data.text': 'Quando o pedido é concluído, o perfil é anonimizado e deixas de conseguir utilizar a conta. São apagados as publicações e os seus ficheiros, comentários e gostos, mensagens privadas, mensagens nos grupos privados e nos chats de sessões, seguidores, amizades, notificações e telemóveis registados para avisos. As sessões já realizadas e as mensagens em comunidades ficam associadas a um perfil anónimo, para preservar o histórico das atividades. As cópias de segurança automáticas são substituídas ao fim de, no máximo, 7 dias. A Política de Privacidade explica o tratamento dos dados.',
   'delete.support.title': 'Se não conseguires entrar',
-  'delete.support.text': 'Envia um pedido para desporto24app@gmail.com com o assunto Pedido de eliminação de conta Jynlo e identifica a conta que queres eliminar. A equipa poderá solicitar uma confirmação de titularidade antes de executar o pedido. Não envies passwords nem códigos de autenticação.',
+  'delete.support.text': 'Envia um pedido para geral@jynlosports.com com o assunto Pedido de eliminação de conta Jynlo e identifica a conta que queres eliminar. A equipa poderá solicitar uma confirmação de titularidade antes de executar o pedido. Não envies passwords nem códigos de autenticação.',
 
   'terms.title': 'Termos de Utilização',
   'terms.intro': 'Estes termos definem as regras de utilização da Jynlo, no site e nas aplicações. Ao criares conta, aceitas estes termos.',

@@ -68,12 +68,12 @@ import { ConversationMuteService, isConversationMuted } from '../../services/con
         <article *ngFor="let item of visibleEntries(); trackBy: trackMessage" class="team-content-entry" [class.team-feed-comment]="isFeedComment(item)" [class.team-own-message]="kind === 'chat' && item.canEdit" [class.team-removed-message]="item.deleted"
           [class.team-actions-expanded]="activeActionMessageId === item.id" [attr.data-team-message-id]="item.id" tabindex="-1">
           <div class="team-entry-header">
-            <a class="team-entry-avatar team-avatar-link" [routerLink]="['/menu/perfis', item.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: item.username})">
+            <a class="team-entry-avatar team-avatar-link" [routerLink]="['/menu/profiles', item.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: item.username})">
               <img *ngIf="authorAvatarSrc(item) && !brokenAuthorAvatars.has(item.id)"
                 [src]="authorAvatarSrc(item)!" (error)="brokenAuthorAvatars.add(item.id)" loading="lazy" alt="" />
               <ng-container *ngIf="!authorAvatarSrc(item) || brokenAuthorAvatars.has(item.id)">{{(item.username || 'J').slice(0,1).toUpperCase()}}</ng-container>
             </a>
-            <div class="team-entry-meta"><a class="team-author-link" [routerLink]="['/menu/perfis',item.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: item.username})">@{{item.username}}</a>
+            <div class="team-entry-meta"><a class="team-author-link" [routerLink]="['/menu/profiles',item.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: item.username})">@{{item.username}}</a>
               <time>{{item.createdAt | date:('dd/MM/yyyy HH:mm' | t)}}</time></div>
           </div>
           <button *ngIf="item.replyToId" type="button" class="team-content-reply team-reply-jump"
@@ -83,7 +83,7 @@ import { ConversationMuteService, isConversationMuted } from '../../services/con
             [conversationId]="'' + teamId" [messageId]="item.id"></app-inbox-poll-card>
           <p *ngIf="!item.deleted && !(kind === 'chat' && readPoll(item.body))" class="team-content-body"><ng-container *ngFor="let piece of bodyMentionParts(item.body)">
             <a *ngIf="piece.username; else plainTeamText" class="team-inline-mention"
-              [routerLink]="['/menu/perfis',piece.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: piece.username})">{{piece.text}}</a>
+              [routerLink]="['/menu/profiles',piece.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: piece.username})">{{piece.text}}</a>
             <ng-template #plainTeamText>{{piece.text}}</ng-template>
           </ng-container></p>
           <div class="team-private-files" *ngIf="!item.deleted && item.attachments?.length">

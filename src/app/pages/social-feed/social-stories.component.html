@@ -299,7 +299,7 @@
           @if (storyViewerTags(story).length) {
             <nav class="story-tag-overlay story-viewer-tags" [attr.aria-label]="'Pessoas identificadas' | t">
               @for (username of storyViewerTags(story); track username) {
-                <a [routerLink]="['/menu/perfis', username]" (click)="$event.stopPropagation()"
+                <a [routerLink]="['/menu/profiles', username]" (click)="$event.stopPropagation()"
                    [attr.aria-label]="('Abrir perfil de {{username}}' | t:{username: username})">&#64;{{ username }}</a>
               }
             </nav>
@@ -430,7 +430,7 @@
               @if (audienceData.viewers.length === 0) { <p>{{ 'Sem visualizações registadas.' | t }}</p> }
               <div class="story-audience-people">
                 @for (person of audienceData.viewers; track person.username) {
-                  <a [routerLink]="['/menu/perfis', person.username]" (click)="closeAudience(); close()">
+                  <a [routerLink]="['/menu/profiles', person.username]" (click)="closeAudience(); close()">
                     <strong>&#64;{{ person.username }}</strong>
                     <small>{{ person.viewedAt | date:'dd/MM · HH:mm' }}</small>
                   </a>

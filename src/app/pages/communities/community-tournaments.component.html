@@ -3129,7 +3129,7 @@
                             <span class="team-player-avatar" aria-hidden="true">{{ (player.displayName || player.username || '?').charAt(0).toUpperCase() }}</span>
                             <span class="team-player-identity">
                               @if (teamPlayerProfileUsername(player.username); as profileUsername) {
-                                <a [routerLink]="['/menu/perfis', profileUsername]"
+                                <a [routerLink]="['/menu/profiles', profileUsername]"
                                   [attr.aria-label]="(player.displayName || profileUsername) + ' (@' + profileUsername + ')'">
                                   <strong>{{ player.displayName || profileUsername }}</strong>
                                   <small>&#64;{{ profileUsername }}</small>

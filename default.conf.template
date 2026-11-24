@@ -64,9 +64,9 @@ server {
         try_files /index.html =404;
     }
 
-    location ~ ^/menu/perfis/[A-Za-z0-9._-]+/?$ {
+    location ~ ^/menu/(profiles|perfis)/[A-Za-z0-9._-]+/?$ {
         if ($link_preview_bot) {
-            rewrite ^/menu/perfis/([A-Za-z0-9._-]+)/?$ /api/share/profiles/$1 last;
+            rewrite ^/menu/(?:profiles|perfis)/([A-Za-z0-9._-]+)/?$ /api/share/profiles/$1 last;
         }
         try_files /index.html =404;
     }

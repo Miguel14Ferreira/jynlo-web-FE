@@ -649,7 +649,7 @@
         <nav class="feed-empty-actions" [attr.aria-label]="'feed.emptyTitle' | t">
           <a class="jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary" routerLink="/menu/discover">{{ 'menu.findSessions' | t }}</a>
           <a class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" routerLink="/menu/communities">{{ 'Encontrar comunidades' | t }}</a>
-          <a class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" routerLink="/menu/perfis">{{ 'feed.findPeople' | t }}</a>
+          <a class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" routerLink="/menu/profiles">{{ 'feed.findPeople' | t }}</a>
           <a class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" routerLink="/menu/createEvent">{{ 'menu.createSession' | t }}</a>
         </nav>
       </div>
@@ -773,7 +773,7 @@
             <div class="feed-author">
               <a
                 class="feed-author-link"
-                [routerLink]="['/menu/perfis', item.authorUsername]"
+                [routerLink]="['/menu/profiles', item.authorUsername]"
                 [queryParams]="{ from: 'feed' }"
                 [attr.aria-label]="item.authorDisplayName + ' (@' + item.authorUsername + ')'">
                 <div class="avatar">
@@ -1053,7 +1053,7 @@
                     <div class="comment-row">
                       <a
                         class="comment-avatar"
-                        [routerLink]="['/menu/perfis', comment.authorUsername]"
+                        [routerLink]="['/menu/profiles', comment.authorUsername]"
                         [queryParams]="{ from: 'feed' }"
                         [attr.aria-label]="comment.authorDisplayName + ' (@' + comment.authorUsername + ')'">
                         @if (commentProfileImage(comment); as image) {
@@ -1065,7 +1065,7 @@
 
                       <div class="comment-copy">
                         <div class="comment-heading">
-                          <a class="comment-author-link" [routerLink]="['/menu/perfis', comment.authorUsername]"
+                          <a class="comment-author-link" [routerLink]="['/menu/profiles', comment.authorUsername]"
                             [queryParams]="{ from: 'feed' }">
                             <strong>{{ comment.authorDisplayName }}</strong>
                           </a>
@@ -1229,7 +1229,7 @@
                     <div class="comment-row">
                       <a
                         class="comment-avatar"
-                        [routerLink]="['/menu/perfis', comment.authorUsername]"
+                        [routerLink]="['/menu/profiles', comment.authorUsername]"
                         [queryParams]="{ from: 'feed' }"
                         [attr.aria-label]="comment.authorDisplayName + ' (@' + comment.authorUsername + ')'">
                         @if (commentProfileImage(comment); as image) {
@@ -1241,7 +1241,7 @@
 
                       <div class="comment-copy">
                         <div class="comment-heading">
-                          <a class="comment-author-link" [routerLink]="['/menu/perfis', comment.authorUsername]"
+                          <a class="comment-author-link" [routerLink]="['/menu/profiles', comment.authorUsername]"
                             [queryParams]="{ from: 'feed' }">
                             <strong>{{ comment.authorDisplayName }}</strong>
                           </a>
@@ -1390,13 +1390,13 @@
         <section class="state-card feed-discovery-card">
           <div class="feed-v3-side-heading">
             <h2>{{ 'discover.who.title' | t }}</h2>
-            <a class="feed-inline-link" routerLink="/menu/perfis">{{ 'feed.v3.viewAll' | t }} <span aria-hidden="true">↗</span></a>
+            <a class="feed-inline-link" routerLink="/menu/profiles">{{ 'feed.v3.viewAll' | t }} <span aria-hidden="true">↗</span></a>
           </div>
           @if (suggestedPeople.length > 0) {
             <div class="feed-suggested-people">
               @for (profile of suggestedPeople; track profile.username) {
                 <a class="feed-suggested-person"
-                   [routerLink]="['/menu/perfis', profile.username]"
+                   [routerLink]="['/menu/profiles', profile.username]"
                    [queryParams]="{ from: 'feed' }">
                   <span class="avatar feed-suggested-avatar" aria-hidden="true">
                     @if (suggestedProfileImage(profile); as picture) {
@@ -1487,7 +1487,7 @@
           <p>{{ 'Ainda não há gostos.' | t }}</p>
         } @else {
           @for (person of likersList; track person.username) {
-            <a class="feed-liker-person" [routerLink]="['/menu/perfis', person.username]"
+            <a class="feed-liker-person" [routerLink]="['/menu/profiles', person.username]"
                (click)="closeLikers()">
               <strong>{{ person.nickname || person.fullName || person.username }}</strong>
               <span>@{{ person.username }}</span>

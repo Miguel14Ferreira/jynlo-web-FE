@@ -34,6 +34,9 @@
               <strong>{{ suggestion.venue.name }}</strong>
               <small>📍 {{ suggestion.venue.city }} · {{ suggestion.venue.district || '—' }}</small>
               <small>{{ 'venue.admin.submitter' | t }} @{{ suggestion.submittedByUsername }}</small>
+              @if (suggestion.managerRequested) {
+                <small class="admin-suggestion-manager">🏟️ {{ 'Pede para gerir o recinto' | t }}: {{ suggestion.managerRole }}@if (suggestion.managerPhone) { · {{ suggestion.managerPhone }} }. {{ 'Aprovar também o torna gestor.' | t }}</small>
+              }
             </span>
             <span class="admin-venue-view">→</span>
           </button>

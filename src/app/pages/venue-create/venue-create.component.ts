@@ -115,6 +115,7 @@ export class VenueCreateComponent implements OnInit {
 
   ngOnInit(): void {
     const params = this.route?.snapshot.queryParamMap;
+    if (params?.get('owner') === '1') this.runsVenue = true;
     if (!params) {
       return;
     }
@@ -346,7 +347,16 @@ export class VenueCreateComponent implements OnInit {
     this.submitted = false;
     this.saveError = false;
     this.duplicateVenueError = false;
-    this.venueService.submitSuggestion(request)
+    if (this.runsVenue && this.managerRole.trim().length < 2) {
+      this.saving = false;
+      this.managerRoleError = true;
+      return;
+    }
+    this.managerRoleError = false;
+    const submission = this.runsVenue
+      ? this.venueService.submitMine(request, this.managerRole.trim(), this.managerPhone.trim() || null)
+      : this.venueService.submitSuggestion(request);
+    submission
       .pipe(
         timeout(10_000),
         finalize(() => this.saving = false)
@@ -362,6 +372,12 @@ export class VenueCreateComponent implements OnInit {
       }
     });
   }
+
+  /** The person creating the venue runs it: approving the venue also lets them manage it. */
+  runsVenue = false;
+  managerRole = '';
+  managerPhone = '';
+  managerRoleError = false;
 
   private valueOrNull(value: string): string | null {
     const trimmed = value.trim();

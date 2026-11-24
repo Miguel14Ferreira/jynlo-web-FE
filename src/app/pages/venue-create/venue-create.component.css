@@ -374,3 +374,11 @@
     margin-top: 4px;
   }
 }
+
+.venue-owner-box { grid-column:1 / -1; display:grid; gap:.7rem; margin:0 0 .6rem; padding:1rem; border-radius:16px;
+  border:1px solid rgba(98,230,196,.45); background:rgba(98,230,196,.06); }
+.venue-owner-check { display:flex; gap:.7rem; align-items:flex-start; cursor:pointer; }
+.venue-owner-check input { margin-top:.25rem; width:1.1rem; height:1.1rem; accent-color:#62e6c4; }
+.venue-owner-check span { display:grid; gap:.2rem; }
+.venue-owner-check small { color:#b9d4d6; }
+.venue-owner-box > label:not(.venue-owner-check) { display:grid; gap:.3rem; font-weight:700; }

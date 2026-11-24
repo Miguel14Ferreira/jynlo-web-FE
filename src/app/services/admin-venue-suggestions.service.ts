@@ -9,6 +9,9 @@ export interface AdminVenueSuggestion {
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   venue: CreateVenueRequest;
   submittedByUsername: string;
+  managerRequested?: boolean;
+  managerRole?: string | null;
+  managerPhone?: string | null;
   submittedAt: string;
   reviewedByUsername: string | null;
   reviewedAt: string | null;

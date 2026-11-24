@@ -142,7 +142,7 @@
 
       <div class="profile-grid">
         @for (profile of profiles; track profile.username) {
-          <a class="profile-card" [routerLink]="['/menu/perfis', profile.username]"
+          <a class="profile-card" [routerLink]="['/menu/profiles', profile.username]"
              [queryParams]="peopleProfileParams">
             <div class="avatar">
               @if (profileImage(profile); as image) {
@@ -178,7 +178,7 @@
 
     } @else {
       <a class="secondary-action back-to-search jynlo-action jynlo-action--neutral"
-         [routerLink]="backToFriends ? '/menu/friendList' : (backToFeed ? '/menu/feed' : (backToPeopleSearch ? '/menu/perfis' : (backToDiscover ? '/menu/discover' : '/menu/perfis')))"
+         [routerLink]="backToFriends ? '/menu/friendList' : (backToFeed ? '/menu/feed' : (backToPeopleSearch ? '/menu/profiles' : (backToDiscover ? '/menu/discover' : '/menu/profiles')))"
          [queryParams]="backToPeopleSearch ? peopleSearchReturnParams : (backToDiscover ? discoverReturnParams : null)">← {{ (backToFriends ? 'friends.backToFriends' : (backToFeed ? 'feed.backToFeed' : (backToPeopleSearch ? 'community.backToSearch' : (backToDiscover ? 'discover.backFromProfile' : 'community.backToSearch')))) | t }}</a>
       @if (loading) {
         <div class="state-card" role="status">{{ 'common.loading' | t }}</div>
@@ -278,7 +278,7 @@
               }
               @if (isOwnProfile(selectedProfile)) {
                 <a class="profile-edit-action jynlo-action jynlo-action--primary"
-                   routerLink="/menu/alterardados">
+                   routerLink="/menu/edit-profile">
                   <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
                        stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -717,7 +717,7 @@
                 <h3>{{ 'Pedidos para seguir ({{privacyPendingCount}})' | t:{privacyPendingCount: (privacyPending.length)} }}</h3>
                 @for (request of privacyPending; track request.id) {
                   <div class="profile-follow-request">
-                    <a [routerLink]="['/menu/perfis',request.username]">&#64;{{request.username}}</a>
+                    <a [routerLink]="['/menu/profiles',request.username]">&#64;{{request.username}}</a>
                     <button type="button" [disabled]="privacyBusy"
                       (click)="decidePendingFollow(request.id,true)">{{ 'Aceitar' | t }}</button>
                     <button type="button" [disabled]="privacyBusy"
@@ -898,7 +898,7 @@
           } @else {
             <div class="social-list-people">
               @for (person of followListProfiles; track person.username) {
-                <a [routerLink]="['/menu/perfis', person.username]" (click)="closeFollowList()">
+                <a [routerLink]="['/menu/profiles', person.username]" (click)="closeFollowList()">
                   <strong>{{ person.nickname || person.fullName || person.username }}</strong>
                   <span>@{{ person.username }}</span>
                 </a>

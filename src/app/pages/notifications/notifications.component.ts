@@ -332,7 +332,7 @@ export class NotificationsComponent implements OnInit {
     const username = notification.relatedUsername?.trim();
     if (!username || !['SOCIAL_POST_LIKED', 'SOCIAL_POST_COMMENTED', 'SOCIAL_NEW_FOLLOWER']
           .includes(notification.type || '')) return;
-    void this.router.navigate(['/menu/perfis', username], { queryParams: { from: 'feed' } });
+    void this.router.navigate(['/menu/profiles', username], { queryParams: { from: 'feed' } });
   }
 
   openSocialFeed(): void {

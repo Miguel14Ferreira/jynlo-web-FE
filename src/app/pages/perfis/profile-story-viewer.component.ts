@@ -54,7 +54,7 @@ import { SocialStoriesService } from '../../services/social-stories.service';
             @if(story.taggedUsernames){
               <div class="profile-story-tags">
                 @for(tag of story.taggedUsernames.split(',');track tag){
-                  <a [routerLink]="['/menu/perfis',tag.trim().replace('@','')]"
+                  <a [routerLink]="['/menu/profiles',tag.trim().replace('@','')]"
                     (click)="closed.emit()">&#64;{{tag.trim().replace('@','')}}</a>
                 }
               </div>

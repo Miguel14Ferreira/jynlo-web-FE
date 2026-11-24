@@ -118,14 +118,14 @@ import { TeamRosterImportComponent } from './team-roster-import.component';
         </div>
         <div class="team-roster" *ngIf="rosterVerified && visibleRoster.length">
           <article class="team-member" *ngFor="let player of visibleRoster; trackBy: trackRosterMember">
-            <a class="team-member-avatar team-member-profile-link" [routerLink]="['/menu/perfis',player.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: player.username})">
+            <a class="team-member-avatar team-member-profile-link" [routerLink]="['/menu/profiles',player.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: player.username})">
               <img *ngIf="playerAvatarSrc(player.profilePicUrl) && !brokenPlayerAvatars.has(player.profileId)"
                 [src]="playerAvatarSrc(player.profilePicUrl)!" loading="lazy" decoding="async"
                 (error)="brokenPlayerAvatars.add(player.profileId)" alt="">
               <ng-container *ngIf="!playerAvatarSrc(player.profilePicUrl) || brokenPlayerAvatars.has(player.profileId)">{{ (player.username || 'J').charAt(0).toUpperCase() }}</ng-container>
             </a>
             <div class="team-member-identity">
-              <a class="team-member-name" [routerLink]="['/menu/perfis',player.username]">{{player.fullName || player.username}}</a>
+              <a class="team-member-name" [routerLink]="['/menu/profiles',player.username]">{{player.fullName || player.username}}</a>
               <span class="team-member-handle">@{{player.username}}<ng-container *ngIf="player.shirtNumber != null"> · nº {{player.shirtNumber}}</ng-container><ng-container *ngIf="player.position"> · {{player.position}}</ng-container></span>
               <span *ngIf="player.bio" class="team-member-bio">{{player.bio}}</span>
             </div>
@@ -133,7 +133,7 @@ import { TeamRosterImportComponent } from './team-roster-import.component';
               {{player.role === 'OWNER' ? ('Responsável' | t) : ('Jogador' | t)}}
             </span>
             <div class="team-member-actions">
-              <a class="team-member-open" [routerLink]="['/menu/perfis',player.username]" [attr.aria-label]="('Ver perfil de @{{username}}' | t:{username: player.username})" [title]="'Ver perfil' | t">↗</a>
+              <a class="team-member-open" [routerLink]="['/menu/profiles',player.username]" [attr.aria-label]="('Ver perfil de @{{username}}' | t:{username: player.username})" [title]="'Ver perfil' | t">↗</a>
               <button *ngIf="isOwner && player.role !== 'OWNER'" type="button" class="team-member-remove"
                 [attr.aria-label]="('Remover @{{username}} da equipa' | t:{username: player.username})" [title]="'Remover jogador da equipa' | t"
                 [disabled]="busy || !rosterVerified" (click)="removePlayer(player)">{{ 'Remover' | t }}</button>
@@ -151,9 +151,9 @@ import { TeamRosterImportComponent } from './team-roster-import.component';
           <p class="team-content-note" *ngIf="invitationsVerified">{{ 'Convites sincronizados automaticamente.' | t }}</p>
           <p *ngIf="invitationsVerified && !pendingPlayers.length" class="team-empty-hint">{{ 'Não tens convites por responder.' | t }}</p>
           <div *ngFor="let invite of (invitationsVerified?pendingPlayers:[]); trackBy: trackPendingPlayer" class="team-candidate team-invite-card">
-            <a class="team-candidate-avatar team-member-profile-link" [routerLink]="['/menu/perfis',invite.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: invite.username})">{{(invite.username || 'J').slice(0,1).toUpperCase()}}</a>
+            <a class="team-candidate-avatar team-member-profile-link" [routerLink]="['/menu/profiles',invite.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: invite.username})">{{(invite.username || 'J').slice(0,1).toUpperCase()}}</a>
             <div class="team-candidate-identity">
-              <a [routerLink]="['/menu/perfis',invite.username]">@{{invite.username}}</a>
+              <a [routerLink]="['/menu/profiles',invite.username]">@{{invite.username}}</a>
               <small>{{ 'A aguardar resposta' | t }}</small>
             </div>
             <button type="button" [disabled]="busy || pendingLoading" (click)="cancelPendingInvitation(invite)">{{ 'Cancelar convite' | t }}</button>
@@ -168,9 +168,9 @@ import { TeamRosterImportComponent } from './team-roster-import.component';
           </div>
           <p *ngIf="playerSearchComplete && availablePlayers.length === 0" class="team-empty-hint" role="status">{{ 'Não encontrámos jogadores disponíveis nesta pesquisa.' | t }}</p>
           <div *ngFor="let candidate of availablePlayers; trackBy: trackCandidate" class="team-candidate team-player-result">
-            <a class="team-candidate-avatar team-member-profile-link" [routerLink]="['/menu/perfis',candidate.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: candidate.username})">{{(candidate.username || 'J').slice(0,1).toUpperCase()}}</a>
+            <a class="team-candidate-avatar team-member-profile-link" [routerLink]="['/menu/profiles',candidate.username]" [attr.aria-label]="('Abrir perfil de @{{username}}' | t:{username: candidate.username})">{{(candidate.username || 'J').slice(0,1).toUpperCase()}}</a>
             <div class="team-candidate-identity">
-              <a [routerLink]="['/menu/perfis',candidate.username]">{{candidate.fullName || candidate.username}}</a>
+              <a [routerLink]="['/menu/profiles',candidate.username]">{{candidate.fullName || candidate.username}}</a>
               <small>@{{candidate.username}}</small>
             </div>
             <button type="button" [attr.aria-label]="('Convidar @{{username}} para a equipa' | t:{username: candidate.username})"

@@ -578,9 +578,9 @@ describe('SocialFeedComponent discovery sidebar', () => {
     const submit = composer.querySelector('button.jynlo-premium-btn--primary') as HTMLButtonElement;
     expect(submit.disabled).toBeTrue();
     expect(root.querySelector('.feed-v3-join-action[href="/menu/communities"]')).not.toBeNull();
-    expect(root.querySelectorAll('.feed-v3-side-heading > a.feed-inline-link[href="/menu/perfis"]').length).toBe(1);
+    expect(root.querySelectorAll('.feed-v3-side-heading > a.feed-inline-link[href="/menu/profiles"]').length).toBe(1);
     expect(root.querySelectorAll('.feed-sidebar-link[href="/menu/events"]').length).toBe(1);
-    expect(root.querySelectorAll('.feed-sidebar-link[href="/menu/perfis"]').length).toBe(0);
+    expect(root.querySelectorAll('.feed-sidebar-link[href="/menu/profiles"]').length).toBe(0);
     component.ngOnDestroy();
   }));
 
@@ -1434,7 +1434,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
       distanceKm: null, participantCount: 10, maxParticipants: 0,
       priceAmount: 0, privateGame: false, status: 'OPEN'
     })).toBe(0);
-    expect(aside.querySelector('a[href="/menu/perfis"]')).not.toBeNull();
+    expect(aside.querySelector('a[href="/menu/profiles"]')).not.toBeNull();
   }));
 
   it('shows up to three genuine public profiles and excludes the current player', fakeAsync(() => {
@@ -1465,9 +1465,9 @@ describe('SocialFeedComponent discovery sidebar', () => {
     );
     expect(links.map(link => link.getAttribute('href')))
       .toEqual([
-        '/menu/perfis/ana?from=feed',
-        '/menu/perfis/bruno?from=feed',
-        '/menu/perfis/carla?from=feed'
+        '/menu/profiles/ana?from=feed',
+        '/menu/profiles/bruno?from=feed',
+        '/menu/profiles/carla?from=feed'
       ]);
     // Suggestions stay compact: name and @ only (no sport chips).
     expect(links[0].textContent).not.toContain('Padel');
@@ -1484,8 +1484,8 @@ describe('SocialFeedComponent discovery sidebar', () => {
     const aside = fixture.nativeElement.querySelector('.feed-sidebar') as HTMLElement;
     expect(component.suggestedPeople).toEqual([]);
     expect(aside.querySelector('.feed-suggested-person')).toBeNull();
-    expect(aside.querySelector('.feed-v3-side-heading a[href="/menu/perfis"]')).not.toBeNull();
-    expect(aside.querySelectorAll('a[href="/menu/perfis"]').length).toBe(1);
+    expect(aside.querySelector('.feed-v3-side-heading a[href="/menu/profiles"]')).not.toBeNull();
+    expect(aside.querySelectorAll('a[href="/menu/profiles"]').length).toBe(1);
   }));
 
   it('keeps discovery links visible when no sessions are suggested', fakeAsync(() => {
@@ -1497,7 +1497,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(aside).not.toBeNull();
     expect(aside.querySelector('.feed-suggested-session')).toBeNull();
     expect(aside.querySelector('a[href="/menu/events"]')).not.toBeNull();
-    expect(aside.querySelector('a[href="/menu/perfis"]')).not.toBeNull();
+    expect(aside.querySelector('a[href="/menu/profiles"]')).not.toBeNull();
   }));
 });
 

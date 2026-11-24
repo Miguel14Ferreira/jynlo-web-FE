@@ -25,7 +25,7 @@ describe('Account creation route protection', () => {
   });
   it('loads the public game preview and the account screens on demand', async () => {
     const routes = TestBed.inject(Router).config;
-    for (const path of ['sessions/:id', 'menu/dadosPerfil', 'contact', 'about', 'login/MFAauthentication']) {
+    for (const path of ['sessions/:id', 'menu/profile', 'contact', 'about', 'login/MFAauthentication']) {
       const route = routes.find(item => item.path === path);
       expect(route?.component).withContext(path).toBeUndefined();
       expect(route?.loadComponent).withContext(path).toBeDefined();

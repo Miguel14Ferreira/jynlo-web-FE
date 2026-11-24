@@ -71,7 +71,7 @@
        <div class="group-member-links" [attr.aria-label]="'groups.members' | t">
          @for (m of group.members; track m.username) {
            <div class="group-member-chip">
-             <a [routerLink]="['/menu/perfis',m.username]" [title]="m.displayName">
+             <a [routerLink]="['/menu/profiles',m.username]" [title]="m.displayName">
                @if(m.profilePicUrl){<img class="group-member-avatar" [src]="m.profilePicUrl" alt="" loading="lazy">}
                {{ m.displayName }} @if(m.admin){ <span aria-hidden="true">★</span> }
              </a>
@@ -108,7 +108,7 @@
          }
          @for (message of messages; track message.id) {
            <article class="group-bubble" [class.mine]="message.sender.toLowerCase()===me">
-             <a [routerLink]="['/menu/perfis',message.sender]">{{ message.sender }}</a>
+             <a [routerLink]="['/menu/profiles',message.sender]">{{ message.sender }}</a>
              @if (quote(message); as q) {
                <blockquote class="group-quote">{{ q.sender ? q.sender + ': ' : '' }}{{ q.text }}</blockquote>
              }

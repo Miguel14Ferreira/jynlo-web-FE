@@ -92,7 +92,7 @@ export class GlobalSearchComponent implements OnInit, OnDestroy {
       sessions: safe<any>('search.sessions', filters ? this.http.get<any[]>(`${this.api}/api/sessions?${sessionParams}`)
         .pipe(map(list => (list ?? []).filter(s => s?.status === 'OPEN' || s?.status === 'FULL'))) : of([])),
     }).pipe(map(r => ({
-      people: r.people.map(p => ({ title: p.nickname || p.fullName || p.username, subtitle: '@' + p.username + (p.location ? ' · ' + p.location : ''), link: ['/menu/perfis', p.username], image: this.media(p.profilePicUrl) })),
+      people: r.people.map(p => ({ title: p.nickname || p.fullName || p.username, subtitle: '@' + p.username + (p.location ? ' · ' + p.location : ''), link: ['/menu/profiles', p.username], image: this.media(p.profilePicUrl) })),
       sessions: r.sessions.map(s => ({ title: `${s.sport} · ${s.city}`, subtitle: this.when(s.gameDate) + ` · ${s.participantCount}/${s.maxParticipants}`, link: ['/menu/events', s.id] })),
       communities: r.communities.map(c => ({ title: c.name, subtitle: c.sport || c.description || '', link: ['/menu/communities', c.id], image: this.media(c.photoUrl) })),
       teams: r.teams.map(t => ({ title: t.name, subtitle: [t.sport, t.location].filter(Boolean).join(' · '), link: ['/menu/teams', t.id] })),

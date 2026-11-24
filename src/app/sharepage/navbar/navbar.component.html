@@ -26,7 +26,7 @@
           <summary class="jynlo-action jynlo-action--neutral account-identity-trigger"
             [attr.aria-label]="accountDisplayName || activeAccountUsername || ('nav.account.profile' | t)">
             <a class="account-identity-avatar account-avatar-profile-link"
-               [routerLink]="['/menu/perfis', activeAccountUsername]"
+               [routerLink]="['/menu/profiles', activeAccountUsername]"
                [attr.aria-label]="('Ver o meu perfil: {{activeAccountUsername}}' | t:{activeAccountUsername: activeAccountUsername})"
                (click)="$event.stopPropagation(); closeAccountMenu()"
                (keydown.enter)="$event.stopPropagation()"
@@ -67,7 +67,7 @@
               <a [routerLink]="managedVenuesLink" (click)="closeAccountMenu()">{{ 'Os meus recintos' | t }}@if (managedPending) { <span class="nav-managed-badge">{{ managedPending }}</span> }</a>
             }
             <a routerLink="/menu/venue-bookings" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'As minhas reservas' | t }}</a>
-            <a [routerLink]="['/menu/perfis', activeAccountUsername]" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'nav.account.viewProfile' | t }}</a>
+            <a [routerLink]="['/menu/profiles', activeAccountUsername]" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'nav.account.viewProfile' | t }}</a>
             @if (admin) {
               <a routerLink="/menu/admin" routerLinkActive="active-link" (click)="closeAccountMenu()">{{ 'admin.eyebrow' | t }}</a>
             }
@@ -85,7 +85,7 @@
       } @else {
         <a class="nav-public-secondary" routerLink="/home" routerLinkActive="active-link">{{ 'nav.home' | t }}</a>
         <a routerLink="/menu/discover" routerLinkActive="active-link">{{ 'nav.discover' | t }}</a>
-        <a class="nav-public-secondary" routerLink="/para-recintos" routerLinkActive="active-link">{{ 'Para recintos' | t }}</a>
+        <a class="nav-public-secondary" routerLink="/for-venues" routerLinkActive="active-link">{{ 'Para recintos' | t }}</a>
         <a class="nav-public-secondary" routerLink="/about" routerLinkActive="active-link">{{ 'nav.about' | t }}</a>
         <a class="nav-public-secondary" routerLink="/contact" routerLinkActive="active-link">{{ 'nav.contact' | t }}</a>
       }

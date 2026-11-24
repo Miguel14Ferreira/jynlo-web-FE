@@ -10,7 +10,7 @@ const KINDS: ShareKind[] = ['profile','session','community'];
 
 export function shareRoute(choice: Pick<ShareChoice, 'kind'|'id'>): string | null {
   if (choice.kind === 'profile' && VALID_PROFILE.test(choice.id)) {
-    return '/menu/perfis/' + encodeURIComponent(choice.id);
+    return '/menu/profiles/' + encodeURIComponent(choice.id);
   }
   if (choice.kind === 'session' && VALID_ID.test(choice.id)) return '/sessions/' + choice.id;
   if (choice.kind === 'community' && VALID_ID.test(choice.id)) {

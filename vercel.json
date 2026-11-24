@@ -39,6 +39,17 @@
       "destination": "https://api.jynlosports.com/api/share/communities/:id"
     },
     {
+      "source": "/menu/profiles/:username([A-Za-z0-9._-]+)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|meta-externalagent|whatsapp|twitterbot|linkedinbot|slackbot|telegrambot|discordbot|skypeuripreview|pinterest|embedly).*"
+        }
+      ],
+      "destination": "https://api.jynlosports.com/api/share/profiles/:username"
+    },
+    {
       "source": "/menu/perfis/:username([A-Za-z0-9._-]+)",
       "has": [
         {

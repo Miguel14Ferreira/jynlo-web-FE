@@ -178,7 +178,7 @@ describe('Unified Jynlo message center', () => {
     const router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     router.navigate.and.resolveTo(true);
     component.openContact('@bea');
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/menu/perfis', 'bea']);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/menu/profiles', 'bea']);
 
     component.openContact('');
     component.openContact(null);

@@ -7,7 +7,7 @@
       </div>
 
       <div class="header-actions">
-        <a class="secondary-action jynlo-action jynlo-action--neutral" routerLink="/menu/dadosPerfil">{{ 'profile.view' | t }}</a>
+        <a class="secondary-action jynlo-action jynlo-action--neutral" routerLink="/menu/profile">{{ 'profile.view' | t }}</a>
       </div>
     </header>
 
@@ -435,7 +435,7 @@
             <h2 id="password-entry-heading">{{ 'Palavra-passe' | t }}</h2>
             <p>{{ 'menu.securityText' | t }}</p>
           </div>
-          <a class="jynlo-action jynlo-action--neutral" routerLink="/menu/alterarPassword">{{ 'Alterar palavra-passe' | t }}</a>
+          <a class="jynlo-action jynlo-action--neutral" routerLink="/menu/change-password">{{ 'Alterar palavra-passe' | t }}</a>
         </section>
 
         <app-account-email-change [currentEmail]="profile?.email || null"></app-account-email-change>
@@ -585,7 +585,7 @@
         </section>
 
         <div class="form-actions">
-          <a class="secondary-action jynlo-action jynlo-action--neutral" routerLink="/menu/dadosPerfil">{{ 'common.cancel' | t }}</a>
+          <a class="secondary-action jynlo-action jynlo-action--neutral" routerLink="/menu/profile">{{ 'common.cancel' | t }}</a>
           <button class="jynlo-action jynlo-action--primary" type="submit" [disabled]="saving">
             {{ saving ? ('profile.saving' | t) : ('profile.save' | t) }}
           </button>
