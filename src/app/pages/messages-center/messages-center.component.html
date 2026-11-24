@@ -335,7 +335,8 @@
                       <button type="button" class="inbox-mention-link"
                         [attr.aria-label]="('Ver perfil de @{{username}}' | t:{username: part.username})"
                         (click)="openContact(part.username)">{{part.text}}</button>
-                    } @else {<span>{{part.text}}</span>}
+                    } @else {@for (seg of linkParts(part.text); track $index) {@if (seg.url) {<a class="inbox-text-link" [href]="seg.url"
+                        [attr.target]="seg.internal ? null : '_blank'" rel="noopener noreferrer">{{seg.text}}</a>} @else {<span>{{seg.text}}</span>}}}
                   }</p>
                 }
                 @if (!message.deletedAt && message.attachmentName) {

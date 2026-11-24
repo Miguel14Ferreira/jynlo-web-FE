@@ -368,3 +368,5 @@
 .inbox-compose-alert-close { position:absolute; top:8px; right:8px; width:28px; height:28px; display:grid; place-items:center;
   border:0; border-radius:50%; background:transparent; color:inherit; font-size:.85rem; cursor:pointer; opacity:.8; }
 .inbox-compose-alert-close:hover { background:#ffffff1a; opacity:1; }
+.inbox-text-link{color:#8ff5ff;text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere;word-break:break-word}
+.inbox-text-link:hover{color:#c6fbff}

@@ -115,7 +115,7 @@
              } @else if (readPoll(message.text); as poll) {
                <app-inbox-poll-card [poll]="poll" kind="private" [conversationId]="'' + message.groupId" [messageId]="message.id"></app-inbox-poll-card>
              } @else if (!onlyFile(message)) {
-               <p>{{ message.text }}</p>
+               <p>@for (seg of linkParts(message.text); track $index) {@if (seg.url) {<a class="group-text-link" [href]="seg.url" [attr.target]="seg.internal ? null : '_blank'" rel="noopener noreferrer">{{seg.text}}</a>} @else {{{seg.text}}}}</p>
              }
              @if (!message.deleted) {
                @for (file of message.attachments || []; track file.index) {

@@ -1,4 +1,5 @@
 import { AutoGrowDirective } from '../../shared/auto-grow.directive';
+import { linkParts } from '../../shared/link-parts';
 import { ActiveChatService } from '../../services/active-chat.service';
 import { appTranslate } from '../../i18n/i18n.service';
 import { CommonModule } from '@angular/common';
@@ -1858,6 +1859,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   readonly mentionTokenPattern=/(^|\s)(@[\p{L}\p{N}_.-]{2,32})/gu;
+  readonly linkParts = linkParts;
+
   messageMentionParts(value:string):Array<{text:string;username:string|null}> {
     const result:Array<{text:string;username:string|null}>=[];
     const regex=/(^|\s)(@[\p{L}\p{N}_.-]{2,32})/gu;
