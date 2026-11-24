@@ -8404,4 +8404,12 @@ export const EN: Record<string, string> = {
   "Zona": "Area",
   "Não foi possível enviar o pedido. Tenta outra vez.": "Couldn't send the request. Please try again.",
   "Ainda não pediste nenhuma reserva. Procura um recinto com o selo “Aceita reservas na Jynlo”.": "You haven't requested any booking yet. Look for a venue with the “Takes bookings on Jynlo” badge.",
+  "Reservar o campo": "Book the court",
+  "Este recinto aceita reservas na Jynlo": "This venue takes bookings on Jynlo",
+  "Escolhe o dia e um horário livre: o jogo fica nessa hora e o pedido de reserva segue para o recinto.": "Pick a day and a free time: the game is set for that time and the booking request goes to the venue.",
+  "Não há horários livres neste dia. Experimenta outro dia.": "No free times on this day. Try another day.",
+  "Horário escolhido:": "Time picked:",
+  "O recinto ainda tem de confirmar a reserva.": "The venue still has to confirm the booking.",
+  "Não reservar": "Don't book",
+  "A hora do jogo passou para o horário reservado.": "The game time now matches the booked time.",
 };

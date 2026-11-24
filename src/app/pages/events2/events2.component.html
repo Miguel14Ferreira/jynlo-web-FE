@@ -322,6 +322,7 @@
             type="datetime-local"
             name="gameDate"
             [(ngModel)]="gameDate"
+            (ngModelChange)="onGameDateEdited()"
             [min]="minDate"
             [disabled]="loading">
         </label>
@@ -584,6 +585,18 @@
           </div>
         }
 
+        @if (selectedVenueId) {
+          <app-venue-slot-picker
+            [venueId]="selectedVenueId"
+            [disabled]="loading"
+            [selectedStart]="pickedSlot?.start ?? null"
+            [selectedCourtId]="pickedSlot?.courtId ?? null"
+            (picked)="onVenueSlotPicked($event)">
+          </app-venue-slot-picker>
+          @if (pickedSlot) {
+            <p class="venue-current-location" role="status">{{ 'A hora do jogo passou para o horário reservado.' | t }}</p>
+          }
+        }
         @if (selectedVenueId) {
           <div class="venue-create-card">
             <div>

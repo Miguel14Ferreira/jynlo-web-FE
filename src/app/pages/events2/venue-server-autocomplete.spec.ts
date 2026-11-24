@@ -1,3 +1,4 @@
+import { VenueSlotPickerComponent } from '../../shared/venue-slot-picker/venue-slot-picker.component';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of, Subject } from 'rxjs';
@@ -28,7 +29,7 @@ describe('Create session venue server autocomplete', () => {
     venues.listPhotos.and.returnValue(of([]));
     await TestBed.configureTestingModule({
       declarations: [Events2Component],
-      imports: [...TEST_IMPORTS, LocationMethodSelectorComponent],
+      imports: [...TEST_IMPORTS, LocationMethodSelectorComponent, VenueSlotPickerComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: VenueService, useValue: venues },

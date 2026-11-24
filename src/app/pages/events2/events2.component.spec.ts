@@ -1,3 +1,4 @@
+import { VenueSlotPickerComponent } from '../../shared/venue-slot-picker/venue-slot-picker.component';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { JynloSelectComponent } from '../../shared/jynlo-select/jynlo-select.component';
@@ -64,7 +65,7 @@ describe('Events2Component', () => {
 
     await TestBed.configureTestingModule({
       declarations: [Events2Component],
-      imports: [...TEST_IMPORTS, LocationMethodSelectorComponent],
+      imports: [...TEST_IMPORTS, LocationMethodSelectorComponent, VenueSlotPickerComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: SessionService, useValue: sessionService },

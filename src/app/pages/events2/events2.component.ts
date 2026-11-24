@@ -15,6 +15,7 @@ import { SessionPreset, SessionPresetSettings } from '../model/session-preset';
 import { CommunityGroupsService } from '../../services/community-groups.service';
 import { VenuePhoto, VenueService } from '../../services/venue.service';
 import { VenueBookingService } from '../../services/venue-booking.service';
+import { PickedVenueSlot, slotLocalDateTime } from '../../shared/venue-slot-picker/venue-slot-picker.component';
 import { Venue, VenueOwnershipType } from '../model/venue';
 import { SPORTS_CATALOG } from '../../shared/sports-catalog';
 import { suggestedMinimumPlayers } from '../../shared/session-minimum-players';
@@ -186,6 +187,8 @@ export class Events2Component implements OnInit, OnDestroy {
   }
   /** A court booked in "Reservar campo": once the game exists it is linked to that booking. */
   bookingId: number | null = null;
+  /** A free court time picked at a venue that takes Jynlo bookings; requested once the game exists. */
+  pickedSlot: PickedVenueSlot | null = null;
   private readonly venueBookings = inject(VenueBookingService);
   seasonGame = false;
   seasonGameCommunityId: number | null = null;
@@ -1098,6 +1101,16 @@ export class Events2Component implements OnInit, OnDestroy {
     }
   }
 
+  onVenueSlotPicked(slot: PickedVenueSlot | null): void {
+    this.pickedSlot = slot;
+    if (slot) this.gameDate = slotLocalDateTime(slot.start);
+  }
+
+  /** Typing another time than the picked court slot drops the booking request. */
+  onGameDateEdited(): void {
+    if (this.pickedSlot && this.gameDate !== slotLocalDateTime(this.pickedSlot.start)) this.pickedSlot = null;
+  }
+
   private prefillBookedVenue(venueId: number): void {
     this.locationMethod = 'venue';
     this.venueService.get(venueId).pipe(timeout(10_000)).subscribe({
@@ -1202,8 +1215,14 @@ export class Events2Component implements OnInit, OnDestroy {
           );
           // "Jogar outra vez": invite last time's players once the new session exists.
           // Link the court booking to the new game; a failure never blocks opening it.
+          const slot = this.pickedSlot;
           if (this.bookingId) {
             this.venueBookings.linkSession(this.bookingId, session.id).pipe(timeout(15_000)).subscribe({
+              next: () => void open(), error: () => void open(),
+            });
+          } else if (slot && slot.venueId === this.selectedVenueId) {
+            // Ask the venue for the picked court, linked to the new game; a refusal never blocks opening it.
+            this.venueBookings.request(slot.venueId, slot.courtId, slot.start, null, session.id).pipe(timeout(15_000)).subscribe({
               next: () => void open(), error: () => void open(),
             });
           } else if (this.repeatFrom) {
@@ -1462,6 +1481,8 @@ export class Events2Component implements OnInit, OnDestroy {
   }
 
   selectVenue(value: number | string | null): void {
+    // A court slot belongs to one venue: another choice drops it.
+    if (this.pickedSlot && Number(value) !== this.pickedSlot.venueId) this.pickedSlot = null;
     this.invalidateVenueMapLinkRequest();
     // Changing venues also cancels an unfinished browser GPS request.
     this.stopGpsRefinement();
