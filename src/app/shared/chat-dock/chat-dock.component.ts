@@ -60,8 +60,8 @@ const MIN_WIDTH = 1024;
       color:#d5f3ef;cursor:pointer}
     .chat-dock__icon:hover{background:#174b56}
     .chat-dock__icon svg{width:19px;height:19px}
-    .chat-dock__body{flex:1;min-height:0;overflow:hidden}
-    .chat-dock__body > app-messages-center{display:block;height:100%}
+    .chat-dock__body{position:relative;flex:1;min-height:0;overflow:hidden}
+    .chat-dock__body > app-messages-center{position:absolute;inset:0;display:block;overflow:hidden}
   `]
 })
 export class ChatDockComponent implements OnInit, OnDestroy {

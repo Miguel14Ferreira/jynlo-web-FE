@@ -116,3 +116,31 @@
 :host .inbox-page.jynlo-secondary.inbox-dock .inbox-sidebar,:host .inbox-page.jynlo-secondary.inbox-dock .inbox-detail{border:0;border-radius:0;box-shadow:none}
 :host .inbox-page.jynlo-secondary.inbox-dock{height:100%}
 .inbox-dock .inbox-sidebar .inbox-entries,.inbox-dock .inbox-sidebar app-inbox-conversation-list{flex:1 1 auto;min-height:0;overflow-y:auto}
+/* Hard limits so the list scrolls inside the floating window instead of overflowing it. */
+:host .inbox-page.inbox-dock,:host .inbox-page.inbox-dock .inbox-shell,:host .inbox-page.inbox-dock .inbox-layout,
+:host .inbox-page.inbox-dock .inbox-sidebar,:host .inbox-page.inbox-dock.inbox-dock--open .inbox-detail{
+  height:100%!important;min-height:0!important;max-height:100%!important;box-sizing:border-box}
+:host .inbox-page.inbox-dock .inbox-sidebar{display:flex!important;flex-direction:column!important;overflow:hidden}
+:host .inbox-page.inbox-dock.inbox-dock--open .inbox-sidebar{display:none!important}
+:host .inbox-page.inbox-dock .inbox-side-top{flex:none}
+:host .inbox-page.inbox-dock .inbox-message-log{min-height:0!important;max-height:none!important;flex:1 1 auto}
+/* The full page's minimum height does not apply inside the floating window. */
+:host-context(.chat-dock__body){display:block;min-height:0;height:100%}
+/* Compact conversation header in the floating window: name truncates, actions stay on one row. */
+:host .inbox-page.inbox-dock .inbox-detail-heading{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;padding:8px 10px;min-height:0}
+:host .inbox-page.inbox-dock .inbox-detail-heading>*:not(.inbox-heading-actions):not(.inbox-dock-back){flex:1 1 auto;min-width:0}
+:host .inbox-page.inbox-dock .inbox-chat-identity{display:flex;align-items:center;gap:8px;min-width:0;max-width:100%;padding:0}
+:host .inbox-page.inbox-dock .inbox-detail-avatar{width:34px!important;height:34px!important;min-width:34px!important;flex:none;font-size:.9rem}
+:host .inbox-page.inbox-dock .inbox-detail-info{min-width:0;display:flex;flex-direction:column}
+:host .inbox-page.inbox-dock .inbox-detail-info strong,:host .inbox-page.inbox-dock .inbox-detail-heading h2{font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
+:host .inbox-page.inbox-dock .inbox-contact-caption,:host .inbox-page.inbox-dock .inbox-detail-heading p{display:none}
+:host .inbox-page.inbox-dock .inbox-heading-actions{display:flex;flex:none;gap:4px;flex-wrap:nowrap;align-items:center}
+:host .inbox-page.inbox-dock .inbox-heading-actions>*{width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;padding:0!important;font-size:.85rem}
+:host .inbox-page.inbox-dock .inbox-group-create{display:none!important}
+/* Composer always visible at the bottom of the window. */
+:host .inbox-page.inbox-dock .inbox-composer{flex:none}
+:host .inbox-page.inbox-dock .inbox-compose-toolbar{gap:4px;padding:5px 5px 5px 9px}
+:host .inbox-page.inbox-dock .inbox-compose-toolbar textarea{min-width:0;height:40px;min-height:40px}
+:host .inbox-page.inbox-dock .inbox-composer-actions{gap:2px}
+:host .inbox-page.inbox-dock .inbox-composer-actions>button[type="submit"]{width:40px;height:40px;min-width:40px}
+:host .inbox-page.inbox-dock .inbox-attachment-trigger,:host .inbox-page.inbox-dock .inbox-emoji-trigger,:host .inbox-page.inbox-dock .inbox-voice-trigger{width:32px;min-width:32px;height:32px}
