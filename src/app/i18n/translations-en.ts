@@ -8110,7 +8110,7 @@ export const EN: Record<string, string> = {
   'Ver todas ({{n}})': 'See all ({{n}})',
   'Ver menos': 'Show less',
   'Fonte dos dados:': 'Data source:',
-  'Dados oficiais: IPDJ – Sistema Nacional de Informação Desportiva (CC BY 4.0) e Câmara Municipal de Lisboa.': 'Official data: IPDJ – National Sports Information System (CC BY 4.0) and Lisbon City Council.',
+  'Dados oficiais: IPDJ – Sistema Nacional de Informação Desportiva (CC BY 4.0), Câmara Municipal de Lisboa e Câmara Municipal de Cascais (CC BY).': 'Official data: IPDJ – National Sports Information System (CC BY 4.0), Lisbon City Council and Cascais City Council (CC BY).',
   'Colar lista': 'Paste a list',
   'Aceitamos Excel (.xlsx, .xls), LibreOffice (.ods), CSV e TSV. No Google Sheets ou no Numbers: Ficheiro → Transferir/Exportar → Excel ou CSV.': 'We accept Excel (.xlsx, .xls), LibreOffice (.ods), CSV and TSV. In Google Sheets or Numbers: File → Download/Export → Excel or CSV.',
   'Um jogador por linha, por exemplo «10 João Silva» ou «João Silva; 10; Defesa». Também podes colar células copiadas de uma folha de cálculo.': 'One player per line, for example “10 João Silva” or “João Silva; 10; Defender”. You can also paste cells copied from a spreadsheet.',
