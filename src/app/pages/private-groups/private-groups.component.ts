@@ -1,3 +1,4 @@
+import { ChatTypingTracker } from '../../services/chat-typing-tracker';
 import { AutoGrowDirective } from '../../shared/auto-grow.directive';
 import { linkParts } from '../../shared/link-parts';
 import { CommonModule } from '@angular/common';
@@ -63,6 +64,7 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
   private currentRequest=0;
   private subscriptions=new Subscription();
   readonly me:string;
+  readonly typing:ChatTypingTracker;
 
   constructor(private api:PrivateGroupService,private contact:CommunityService,
     private realtime:DirectChatRealtimeService,private auth:AuthenticationService,
@@ -70,6 +72,7 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
     private conversationMutes:ConversationMuteService,
     private inboxApi:InboxApiService){
     this.me=(auth.loggedInPerfilname||'').toLowerCase();
+    this.typing=new ChatTypingTracker(realtime);
   }
 
   ngOnInit():void{
@@ -109,7 +112,8 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
       error:()=>this.friends=[]
     });
   }
-  ngOnDestroy():void{this.subscriptions.unsubscribe();this.currentRequest++;}
+  ngOnDestroy():void{this.typing?.destroy();this.subscriptions.unsubscribe();this.currentRequest++;}
+  onDraftInput():void{if(this.selected)this.typing?.input('private',this.selected.id,this.draft,!this.busy);}
 
   refreshGroups(initial:boolean):void{
     this.api.list().subscribe({
@@ -219,6 +223,7 @@ export class PrivateGroupsComponent implements OnInit,OnDestroy {
   }
 
   send():void{
+    this.typing?.stop();
     const group=this.selected,text=this.draft.trim();
     if(!group||!text||text.length>2000||this.busy)return;
     this.busy=true;this.groupError='';

@@ -345,3 +345,5 @@ main.group-chat:not(:has(> *)){display:none}
 .group-bubble:hover .group-actions,.group-bubble:focus-within .group-actions{opacity:1;max-height:60px}
 @media (hover:none){.group-bubble .group-actions{opacity:1;max-height:none}}
 .group-text-link{color:#8ff5ff;text-decoration:underline;overflow-wrap:anywhere}
+
+.chat-typing-indicator{margin:4px 16px;padding:3px 5px;color:#74dfca;font-size:.8rem;font-weight:700;font-style:italic;min-height:18px}

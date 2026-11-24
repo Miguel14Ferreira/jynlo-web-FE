@@ -18,7 +18,7 @@ export class ChatTypingTracker {
   constructor(private readonly realtime: DirectChatRealtimeService) {
     this.listeners.add(this.realtime.typing$?.subscribe(event => {
       if (!event || !event.username || !event.conversationId
-          || !['direct', 'community', 'session', 'team'].includes(event.kind)) return;
+          || !['direct', 'community', 'session', 'team', 'private'].includes(event.kind)) return;
       const key = this.key(event.kind, event.conversationId);
       let users = this.visible.get(key);
       if (!users) {
