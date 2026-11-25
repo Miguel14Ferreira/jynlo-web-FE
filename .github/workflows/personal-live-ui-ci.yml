@@ -1,12 +1,7 @@
 name: Jynlo live room UI CI
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - 'src/app/pages/social-feed/personal-live-room.component.*'
-      - 'src/app/pages/social-feed/social-feed.component.ts'
-      - '.github/workflows/personal-live-ui-ci.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

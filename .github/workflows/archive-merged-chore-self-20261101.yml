@@ -1,8 +1,8 @@
 name: Archive merged cleanup PR branch
 on:
-  push:
-    branches: [develop]
-    paths: [.github/workflows/archive-merged-chore-self-20261101.yml]
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
+  workflow_dispatch:
+
 permissions:
   contents: write
   pull-requests: read

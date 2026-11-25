@@ -1,18 +1,7 @@
 name: Jynlo call screen zoom and audio mixer
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - '.github/workflows/call-screen-zoom-audio-ci.yml'
-      - 'src/app/shared/direct-call-overlay.component.ts'
-      - 'src/app/shared/direct-call-overlay.component.spec.ts'
-      - 'src/app/shared/call-participant-tile.component.ts'
-      - 'src/app/shared/call-participant-tile.component.spec.ts'
-      - 'src/app/i18n/i18n.service.ts'
-      - 'src/app/i18n/translations-en.ts'
-      - 'package.json'
-      - 'package-lock.json'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

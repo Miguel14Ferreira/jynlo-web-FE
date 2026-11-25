@@ -1,8 +1,8 @@
 name: Archive last merged chore PR head
 on:
-  push:
-    branches: [develop]
-    paths: [.github/workflows/archive-last-merged-chore-20261101.yml]
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
+  workflow_dispatch:
+
 permissions:
   contents: write
   pull-requests: read

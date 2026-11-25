@@ -1,18 +1,7 @@
 name: Jynlo web prelaunch team journey
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - '.github/workflows/prelaunch-team-journey-ci.yml'
-      - 'src/app/pages/communities/community-tournaments.component.ts'
-      - 'src/app/pages/communities/community-tournaments.component.html'
-      - 'src/app/pages/communities/competition-team-search.component.ts'
-      - 'src/app/pages/communities/global-team-enrollment.component.ts'
-      - 'src/app/pages/communities/community-team-journey.ts'
-      - 'src/app/pages/sports-teams/sports-teams.component.ts'
-      - 'src/app/services/team-competition-enrollments.service.ts'
-      - 'src/app/services/team-competition-invitations.service.ts'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

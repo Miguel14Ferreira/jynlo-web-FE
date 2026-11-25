@@ -1,10 +1,8 @@
 name: QA branch equivalence audit
 on:
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
-  push:
-    branches: [develop]
-    paths:
-      - .github/workflows/qa-branch-equivalence-audit.yml
+
 permissions:
   contents: read
 jobs:

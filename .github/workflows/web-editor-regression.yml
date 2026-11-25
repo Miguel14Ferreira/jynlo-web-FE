@@ -1,19 +1,7 @@
 name: Web editor regression
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - 'src/app/pages/social-feed/**'
-      - 'src/app/pages/perfis/**'
-      - 'src/app/services/social-stories.service.ts'
-      - 'src/app/pages/model/social-story.ts'
-      - 'src/app/pages/model/friend-summary.ts'
-      - 'src/app/services/community.service.ts'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'angular.json'
-      - '.github/workflows/web-editor-regression.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 concurrency:

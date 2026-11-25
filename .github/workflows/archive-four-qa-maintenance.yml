@@ -1,8 +1,8 @@
 name: Archive four verified merged QA maintenance branches
 on:
-  push:
-    branches: [develop]
-    paths: [.github/workflows/archive-four-qa-maintenance.yml]
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
+  workflow_dispatch:
+
 permissions:
   contents: write
   pull-requests: read

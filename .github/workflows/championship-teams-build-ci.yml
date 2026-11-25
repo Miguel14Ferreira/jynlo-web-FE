@@ -1,21 +1,8 @@
 name: Jynlo championship teams build CI
 on:
-  push:
-    branches: [develop]
-    paths:
-      - '.github/workflows/championship-teams-build-ci.yml'
-      - 'src/app/services/community-championships.service.ts'
-      - 'src/app/pages/communities/community-tournaments.component.ts'
-      - 'src/app/pages/communities/community-tournaments.component.html'
-      - 'src/app/pages/communities/community-tournaments.component.spec.ts'
-      - 'src/app/pages/communities/community-championship-team-profile.ts'
-      - 'src/app/pages/communities/community-championship-team-profile.spec.ts'
-      - 'src/app/pages/communities/community-championship-team-comparison.ts'
-      - 'src/app/pages/communities/community-championship-team-comparison.spec.ts'
-      - 'src/app/pages/communities/community-championship-team-ranking-chart.ts'
-      - 'src/app/pages/communities/community-championship-team-ranking-chart.spec.ts'
-      - 'src/app/pages/communities/community-team-honours-timeline.css'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
+
 jobs:
   production-build:
     runs-on: ubuntu-latest

@@ -1,11 +1,7 @@
 name: Jynlo QA - LIVE two-account permanent-team membership (cleanup)
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - '.github/workflows/qa-global-team-membership-live-e2e.yml'
-      - 'scripts/qa/jynlo-global-team-membership-live-e2e.cjs'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

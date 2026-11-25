@@ -1,20 +1,7 @@
 name: Jynlo custom sports discovery CI
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - 'src/app/pages/discover/discover.component.ts'
-      - 'src/app/pages/discover/discover.component.html'
-      - 'src/app/pages/discover/discover.component.spec.ts'
-      - 'src/app/pages/events/events.component.ts'
-      - 'src/app/pages/events/events.component.html'
-      - 'src/app/pages/events/events.component.spec.ts'
-      - 'src/app/pages/events2/events2.component.ts'
-      - 'src/app/pages/events2/events2.component.html'
-      - 'src/app/pages/events2/events2.component.spec.ts'
-      - 'src/app/shared/sports-catalog.ts'
-      - '.github/workflows/custom-sport-discovery-ci.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

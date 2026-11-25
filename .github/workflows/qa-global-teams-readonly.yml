@@ -1,11 +1,7 @@
 name: Jynlo QA - Global teams read-only two-account checks
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - '.github/workflows/qa-global-teams-readonly.yml'
-      - 'scripts/qa/jynlo-global-teams-live-readonly.cjs'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

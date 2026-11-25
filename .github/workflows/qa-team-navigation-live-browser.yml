@@ -1,11 +1,7 @@
 name: Jynlo QA - authenticated team navigation and loading (read-only)
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - '.github/workflows/qa-team-navigation-live-browser.yml'
-      - 'scripts/qa/jynlo-team-navigation-live-browser.cjs'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

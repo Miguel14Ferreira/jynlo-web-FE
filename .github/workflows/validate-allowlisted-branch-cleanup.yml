@@ -1,14 +1,8 @@
 name: Validate allowlisted branch cleanup
 on:
-  push:
-    branches:
-      - chore/allowlisted-branch-removal-20261030
-  pull_request:
-    paths:
-      - scripts/delete_exact_merged_branches.py
-      - scripts/test_delete_exact_merged_branches.py
-      - .github/workflows/validate-allowlisted-branch-cleanup.yml
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
+
 permissions:
   contents: read
   pull-requests: read

@@ -3,11 +3,7 @@ name: Jynlo QA - weekly community and chat Playwright (no TinyFish)
 # Does not create sessions, send messages or alter rankings. Opens two existing
 # QA inboxes; read receipts for those disposable accounts may be updated.
 on:
-  push:
-    branches: [develop]
-    paths:
-      - 'scripts/qa/jynlo-weekly-chat-live-readonly.cjs'
-      - '.github/workflows/qa-weekly-chat-live-readonly.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

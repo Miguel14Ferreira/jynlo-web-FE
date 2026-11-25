@@ -1,13 +1,7 @@
 name: Jynlo profile share and account avatar CI
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - 'src/app/pages/perfis/perfis.component.*'
-      - 'src/app/pages/perfis/perfis-v3-finish.css'
-      - 'src/app/sharepage/navbar/navbar.component.*'
-      - '.github/workflows/profile-share-and-avatar-ci.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

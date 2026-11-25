@@ -1,14 +1,8 @@
 name: Consolidated safe branch audit
 on:
-  push:
-    branches:
-      - chore/consolidated-cleanup-audit-20261030
-  pull_request:
-    paths:
-      - scripts/safe_merged_branch_cleanup.py
-      - scripts/test_safe_merged_branch_cleanup.py
-      - .github/workflows/consolidated-branch-audit.yml
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
+
 permissions:
   contents: read
   pull-requests: read

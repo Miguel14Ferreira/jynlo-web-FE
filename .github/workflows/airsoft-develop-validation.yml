@@ -1,25 +1,7 @@
 name: Jynlo Airsoft develop validation
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - 'src/app/pages/events2/events2.component.ts'
-      - 'src/app/pages/events2/events2.component.html'
-      - 'src/app/pages/events2/events2.component.spec.ts'
-      - 'src/app/pages/session-details/session-details.component.spec.ts'
-      - 'src/app/shared/sports-catalog.ts'
-      - 'src/app/pages/community-create/community-create.component.html'
-      - 'src/app/pages/community-create/community-create.component.spec.ts'
-      - 'src/app/i18n/i18n.service.ts'
-      - 'src/app/i18n/translations-en.ts'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'angular.json'
-      - 'tsconfig*.json'
-      - 'scripts/configure-giphy.mjs'
-      - 'scripts/publish-assetlinks.mjs'
-      - '.github/workflows/airsoft-develop-validation.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

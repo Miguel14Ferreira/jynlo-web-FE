@@ -1,9 +1,8 @@
 name: Archive next two reviewed QA branches
 on:
-  push:
-    branches: [develop]
-    paths: ['.github/workflows/archive-next-reviewed-qa-20261101.yml']
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
+
 permissions:
   contents: write
   pull-requests: read

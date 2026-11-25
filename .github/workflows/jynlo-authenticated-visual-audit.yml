@@ -1,21 +1,7 @@
 name: Jynlo authenticated responsive browser audit (synthetic, read-only)
 # Built candidate only: fictitious JWT and intercepted HTTP/WS; never connect to LIVE APIs.
 on:
-  push:
-    branches: [develop]
-    paths:
-      - '.github/workflows/jynlo-authenticated-visual-audit.yml'
-      - 'angular.json'
-      - 'scripts/ci-browser/concept_one_mobile_readonly.cjs'
-      - 'src/app/app.component.*'
-      - 'src/app/app-routing.module.ts'
-      - 'src/app/pages/**'
-      - 'src/app/services/community-groups.service.ts'
-      - 'src/app/shared/**'
-      - 'src/app/i18n/**'
-      - 'src/styles.css'
-      - 'src/styles/**'
-      - 'src/index.html'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

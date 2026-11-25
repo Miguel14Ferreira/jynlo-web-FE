@@ -2,12 +2,9 @@ name: Inline speed fictional browser QA
 # Runs only for the isolated, mock-API speed-skating regression fixture.
 # No requests reach production and no user accounts or real competitions are created.
 on:
-  pull_request:
-    branches: [preview/render-fullstack]
-    paths:
-      - 'e2e/community-tournaments.spec.ts'
-      - '.github/workflows/inline-speed-fictional-e2e-ci.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
+
 permissions:
   contents: read
 concurrency:

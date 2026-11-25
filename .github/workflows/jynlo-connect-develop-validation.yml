@@ -2,20 +2,7 @@
 name: Jynlo Connect develop validation
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - 'src/app/shared/direct-call-overlay.component.ts'
-      - 'src/app/shared/direct-call-overlay.component.spec.ts'
-      - 'src/app/shared/call-participant-tile.component.ts'
-      - 'src/app/shared/call-participant-tile.component.spec.ts'
-      - 'src/app/services/direct-call-client.service.ts'
-      - 'src/app/services/direct-call-client.service.spec.ts'
-      - 'src/app/i18n/i18n.service.ts'
-      - 'src/app/i18n/translations-en.ts'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.github/workflows/jynlo-connect-develop-validation.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

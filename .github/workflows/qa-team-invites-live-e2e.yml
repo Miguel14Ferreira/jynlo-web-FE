@@ -2,11 +2,7 @@ name: Jynlo QA - LIVE two-account team invite acceptance (cleanup)
 # Re-run on explicit QA request: existing private QA community only, cleanup in finally.
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - '.github/workflows/qa-team-invites-live-e2e.yml'
-      - 'scripts/qa/jynlo-team-invite-live-e2e.cjs'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

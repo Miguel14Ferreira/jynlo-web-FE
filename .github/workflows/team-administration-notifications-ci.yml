@@ -1,20 +1,8 @@
 name: Jynlo team administration notifications UI CI
 on:
-  push:
-    branches: [develop]
-    paths:
-      - '.github/workflows/team-administration-notifications-ci.yml'
-      - 'src/app/pages/notifications/notifications.component.ts'
-      - 'src/app/pages/notifications/notifications.component.html'
-      - 'src/app/pages/notifications/notifications.component.spec.ts'
-      - 'src/app/pages/communities/community-tournaments.component.ts'
-      - 'src/app/pages/communities/community-tournaments.component.html'
-      - 'src/app/pages/communities/community-tournaments.component.spec.ts'
-      - 'src/app/pages/communities/community-tournament-capabilities.ts'
-      - 'src/app/pages/communities/community-tournament-capabilities.spec.ts'
-      - 'src/app/services/community-tournaments.service.ts'
-      - 'src/app/services/community-championships.service.ts'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
+
 permissions:
   contents: read
 jobs:

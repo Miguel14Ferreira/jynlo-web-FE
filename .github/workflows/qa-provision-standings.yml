@@ -3,10 +3,7 @@ name: Jynlo QA - provision synthetic standings
 # One-time controlled fixture for disposable QA accounts only.
 # Never reports results for real or future sports sessions.
 on:
-  push:
-    branches: [develop]
-    paths:
-      - '.github/workflows/qa-provision-standings.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

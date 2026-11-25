@@ -1,8 +1,8 @@
 name: Archive final merged chore branch
 on:
-  push:
-    branches: [develop]
-    paths: [.github/workflows/archive-final-chore-20261102.yml]
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
+  workflow_dispatch:
+
 permissions:
   contents: write
   pull-requests: read

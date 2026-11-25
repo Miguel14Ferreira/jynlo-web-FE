@@ -4,11 +4,7 @@ name: Jynlo QA - provision one private test community
 # Only runs automatically for the uniquely named setup commit; subsequent
 # changes to this workflow or script do not trigger further production writes.
 on:
-  push:
-    branches: [develop]
-    paths:
-      - '.github/workflows/qa-provision-private-community.yml'
-    # Job-level commit-message guard prevents future accidental provisioning.
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

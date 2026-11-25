@@ -1,11 +1,7 @@
 name: Jynlo QA - LIVE team invitation fixture inventory (read-only)
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - 'scripts/qa/jynlo-team-invites-live-inventory.cjs'
-      - '.github/workflows/qa-team-invites-live-inventory.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

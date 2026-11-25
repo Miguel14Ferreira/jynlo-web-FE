@@ -1,8 +1,8 @@
 name: Archive three reviewed inbox and session QA branches
 on:
-  push:
-    branches: [develop]
-    paths: [.github/workflows/archive-three-reviewed-qa-20261102.yml]
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
+  workflow_dispatch:
+
 permissions:
   contents: write
   pull-requests: read

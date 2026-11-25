@@ -2,10 +2,7 @@ name: Jynlo QA - provision private weekly test session
 
 # One-time protected QA fixture. Avoid accidental writes from ordinary pushes.
 on:
-  push:
-    branches: [develop]
-    paths:
-      - '.github/workflows/qa-provision-weekly-session.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

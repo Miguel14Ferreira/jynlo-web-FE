@@ -1,27 +1,8 @@
 name: Jynlo QA inbox contract tests
 
 on:
-  pull_request:
-    branches: [develop]
-    paths:
-      - 'scripts/qa/jynlo-inbox-live-qa.cjs'
-      - 'scripts/qa/jynlo-inbox-live-qa.test.cjs'
-      - 'scripts/qa/jynlo-inbox-live-browser.cjs'
-      - 'scripts/qa/jynlo-inbox-live-browser.test.cjs'
-      - 'scripts/qa/jynlo-read-receipts-live-browser.cjs'
-      - 'scripts/qa/jynlo-read-receipts-live-browser.test.cjs'
-      - 'scripts/qa/jynlo-session-live-browser.cjs'
-      - 'scripts/qa/jynlo-session-live-browser.test.cjs'
-      - 'scripts/qa/jynlo-communities-live-readonly.cjs'
-      - 'scripts/qa/jynlo-communities-live-readonly.test.cjs'
-      - 'scripts/qa/jynlo-notifications-live-readonly.cjs'
-      - 'scripts/qa/jynlo-notifications-live-readonly.test.cjs'
-      - '.github/workflows/notification-live-readonly.yml'
-      - 'scripts/qa/jynlo-email-live-preflight.cjs'
-      - 'scripts/qa/jynlo-email-live-preflight.test.cjs'
-      - 'scripts/qa/jynlo-email-optout-live-once.cjs'
-      - 'scripts/qa/jynlo-email-optout-live-once.test.cjs'
-      - '.github/workflows/qa-inbox-contract.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
+  workflow_dispatch:
 
 permissions:
   contents: read

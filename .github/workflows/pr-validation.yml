@@ -4,38 +4,7 @@
 name: Jynlo FE PR validation
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-    branches: [preview/render-fullstack]
-    paths:
-      - 'src/**'
-      - 'e2e/community-tournaments.spec.ts'
-      - 'e2e/community-track-sprint.spec.ts'
-      - 'e2e/inbox-read-sync.spec.ts'
-      - 'e2e/venue-admin-decision-history.spec.ts'
-      - 'scripts/qa/jynlo-karting-live-readonly.cjs'
-      - 'scripts/qa/jynlo-karting-live-readonly.test.cjs'
-      - 'scripts/ci-browser/public_api_contract_READONLY.cjs'
-      - 'scripts/qa/jynlo-sessions-live-readonly.cjs'
-      - 'scripts/qa/jynlo-sessions-live-readonly.test.cjs'
-      - 'scripts/qa/jynlo-community-roles-live-readonly.cjs'
-      - 'scripts/qa/jynlo-community-roles-live-readonly.test.cjs'
-      - '.github/workflows/community-role-live-readonly.yml'
-      - '.github/workflows/notification-live-readonly.yml'
-      - 'scripts/ci-browser/concept_one_mobile_readonly.cjs'
-      - 'scripts/ci-browser/concept_one_populated_admin_readonly.cjs'
-      - 'scripts/ci-browser/desktop_candidate_smoke.cjs'
-      - 'scripts/ci-browser/authenticated_candidate_smoke.cjs'
-      - 'scripts/ci-browser/chat_reaction_bubble_browser.cjs'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'angular.json'
-      - 'tsconfig*.json'
-      - 'Dockerfile'
-      - 'default.conf.template'
-      - 'scripts/ci-browser/html_security_policy.test.cjs'
-      - 'scripts/ci-browser/nginx_security_headers.test.cjs'
-      - '.github/workflows/pr-validation.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

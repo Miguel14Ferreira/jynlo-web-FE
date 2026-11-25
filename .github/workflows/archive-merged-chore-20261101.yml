@@ -1,9 +1,8 @@
 name: Archive merged chore branches 2026-11-01
 on:
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
-  push:
-    branches: [develop]
-    paths: [.github/workflows/archive-merged-chore-20261101.yml]
+
 permissions:
   contents: write
   pull-requests: read

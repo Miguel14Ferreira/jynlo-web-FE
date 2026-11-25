@@ -2,12 +2,8 @@ name: Jynlo QA - synthetic Karting championship scoring
 
 # One guarded production QA fixture, no actual racing activity, no real users.
 on:
-  push:
-    branches: [develop]
-    paths:
-      - '.github/workflows/qa-karting-race-fixture.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
-  # Supports legacy LIVE season DTO without a sport property.
 
 permissions:
   contents: read

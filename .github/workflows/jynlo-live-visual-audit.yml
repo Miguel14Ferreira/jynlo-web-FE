@@ -1,11 +1,8 @@
 name: Jynlo LIVE responsive visual audit (read-only)
 on:
-  push:
-    branches: [develop]
-    paths:
-      - 'scripts/ci-browser/live_visual_audit.cjs'
-      - '.github/workflows/jynlo-live-visual-audit.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
+
 permissions:
   contents: read
 jobs:

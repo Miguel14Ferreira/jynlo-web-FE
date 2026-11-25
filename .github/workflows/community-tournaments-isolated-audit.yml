@@ -1,11 +1,7 @@
 name: Jynlo community tournaments isolated browser QA
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-    branches: [preview/render-fullstack]
-    paths:
-      - '.github/workflows/community-tournaments-isolated-audit.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

@@ -1,16 +1,7 @@
 name: Jynlo voice draft playback regression
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - '.github/workflows/chat-voice-draft-ci.yml'
-      - 'src/app/pages/messages-center/messages-center.component.ts'
-      - 'src/app/pages/messages-center/messages-center.component.html'
-      - 'src/app/pages/messages-center/messages-center.component.css'
-      - 'src/app/pages/messages-center/messages-center.component.spec.ts'
-      - 'package.json'
-      - 'package-lock.json'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

@@ -1,12 +1,7 @@
 name: Jynlo anonymous LIVE browser check (read-only)
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-    branches: [develop]
-    paths:
-      - '.github/workflows/live-guest-readonly.yml'
-      - 'scripts/ci-browser/live_guest_readonly.cjs'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

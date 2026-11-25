@@ -1,15 +1,7 @@
 name: Jynlo startup and bundle budget
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - 'src/app/app.component.ts'
-      - 'src/app/app.component.spec.ts'
-      - 'src/app/services/pilot-analytics.service.ts'
-      - 'src/app/services/online-presence.service.ts'
-      - 'angular.json'
-      - '.github/workflows/startup-bundle-regression.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

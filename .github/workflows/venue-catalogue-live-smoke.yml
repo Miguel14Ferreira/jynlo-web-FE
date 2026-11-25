@@ -1,10 +1,7 @@
 name: LIVE venue catalogue smoke (read only)
 
 on:
-  pull_request:
-    paths:
-      - 'scripts/qa_live_venue_catalogue.py'
-      - '.github/workflows/venue-catalogue-live-smoke.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

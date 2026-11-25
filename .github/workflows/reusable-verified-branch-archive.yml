@@ -1,5 +1,6 @@
 name: Reusable verified branch archive
 on:
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
     inputs:
       branch:
@@ -10,9 +11,7 @@ on:
         description: Exact SHA previously reviewed
         required: true
         type: string
-  push:
-    branches: [develop]
-    paths: [.github/workflows/reusable-verified-branch-archive.yml]
+
 permissions:
   contents: write
   pull-requests: read

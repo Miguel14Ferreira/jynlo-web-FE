@@ -4,10 +4,8 @@
 name: Jynlo FE develop build
 
 on:
-  push:
-    branches: [develop]
-  pull_request:
-    branches: [develop]
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
+  workflow_dispatch:
 
 permissions:
   contents: read

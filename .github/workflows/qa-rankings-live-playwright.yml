@@ -3,11 +3,7 @@ name: Jynlo QA - LIVE rankings Playwright (no TinyFish)
 # Two disposable accounts, existing QA seasons. Never creates or alters data.
 # Nothing from authenticated pages is persisted in CI artifacts.
 on:
-  push:
-    branches: [develop]
-    paths:
-      - 'scripts/qa/jynlo-rankings-live-playwright.cjs'
-      - '.github/workflows/qa-rankings-live-playwright.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
 
 permissions:

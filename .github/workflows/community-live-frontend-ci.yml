@@ -1,16 +1,8 @@
 name: Jynlo community live frontend CI
 on:
-  push:
-    branches: [develop]
-    paths:
-      - 'src/app/services/community-live.service.ts'
-      - 'src/app/services/community-live.service.spec.ts'
-      - 'src/app/pages/communities/community-live-panel.component.ts'
-      - 'src/app/pages/communities/community-live-panel.component.spec.ts'
-      - 'src/app/pages/communities/communities.module.ts'
-      - 'src/app/pages/communities/communities.component.html'
-      - '.github/workflows/community-live-frontend-ci.yml'
+  # Só manual, para poupar minutos do GitHub Actions; o Feature CI cobre cada push.
   workflow_dispatch:
+
 permissions:
   contents: read
 concurrency:
