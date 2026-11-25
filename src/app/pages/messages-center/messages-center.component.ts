@@ -7,6 +7,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, OnDestroy, OnInit, AfterViewChecked, ViewChild, ChangeDetectionStrategy, Optional, HostListener, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { MessageRequestsPanelComponent } from '../../shared/message-requests/message-requests-panel.component';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { catchError, finalize, forkJoin, map, Observable, of, Subscription, TimeoutError, timeout } from 'rxjs';
 import { appTranslate as t } from '../../i18n/i18n.service';
@@ -61,7 +62,7 @@ const VOICE_NOTE_AUDIO_BITRATE = 48_000;
 @Component({
   selector: 'app-messages-center',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, ChatReactionsComponent, GiphyEmbedComponent, InboxConversationListComponent, InboxEmojiGifPickerComponent, InboxShareMenuComponent, InboxSharePickerComponent, InboxHistorySearchComponent, ChatImageInViewDirective, InboxStoryCardComponent, InboxCallUpCardComponent, InboxPollCardComponent, AutoGrowDirective],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, ChatReactionsComponent, GiphyEmbedComponent, InboxConversationListComponent, InboxEmojiGifPickerComponent, InboxShareMenuComponent, InboxSharePickerComponent, InboxHistorySearchComponent, ChatImageInViewDirective, InboxStoryCardComponent, InboxCallUpCardComponent, InboxPollCardComponent, AutoGrowDirective, MessageRequestsPanelComponent],
   templateUrl: './messages-center.component.html',
   styleUrls: ['./messages-center.component.css', './messages-center-premium.component.css', './messages-center-v3-finish.css', './messages-center-embedded.css'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -844,6 +845,12 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
 
   setFilter(filter: InboxFilter): void {
     this.filter = filter;
+  }
+
+  /** An accepted message request becomes a normal conversation: refresh and open it. */
+  onMessageRequestAccepted(username: string): void {
+    this.queueDeepLink('direct', username);
+    this.loadInbox();
   }
 
   loadInbox(recoverAfterReconnect = false): void {

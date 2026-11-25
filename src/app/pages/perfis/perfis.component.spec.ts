@@ -1,3 +1,4 @@
+import { ProfileMessageActionComponent } from '../../shared/message-requests/profile-message-action.component';
 import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, Subject, BehaviorSubject, throwError } from 'rxjs';
@@ -119,7 +120,7 @@ describe('PerfisComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [PerfisComponent],
-      imports: [SportNamePipe, ...TEST_IMPORTS, VenueSportsBadgesComponent, ProtectedMediaDirective, ProfilePostViewerComponent, ProfileStoryViewerComponent],
+      imports: [SportNamePipe, ...TEST_IMPORTS, VenueSportsBadgesComponent, ProtectedMediaDirective, ProfilePostViewerComponent, ProfileStoryViewerComponent, ProfileMessageActionComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: CommunityService, useValue: service },
@@ -948,7 +949,9 @@ describe('PerfisComponent', () => {
     const actions = fixture.nativeElement.querySelector('.profile-primary-actions') as HTMLElement | null;
     expect(actions?.querySelector('button.profile-request-action')).toBeTruthy();
     expect(actions?.querySelector('button.profile-invite-trigger')).toBeTruthy();
-    expect(actions?.children.length).toBe(2);
+    // Friend request, message (request) and invite.
+    expect(actions?.children.length).toBe(3);
+    expect(actions?.querySelector('app-profile-message-action')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('.profile-friend-badge')).toBeNull();
     expect(fixture.nativeElement.querySelector('.profile-chat-action')).toBeNull();
   });

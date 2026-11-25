@@ -61,6 +61,7 @@
             <button type="button" (click)="loadInbox()">{{ 'common.retry' | t }}</button>
           </div>
         }
+        <app-message-requests-panel (accepted)="onMessageRequestAccepted($event)"></app-message-requests-panel>
         @if (loading) {
           <p class="inbox-loading" role="status">{{ 'inbox.loading' | t }}</p>
         } @else if (filteredConversations.length === 0) {
