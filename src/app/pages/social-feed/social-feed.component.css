@@ -1591,3 +1591,5 @@ h1 {
 .feed-suggested-reason { color:#7ae5c5; font-size:.74rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 .feed-session-missing { color:#fcd34d !important; }
+
+.feed-community-news { color:#7ae5c5 !important; font-weight:700; }

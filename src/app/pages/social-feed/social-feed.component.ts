@@ -1,3 +1,4 @@
+import { InboxApiService } from '../../services/inbox-api.service';
 import { playersMissingForGame } from '../../shared/session-minimum-players';
 import { isLightboxBackdropClick } from '../../shared/lightbox-click';
 import { appTranslate } from '../../i18n/i18n.service';
@@ -1191,6 +1192,7 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       }), takeUntil(this.destroyed)
     ).subscribe(groups => {
       this.myWeekCommunities = groups.slice(0, 3);
+      this.loadCommunityNews(this.myWeekCommunities);
       // Only community owners can create live broadcasts. Authorization remains
       // enforced by the live API after following the deep link.
       this.managedLiveCommunities = groups.filter(group => group.myRole === 'OWNER');
@@ -1241,6 +1243,27 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
       if (!picked.some(x => x.username.toLowerCase() === p.username.toLowerCase())) picked.push(p);
     }
     return picked;
+  }
+
+  /** What's new in each of my communities: unread messages, otherwise the next game. */
+  communityNews = new Map<number, { unread: number }>();
+  // Tests build this component with `new`: no injection context there, so no news.
+  private readonly inboxApi = (() => { try { return inject(InboxApiService, { optional: true }); } catch { return null; } })();
+  private loadCommunityNews(groups: CommunityGroup[]): void {
+    if (!this.inboxApi || !groups.length) return;
+    this.inboxApi.summaries(groups.map(g => ({ kind: 'community' as const, id: String(g.id) })))
+      .pipe(timeout(10_000), catchError(() => of([])), takeUntil(this.destroyed))
+      .subscribe(rows => {
+        const next = new Map<number, { unread: number }>();
+        for (const row of rows || []) next.set(Number(row.id), { unread: row.unreadCount || 0 });
+        this.communityNews = next;
+      });
+  }
+  communityNextGame(communityId: number): SessionSummary | null {
+    const now = Date.now();
+    return this.availableSessions
+      .filter(s => s.communityId === communityId && Date.parse(s.gameDate) > now)
+      .sort((a, b) => Date.parse(a.gameDate) - Date.parse(b.gameDate))[0] ?? null;
   }
 
   private rankSuggestedPeople(profiles: CommunityProfile[], me: CommunityProfile | null, friends: Set<string>): CommunityProfile[] {
