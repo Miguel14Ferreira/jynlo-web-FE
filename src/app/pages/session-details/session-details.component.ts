@@ -23,7 +23,7 @@ import { SessionPresetService } from '../../services/session-preset.service';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { compactSessionShareMessage } from '../../shared/session-share-message';
 import { venueHasPortugueseCoordinates, venueDirectionsUrl, VenueTravelMode } from '../../shared/venue-public-contact';
-import { venueUsableAddress } from '../../shared/venue-location';
+import { venueUsableAddress, looksLikeStreetAddress } from '../../shared/venue-location';
 import { playerAvatarInitials, playerAvatarUrl } from '../../shared/player-avatar';
 import { suggestedMinimumPlayers } from '../../shared/session-minimum-players';
 import { SPORTS_CATALOG } from '../../shared/sports-catalog';
@@ -3444,7 +3444,8 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
         return null;
       }
       const address = venueUsableAddress(this.session.address);
-      if (!address) {
+      // A place name without street details would pin a random business with that name.
+      if (!address || !looksLikeStreetAddress(address)) {
         this.embeddedMapKey = '';
         this.embeddedMapValue = null;
         return null;
@@ -3524,6 +3525,14 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
    * Many Jynlo venues have verified catalogue GPS but no postal address: a
    * missing street must not disable their navigation link.
    */
+  /** The organiser wrote only a place name: no pin, no Maps link, no street address. */
+  needsExactPlace(): boolean {
+    if (!this.session?.canSeeExactAddress) return false;
+    if (this.verifiedGoogleMapsUrl(this.session.googleMapsUrl) || this.sessionMapPin()) return false;
+    const address = venueUsableAddress(this.session.address);
+    return !!address && !looksLikeStreetAddress(address);
+  }
+
   exactGoogleMapsUrl(): string | null {
     if (!this.session?.canSeeExactAddress) return null;
     const saved = this.verifiedGoogleMapsUrl(this.session.googleMapsUrl);

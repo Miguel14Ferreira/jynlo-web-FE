@@ -7985,6 +7985,7 @@ export const EN: Record<string, string> = {
   "Desativada": "Off",
   "Descarregar": "Download",
   "Desfocar": "Blur",
+  "Este local só tem um nome, sem morada nem link do Google Maps, por isso não mostramos mapa. Acrescenta o link do Google Maps ao editar a sessão para os jogadores irem ao sítio certo.": "This place only has a name, with no address or Google Maps link, so no map is shown. Add the Google Maps link when editing the session so players go to the right place.",
   "contas": "accounts",
   "a rever": "to review",
   "suspensas": "suspended",

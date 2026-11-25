@@ -1125,6 +1125,9 @@
                              : 'sessionDetail.openMapsHint') | t }}</small>
                 </div>
               </div>
+              @if (needsExactPlace() && canEditCapacity()) {
+                <p class="session-location-nudge" role="note">{{ 'Este local só tem um nome, sem morada nem link do Google Maps, por isso não mostramos mapa. Acrescenta o link do Google Maps ao editar a sessão para os jogadores irem ao sítio certo.' | t }}</p>
+              }
               @if (exactEmbeddedMapUrl(); as embeddedMap) {
                 <div class="session-embedded-map">
                   <iframe [src]="embeddedMap" [title]="'Mapa com a localização do recinto desta sessão' | t"

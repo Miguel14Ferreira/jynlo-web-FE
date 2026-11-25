@@ -42,3 +42,15 @@ export function venuePostalAddress(venue: Venue): string | null {
   if (venueLocationStatus(venue) !== 'ADDRESS_PROVIDED_UNVERIFIED') return null;
   return venueUsableAddress(venue.address);
 }
+
+/**
+ * A free-text place ("Central Park", "campo da escola") is not an address:
+ * searching it on a map picks whatever business has that name (e.g. a hotel).
+ * Only street-like addresses (a number or a street word) get an approximate map.
+ */
+export function looksLikeStreetAddress(value: string | null | undefined): boolean {
+  const address = venueUsableAddress(value);
+  if (!address) return false;
+  if (/\d/.test(address)) return true;
+  return /\b(rua|r\.|av\.?|avenida|largo|pra[çc]a|estrada|travessa|cal[çc]ada|alameda|rotunda|bairro|urbaniza[çc][ãa]o|quinta|beco|caminho|street|road|avenue)\b/i.test(address);
+}

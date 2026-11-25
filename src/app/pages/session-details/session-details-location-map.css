@@ -8,3 +8,5 @@
 .session-maps-editor input { width:100%; min-width:0; padding:.7rem; border-radius:10px; border:1px solid rgba(125,211,252,.45); color:inherit; background:rgba(3,31,43,.35); }
 .session-maps-editor-actions { display:flex; flex-wrap:wrap; gap:.5rem; }
 .session-maps-editor [role="alert"] { color:#fda4af; margin:0; }
+
+.session-location-nudge{margin:8px 0;padding:10px 12px;border-radius:12px;border:1px solid #7a5530;background:#2b2418;color:#ffe2c4;font-size:.84rem}
