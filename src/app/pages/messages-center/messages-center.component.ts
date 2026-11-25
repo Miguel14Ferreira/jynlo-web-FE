@@ -1,3 +1,5 @@
+import { RequestComposePaneComponent } from '../../shared/message-requests/request-compose-pane.component';
+import { MessageComposeService } from '../../services/message-compose.service';
 import { AutoGrowDirective } from '../../shared/auto-grow.directive';
 import { linkParts } from '../../shared/link-parts';
 import { ActiveChatService } from '../../services/active-chat.service';
@@ -62,7 +64,7 @@ const VOICE_NOTE_AUDIO_BITRATE = 48_000;
 @Component({
   selector: 'app-messages-center',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, ChatReactionsComponent, GiphyEmbedComponent, InboxConversationListComponent, InboxEmojiGifPickerComponent, InboxShareMenuComponent, InboxSharePickerComponent, InboxHistorySearchComponent, ChatImageInViewDirective, InboxStoryCardComponent, InboxCallUpCardComponent, InboxPollCardComponent, AutoGrowDirective, MessageRequestsPanelComponent],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, ChatReactionsComponent, GiphyEmbedComponent, InboxConversationListComponent, InboxEmojiGifPickerComponent, InboxShareMenuComponent, InboxSharePickerComponent, InboxHistorySearchComponent, ChatImageInViewDirective, InboxStoryCardComponent, InboxCallUpCardComponent, InboxPollCardComponent, AutoGrowDirective, MessageRequestsPanelComponent, RequestComposePaneComponent],
   templateUrl: './messages-center.component.html',
   styleUrls: ['./messages-center.component.css', './messages-center-premium.component.css', './messages-center-v3-finish.css', './messages-center-embedded.css'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -600,6 +602,8 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
       this.queueDeepLink(
         this.route?.snapshot?.queryParamMap?.get('kind') ?? null,
         this.route?.snapshot?.queryParamMap?.get('id') ?? null);
+      const compose = this.route?.snapshot?.queryParamMap?.get('compose');
+      if (compose) this.composeService.open(compose);
     }
     try {
       const token = localStorage.getItem('t');
@@ -695,6 +699,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   ngOnDestroy(): void {
+    this.composeSub.unsubscribe();
     this.activeChat?.unregister(this);
     if (this.viewingTimer) clearInterval(this.viewingTimer);
     this.dockHidden = true;
@@ -848,6 +853,15 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   /** An accepted message request becomes a normal conversation: refresh and open it. */
+  /** "New message to @x" opened from a profile (someone who is not a friend). */
+  composeTarget: string | null = null;
+  private readonly composeService = inject(MessageComposeService);
+  private composeSub = this.composeService.target$.subscribe(target => {
+    this.composeTarget = target;
+    if (target) this.selectedKey = null;
+  });
+  closeCompose(): void { this.composeService.close(); }
+
   onMessageRequestAccepted(username: string): void {
     this.queueDeepLink('direct', username);
     this.loadInbox();
@@ -1191,6 +1205,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   selectConversation(conversation: InboxConversation): void {
+    if (this.composeTarget) this.composeService.close();
     this.contactPreviewOpen = false;
     this.profilePeek?.close();
     if (conversation.key === this.selectedKey && !this.previewError) return;

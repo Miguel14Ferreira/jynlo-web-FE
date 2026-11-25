@@ -1,3 +1,4 @@
+import { MessageComposeService } from '../../services/message-compose.service';
 import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { auditTime, catchError, filter, merge, of, Subscription, timeout } from 'rxjs';
@@ -82,11 +83,12 @@ export class ChatDockComponent implements OnInit, OnDestroy {
   private url = '';
   private sub?: Subscription;
   private unreadSub?: Subscription;
+  private composeSub?: Subscription;
   private unreadTimer?: ReturnType<typeof setInterval>;
 
   constructor(private readonly router: Router, private readonly auth: AuthenticationService,
               private readonly inbox: InboxApiService, private readonly realtime: DirectChatRealtimeService,
-              private readonly activeChat: ActiveChatService) {}
+              private readonly activeChat: ActiveChatService, private readonly compose: MessageComposeService) {}
 
   /** Instagram-style: the closed button shows how many messages are waiting, updated live. */
   private loadUnread(): void {
@@ -108,12 +110,14 @@ export class ChatDockComponent implements OnInit, OnDestroy {
         this.realtime.groupMessages$, this.realtime.teamContentInvalidated$, this.realtime.ownReads$, this.activeChat.read$)
       .pipe(auditTime(600)).subscribe(() => this.loadUnread());
     this.unreadTimer = setInterval(() => this.loadUnread(), 45_000);
+    this.composeSub = this.compose.target$.subscribe(target => { if (target && this.available) this.toggle(true); });
     this.loadUnread();
   }
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
     this.unreadSub?.unsubscribe();
+    this.composeSub?.unsubscribe();
     if (this.unreadTimer) clearInterval(this.unreadTimer);
   }
 

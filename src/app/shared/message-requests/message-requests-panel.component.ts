@@ -1,3 +1,4 @@
+import { MessageComposeService } from '../../services/message-compose.service';
 import { playerAvatarInitials } from '../player-avatar';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -25,7 +26,7 @@ import { IncomingMessageRequest, MessagePolicy, MessageRequestsService } from '.
         <svg class="mrp__chev" [class.mrp__chev--open]="open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>
       @for (s of sent; track s.id) {
-        <a class="mrp__sent" [routerLink]="['/menu/profiles', s.username]">
+        <a class="mrp__sent" href="" (click)="$event.preventDefault(); compose.open(s.username)">
           <span class="mrp__avatar">@if (s.profilePicUrl) { <img [src]="s.profilePicUrl" alt=""> } @else { {{ letter(s) }} }</span>
           <span class="mrp__sent-main">
             <span class="mrp__sent-top"><strong>&#64;{{ s.username }}</strong><span class="mrp__sent-tag">{{ 'Pedido enviado' | t }}</span></span>
@@ -121,6 +122,7 @@ export class MessageRequestsPanelComponent implements OnInit {
   @Output() accepted = new EventEmitter<string>();
   private readonly api = inject(MessageRequestsService);
   private readonly community = inject(CommunityService);
+  readonly compose = inject(MessageComposeService);
   private readonly cdr = inject(ChangeDetectorRef);
   requests: IncomingMessageRequest[] = [];
   sent: IncomingMessageRequest[] = [];
@@ -137,7 +139,8 @@ export class MessageRequestsPanelComponent implements OnInit {
 
   ngOnInit(): void {
     this.api.incoming().subscribe({ next: list => { this.requests = list || []; this.open = this.requests.length > 0; this.cdr.markForCheck(); }, error: () => {} });
-    this.api.sent().subscribe({ next: list => { this.sent = list || []; this.cdr.markForCheck(); }, error: () => {} });
+    this.loadSent();
+    this.compose.changed$.subscribe(() => this.loadSent());
     this.api.policy().subscribe({ next: p => { this.policy = p.policy; this.cdr.markForCheck(); }, error: () => {} });
   }
   private run(work: ReturnType<MessageRequestsService['accept']>, done: () => void): void {
@@ -145,6 +148,7 @@ export class MessageRequestsPanelComponent implements OnInit {
     work.pipe(finalize(() => { this.busy = false; this.cdr.markForCheck(); }))
       .subscribe({ next: done, error: () => { this.error = t('A ação não foi confirmada. Atualiza antes de repetir.'); } });
   }
+  private loadSent(): void { this.api.sent().subscribe({ next: list => { this.sent = list || []; this.cdr.markForCheck(); }, error: () => {} }); }
   letter(r: IncomingMessageRequest): string { return playerAvatarInitials(r.fullName || r.username).charAt(0); }
   blockQuestion(r: IncomingMessageRequest): string { return t('Bloquear @{{v}}? Deixa de te poder contactar.', { v: r.username }); }
   accept(r: IncomingMessageRequest): void {

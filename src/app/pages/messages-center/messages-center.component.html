@@ -1,4 +1,4 @@
-<section class="inbox-page jynlo-c1 jynlo-secondary" [class.inbox-embedded]="embedded" [class.inbox-dock]="dock" [class.inbox-dock--open]="dock && !!selected" [class.inbox-dock--direct]="dock && selected?.kind === 'direct'">
+<section class="inbox-page jynlo-c1 jynlo-secondary" [class.inbox-embedded]="embedded" [class.inbox-dock]="dock" [class.inbox-dock--open]="dock && (!!selected || !!composeTarget)" [class.inbox-dock--direct]="dock && selected?.kind === 'direct'">
   <div class="inbox-shell">
     <div class="inbox-layout">
       <aside class="inbox-sidebar" [attr.aria-label]="'inbox.listLabel' | t">
@@ -88,8 +88,10 @@
         </div>
       </aside>
 
-      <main class="inbox-detail" [class.inbox-detail--empty]="!selected">
-        @if (selected; as conversation) {
+      <main class="inbox-detail" [class.inbox-detail--empty]="!selected && !composeTarget">
+        @if (composeTarget && !selected) {
+          <app-request-compose-pane [username]="composeTarget" (closed)="closeCompose()"></app-request-compose-pane>
+        } @else if (selected; as conversation) {
           <header class="inbox-detail-heading">
             @if (dock) {
               <button type="button" class="inbox-dock-back" (click)="backToList()"

@@ -7985,6 +7985,7 @@ export const EN: Record<string, string> = {
   "Desativada": "Off",
   "Descarregar": "Download",
   "Desfocar": "Blur",
+  "Esta pessoa já te enviou um pedido de mensagem: aceita-o em Pedidos de mensagem.": "This person already sent you a message request: accept it in Message requests.",
   "Pedido enviado": "Request sent",
   "Entra de fora de Portugal": "Signs in from outside Portugal",
   "Localização aproximada de cada início de sessão (guardada 90 dias):": "Approximate location of each sign-in (kept 90 days):",
