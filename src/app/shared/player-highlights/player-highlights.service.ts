@@ -5,7 +5,7 @@ import { environment } from 'src/environment/environment';
 
 export interface PlayerStats { games: number; wins: number; goals: number; assists: number; mvps: number; }
 export interface MonthLeader { name: string; username: string | null; games: number; goals: number; assists: number; mvps: number; score: number; }
-export interface MonthLeaders { month: string; leaders: MonthLeader[]; }
+export interface MonthLeaders { month: string; leaders: MonthLeader[]; enabled?: boolean; canManage?: boolean; }
 
 @Injectable({ providedIn: 'root' })
 export class PlayerHighlightsService {
@@ -17,6 +17,9 @@ export class PlayerHighlightsService {
   monthLeaders(communityId: number, month?: string): Observable<MonthLeaders> {
     const params = month ? new HttpParams().set('month', month) : undefined;
     return this.http.get<MonthLeaders>(`${this.api}/communities/${communityId}/month-leaders`, { params });
+  }
+  setEnabled(communityId: number, enabled: boolean): Observable<MonthLeaders> {
+    return this.http.put<MonthLeaders>(`${this.api}/communities/${communityId}/month-highlights`, { enabled });
   }
   playerOfMonthPoll(communityId: number, month?: string): Observable<void> {
     const params = month ? new HttpParams().set('month', month) : undefined;

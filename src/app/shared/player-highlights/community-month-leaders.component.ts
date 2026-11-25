@@ -12,15 +12,30 @@ import { MonthLeader, PlayerHighlightsService } from './player-highlights.servic
   imports: [RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (leaders.length) {
+    @if (manager && !enabled) {
+      <section class="cml cml--off">
+        <div class="cml__head">
+          <div><h3>🏆 {{ 'Destaques do mês' | t }}</h3>
+            <p class="cml__note">{{ 'Os melhores do mês e a votação do jogador do mês. A comunidade decide se quer usar.' | t }}</p></div>
+          <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy" (click)="toggle(true)">{{ 'Ativar' | t }}</button>
+        </div>
+      </section>
+    }
+    @if (enabled && (leaders.length || manager)) {
       <section class="cml">
         <header class="cml__head">
           <h3>🏆 {{ 'Destaques do mês' | t }}</h3>
-          @if (canManage) {
-            <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy || created" (click)="createPoll()">
-              {{ (created ? 'Votação criada no chat' : busy ? 'A criar…' : 'Votar o jogador do mês') | t }}</button>
+          @if (manager) {
+            <span class="cml__actions">
+              @if (leaders.length >= 2) {
+                <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy || created" (click)="createPoll()">
+                  {{ (created ? 'Votação criada no chat' : busy ? 'A criar…' : 'Votar o jogador do mês') | t }}</button>
+              }
+              <button type="button" class="jynlo-action jynlo-action--neutral" [disabled]="busy" (click)="toggle(false)">{{ 'Desligar' | t }}</button>
+            </span>
           }
         </header>
+        @if (!leaders.length) { <p class="cml__note">{{ 'Ainda não há resultados registados este mês.' | t }}</p> }
         <ol class="cml__list">
           @for (l of leaders; track $index; let i = $index) {
             <li class="cml__row">
@@ -46,6 +61,8 @@ import { MonthLeader, PlayerHighlightsService } from './player-highlights.servic
     .cml__name{color:#eafffa;font-weight:700;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .cml__nums{color:#9fd9cb;font-size:.8rem;white-space:nowrap}
     .cml__note{margin:0;color:#9fd9cb;font-size:.82rem}
+    .cml__actions{display:flex;gap:8px;flex-wrap:wrap}
+    .cml--off{border-style:dashed}
   `]
 })
 export class CommunityMonthLeadersComponent implements OnChanges {
@@ -54,11 +71,24 @@ export class CommunityMonthLeadersComponent implements OnChanges {
   private readonly api = inject(PlayerHighlightsService);
   private readonly cdr = inject(ChangeDetectorRef);
   leaders: MonthLeader[] = [];
+  enabled = false; manager = false;
   busy = false; created = false; note = '';
   ngOnChanges(): void {
     this.leaders = []; this.created = false; this.note = '';
     if (!this.communityId) return;
-    this.api.monthLeaders(this.communityId).subscribe({ next: r => { this.leaders = r?.leaders || []; this.cdr.markForCheck(); }, error: () => {} });
+    this.api.monthLeaders(this.communityId).subscribe({ next: r => this.apply(r), error: () => {} });
+  }
+  private apply(r: { leaders: MonthLeader[]; enabled?: boolean; canManage?: boolean }): void {
+    this.leaders = r?.leaders || [];
+    this.enabled = r?.enabled !== false;
+    this.manager = r?.canManage ?? this.canManage;
+    this.cdr.markForCheck();
+  }
+  toggle(on: boolean): void {
+    if (this.busy) return;
+    this.busy = true; this.note = '';
+    this.api.setEnabled(this.communityId, on).pipe(finalize(() => { this.busy = false; this.cdr.markForCheck(); }))
+      .subscribe({ next: r => this.apply(r), error: () => { this.note = t('Não foi possível guardar. Tenta outra vez.'); } });
   }
   createPoll(): void {
     if (this.busy) return;
