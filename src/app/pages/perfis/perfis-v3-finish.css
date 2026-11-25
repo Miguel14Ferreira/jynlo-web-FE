@@ -681,3 +681,8 @@
     justify-items:start;text-align:left;
   }
 }
+
+/* A friend request already sent: quieter look, and a click withdraws it. */
+.profile-request-action.profile-request-pending{background:transparent!important;color:#9ff0dc!important;
+  border:1px solid #3d8f86!important;box-shadow:none!important}
+.profile-request-action.profile-request-pending:hover:not(:disabled){border-color:#ff9aa5!important;color:#ffd2d7!important}

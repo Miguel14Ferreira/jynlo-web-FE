@@ -130,6 +130,11 @@ export class CommunityService {
     );
   }
 
+  /** Withdraw a friend request this account sent (no-op if there is none). */
+  cancelFriendRequest(username: string): Observable<unknown> {
+    return this.http.delete(this.friendsUrl + '/requests/' + encodeURIComponent(username));
+  }
+
   sendFriendRequest(username: string): Observable<unknown> {
     return this.http.post(
       this.friendsUrl + '/add/' + encodeURIComponent(username),

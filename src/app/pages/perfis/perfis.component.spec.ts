@@ -1215,8 +1215,10 @@ describe('PerfisComponent', () => {
 
     expect(component.friendRequestPending(profile)).toBeTrue();
     const request: HTMLButtonElement = fixture.nativeElement.querySelector('.detail-actions button.primary-action');
-    expect(request.disabled).toBeTrue();
-    expect(request.textContent).toContain(t('community.requestPending'));
+    // A pending request is no longer a dead button: clicking it withdraws the request.
+    expect(request.disabled).toBeFalse();
+    expect(request.classList.contains('profile-request-pending')).toBeTrue();
+    expect(request.textContent).toContain(t('Pedido enviado · Cancelar'));
   });
 
   it('separates the relationship loading message from action buttons without clipping', () => {

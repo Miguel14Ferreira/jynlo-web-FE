@@ -331,10 +331,12 @@
                   <button
                     type="button"
                     class="primary-action profile-request-action jynlo-action jynlo-action--primary"
-                    [disabled]="actionLoading || friendRequestPending(selectedProfile)"
-                    (click)="sendFriendRequest(selectedProfile)">
+                    [class.profile-request-pending]="friendRequestPending(selectedProfile)"
+                    [disabled]="actionLoading"
+                    [attr.title]="friendRequestPending(selectedProfile) ? ('Cancelar o pedido de amizade' | t) : null"
+                    (click)="friendRequestPending(selectedProfile) ? cancelFriendRequest(selectedProfile) : sendFriendRequest(selectedProfile)">
                     @if (friendRequestPending(selectedProfile)) {
-                      {{ 'community.requestPending' | t }}
+                      {{ (actionLoading ? 'A cancelar…' : 'Pedido enviado · Cancelar') | t }}
                     } @else {
                       {{ actionLoading ? ('contact.sending' | t) : ('community.sendRequest' | t) }}
                     }
