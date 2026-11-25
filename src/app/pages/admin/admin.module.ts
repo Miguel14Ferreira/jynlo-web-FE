@@ -26,7 +26,8 @@ const routes: Routes = [
   { path: 'sport-suggestions', loadComponent: () => import('../admin-sport-suggestions/admin-sport-suggestions.component').then(m => m.AdminSportSuggestionsComponent) },
   { path: 'venue-edits', loadComponent: () => import('../admin-venue-edits/admin-venue-edits.component').then(m => m.AdminVenueEditsComponent) },
   { path: 'venue-claims', loadComponent: () => import('../admin-venue-claims/admin-venue-claims.component').then(m => m.AdminVenueClaimsComponent) },
-  { path: 'reports', component: AdminUserReportsComponent }
+  { path: 'reports', component: AdminUserReportsComponent },
+  { path: 'recent-accounts', loadComponent: () => import('../admin-recent-accounts/admin-recent-accounts.component').then(m => m.AdminRecentAccountsComponent) }
 ];
 
 @NgModule({

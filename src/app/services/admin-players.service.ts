@@ -25,6 +25,12 @@ export interface CommunityQuota {
   canCreate: boolean;
 }
 
+export interface RecentAccount {
+  id: number; username: string; fullName: string | null; email: string | null;
+  joinedAt: string | null; lastLoginAt: string | null; emailConfirmed: boolean; hasPhoto: boolean;
+  suspendedAt: string | null; locked: boolean; flags: string[];
+}
+
 export type ModerationAction = 'SUSPEND' | 'REINSTATE' | 'DELETE';
 export interface ModerationResult {
   id: number;
@@ -63,6 +69,11 @@ export class AdminPlayersService {
     return this.http.post<{ notificationId: number }>(
       environment.apiUrl + '/api/admin/players/' + id + '/message',
       { message });
+  }
+
+  recentAccounts(days = 14): Observable<RecentAccount[]> {
+    return this.http.get<RecentAccount[]>(environment.apiUrl + '/api/admin/players/recent',
+      { params: new HttpParams().set('days', String(days)) });
   }
 
   search(name: string, page: number): Observable<AdminPlayerSearch> {

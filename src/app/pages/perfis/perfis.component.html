@@ -332,15 +332,19 @@
                     type="button"
                     class="primary-action profile-request-action jynlo-action jynlo-action--primary"
                     [class.profile-request-pending]="friendRequestPending(selectedProfile)"
+                    [class.profile-request-confirm]="confirmCancelFor === selectedProfile.username"
                     [disabled]="actionLoading"
                     [attr.title]="friendRequestPending(selectedProfile) ? ('Cancelar o pedido de amizade' | t) : null"
                     (click)="friendRequestPending(selectedProfile) ? cancelFriendRequest(selectedProfile) : sendFriendRequest(selectedProfile)">
                     @if (friendRequestPending(selectedProfile)) {
-                      {{ (actionLoading ? 'A cancelar…' : 'Pedido enviado · Cancelar') | t }}
+                      {{ (actionLoading ? 'A cancelar…' : confirmCancelFor === selectedProfile.username ? 'Sim, cancelar pedido' : 'Pedido enviado · Cancelar') | t }}
                     } @else {
                       {{ actionLoading ? ('contact.sending' | t) : ('community.sendRequest' | t) }}
                     }
                   </button>
+                  @if (confirmCancelFor === selectedProfile.username && friendRequestPending(selectedProfile)) {
+                    <button type="button" class="jynlo-action jynlo-action--neutral" (click)="confirmCancelFor = null">{{ 'Manter pedido' | t }}</button>
+                  }
                 }
                 <button type="button" class="profile-invite-trigger jynlo-action jynlo-action--neutral"
                   [attr.aria-expanded]="invitePanelOpen"

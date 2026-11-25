@@ -289,6 +289,8 @@ export class PerfisComponent implements OnInit, OnDestroy {
 
   currentUsername = '';
   pendingFriendRequests = new Set<string>();
+  /** Username whose pending request is waiting for the in-page "Sim, cancelar" confirmation. */
+  confirmCancelFor: string | null = null;
   friendUsernames = new Set<string>();
   selectedFriendshipStatus: FriendshipStatus | null = null;
   friendshipLoading = false;
@@ -1055,7 +1057,9 @@ export class PerfisComponent implements OnInit, OnDestroy {
 
   cancelFriendRequest(profile: CommunityProfile): void {
     if (this.actionLoading || this.isOwnProfile(profile)) return;
-    if (typeof window !== 'undefined' && !window.confirm(t('Cancelar o pedido de amizade a @{v}?', { v: profile.username }))) return;
+    // First click asks inside the page; the second ("Sim, cancelar") withdraws.
+    if (this.confirmCancelFor !== profile.username) { this.confirmCancelFor = profile.username; return; }
+    this.confirmCancelFor = null;
     this.actionLoading = true;
     this.actionError = '';
     this.actionSuccess = '';
