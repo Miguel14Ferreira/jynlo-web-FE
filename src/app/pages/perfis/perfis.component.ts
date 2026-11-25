@@ -1,3 +1,4 @@
+import { playerAvatarInitials } from '../../shared/player-avatar';
 import { appTranslate } from '../../i18n/i18n.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { appTranslate as t } from '../../i18n/i18n.service';
@@ -1198,12 +1199,7 @@ export class PerfisComponent implements OnInit, OnDestroy {
     const source = profile.nickname?.trim()
       || profile.fullName?.trim()
       || profile.username;
-    return source
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map(value => value.charAt(0).toUpperCase())
-      .join('');
+    return playerAvatarInitials(source);
   }
 
   private errorFrom(error: HttpErrorResponse, fallback: string): string {

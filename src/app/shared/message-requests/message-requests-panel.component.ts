@@ -1,3 +1,4 @@
+import { playerAvatarInitials } from '../player-avatar';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -23,6 +24,15 @@ import { IncomingMessageRequest, MessagePolicy, MessageRequestsService } from '.
         @if (requests.length) { <span class="mrp__count">{{ requests.length }}</span> }
         <svg class="mrp__chev" [class.mrp__chev--open]="open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>
+      @for (s of sent; track s.id) {
+        <a class="mrp__sent" [routerLink]="['/menu/profiles', s.username]">
+          <span class="mrp__avatar">@if (s.profilePicUrl) { <img [src]="s.profilePicUrl" alt=""> } @else { {{ letter(s) }} }</span>
+          <span class="mrp__sent-main">
+            <span class="mrp__sent-top"><strong>&#64;{{ s.username }}</strong><span class="mrp__sent-tag">{{ 'Pedido enviado' | t }}</span></span>
+            <span class="mrp__sent-text">{{ 'Tu' | t }}: {{ s.text }}</span>
+          </span>
+        </a>
+      }
       @if (open) {
         <div class="mrp__panel">
           @if (!requests.length) {
@@ -30,7 +40,7 @@ import { IncomingMessageRequest, MessagePolicy, MessageRequestsService } from '.
           }
           @for (r of requests; track r.id) {
             <article class="mrp__item">
-              <a class="mrp__avatar" [routerLink]="['/menu/profiles', r.username]">@if (r.profilePicUrl) { <img [src]="r.profilePicUrl" alt=""> } @else { {{ r.username.charAt(0).toUpperCase() }} }</a>
+              <a class="mrp__avatar" [routerLink]="['/menu/profiles', r.username]">@if (r.profilePicUrl) { <img [src]="r.profilePicUrl" alt=""> } @else { {{ letter(r) }} }</a>
               <div class="mrp__main">
                 <div class="mrp__who"><a [routerLink]="['/menu/profiles', r.username]">&#64;{{ r.username }}</a>@if (r.fullName) { <small>{{ r.fullName }}</small> }</div>
                 <p class="mrp__text">{{ r.text }}</p>
@@ -65,7 +75,14 @@ import { IncomingMessageRequest, MessagePolicy, MessageRequestsService } from '.
     </section>
   `,
   styles: [`
-    .mrp{margin:4px 0 10px}
+    .mrp{margin:4px 0 10px;display:grid;gap:4px}
+    .mrp__sent{display:flex;gap:12px;align-items:center;padding:8px 10px;border-radius:14px;text-decoration:none;color:#eafffa}
+    .mrp__sent:hover{background:#ffffff0d}
+    .mrp__sent .mrp__avatar{flex:0 0 46px;width:46px;height:46px}
+    .mrp__sent-main{display:grid;gap:2px;min-width:0}
+    .mrp__sent-top{display:flex;align-items:center;gap:8px}
+    .mrp__sent-tag{font-size:.68rem;padding:2px 8px;border-radius:999px;background:#163f4d;color:#9fe8d6}
+    .mrp__sent-text{color:#9fbfc6;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .mrp__toggle{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border-radius:14px;border:1px solid transparent;background:transparent;color:#cfeee8;font:inherit;cursor:pointer;transition:background .15s}
     .mrp__toggle:hover{background:#ffffff0d}
     .mrp__toggle--has{border-color:#2f6b6a;background:#0e3340;color:#eafffa}
@@ -106,6 +123,7 @@ export class MessageRequestsPanelComponent implements OnInit {
   private readonly community = inject(CommunityService);
   private readonly cdr = inject(ChangeDetectorRef);
   requests: IncomingMessageRequest[] = [];
+  sent: IncomingMessageRequest[] = [];
   policy: MessagePolicy = 'EVERYONE';
   open = false;
   busy = false;
@@ -119,6 +137,7 @@ export class MessageRequestsPanelComponent implements OnInit {
 
   ngOnInit(): void {
     this.api.incoming().subscribe({ next: list => { this.requests = list || []; this.open = this.requests.length > 0; this.cdr.markForCheck(); }, error: () => {} });
+    this.api.sent().subscribe({ next: list => { this.sent = list || []; this.cdr.markForCheck(); }, error: () => {} });
     this.api.policy().subscribe({ next: p => { this.policy = p.policy; this.cdr.markForCheck(); }, error: () => {} });
   }
   private run(work: ReturnType<MessageRequestsService['accept']>, done: () => void): void {
@@ -126,6 +145,7 @@ export class MessageRequestsPanelComponent implements OnInit {
     work.pipe(finalize(() => { this.busy = false; this.cdr.markForCheck(); }))
       .subscribe({ next: done, error: () => { this.error = t('A ação não foi confirmada. Atualiza antes de repetir.'); } });
   }
+  letter(r: IncomingMessageRequest): string { return playerAvatarInitials(r.fullName || r.username).charAt(0); }
   blockQuestion(r: IncomingMessageRequest): string { return t('Bloquear @{{v}}? Deixa de te poder contactar.', { v: r.username }); }
   accept(r: IncomingMessageRequest): void {
     this.run(this.api.accept(r.id), () => { this.requests = this.requests.filter(x => x.id !== r.id); this.accepted.emit(r.username); });

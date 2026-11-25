@@ -18,6 +18,8 @@ export class MessageRequestsService {
   }
   send(username: string, text: string): Observable<void> { return this.http.post<void>(this.url, { username, text }); }
   incoming(): Observable<IncomingMessageRequest[]> { return this.http.get<IncomingMessageRequest[]>(this.url); }
+  /** Requests I sent that are still waiting (shown in my inbox like a conversation). */
+  sent(): Observable<IncomingMessageRequest[]> { return this.http.get<IncomingMessageRequest[]>(this.url + '/sent'); }
   accept(id: number): Observable<void> { return this.http.post<void>(this.url + '/' + id + '/accept', null); }
   decline(id: number): Observable<void> { return this.http.post<void>(this.url + '/' + id + '/decline', null); }
   policy(): Observable<{ policy: MessagePolicy }> { return this.http.get<{ policy: MessagePolicy }>(this.url + '/policy'); }

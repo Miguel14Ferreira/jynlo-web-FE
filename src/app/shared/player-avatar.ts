@@ -14,6 +14,7 @@ export function playerAvatarInitials(name: string | null | undefined): string {
   // Preserve source/history names; this affects avatar presentation only.
   const sanitized = (name || '?').replace(/\([^)]*\)/g, ' ')
     .replace(/[()[\]{}]/g, ' ').trim();
-  const words = sanitized.split(/\s+/).filter(Boolean);
-  return words.slice(0, 2).map(word => word.charAt(0).toLocaleUpperCase()).join('') || '?';
+  // Quotes, dashes and emoji are not initials: use the first letter or digit of each word.
+  const words = sanitized.split(/\s+/).map(word => word.match(/[\p{L}\p{N}]/u)?.[0] || '').filter(Boolean);
+  return words.slice(0, 2).map(letter => letter.toLocaleUpperCase()).join('') || '?';
 }
