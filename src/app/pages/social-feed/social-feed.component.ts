@@ -11,7 +11,7 @@ import { AuthenticationService } from '../../services/authethication.service';
 import { SocialFeedService } from '../../services/social-feed.service';
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
 import { DirectChatService } from '../../services/direct-chat.service';
-import { CommunityService } from '../../services/community.service';
+import { CommunityService, KnownSuggestion } from '../../services/community.service';
 import { CommunityGroupsService } from '../../services/community-groups.service';
 import { CommunityTimelineService } from '../../services/community-timeline.service';
 import { SportsTeamsService } from '../../services/sports-teams.service';
@@ -1162,13 +1162,15 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
             timeout(10_000),
             catchError(() => of([] as CommunityProfile[]))
           ),
-          friends: this.communityService.friends().pipe(timeout(10_000))
+          friends: this.communityService.friends().pipe(timeout(10_000)),
+          known: (this.communityService.peopleYouMayKnow?.() ?? of([] as KnownSuggestion[])).pipe(timeout(10_000), catchError(() => of([] as KnownSuggestion[])))
         }).pipe(
           // Without the friends list, do not risk recommending existing friends.
-          catchError(() => of({ profiles: [] as CommunityProfile[], friends: [] })),
-          switchMap(({ profiles, friends }) => of(this.rankSuggestedPeople(
-            profiles, me, new Set(friends.map(friend => friend.username.toLowerCase()))
-          )))
+          catchError(() => of({ profiles: [] as CommunityProfile[], friends: [], known: [] as KnownSuggestion[] })),
+          switchMap(({ profiles, friends, known }) => {
+            const friendNames = new Set(friends.map(friend => friend.username.toLowerCase()));
+            return of(this.withKnownFirst(known, this.rankSuggestedPeople(profiles, me, friendNames), friendNames));
+          })
         );
         }),
         takeUntil(this.destroyed)
@@ -1209,6 +1211,36 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   // QA accounts stay usable for testing, but must never be promoted as people to follow.
   // Match only the two known test usernames, not a general 'test' substring.
   private readonly qaSuggestionUsernames = new Set(['jynloteste01', 'jynloteste02']);
+
+  /** "Seguido por @a e @b": why a suggested person is shown (people you follow follow them). */
+  suggestedReason = new Map<string, KnownSuggestion>();
+
+  suggestedReasonText(username: string): string | null {
+    const known = this.suggestedReason.get(username.toLowerCase());
+    if (!known || !known.followedBy.length) return null;
+    const [first, second] = known.followedBy;
+    if (known.followedByCount === 1) return t('Seguido por @{{a}}', { a: first });
+    if (known.followedByCount === 2 && second) return t('Seguido por @{{a}} e @{{b}}', { a: first, b: second });
+    return t('Seguido por @{{a}} e mais {{n}}', { a: first, n: known.followedByCount - 1 });
+  }
+
+  private withKnownFirst(known: KnownSuggestion[], ranked: CommunityProfile[], friends: Set<string>): CommunityProfile[] {
+    this.suggestedReason = new Map();
+    const picked: CommunityProfile[] = [];
+    for (const k of known) {
+      const name = k.username?.trim().toLowerCase();
+      if (!name || name === this.currentUsername.toLowerCase() || friends.has(name) || this.qaSuggestionUsernames.has(name)) continue;
+      this.suggestedReason.set(name, k);
+      picked.push({ ...(ranked.find(p => p.username.toLowerCase() === name) || {}), username: k.username, fullName: k.fullName,
+        nickname: k.nickname, profilePicUrl: k.profilePicUrl } as CommunityProfile);
+      if (picked.length === 3) return picked;
+    }
+    for (const p of ranked) {
+      if (picked.length === 3) break;
+      if (!picked.some(x => x.username.toLowerCase() === p.username.toLowerCase())) picked.push(p);
+    }
+    return picked;
+  }
 
   private rankSuggestedPeople(profiles: CommunityProfile[], me: CommunityProfile | null, friends: Set<string>): CommunityProfile[] {
     const sports = new Set((me?.favoriteSports || '').split(/[,;|]/)

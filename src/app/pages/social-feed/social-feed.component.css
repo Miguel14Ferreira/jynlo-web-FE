@@ -1587,3 +1587,5 @@ h1 {
   text-shadow:0 6px 24px #0008;animation:feed-heart-burst .9s ease-out forwards}
 @keyframes feed-heart-burst{0%{opacity:0;transform:scale(.4)}20%{opacity:1;transform:scale(1.15)}35%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.feed-heart-burst{animation:none;opacity:.9}}
+
+.feed-suggested-reason { color:#7ae5c5; font-size:.74rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }

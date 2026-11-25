@@ -3,6 +3,11 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from 'src/environment/environment';
+
+export interface KnownSuggestion {
+  username: string; fullName: string | null; nickname: string | null; profilePicUrl: string | null;
+  followedByCount: number; followedBy: string[];
+}
 import { CommunityProfile } from '../pages/model/community-profile';
 import { FriendSummary } from '../pages/model/friend-summary';
 
@@ -61,6 +66,11 @@ export class CommunityService {
   private readonly userBlocksUrl = environment.apiUrl + '/api/blocks/users';
 
   constructor(private http: HttpClient) {}
+
+  /** People followed by the people you follow ("Seguido por @x"). */
+  peopleYouMayKnow(): Observable<KnownSuggestion[]> {
+    return this.http.get<KnownSuggestion[]>(environment.apiUrl + '/api/follows/suggestions?limit=8');
+  }
 
   discoverProfiles(): Observable<CommunityProfile[]> {
     return this.http.get<CommunityProfile[]>(this.profileUrl + '/discover');

@@ -1411,6 +1411,7 @@
                   <span class="feed-suggested-person-details">
                     <strong>{{ profile.nickname || profile.fullName || profile.username }}</strong>
                     <small>@{{ profile.username }}</small>
+                    @if (suggestedReasonText(profile.username); as reason) { <small class="feed-suggested-reason">{{ reason }}</small> }
                   </span>
                 </a>
               }
