@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../i18n/translate.pipe';
-import { encodePoll, POLL_MAX_OPTION, POLL_MAX_OPTIONS, POLL_MAX_QUESTION } from '../../pages/messages-center/poll-message';
+import { appTranslate as t } from '../../i18n/i18n.service';
+import { encodePoll, POLL_TEMPLATES, POLL_MAX_OPTION, POLL_MAX_OPTIONS, POLL_MAX_QUESTION } from '../../pages/messages-center/poll-message';
 
 /** Small poll editor for group chats outside the messages centre (private groups, team chat). */
 @Component({
@@ -12,6 +13,11 @@ import { encodePoll, POLL_MAX_OPTION, POLL_MAX_OPTIONS, POLL_MAX_QUESTION } from
   template: `
     <section class="poll-composer" role="dialog" [attr.aria-label]="'chat.poll.createTitle' | t">
       <strong>📊 {{ 'chat.poll.createTitle' | t }}</strong>
+      <div class="poll-templates">
+        @for (tpl of templates; track tpl.question) {
+          <button type="button" (click)="applyTemplate(tpl)">{{ tpl.question | t }}</button>
+        }
+      </div>
       <input type="text" [(ngModel)]="question" [maxlength]="maxQuestion" name="pollQuestion"
         [placeholder]="'chat.poll.questionPlaceholder' | t" [attr.aria-label]="'chat.poll.question' | t" (ngModelChange)="invalid = false">
       @for (option of options; track $index; let i = $index) {
@@ -27,6 +33,7 @@ import { encodePoll, POLL_MAX_OPTION, POLL_MAX_OPTIONS, POLL_MAX_QUESTION } from
         <button type="button" class="poll-add" (click)="options = [...options, '']">{{ 'chat.poll.addOption' | t }}</button>
       }
       @if (invalid) { <p role="alert" class="poll-error">{{ 'chat.poll.invalid' | t }}</p> }
+      <p class="poll-visible">{{ 'Os votos são visíveis para quem está na conversa.' | t }}</p>
       <div class="poll-actions">
         <button type="button" class="poll-send" (click)="submit()">{{ 'chat.poll.send' | t }}</button>
         <button type="button" (click)="closed.emit()">{{ 'chat.poll.close' | t }}</button>
@@ -38,7 +45,9 @@ import { encodePoll, POLL_MAX_OPTION, POLL_MAX_OPTIONS, POLL_MAX_QUESTION } from
     .poll-option{display:flex;gap:6px}.poll-option input{flex:1}
     .poll-composer button{min-height:36px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.24);background:transparent;color:inherit;cursor:pointer}
     .poll-send{background:var(--jynlo-mint,#7AE5C5)!important;color:#051824!important;border-color:transparent!important;font-weight:800}
-    .poll-actions{display:flex;gap:8px}.poll-error{margin:0;color:#F2A19B}`]
+    .poll-actions{display:flex;gap:8px}.poll-error{margin:0;color:#F2A19B}
+    .poll-templates{display:flex;flex-wrap:wrap;gap:6px}.poll-templates button{font-size:.78rem;min-height:30px}
+    .poll-visible{margin:0;font-size:.74rem;opacity:.7}`]
 })
 export class PollComposerComponent {
   @Output() readonly send = new EventEmitter<string>();
@@ -46,6 +55,10 @@ export class PollComposerComponent {
   readonly maxQuestion = POLL_MAX_QUESTION;
   readonly maxOption = POLL_MAX_OPTION;
   readonly maxOptions = POLL_MAX_OPTIONS;
+  readonly templates = POLL_TEMPLATES;
+  applyTemplate(tpl: { question: string; options: string[] }): void {
+    this.question = t(tpl.question); this.options = tpl.options.map(o => t(o)); this.invalid = false;
+  }
   question = '';
   options = ['', ''];
   invalid = false;

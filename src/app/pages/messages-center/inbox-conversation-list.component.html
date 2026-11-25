@@ -1,4 +1,21 @@
 <div class="inbox-entries">
+            @for (s of sentRequests; track s.id) {
+              <button type="button" class="inbox-entry inbox-entry--request" (click)="sentSelected.emit(s.username)">
+                <span class="inbox-avatar" aria-hidden="true">
+                  @if (s.profilePicUrl && !failedAvatars.has('req:' + s.username)) {
+                    <img class="inbox-avatar-image" [src]="s.profilePicUrl" alt="" loading="lazy" referrerpolicy="no-referrer"
+                      (error)="failedAvatars.add('req:' + s.username)">
+                  } @else { {{ s.username.slice(0, 1).toUpperCase() }} }
+                </span>
+                <span class="inbox-entry-content">
+                  <span class="inbox-entry-top">
+                    <strong>&#64;{{ s.username }}</strong>
+                  </span>
+                  <span class="inbox-entry-kind">{{ 'Pedido enviado' | t }}</span>
+                  <span class="inbox-entry-snippet">{{ 'Tu' | t }}: {{ s.text }}</span>
+                </span>
+              </button>
+            }
             @for (conversation of conversations; track conversation.key) {
               <button type="button" class="inbox-entry"
                 [class.is-selected]="selectedKey === conversation.key"

@@ -622,6 +622,11 @@ export class NotificationsComponent implements OnInit {
     if (!notification.relatedUsername) {
       return;
     }
+    // A first message from someone who is not a friend waits in "Pedidos de mensagem" (top of Messages).
+    if (notification.subject === 'Pedido de mensagem') {
+      void this.router.navigate(['/menu/messages']);
+      return;
+    }
 
     void this.router.navigate(['/menu/messages'], {
       queryParams: { kind: 'direct', id: notification.relatedUsername }

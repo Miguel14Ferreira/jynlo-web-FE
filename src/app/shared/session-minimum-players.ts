@@ -10,3 +10,12 @@ export function suggestedMinimumPlayers(sport: string | null | undefined, capaci
 export function missingMinimumPlayers(confirmed: number, minimum: number): number {
   return Math.max(0, minimum - confirmed);
 }
+
+/** Players still missing for an open session to happen (0 when the minimum is reached or it is not open). */
+export function playersMissingForGame(session: { sport?: string | null; maxParticipants: number; participantCount: number;
+  minPlayers?: number | null; status?: string | null }): number {
+  const status = (session.status || 'OPEN').toUpperCase();
+  if (status !== 'OPEN' && status !== 'FULL') return 0;
+  const minimum = session.minPlayers ?? suggestedMinimumPlayers(session.sport, session.maxParticipants);
+  return missingMinimumPlayers(session.participantCount, minimum);
+}

@@ -1,3 +1,4 @@
+import { playersMissingForGame } from '../../shared/session-minimum-players';
 import { isLightboxBackdropClick } from '../../shared/lightbox-click';
 import { appTranslate } from '../../i18n/i18n.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -1266,6 +1267,8 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   private normalizeSuggestion(value: string): string {
     return value.trim().toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
+
+  missingForGame(session: SessionSummary): number { return playersMissingForGame(session); }
 
   suggestedProfileImage(profile: Pick<CommunityProfile, 'profilePicUrl'>): string | null {
     const path = profile.profilePicUrl;

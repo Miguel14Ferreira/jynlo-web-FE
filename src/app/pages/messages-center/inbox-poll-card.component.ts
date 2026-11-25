@@ -2,13 +2,14 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, Optional, SimpleChanges } from '@angular/core';
 import { Subscription, timeout } from 'rxjs';
 import { TranslatePipe } from '../../i18n/translate.pipe';
-import { ChatPollKind, ChatPollResult, ChatPollService } from '../../services/chat-poll.service';
+import { ChatPollKind, ChatPollResult, ChatPollService, ChatPollVoter } from '../../services/chat-poll.service';
+import { environment } from 'src/environment/environment';
 import { DirectChatRealtimeService } from '../../services/direct-chat-realtime.service';
 import { ChatPollContent } from './poll-message';
 
 /**
- * Poll card inside a group chat. Tap an option to vote, tap it again to
- * remove the vote. Counts come from the server; names never do.
+ * Poll card inside a group chat (WhatsApp style). Tap an option to vote, tap it again to
+ * remove the vote. Shows who voted for each option (votes cast since 25 Nov 2026).
  */
 @Component({
   selector: 'app-inbox-poll-card',
@@ -26,11 +27,32 @@ import { ChatPollContent } from './poll-message';
               (click)="choose($index)">
               <span class="poll-bar" [style.width.%]="percent($index)"></span>
               <span class="poll-label">@if (result?.mine === $index) {✓ }{{ option }}</span>
-              <span class="poll-count">{{ count($index) }}</span>
+              <span class="poll-right">
+                <span class="poll-faces" aria-hidden="true">
+                  @for (v of voters($index).slice(0, 3); track v.username) {
+                    <span class="poll-face" [title]="'@' + v.username">@if (photo(v); as src) { <img [src]="src" alt=""> } @else { {{ letter(v.username) }} }</span>
+                  }
+                </span>
+                <span class="poll-count">{{ count($index) }}</span>
+              </span>
             </button>
           </li>
         }
       </ul>
+      @if (hasVoters()) {
+        <button type="button" class="poll-see" (click)="showVotes = !showVotes" [attr.aria-expanded]="showVotes">
+          {{ (showVotes ? 'Esconder votos' : 'Ver votos') | t }}</button>
+        @if (showVotes) {
+          <div class="poll-votes">
+            @for (option of poll.options; track $index) {
+              @if (voters($index).length) {
+                <div class="poll-votes-row"><strong>{{ option }}</strong>
+                  <span>@for (v of voters($index); track v.username; let last = $last) { &#64;{{ v.username }}@if (!last) {, } }</span></div>
+              }
+            }
+          </div>
+        }
+      }
       <span class="poll-meta">
         @if (error) { <span role="alert">{{ 'chat.poll.error' | t }}</span> }
         @else { {{ 'chat.poll.votes' | t:{count: result?.total ?? 0} }} · {{ (result?.mine == null ? 'chat.poll.tapToVote' : 'chat.poll.tapToChange') | t }} }
@@ -50,6 +72,16 @@ import { ChatPollContent } from './poll-message';
     .poll-label,.poll-count{position:relative;z-index:1}
     .poll-count{font-variant-numeric:tabular-nums;opacity:.8}
     .poll-meta{font-size:.75rem;opacity:.75}
+    .poll-right{position:relative;z-index:1;display:flex;align-items:center;gap:.35rem}
+    .poll-faces{display:flex}
+    .poll-face{width:1.35rem;height:1.35rem;border-radius:50%;margin-left:-.35rem;border:2px solid #0b2a38;background:#163f4d;color:#bff7e9;
+      font-size:.62rem;font-weight:800;display:grid;place-items:center;overflow:hidden}
+    .poll-face:first-child{margin-left:0}
+    .poll-face img{width:100%;height:100%;object-fit:cover}
+    .poll-see{align-self:center;border:0;background:transparent;color:#38e0c0;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;padding:.3rem .6rem}
+    .poll-votes{display:grid;gap:.35rem;font-size:.78rem;padding:.4rem .2rem;border-top:1px solid rgba(127,127,127,.25)}
+    .poll-votes-row{display:grid;gap:.1rem}
+    .poll-votes-row span{opacity:.8}
   `]
 })
 export class InboxPollCardComponent implements OnInit, OnChanges, OnDestroy {
@@ -71,7 +103,8 @@ export class InboxPollCardComponent implements OnInit, OnChanges, OnDestroy {
     this.realtime = this.live?.polls$.subscribe(event => {
       if (event.kind !== this.kind || event.conversationId !== this.conversationId
           || event.messageId !== this.messageId || event.counts.length !== this.poll.options.length) return;
-      this.result = { messageId: this.messageId, counts: event.counts, total: event.total, mine: this.result?.mine ?? null };
+      this.result = { messageId: this.messageId, counts: event.counts, total: event.total, mine: this.result?.mine ?? null,
+        voters: event.voters ?? this.result?.voters };
       this.cdr.markForCheck();
     });
   }
@@ -96,7 +129,17 @@ export class InboxPollCardComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnDestroy(): void { this.load?.unsubscribe(); this.realtime?.unsubscribe(); }
 
+  showVotes = false;
   count(index: number): number { return this.result?.counts?.[index] ?? 0; }
+  voters(index: number): ChatPollVoter[] { return this.result?.voters?.[index] ?? []; }
+  hasVoters(): boolean { return (this.result?.voters ?? []).some(list => list.length > 0); }
+  letter(username: string): string { return (username.match(/[\p{L}\p{N}]/u)?.[0] ?? '?').toUpperCase(); }
+  photo(v: ChatPollVoter): string | null {
+    const p = v.profilePicUrl;
+    if (!p) return null;
+    if (p.startsWith('http') || p.startsWith('data:')) return p;
+    return environment.apiUrl + (p.startsWith('/') ? p : '/' + p);
+  }
   percent(index: number): number {
     const total = this.result?.total ?? 0;
     return total > 0 ? Math.round(this.count(index) * 100 / total) : 0;

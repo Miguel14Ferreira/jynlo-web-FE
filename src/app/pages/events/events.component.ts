@@ -1,3 +1,4 @@
+import { playersMissingForGame } from '../../shared/session-minimum-players';
 import { AuthenticationService } from '../../services/authethication.service';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { inject } from '@angular/core';
@@ -206,6 +207,8 @@ export class EventsComponent implements OnInit, OnDestroy {
     }
     this.loadSessions();
   }
+
+  missingForGame(session: SessionSummary): number { return playersMissingForGame(session); }
 
   vacancies(session: SessionSummary): number {
     return Math.max(

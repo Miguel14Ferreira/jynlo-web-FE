@@ -45,3 +45,10 @@ export function readPoll(text: string | null | undefined): ChatPollContent | nul
 export function isPollText(text: string | null | undefined): boolean {
   return typeof text === 'string' && text.trim().startsWith(POLL_PREFIX);
 }
+
+/** Ready-made polls for a game (texts are translated when applied). */
+export const POLL_TEMPLATES: { question: string; options: string[] }[] = [
+  { question: 'Quem leva o quê?', options: ['Levo bola', 'Levo coletes', 'Levo água'] },
+  { question: 'Contamos contigo?', options: ['Vou', 'Talvez', 'Não posso'] },
+  { question: 'Que dia dá mais jeito?', options: ['Sábado', 'Domingo'] }
+];

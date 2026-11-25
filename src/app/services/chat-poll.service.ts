@@ -4,7 +4,8 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environment/environment';
 
 export type ChatPollKind = 'session' | 'community' | 'private' | 'team';
-export interface ChatPollResult { messageId: number; counts: number[]; total: number; mine: number | null; }
+export interface ChatPollVoter { username: string; profilePicUrl: string | null; }
+export interface ChatPollResult { messageId: number; counts: number[]; total: number; mine: number | null; voters?: ChatPollVoter[][]; }
 
 @Injectable({ providedIn: 'root' })
 export class ChatPollService {

@@ -1,3 +1,4 @@
+import { IncomingMessageRequest, MessageRequestsService } from '../../services/message-requests.service';
 import { RequestComposePaneComponent } from '../../shared/message-requests/request-compose-pane.component';
 import { MessageComposeService } from '../../services/message-compose.service';
 import { AutoGrowDirective } from '../../shared/auto-grow.directive';
@@ -54,6 +55,7 @@ import { InboxStoryCardComponent } from './inbox-story-card.component';
 import { InboxCallUpCardComponent } from './inbox-callup-card.component';
 import { CallUpChoice, encodeCallUp, readCallUp } from './callup-message';
 import { InboxPollCardComponent } from './inbox-poll-card.component';
+import { POLL_TEMPLATES } from './poll-message';
 import { ChatPollContent, encodePoll, POLL_MAX_OPTION, POLL_MAX_OPTIONS, POLL_MAX_QUESTION, readPoll } from './poll-message';
 import { storyIdFromChatText, storyShareFromChatText } from './inbox-story-share';
 import { SportsTeamsService, TeamContentEntry } from '../../services/sports-teams.service';
@@ -263,6 +265,13 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   selectedCallUp: CallUpChoice | null = null;
   selectedPoll: ChatPollContent | null = null;
   pollEditorOpen = false;
+  /** Quick polls friends use before a game ("Quem leva bola?"). */
+  readonly pollTemplates = POLL_TEMPLATES;
+  applyPollTemplate(tpl: { question: string; options: string[] }): void {
+    this.pollQuestion = t(tpl.question);
+    this.pollOptions = tpl.options.map(o => t(o));
+    this.pollInvalid = false;
+  }
   pollQuestion = '';
   pollOptions: string[] = ['', ''];
   pollInvalid = false;
@@ -581,6 +590,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   onViewingVisibility(): void { this.syncViewing(true); }
 
   ngOnInit(): void {
+    this.loadSentRequests();
     this.activeChat?.register(this, () =>
       this.dockHidden || (typeof document !== 'undefined' && document.visibilityState !== 'visible')
         ? null : this.selectedKey);
@@ -700,6 +710,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
 
   ngOnDestroy(): void {
     this.composeSub.unsubscribe();
+    this.sentSub.unsubscribe();
     this.activeChat?.unregister(this);
     if (this.viewingTimer) clearInterval(this.viewingTimer);
     this.dockHidden = true;
@@ -855,7 +866,14 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   /** An accepted message request becomes a normal conversation: refresh and open it. */
   /** "New message to @x" opened from a profile (someone who is not a friend). */
   composeTarget: string | null = null;
-  private readonly composeService = inject(MessageComposeService);
+  readonly composeService = inject(MessageComposeService);
+  /** Requests I sent that are still waiting: shown at the top of the list, like Instagram. */
+  sentRequests: IncomingMessageRequest[] = [];
+  private readonly requestsApi = inject(MessageRequestsService, { optional: true });
+  private loadSentRequests(): void {
+    this.requestsApi?.sent?.()?.subscribe({ next: list => { this.sentRequests = list || []; }, error: () => {} });
+  }
+  private sentSub = this.composeService.changed$.subscribe(() => this.loadSentRequests());
   private composeSub = this.composeService.target$.subscribe(target => {
     this.composeTarget = target;
     if (target) this.selectedKey = null;
@@ -863,6 +881,7 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
   closeCompose(): void { this.composeService.close(); }
 
   onMessageRequestAccepted(username: string): void {
+    this.loadSentRequests();
     this.queueDeepLink('direct', username);
     this.loadInbox();
   }

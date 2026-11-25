@@ -193,3 +193,7 @@
 .inbox-poll-add{justify-self:start;border:0;background:none;color:#6ff0d4;font-weight:800;cursor:pointer;padding:4px 0}
 .inbox-poll-use{min-height:44px;border:0;border-radius:12px;background:#22c55e;color:#062018;font-weight:800;cursor:pointer}
 .inbox-poll-draft-edit{border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;padding:0;flex:1}
+
+.inbox-poll-templates{display:flex;flex-wrap:wrap;gap:6px}
+.inbox-poll-templates button{border:1px solid #2f6573;background:#0d3341;color:#cfeee8;border-radius:999px;padding:5px 10px;font:inherit;font-size:.78rem;cursor:pointer}
+.inbox-poll-visible{margin:0;font-size:.74rem;opacity:.7}

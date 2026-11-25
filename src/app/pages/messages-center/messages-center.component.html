@@ -64,7 +64,7 @@
         <app-message-requests-panel (accepted)="onMessageRequestAccepted($event)"></app-message-requests-panel>
         @if (loading) {
           <p class="inbox-loading" role="status">{{ 'inbox.loading' | t }}</p>
-        } @else if (filteredConversations.length === 0) {
+        } @else if (filteredConversations.length === 0 && !(filter === 'all' && !search && sentRequests.length)) {
           <div class="inbox-empty-side">
             <p>{{ (search || filter !== 'all' ? 'inbox.noMatches' : 'inbox.empty') | t }}</p>
             @if (filter === 'all' && !search) {
@@ -79,6 +79,8 @@
             [conversations]="filteredConversations"
             [selectedKey]="selectedKey"
             [formatters]="conversationListFormatters"
+            [sentRequests]="filter === 'all' && !search ? sentRequests : []"
+            (sentSelected)="composeService.open($event)"
             (conversationSelected)="selectConversation($event)"
           ></app-inbox-conversation-list>
         }
@@ -744,6 +746,11 @@
                           <strong>📊 {{ 'chat.poll.createTitle' | t }}</strong>
                           <button type="button" (click)="closePollEditor()" [attr.aria-label]="'chat.poll.close' | t">✕</button>
                         </div>
+                        <div class="inbox-poll-templates">
+                          @for (tpl of pollTemplates; track tpl.question) {
+                            <button type="button" (click)="applyPollTemplate(tpl)">{{ tpl.question | t }}</button>
+                          }
+                        </div>
                         <label class="inbox-poll-field">
                           <span>{{ 'chat.poll.question' | t }}</span>
                           <input type="text" [value]="pollQuestion" [attr.maxlength]="pollMaxQuestion"
@@ -765,6 +772,7 @@
                           <button type="button" class="inbox-poll-add" (click)="addPollOption()">{{ 'chat.poll.addOption' | t }}</button>
                         }
                         @if (pollInvalid) { <p role="alert">{{ 'chat.poll.invalid' | t }}</p> }
+                        <p class="inbox-poll-visible">{{ 'Os votos são visíveis para quem está na conversa.' | t }}</p>
                         <button type="button" class="inbox-poll-use" (click)="usePoll()">{{ 'chat.poll.use' | t }}</button>
                       </section>
                     }

@@ -1375,7 +1375,11 @@
                   </span>
                   <span class="feed-session-occupancy">
                     <span>{{ session.participantCount }} / {{ session.maxParticipants }} {{ 'week.players' | t }}</span>
-                    <strong>{{ session.maxParticipants - session.participantCount }} {{ 'discover.when.vacancies' | t }}</strong>
+                    @if (missingForGame(session) > 0) {
+                      <strong class="feed-session-missing">{{ (missingForGame(session) === 1 ? 'Falta 1 para haver jogo' : 'Faltam {{n}} para haver jogo') | t:{ n: missingForGame(session) } }}</strong>
+                    } @else {
+                      <strong>{{ session.maxParticipants - session.participantCount }} {{ 'discover.when.vacancies' | t }}</strong>
+                    }
                   </span>
                   <span class="feed-session-capacity-track" aria-hidden="true">
                     <span [style.width.%]="sessionCapacityPercent(session)"></span>

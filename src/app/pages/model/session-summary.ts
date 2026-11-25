@@ -23,5 +23,7 @@ export interface SessionSummary {
   skillLevel?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | null;
   /** Organiser marked the court as booked. */
   courtBooked?: boolean | null;
+  /** Players needed for the game to happen (custom or the sport's default). */
+  minPlayers?: number | null;
   status: string;
 }

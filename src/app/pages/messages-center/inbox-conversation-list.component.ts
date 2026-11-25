@@ -27,4 +27,7 @@ export class InboxConversationListComponent {
   @Input() selectedKey: string | null = null;
   @Input({ required: true }) formatters!: InboxListFormatters;
   @Output() conversationSelected = new EventEmitter<InboxConversation>();
+  /** Message requests this account sent and that are still waiting (Instagram style, at the top). */
+  @Input() sentRequests: readonly { id: number; username: string; profilePicUrl: string | null; text: string }[] = [];
+  @Output() sentSelected = new EventEmitter<string>();
 }

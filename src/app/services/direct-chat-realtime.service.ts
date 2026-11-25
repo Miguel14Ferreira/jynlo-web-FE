@@ -19,11 +19,12 @@ export interface ChatReactionEvent {
 
 /** Poll counts only: the server never says who voted for what. */
 export interface ChatPollEvent {
-  kind: 'session' | 'community';
+  kind: 'session' | 'community' | 'private' | 'team';
   conversationId: string;
   messageId: number;
   counts: number[];
   total: number;
+  voters?: { username: string; profilePicUrl: string | null }[][];
 }
 
 export interface DirectCallEvent {
@@ -284,7 +285,7 @@ export class DirectChatRealtimeService {
 
         if (envelope.type === 'CHAT_POLL_CHANGED' && envelope.poll) {
           const poll = envelope.poll;
-          if ((poll.kind === 'session' || poll.kind === 'community')
+          if (['session', 'community', 'private', 'team'].includes(poll.kind)
               && typeof poll.conversationId === 'string'
               && Number.isSafeInteger(poll.messageId) && poll.messageId > 0
               && Array.isArray(poll.counts) && poll.counts.length <= 6
