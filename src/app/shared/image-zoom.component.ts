@@ -54,9 +54,11 @@ export function zoomTarget(target: EventTarget | null, x?: number, y?: number): 
       background: rgba(2, 10, 16, .88); backdrop-filter: blur(4px); cursor: zoom-out;
       animation: image-zoom-fade .14s ease-out;
     }
+    /* The box must match the visible photo: a fixed box with object-fit left invisible
+       margins that swallowed "click outside the photo" and kept the viewer open. */
     .image-zoom-image {
-      width: min(1100px, calc(100vw - 32px)); height: calc(100vh - 80px); object-fit: contain;
-      cursor: default;
+      width: auto; height: auto; max-width: min(1100px, calc(100vw - 32px)); max-height: calc(100vh - 80px);
+      object-fit: contain; cursor: default;
     }
     .image-zoom-close {
       position: absolute; top: 14px; right: 14px; width: 42px; height: 42px; border-radius: 50%;

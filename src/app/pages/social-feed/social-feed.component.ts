@@ -1,3 +1,4 @@
+import { isLightboxBackdropClick } from '../../shared/lightbox-click';
 import { appTranslate } from '../../i18n/i18n.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit, Optional, inject } from '@angular/core';
@@ -1810,6 +1811,11 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
     if (index < 0 || index >= media.length) return;
     this.expandedMedia = media;
     this.expandedMediaIndex = index;
+  }
+
+  onPostLightboxClick(event: Event): void {
+    event.stopPropagation();
+    if (isLightboxBackdropClick(event)) this.closePostMedia();
   }
 
   closePostMedia(): void {

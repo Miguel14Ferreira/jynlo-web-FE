@@ -5631,7 +5631,7 @@
   @if (communityExpandedMedia.length) {
     <div class="community-feed-lightbox" (click)="closeCommunityPostMedia()">
       <section class="community-feed-lightbox-dialog" role="dialog" aria-modal="true"
-               [attr.aria-label]="'Fotografias e vídeos da comunidade' | t" (click)="$event.stopPropagation()">
+               [attr.aria-label]="'Fotografias e vídeos da comunidade' | t" (click)="onCommunityLightboxClick($event)">
         <header>
           <span>{{ communityExpandedMediaIndex + 1 }} / {{ communityExpandedMedia.length }}</span>
           <button type="button" (click)="closeCommunityPostMedia()" [attr.aria-label]="'Fechar visualização' | t">×</button>

@@ -1449,7 +1449,7 @@
   @if (expandedMedia.length) {
     <div class="feed-lightbox" (click)="closePostMedia()">
       <section class="feed-lightbox-dialog" role="dialog" aria-modal="true"
-               [attr.aria-label]="'Fotografias e vídeos da publicação' | t" (click)="$event.stopPropagation()">
+               [attr.aria-label]="'Fotografias e vídeos da publicação' | t" (click)="onPostLightboxClick($event)">
         <header class="feed-lightbox-toolbar">
           <span>{{ expandedMediaIndex + 1 }} / {{ expandedMedia.length }}</span>
           <button type="button" (click)="closePostMedia()" [attr.aria-label]="'Fechar visualização' | t">×</button>

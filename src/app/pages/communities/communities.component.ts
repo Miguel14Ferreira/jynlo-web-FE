@@ -1,3 +1,4 @@
+import { isLightboxBackdropClick } from '../../shared/lightbox-click';
 import { appTranslate } from '../../i18n/i18n.service';
 import { sportMatchesQuery } from '../../shared/venue-catalogue-display';
 import { AfterViewChecked, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, Type, ViewChild, inject, signal } from '@angular/core';
@@ -946,6 +947,11 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     if (!media.length || !media[selected]) return;
     this.communityExpandedMedia = media;
     this.communityExpandedMediaIndex = selected;
+  }
+
+  onCommunityLightboxClick(event: Event): void {
+    event.stopPropagation();
+    if (isLightboxBackdropClick(event)) this.closeCommunityPostMedia();
   }
 
   closeCommunityPostMedia(): void {
