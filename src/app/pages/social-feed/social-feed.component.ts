@@ -1259,9 +1259,19 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
         this.communityNews = next;
       });
   }
+  /** "sex., 27/11 18:00" in the app's language (the date pipe would use English weekdays). */
+  gameWhen(iso: string): string {
+    let lang = 'pt-PT';
+    try { lang = localStorage.getItem('d24-language') === 'en' ? 'en-GB' : 'pt-PT'; } catch { /* default */ }
+    return new Intl.DateTimeFormat(lang, { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
+      timeZone: 'Europe/Lisbon' }).format(new Date(iso));
+  }
+
   communityNextGame(communityId: number): SessionSummary | null {
     const now = Date.now();
-    return this.availableSessions
+    // Every session list the feed already has: my games, offers, discovered and suggested ones.
+    const known = [...this.myWeekGames, ...this.myWeekOffers, ...this.myWeekDiscovered, ...this.suggestedSessions, ...this.availableSessions];
+    return known
       .filter(s => s.communityId === communityId && Date.parse(s.gameDate) > now)
       .sort((a, b) => Date.parse(a.gameDate) - Date.parse(b.gameDate))[0] ?? null;
   }

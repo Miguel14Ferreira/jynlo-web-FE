@@ -7985,6 +7985,7 @@ export const EN: Record<string, string> = {
   "Desativada": "Off",
   "Descarregar": "Download",
   "Desfocar": "Blur",
+  "Destaques do mês e votação do jogador do mês": "Month's top players and player-of-the-month vote",
   "Os melhores do mês e a votação do jogador do mês. A comunidade decide se quer usar.": "The month's top players and the player-of-the-month vote. Each community decides whether to use it.",
   "Ativar": "Turn on",
   "Desligar": "Turn off",

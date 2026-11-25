@@ -1437,7 +1437,7 @@
                     @if ((communityNews.get(community.id)?.unread ?? 0) > 0) {
                       <small class="feed-community-news">{{ ((communityNews.get(community.id)?.unread ?? 0) === 1 ? '1 mensagem nova' : '{{n}} mensagens novas') | t:{ n: communityNews.get(community.id)?.unread } }}</small>
                     } @else if (communityNextGame(community.id); as game) {
-                      <small class="feed-community-news">{{ 'Próximo jogo' | t }} · {{ game.gameDate | date:'EEE dd/MM HH:mm' }}</small>
+                      <small class="feed-community-news">{{ 'Próximo jogo' | t }} · {{ gameWhen(game.gameDate) }}</small>
                     } @else {
                       <small>{{ community.memberCount }} {{ 'week.members' | t }}</small>
                     }

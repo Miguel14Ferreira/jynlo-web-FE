@@ -1,3 +1,5 @@
+import { CommunityFeatureDraft } from './community-feature-settings.component';
+import { PlayerHighlightsService } from '../../shared/player-highlights/player-highlights.service';
 import { isLightboxBackdropClick } from '../../shared/lightbox-click';
 import { appTranslate } from '../../i18n/i18n.service';
 import { sportMatchesQuery } from '../../shared/venue-catalogue-display';
@@ -2100,7 +2102,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   featuresSaving = false;
   featuresFeedback = '';
   featuresError = '';
-  featuresDraft = {
+  featuresDraft: CommunityFeatureDraft = {
     rankingsEnabled: false,
     individualTournamentsEnabled: false,
     teamTournamentsEnabled: false
@@ -2124,8 +2126,15 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
     this.featuresDraft = {
       rankingsEnabled: this.selected.rankingsEnabled,
       individualTournamentsEnabled: this.selected.individualTournamentsEnabled !== false,
-      teamTournamentsEnabled: this.selected.teamTournamentsEnabled !== false
+      teamTournamentsEnabled: this.selected.teamTournamentsEnabled !== false,
+      monthHighlightsEnabled: this.monthHighlightsOn
     };
+    const editingId = this.selected.id;
+    this.highlights?.monthLeaders(editingId).subscribe({ next: r => {
+      this.monthHighlightsOn = r?.enabled === true;
+      if (this.featuresEditing && this.selected?.id === editingId)
+        this.featuresDraft = { ...this.featuresDraft, monthHighlightsEnabled: this.monthHighlightsOn };
+    }, error: () => {} });
     this.featuresError = '';
     this.featuresFeedback = '';
     this.featuresEditing = true;
@@ -2138,7 +2147,8 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   saveFeatures(): void {
     if (!this.canManage() || !this.selected || !this.featuresEditing || this.featuresSaving) return;
     const communityId = this.selected.id;
-    const request = { ...this.featuresDraft };
+    // The month highlights switch has its own endpoint: send only the community features here.
+    const { monthHighlightsEnabled, ...request } = this.featuresDraft;
     this.featuresSaving = true;
     this.featuresError = '';
     this.featuresFeedback = '';
@@ -2147,6 +2157,12 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       .subscribe({
         next: updated => {
           if (this.selected?.id !== communityId) return;
+          const wanted = monthHighlightsEnabled === true;
+          if (this.highlights && wanted !== this.monthHighlightsOn) {
+            this.highlights.setEnabled(communityId, wanted).subscribe({ next: r => {
+              this.monthHighlightsOn = r?.enabled === true; this.monthHighlightsVersion++;
+            }, error: () => {} });
+          }
           this.selected = updated;
           this.communities = this.communities.map(item => item.id === communityId ? updated : item);
           this.featuresEditing = false;
@@ -2159,6 +2175,10 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       });
   }
 
+  /** Last known state of "Destaques do mês" for the selected community. */
+  monthHighlightsOn = false;
+  monthHighlightsVersion = 0;
+  private readonly highlights = (() => { try { return inject(PlayerHighlightsService, { optional: true }); } catch { return null; } })();
   rankingsEnabledDraft = false;
   overallStandingsDraft = false;
   winPointsDraft = 3;

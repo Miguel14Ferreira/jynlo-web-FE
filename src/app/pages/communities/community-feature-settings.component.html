@@ -19,6 +19,8 @@
                       [disabled]="saving"> {{ 'communities.features.team' | t }}</label>
                     <label><input type="checkbox" [ngModel]="draft.rankingsEnabled" (ngModelChange)="setFeature('rankingsEnabled', $event)"
                       [disabled]="saving"> {{ 'communities.features.rankings' | t }}</label>
+                    <label><input type="checkbox" [ngModel]="draft.monthHighlightsEnabled" (ngModelChange)="setFeature('monthHighlightsEnabled', $event)"
+                      [disabled]="saving"> {{ 'Destaques do mês e votação do jogador do mês' | t }}</label>
                   </div>
                   <p class="feature-settings-caption">{{ 'communities.features.caption' | t }}</p>
                   <div class="feature-settings-actions">

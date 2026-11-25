@@ -6,6 +6,8 @@ export interface CommunityFeatureDraft {
   rankingsEnabled: boolean;
   individualTournamentsEnabled: boolean;
   teamTournamentsEnabled: boolean;
+  /** "Destaques do mês" and the "Jogador do mês" vote (saved through its own endpoint). */
+  monthHighlightsEnabled?: boolean;
 }
 
 /** Only displays feature configuration; CommunitiesComponent retains authorization and persistence. */

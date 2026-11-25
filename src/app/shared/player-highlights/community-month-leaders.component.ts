@@ -12,15 +12,6 @@ import { MonthLeader, PlayerHighlightsService } from './player-highlights.servic
   imports: [RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (manager && !enabled) {
-      <section class="cml cml--off">
-        <div class="cml__head">
-          <div><h3>🏆 {{ 'Destaques do mês' | t }}</h3>
-            <p class="cml__note">{{ 'Os melhores do mês e a votação do jogador do mês. A comunidade decide se quer usar.' | t }}</p></div>
-          <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy" (click)="toggle(true)">{{ 'Ativar' | t }}</button>
-        </div>
-      </section>
-    }
     @if (enabled && (leaders.length || manager)) {
       <section class="cml">
         <header class="cml__head">
@@ -31,7 +22,6 @@ import { MonthLeader, PlayerHighlightsService } from './player-highlights.servic
                 <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy || created" (click)="createPoll()">
                   {{ (created ? 'Votação criada no chat' : busy ? 'A criar…' : 'Votar o jogador do mês') | t }}</button>
               }
-              <button type="button" class="jynlo-action jynlo-action--neutral" [disabled]="busy" (click)="toggle(false)">{{ 'Desligar' | t }}</button>
             </span>
           }
         </header>
@@ -68,6 +58,8 @@ import { MonthLeader, PlayerHighlightsService } from './player-highlights.servic
 export class CommunityMonthLeadersComponent implements OnChanges {
   @Input({ required: true }) communityId = 0;
   @Input() canManage = false;
+  /** Bumped by the page after the switch changes, to reload. */
+  @Input() version = 0;
   private readonly api = inject(PlayerHighlightsService);
   private readonly cdr = inject(ChangeDetectorRef);
   leaders: MonthLeader[] = [];

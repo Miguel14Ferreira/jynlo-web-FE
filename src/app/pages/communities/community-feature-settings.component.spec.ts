@@ -42,8 +42,9 @@ describe('CommunityFeatureSettingsComponent', () => {
     fixture.componentInstance.draftChange.subscribe(value => captured.push(value));
     const root = fixture.nativeElement as HTMLElement;
     const checkboxes = root.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
-    expect(checkboxes.length).toBe(3);
-    expect(Array.from(checkboxes).map(item => item.checked)).toEqual([true,false,true]);
+    // 4th: "Destaques do mês" (off unless the community turned it on).
+    expect(checkboxes.length).toBe(4);
+    expect(Array.from(checkboxes).map(item => item.checked)).toEqual([true,false,true,false]);
     checkboxes[1].click();
     expect(captured.length).toBe(1);
     expect(captured[0].teamTournamentsEnabled).toBeTrue();
