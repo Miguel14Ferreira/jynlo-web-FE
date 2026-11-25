@@ -27,7 +27,7 @@ import { playerAvatarInitials } from '../player-avatar';
         <div class="rcp__intro">
           <span class="rcp__avatar rcp__avatar--big">{{ initial }}</span>
           <strong>&#64;{{ username }}</strong>
-          <p>{{ 'Ainda não são amigos: a tua primeira mensagem chega como pedido de mensagem.' | t }}</p>
+          @if (!sentText && !note) { <p>{{ 'Ainda não são amigos: a tua primeira mensagem chega como pedido de mensagem.' | t }}</p> }
         </div>
         @if (sentText) {
           <div class="rcp__bubble">{{ sentText }}</div>
@@ -35,7 +35,7 @@ import { playerAvatarInitials } from '../player-avatar';
         }
         @if (note) { <p class="rcp__status rcp__status--warn" role="status">{{ note }}</p> }
       </div>
-      @if (!sentText) {
+      @if (!sentText && !note) {
         <form class="rcp__composer" (ngSubmit)="send()">
           <textarea name="text" [(ngModel)]="text" maxlength="1000" rows="1" [placeholder]="'Escreve uma mensagem…' | t" [attr.aria-label]="'Mensagem' | t"
             (keydown.enter)="$event.preventDefault(); send()"></textarea>
@@ -79,7 +79,13 @@ export class RequestComposePaneComponent implements OnChanges {
     if (!this.username) return;
     this.api.availability(this.username).subscribe({
       next: a => {
-        if (a.mode === 'PENDING') this.note = t('Já enviaste um pedido. Quando for aceite, a conversa aparece em Mensagens.');
+        // Already sent: show what was sent, like a waiting conversation (no second message).
+        if (a.mode === 'PENDING') this.api.sent().subscribe({ next: list => {
+          const mine = (list || []).find(r => r.username.toLowerCase() === this.username.toLowerCase());
+          if (mine) this.sentText = mine.text;
+          else this.note = t('Já enviaste um pedido. Quando for aceite, a conversa aparece em Mensagens.');
+          this.cdr.markForCheck();
+        }, error: () => { this.note = t('Já enviaste um pedido. Quando for aceite, a conversa aparece em Mensagens.'); this.cdr.markForCheck(); } });
         else if (a.mode === 'RECEIVED') this.note = t('Esta pessoa já te enviou um pedido de mensagem: aceita-o em Pedidos de mensagem.');
         else if (a.mode === 'NOT_ALLOWED') this.note = t('Não é possível enviar mensagens a esta pessoa.');
         this.cdr.markForCheck();

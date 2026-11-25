@@ -357,6 +357,7 @@
               }
             </div>
           </div>
+          <app-player-stats [username]="selectedProfile.username"></app-player-stats>
           @if (friendshipLoading) {
             <p class="profile-relationship-feedback jynlo-status-line" role="status"
                aria-live="polite">{{ 'profile.relationshipChecking' | t }}</p>

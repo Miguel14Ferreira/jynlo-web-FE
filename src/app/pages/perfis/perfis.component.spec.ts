@@ -1,3 +1,4 @@
+import { PlayerStatsComponent } from '../../shared/player-highlights/player-stats.component';
 import { ProfileMessageActionComponent } from '../../shared/message-requests/profile-message-action.component';
 import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -120,7 +121,7 @@ describe('PerfisComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [PerfisComponent],
-      imports: [SportNamePipe, ...TEST_IMPORTS, VenueSportsBadgesComponent, ProtectedMediaDirective, ProfilePostViewerComponent, ProfileStoryViewerComponent, ProfileMessageActionComponent],
+      imports: [SportNamePipe, ...TEST_IMPORTS, VenueSportsBadgesComponent, ProtectedMediaDirective, ProfilePostViewerComponent, ProfileStoryViewerComponent, ProfileMessageActionComponent, PlayerStatsComponent],
       providers: [
         ...TEST_PROVIDERS,
         { provide: CommunityService, useValue: service },

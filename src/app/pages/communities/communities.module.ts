@@ -1,3 +1,4 @@
+import { CommunityMonthLeadersComponent } from '../../shared/player-highlights/community-month-leaders.component';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -67,7 +68,7 @@ const routes: Routes = [
   ],
   // The tournaments tab (the largest screen of the site) is standalone and is
   // imported only when the tab opens (CommunitiesComponent.tournamentsView).
-  imports: [SportNamePipe, CommonModule, FormsModule, RouterModule.forChild(routes), TranslatePipe, ChatReactionsComponent, KartingPodiumComponent, KartingPalmaresComponent, KartingRaceTableComponent,
+  imports: [CommunityMonthLeadersComponent, SportNamePipe, CommonModule, FormsModule, RouterModule.forChild(routes), TranslatePipe, ChatReactionsComponent, KartingPodiumComponent, KartingPalmaresComponent, KartingRaceTableComponent,
     CompetitionGuideComponent, CompetitionFormatChooserComponent, CommunityLivePanelComponent, CommunityDiscoveryPitchComponent, CommunityPerformanceInsightsComponent, CommunityTabsComponent, CommunitySessionCardComponent, CommunityOverviewStatsComponent, AvailabilityPanelComponent, CommunityLeaderHighlightComponent, CommunityFeatureSettingsComponent, CommunityDisciplinePanelComponent, CommunityTournamentSuspensionsComponent, CommunityTournamentEligibilityPanelComponent, CommunityWhatsAppShareComponent, CommunitySportManagementComponent, CommunityActiveSeasonCardComponent, CommunitySeasonTrophiesComponent, CommunityStatLeadersComponent, CommunitySpecializedStatsComponent, CommunityStatsTableComponent, CommunityRankingTableComponent, CommunityPendingInvitesComponent, CommunitySwitchComponent, CommunityCompetitionSettingsComponent, CommunityOverallStandingsComponent, CommunityRankingVisibilityComponent, CommunitySeasonCreateFormComponent, CommunitySeasonFilterComponent, CommunityPhotoCoverComponent,
     TournamentClassificationNoteComponent, RaceStandingsCardComponent,
     MessagesCenterComponent, CommunityHabitualVenuePickerComponent, CompetitionTeamSearchComponent, TeamCompetitionApplicationsComponent, CommunityTeamsPanelComponent, GlobalTeamEnrollmentComponent, TournamentPublicShareComponent, CommunityPublicRankingShareComponent, EventRankingPanelComponent]

@@ -5318,6 +5318,7 @@
                     (clearRequested)="clearPlayerComparison($event)"
                   ></app-community-performance-insights>
 
+                  <app-community-month-leaders [communityId]="selected.id" [canManage]="canManage()"></app-community-month-leaders>
                   <app-community-stats-table [rows]="rankingParticipants"></app-community-stats-table>
                   }
                   @if (raceRankingGroups.length || specializedStatsUnavailableSports.length) {

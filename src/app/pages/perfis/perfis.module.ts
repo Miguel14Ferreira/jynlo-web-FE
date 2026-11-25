@@ -1,3 +1,4 @@
+import { PlayerStatsComponent } from '../../shared/player-highlights/player-stats.component';
 import { ProfileMessageActionComponent } from '../../shared/message-requests/profile-message-action.component';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
@@ -14,7 +15,7 @@ import { SportNamePipe } from '../../i18n/sport-name.pipe';
 // Load this screen only when its route is opened, not on the public home page.
 @NgModule({
   declarations: [PerfisComponent],
-  imports: [SportNamePipe, ProfileMessageActionComponent, 
+  imports: [SportNamePipe, ProfileMessageActionComponent, PlayerStatsComponent, 
     CommonModule,
     ProtectedMediaDirective,
     FormsModule,
