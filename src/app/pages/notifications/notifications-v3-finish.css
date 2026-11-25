@@ -159,3 +159,11 @@
 @media(prefers-reduced-motion:reduce){
   :host .notifications-page.jynlo-secondary .notification-card{transition:none;}
 }
+
+/* Computer alerts: message chime and notifications while the tab is in the background. */
+.computer-alerts{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 16px;padding:14px 16px;
+  border:1px solid rgba(96,243,217,.28);border-radius:16px;background:linear-gradient(145deg,rgba(9,47,63,.95),rgba(5,29,46,.95))}
+.computer-alerts__copy{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1 1 280px}
+.computer-alerts__copy strong{color:#f2fffc;font-size:.95rem}
+.computer-alerts__copy span{color:#a9c8cf;font-size:.85rem;line-height:1.45}
+.computer-alerts__actions{display:flex;gap:8px;flex-wrap:wrap}

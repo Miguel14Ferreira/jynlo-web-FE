@@ -50,6 +50,31 @@
       </div>
     </header>
 
+    @if (messageAlert) {
+      <section class="computer-alerts" [attr.aria-label]="'Alertas de mensagens no computador' | t">
+        <div class="computer-alerts__copy">
+          <strong>{{ 'Alertas de mensagens no computador' | t }}</strong>
+          <span>
+            @switch (desktopState) {
+              @case ('granted') { {{ 'Ativos: quando a Jynlo estiver noutro separador, recebes um aviso no computador.' | t }} }
+              @case ('denied') { {{ 'O browser bloqueou os avisos. Podes permiti-los nas definições do site (cadeado junto ao endereço).' | t }} }
+              @case ('unsupported') { {{ 'Este browser não permite avisos no computador.' | t }} }
+              @default { {{ 'Recebe um aviso no computador quando chega uma mensagem e a Jynlo está noutro separador.' | t }} }
+            }
+          </span>
+        </div>
+        <div class="computer-alerts__actions">
+          @if (desktopState === 'default') {
+            <button type="button" class="jynlo-action jynlo-action--primary" (click)="enableDesktopAlerts()">{{ 'Ativar avisos' | t }}</button>
+          }
+          <button type="button" class="jynlo-action jynlo-action--neutral" [attr.aria-pressed]="messageAlert.soundEnabled"
+            (click)="toggleMessageSound()">
+            {{ (messageAlert.soundEnabled ? 'Som das mensagens: ligado' : 'Som das mensagens: desligado') | t }}
+          </button>
+        </div>
+      </section>
+    }
+
     @if (preferencesOpen) {
       <section class="notification-preferences" aria-labelledby="notifications-preferences-title">
         <div class="notification-preferences__heading">

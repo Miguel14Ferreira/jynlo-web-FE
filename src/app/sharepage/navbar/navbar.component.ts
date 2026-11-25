@@ -22,6 +22,7 @@ import { CommunityTimelineEntry } from 'src/app/services/community-timeline.serv
 import { PrivateGroupMessage } from 'src/app/services/private-group.service';
 import { GroupChatToast, allowsGroupChatToast, confirmsGroupUnread, recentGroupChatEvent } from 'src/app/shared/group-chat-notice';
 import { ConversationMuteService, isConversationMuted } from 'src/app/services/conversation-mute.service';
+import { MessageAlertService } from 'src/app/services/message-alert.service';
 
 import { NAV_SLOTS, NavTab, PHONE_SLOTS, availableNavTabs, navTab, readNavTabs, resolveNavTabs, setNavSlot, writeNavTabs } from './nav-tabs';
 @Component({
@@ -129,6 +130,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.navTabsCache = { user: this.activeAccountUsername.toLowerCase(), saved: ids };
     this.navEditing = false;
   }
+
+  private readonly messageAlert: MessageAlertService | null = (() => {
+    try { return inject(MessageAlertService); } catch { return null; }
+  })();
 
   constructor(
     private elementRef: ElementRef<HTMLElement>,
@@ -419,6 +424,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
             this.chatToastExpanded = false;
           }
           this.chatToast = notice;
+          this.messageAlert?.alert('@' + (notice.relatedUsername || sender),
+            chatMediaPreviewKind(notice.message) ? '📎' : (notice.message || ''),
+            '/menu/messages', 'direct:' + sender);
           if (this.toastTimer) clearTimeout(this.toastTimer);
           if (!this.chatToastExpanded) this.toastTimer = setTimeout(() => this.dismissChatToast(), 8000);
         },
@@ -500,6 +508,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
           this.toastLookup?.unsubscribe();
           this.dismissChatToast();
           this.groupToast = { kind, groupId: id, sender, text: body, mimeType, title };
+          this.messageAlert?.alert(title || ('@' + sender), (sender ? '@' + sender + ': ' : '') + (body || '📎'),
+            '/menu/messages', kind + ':' + id);
           this.toastTimer = setTimeout(() => this.dismissGroupToast(), 6500);
         },
         error: () => { /* No verified access or opt-in: do not reveal content. */ }

@@ -8514,4 +8514,11 @@ export const EN: Record<string, string> = {
   "Explica o que se passa": "Explain what is going on",
   "Anexar fotografias, vídeos ou PDF (até 4)": "Attach photos, videos or PDF (up to 4)",
   "Criar sondagem": "Create poll",
+  'Alertas de mensagens no computador': 'Message alerts on this computer',
+  'Ativos: quando a Jynlo estiver noutro separador, recebes um aviso no computador.': 'On: when Jynlo is in another tab, you get an alert on your computer.',
+  'O browser bloqueou os avisos. Podes permiti-los nas definições do site (cadeado junto ao endereço).': 'Your browser blocked alerts. You can allow them in the site settings (padlock next to the address).',
+  'Este browser não permite avisos no computador.': 'This browser does not support computer alerts.',
+  'Recebe um aviso no computador quando chega uma mensagem e a Jynlo está noutro separador.': 'Get an alert on your computer when a message arrives and Jynlo is in another tab.',
+  'Som das mensagens: ligado': 'Message sound: on',
+  'Som das mensagens: desligado': 'Message sound: off',
 };

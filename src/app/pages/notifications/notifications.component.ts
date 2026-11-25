@@ -1,3 +1,5 @@
+import { inject } from '@angular/core';
+import { MessageAlertService } from '../../services/message-alert.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
@@ -70,6 +72,23 @@ export class NotificationsComponent implements OnInit {
   errorMessage = '';
   actionError = '';
   actionSuccess = '';
+
+  readonly messageAlert: MessageAlertService | null = (() => {
+    try { return inject(MessageAlertService); } catch { return null; }
+  })();
+  desktopState: string = this.messageAlert?.desktopPermission ?? 'unsupported';
+
+  async enableDesktopAlerts(): Promise<void> {
+    if (!this.messageAlert) return;
+    this.desktopState = await this.messageAlert.enableDesktop();
+    if (this.desktopState === 'granted') this.messageAlert.playSound();
+  }
+
+  toggleMessageSound(): void {
+    if (!this.messageAlert) return;
+    this.messageAlert.soundEnabled = !this.messageAlert.soundEnabled;
+    if (this.messageAlert.soundEnabled) this.messageAlert.playSound();
+  }
 
   constructor(
     private notificationService: NotificationApiService,
