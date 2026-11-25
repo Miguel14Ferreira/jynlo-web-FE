@@ -12,6 +12,8 @@ import { bookingError, currentLang } from '../../shared/venue-jynlo-booking/venu
 interface CourtRow { id: number | null; name: string; sport: string; price: string; slotMinutes: number; active: boolean; }
 interface DayRow { day: number; ranges: { open: string; close: string }[]; }
 
+const HALF_HOURS = Array.from({ length: 48 }, (_, i) => `${String(Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'}`).concat('23:59');
+
 export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 
 /** Courts, opening hours and booking requests of a venue the person manages. */
@@ -75,7 +77,7 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
           <div class="vm__court">
             <label><span>{{ 'Nome' | t }}</span><input type="text" maxlength="80" [(ngModel)]="c.name" [placeholder]="'Ex.: Campo 1' | t"></label>
             <label><span>{{ 'Modalidade' | t }}</span><input type="text" maxlength="80" [(ngModel)]="c.sport" [placeholder]="'Ex.: Padel' | t"></label>
-            <label><span>{{ 'Preço (€)' | t }}</span><input type="text" inputmode="decimal" maxlength="8" [(ngModel)]="c.price" placeholder="24"></label>
+            <label><span>{{ 'Preço (€)' | t }}</span><input type="text" inputmode="decimal" maxlength="8" [(ngModel)]="c.price" [placeholder]="'No local' | t"></label>
             <label><span>{{ 'Duração' | t }}</span>
               <select [(ngModel)]="c.slotMinutes">
                 @for (m of durations; track m) { <option [ngValue]="m">{{ m }} min</option> }
@@ -124,9 +126,13 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
             @if (!d.ranges.length) { <span class="vm__muted">{{ 'Fechado' | t }}</span> }
             @for (r of d.ranges; track $index) {
               <span class="vm__range">
-                <input type="time" [(ngModel)]="r.open" [attr.aria-label]="'Abre' | t">
+                <select [(ngModel)]="r.open" [attr.aria-label]="'Abre' | t">
+                  @for (h of timeOptions(r.open); track h) { <option [value]="h">{{ h }}</option> }
+                </select>
                 –
-                <input type="time" [(ngModel)]="r.close" [attr.aria-label]="'Fecha' | t">
+                <select [(ngModel)]="r.close" [attr.aria-label]="'Fecha' | t">
+                  @for (h of timeOptions(r.close); track h) { <option [value]="h">{{ h }}</option> }
+                </select>
                 <button type="button" class="vm__remove" (click)="removeRange(d, $index)" [attr.aria-label]="'Retirar período' | t">×</button>
               </span>
             }
@@ -147,6 +153,7 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
     </main>
   `,
   styles: [`
+    :host { display:block; min-height:100vh; background:radial-gradient(circle at top right, rgba(99,102,241,.13), transparent 34rem), linear-gradient(145deg, #07111f, #102f46); }
     .vm { max-width:900px; margin:0 auto; padding:6.4rem 1rem 4rem; display:grid; gap:1rem; color:#eafff9; }
     .vm__back { color:#7ae5c5; font-weight:700; text-decoration:none; min-height:44px; display:inline-flex; align-items:center; }
     .vm__kicker { color:#62e6c4; font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
@@ -174,6 +181,7 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
     .vm__day { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; padding:.45rem 0; border-top:1px solid rgba(96,176,182,.15); }
     .vm__day > strong { width:6.5rem; }
     .vm__range { display:inline-flex; align-items:center; gap:.3rem; }
+    .vm__range select { padding:0 .5rem; }
     .vm__remove, .vm__add { min-height:44px; min-width:44px; border-radius:10px; border:1px solid rgba(96,176,182,.35); background:transparent;
       color:#dff7f1; font:inherit; font-weight:700; cursor:pointer; padding:0 .6rem; }
     .vm__ok { margin:0; color:#7ae5c5; font-weight:700; }
@@ -224,6 +232,11 @@ export class VenueManageComponent implements OnInit {
       error: e => { this.loadError = bookingError(e, 'Não foi possível carregar a gestão do recinto.'); this.cdr.markForCheck(); }
     });
     this.loadRequests();
+  }
+
+  /** 24-hour times every 30 minutes (plus the saved value if it is off the grid). */
+  timeOptions(current: string): string[] {
+    return current && !HALF_HOURS.includes(current) ? [...HALF_HOURS, current].sort() : HALF_HOURS;
   }
 
   weekday(day: number): string { return WEEKDAYS[day - 1] ?? ''; }

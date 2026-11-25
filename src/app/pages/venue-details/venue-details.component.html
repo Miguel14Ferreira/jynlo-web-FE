@@ -92,7 +92,7 @@
             @if (venue.createdByUsername) {
               {{ 'venue.detail.createdBy' | t }} <strong>@{{ venue.createdByUsername }}</strong> ·
             }
-            {{ 'venue.detail.addedAt' | t }} {{ venue.createdAt | date:'dd/MM/yyyy, HH:mm' }}
+            @if (venue.createdAt) { {{ 'venue.detail.addedAt' | t }} {{ venue.createdAt | date:'dd/MM/yyyy, HH:mm' }} }
           </span>
         </div>
       </header>

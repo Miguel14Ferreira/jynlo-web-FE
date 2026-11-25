@@ -27,7 +27,7 @@ import { phoneLabel } from '../../shared/tournament-payments-panel/tournament-pa
           <h2 id="vb-managed">{{ 'Recintos que geres' | t }}</h2>
           @for (v of managed; track v.venueId) {
             <a class="vb__venue" [routerLink]="['/menu/venues', v.venueId, 'manage']">
-              <span><strong>{{ v.name }}</strong> <span class="vb__muted">{{ v.city }}</span></span>
+              <span><strong>{{ v.name }}</strong>@if (v.city) { <span class="vb__muted"> · {{ v.city }}</span> }</span>
               <span class="vb__chip" [class.is-alert]="v.pendingRequests > 0">
                 {{ (v.pendingRequests === 1 ? '1 pedido por responder' : '{{n}} pedidos por responder') | t:{ n: v.pendingRequests } }}</span>
             </a>
@@ -91,6 +91,7 @@ import { phoneLabel } from '../../shared/tournament-payments-panel/tournament-pa
     </main>
   `,
   styles: [`
+    :host { display:block; min-height:100vh; background:radial-gradient(circle at top right, rgba(99,102,241,.13), transparent 34rem), linear-gradient(145deg, #07111f, #102f46); }
     .vb { max-width:860px; margin:0 auto; padding:6.4rem 1rem 4rem; display:grid; gap:1rem; color:#eafff9; }
     .vb h1 { margin:.2rem 0 .4rem; font-size:1.9rem; }
     .vb__kicker { color:#62e6c4; font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
