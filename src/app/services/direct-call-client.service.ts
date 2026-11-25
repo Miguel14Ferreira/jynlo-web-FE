@@ -1,4 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { callBackgroundImage, isCallBackground } from '../shared/call-backgrounds';
 import { Injectable, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
@@ -48,7 +49,9 @@ function lk(): LiveKitModule {
 
 export type CallPhase = 'incoming' | 'dialing' | 'connecting' | 'active' | 'error';
 export type CallMedia = 'voice' | 'video';
-export type CallBackground = 'none' | 'blur' | 'jynlo';
+/** 'none', 'blur' or the id of an image in CALL_BACKGROUND_IMAGES. */
+export type CallBackground = string;
+const CALL_BACKGROUND_KEY = 'jynlo-call-background';
 export type CallAvailabilityStatus = 'idle' | 'checking' | 'ready' | 'notConfigured'
   | 'invalidCredentials' | 'providerUnavailable' | 'requestFailed';
 export interface DirectCallState {
@@ -101,7 +104,14 @@ export class DirectCallClientService implements OnDestroy {
   readonly selectedDevices$ = new BehaviorSubject<Partial<Record<MediaDeviceKind, string>>>({});
   readonly connectionQuality$ = new BehaviorSubject<'unknown'|'excellent'|'good'|'poor'|'lost'>('unknown');
   readonly busyMedia$ = new BehaviorSubject<boolean>(false);
-  readonly backgroundMode$ = new BehaviorSubject<CallBackground>('none');
+  /** The last background chosen is remembered and applied when the camera turns on (like Teams). */
+  readonly backgroundMode$ = new BehaviorSubject<CallBackground>(DirectCallClientService.savedBackground());
+  private static savedBackground(): CallBackground {
+    try {
+      const saved = typeof localStorage === 'undefined' ? null : localStorage.getItem(CALL_BACKGROUND_KEY);
+      return saved && isCallBackground(saved) ? saved : 'none';
+    } catch { return 'none'; }
+  }
   readonly backgroundBusy$ = new BehaviorSubject<boolean>(false);
   readonly backgroundError$ = new BehaviorSubject<string | null>(null);
   private backgroundTrack: LocalVideoTrack | null = null;
@@ -600,9 +610,9 @@ export class DirectCallClientService implements OnDestroy {
     const processor=this.backgroundProcessor;
     if (!processor) return;
     if (mode==='blur') await processor.switchTo({mode:'background-blur',blurRadius:10});
-    else if (mode==='jynlo') await processor.switchTo({
+    else if (callBackgroundImage(mode)) await processor.switchTo({
       mode:'virtual-background',
-      imagePath:new URL('assets/jynlo-connect-background.svg',document.baseURI).href
+      imagePath:new URL(callBackgroundImage(mode)!.file,document.baseURI).href
     });
     else await processor.switchTo({mode:'disabled'});
     if (room===this.room) this.mediaChanged$.next(this.mediaChanged$.value+1);
@@ -610,7 +620,7 @@ export class DirectCallClientService implements OnDestroy {
 
   async setBackground(mode: CallBackground): Promise<void> {
     const room=this.room;
-    if (!room || this.backgroundBusy$.value || !['none','blur','jynlo'].includes(mode)) return;
+    if (!room || this.backgroundBusy$.value || !isCallBackground(mode)) return;
     if (mode!=='none' && !this.backgroundSupported) {
       this.backgroundError$.next(appTranslate('Os fundos virtuais não são suportados neste navegador.'));
       return;
@@ -619,7 +629,10 @@ export class DirectCallClientService implements OnDestroy {
     this.backgroundError$.next(null);
     try {
       if (this.state$.value?.cameraEnabled) await this.applyBackground(room,mode);
-      if (room===this.room) this.backgroundMode$.next(mode);
+      if (room===this.room) {
+        this.backgroundMode$.next(mode);
+        try { localStorage.setItem(CALL_BACKGROUND_KEY, mode); } catch { /* private mode */ }
+      }
     } catch {
       if (room===this.room) this.backgroundError$.next(appTranslate('Não foi possível aplicar o fundo. Verifica a câmara ou tenta novamente.'));
     } finally {

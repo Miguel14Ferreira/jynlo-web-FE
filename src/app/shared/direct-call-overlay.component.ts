@@ -1,4 +1,5 @@
 import { Component, HostListener, OnDestroy, QueryList, ViewChildren, inject } from '@angular/core';
+import { CALL_BACKGROUND_IMAGES } from './call-backgrounds';
 import { Router } from '@angular/router';
 import { CommunityService } from '../services/community.service';
 import { FriendSummary } from '../pages/model/friend-summary';
@@ -339,6 +340,15 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
             }
           </div>
           <footer class="call-footer">
+            @if (backgroundTray && call.cameraEnabled && calls.backgroundSupported && !settingsOpen) {
+              <div class="call-bg-tray" role="dialog" [attr.aria-label]="'Escolhe um fundo para a câmara' | t">
+                <div class="call-bg-tray-head">
+                  <span>{{ 'A tua câmara está ligada. Queres um fundo?' | t }}</span>
+                  <button type="button" class="call-bg-tray-close" (click)="backgroundTray=false" [attr.aria-label]="'Fechar sugestões de fundo' | t">✕</button>
+                </div>
+                <ng-container *ngTemplateOutlet="backgroundPicker"></ng-container>
+              </div>
+            }
             <div class="call-buttons">
               @if (call.phase === 'dialing' && (calls.ringtoneBlocked$ | async)) {
                 <button type="button" class="call-enable-sound" (click)="calls.allowRingtone()">
@@ -360,7 +370,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                   {{ (call.micEnabled ? 'calls.mute' : 'calls.unmute') | t }}
                 </button>
                 <button type="button" [disabled]="calls.busyMedia$ | async"
-                    (click)="calls.setCamera(!call.cameraEnabled)"
+                    (click)="toggleCamera(!call.cameraEnabled)"
                     [attr.aria-pressed]="!call.cameraEnabled" [class.call-off]="!call.cameraEnabled">
                     @if (call.cameraEnabled) {
                       <svg class="call-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="m17 10 5-3v10l-5-3"/></svg>
@@ -575,33 +585,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                     <p role="status">{{ 'Não foram encontrados dispositivos. Confirma as permissões no navegador.' | t }}</p>
                   }
                 }
-                <div class="call-background-settings" role="group" [attr.aria-label]="'Fundo da câmara' | t">
-                  <strong>{{ 'Fundo da câmara' | t }}</strong>
-                  <div class="call-background-choices">
-                    <button type="button" [disabled]="(calls.backgroundBusy$ | async) || (calls.busyMedia$ | async)"
-                      [class.is-active]="(calls.backgroundMode$ | async) === 'none'"
-                      [attr.aria-pressed]="(calls.backgroundMode$ | async) === 'none'"
-                      (click)="calls.setBackground('none')">{{ 'Original' | t }}</button>
-                    <button type="button" [disabled]="!calls.backgroundSupported || (calls.backgroundBusy$ | async) || (calls.busyMedia$ | async)"
-                      [class.is-active]="(calls.backgroundMode$ | async) === 'blur'"
-                      [attr.aria-pressed]="(calls.backgroundMode$ | async) === 'blur'"
-                      (click)="calls.setBackground('blur')">{{ 'Desfocar' | t }}</button>
-                    <button type="button" class="call-background-jynlo"
-                      [disabled]="!calls.backgroundSupported || (calls.backgroundBusy$ | async) || (calls.busyMedia$ | async)"
-                      [class.is-active]="(calls.backgroundMode$ | async) === 'jynlo'"
-                      [attr.aria-pressed]="(calls.backgroundMode$ | async) === 'jynlo'"
-                      (click)="calls.setBackground('jynlo')">
-                      <img src="assets/jynlo-connect-background.svg" alt="" loading="lazy"> {{ 'Jynlo Connect' | t }}
-                    </button>
-                  </div>
-                  @if (!calls.backgroundSupported) {
-                    <small>{{ 'Este navegador não suporta fundos virtuais. A câmara normal continua disponível.' | t }}</small>
-                  }
-                  @if (calls.backgroundError$ | async; as backgroundError) {
-                    <p class="call-background-error" role="alert">{{ backgroundError }}</p>
-                  }
-                  @if ((calls.backgroundBusy$ | async)) { <small role="status">{{ 'A aplicar fundo…' | t }}</small> }
-                </div>
+                <ng-container *ngTemplateOutlet="backgroundPicker"></ng-container>
                 <p>{{ 'calls.devicesHelp' | t }}</p>
               </div>
             }
@@ -611,15 +595,37 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
       </section>
       }
     }
+      <ng-template #backgroundPicker>
+        <section class="call-bg" role="group" [attr.aria-label]="'Fundo da câmara' | t">
+          <div class="call-bg-head">
+            <strong>{{ 'Fundo da câmara' | t }}</strong>
+            @if ((calls.backgroundBusy$ | async)) { <small role="status">{{ 'A aplicar fundo…' | t }}</small> }
+          </div>
+          <div class="call-bg-grid">
+            <button type="button" class="call-bg-tile call-bg-none" [disabled]="(calls.backgroundBusy$ | async) || (calls.busyMedia$ | async)"
+              [class.is-active]="(calls.backgroundMode$ | async) === 'none'" [attr.aria-pressed]="(calls.backgroundMode$ | async) === 'none'"
+              (click)="chooseBackground('none')"><span class="call-bg-icon" aria-hidden="true">⊘</span><span class="call-bg-label">{{ 'Sem fundo' | t }}</span></button>
+            <button type="button" class="call-bg-tile call-bg-blur" [disabled]="!calls.backgroundSupported || (calls.backgroundBusy$ | async) || (calls.busyMedia$ | async)"
+              [class.is-active]="(calls.backgroundMode$ | async) === 'blur'" [attr.aria-pressed]="(calls.backgroundMode$ | async) === 'blur'"
+              (click)="chooseBackground('blur')"><span class="call-bg-icon" aria-hidden="true">◌</span><span class="call-bg-label">{{ 'Desfocar' | t }}</span></button>
+            @for (bg of backgroundImages; track bg.id) {
+              <button type="button" class="call-bg-tile" [disabled]="!calls.backgroundSupported || (calls.backgroundBusy$ | async) || (calls.busyMedia$ | async)"
+                [class.is-active]="(calls.backgroundMode$ | async) === bg.id" [attr.aria-pressed]="(calls.backgroundMode$ | async) === bg.id"
+                [attr.aria-label]="bg.label | t" (click)="chooseBackground(bg.id)">
+                <img [src]="bg.file" alt="" loading="lazy"><span class="call-bg-label">{{ bg.label | t }}</span>
+              </button>
+            }
+          </div>
+          @if (!calls.backgroundSupported) {
+            <small>{{ 'Este navegador não suporta fundos virtuais. A câmara normal continua disponível.' | t }}</small>
+          }
+          @if (calls.backgroundError$ | async; as backgroundError) {
+            <p class="call-background-error" role="alert">{{ backgroundError }}</p>
+          }
+        </section>
+      </ng-template>
   `,
   styles: [`
-    .call-background-settings{display:grid;gap:8px;margin:12px 0;padding:11px;border:1px solid #396b72;border-radius:12px;background:#082b37}
-    .call-background-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
-    .call-background-choices button{display:grid;align-content:center;justify-items:center;gap:5px;min-height:51px;padding:7px;border:1px solid #47747b;border-radius:9px;background:#123b48;color:#e6fff8;cursor:pointer;font:inherit;font-size:.74rem}
-    .call-background-choices button.is-active{border-color:#57f2c0;box-shadow:inset 0 0 0 1px #57f2c0}
-    .call-background-choices button:disabled{opacity:.45;cursor:not-allowed}
-    .call-background-jynlo img{height:35px;max-width:100%;border-radius:4px;object-fit:cover}
-    .call-background-error{color:#ffb8be;font-size:.77rem}
     :host{display:contents}
     /* Persistent, route-independent, non-modal incoming invitation.
        The rest of the website remains clickable until the user answers. */
@@ -840,15 +846,48 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
     .connect-screen-share-tip{flex-basis:100%;text-align:center;font-size:.72rem;line-height:1.4;color:#b9dedb;margin:2px 0 0}
     .call-buttons .connect-chat-button{background:#174c58;border-color:#59a99a}
     .call-device-panel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:6px 12px;margin-top:9px;padding:12px;max-height:34dvh;overflow-y:auto;
-      background:#092635;border:1px solid #416b77;border-radius:12px}
-    .call-settings-head{grid-column:1/-1}
-    .call-settings-head strong{font-size:.84rem}
-    .call-device-auto-refresh{font-size:.69rem;color:#aeeadf}
-    .call-device-panel label{font-size:.76rem;color:#b6d7dc;align-self:end}
-    .call-device-panel select{grid-row:3;min-width:0;width:100%;font:inherit;font-size:.78rem;
-      background:#133748;color:#f4fffe;border:1px solid #547e8a;border-radius:9px;padding:9px}
-    .call-device-panel p{grid-column:1/-1;color:#b1d2da;font-size:.71rem;margin:0}
+      gap:8px 14px;margin-top:10px;padding:16px;max-height:min(62dvh,560px);overflow-y:auto;
+      background:linear-gradient(160deg,#0b2c3b,#08202c);border:1px solid #2f5d68;border-radius:16px;
+      box-shadow:0 18px 40px #00000059}
+    .call-settings-head{grid-column:1/-1;display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;
+      padding-bottom:8px;margin-bottom:2px;border-bottom:1px solid #ffffff14}
+    .call-settings-head strong{font-size:.95rem;letter-spacing:.01em}
+    .call-device-auto-refresh{font-size:.7rem;color:#8fd8c8;display:inline-flex;align-items:center;gap:6px}
+    .call-device-auto-refresh::before{content:'';width:7px;height:7px;border-radius:50%;background:#57edc2}
+    .call-device-panel label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8fb9c1;align-self:end}
+    .call-device-panel select{grid-row:3;min-width:0;width:100%;font:inherit;font-size:.82rem;appearance:none;cursor:pointer;
+      background:#11303f url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2357f2c0' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center;
+      color:#f4fffe;border:1px solid #3c6874;border-radius:10px;padding:10px 34px 10px 12px}
+    .call-device-panel select:hover{border-color:#57f2c0}
+    .call-device-panel p{grid-column:1/-1;color:#8fb2ba;font-size:.7rem;margin:4px 0 0}
+    .call-device-panel .call-bg{grid-column:1/-1}
+    .call-bg{display:grid;gap:9px;margin-top:8px}
+    .call-bg-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .call-bg-head strong{font-size:.86rem}
+    .call-bg-head small{color:#9fe8d6;font-size:.72rem}
+    .call-bg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+    .call-bg-tile{position:relative;aspect-ratio:16/10;padding:0;overflow:hidden;cursor:pointer;
+      border:2px solid #2c5560;border-radius:11px;background:#123746;color:#eafffa;font:inherit;transition:transform .12s,border-color .12s}
+    .call-bg-tile:hover:not(:disabled){transform:translateY(-1px);border-color:#6fd9c2}
+    .call-bg-tile.is-active{border-color:#57f2c0;box-shadow:0 0 0 2px #57f2c055}
+    .call-bg-tile:disabled{opacity:.45;cursor:not-allowed}
+    .call-bg-tile img{width:100%;height:100%;object-fit:cover;display:block}
+    .call-bg-label{position:absolute;left:0;right:0;bottom:0;padding:14px 6px 5px;font-size:.68rem;font-weight:700;
+      text-align:left;background:linear-gradient(transparent,#000000b3)}
+    .call-bg-none,.call-bg-blur{display:grid;place-items:center}
+    .call-bg-blur{background:radial-gradient(circle at 40% 40%,#5ea7b7,#1d4b59 70%)}
+    .call-bg-icon{font-size:1.4rem;color:#bff7e9;margin-top:-10px}
+    .call-background-error{color:#ffb8be;font-size:.77rem}
+    .call-bg-tray{margin:8px auto 4px;max-width:760px;padding:12px 14px;border-radius:16px;
+      background:#0a2836f2;border:1px solid #3d7a80;box-shadow:0 14px 34px #0000006b;animation:call-bg-in .2s ease-out}
+    .call-bg-tray-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.82rem;font-weight:700;color:#e6fff8}
+    .call-bg-tray .call-bg{margin-top:6px}
+    .call-bg-tray .call-bg-head{display:none}
+    .call-bg-tray .call-bg-grid{display:flex;overflow-x:auto;gap:8px;padding-bottom:4px;scroll-snap-type:x mandatory}
+    .call-bg-tray .call-bg-tile{flex:0 0 112px;scroll-snap-align:start}
+    .call-bg-tray-close{border:0;background:#ffffff14;color:#e6fff8;width:28px;height:28px;border-radius:50%;cursor:pointer}
+    @keyframes call-bg-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    @media (max-width:640px){.call-device-panel{grid-template-columns:1fr}.call-device-panel select{grid-row:auto}}
     .call-swap{position:absolute;top:10px;right:10px;z-index:5;background:#092b38de;
       border:1px solid #66a9a0;color:#e1fffa;border-radius:10px;padding:7px 11px;cursor:pointer;font-size:.78rem}
     .call-swap:disabled{opacity:.4;cursor:default}
@@ -1147,6 +1186,9 @@ export class DirectCallOverlayComponent implements OnDestroy {
     });
   }
   settingsOpen = false;
+  /** Background suggestions shown right after the camera turns on (Teams style). */
+  backgroundTray = false;
+  readonly backgroundImages = CALL_BACKGROUND_IMAGES;
   inviteOpen = false;
   inviteUsername = '';
   contacts: FriendSummary[] = [];
@@ -1332,6 +1374,16 @@ export class DirectCallOverlayComponent implements OnDestroy {
   }
 
   private readonly router = inject(Router, {optional: true});
+
+  async toggleCamera(enable: boolean): Promise<void> {
+    if (!enable) this.backgroundTray = false;
+    await this.calls.setCamera(enable);
+    if (enable && this.calls.state$.value?.cameraEnabled && this.calls.backgroundSupported) this.backgroundTray = true;
+  }
+
+  chooseBackground(mode: string): void {
+    void this.calls.setBackground(mode);
+  }
 
   constructor(public readonly calls: DirectCallClientService, private readonly community: CommunityService) {
     this.elapsed$ = combineLatest([this.calls.state$,timer(0,1000)]).pipe(map(([call]) => {
