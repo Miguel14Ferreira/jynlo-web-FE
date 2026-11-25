@@ -70,6 +70,7 @@ interface SportSuggestion {
     </section>
   `,
   styles: [`
+    :host{display:block;min-height:100vh;background:radial-gradient(circle at top right, rgba(99,102,241,.13), transparent 34rem), linear-gradient(145deg, #07111f, #102f46)}
     .sport-admin{max-width:1080px;margin:auto;padding:clamp(1rem,3vw,2.5rem);color:var(--text-primary,#e7f4f1)}
     .heading{display:flex;justify-content:space-between;gap:1.5rem;align-items:start;flex-wrap:wrap}
     .heading h1{font-size:clamp(1.3rem,2.5vw,2rem);margin:.2rem 0}

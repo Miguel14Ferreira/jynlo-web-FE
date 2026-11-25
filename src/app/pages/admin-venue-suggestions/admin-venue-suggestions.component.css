@@ -1,4 +1,4 @@
-.admin-venue-page{min-height:75vh;padding:35px 22px 70px;background:linear-gradient(155deg,#071928,#092633);color:#effbfc}
+.admin-venue-page{min-height:75vh;padding:35px 22px 70px;background:radial-gradient(circle at top right, rgba(99,102,241,.13), transparent 34rem), linear-gradient(145deg, #07111f, #102f46);color:#effbfc}
 .admin-venue-shell{max-width:1120px;margin:auto}
 .admin-venue-header{display:flex;justify-content:space-between;gap:20px;align-items:center}
 .admin-venue-header p{color:#32e9b6;font-size:.76rem;letter-spacing:.15em;text-transform:uppercase}

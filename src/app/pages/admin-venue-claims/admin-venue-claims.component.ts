@@ -41,6 +41,7 @@ import { bookingError } from '../../shared/venue-jynlo-booking/venue-jynlo-booki
     </section>
   `,
   styles: [`
+    :host{display:block;min-height:100vh;background:radial-gradient(circle at top right, rgba(99,102,241,.13), transparent 34rem), linear-gradient(145deg, #07111f, #102f46)}
     .avc { display:grid; gap:.7rem; max-width:900px; margin:0 auto; padding:6.4rem 1rem 4rem; color:#eafff9; }
     .avc__back { color:#7ae5c5; font-weight:700; text-decoration:none; min-height:44px; display:inline-flex; align-items:center; }
     .avc__muted { color:#b9d4d6; margin:0; }

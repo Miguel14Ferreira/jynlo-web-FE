@@ -90,6 +90,7 @@ const STRONG = new Set(['EMAIL_PADRAO_ALEATORIO', 'VARIOS_REGISTOS_SEGUIDOS', 'E
     </section>
   `,
   styles: [`
+    :host{display:block;min-height:100vh;background:radial-gradient(circle at top right, rgba(99,102,241,.13), transparent 34rem), linear-gradient(145deg, #07111f, #102f46)}
     .ara{max-width:1000px;margin:0 auto;padding:24px 16px 48px;display:grid;gap:16px;color:#eafffa}
     .ara__back{color:#7ee8d0;text-decoration:none;font-weight:700;font-size:.88rem}
     .ara__header{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end}
