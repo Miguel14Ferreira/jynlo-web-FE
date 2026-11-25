@@ -55,7 +55,7 @@ const REASONS: Record<string, string> = {
     .pma__button{white-space:nowrap}
     .pma__note{flex-basis:100%;margin:0;font-size:.8rem;color:#9fd9cb;text-align:right}
     .pma__note--left{text-align:left}
-    .pma__dock{position:fixed;z-index:1000;right:20px;bottom:20px;width:min(340px,calc(100vw - 24px));height:min(420px,70vh);
+    .pma__dock{position:fixed;z-index:1000;right:20px;bottom:84px;width:min(340px,calc(100vw - 24px));height:min(420px,calc(100vh - 140px));
       display:flex;flex-direction:column;border-radius:16px;border:1px solid #2f5d68;background:#0b2a38;color:#eafffa;box-shadow:0 18px 48px #000b;overflow:hidden}
     .pma__head{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#0f3442;border-bottom:1px solid #ffffff14}
     .pma__head strong{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
