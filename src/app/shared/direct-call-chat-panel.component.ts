@@ -1,3 +1,4 @@
+import { EmojiQuickComponent } from './emoji-quick/emoji-quick.component';
 import { TranslatePipe } from '../i18n/translate.pipe';
 import { appTranslate } from '../i18n/i18n.service';
 import {CommonModule} from '@angular/common';
@@ -16,7 +17,7 @@ import {DirectChatMessage} from '../pages/model/direct-chat';
 @Component({
  selector:'app-direct-call-chat-panel',
  standalone:true,
- imports:[TranslatePipe, CommonModule,FormsModule],
+ imports:[TranslatePipe, CommonModule,FormsModule,EmojiQuickComponent],
  template:`
   <section class="jynlo-call-chat" [attr.aria-label]="'Chat da chamada' | t">
    <header class="call-chat-head">
@@ -65,6 +66,7 @@ import {DirectChatMessage} from '../pages/model/direct-chat';
    </div>
    @if (error) { <p class="call-chat-warning" role="alert">{{error}}</p> }
    <form class="call-chat-composer" (ngSubmit)="sendMessage()">
+    <app-emoji-quick (picked)="draft = (draft + $event).slice(0, 2000)"></app-emoji-quick>
     <textarea name="message" [(ngModel)]="draft" rows="2" maxlength="2000"
      [attr.aria-label]="'Escrever mensagem na chamada' | t" [placeholder]="'Escrever mensagem…' | t"
      [disabled]="sending || accessRevoked"></textarea>
@@ -99,7 +101,7 @@ import {DirectChatMessage} from '../pages/model/direct-chat';
   .call-chat-composer textarea{flex:1;min-width:0;max-height:108px;min-height:44px;resize:vertical;
    font:inherit;font-size:.83rem;color:#effffb;background:#153844;border:1px solid #4c7b84;
    border-radius:10px;padding:10px}
-  .call-chat-composer button{min-height:44px;padding:0 12px;border-radius:10px;border:0;
+  .call-chat-composer > button{min-height:44px;padding:0 12px;border-radius:10px;border:0;
    background:#83efd3;color:#042a32;font:inherit;font-size:.79rem;font-weight:900;cursor:pointer}
   .call-chat-composer button:disabled{opacity:.45;cursor:default}
   .call-chat-composer :is(button,textarea):focus-visible{outline:3px solid #b4ffe9;outline-offset:2px}

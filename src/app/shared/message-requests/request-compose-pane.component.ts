@@ -1,3 +1,4 @@
+import { EmojiQuickComponent } from '../emoji-quick/emoji-quick.component';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -12,7 +13,7 @@ import { playerAvatarInitials } from '../player-avatar';
 @Component({
   selector: 'app-request-compose-pane',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslatePipe],
+  imports: [FormsModule, RouterLink, TranslatePipe, EmojiQuickComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="rcp">
@@ -37,6 +38,7 @@ import { playerAvatarInitials } from '../player-avatar';
       </div>
       @if (!sentText && !note) {
         <form class="rcp__composer" (ngSubmit)="send()">
+          <app-emoji-quick (picked)="text = (text + $event).slice(0, 1000)"></app-emoji-quick>
           <textarea name="text" [(ngModel)]="text" maxlength="1000" rows="1" [placeholder]="'Escreve uma mensagem…' | t" [attr.aria-label]="'Mensagem' | t"
             (keydown.enter)="$event.preventDefault(); send()"></textarea>
           <button type="submit" class="rcp__send" [disabled]="busy || !text.trim()" [attr.aria-label]="'Enviar' | t">➤</button>
