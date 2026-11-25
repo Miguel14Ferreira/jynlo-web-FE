@@ -29,6 +29,7 @@ export interface RecentAccount {
   id: number; username: string; fullName: string | null; email: string | null;
   joinedAt: string | null; lastLoginAt: string | null; emailConfirmed: boolean; hasPhoto: boolean;
   suspendedAt: string | null; locked: boolean; flags: string[];
+  loginCountry?: string | null; loginCity?: string | null;
 }
 
 export type ModerationAction = 'SUSPEND' | 'REINSTATE' | 'DELETE';

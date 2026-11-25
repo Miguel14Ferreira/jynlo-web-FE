@@ -879,7 +879,7 @@ const PT: Dictionary = {
   'privacy.rights.title': 'Os teus direitos',
   'privacy.rights.text': 'Podes pedir acesso, correção, portabilidade, limitação ou apagamento dos teus dados, e opor-te a um tratamento, através do contacto indicado nesta página. Podes eliminar a conta diretamente na aplicação ou no website. Se considerares que os teus dados não são tratados de acordo com a lei, podes apresentar reclamação à Comissão Nacional de Proteção de Dados (CNPD).',
   'privacy.security.title': 'Segurança',
-  'privacy.security.text': 'O Jynlo usa autenticação, controlos de acesso e mecanismos de segurança destinados a proteger as contas e os dados. Nenhum sistema elimina totalmente o risco, pelo que incidentes relevantes devem ser tratados e comunicados quando aplicável.',
+  'privacy.security.text': 'O Jynlo usa autenticação, controlos de acesso e mecanismos de segurança destinados a proteger as contas e os dados. Nenhum sistema elimina totalmente o risco, pelo que incidentes relevantes devem ser tratados e comunicados quando aplicável. Para proteger as contas, guardamos o país e a cidade aproximada de onde entras, durante 90 dias.',
 
   'delete.title': 'Eliminar a tua conta Jynlo',
   'delete.intro': 'Podes pedir a eliminação da tua conta Jynlo e dos dados pessoais associados. Esta página está disponível sem iniciares sessão e aplica-se ao site e às aplicações para Android e iPhone.',

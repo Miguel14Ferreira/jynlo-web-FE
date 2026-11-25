@@ -12,9 +12,10 @@ const FLAG_LABELS: Record<string, string> = {
   SEM_FOTO: 'Sem foto',
   NUNCA_ENTROU: 'Nunca entrou',
   VARIOS_REGISTOS_SEGUIDOS: 'Vários registos seguidos',
+  ENTRA_DE_FORA_DE_PORTUGAL: 'Entra de fora de Portugal',
 };
 /** The signs that matter most; photo/login alone are normal for brand-new people. */
-const STRONG = new Set(['EMAIL_PADRAO_ALEATORIO', 'VARIOS_REGISTOS_SEGUIDOS']);
+const STRONG = new Set(['EMAIL_PADRAO_ALEATORIO', 'VARIOS_REGISTOS_SEGUIDOS', 'ENTRA_DE_FORA_DE_PORTUGAL']);
 
 /** Admin: recent sign-ups with warning signs, and suspension in one place. */
 @Component({
@@ -60,6 +61,7 @@ const STRONG = new Set(['EMAIL_PADRAO_ALEATORIO', 'VARIOS_REGISTOS_SEGUIDOS']);
               </div>
               <span class="ara__name">{{ a.fullName || ('Sem nome' | t) }}</span>
               <span class="ara__meta">{{ a.email }}</span>
+              @if (a.loginCountry) { <span class="ara__meta ara__place">⌖ {{ a.loginCity ? a.loginCity + ', ' : '' }}{{ a.loginCountry }}</span> }
               <span class="ara__meta">{{ 'Registo' | t }} {{ when(a.joinedAt) }} · {{ a.lastLoginAt ? (('Última entrada' | t) + ' ' + when(a.lastLoginAt)) : ('Nunca entrou' | t) }}</span>
               @if (a.flags.length) {
                 <div class="ara__flags">
@@ -84,6 +86,7 @@ const STRONG = new Set(['EMAIL_PADRAO_ALEATORIO', 'VARIOS_REGISTOS_SEGUIDOS']);
         }
       </div>
       @if (!loading && !visible.length && !error) { <p class="ara__empty">{{ 'Nenhuma conta neste período.' | t }}</p> }
+      <p class="ara__credit">{{ 'Localização aproximada de cada início de sessão (guardada 90 dias):' | t }} <a href="https://db-ip.com" target="_blank" rel="noopener">IP Geolocation by DB-IP</a></p>
     </section>
   `,
   styles: [`
@@ -131,6 +134,8 @@ const STRONG = new Set(['EMAIL_PADRAO_ALEATORIO', 'VARIOS_REGISTOS_SEGUIDOS']);
     .ara__btn--danger{background:#a8404f;border-color:#a8404f;color:#fff}
     .ara__error{color:#ffb8be}
     .ara__empty{color:#9fbfc6;text-align:center;padding:24px}
+    .ara__place{color:#bfe9df}
+    .ara__credit{color:#6f939b;font-size:.72rem}.ara__credit a{color:#8fd8c8}
     @media (max-width:640px){.ara__item{grid-template-columns:auto 1fr}.ara__actions{grid-column:1/-1;justify-items:start}.ara__actions input{width:100%}}
   `]
 })

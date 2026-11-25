@@ -873,7 +873,7 @@ export const EN: Record<string, string> = {
   'privacy.rights.title': 'Your rights',
   'privacy.rights.text': 'You can ask to access, correct, port, restrict or erase your data, and object to processing, through the contact on this page. You can delete your account directly in the app or on the website. If you believe your data is not processed lawfully, you can lodge a complaint with the Portuguese data protection authority (CNPD).',
   'privacy.security.title': 'Security',
-  'privacy.security.text': 'Jynlo uses authentication, access controls and security mechanisms intended to protect accounts and data. No system eliminates all risk, so relevant incidents should be handled and communicated when applicable.',
+  'privacy.security.text': 'Jynlo uses authentication, access controls and security mechanisms intended to protect accounts and data. No system eliminates all risk, so relevant incidents should be handled and communicated when applicable. To protect accounts, we keep the country and approximate city you sign in from for 90 days.',
 
   'delete.title': 'Delete your Jynlo account',
   'delete.intro': 'You can request deletion of your Jynlo account and associated personal data. This page is available without signing in and applies to the website and the Android and iPhone apps.',
@@ -7985,6 +7985,8 @@ export const EN: Record<string, string> = {
   "Desativada": "Off",
   "Descarregar": "Download",
   "Desfocar": "Blur",
+  "Entra de fora de Portugal": "Signs in from outside Portugal",
+  "Localização aproximada de cada início de sessão (guardada 90 dias):": "Approximate location of each sign-in (kept 90 days):",
   "Este local só tem um nome, sem morada nem link do Google Maps, por isso não mostramos mapa. Acrescenta o link do Google Maps ao editar a sessão para os jogadores irem ao sítio certo.": "This place only has a name, with no address or Google Maps link, so no map is shown. Add the Google Maps link when editing the session so players go to the right place.",
   "contas": "accounts",
   "a rever": "to review",
