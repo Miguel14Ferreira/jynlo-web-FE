@@ -27,6 +27,7 @@ const routes: Routes = [
   {path:'contact',loadComponent:() => import('./pages/contact/contact.component').then(m => m.ContactComponent),data:{seo:{title:'Contacto',index:true,description:'Fala com a equipa da Jynlo: dúvidas, sugestões e apoio.'}}},
   {path:'privacy',component:LegalPageComponent,data:{document:'privacy',seo:{title:'Política de privacidade',index:true,description:'Como a Jynlo trata e protege os teus dados pessoais.'}}},
   {path:'terms',component:LegalPageComponent,data:{document:'terms',seo:{title:'Termos e condições',index:true,description:'Os termos e condições de utilização da Jynlo.'}}},
+  {path:'auth/facebook/callback',loadComponent:() => import('./pages/facebook-callback/facebook-callback.component').then(m => m.FacebookCallbackComponent),data:{seo:{title:'Facebook',index:false}}},
   {path:'delete-account',component:LegalPageComponent,data:{document:'delete',seo:{title:'Eliminar conta',index:false,description:'Como eliminar a tua conta Jynlo e os dados associados.'}}},
   // Sessions are short-lived, so they are not indexed; they still need a share title.
   {path:'sessions/:id',loadComponent:() => import('./pages/public-session-preview/public-session-preview.component').then(m => m.PublicSessionPreviewComponent),data:{seo:{index:false}}},

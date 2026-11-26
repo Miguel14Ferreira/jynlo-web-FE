@@ -7986,6 +7986,8 @@ export const EN: Record<string, string> = {
   "Descarregar": "Download",
   "Desfocar": "Blur",
   "Continuar com Facebook": "Continue with Facebook",
+  "A voltar à app Jynlo…": "Returning to the Jynlo app…",
+  "Abrir a app Jynlo": "Open the Jynlo app",
   "A autenticar com Facebook...": "Signing in with Facebook...",
   "Não foi possível iniciar sessão com Facebook.": "Could not sign in with Facebook.",
   "Não foi possível concluir o login com Facebook.": "Could not complete the Facebook sign-in.",
