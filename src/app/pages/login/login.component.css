@@ -267,3 +267,24 @@
   outline: 2px solid #9effe8;
   outline-offset: 2px;
 }
+
+.facebook-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  min-height: 44px;
+  margin: 10px auto 0;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: #1877f2;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.facebook-login:hover:not(:disabled) { background: #166fe5; }
+.facebook-login:disabled { opacity: .7; cursor: progress; }

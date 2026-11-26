@@ -17,10 +17,11 @@ describe('LoginComponent', () => {
     queryParamMap = convertToParamMap({});
     auth = jasmine.createSpyObj<AuthenticationService>(
       'AuthenticationService',
-      ['login', 'hasValidToken', 'saveToken', 'googleConfig', 'resendRegistrationConfirmation']
+      ['login', 'hasValidToken', 'saveToken', 'googleConfig', 'facebookConfig', 'facebookLogin', 'resendRegistrationConfirmation']
     );
     auth.hasValidToken.and.returnValue(false);
     auth.googleConfig.and.returnValue(of({ clientId: '' }));
+    auth.facebookConfig.and.returnValue(of({ appId: '' }));
     auth.resendRegistrationConfirmation.and.returnValue(of({ message: 'Email reenviado' } as any));
     auth.login.and.returnValue(of({
       mfaRequired: false,
@@ -335,5 +336,22 @@ describe('LoginComponent', () => {
     expect(sessionStorage.getItem('mfa-challenge-id')).toBe('challenge-123');
     expect(auth.saveToken).not.toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/login/MFAauthentication']);
+  });
+
+  it('hides the Facebook button while the Meta app is not configured', () => {
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.facebook-login')).toBeNull();
+  });
+
+  it('logs in with the Facebook access token and opens onboarding for new accounts', () => {
+    (window as any).FB = { login: (cb: any) => cb({ authResponse: { accessToken: 'fb-token' } }) };
+    auth.facebookLogin.and.returnValue(of({ onboardingRequired: true, email: 'a@b.pt', fullName: 'Ana' } as any));
+    component.loginWithFacebook();
+    expect(auth.facebookLogin).toHaveBeenCalledWith('fb-token');
+    expect(sessionStorage.getItem('google-onboarding-provider')).toBe('facebook');
+    expect(sessionStorage.getItem('google-onboarding-credential')).toBe('fb-token');
+    expect(router.navigate).toHaveBeenCalled();
+    delete (window as any).FB;
+    sessionStorage.clear();
   });
 });

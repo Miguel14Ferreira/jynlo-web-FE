@@ -40,6 +40,33 @@ export class AuthenticationService {
     );
   }
 
+  facebookConfig(): Observable<{ appId: string }> {
+    return this.http.get<{ appId: string }>(
+      `${this.host}/api/auth/facebook/config`
+    );
+  }
+
+  facebookLogin(accessToken: string): Observable<GoogleAuthResponse> {
+    return this.http.post<GoogleAuthResponse>(
+      `${this.host}/api/auth/facebook/login`,
+      { credential: accessToken },
+      { withCredentials: true }
+    );
+  }
+
+  facebookRegister(request: GoogleRegistrationRequest): Observable<GoogleAuthResponse> {
+    const cohort = this.getPilotCohort();
+    const options: { withCredentials: boolean; params?: { cohort: string } } = { withCredentials: true };
+    if (cohort) {
+      options.params = { cohort };
+    }
+    return this.http.post<GoogleAuthResponse>(
+      `${this.host}/api/auth/facebook/register`,
+      request,
+      options
+    );
+  }
+
   googleRegister(request: GoogleRegistrationRequest): Observable<GoogleAuthResponse> {
     const cohort = this.getPilotCohort();
     const options: {

@@ -1,3 +1,4 @@
+import { GoogleAuthResponse } from '../model/google-auth-response';
 import { appTranslate } from '../../i18n/i18n.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { appTranslate as t } from '../../i18n/i18n.service';
@@ -12,6 +13,8 @@ import { registrationSessionId, registrationCommunityId } from '../../shared/reg
 declare global {
   interface Window {
     google?: any;
+    FB?: any;
+    fbAsyncInit?: () => void;
   }
 }
 
@@ -35,6 +38,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
   resendCooldownSeconds = 0;
   googleLoading = false;
   googleReady = false;
+  facebookReady = false;
+  facebookLoading = false;
 
   private resendCooldownTimer?: ReturnType<typeof setInterval>;
 
@@ -85,6 +90,69 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.loadGoogleIdentityScript(config.clientId.trim());
       }
     });
+    this.authenticationService.facebookConfig()
+      .pipe(timeout(10_000))
+      .subscribe({
+        next: config => {
+          const appId = config?.appId?.trim();
+          if (appId) {
+            this.loadFacebookSdk(appId);
+          }
+        },
+        error: () => undefined
+      });
+  }
+
+  private loadFacebookSdk(appId: string): void {
+    const ready = () => {
+      if (!window.FB) {
+        return;
+      }
+      window.FB.init({ appId, version: 'v21.0', cookie: false, xfbml: false, status: false });
+      this.ngZone.run(() => this.facebookReady = true);
+    };
+    if (window.FB) {
+      ready();
+      return;
+    }
+    window.fbAsyncInit = ready;
+    if (document.getElementById('facebook-jssdk')) {
+      return;
+    }
+    const script = document.createElement('script');
+    script.id = 'facebook-jssdk';
+    script.src = 'https://connect.facebook.net/pt_PT/sdk.js';
+    script.async = true;
+    script.defer = true;
+    script.crossOrigin = 'anonymous';
+    document.head.appendChild(script);
+  }
+
+  loginWithFacebook(): void {
+    if (!window.FB || this.facebookLoading || this.googleLoading) {
+      return;
+    }
+    this.errorMessage = '';
+    window.FB.login((response: { authResponse?: { accessToken?: string } }) => {
+      this.ngZone.run(() => {
+        const token = response?.authResponse?.accessToken || '';
+        if (!token) {
+          return;
+        }
+        this.facebookLoading = true;
+        this.authenticationService.facebookLogin(token)
+          .pipe(timeout(15_000), finalize(() => this.facebookLoading = false))
+          .subscribe({
+            next: result => this.handleSocialResponse(result, token, 'facebook'),
+            error: error => {
+              this.errorMessage = this.errorFrom(
+                error,
+                appTranslate('Não foi possível iniciar sessão com Facebook.')
+              );
+            }
+          });
+      });
+    }, { scope: 'public_profile,email' });
   }
 
   private loadGoogleIdentityScript(clientId: string): void {
@@ -139,6 +207,49 @@ export class LoginComponent implements OnInit, AfterViewInit {
     document.head.appendChild(script);
   }
 
+  private handleSocialResponse(response: GoogleAuthResponse, credential: string, provider: 'google' | 'facebook'): void {
+      if (response.onboardingRequired) {
+        sessionStorage.setItem('google-onboarding-credential', credential);
+        sessionStorage.setItem('google-onboarding-provider', provider);
+        sessionStorage.setItem('google-onboarding-email', response.email || '');
+        sessionStorage.setItem('google-onboarding-name', response.fullName || '');
+        sessionStorage.setItem('google-onboarding-picture', response.pictureUrl || '');
+        this.router.navigate(['/login/google/complete-profile'], {
+          queryParams: { returnUrl: this.returnUrl }
+        });
+        return;
+      }
+
+      if (response.mfaRequired) {
+        if (!response.challengeId) {
+          this.errorMessage = appTranslate('Não foi possível iniciar a autenticação multifator.');
+          return;
+        }
+
+        sessionStorage.setItem('mfa-challenge-id', response.challengeId);
+        sessionStorage.setItem('mfa-return-url', this.returnUrl);
+
+        if (response.challengeExpiresAt) {
+          sessionStorage.setItem('mfa-expires-at', response.challengeExpiresAt);
+        } else {
+          sessionStorage.removeItem('mfa-expires-at');
+        }
+
+        this.router.navigate(['/login/MFAauthentication']);
+        return;
+      }
+
+      if (!response.token) {
+        this.errorMessage = provider === 'facebook'
+          ? appTranslate('Não foi possível concluir o login com Facebook.')
+          : appTranslate('Não foi possível concluir o login com Google.');
+        return;
+      }
+
+      this.authenticationService.saveToken(response.token);
+      this.router.navigateByUrl(this.returnUrl);
+  }
+
   private handleGoogleCredential(credential: string): void {
     if (!credential || this.googleLoading) {
       return;
@@ -150,45 +261,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.authenticationService.googleLogin(credential)
       .pipe(timeout(10_000), finalize(() => this.googleLoading = false))
       .subscribe({
-        next: response => {
-          if (response.onboardingRequired) {
-            sessionStorage.setItem('google-onboarding-credential', credential);
-            sessionStorage.setItem('google-onboarding-email', response.email || '');
-            sessionStorage.setItem('google-onboarding-name', response.fullName || '');
-            sessionStorage.setItem('google-onboarding-picture', response.pictureUrl || '');
-            this.router.navigate(['/login/google/complete-profile'], {
-              queryParams: { returnUrl: this.returnUrl }
-            });
-            return;
-          }
-
-          if (response.mfaRequired) {
-            if (!response.challengeId) {
-              this.errorMessage = appTranslate('Não foi possível iniciar a autenticação multifator.');
-              return;
-            }
-
-            sessionStorage.setItem('mfa-challenge-id', response.challengeId);
-            sessionStorage.setItem('mfa-return-url', this.returnUrl);
-
-            if (response.challengeExpiresAt) {
-              sessionStorage.setItem('mfa-expires-at', response.challengeExpiresAt);
-            } else {
-              sessionStorage.removeItem('mfa-expires-at');
-            }
-
-            this.router.navigate(['/login/MFAauthentication']);
-            return;
-          }
-
-          if (!response.token) {
-            this.errorMessage = appTranslate('Não foi possível concluir o login com Google.');
-            return;
-          }
-
-          this.authenticationService.saveToken(response.token);
-          this.router.navigateByUrl(this.returnUrl);
-        },
+        next: response => this.handleSocialResponse(response, credential, 'google'),
         error: error => {
           this.errorMessage = this.errorFrom(
             error,

@@ -89,7 +89,10 @@ export class GoogleOnboardingComponent implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
-    this.authenticationService.googleRegister(request)
+    const provider = sessionStorage.getItem('google-onboarding-provider');
+    (provider === 'facebook'
+      ? this.authenticationService.facebookRegister(request)
+      : this.authenticationService.googleRegister(request))
       .pipe(
         timeout(10_000),
         finalize(() => this.loading = false)
@@ -184,6 +187,7 @@ export class GoogleOnboardingComponent implements OnInit {
     sessionStorage.removeItem('google-onboarding-email');
     sessionStorage.removeItem('google-onboarding-name');
     sessionStorage.removeItem('google-onboarding-picture');
+    sessionStorage.removeItem('google-onboarding-provider');
   }
 
   private errorFrom(error: HttpErrorResponse, fallback: string): string {

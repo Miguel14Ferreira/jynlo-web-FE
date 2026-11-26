@@ -34,11 +34,12 @@ describe('PublicSessionPreviewComponent', () => {
     routeQueryParamMap = convertToParamMap({});
     http = jasmine.createSpyObj<HttpClient>('HttpClient', ['get', 'post']);
     authenticationService = jasmine.createSpyObj<AuthenticationService>(
-      'AuthenticationService', ['isLoggedIn', 'hasSessionCandidate', 'login', 'saveToken', 'googleConfig', 'googleLogin', 'confirmMfaChallenge', 'resendMfaChallenge']
+      'AuthenticationService', ['isLoggedIn', 'hasSessionCandidate', 'login', 'saveToken', 'googleConfig', 'googleLogin', 'facebookConfig', 'confirmMfaChallenge', 'resendMfaChallenge']
     );
     authenticationService.isLoggedIn.and.returnValue(false);
     authenticationService.hasSessionCandidate.and.returnValue(false);
     authenticationService.googleConfig.and.returnValue(of({clientId:''}));
+    authenticationService.facebookConfig.and.returnValue(of({appId:''}));
     TestBed.overrideComponent(PublicSessionPreviewComponent, {
       remove: { imports: [PublicSessionChatComponent] },
       add: { imports: [SessionChatStubComponent] }
