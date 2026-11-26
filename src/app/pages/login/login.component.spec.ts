@@ -17,11 +17,12 @@ describe('LoginComponent', () => {
     queryParamMap = convertToParamMap({});
     auth = jasmine.createSpyObj<AuthenticationService>(
       'AuthenticationService',
-      ['login', 'hasValidToken', 'saveToken', 'googleConfig', 'facebookConfig', 'facebookLogin', 'resendRegistrationConfirmation']
+      ['login', 'hasValidToken', 'saveToken', 'googleConfig', 'facebookConfig', 'facebookLogin', 'appleConfig', 'appleLogin', 'resendRegistrationConfirmation']
     );
     auth.hasValidToken.and.returnValue(false);
     auth.googleConfig.and.returnValue(of({ clientId: '' }));
     auth.facebookConfig.and.returnValue(of({ appId: '' }));
+    auth.appleConfig.and.returnValue(of({ webClientId: '' }));
     auth.resendRegistrationConfirmation.and.returnValue(of({ message: 'Email reenviado' } as any));
     auth.login.and.returnValue(of({
       mfaRequired: false,
@@ -352,6 +353,17 @@ describe('LoginComponent', () => {
     expect(sessionStorage.getItem('google-onboarding-credential')).toBe('fb-token');
     expect(router.navigate).toHaveBeenCalled();
     delete (window as any).FB;
+    sessionStorage.clear();
+  });
+
+  it('logs in with the Apple id token from the website popup', async () => {
+    (window as any).AppleID = { auth: { signIn: () => Promise.resolve({
+      authorization: { id_token: 'apple-token' }, user: { name: { firstName: 'Ana', lastName: 'Silva' } } }) } };
+    auth.appleLogin.and.returnValue(of({ token: 'jwt', onboardingRequired: false, mfaRequired: false } as any));
+    await component.loginWithApple();
+    expect(auth.appleLogin).toHaveBeenCalledWith('apple-token', 'Ana Silva');
+    expect(auth.saveToken).toHaveBeenCalledWith('jwt');
+    delete (window as any).AppleID;
     sessionStorage.clear();
   });
 });

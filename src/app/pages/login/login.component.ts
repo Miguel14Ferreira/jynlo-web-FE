@@ -14,6 +14,7 @@ declare global {
   interface Window {
     google?: any;
     FB?: any;
+    AppleID?: any;
     fbAsyncInit?: () => void;
   }
 }
@@ -40,6 +41,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
   googleReady = false;
   facebookReady = false;
   facebookLoading = false;
+  appleReady = false;
+  appleLoading = false;
 
   private resendCooldownTimer?: ReturnType<typeof setInterval>;
 
@@ -101,6 +104,79 @@ export class LoginComponent implements OnInit, AfterViewInit {
         },
         error: () => undefined
       });
+    this.authenticationService.appleConfig()
+      .pipe(timeout(10_000))
+      .subscribe({
+        next: config => {
+          const clientId = config?.webClientId?.trim();
+          if (clientId) {
+            this.loadAppleSdk(clientId);
+          }
+        },
+        error: () => undefined
+      });
+  }
+
+  private loadAppleSdk(clientId: string): void {
+    const ready = () => {
+      if (!window.AppleID?.auth) {
+        return;
+      }
+      window.AppleID.auth.init({
+        clientId,
+        scope: 'name email',
+        redirectURI: `${window.location.origin}/login`,
+        usePopup: true
+      });
+      this.ngZone.run(() => this.appleReady = true);
+    };
+    if (window.AppleID?.auth) {
+      ready();
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/pt_PT/appleid.auth.js';
+    script.async = true;
+    script.onload = ready;
+    document.head.appendChild(script);
+  }
+
+  async loginWithApple(): Promise<void> {
+    if (!window.AppleID?.auth || this.appleLoading || this.facebookLoading || this.googleLoading) {
+      return;
+    }
+    this.errorMessage = '';
+    let result: any;
+    try {
+      result = await window.AppleID.auth.signIn();
+    } catch (error: any) {
+      // Closing the Apple window is not an error.
+      if (error?.error !== 'popup_closed_by_user' && error?.error !== 'user_cancelled_authorize') {
+        this.ngZone.run(() => this.errorMessage = appTranslate('Não foi possível iniciar sessão com a Apple.'));
+      }
+      return;
+    }
+    this.ngZone.run(() => {
+      const credential = result?.authorization?.id_token || '';
+      if (!credential) {
+        return;
+      }
+      const first = result?.user?.name?.firstName || '';
+      const last = result?.user?.name?.lastName || '';
+      const fullName = `${first} ${last}`.trim() || null;
+      if (fullName) {
+        sessionStorage.setItem('google-onboarding-apple-name', fullName);
+      }
+      this.appleLoading = true;
+      this.authenticationService.appleLogin(credential, fullName)
+        .pipe(timeout(15_000), finalize(() => this.appleLoading = false))
+        .subscribe({
+          next: response => this.handleSocialResponse(response, credential, 'apple'),
+          error: error => {
+            this.errorMessage = this.errorFrom(error, appTranslate('Não foi possível iniciar sessão com a Apple.'));
+          }
+        });
+    });
   }
 
   private loadFacebookSdk(appId: string): void {
@@ -207,7 +283,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     document.head.appendChild(script);
   }
 
-  private handleSocialResponse(response: GoogleAuthResponse, credential: string, provider: 'google' | 'facebook'): void {
+  private handleSocialResponse(response: GoogleAuthResponse, credential: string, provider: 'google' | 'facebook' | 'apple'): void {
       if (response.onboardingRequired) {
         sessionStorage.setItem('google-onboarding-credential', credential);
         sessionStorage.setItem('google-onboarding-provider', provider);
@@ -242,6 +318,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
       if (!response.token) {
         this.errorMessage = provider === 'facebook'
           ? appTranslate('Não foi possível concluir o login com Facebook.')
+          : provider === 'apple'
+          ? appTranslate('Não foi possível iniciar sessão com a Apple.')
           : appTranslate('Não foi possível concluir o login com Google.');
         return;
       }

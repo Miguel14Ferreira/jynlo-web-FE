@@ -288,3 +288,12 @@
 }
 .facebook-login:hover:not(:disabled) { background: #166fe5; }
 .facebook-login:disabled { opacity: .7; cursor: progress; }
+
+.apple-login {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; max-width: 420px; min-height: 44px; margin: 10px auto 0; padding: 0 18px;
+  border: 0; border-radius: 999px; background: #fff; color: #000;
+  font: inherit; font-weight: 600; cursor: pointer;
+}
+.apple-login:hover:not(:disabled) { background: #f2f2f2; }
+.apple-login:disabled { opacity: .7; cursor: progress; }

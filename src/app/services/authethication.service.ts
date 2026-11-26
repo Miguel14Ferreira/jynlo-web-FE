@@ -40,6 +40,33 @@ export class AuthenticationService {
     );
   }
 
+  appleConfig(): Observable<{ webClientId: string }> {
+    return this.http.get<{ webClientId: string }>(
+      `${this.host}/api/auth/apple/config`
+    );
+  }
+
+  appleLogin(credential: string, fullName: string | null): Observable<GoogleAuthResponse> {
+    return this.http.post<GoogleAuthResponse>(
+      `${this.host}/api/auth/apple/login`,
+      { credential, fullName },
+      { withCredentials: true }
+    );
+  }
+
+  appleRegister(request: GoogleRegistrationRequest, fullName: string | null): Observable<GoogleAuthResponse> {
+    const cohort = this.getPilotCohort();
+    const options: { withCredentials: boolean; params?: { cohort: string } } = { withCredentials: true };
+    if (cohort) {
+      options.params = { cohort };
+    }
+    return this.http.post<GoogleAuthResponse>(
+      `${this.host}/api/auth/apple/register`,
+      { registration: request, fullName },
+      options
+    );
+  }
+
   facebookConfig(): Observable<{ appId: string }> {
     return this.http.get<{ appId: string }>(
       `${this.host}/api/auth/facebook/config`

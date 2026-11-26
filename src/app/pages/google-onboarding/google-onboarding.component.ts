@@ -92,6 +92,8 @@ export class GoogleOnboardingComponent implements OnInit {
     const provider = sessionStorage.getItem('google-onboarding-provider');
     (provider === 'facebook'
       ? this.authenticationService.facebookRegister(request)
+      : provider === 'apple'
+      ? this.authenticationService.appleRegister(request, sessionStorage.getItem('google-onboarding-apple-name'))
       : this.authenticationService.googleRegister(request))
       .pipe(
         timeout(10_000),
@@ -188,6 +190,7 @@ export class GoogleOnboardingComponent implements OnInit {
     sessionStorage.removeItem('google-onboarding-name');
     sessionStorage.removeItem('google-onboarding-picture');
     sessionStorage.removeItem('google-onboarding-provider');
+    sessionStorage.removeItem('google-onboarding-apple-name');
   }
 
   private errorFrom(error: HttpErrorResponse, fallback: string): string {
