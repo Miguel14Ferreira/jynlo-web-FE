@@ -677,3 +677,8 @@
   .venue-route-modes { grid-template-columns: 1fr; }
   .venue-detail-page .venue-route-mode { width: 100%; }
 }
+
+.venue-adults-badge{display:inline-block;margin-left:10px;padding:2px 9px;border-radius:999px;
+  border:1px solid #ffb4a6;color:#ffd7cf;font-size:.55em;font-weight:900;vertical-align:middle}
+.venue-adults-toggle{margin-top:8px;align-self:flex-start}
+.venue-adults-error{color:#ffb4a6;font-size:.85rem}

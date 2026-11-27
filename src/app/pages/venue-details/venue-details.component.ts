@@ -1,5 +1,6 @@
 import { venueBookingAction, type VenueBookingAction } from '../../shared/venue-booking-action';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, Optional } from '@angular/core';
+import { AuthenticationService } from '../../services/authethication.service';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { finalize, retry, Subject, takeUntil, timeout } from 'rxjs';
@@ -61,12 +62,32 @@ export class VenueDetailsComponent implements OnInit, OnDestroy {
     return Number.isInteger(id) && id > 0 ? id : null;
   }
 
+  adultsOnlySaving = false;
+  adultsOnlyError = '';
+  get canManageAdultsOnly(): boolean {
+    return !this.isPublicView && !!this.auth?.hasAnyRole('ROLE_ADMIN', 'ROLE_SUPER_ADMIN');
+  }
+  toggleAdultsOnly(): void {
+    const venue = this.venue;
+    if (!venue?.id || this.adultsOnlySaving) return;
+    const next = !venue.adultsOnly;
+    this.adultsOnlySaving = true;
+    this.adultsOnlyError = '';
+    this.venueService.setAdultsOnly(venue.id, next).pipe(timeout(10_000),
+      finalize(() => { this.adultsOnlySaving = false; this.changeDetector?.markForCheck(); }))
+      .subscribe({
+        next: result => { if (this.venue?.id === venue.id) this.venue = { ...this.venue, adultsOnly: result.adultsOnly }; },
+        error: () => { this.adultsOnlyError = 'Não foi possível guardar. Tenta novamente.'; }
+      });
+  }
+
   constructor(
     private route: ActivatedRoute,
     private venueService: VenueService,
     @Optional() private readonly changeDetector: ChangeDetectorRef | null = null,
     @Optional() private readonly sanitizer: DomSanitizer | null = null,
-    @Optional() private readonly seo: SeoService | null = null
+    @Optional() private readonly seo: SeoService | null = null,
+    @Optional() private readonly auth: AuthenticationService | null = null
   ) {}
 
   /** Names the page after the venue so search results and shared links are meaningful. */

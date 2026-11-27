@@ -25,7 +25,14 @@
           ← {{ (isPublicView ? 'venue.detail.back' : 'venue.catalog.backToList') | t }}
         </a>
         <span class="venue-kicker">{{ 'venue.detail.kicker' | t }}</span>
-        <h1>{{ venue.name }}</h1>
+        <h1>{{ venue.name }}@if (venue.adultsOnly) { <span class="venue-adults-badge" [title]="'Só para maiores de 18' | t">+18</span>}</h1>
+        @if (canManageAdultsOnly) {
+          <button type="button" class="jynlo-action jynlo-action--neutral venue-adults-toggle"
+            [disabled]="adultsOnlySaving" (click)="toggleAdultsOnly()">
+            {{ (venue.adultsOnly ? 'Deixar de ser só para maiores de 18' : 'Marcar como só para maiores de 18') | t }}
+          </button>
+          @if (adultsOnlyError) { <p role="alert" class="venue-adults-error">{{ adultsOnlyError | t }}</p> }
+        }
         <p class="venue-hero-location">📍 {{ venue.city }}@if (venue.district && venue.district !== venue.city) {, {{ venue.district }}}</p>
         @if (bookingAction; as action) {
           <div class="venue-book">

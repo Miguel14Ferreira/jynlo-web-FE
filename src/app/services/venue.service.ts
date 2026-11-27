@@ -89,6 +89,12 @@ export class VenueService {
 
   constructor(private http: HttpClient) {}
 
+  /** Admins only: mark a venue as adults-only (hidden from visitors without an adult account). */
+  setAdultsOnly(id: number, adultsOnly: boolean): Observable<{ id: number; adultsOnly: boolean }> {
+    return this.http.put<{ id: number; adultsOnly: boolean }>(
+      environment.apiUrl + '/api/admin/venues/' + id + '/adults-only', { adultsOnly });
+  }
+
   search(city?: string, sport?: string, latitude?: number, longitude?: number, radiusKm?: number): Observable<Venue[]> {
     let params = new HttpParams();
 

@@ -63,6 +63,8 @@ export interface Venue {
   bookingUrl?: string | null;
   /** Public space with free access: no booking needed. */
   freeAccess?: boolean | null;
+  /** Snooker, darts, bars…: only shown to signed-in adults. */
+  adultsOnly?: boolean;
 }
 
 export interface CreateVenueRequest {
