@@ -8721,4 +8721,7 @@ export const EN: Record<string, string> = {
   "Não apareceu": "Did not show up",
   "Comportamento": "Behaviour",
   "Outro motivo": "Other reason",
+  "{{name}} vai": "{{name}} is going",
+  "{{name}} e mais 1 amigo vão": "{{name}} and 1 more friend are going",
+  "{{name}} e mais {{n}} amigos vão": "{{name}} and {{n}} more friends are going",
 };

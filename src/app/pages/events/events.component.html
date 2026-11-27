@@ -264,6 +264,7 @@
 
             <div class="session-fact session-vacancies" [class.available]="vacancies(session) > 0">
               <span>👥 {{ session.participantCount }}/{{ session.maxParticipants }}</span>
+              <app-friends-going [sessionId]="session.id"></app-friends-going>
               @if (session.courtBooked) { <span class="court-booked-badge">{{ '✓ Campo reservado' | t }}</span> }
               @if (missingForGame(session) > 0) {
                 <strong class="session-missing">{{ (missingForGame(session) === 1 ? 'Falta 1 para haver jogo' : 'Faltam {{n}} para haver jogo') | t:{ n: missingForGame(session) } }}</strong>

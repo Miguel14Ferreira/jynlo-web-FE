@@ -1,3 +1,4 @@
+import { FriendsGoingComponent } from '../../shared/friends-going/friends-going.component';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -10,7 +11,7 @@ import { SportNamePipe } from '../../i18n/sport-name.pipe';
 // Load this screen only when its route is opened, not on the public home page.
 @NgModule({
   declarations: [DiscoverComponent, SessionDiscoveryMapComponent],
-  imports: [SportNamePipe, 
+  imports: [SportNamePipe, FriendsGoingComponent, 
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

@@ -1552,6 +1552,7 @@
                 <div>
                   <h2>{{ 'sessionDetail.whosGoing' | t }}</h2>
                   <p>{{ 'sessionDetail.whosGoingText' | t:{ count: visiblePlayerCount() } }}</p>
+                  <app-friends-going [sessionId]="session.id"></app-friends-going>
                 </div>
                 <span class="session-roster-live" role="status">
                   <span class="session-roster-live__dot" aria-hidden="true"></span>

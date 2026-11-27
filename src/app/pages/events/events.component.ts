@@ -8,6 +8,8 @@ import { finalize, retry, Subscription, timeout } from 'rxjs';
 import { SessionSummary } from '../model/session-summary';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { SessionService } from '../../services/session.service';
+import { FriendsGoingService, SessionFriends } from '../../services/friends-going.service';
+import { forkJoin } from 'rxjs';
 import { SPORTS_CATALOG } from '../../shared/sports-catalog';
 import { sessionSkillLevelLabel, sessionSkillLevelOptions } from '../../shared/session-skill-level';
 
@@ -60,6 +62,7 @@ export class EventsComponent implements OnInit, OnDestroy {
 
   /** Signed-out visitors see the public game page; joining still asks them to sign in. */
   readonly visitor = !inject(AuthenticationService).isLoggedIn();
+  private readonly friendsGoing = inject(FriendsGoingService);
 
   constructor(
     private sessionService: SessionService,
@@ -72,6 +75,17 @@ export class EventsComponent implements OnInit, OnDestroy {
     this.sport = (params.get('sport') || '').trim();
     this.city = (params.get('city') || '').trim();
     this.loadSessions();
+  }
+
+  /** Games with friends in them go to the top; the order is otherwise the server's. */
+  private putFriendsGamesFirst(requestId: number, sessions: SessionSummary[]): void {
+    if (this.visitor || !sessions.length) return;
+    forkJoin(sessions.slice(0, 100).map(s => this.friendsGoing.forSession(s.id))).subscribe(results => {
+      if (requestId !== this.searchRequestId || this.destroyed) return;
+      const known = new Map<number, SessionFriends>();
+      for (const r of results) if (r) known.set(r.sessionId, r);
+      if (known.size) this.sessions = FriendsGoingService.friendsFirst(this.sessions, known);
+    });
   }
 
   ngOnDestroy(): void {
@@ -144,6 +158,7 @@ export class EventsComponent implements OnInit, OnDestroy {
       next: sessions => {
         if (requestId !== this.searchRequestId || this.destroyed) return;
         this.sessions = sessions;
+        this.putFriendsGamesFirst(requestId, sessions);
         this.discoveredCustomSports = [...new Set([
           ...this.discoveredCustomSports,
           ...sessions.map(session => session.sport).filter(name =>
