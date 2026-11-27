@@ -374,3 +374,9 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 :host .stories-eyebrow{color:#78f2d4}
 :host .stories-panel :is(button,a):focus-visible{outline:3px solid #79f4d7;outline-offset:3px}
 @media(max-width:650px){:host .stories-panel{padding:.85rem;border-radius:16px}:host .story-rail{overscroll-behavior-inline:contain}}
+
+/* No stories yet: a one-line strip with the create button, not a big empty block at the top of the feed. */
+.stories-panel--empty { padding-top: 10px !important; padding-bottom: 10px !important; }
+.stories-panel--empty .stories-eyebrow, .stories-panel--empty .stories-heading p, .stories-panel--empty .story-rail { display: none !important; }
+.stories-panel--empty .stories-heading { align-items: center; }
+.stories-panel--empty .stories-heading h2 { font-size: 1rem; margin: 0; }

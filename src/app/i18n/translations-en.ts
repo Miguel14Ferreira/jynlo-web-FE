@@ -8763,4 +8763,12 @@ export const EN: Record<string, string> = {
   "Notificações": "Notifications",
   "Criar conta": "Sign up",
   "Entrar": "Sign in",
+  "Cria um em 1 minuto e convida amigos ou uma comunidade. Quem procurar aqui vai encontrá-lo.": "Create one in a minute and invite friends or a community. Anyone searching here will find it.",
+  "Criar jogo de {{sport}}": "Create a {{sport}} game",
+  "Ainda não há jogos de {{sport}} em {{city}}": "No {{sport}} games in {{city}} yet",
+  "Ainda não há jogos de {{sport}} abertos": "No open {{sport}} games yet",
+  "Ainda não há jogos abertos em {{city}}": "No open games in {{city}} yet",
+  "Encontrar um jogo esta semana": "Find a game this week",
+  "Ainda ninguém abriu jogos para esta semana.": "Nobody has opened games for this week yet.",
+  "Sê o primeiro: cria um jogo em 1 minuto": "Be the first: create a game in a minute",
 };

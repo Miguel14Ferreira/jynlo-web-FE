@@ -256,3 +256,6 @@
 :host .feed-v3-shell .feed-live-text small { font-size:.76rem; color:#b9dad7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 :host .feed-v3-shell .feed-live-badge { justify-self:start; padding:1px 6px; border-radius:4px; background:#e11d48; color:#fff; font-size:.62rem; font-weight:900; letter-spacing:.06em; }
 :host .feed-v3-shell .feed-live-watch { flex:none; padding:8px 12px; border-radius:10px; background:#18d9b7; color:#032c2b; font-size:.8rem; font-weight:800; }
+
+:host .week-empty-action{display:inline-flex;align-items:center;min-height:40px;color:#62e6c4;font-weight:800;text-decoration:none;}
+:host .week-empty-action:hover{text-decoration:underline;}

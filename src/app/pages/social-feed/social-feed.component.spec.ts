@@ -1342,7 +1342,8 @@ describe('SocialFeedComponent discovery sidebar', () => {
     fixture.detectChanges();
     const hub = (fixture.nativeElement as HTMLElement).querySelector('.week-hub');
     expect(hub?.textContent).toContain(t('week.noUpcoming'));
-    expect(hub?.textContent).toContain(t('week.noOpenSlots'));
+    expect(hub?.textContent).toContain(t('Ainda ninguém abriu jogos para esta semana.'));
+    expect(hub?.querySelector('a.week-empty-action[href="/menu/createEvent"]')).not.toBeNull();
     expect(hub?.querySelector('.week-hub-card[aria-label="As tuas comunidades"]')).toBeNull();
     expect(hub?.querySelector('a[href="/menu/discover"]')).not.toBeNull();
     expect(hub?.querySelector('a[href="/menu/my-sessions"]')).not.toBeNull();

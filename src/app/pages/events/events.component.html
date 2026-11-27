@@ -212,19 +212,19 @@
 
     @if (!loading && !errorMessage && sessions.length === 0) {
       <div class="state-card">
-        <h2>{{ 'events.emptyTitle' | t }}</h2>
+        <h2>{{ emptyTitle() }}</h2>
         <p>
           @if (nearbyActive) {
             {{ 'events.emptyNearby' | t }}
           } @else {
-            {{ 'events.emptyDefault' | t }}
+            {{ 'Cria um em 1 minuto e convida amigos ou uma comunidade. Quem procurar aqui vai encontrá-lo.' | t }}
           }
         </p>
         <div class="session-empty-actions">
           <a class="jynlo-action jynlo-action--primary session-empty-create jynlo-premium-btn jynlo-premium-btn--primary"
             routerLink="/menu/createEvent"
             [queryParams]="{ sport: sport.trim() || null, city: city.trim() || null }">
-            {{ 'mySessions.create' | t }}
+            {{ (sport.trim() ? 'Criar jogo de {{sport}}' : 'mySessions.create') | t:{ sport: (sport.trim() | sportName) } }}
           </a>
           @if (nearbyActive && radiusKm < 100) {
             <button type="button" class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet"

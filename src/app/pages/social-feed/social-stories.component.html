@@ -1,4 +1,4 @@
-<section class="stories-panel" [attr.aria-label]="'stories.title' | t">
+<section class="stories-panel" [class.stories-panel--empty]="!loading && !mineLoading && !error && !mineError && storyGroups.length === 0 && !composerOpen" [attr.aria-label]="'stories.title' | t">
   <div class="stories-heading">
     <div>
       <span class="stories-eyebrow">{{ 'stories.kicker' | t }}</span>

@@ -1,3 +1,4 @@
+import { appTranslate } from '../../i18n/i18n.service';
 import { playersMissingForGame } from '../../shared/session-minimum-players';
 import { AuthenticationService } from '../../services/authethication.service';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
@@ -86,6 +87,16 @@ export class EventsComponent implements OnInit, OnDestroy {
       for (const r of results) if (r) known.set(r.sessionId, r);
       if (known.size) this.sessions = FriendsGoingService.friendsFirst(this.sessions, known);
     });
+  }
+
+  /** "Ainda não há jogos de Padel em Lisboa": says exactly what is missing, so the next step is obvious. */
+  emptyTitle(): string {
+    const sport = this.sport.trim(), city = this.city.trim();
+    const sportLabel = sport ? appTranslate(sport) : '';
+    if (sport && city) return appTranslate('Ainda não há jogos de {{sport}} em {{city}}', { sport: sportLabel, city });
+    if (sport) return appTranslate('Ainda não há jogos de {{sport}} abertos', { sport: sportLabel });
+    if (city) return appTranslate('Ainda não há jogos abertos em {{city}}', { city });
+    return appTranslate('events.emptyTitle');
   }
 
   ngOnDestroy(): void {
