@@ -1,5 +1,7 @@
+import { shareCardUrl } from '../../shared/share-card-url';
+
 export function buildCommunityGroupInviteUrl(origin: string, communityId: number): string {
-  return new URL('/menu/communities/' + communityId, origin).toString();
+  return shareCardUrl('communities', communityId, origin);
 }
 
 export function buildWhatsAppGroupShareUrl(message: string): string {

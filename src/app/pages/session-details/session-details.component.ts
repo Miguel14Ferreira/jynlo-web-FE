@@ -1,4 +1,5 @@
 import { venueCatalogueDisplayLabel } from '../../shared/venue-catalogue-display';
+import { shareCardUrl } from '../../shared/share-card-url';
 import { appTranslate } from '../../i18n/i18n.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -3123,7 +3124,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   /** Never use the public /sessions route for member-only or password-protected games. */
   organizerShareUrl(): string | null {
     if (!this.session || !this.canOpenOrganizerShare()) return null;
-    if (this.canShareSession()) return this.publicShareUrl();
+    if (this.canShareSession()) return shareCardUrl('sessions', this.session.id, window.location.origin);
     return new URL('/menu/events/' + this.session.id, window.location.origin).href;
   }
 
