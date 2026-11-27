@@ -8773,4 +8773,10 @@ export const EN: Record<string, string> = {
   "Sê o primeiro: cria um jogo em 1 minuto": "Be the first: create a game in a minute",
   "Perto de mim": "Near me",
   "Ver resultados": "Show results",
+  "Passos para criar a sessão": "Steps to create the game",
+  "O quê": "What",
+  "Quando": "When",
+  "Onde": "Where",
+  "Escolhe o desporto.": "Choose the sport.",
+  "Escolhe a data e a hora.": "Choose the date and time.",
 };

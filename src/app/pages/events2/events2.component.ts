@@ -1136,6 +1136,39 @@ export class Events2Component implements OnInit, OnDestroy {
     this.venueSearchChanged.complete();
   }
 
+  /** Three short steps: what, when, where. Every field stays in the page, only the current step is shown. */
+  step: 1 | 2 | 3 = 1;
+  stepError = '';
+  readonly stepLabels: { n: 1 | 2 | 3; label: string }[] = [{ n: 1, label: 'O quê' }, { n: 2, label: 'Quando' }, { n: 3, label: 'Onde' }];
+
+  goToStep(n: number): void {
+    if (n < 1 || n > 3) return;
+    if (n > this.step && !this.stepReady()) return;
+    this.step = n as 1 | 2 | 3;
+    this.stepError = '';
+    if (typeof window !== 'undefined') window.scrollTo?.({ top: 0, behavior: 'smooth' });
+  }
+
+  nextStep(): void { this.goToStep(this.step + 1); }
+
+  /** Enter on an early step moves on; on the last step it creates the session. */
+  submitStep(): void {
+    if (this.step < 3) { this.nextStep(); return; }
+    this.createSession();
+  }
+
+  private stepReady(): boolean {
+    if (this.step === 1 && !(this.sport || '').trim() && !this.customSportMode) {
+      this.stepError = t('Escolhe o desporto.');
+      return false;
+    }
+    if (this.step === 2 && !this.gameDate) {
+      this.stepError = t('Escolhe a data e a hora.');
+      return false;
+    }
+    return true;
+  }
+
   createSession(): void {
     if (this.loading || this.venueSaving || this.venueMapLinkLoading || this.gpsAddressLoading) {
       return;

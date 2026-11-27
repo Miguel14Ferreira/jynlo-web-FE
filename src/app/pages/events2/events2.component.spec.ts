@@ -438,7 +438,11 @@ describe('Events2Component', () => {
   it('shows saved presets only after saving, with a separate save action beside Create session', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.create-preset-panel')).toBeNull();
-    const saveAction = fixture.nativeElement.querySelector('.form-actions button[type="button"]') as HTMLButtonElement;
+    // Saving the configuration sits beside Create session, on the last step.
+    component.step = 3;
+    fixture.detectChanges();
+    const saveAction = [...fixture.nativeElement.querySelectorAll('.form-actions button[type="button"]')]
+      .find((b: Element) => b.textContent?.includes('Guardar configuração')) as HTMLButtonElement;
     expect(saveAction.textContent).toContain('Guardar configuração');
     saveAction.click();
     fixture.detectChanges();
@@ -825,6 +829,8 @@ describe('Events2Component', () => {
   it('styles the recurrence selector with the premium trigger without changing its options', () => {
     component.communityId = 7;
     fixture.detectChanges();
+    // Sport (step 1) and recurrence (step 2) are compared side by side, so show both steps.
+    fixture.nativeElement.querySelectorAll('.step-off').forEach((el: Element) => el.classList.remove('step-off'));
 
     const select = fixture.nativeElement.querySelector(
       'app-jynlo-select[name="recurrence"]'
@@ -3822,4 +3828,22 @@ describe('Events2Component', () => {
       .not.toContain('Parque Desportivo');
   }));
 
+});
+
+describe('Events2Component steps', () => {
+  it('keeps the three steps in order and asks for the sport before moving on', () => {
+    const steps = { step: 1, sport: '', customSportMode: false, gameDate: '', stepError: '' } as any;
+    const proto = (Events2Component as any).prototype;
+    proto.goToStep.call(Object.assign(steps, { stepReady: proto.stepReady }), 2);
+    expect(steps.step).toBe(1);
+    expect(steps.stepError).toBeTruthy();
+    steps.sport = 'Padel';
+    proto.goToStep.call(steps, 2);
+    expect(steps.step).toBe(2);
+    proto.goToStep.call(steps, 3);
+    expect(steps.step).toBe(2);
+    steps.gameDate = '2026-12-01T19:00';
+    proto.goToStep.call(steps, 3);
+    expect(steps.step).toBe(3);
+  });
 });

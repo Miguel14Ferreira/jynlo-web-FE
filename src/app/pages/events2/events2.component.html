@@ -39,7 +39,15 @@
       </div>
     }
 
-    <form class="create-card" (ngSubmit)="createSession()">
+    <form class="create-card" (ngSubmit)="submitStep()">
+      <ol class="create-steps" [attr.aria-label]="'Passos para criar a sessão' | t">
+        @for (s of stepLabels; track s.n) {
+          <li [class.is-current]="step === s.n" [class.is-done]="step > s.n" [attr.aria-current]="step === s.n ? 'step' : null">
+            <button type="button" (click)="goToStep(s.n)" [disabled]="s.n > step + 1"><span>{{ s.n }}</span> {{ s.label | t }}</button>
+          </li>
+        }
+      </ol>
+      <div class="create-step" [class.step-off]="step !== 1">
       @if (presets.length > 0) {
         <section class="create-preset-panel" aria-labelledby="create-preset-title">
           <div class="create-preset-heading">
@@ -316,6 +324,12 @@
           <small>{{ 'sessionLevel.createHint' | t }}</small>
         </label>
 
+
+
+      </div>
+      </div>
+      <div class="create-step" [class.step-off]="step !== 2">
+      <div class="form-grid">
         <label>
           <span>{{ 'createSession.dateTime' | t }} *</span>
           <input
@@ -358,8 +372,6 @@
             </label>
           }
         </div>
-
-
       </div>
 
       @if (findPlayersMode) {
@@ -508,6 +520,8 @@
         </section>
       }
 
+      </div>
+      <div class="create-step" [class.step-off]="step !== 3">
       <section class="venue-section">
         <div class="venue-heading">
           <div>
@@ -1184,12 +1198,22 @@
         </section>
       }
 
-      <div class="form-actions">
-        <a class="secondary-action jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" routerLink="/menu/events">{{ 'common.cancel' | t }}</a>
+      </div>
+      @if (stepError) { <p class="create-step-error" role="alert">{{ stepError }}</p> }
+      <div class="form-actions create-step-actions">
+        @if (step > 1) {
+          <button type="button" class="secondary-action jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" (click)="goToStep(step - 1)">← {{ 'Anterior' | t }}</button>
+        } @else {
+          <a class="secondary-action jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" routerLink="/menu/events">{{ 'common.cancel' | t }}</a>
+        }
+        @if (step < 3) {
+          <button type="button" class="primary-action jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary create-next" (click)="nextStep()">{{ 'Seguinte' | t }} →</button>
+        }
         <button type="button" class="secondary-action jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet"
+                [class.step-off]="step !== 3"
                 [attr.aria-expanded]="presetEditorOpen" [disabled]="loading || presetSaving || presetDeleting"
                 (click)="togglePresetEditor()">{{ 'createSession.presets.saveConfiguration' | t }}</button>
-        <button type="submit" class="primary-action jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary" [disabled]="loading || venueSaving || venueMapLinkLoading || gpsAddressLoading || communityCreationBlocked">
+        <button type="submit" class="primary-action jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary" [class.step-off]="step !== 3" [disabled]="loading || venueSaving || venueMapLinkLoading || gpsAddressLoading || communityCreationBlocked">
           {{ loading ? ('createSession.creating' | t) : ('mySessions.create' | t) }}
         </button>
       </div>
