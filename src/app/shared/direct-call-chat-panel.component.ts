@@ -5,7 +5,7 @@ import {CommonModule} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
 import {Component,Input,OnChanges,OnDestroy,OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {Subscription} from 'rxjs';
+import {Subscription,timeout} from 'rxjs';
 import {DirectChatService} from '../services/direct-chat.service';
 import {DirectChatRealtimeService} from '../services/direct-chat-realtime.service';
 import {DirectChatMessage} from '../pages/model/direct-chat';
@@ -68,6 +68,7 @@ import {DirectChatMessage} from '../pages/model/direct-chat';
    <form class="call-chat-composer" (ngSubmit)="sendMessage()">
     <app-emoji-quick (picked)="draft = (draft + $event).slice(0, 2000)"></app-emoji-quick>
     <textarea name="message" [(ngModel)]="draft" rows="2" maxlength="2000"
+     (keydown)="onComposerKey($event)"
      [attr.aria-label]="'Escrever mensagem na chamada' | t" [placeholder]="'Escrever mensagem…' | t"
      [disabled]="sending || accessRevoked"></textarea>
     <button type="submit" [disabled]="sending || accessRevoked || !draft.trim()"
@@ -166,7 +167,7 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
   const version=this.generation,peer=this.peer;
   this.loadingNow=true;
   if(!silent)this.loading=true;
-  this.chat.history(peer).subscribe({
+  this.chat.history(peer).pipe(timeout(15_000)).subscribe({
    next:rows=>{
     if(version!==this.generation||this.peer!==peer)return;
     if(!Array.isArray(rows)){this.syncWarning=appTranslate('Não foi possível validar o histórico.');return;}
@@ -280,11 +281,18 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
   const date=Date.parse(value);
   return Number.isFinite(date)?new Date(date).toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'}):'';
  }
+ /** Enter sends (as in the full chat); Shift+Enter keeps a new line. Never while composing (IME). */
+ onComposerKey(event:KeyboardEvent):void{
+  if(event.key!=='Enter'||event.shiftKey||event.isComposing)return;
+  event.preventDefault();
+  this.sendMessage();
+ }
  sendMessage():void{
   const peer=this.peer,body=this.draft.trim(),version=this.generation;
   if(!peer||this.accessRevoked||this.writeBusy||!body||body.length>2000)return;
   this.writeBusy=true;this.sending=true;this.error='';
-  this.chat.send(peer,body).subscribe({
+  // A send that never answers must not leave the composer locked on «…».
+  this.chat.send(peer,body).pipe(timeout(15_000)).subscribe({
    next:message=>{
     if(version!==this.generation||peer!==this.peer||this.accessRevoked)return;
     const accepted=typeof message.id==='number'&&Number.isSafeInteger(message.id)&&message.id>0&&

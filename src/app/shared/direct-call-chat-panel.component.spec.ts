@@ -43,6 +43,26 @@ describe('Teams-style chat beside a live call',()=>{
   expect(fixture.componentInstance.messages.some(message=>message.id===11)).toBeTrue();
   expect(fixture.componentInstance.draft).toBe('');
  });
+ it('sends with Enter and keeps Shift+Enter for a new line',()=>{
+  fixture.componentInstance.draft='Até já';
+  const textarea=fixture.nativeElement.querySelector('textarea') as HTMLTextAreaElement;
+  textarea.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',shiftKey:true}));
+  expect(api.send).not.toHaveBeenCalled();
+  textarea.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter'}));
+  expect(api.send).toHaveBeenCalledOnceWith('beatriz','Até já');
+ });
+ it('unlocks the composer if the server never answers the send',async()=>{
+  jasmine.clock().install();
+  try{
+   api.send.and.returnValue(new Subject<DirectChatMessage>().asObservable());
+   fixture.componentInstance.draft='Olá?';
+   fixture.componentInstance.sendMessage();
+   expect(fixture.componentInstance.sending).toBeTrue();
+   jasmine.clock().tick(15_001);
+   expect(fixture.componentInstance.sending).toBeFalse();
+   expect(fixture.componentInstance.error).not.toBe('');
+  }finally{jasmine.clock().uninstall();}
+ });
  it('revalidates through HTTP when the authenticated socket signals a message',()=>{
   api.history.calls.reset();
   realtimeEvents.next({...received,id:15,text:'Nova mensagem'});
