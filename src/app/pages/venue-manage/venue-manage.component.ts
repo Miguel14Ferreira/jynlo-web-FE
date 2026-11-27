@@ -7,6 +7,7 @@ import { appTranslate as t } from '../../i18n/i18n.service';
 import {
   BookingHours, BookingOffer, VenueBooking, VenueBookingService, formatPrice, lisbonDateTime, lisbonTime
 } from '../../services/venue-booking.service';
+import { VenueService } from '../../services/venue.service';
 import { bookingError, currentLang } from '../../shared/venue-jynlo-booking/venue-jynlo-booking.component';
 
 interface CourtRow { id: number | null; name: string; sport: string; price: string; slotMinutes: number; active: boolean; }
@@ -36,9 +37,13 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
           }
         }
       </header>
+      @if (adminSetup) {
+        <p class="vm__admin" role="note">{{ 'Estás a configurar este recinto como administração da Jynlo. As reservas só abrem quando o recinto tiver um responsável aprovado, e é ele que responde aos pedidos.' | t }}</p>
+      }
       @if (loadError) { <p class="vm__error" role="alert">{{ loadError }}</p> }
 
       @if (loaded) {
+      @if (!adminSetup) {
       <section class="vm__card" aria-labelledby="vm-requests">
         <h2 id="vm-requests">{{ 'Pedidos de reserva' | t }}</h2>
         @if (!requests.length) { <p class="vm__muted">{{ 'Ainda não há pedidos.' | t }}</p> }
@@ -69,6 +74,7 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
         }
         @if (requestError) { <p class="vm__error" role="alert">{{ requestError }}</p> }
       </section>
+      }
 
       <section class="vm__card" aria-labelledby="vm-courts">
         <h2 id="vm-courts">{{ 'Campos' | t }}</h2>
@@ -160,6 +166,7 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
     .vm__hero h1 { margin:.2rem 0 .4rem; font-size:1.9rem; }
     .vm__state { margin:0; color:#fcd34d; font-weight:700; }
     .vm__state.is-on { color:#7ae5c5; }
+    .vm__admin { margin:0; padding:.8rem 1rem; border-radius:14px; background:rgba(252,211,77,.12); color:#fde68a; font-weight:600; }
     .vm__card { display:grid; gap:.7rem; padding:1.1rem; border-radius:18px; border:1px solid rgba(96,176,182,.3); background:rgba(10,41,55,.65); }
     .vm__card h2 { margin:0; font-size:1.15rem; }
     .vm__muted { color:#b9d4d6; font-size:.88rem; margin:0; }
@@ -210,6 +217,7 @@ export class VenueManageComponent implements OnInit {
   paymentMessage = '';
   paymentError = '';
   loadError = '';
+  adminSetup = false;
   requestError = '';
   courtsMessage = '';
   courtsError = '';
@@ -219,6 +227,7 @@ export class VenueManageComponent implements OnInit {
   private readonly api = inject(VenueBookingService);
   private readonly route = inject(ActivatedRoute);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly venues = inject(VenueService);
 
   ngOnInit(): void {
     this.venueId = Number(this.route.snapshot.paramMap.get('id')) || 0;
@@ -230,6 +239,16 @@ export class VenueManageComponent implements OnInit {
     this.api.managerOffer(this.venueId).subscribe({
       next: offer => { this.loaded = true; this.applyOffer(offer, true); this.applyPayment(offer); },
       error: e => { this.loadError = bookingError(e, 'Não foi possível carregar a gestão do recinto.'); this.cdr.markForCheck(); }
+    });
+    this.api.status(this.venueId).subscribe({
+      next: s => {
+        this.adminSetup = !s.manager && !!s.adminSetup;
+        if (this.adminSetup && !this.venueName) {
+          this.venues.get(this.venueId).subscribe({ next: v => { this.venueName = v?.name ?? ''; this.cdr.markForCheck(); }, error: () => {} });
+        }
+        this.cdr.markForCheck();
+      },
+      error: () => { /* the page still works for managers */ }
     });
     this.loadRequests();
   }

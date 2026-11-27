@@ -36,6 +36,7 @@ const routes: Routes = [
   {path:'tournaments/:id',loadComponent:() => import('./pages/public-tournament/public-tournament.component').then(m => m.PublicTournamentComponent),data:{seo:{index:false}}},
   // The same venue details page can be read by visitors. The authenticated route
   // below still exposes photo uploads, community contributions and suggestions.
+  {path:'venues/:id/cartaz',loadComponent:() => import('./pages/venue-poster/venue-poster.component').then(m => m.VenuePosterComponent),data:{seo:{index:false}}},
   {path:'venues/:id',loadChildren:() => import('./pages/venue-details/venue-details.module').then(m => m.VenueDetailsModule),data:{publicVenueView:true,seo:{index:true}}},
   {path:'menu/events/menu',redirectTo:'/menu', pathMatch:'full'},
   {path:'menu/my-sessions',loadChildren:() => import('./pages/my-sessions/my-sessions.module').then(m => m.MySessionsModule),canActivate:[AuthenticationGuard]},

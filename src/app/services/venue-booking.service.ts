@@ -10,7 +10,7 @@ export interface BookingOffer { venueId: number; acceptsBookings: boolean; court
 export interface BookingSlot { start: string; end: string; free: boolean; }
 export interface CourtSlots { courtId: number; name: string; sport: string | null; priceCents: number | null; slotMinutes: number; slots: BookingSlot[]; }
 export interface DaySlots { venueId: number; date: string; courts: CourtSlots[]; }
-export interface ManagementStatus { manager: boolean; claimStatus: 'PENDING' | 'APPROVED' | 'REJECTED' | null; decisionNote: string | null; acceptsBookings: boolean; }
+export interface ManagementStatus { manager: boolean; claimStatus: 'PENDING' | 'APPROVED' | 'REJECTED' | null; decisionNote: string | null; acceptsBookings: boolean; adminSetup?: boolean; }
 export interface VenueClaim {
   id: number; venueId: number; venueName: string | null; venueCity: string | null; username: string;
   roleDescription: string; contactPhone: string | null; status: string; createdAt: string;

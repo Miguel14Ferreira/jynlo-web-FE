@@ -19,21 +19,25 @@
     "@angular/platform-browser-dynamic": "^22.2.3",
     "@angular/router": "^22.2.3",
     "@auth0/angular-jwt": "^5.2.0",
+    "@livekit/track-processors": "0.8.3",
+    "livekit-client": "^2.23.0",
     "mime": "^3.0.0",
     "mime-types": "^3.0.2",
     "p-limit": "^4.0.0",
     "pretty-bytes": "^6.1.0",
+    "qrcode": "^1.5.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.16.3",
-    "livekit-client": "^2.23.0",
-    "@livekit/track-processors": "0.8.3"
+    "zone.js": "~0.16.3"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^22.2.0",
     "@angular/cli": "^22.2.0",
     "@angular/compiler-cli": "^22.2.3",
+    "@livekit/throws-transformer": "^0.1.8",
     "@types/jasmine": "~4.3.0",
+    "@types/qrcode": "^1.5.6",
+    "@types/sdp-transform": "^3.0.0",
     "istanbul-lib-instrument": "^6.0.3",
     "jasmine-core": "~4.5.0",
     "karma": "~6.4.4",
@@ -41,9 +45,7 @@
     "karma-coverage": "~2.2.1",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.3.0",
-    "typescript": "~6.0.3",
-    "@livekit/throws-transformer": "^0.1.8",
-    "@types/sdp-transform": "^3.0.0"
+    "typescript": "~6.0.3"
   },
   "packageManager": "npm@10.9.9",
   "overrides": {

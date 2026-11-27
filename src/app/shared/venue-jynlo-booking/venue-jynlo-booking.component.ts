@@ -102,6 +102,11 @@ export function currentLang(): 'pt' | 'en' {
         @if (status.manager) {
           <a class="jynlo-action jynlo-action--neutral" [routerLink]="['/menu/venues', venueId, 'manage']">
             {{ 'Gerir campos e reservas' | t }}</a>
+          <a class="jynlo-action jynlo-action--neutral" [routerLink]="['/venues', venueId, 'cartaz']">{{ 'Cartaz com código QR' | t }}</a>
+        } @else if (status.adminSetup) {
+          <a class="jynlo-action jynlo-action--neutral" [routerLink]="['/menu/venues', venueId, 'manage']">
+            {{ 'Configurar campos e horário (administração)' | t }}</a>
+          <a class="jynlo-action jynlo-action--neutral" [routerLink]="['/venues', venueId, 'cartaz']">{{ 'Cartaz com código QR' | t }}</a>
         } @else if (status.claimStatus === 'PENDING') {
           <p class="vjb__muted">{{ 'O teu pedido para gerir este recinto está a ser analisado.' | t }}</p>
         } @else if (!claimOpen) {

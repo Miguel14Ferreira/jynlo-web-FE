@@ -71,6 +71,18 @@ describe('VenueJynloBookingComponent', () => {
     http.verify();
   });
 
+  it('offers Jynlo admins the venue set-up and the QR poster', () => {
+    const fixture = render(true);
+    http.expectOne(r => r.url.endsWith('/booking-offer')).flush({ venueId: 5, acceptsBookings: false, courts: [], hours: [] });
+    http.expectOne(r => r.url.endsWith('/management'))
+      .flush({ manager: false, claimStatus: null, decisionNote: null, acceptsBookings: false, adminSetup: true });
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.textContent).toContain('Configurar campos e horário (administração)');
+    expect(el.textContent).toContain('Cartaz com código QR');
+    expect(el.textContent).not.toContain('Sou o responsável por este recinto');
+  });
+
   it('never asks for the management status of signed-out visitors', () => {
     render(false);
     http.expectOne(r => r.url.endsWith('/booking-offer')).flush({ venueId: 5, acceptsBookings: false, courts: [], hours: [] });
