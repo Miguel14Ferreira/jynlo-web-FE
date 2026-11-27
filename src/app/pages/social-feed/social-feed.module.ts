@@ -1,5 +1,6 @@
 import { FirstStepsPromptComponent } from '../first-steps/first-steps-prompt.component';
 import { CommonModule } from '@angular/common';
+import { CommunitySuggestionsComponent } from '../../shared/community-suggestions/community-suggestions.component';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -15,7 +16,8 @@ import { SportNamePipe } from '../../i18n/sport-name.pipe';
 // Load this screen only when its route is opened, not on the public home page.
 @NgModule({
   declarations: [SocialFeedComponent],
-  imports: [SportNamePipe, 
+  imports: [
+    CommunitySuggestionsComponent,SportNamePipe, 
     CommonModule,
     ProtectedMediaDirective,
     FormsModule,

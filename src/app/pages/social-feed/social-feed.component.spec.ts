@@ -23,6 +23,9 @@ import { MovableTextComponent } from './movable-text.component';
 @Component({ selector: 'app-first-steps-prompt', standalone: true, template: '' })
 class StubFirstStepsPromptComponent {}
 
+@Component({ selector: 'app-community-suggestions', standalone: true, template: '' })
+class StubCommunitySuggestionsComponent {}
+
 @Component({ selector: 'app-social-stories', standalone: true, template: '' })
 class StubStoriesComponent {}
 
@@ -69,7 +72,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
 
     await TestBed.configureTestingModule({
       declarations: [SocialFeedComponent],
-      imports: [SportNamePipe, ...TEST_IMPORTS, StubStoriesComponent, StubFirstStepsPromptComponent, VenueSportsBadgesComponent, MovableTextComponent, ProtectedMediaDirective],
+      imports: [SportNamePipe, ...TEST_IMPORTS, StubStoriesComponent, StubFirstStepsPromptComponent, StubCommunitySuggestionsComponent, VenueSportsBadgesComponent, MovableTextComponent, ProtectedMediaDirective],
       providers: [
         ...TEST_PROVIDERS,
         { provide: AuthenticationService, useValue: auth },
