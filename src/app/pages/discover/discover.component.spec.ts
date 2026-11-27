@@ -59,6 +59,9 @@ describe('DiscoverComponent', () => {
     fixture = TestBed.createComponent(DiscoverComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    // The sport field starts empty; most cases below test a search where the person chose Padel.
+    component.selectQuickSport('Padel');
+    fixture.detectChanges();
   });
 
 
@@ -101,7 +104,7 @@ describe('DiscoverComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('prefills sport and locality from the profile and uses both when searching', () => {
+  it('prefills the locality from the profile and uses it with the chosen sport', () => {
     expect(component.sport).toBe('Padel');
     expect(component.location).toBe('Lisboa');
     expect(venueService.suggest).toHaveBeenCalledWith(undefined, 'Lisboa', 'Padel', 0);
@@ -248,7 +251,7 @@ describe('DiscoverComponent', () => {
     page.destroy();
   });
 
-  it('uses only sports from the catalog when suggesting a favorite', () => {
+  it('never pre-fills the sport, and offers only catalogue sports from the profile as quick choices', () => {
     communityService.publicProfile.and.returnValue(of({
       username: 'miguel', fullName: 'Miguel', nickname: null,
       country: 'Portugal', location: '  Porto  ', favoriteSports: 'Not a sport, pAdEl',
@@ -258,9 +261,11 @@ describe('DiscoverComponent', () => {
     const page = TestBed.createComponent(DiscoverComponent);
     page.detectChanges();
 
-    expect(page.componentInstance.sport).toBe('Padel');
+    expect(page.componentInstance.sport).toBe('');
+    expect(page.componentInstance.profileSports).toEqual(['Padel']);
+    expect(page.componentInstance.quickSportChoices()[0]).toBe('Padel');
     expect(page.componentInstance.location).toBe('Porto');
-    expect(venueService.suggest).toHaveBeenCalledWith(undefined, 'Porto', 'Padel', 0);
+    expect(venueService.suggest).toHaveBeenCalledWith(undefined, 'Porto', undefined, 0);
     page.destroy();
   });
 

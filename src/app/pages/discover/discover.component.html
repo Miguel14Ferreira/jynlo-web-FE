@@ -56,7 +56,7 @@
       <div class="explore-search-footer">
         <div class="explore-sports" role="group" [attr.aria-label]="'discover.explore.quickSports' | t">
           <span>{{ 'discover.explore.quickSports' | t }}</span>
-          @for (quick of quickSports; track quick) {
+          @for (quick of quickSportChoices(); track quick) {
             <button type="button" class="explore-chip" [class.is-selected]="sport.trim() === quick"
               [attr.aria-pressed]="sport.trim() === quick" (click)="selectQuickSport(quick)">
               {{ quick | sportName }}

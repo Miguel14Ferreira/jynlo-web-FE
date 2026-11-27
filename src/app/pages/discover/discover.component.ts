@@ -96,6 +96,11 @@ export class DiscoverComponent implements OnInit {
     return !this.peopleLoadError && this.people.length > 0;
   }
 
+  /** The person's sports first, then the popular ones, without repeats. */
+  quickSportChoices(): string[] {
+    return [...new Set([...this.profileSports, ...this.quickSports])].slice(0, 6);
+  }
+
   selectQuickSport(value: string): void {
     this.onSportChange(this.sport.trim() === value ? '' : value);
     this.search();
@@ -109,6 +114,8 @@ export class DiscoverComponent implements OnInit {
   readonly venueEnvironmentTranslationKey = venueEnvironmentTranslationKey;
 
   sport = '';
+  /** The person's own sports, shown as quick choices next to the popular ones. */
+  profileSports: string[] = [];
   location = '';
   playerName = '';
   appliedPlayerName = '';
@@ -193,20 +200,15 @@ export class DiscoverComponent implements OnInit {
       .subscribe(profile => {
         if (!profile) return;
         let refined = false;
-        if (!this.sportEdited) {
-          const favorites = (profile.favoriteSports || '')
-            .split(/[,;|]/)
-            .map(value => this.normalizeFavoriteSport(value))
-            .filter(Boolean);
-          const preferred = favorites
-            .map(favorite => this.sportsCatalog.find(sport =>
-              this.normalizeFavoriteSport(sport) === favorite))
-            .find((sport): sport is string => Boolean(sport)) || '';
-          if (preferred && preferred !== this.sport) {
-            this.sport = preferred;
-            refined = true;
-          }
-        }
+        // The sport field always starts empty (a pre-filled favourite hid results people did not expect);
+        // the profile's sports are offered as one-tap suggestions instead.
+        this.profileSports = (profile.favoriteSports || '')
+          .split(/[,;|]/)
+          .map(value => this.normalizeFavoriteSport(value))
+          .filter(Boolean)
+          .map(favorite => this.sportsCatalog.find(sport => this.normalizeFavoriteSport(sport) === favorite))
+          .filter((sport): sport is string => Boolean(sport))
+          .slice(0, 4);
         if (!this.locationEdited) {
           const preferred = profile.location?.trim() || '';
           if (preferred && preferred !== this.location) {
