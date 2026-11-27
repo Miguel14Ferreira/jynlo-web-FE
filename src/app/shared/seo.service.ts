@@ -3,11 +3,32 @@ import { Injectable, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
+import { appTranslate } from '../i18n/i18n.service';
 
 export const SEO_SITE_URL = 'https://jynlosports.com';
 export const SEO_DEFAULT_TITLE = 'Jynlo — Join the game.';
 export const SEO_DEFAULT_DESCRIPTION = 'Jynlo — encontra onde, quando e com quem jogar.';
 export const SEO_DEFAULT_IMAGE = `${SEO_SITE_URL}/assets/og-default.png`;
+
+/** Tab titles for signed-in screens (kept out of search results), longest path first. */
+const PRIVATE_TITLES: [RegExp, string][] = [
+  [/^\/menu\/events\/\d+/, 'Jogo'], [/^\/menu\/events/, 'Sessões'], [/^\/menu\/my-sessions/, 'Os meus jogos'],
+  [/^\/menu\/feed/, 'Feed'], [/^\/menu\/discover/, 'Explorar'], [/^\/menu\/venues\/new/, 'Sugerir recinto'],
+  [/^\/menu\/venues\/\d+\/manage/, 'Gerir recinto'], [/^\/menu\/venues\/\d+/, 'Recinto'], [/^\/menu\/venues/, 'Recintos'],
+  [/^\/menu\/book-court/, 'Reservar campo'], [/^\/menu\/venue-bookings/, 'As minhas reservas'],
+  [/^\/menu\/createEvent/, 'Criar sessão'], [/^\/menu\/create/, 'Criar'], [/^\/menu\/edit-profile/, 'Editar perfil'],
+  [/^\/menu\/change-password/, 'Alterar palavra-passe'], [/^\/menu\/profiles\/[^/]+/, 'Perfil'], [/^\/menu\/profiles/, 'Jogadores'],
+  [/^\/menu\/friendList/, 'Amigos'], [/^\/menu\/first-steps/, 'Primeiros passos'], [/^\/menu\/search/, 'Pesquisar'],
+  [/^\/menu\/messages/, 'Mensagens'], [/^\/menu\/groups/, 'Grupos'], [/^\/menu\/notifications/, 'Notificações'],
+  [/^\/menu\/teams\/competitions/, 'Torneios'], [/^\/menu\/teams/, 'Equipas'], [/^\/menu\/communities/, 'Comunidades'],
+  [/^\/menu\/admin/, 'Administração'], [/^\/login\/registerNewUser/, 'Criar conta'], [/^\/login/, 'Entrar'],
+];
+
+/** "Mensagens" for /menu/messages; null for public or unknown pages. */
+export function privatePageTitle(path: string): string | null {
+  const found = PRIVATE_TITLES.find(([pattern]) => pattern.test(path));
+  return found ? found[1] : null;
+}
 
 /** Per-route (or per-page) search and sharing metadata. */
 export interface SeoConfig {
@@ -68,9 +89,12 @@ export class SeoService {
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe(event => {
         const config = this.routeConfig(this.router.routerState.snapshot.root);
+        const path = config?.path ?? this.pathOf(event.urlAfterRedirects);
+        const privateTitle = config ? null : privatePageTitle(path);
         this.apply({
           ...(config ?? { index: false }),
-          path: config?.path ?? this.pathOf(event.urlAfterRedirects)
+          ...(privateTitle ? { title: appTranslate(privateTitle) } : {}),
+          path
         });
       });
   }
