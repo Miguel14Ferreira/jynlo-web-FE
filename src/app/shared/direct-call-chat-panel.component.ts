@@ -6,6 +6,7 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {Component,Input,OnChanges,OnDestroy,OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Subscription,timeout} from 'rxjs';
+import {reportSlowSend} from './slow-send-report';
 import {DirectChatService} from '../services/direct-chat.service';
 import {DirectChatRealtimeService} from '../services/direct-chat-realtime.service';
 import {DirectChatMessage} from '../pages/model/direct-chat';
@@ -63,6 +64,13 @@ import {DirectChatMessage} from '../pages/model/direct-chat';
       <time>{{messageTime(message)}}</time>
      </article>
     }
+    @if (pendingText) {
+     <article class="call-chat-bubble is-mine is-pending" aria-busy="true">
+      <small class="call-chat-sender">{{ 'Tu' | t }}</small>
+      <p>{{pendingText}}</p>
+      <time>🕓 {{ 'A enviar…' | t }}</time>
+     </article>
+    }
    </div>
    @if (error) { <p class="call-chat-warning" role="alert">{{error}}</p> }
    <form class="call-chat-composer" (ngSubmit)="sendMessage()">
@@ -70,13 +78,14 @@ import {DirectChatMessage} from '../pages/model/direct-chat';
     <textarea name="message" [(ngModel)]="draft" rows="2" maxlength="2000"
      (keydown)="onComposerKey($event)"
      [attr.aria-label]="'Escrever mensagem na chamada' | t" [placeholder]="'Escrever mensagem…' | t"
-     [disabled]="sending || accessRevoked"></textarea>
+     [disabled]="accessRevoked"></textarea>
     <button type="submit" [disabled]="sending || accessRevoked || !draft.trim()"
-     [attr.aria-label]="'Enviar mensagem durante a chamada' | t">{{sending?'…':('Enviar' | t)}}</button>
+     [attr.aria-label]="'Enviar mensagem durante a chamada' | t">{{ 'Enviar' | t }}</button>
    </form>
   </section>
  `,
  styles:[`
+  .call-chat-bubble.is-pending{opacity:.7}
   :host{display:flex;min-height:0;min-width:0}
   .jynlo-call-chat{display:flex;flex-direction:column;flex:1;gap:9px;min-height:0;min-width:0;
    border:1px solid #3d8790;background:#08222f;border-radius:16px;padding:12px;color:#eafff8}
@@ -116,6 +125,8 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
  messages:DirectChatMessage[]=[];
  draft='';
  sending=false;
+ /** The message being sent, shown at once (like WhatsApp's clock) so the composer never looks stuck. */
+ pendingText:string|null=null;
  loading=false;
  error='';
  syncWarning='';
@@ -151,7 +162,7 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
   this.messages=[];this.draft='';this.error='';this.syncWarning='';this.accessRevoked=false;
   // An in-flight request belongs to the previous conversation. Its completion
   // is generation-guarded, so it must not keep the next peer's composer locked.
-  this.writeBusy=false;this.sending=false;
+  this.writeBusy=false;this.sending=false;this.pendingText=null;
   this.locallyConfirmed.clear();
   if(this.pollTimer)this.refresh(false);
  }
@@ -291,6 +302,8 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
   const peer=this.peer,body=this.draft.trim(),version=this.generation;
   if(!peer||this.accessRevoked||this.writeBusy||!body||body.length>2000)return;
   this.writeBusy=true;this.sending=true;this.error='';
+  this.pendingText=body;this.draft='';
+  const startedAt=performance.now();let outcome:'ok'|'error'|'timeout'='ok';
   // A send that never answers must not leave the composer locked on «…».
   this.chat.send(peer,body).pipe(timeout(15_000)).subscribe({
    next:message=>{
@@ -300,6 +313,7 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
      message.text?.trim()===body;
     if(!accepted){
      this.error=appTranslate('O servidor não confirmou a mensagem. Consulta o histórico antes de repetir.');
+     if(!this.draft.trim())this.draft=body;
      return;
     }
     this.locallyConfirmed.set(message.id!,{message,at:Date.now()});
@@ -309,12 +323,16 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
     if(this.draft.trim()===body)this.draft='';
     this.refresh(true);
    },
-   error:()=>{
-    if(version===this.generation&&peer===this.peer)
+   error:(e:unknown)=>{
+    outcome=(e as {name?:string})?.name==='TimeoutError'?'timeout':'error';
+    if(version===this.generation&&peer===this.peer){
      this.error=appTranslate('Não foi possível confirmar o envio. Consulta o histórico antes de repetir.');
+     if(!this.draft.trim())this.draft=body;
+    }
    }
   }).add(()=>{
-   if(version===this.generation&&peer===this.peer){this.writeBusy=false;this.sending=false;}
+   reportSlowSend('call',startedAt,outcome,'/api/chat/me/');
+   if(version===this.generation&&peer===this.peer){this.writeBusy=false;this.sending=false;this.pendingText=null;}
   });
  }
 }

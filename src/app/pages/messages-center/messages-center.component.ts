@@ -1,3 +1,4 @@
+import { reportSlowSend } from '../../shared/slow-send-report';
 import { IncomingMessageRequest, MessageRequestsService } from '../../services/message-requests.service';
 import { RequestComposePaneComponent } from '../../shared/message-requests/request-compose-pane.component';
 import { MessageComposeService } from '../../services/message-compose.service';
@@ -12,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MessageRequestsPanelComponent } from '../../shared/message-requests/message-requests-panel.component';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { catchError, finalize, forkJoin, map, Observable, of, Subscription, TimeoutError, timeout } from 'rxjs';
+import { catchError, finalize, forkJoin, map, Observable, of, Subscription, tap, TimeoutError, timeout } from 'rxjs';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import { SessionDetail } from '../model/session-detail';
 import { ChatSearchResponse, InboxApiService, InboxKind as InboxApiKind, InboxSummary } from '../../services/inbox-api.service';
@@ -3027,7 +3028,12 @@ export class MessagesCenterComponent implements OnInit, OnDestroy, AfterViewChec
     // Never steal focus later when the HTTP response arrives.
     this.composerTextarea?.nativeElement.focus({ preventScroll: true });
     // Unlike HTTP GETs, ambiguous POSTs are NEVER automatically retried.
-    send.pipe(timeout(attachmentFiles.length ? 120000 : 10000), finalize(() => {
+    const sendStartedAt = performance.now();
+    let sendOutcome: 'ok' | 'error' | 'timeout' = 'ok';
+    send.pipe(timeout(attachmentFiles.length ? 120000 : 10000), tap({ error: (e: unknown) => {
+      sendOutcome = (e as { name?: string })?.name === 'TimeoutError' ? 'timeout' : 'error';
+    } }), finalize(() => {
+      if (!attachmentFiles.length) reportSlowSend(conversation.kind, sendStartedAt, sendOutcome, '/api/');
       this.sendingKeys.delete(key);
       this.inFlightByConversation.delete(key);
       this.confirmedWhileSending.delete(key);
