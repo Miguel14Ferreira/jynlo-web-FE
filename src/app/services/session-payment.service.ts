@@ -9,7 +9,7 @@ export interface SessionPaymentPlayer {
 export interface SessionPayments {
   priceAmount: number | null;
   organiser: boolean;
-  method: 'MBWAY' | 'IN_PERSON' | null;
+  method: 'MBWAY' | 'IN_PERSON' | 'ONLINE' | null;
   mbwayPhone: string | null;
   me: { claimedAt: string | null; confirmedAt: string | null } | null;
   confirmedCount: number;
@@ -19,6 +19,9 @@ export interface SessionPayments {
   /** The organiser who receives the money (older backends omit it). */
   payee?: { username: string | null; fullName: string | null; profilePicUrl: string | null } | null;
 }
+
+/** In-app payments (MB WAY or card through the organiser's own Stripe account). */
+export interface OnlinePaymentStatus { available: boolean; connected: boolean; chargesEnabled: boolean; }
 
 export interface PreviousUnpaid { sessionId: number | null; gameDate: string | null; sport: string | null; unpaid: string[]; }
 
@@ -34,7 +37,7 @@ export class SessionPaymentService {
   get(sessionId: number): Observable<SessionPayments> {
     return this.http.get<SessionPayments>(this.url(sessionId));
   }
-  setMethod(sessionId: number, method: 'MBWAY' | 'IN_PERSON' | null, phone: string | null): Observable<SessionPayments> {
+  setMethod(sessionId: number, method: 'MBWAY' | 'IN_PERSON' | 'ONLINE' | null, phone: string | null): Observable<SessionPayments> {
     return this.http.put<SessionPayments>(this.url(sessionId) + '/method', { method, phone });
   }
   previousUnpaid(sessionId: number): Observable<PreviousUnpaid> {
@@ -45,6 +48,15 @@ export class SessionPaymentService {
   }
   claim(sessionId: number, paid: boolean): Observable<SessionPayments> {
     return this.http.put<SessionPayments>(this.url(sessionId) + '/me', { paid });
+  }
+  onlineStatus(): Observable<OnlinePaymentStatus> {
+    return this.http.get<OnlinePaymentStatus>(environment.apiUrl + '/api/payments/online/status');
+  }
+  onlineOnboarding(returnPath: string): Observable<{ url: string }> {
+    return this.http.post<{ url: string }>(environment.apiUrl + '/api/payments/online/onboarding', { returnPath });
+  }
+  checkout(sessionId: number): Observable<{ url: string }> {
+    return this.http.post<{ url: string }>(this.url(sessionId) + '/checkout', {});
   }
   confirm(sessionId: number, username: string, paid: boolean): Observable<SessionPayments> {
     return this.http.put<SessionPayments>(this.url(sessionId) + '/players/' + encodeURIComponent(username), { paid });

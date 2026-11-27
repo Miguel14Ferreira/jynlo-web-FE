@@ -4,7 +4,7 @@ import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, SimpleChange
 import { FormsModule } from '@angular/forms';
 import { Subscription, timeout } from 'rxjs';
 import { TranslatePipe } from '../../i18n/translate.pipe';
-import { SessionPayments, SessionPaymentService } from '../../services/session-payment.service';
+import { OnlinePaymentStatus, SessionPayments, SessionPaymentService } from '../../services/session-payment.service';
 
 /**
  * "Quem já pagou?" for a paid session. Players pay the organiser by MB WAY,
@@ -38,7 +38,24 @@ import { SessionPayments, SessionPaymentService } from '../../services/session-p
               <button type="button" class="jynlo-action" role="radio" [attr.aria-checked]="methodDraft === 'IN_PERSON'"
                 [class.jynlo-action--primary]="methodDraft === 'IN_PERSON'" [disabled]="busy" (click)="chooseInPerson()">
                 🤝 {{ 'payments.methodInPerson' | t }}</button>
+              @if (online?.available) {
+                <button type="button" class="jynlo-action" role="radio" [attr.aria-checked]="methodDraft === 'ONLINE'"
+                  [class.jynlo-action--primary]="methodDraft === 'ONLINE'" [disabled]="busy" (click)="chooseOnline()">
+                  {{ 'payments.methodOnline' | t }}</button>
+              }
             </div>
+            @if (methodDraft === 'ONLINE') {
+              @if (online?.chargesEnabled) {
+                <small class="session-payments__muted">{{ (data.method === 'ONLINE' ? 'payments.onlineChosen' : 'payments.onlineHint') | t }}</small>
+              } @else {
+                <small class="session-payments__muted">{{ 'payments.onlineHint' | t }}</small>
+                <div class="session-payments__row">
+                  <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy" (click)="activateOnline()">
+                    {{ 'payments.onlineActivate' | t }} ↗</button>
+                </div>
+                <small class="session-payments__muted">{{ 'payments.onlineActivateHint' | t }}</small>
+              }
+            }
             @if (methodDraft === 'MBWAY') {
               <label for="session-mbway-phone">{{ 'payments.mbwayLabel' | t }}</label>
               <div class="session-payments__row">
@@ -79,7 +96,16 @@ import { SessionPayments, SessionPaymentService } from '../../services/session-p
           @if (data.me?.confirmedAt) {
             <p class="session-payments__ok">✅ {{ 'payments.youConfirmed' | t }}</p>
           } @else {
-            @if (data.method === 'IN_PERSON') {
+            @if (data.method === 'ONLINE') {
+              @if (checking) {
+                <p class="session-payments__muted" role="status">⏳ {{ 'payments.onlineChecking' | t }}</p>
+              } @else {
+                @if (cancelled) { <p class="session-payments__muted">{{ 'payments.onlineCancelled' | t }}</p> }
+                <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy" (click)="payOnline()">
+                  💳 {{ 'payments.payOnline' | t:{ amount: amountLabel() } }} ↗</button>
+                <small class="session-payments__muted">{{ 'payments.payOnlineHint' | t }}</small>
+              }
+            } @else if (data.method === 'IN_PERSON') {
               <p>{{ 'payments.payInPerson' | t:{ amount: amountLabel() } }}</p>
             } @else if (data.mbwayPhone) {
               <p>{{ 'payments.payTo' | t:{ amount: amountLabel() } }}</p>
@@ -99,7 +125,8 @@ import { SessionPayments, SessionPaymentService } from '../../services/session-p
             } @else {
               <p class="session-payments__muted">{{ 'payments.noMbway' | t }}</p>
             }
-            @if (data.me?.claimedAt) {
+            @if (data.method === 'ONLINE') {
+            } @else if (data.me?.claimedAt) {
               <p class="session-payments__muted">⏳ {{ 'payments.youClaimed' | t }}</p>
               <button type="button" class="jynlo-action" [disabled]="busy" (click)="claim(false)">{{ 'payments.undoClaim' | t }}</button>
             } @else {
@@ -143,7 +170,11 @@ export class SessionPaymentsPanelComponent implements OnChanges, OnDestroy {
   error = '';
   copied = false;
   phoneDraft = '';
-  methodDraft: 'MBWAY' | 'IN_PERSON' | null = null;
+  methodDraft: 'MBWAY' | 'IN_PERSON' | 'ONLINE' | null = null;
+  online: OnlinePaymentStatus | null = null;
+  checking = false;
+  cancelled = false;
+  private polls: ReturnType<typeof setTimeout>[] = [];
   private load?: Subscription;
   private loadedId = 0;
 
@@ -156,12 +187,57 @@ export class SessionPaymentsPanelComponent implements OnChanges, OnDestroy {
     this.loading = true;
     this.load?.unsubscribe();
     this.load = this.payments.get(this.sessionId).pipe(timeout(10000)).subscribe({
-      next: data => this.apply(data),
+      next: data => { this.apply(data); this.afterReturn(data); },
       error: () => { this.loading = false; this.error = appTranslate('Não foi possível carregar os pagamentos.'); this.cdr.markForCheck(); }
     });
   }
 
-  ngOnDestroy(): void { this.load?.unsubscribe(); }
+  ngOnDestroy(): void { this.load?.unsubscribe(); this.polls.forEach(clearTimeout); }
+
+  chooseOnline(): void {
+    this.methodDraft = 'ONLINE';
+    if (this.online?.chargesEnabled && this.data?.method !== 'ONLINE') this.run(this.payments.setMethod(this.sessionId, 'ONLINE', null));
+  }
+
+  /** Stripe's own form for the organiser's account; it sends them back to this game. */
+  activateOnline(): void {
+    if (this.busy) return;
+    this.busy = true;
+    this.payments.onlineOnboarding('/menu/events/' + this.sessionId).pipe(timeout(20000)).subscribe({
+      next: link => { this.busy = false; if (link?.url?.startsWith('https://')) window.location.href = link.url; },
+      error: failure => { this.busy = false; this.fail(failure); }
+    });
+  }
+
+  payOnline(): void {
+    if (this.busy) return;
+    this.busy = true;
+    this.cancelled = false;
+    this.payments.checkout(this.sessionId).pipe(timeout(20000)).subscribe({
+      next: link => { this.busy = false; if (link?.url?.startsWith('https://')) window.location.href = link.url; },
+      error: failure => { this.busy = false; this.fail(failure); }
+    });
+  }
+
+  /** Back from Stripe: the confirmation arrives a moment later, so check again a few times. */
+  private afterReturn(data: SessionPayments): void {
+    const result = new URLSearchParams(window.location.search).get('pagamento');
+    if (result === 'cancelado') { this.cancelled = true; this.cdr.markForCheck(); return; }
+    if (result !== 'ok' || data.organiser || data.me?.confirmedAt || data.method !== 'ONLINE') return;
+    this.checking = true;
+    for (const wait of [2000, 5000, 10000, 20000]) {
+      this.polls.push(setTimeout(() => this.payments.get(this.sessionId).subscribe({
+        next: fresh => { this.apply(fresh); if (fresh.me?.confirmedAt || wait === 20000) { this.checking = false; this.cdr.markForCheck(); } },
+        error: () => { if (wait === 20000) { this.checking = false; this.cdr.markForCheck(); } }
+      }), wait));
+    }
+  }
+
+  private fail(failure: { error?: { message?: unknown; reason?: unknown } } | null): void {
+    const message = failure?.error?.message || failure?.error?.reason;
+    this.error = typeof message === 'string' && message.length < 200 ? message : appTranslate('Não foi possível guardar. Tenta outra vez.');
+    this.cdr.markForCheck();
+  }
 
   amountLabel(): string {
     const value = Number(this.data?.priceAmount ?? this.priceAmount ?? 0);
@@ -211,6 +287,12 @@ export class SessionPaymentsPanelComponent implements OnChanges, OnDestroy {
     if (data.organiser) {
       this.phoneDraft = data.mbwayPhone ? this.phoneLabel(data.mbwayPhone) : this.phoneDraft;
       this.methodDraft = data.method ?? this.methodDraft;
+      if (!this.online) {
+        this.payments.onlineStatus().pipe(timeout(10000)).subscribe({
+          next: status => { this.online = status; this.cdr.markForCheck(); },
+          error: () => { /* in-app payments simply stay hidden */ }
+        });
+      }
     }
     this.cdr.markForCheck();
   }

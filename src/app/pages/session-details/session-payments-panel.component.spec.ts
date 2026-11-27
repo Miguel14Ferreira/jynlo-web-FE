@@ -7,8 +7,9 @@ describe('SessionPaymentsPanelComponent', () => {
   const base: SessionPayments = { priceAmount: 4, organiser: false, method: 'MBWAY', mbwayPhone: '912345678', lastReminderAt: null,
     me: { claimedAt: null, confirmedAt: null }, confirmedCount: 1, playerCount: 3, players: [] };
 
-  function create(data: SessionPayments, after?: SessionPayments) {
-    const service = jasmine.createSpyObj<SessionPaymentService>('SessionPaymentService', ['get', 'setMethod', 'claim', 'confirm', 'remind']);
+  function create(data: SessionPayments, after?: SessionPayments, online = { available: false, connected: false, chargesEnabled: false }) {
+    const service = jasmine.createSpyObj<SessionPaymentService>('SessionPaymentService', ['get', 'setMethod', 'claim', 'confirm', 'remind', 'onlineStatus', 'onlineOnboarding', 'checkout']);
+    service.onlineStatus.and.returnValue(of(online));
     service.get.and.returnValue(of(data));
     service.claim.and.returnValue(of(after ?? data));
     service.confirm.and.returnValue(of(after ?? data));
@@ -61,6 +62,33 @@ describe('SessionPaymentsPanelComponent', () => {
     fixture.detectChanges();
     expect(service.get).toHaveBeenCalledTimes(1);
   });
+  it('offers organisers in-app payments only when they are available', () => {
+    const organiser: SessionPayments = { ...base, organiser: true, me: null, method: 'IN_PERSON', mbwayPhone: null, players: [] };
+    expect(create(organiser).el.textContent).not.toContain('Na app (MB WAY ou cartão)');
+    TestBed.resetTestingModule();
+    const { fixture, service, el } = create(organiser, { ...organiser, method: 'ONLINE' }, { available: true, connected: true, chargesEnabled: true });
+    fixture.detectChanges();
+    const online = Array.from(el.querySelectorAll('button')).find(b => b.textContent?.includes('Na app (MB WAY ou cartão)'))!;
+    online.click();
+    expect(service.setMethod).toHaveBeenCalledWith(903, 'ONLINE', null);
+  });
+
+  it('asks organisers without a Stripe account to activate it first', () => {
+    const organiser: SessionPayments = { ...base, organiser: true, me: null, method: null, mbwayPhone: null, players: [] };
+    const { fixture, service, el } = create(organiser, undefined, { available: true, connected: false, chargesEnabled: false });
+    fixture.detectChanges();
+    Array.from(el.querySelectorAll('button')).find(b => b.textContent?.includes('Na app (MB WAY ou cartão)'))!.click();
+    fixture.detectChanges();
+    expect(service.setMethod).not.toHaveBeenCalled();
+    expect(el.textContent).toContain('Ativar pagamentos na app');
+  });
+
+  it('lets players pay in the app without a "Já paguei" button', () => {
+    const { el } = create({ ...base, method: 'ONLINE', mbwayPhone: null });
+    expect(el.textContent).toContain('Pagar 4,00 € na app');
+    expect(el.textContent).not.toContain('Já paguei');
+  });
+
 });
 
 import { PreviousUnpaidWarningComponent } from './previous-unpaid-warning.component';
@@ -90,4 +118,5 @@ describe('PreviousUnpaidWarningComponent', () => {
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).textContent?.trim()).toBe('');
   });
+
 });
