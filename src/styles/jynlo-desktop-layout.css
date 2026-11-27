@@ -1,0 +1,38 @@
+/*
+ * Computer layout (phase 1): every signed-in screen uses the same content width and a compact title row,
+ * so the page no longer "jumps" between screens and the content starts near the top.
+ * Only from 1100 px wide; phones and tablets keep their own layouts.
+ */
+@media (min-width: 1100px) {
+  body .jynlo-c1:not(.home-page):not(.inbox-page):not(.chat-page) > [class*="-shell"] {
+    width: min(var(--jynlo-page-width, 1240px), calc(100% - 48px)) !important;
+    max-width: none !important;
+    margin-inline: auto !important;
+  }
+
+  /* Title, subtitle and main action in one compact row, without the large picture banner. */
+  body .jynlo-c1 .page-header {
+    min-height: 0 !important;
+    margin-bottom: 14px !important;
+    padding: 4px 0 12px !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(96, 176, 182, .18) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    align-items: center !important;
+  }
+  body .jynlo-c1 .page-header::before,
+  body .jynlo-c1 .page-header::after { display: none !important; }
+  body .jynlo-c1 .page-header h1 {
+    margin: 0 !important;
+    font-size: clamp(1.5rem, 1.5vw, 1.85rem) !important;
+    line-height: 1.2 !important;
+  }
+  body .jynlo-c1 .page-header :is(.subtitle, p) {
+    margin: 4px 0 0 !important;
+    font-size: .95rem !important;
+    max-width: 70ch;
+  }
+  body .jynlo-c1 .page-header :is(.eyebrow, .kicker, .section-kicker) { display: none !important; }
+}
