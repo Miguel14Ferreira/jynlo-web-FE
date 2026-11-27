@@ -7,6 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, map, Observable, retry, timeout } from 'rxjs';
 
 import { AppNotification } from '../model/app-notification';
+import { buildSections, notificationKind, shortTime, NotificationRow, NotificationKind } from '../../shared/notification-center';
 import { chatMediaPreviewKey } from '../../shared/chat-media-preview';
 import { JoinSessionResponse, PendingSessionInvite, SessionService } from '../../services/session.service';
 import { NotificationApiService, NotificationPreferences } from '../../services/notification-api.service';
@@ -213,6 +214,69 @@ export class NotificationsComponent implements OnInit {
           this.errorMessage = t('feedback.notifications.loadError');
         }
       });
+  }
+
+  unreadOnly = false;
+  menuOpen = false;
+  markingAll = false;
+  private readonly iconPaths: Record<NotificationKind, string> = {
+    chat: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',
+    invite: 'M3 5h18v16H3zM7 3v4m10-4v4M3 10h18',
+    session: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4l3 3-1 4h-4l-1-4z',
+    payment: 'M2 6h20v12H2zM12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z',
+    social: 'M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z',
+    tournament: 'M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3',
+    community: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM23 21v-2a4 4 0 0 0-3-3.9',
+    venue: 'M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12zM12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
+    other: 'M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0',
+  };
+
+  /** Today / Yesterday / Earlier, newest first, related alerts in one row. */
+  sections(): { id: string; rows: NotificationRow<AppNotification>[] }[] {
+    return buildSections(this.unreadOnly ? this.notifications.filter(n => !n.read) : this.notifications);
+  }
+  kindOf(n: AppNotification): NotificationKind { return notificationKind(n.type); }
+  iconPath(n: AppNotification): string { return this.iconPaths[notificationKind(n.type)]; }
+  rowUnread(row: NotificationRow<AppNotification>): boolean { return row.items.some(n => !n.read); }
+  rowTime(n: AppNotification): string {
+    return shortTime(n.createdAt, (k, p) => t(k, p as Record<string, string | number>), (typeof localStorage !== 'undefined' && localStorage.getItem('d24-language') === 'en') ? 'en-GB' : 'pt-PT');
+  }
+  rowTitle(row: NotificationRow<AppNotification>): string {
+    const subject = this.notificationSubject(row.lead);
+    if (row.items.length < 2) return subject;
+    return notificationKind(row.lead.type) === 'chat'
+      ? t('{{n}} mensagens · {{who}}', { n: row.items.length, who: subject })
+      : t('{{who}} e mais {{n}}', { who: subject, n: row.items.length - 1 });
+  }
+  openRow(row: NotificationRow<AppNotification>): void {
+    this.openNotification(row.lead);
+    for (const n of row.items) if (n !== row.lead && !n.read) this.markOneRead(n);
+  }
+  deleteRow(row: NotificationRow<AppNotification>): void {
+    for (const n of row.items) this.notificationService.delete(n.id).pipe(timeout(10_000)).subscribe({
+      next: () => {
+        this.notifications = this.notifications.filter(item => item.id !== n.id);
+        if (this.selected?.id === n.id) this.selected = undefined;
+        this.updateUnreadCount();
+      },
+      error: () => { this.actionError = t('Não foi possível confirmar a eliminação. Atualiza antes de repetir.'); }
+    });
+  }
+  markAllRead(): void {
+    if (this.markingAll) return;
+    const unread = this.notifications.filter(n => !n.read);
+    if (!unread.length) return;
+    this.markingAll = true;
+    let left = unread.length;
+    for (const n of unread) this.markOneRead(n, () => { if (--left === 0) this.markingAll = false; });
+  }
+  private markOneRead(n: AppNotification, done?: () => void): void {
+    n.read = true;
+    this.updateUnreadCount();
+    this.notificationService.markRead(n.id).pipe(timeout(10_000)).subscribe({
+      next: () => done?.(),
+      error: () => { n.read = false; this.updateUnreadCount(); done?.(); }
+    });
   }
 
   openNotification(notification: AppNotification, navigate = true): void {

@@ -1,54 +1,36 @@
 <section class="notifications-page jynlo-c1 jynlo-secondary">
   <div class="notifications-shell">
-    <header class="page-header">
-      <div>
-        <h1>{{ 'notifications.title' | t }}</h1>
-        <p class="subtitle">
-          {{ unreadCount === 1 ? ('notifications.unreadOne' | t:{ count: unreadCount }) : ('notifications.unreadMany' | t:{ count: unreadCount }) }}
-        </p>
-      </div>
-
-      <div class="header-actions">
-        <button type="button" class="secondary-action jynlo-action jynlo-action--neutral"
-          [attr.aria-expanded]="preferencesOpen"
-          (click)="openPreferences()">
-          {{ 'notifications.preferences.button' | t }}
+    <header class="page-header nc-header">
+      <h1>{{ 'notifications.title' | t }}</h1>
+      <div class="nc-menu-wrap">
+        <button type="button" class="nc-menu-button" [attr.aria-expanded]="menuOpen" aria-haspopup="menu"
+          [attr.aria-label]="'Mais ações' | t" (click)="menuOpen = !menuOpen">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
         </button>
-        @if (!loading && notifications.length > 0) {
-          @if (!clearAllConfirming) {
-            <button
-              type="button"
-              class="clear-all-action jynlo-action jynlo-action--danger"
-              [disabled]="clearAllLoading"
-              (click)="requestClearAll()">
-              {{ 'notifications.clearAll' | t }}
-            </button>
-          } @else {
-            <div class="clear-all-confirmation">
-              <span>{{ 'notifications.clearAllQuestion' | t }}</span>
-              <button
-                type="button"
-                class="danger-action jynlo-action jynlo-action--danger"
-                [disabled]="clearAllLoading"
-                (click)="clearAllNotifications()">
-                {{ clearAllLoading
-                  ? ('notifications.clearingAll' | t)
-                  : ('notifications.clearAllConfirm' | t) }}
-              </button>
-              <button
-                type="button"
-                class="secondary-button jynlo-action jynlo-action--neutral"
-                [disabled]="clearAllLoading"
-                (click)="cancelClearAll()">
-                {{ 'common.cancel' | t }}
-              </button>
-            </div>
-          }
+        @if (menuOpen) {
+          <div class="nc-menu" role="menu">
+            @if (unreadCount > 0) {
+              <button type="button" role="menuitem" (click)="menuOpen = false; markAllRead()">{{ 'Marcar todas como lidas' | t }}</button>
+            }
+            <button type="button" role="menuitem" [attr.aria-expanded]="preferencesOpen" (click)="menuOpen = false; openPreferences()">{{ 'notifications.preferences.button' | t }}</button>
+            @if (!loading && notifications.length > 0) {
+              <button type="button" role="menuitem" class="is-danger" (click)="menuOpen = false; requestClearAll()">{{ 'notifications.clearAll' | t }}…</button>
+            }
+          </div>
         }
-
-        <a class="secondary-action jynlo-action jynlo-action--neutral" routerLink="/menu/events">{{ 'common.sessions' | t }}</a>
       </div>
     </header>
+    @if (clearAllConfirming) {
+      <div class="clear-all-confirmation nc-confirm" role="alertdialog" aria-labelledby="nc-confirm-title">
+        <strong id="nc-confirm-title">{{ 'Eliminar as {{n}} notificações?' | t:{ n: notifications.length } }}</strong>
+        <span>{{ 'Não é possível desfazer. Os convites pendentes continuam disponíveis nas comunidades e nos jogos.' | t }}</span>
+        <div class="nc-confirm__actions">
+          <button type="button" class="jynlo-action jynlo-action--neutral" [disabled]="clearAllLoading" (click)="cancelClearAll()">{{ 'common.cancel' | t }}</button>
+          <button type="button" class="jynlo-action jynlo-action--danger" [disabled]="clearAllLoading" (click)="clearAllNotifications()">
+            {{ clearAllLoading ? ('notifications.clearingAll' | t) : ('Eliminar todas' | t) }}</button>
+        </div>
+      </div>
+    }
 
     @if (messageAlert) {
       <section class="computer-alerts" [attr.aria-label]="'Alertas de mensagens no computador' | t">
@@ -258,24 +240,37 @@
     @if (!loading && !errorMessage && notifications.length > 0) {
       <div class="notifications-grid">
         <div class="notification-list">
-          @for (notification of notifications; track notification.id) {
-            <button
-              type="button"
-              class="notification-card"
-              [class.unread]="!notification.read"
-              [class.active]="selected?.id === notification.id"
-              (click)="openNotification(notification)">
-              <div class="notification-card__top">
-                <span class="type-badge">{{ typeLabel(notification) }}</span>
-                @if (!notification.read) {
-                  <span class="unread-dot" [attr.aria-label]="'notifications.unreadLabel' | t"></span>
-                }
+          <div class="nc-filters" role="tablist" [attr.aria-label]="'Filtro' | t">
+            <button type="button" role="tab" class="nc-filter" [class.is-on]="!unreadOnly" [attr.aria-selected]="!unreadOnly"
+              (click)="unreadOnly = false">{{ 'Todas' | t }} <span class="nc-filter__n">{{ notifications.length }}</span></button>
+            <button type="button" role="tab" class="nc-filter" [class.is-on]="unreadOnly" [attr.aria-selected]="unreadOnly"
+              (click)="unreadOnly = true">{{ 'Não lidas' | t }}@if (unreadCount > 0) { <span class="nc-filter__badge">{{ unreadCount }}</span> }</button>
+            @if (unreadCount > 0) {
+              <button type="button" class="nc-link" [disabled]="markingAll" (click)="markAllRead()">{{ (markingAll ? 'A atualizar…' : 'Marcar todas como lidas') | t }}</button>
+            }
+          </div>
+          @if (unreadOnly && unreadCount === 0) { <p class="nc-empty">{{ 'Não tens notificações por ler.' | t }}</p> }
+          @for (section of sections(); track section.id) {
+            <h2 class="nc-section">{{ (section.id === 'today' ? 'HOJE' : section.id === 'yesterday' ? 'ONTEM' : 'ANTERIORES') | t }}</h2>
+            @for (row of section.rows; track row.key) {
+              <div class="nc-row" [class.is-unread]="rowUnread(row)" [class.is-active]="selected?.id === row.lead.id">
+                <button type="button" class="nc-row__main" (click)="openRow(row)"
+                  [attr.aria-label]="(rowUnread(row) ? ('Não lida' | t) + ': ' : '') + rowTitle(row)">
+                  <span class="nc-icon" [attr.data-kind]="kindOf(row.lead)" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path [attr.d]="iconPath(row.lead)"/></svg>
+                  </span>
+                  <span class="nc-text">
+                    <span class="nc-top"><strong>{{ rowTitle(row) }}</strong><span class="nc-time">{{ rowTime(row.lead) }}</span></span>
+                    <span class="nc-preview">{{ notificationMessage(row.lead) }}</span>
+                  </span>
+                  @if (rowUnread(row)) { <span class="nc-dot" aria-hidden="true"></span> }
+                </button>
+                <button type="button" class="nc-delete" [disabled]="actionLoadingId !== null" (click)="deleteRow(row)"
+                  [attr.aria-label]="('Eliminar notificação: {{v}}' | t:{ v: rowTitle(row) })" [attr.title]="'Eliminar' | t">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+                </button>
               </div>
-
-              <strong>{{ notificationSubject(notification) }}</strong>
-              <p>{{ notificationMessage(notification) }}</p>
-              <span class="created-at">{{ formatCreatedAt(notification.createdAt) }}</span>
-            </button>
+            }
           }
         </div>
 

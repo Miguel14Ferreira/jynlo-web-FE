@@ -134,13 +134,16 @@ describe('NotificationsComponent', () => {
   it('preserves notification selection and the preferences control in Premium layout', () => {
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('.notifications-page.jynlo-c1.jynlo-secondary')).not.toBeNull();
-    expect(root.querySelector('.notifications-grid .notification-card')).not.toBeNull();
+    expect(root.querySelector('.notifications-grid .nc-row')).not.toBeNull();
     expect(root.querySelector('.notifications-grid .notification-detail')).not.toBeNull();
-    const preferences = root.querySelector<HTMLButtonElement>('.header-actions button[aria-expanded]');
+    // Preferences now live in the header's "⋯" menu.
+    root.querySelector<HTMLButtonElement>('.nc-menu-button')!.click();
+    fixture.detectChanges();
+    const preferences = root.querySelector<HTMLButtonElement>('.nc-menu button[aria-expanded]');
     expect(preferences?.getAttribute('aria-expanded')).toBe('false');
     preferences!.click();
     fixture.detectChanges();
-    expect(preferences?.getAttribute('aria-expanded')).toBe('true');
+    expect(component.preferencesOpen).toBeTrue();
     expect(root.querySelector('.notification-preferences__table input[type="checkbox"]')).not.toBeNull();
     expect(service.delete).not.toHaveBeenCalled();
   });
