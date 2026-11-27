@@ -2052,6 +2052,47 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
       });
   }
 
+  visibilityEditing = false;
+  visibilitySaving = false;
+  visibilityDraft: 'PUBLIC' | 'PRIVATE' = 'PUBLIC';
+  visibilityFeedback = '';
+  visibilityError = '';
+
+  editVisibility(): void {
+    if (!this.selected || !this.isOwner() || this.visibilitySaving) return;
+    this.visibilityDraft = this.selected.visibility === 'PRIVATE' ? 'PRIVATE' : 'PUBLIC';
+    this.visibilityFeedback = '';
+    this.visibilityError = '';
+    this.visibilityEditing = true;
+  }
+
+  cancelVisibility(): void {
+    if (!this.visibilitySaving) this.visibilityEditing = false;
+  }
+
+  saveVisibility(): void {
+    if (!this.selected || !this.isOwner() || !this.visibilityEditing || this.visibilitySaving) return;
+    const id = this.selected.id;
+    if (this.selected.visibility === this.visibilityDraft) { this.visibilityEditing = false; return; }
+    this.visibilitySaving = true;
+    this.visibilityError = '';
+    this.visibilityFeedback = '';
+    this.communityService.updateVisibility(id, this.visibilityDraft)
+      .pipe(timeout(10_000), finalize(() => this.visibilitySaving = false))
+      .subscribe({
+        next: updated => {
+          if (this.selected?.id !== id) return;
+          this.selected = updated;
+          this.replaceCommunity(updated);
+          this.visibilityEditing = false;
+          this.visibilityFeedback = t('Guardado.');
+        },
+        error: () => {
+          if (this.selected?.id === id) this.visibilityError = t('Não foi possível guardar. Tenta novamente.');
+        }
+      });
+  }
+
   postingPolicyEditing = false;
   postingPolicySaving = false;
   postingPolicyDraft = true;

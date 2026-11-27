@@ -1006,6 +1006,52 @@
                   @if (sessionPolicyError) { <p role="alert" class="community-session-policy-error">{{ sessionPolicyError }}</p> }
                 </section>
 
+                <section class="community-session-policy" style="margin-block-start: clamp(16px, 2vw, 24px)" aria-labelledby="community-visibility-title">
+                  <div class="community-session-policy-heading">
+                    <div>
+                      <span class="section-kicker">{{ 'Visibilidade' | t }}</span>
+                      <h3 id="community-visibility-title">{{ 'Comunidade pública ou privada?' | t }}</h3>
+                      <p>{{ 'Numa comunidade pública qualquer pessoa a pode encontrar. Numa privada só entra quem for convidado ou aceite.' | t }}</p>
+                    </div>
+                    @if (isOwner() && !visibilityEditing) {
+                      <button type="button" class="jynlo-action jynlo-action--neutral" (click)="editVisibility()">
+                        {{ 'communities.sessionPolicy.edit' | t }}
+                      </button>
+                    }
+                  </div>
+                  @if (!visibilityEditing) {
+                    <p class="community-session-policy-value">
+                      {{ (selected.visibility === 'PRIVATE' ? 'communities.private' : 'communities.public') | t }}
+                    </p>
+                  } @else {
+                    <fieldset class="community-session-policy-options" [disabled]="visibilitySaving">
+                      <legend>{{ 'Visibilidade' | t }}</legend>
+                      <div class="community-session-policy-choice-grid">
+                        <label [class.selected]="visibilityDraft === 'PUBLIC'">
+                          <input type="radio" name="communityVisibility" value="PUBLIC" [(ngModel)]="visibilityDraft">
+                          <span class="community-session-policy-choice-copy">{{ 'communityCreate.public' | t }}
+                            <small>{{ 'communityCreate.publicHint' | t }}</small></span>
+                        </label>
+                        <label [class.selected]="visibilityDraft === 'PRIVATE'">
+                          <input type="radio" name="communityVisibility" value="PRIVATE" [(ngModel)]="visibilityDraft">
+                          <span class="community-session-policy-choice-copy">{{ 'communityCreate.private' | t }}
+                            <small>{{ 'communityCreate.privateHint' | t }}</small></span>
+                        </label>
+                      </div>
+                    </fieldset>
+                    <div class="community-session-policy-actions">
+                      <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="visibilitySaving"
+                        (click)="saveVisibility()">
+                        {{ (visibilitySaving ? 'A guardar…' : 'Guardar') | t }}
+                      </button>
+                      <button type="button" class="jynlo-action jynlo-action--neutral" [disabled]="visibilitySaving"
+                        (click)="cancelVisibility()">{{ 'Cancelar' | t }}</button>
+                    </div>
+                  }
+                  @if (visibilityFeedback) { <p role="status" class="community-session-policy-feedback">{{ visibilityFeedback }}</p> }
+                  @if (visibilityError) { <p role="alert" class="community-session-policy-error">{{ visibilityError }}</p> }
+                </section>
+
                 <section class="community-session-policy" style="margin-block-start: clamp(16px, 2vw, 24px)" aria-labelledby="community-posting-policy-title">
                   <div class="community-session-policy-heading">
                     <div>

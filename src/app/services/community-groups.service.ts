@@ -342,6 +342,11 @@ export class CommunityGroupsService {
     return this.http.put<CommunityGroup>(this.url + '/' + id + '/features', request);
   }
 
+  /** Only the owner switches a community between public (discoverable) and private (invite or approval). */
+  updateVisibility(id: number, visibility: CommunityVisibility): Observable<CommunityGroup> {
+    return this.http.put<CommunityGroup>(this.url + '/' + id + '/visibility', { visibility });
+  }
+
   /** Organizers choose whether every member, or only organizers, publish posts and Stories. */
   updatePostingPolicy(id: number, membersCanPost: boolean): Observable<CommunityGroup> {
     return this.http.put<CommunityGroup>(this.url + '/' + id + '/posting-policy', { membersCanPost });
