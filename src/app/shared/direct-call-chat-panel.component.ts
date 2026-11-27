@@ -7,6 +7,7 @@ import {Component,Input,OnChanges,OnDestroy,OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Subscription,timeout} from 'rxjs';
 import {reportSlowSend} from './slow-send-report';
+import {linkParts} from './link-parts';
 import {DirectChatService} from '../services/direct-chat.service';
 import {DirectChatRealtimeService} from '../services/direct-chat-realtime.service';
 import {DirectChatMessage} from '../pages/model/direct-chat';
@@ -41,7 +42,7 @@ import {DirectChatMessage} from '../pages/model/direct-chat';
       @if (message.deletedAt) {
        <p>{{ 'Mensagem removida' | t }}</p>
       } @else {
-       @if (message.text) { <p>{{message.text}}</p> }
+       @if (message.text) { <p>@for (seg of linkParts(message.text); track $index) {@if (seg.url) {<a class="call-chat-link" [href]="seg.url" target="_blank" rel="noopener noreferrer">{{seg.text}}</a>} @else {{{seg.text}}}}</p> }
        @if (message.id; as messageId) {
         @for (attachment of messageAttachments(message); track attachment.index) {
          @if (isImage(attachment.mimeType)) {
@@ -85,6 +86,7 @@ import {DirectChatMessage} from '../pages/model/direct-chat';
   </section>
  `,
  styles:[`
+  .call-chat-link{color:#a7f3e4;text-decoration:underline;word-break:break-all}
   .call-chat-bubble.is-pending{opacity:.7}
   :host{display:flex;min-height:0;min-width:0}
   .jynlo-call-chat{display:flex;flex-direction:column;flex:1;gap:9px;min-height:0;min-width:0;
@@ -127,6 +129,7 @@ export class DirectCallChatPanelComponent implements OnInit,OnChanges,OnDestroy 
  sending=false;
  /** The message being sent, shown at once (like WhatsApp's clock) so the composer never looks stuck. */
  pendingText:string|null=null;
+ readonly linkParts=linkParts;
  loading=false;
  error='';
  syncWarning='';

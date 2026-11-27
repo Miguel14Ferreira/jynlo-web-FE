@@ -1,3 +1,4 @@
+import { linkParts } from '../../shared/link-parts';
 import { appTranslate } from '../../i18n/i18n.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { appTranslate as t } from '../../i18n/i18n.service';
@@ -23,6 +24,7 @@ import { readPastedChatImage } from '../../shared/chat-clipboard-image';
   standalone: false
 })
 export class DirectChatComponent implements OnInit, OnDestroy, AfterViewChecked {
+  readonly linkParts = linkParts;
   @ViewChild('messageList') messageList?: ElementRef<HTMLElement>;
   @ViewChild('composerTextarea') composerTextarea?: ElementRef<HTMLTextAreaElement>;
   // Search stays inside the authorized conversation already loaded in memory.

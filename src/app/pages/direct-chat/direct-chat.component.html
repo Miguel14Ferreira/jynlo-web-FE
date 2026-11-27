@@ -147,7 +147,7 @@
                   <span class="direct-quote-jump-hint" aria-hidden="true">↗</span>
                 </button>
               }
-              @if (message.text) { <p>{{ message.text }}</p> }
+              @if (message.text) { <p>@for (seg of linkParts(message.text); track $index) {@if (seg.url) {<a class="chat-text-link" [href]="seg.url" [attr.target]="seg.internal ? null : '_blank'" rel="noopener noreferrer">{{seg.text}}</a>} @else {{{seg.text}}}}</p> }
               @if (message.attachmentName && message.id) {
                 <button type="button" class="direct-attachment-button" (click)="openAttachment(message)"
                   [disabled]="attachmentLoading.has(message.id)">
