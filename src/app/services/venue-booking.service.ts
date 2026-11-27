@@ -6,6 +6,7 @@ import { environment } from 'src/environment/environment';
 /** ONLINE: paid in the app into the venue's own Stripe account and marked paid automatically. */
 export type VenuePayMethod = 'MBWAY' | 'IN_PERSON' | 'ONLINE';
 export interface VenueOnlineStatus { available: boolean; connected: boolean; chargesEnabled: boolean; }
+export interface VenueBlock { id: number; username: string; reason: 'NOT_PAID' | 'NO_SHOW' | 'BEHAVIOUR' | 'OTHER'; createdAt: string; createdBy: string; }
 export interface BookingCourt { id: number; name: string; sport: string | null; priceCents: number | null; slotMinutes: number; active: boolean; }
 export interface BookingHours { dayOfWeek: number; openTime: string; closeTime: string; }
 export interface BookingOffer { venueId: number; acceptsBookings: boolean; courts: BookingCourt[]; hours: BookingHours[];
@@ -74,6 +75,11 @@ export class VenueBookingService {
   onlineStatus(venueId: number) { return this.get<VenueOnlineStatus>(`/venues/${venueId}/management/online-payments`); }
   onlineOnboarding(venueId: number) { return this.post<{ url: string }>(`/venues/${venueId}/management/online-payments/onboarding`, {}); }
   checkout(bookingId: number) { return this.post<{ url: string }>(`/venue-bookings/${bookingId}/checkout`, {}); }
+  blocked(venueId: number) { return this.get<VenueBlock[]>(`/venues/${venueId}/management/blocked`); }
+  blockRequester(bookingId: number, reason: string) { return this.post<VenueBlock>(`/venue-bookings/${bookingId}/block-requester`, { reason }); }
+  unblock(venueId: number, blockId: number) {
+    return this.http ? this.http.delete<VenueBlock[]>(this.url(`/venues/${venueId}/management/blocked/${blockId}`)).pipe(timeout(15000)) : EMPTY;
+  }
   markPaid(id: number, paid: boolean) { return this.post<VenueBooking>(`/venue-bookings/${id}/paid`, { paid }); }
   confirmPaid(id: number, paid: boolean) { return this.post<VenueBooking>(`/venue-bookings/${id}/payment-received`, { paid }); }
   venueRequests(venueId: number) { return this.get<VenueBooking[]>(`/venues/${venueId}/management/requests`); }

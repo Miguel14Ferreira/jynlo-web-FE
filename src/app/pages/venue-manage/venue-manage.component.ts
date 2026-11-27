@@ -5,7 +5,7 @@ import { finalize } from 'rxjs';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import {
-  BookingHours, BookingOffer, VenueBooking, VenueBookingService, formatPrice, lisbonDateTime, lisbonTime, VenuePayMethod, VenueOnlineStatus } from '../../services/venue-booking.service';
+  BookingHours, BookingOffer, VenueBooking, VenueBookingService, formatPrice, lisbonDateTime, lisbonTime, VenuePayMethod, VenueOnlineStatus, VenueBlock } from '../../services/venue-booking.service';
 import { VenueService } from '../../services/venue.service';
 import { bookingError, currentLang } from '../../shared/venue-jynlo-booking/venue-jynlo-booking.component';
 
@@ -69,10 +69,45 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
                 <button type="button" class="jynlo-action jynlo-action--neutral" [disabled]="busy" (click)="decide(r, false)">{{ 'Recusar' | t }}</button>
               </div>
             }
+            @if (!isBlocked(r.requesterUsername)) {
+              @if (blocking === r.id) {
+                <div class="vm__block" role="group" [attr.aria-label]="'Deixar de aceitar reservas deste jogador' | t">
+                  <strong>{{ 'Deixar de aceitar reservas de {{u}}?' | t:{ u: '@' + r.requesterUsername } }}</strong>
+                  <span class="vm__muted">{{ 'Os pedidos pendentes dele são recusados e ele deixa de poder pedir reservas aqui. Não é avisado do motivo e podes desfazer quando quiseres.' | t }}</span>
+                  <div class="vm__actions">
+                    @for (reason of blockReasons; track reason.id) {
+                      <button type="button" class="jynlo-action" [class.jynlo-action--primary]="blockReason === reason.id"
+                        (click)="blockReason = reason.id">{{ reason.label | t }}</button>
+                    }
+                  </div>
+                  <div class="vm__actions">
+                    <button type="button" class="jynlo-action jynlo-action--danger" [disabled]="busy || !blockReason" (click)="block(r)">{{ 'Bloquear reservas' | t }}</button>
+                    <button type="button" class="jynlo-action jynlo-action--neutral" (click)="blocking = 0">{{ 'Cancelar' | t }}</button>
+                  </div>
+                </div>
+              } @else if (r.status !== 'PENDING') {
+                <button type="button" class="vm__link" (click)="blocking = r.id; blockReason = r.status === 'CONFIRMED' && !r.paidConfirmedAt ? 'NOT_PAID' : ''">
+                  {{ 'Não aceitar mais reservas deste jogador' | t }}</button>
+              }
+            } @else {
+              <span class="vm__muted vm__blocked">🚫 {{ 'Este jogador já não pode reservar aqui.' | t }}</span>
+            }
           </article>
         }
         @if (requestError) { <p class="vm__error" role="alert">{{ requestError }}</p> }
       </section>
+      @if (blocked.length) {
+        <section class="vm__card" aria-labelledby="vm-blocked">
+          <h2 id="vm-blocked">{{ 'Jogadores que já não podem reservar' | t }}</h2>
+          <p class="vm__muted">{{ 'Só o recinto vê esta lista.' | t }}</p>
+          @for (x of blocked; track x.id) {
+            <div class="vm__blocked-row">
+              <span><strong>&#64;{{ x.username }}</strong> <span class="vm__muted">· {{ reasonLabel(x.reason) | t }}</span></span>
+              <button type="button" class="jynlo-action jynlo-action--neutral" [disabled]="busy" (click)="unblock(x)">{{ 'Voltar a aceitar' | t }}</button>
+            </div>
+          }
+        </section>
+      }
       }
 
       <section class="vm__card" aria-labelledby="vm-courts">
@@ -187,6 +222,10 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
     .vm__muted { color:#b9d4d6; font-size:.88rem; margin:0; }
     .vm__request { display:grid; grid-template-columns:1fr auto; gap:.5rem; padding:.75rem 0; border-top:1px solid rgba(96,176,182,.2); }
     .vm__request-main { display:grid; gap:.2rem; }
+    .vm__block { grid-column:1 / -1; display:grid; gap:.5rem; padding:.8rem; border-radius:12px; background:rgba(255,180,180,.08); border:1px solid rgba(255,180,180,.25); }
+    .vm__link { grid-column:1 / -1; justify-self:start; background:none; border:0; padding:.3rem 0; min-height:44px; color:#ffb4b4; font-weight:700; cursor:pointer; text-decoration:underline; }
+    .vm__blocked { grid-column:1 / -1; }
+    .vm__blocked-row { display:flex; justify-content:space-between; align-items:center; gap:.6rem; flex-wrap:wrap; padding:.5rem 0; border-top:1px solid rgba(96,176,182,.2); }
     .vm__note { color:#dff7f1; font-style:italic; }
     .vm__chip { align-self:start; font-size:.75rem; font-weight:800; padding:.2rem .6rem; border-radius:999px; background:rgba(98,230,196,.15); color:#7ae5c5; }
     .vm__request[data-status=PENDING] .vm__chip { background:rgba(252,211,77,.15); color:#fcd34d; }
@@ -235,6 +274,12 @@ export class VenueManageComponent implements OnInit {
   paymentError = '';
   loadError = '';
   adminSetup = false;
+  blocked: VenueBlock[] = [];
+  blocking = 0;
+  blockReason = '';
+  readonly blockReasons = [
+    { id: 'NOT_PAID', label: 'Não pagou' }, { id: 'NO_SHOW', label: 'Não apareceu' },
+    { id: 'BEHAVIOUR', label: 'Comportamento' }, { id: 'OTHER', label: 'Outro motivo' }];
   requestError = '';
   courtsMessage = '';
   courtsError = '';
@@ -268,9 +313,41 @@ export class VenueManageComponent implements OnInit {
       error: () => { /* the page still works for managers */ }
     });
     this.loadRequests();
+    this.api.blocked(this.venueId).subscribe({ next: list => { this.blocked = list; this.cdr.markForCheck(); }, error: () => {} });
     this.api.onlineStatus(this.venueId).subscribe({
       next: status => { this.online = status; this.cdr.markForCheck(); },
       error: () => { /* automatic payments stay hidden */ }
+    });
+  }
+
+  isBlocked(username: string): boolean {
+    return this.blocked.some(x => x.username.toLowerCase() === (username ?? '').toLowerCase());
+  }
+
+  reasonLabel(reason: string): string {
+    return this.blockReasons.find(x => x.id === reason)?.label ?? 'Outro motivo';
+  }
+
+  block(r: VenueBooking): void {
+    if (this.busy || !this.blockReason) return;
+    this.busy = true;
+    this.requestError = '';
+    this.api.blockRequester(r.id, this.blockReason).pipe(finalize(() => { this.busy = false; this.cdr.markForCheck(); })).subscribe({
+      next: added => {
+        this.blocked = [added, ...this.blocked.filter(x => x.id !== added.id)];
+        this.blocking = 0;
+        this.loadRequests();
+      },
+      error: e => { this.requestError = bookingError(e, 'Não foi possível guardar. Tenta outra vez.'); }
+    });
+  }
+
+  unblock(x: VenueBlock): void {
+    if (this.busy) return;
+    this.busy = true;
+    this.api.unblock(this.venueId, x.id).pipe(finalize(() => { this.busy = false; this.cdr.markForCheck(); })).subscribe({
+      next: list => { this.blocked = list; },
+      error: e => { this.requestError = bookingError(e, 'Não foi possível guardar. Tenta outra vez.'); }
     });
   }
 
