@@ -108,7 +108,9 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
             [attr.aria-label]="'calls.hangUp' | t">✕</button>
         </div>
       } @else {
+      <!-- With an image background the self-view is not mirrored, otherwise its text reads backwards. -->
       <section class="call-backdrop" role="dialog" aria-modal="true"
+          [class.call-bg-image]="isImageBackground(calls.backgroundMode$ | async)"
           [attr.aria-label]="'calls.title' | t" (keydown.escape)="minimize()">
         <div class="call-panel" [class.call-panel--chat-open]="showCallChat" tabindex="-1">
           <header class="call-topline">
@@ -189,10 +191,10 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                 </div>
               }
               <div class="connect-participants" [class.connect-participants--video]="videoActive"
-                [class.connect-participants--presenting]="hasPresentation"
-                [class.connect-participants--camera-focus]="!hasPresentation && !!focusedCamera"
-                [class.connect-participants--camera-zoom]="!hasPresentation && cameraZoomed">
-                @if (hasPresentation) {
+                [class.connect-participants--presenting]="showPresentation"
+                [class.connect-participants--camera-focus]="!showPresentation && !!focusedCamera"
+                [class.connect-participants--camera-zoom]="!showPresentation && cameraZoomed">
+                @if (showPresentation) {
                   <div class="connect-share-bar">
                     <span class="connect-share-live"><span aria-hidden="true">●</span>
                       {{ 'calls.liveShare' | t }}
@@ -238,13 +240,21 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                   <div class="connect-camera-strip" [class.is-focus-hidden]="focusOnly"
                     [attr.aria-label]="'calls.callParticipants' | t">
                     @for (person of participants; track person.identity) {
-                      <app-call-participant-tile [participant]="person"
-                        [label]="participantLabel(person)" [avatarUrl]="profilePhoto(participantUsername(person))" [local]="person === calls.room?.localParticipant"
-                        [volume]="volumeFor(person.identity)"
-                        [microphoneVolume]="volumeFor(person.identity)"
-                        [screenShareVolume]="screenVolumeFor(person.identity)"
-                        [audioOutputDeviceId]="(calls.selectedDevices$ | async)?.audiooutput">
-                      </app-call-participant-tile>
+                      <div class="connect-camera-slot">
+                        <app-call-participant-tile [participant]="person"
+                          [label]="participantLabel(person)" [avatarUrl]="profilePhoto(participantUsername(person))" [local]="person === calls.room?.localParticipant"
+                          [volume]="volumeFor(person.identity)"
+                          [microphoneVolume]="volumeFor(person.identity)"
+                          [screenShareVolume]="screenVolumeFor(person.identity)"
+                          [audioOutputDeviceId]="(calls.selectedDevices$ | async)?.audiooutput">
+                        </app-call-participant-tile>
+                        <!-- Enlarging a camera during a share temporarily shows it in full; ↙ or Escape returns to the screen. -->
+                        <button type="button" class="connect-camera-maximize"
+                          [attr.aria-label]="('calls.maximizeCamera' | t) + ': ' + participantLabel(person)"
+                          (click)="zoomCamera(person.identity)">
+                          <span aria-hidden="true">⛶</span>
+                        </button>
+                      </div>
                     }
                   </div>
                   @if (localHasScreenShare) {
@@ -948,6 +958,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
     /* A focused camera reflows the existing LiveKit tile rather than
        mounting a second video/audio element. This prevents double audio and
        unnecessary detach/attach cycles during participant changes. */
+    .call-bg-image ::ng-deep .connect-tile.local-camera video{transform:none}
     .connect-camera-slot{position:relative;min-width:0;min-height:150px;height:100%}
     .connect-camera-slot app-call-participant-tile{display:block;width:100%;height:100%}
     .connect-camera-focus-hit{position:absolute;z-index:3;inset:0;
@@ -1044,12 +1055,16 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
     .connect-presentation-tile{min-height:0;min-width:0;height:100%;width:100%}
     .connect-camera-strip{flex:0 0 auto;display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;min-height:130px;padding:2px}
     .connect-camera-strip app-call-participant-tile{flex:0 0 clamp(140px,18vw,220px);height:130px;min-height:130px}
+    .connect-camera-strip .connect-camera-slot{flex:0 0 clamp(140px,18vw,220px);height:130px;min-height:130px}
+    .connect-camera-strip .connect-camera-slot app-call-participant-tile{flex:none;width:100%;height:100%}
+    .connect-camera-strip .connect-camera-maximize{top:6px;right:6px;width:30px;height:30px;font-size:1rem}
     .connect-camera-strip app-call-participant-tile::ng-deep .connect-tile{min-height:0}
     .connect-camera-strip app-call-participant-tile::ng-deep .connect-avatar{width:54px;font-size:1.4rem}
     .connect-camera-strip app-call-participant-tile::ng-deep .connect-person{bottom:5px;left:5px;padding:4px 7px;font-size:.7rem}
     @media(max-width:600px){
       .connect-camera-strip{min-height:100px}
       .connect-camera-strip app-call-participant-tile{flex-basis:120px;height:100px;min-height:100px}
+      .connect-camera-strip .connect-camera-slot{flex-basis:120px;height:100px;min-height:100px}
     }
     /* Self-contained people drawer: never overflow outside the call or cover
        the page unpredictably when chat or screen sharing is active. */
@@ -1227,6 +1242,9 @@ export class DirectCallOverlayComponent implements OnDestroy {
       this.cameraZoomed = false;
     }
   }
+  isImageBackground(mode: string | null): boolean { return !!mode && mode !== 'none' && mode !== 'blur'; }
+  /** A maximized camera temporarily takes the place of the shared screen. */
+  get showPresentation(): boolean { return this.hasPresentation && !this.cameraZoomed; }
   zoomCamera(identity: string): void {
     if (this.focusedCameraIdentity === identity && this.cameraZoomed) {
       this.cameraZoomed = false;

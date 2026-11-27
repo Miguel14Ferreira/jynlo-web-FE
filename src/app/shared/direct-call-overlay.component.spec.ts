@@ -31,6 +31,7 @@ describe('Global incoming call popup', () => {
     calls = {
       state$: state,
       mediaChanged$: new BehaviorSubject(0),
+      backgroundMode$: new BehaviorSubject('none'),
       connectionQuality$: new BehaviorSubject('unknown'),
       devices$: new BehaviorSubject([]),
       deviceScanStatus$: new BehaviorSubject('ready'),
@@ -80,6 +81,19 @@ describe('Global incoming call popup', () => {
     calls.mediaChanged$.next(7);
     fixture.detectChanges();
     expect(expanded.querySelector('.call-refresh')?.textContent).toContain('7');
+  });
+
+  it('does not mirror the self-view when an image background is on, so its text reads correctly', () => {
+    state.next({...invitation('video'), phase:'active', cameraEnabled:true, startedAt:Date.now()});
+    fixture.detectChanges();
+    const shell=fixture.nativeElement.querySelector('.call-backdrop') as HTMLElement;
+    expect(shell.classList).not.toContain('call-bg-image');
+    calls.backgroundMode$.next('blur');
+    fixture.detectChanges();
+    expect(shell.classList).not.toContain('call-bg-image');
+    calls.backgroundMode$.next('stadium');
+    fixture.detectChanges();
+    expect(shell.classList).toContain('call-bg-image');
   });
 
   it('does not label screen sharing alone as an active webcam', () => {
@@ -580,6 +594,16 @@ describe('Global incoming call popup', () => {
     expect(stage?.querySelectorAll('app-call-participant-tile').length).toBe(1);
     expect(filmstrip?.querySelectorAll('app-call-participant-tile').length).toBe(2);
     expect(body.querySelectorAll('.connect-presentation-tile').length).toBe(1);
+    // A camera can be enlarged during a share; restoring returns to the shared screen.
+    const maximize = filmstrip?.querySelectorAll('.connect-camera-maximize') ?? [];
+    expect(maximize.length).toBe(2);
+    (maximize[1] as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(body.querySelector('.connect-presentation-stage')).toBeNull();
+    expect(body.querySelector('.connect-participants--camera-zoom')).toBeTruthy();
+    document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));
+    fixture.detectChanges();
+    expect(body.querySelector('.connect-presentation-stage')).toBeTruthy();
     expect(calls.end).not.toHaveBeenCalled();
   });
 
