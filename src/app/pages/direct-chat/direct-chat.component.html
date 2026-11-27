@@ -211,7 +211,7 @@
           </button>
         }
         @if (typing.label('direct', recipientUsername); as typingLabel) {
-          <p class="chat-typing-indicator" role="status" aria-live="off">{{ typingLabel }}</p>
+          <app-typing-bubble [label]="typingLabel"></app-typing-bubble>
         }
         <form class="composer" (ngSubmit)="sendMessage()">
           @if (replyingTo; as original) {

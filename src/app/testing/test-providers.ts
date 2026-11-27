@@ -8,6 +8,7 @@ import { of } from 'rxjs';
 import { AuthenticationService } from '../services/authethication.service';
 import { TranslatePipe } from '../i18n/translate.pipe';
 import { JynloSelectComponent } from '../shared/jynlo-select/jynlo-select.component';
+import { TypingBubbleComponent } from '../shared/typing-bubble.component';
 import { FriendsGoingComponent } from '../shared/friends-going/friends-going.component';
 
 const authenticationServiceMock = new Proxy(
@@ -50,7 +51,8 @@ export const TEST_IMPORTS = [
   RouterTestingModule,
   TranslatePipe,
   JynloSelectComponent,
-  FriendsGoingComponent
+  FriendsGoingComponent,
+  TypingBubbleComponent
 ];
 
 export const TEST_PROVIDERS: Provider[] = [

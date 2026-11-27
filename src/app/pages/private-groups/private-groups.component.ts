@@ -1,3 +1,4 @@
+import { TypingBubbleComponent } from '../../shared/typing-bubble.component';
 import { ChatTypingTracker } from '../../services/chat-typing-tracker';
 import { AutoGrowDirective } from '../../shared/auto-grow.directive';
 import { linkParts } from '../../shared/link-parts';
@@ -26,7 +27,7 @@ import { injectAppDialog } from '../../shared/app-dialog/app-dialog.service';
 @Component({
   selector:'app-private-groups',
   standalone:true,
-  imports:[CommonModule,FormsModule,RouterLink,TranslatePipe,AvailabilityPanelComponent,ChatReactionsComponent,PollComposerComponent,InboxPollCardComponent,AutoGrowDirective],
+  imports:[CommonModule,FormsModule,RouterLink,TranslatePipe,AvailabilityPanelComponent,ChatReactionsComponent,PollComposerComponent,InboxPollCardComponent,AutoGrowDirective,TypingBubbleComponent],
   templateUrl:'./private-groups.component.html',
   styleUrls:['./private-groups.component.css'],
   changeDetection:ChangeDetectionStrategy.Eager

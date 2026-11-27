@@ -1,3 +1,4 @@
+import { TypingBubbleComponent } from '../../shared/typing-bubble.component';
 import { reportSlowSend } from '../../shared/slow-send-report';
 import { IncomingMessageRequest, MessageRequestsService } from '../../services/message-requests.service';
 import { RequestComposePaneComponent } from '../../shared/message-requests/request-compose-pane.component';
@@ -67,7 +68,7 @@ const VOICE_NOTE_AUDIO_BITRATE = 48_000;
 @Component({
   selector: 'app-messages-center',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, ChatReactionsComponent, GiphyEmbedComponent, InboxConversationListComponent, InboxEmojiGifPickerComponent, InboxShareMenuComponent, InboxSharePickerComponent, InboxHistorySearchComponent, ChatImageInViewDirective, InboxStoryCardComponent, InboxCallUpCardComponent, InboxPollCardComponent, AutoGrowDirective, MessageRequestsPanelComponent, RequestComposePaneComponent],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, ChatReactionsComponent, GiphyEmbedComponent, InboxConversationListComponent, InboxEmojiGifPickerComponent, InboxShareMenuComponent, InboxSharePickerComponent, InboxHistorySearchComponent, ChatImageInViewDirective, InboxStoryCardComponent, InboxCallUpCardComponent, InboxPollCardComponent, AutoGrowDirective, MessageRequestsPanelComponent, RequestComposePaneComponent, TypingBubbleComponent],
   templateUrl: './messages-center.component.html',
   styleUrls: ['./messages-center.component.css', './messages-center-premium.component.css', './messages-center-v3-finish.css', './messages-center-embedded.css'],
   changeDetection: ChangeDetectionStrategy.Eager

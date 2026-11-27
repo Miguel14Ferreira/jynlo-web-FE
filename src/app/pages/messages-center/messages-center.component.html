@@ -539,7 +539,7 @@
             </section>
           }
           @if (typing.label($any(conversation.kind), conversation.id); as typingLabel) {
-            <p class="chat-typing-indicator" role="status" aria-live="off">{{ typingLabel }}</p>
+            <app-typing-bubble [label]="typingLabel" [showName]="conversation.kind !== 'direct'"></app-typing-bubble>
           }
           <form class="inbox-composer" (ngSubmit)="sendMessage()">
             @if (replyingTo; as original) {
