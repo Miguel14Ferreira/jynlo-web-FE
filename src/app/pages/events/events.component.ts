@@ -261,6 +261,21 @@ export class EventsComponent implements OnInit, OnDestroy {
       && Date.parse(session.gameDate) > Date.now();
   }
 
+  private searchTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /** Typing in sport or place updates the results on its own, shortly after the person stops. */
+  queueSearch(): void {
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => { this.searchTimer = null; if (!this.destroyed) this.loadSessions(); }, 500);
+  }
+
+  /** How many filters inside the "Filtros" panel (or the location) are on. */
+  activeFilterCount(): number {
+    return [this.availableOnly, this.freeOnly, !!this.skillLevel, !!this.fromDateTime && !this.quickDate,
+      !!this.toDateTime && !this.quickDate, this.minPrice !== null, this.maxPrice !== null, this.nearbyActive]
+      .filter(Boolean).length;
+  }
+
   toggleAdvancedFilters(): void {
     this.showAdvancedFilters = !this.showAdvancedFilters;
   }

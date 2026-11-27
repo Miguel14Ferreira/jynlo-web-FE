@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of, Subject } from 'rxjs';
 
@@ -51,7 +51,7 @@ describe('EventsComponent', () => {
     expect(sessionService.discover.calls.mostRecent().args[0]?.sport).toBe('Bossaball');
   });
 
-  it('keeps action semantics and search bindings while adopting Neon Glass controls', () => {
+  it('keeps action semantics and a compact search with a Filtros panel', () => {
     const root = fixture.nativeElement as HTMLElement;
     const header = root.querySelector('.sessions-page .page-header')!;
     expect(header.querySelector('a[href="/menu/createEvent"]')?.classList.contains('jynlo-premium-btn--primary')).toBeTrue();
@@ -60,31 +60,25 @@ describe('EventsComponent', () => {
     expect(form.querySelector('input[name="sport"]')).not.toBeNull();
     expect(form.querySelector('input[name="city"]')).not.toBeNull();
     expect(form.querySelector('select[name="sort"]')).not.toBeNull();
-    expect(form.querySelector('button[type="submit"]')?.classList.contains('jynlo-premium-btn--primary')).toBeTrue();
-    expect(form.querySelector('.advanced-toggle')?.classList.contains('jynlo-premium-btn--quiet')).toBeTrue();
-    expect(form.querySelectorAll('.quick-chip').length).toBe(5);
-    expect(root.querySelectorAll('.nearby-panel .jynlo-premium-btn').length).toBeGreaterThan(0);
+    // Near me plus three date chips; Padel and Futebol are no longer repeated next to the sport field.
+    expect(form.querySelectorAll('.quick-chip').length).toBe(4);
+    expect(root.querySelector('.nearby-panel')).toBeNull();
+    const toggle = form.querySelector<HTMLButtonElement>('.ev-filters-button')!;
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    toggle.click();
+    fixture.detectChanges();
+    expect(form.querySelector('#ev-filter-panel button[type="submit"]')).not.toBeNull();
   });
 
-  it('exposes the premium filter groups and working quick action buttons', () => {
-    const page = fixture.nativeElement as HTMLElement;
-    const form = page.querySelector('.jynlo-session-filters') as HTMLFormElement;
-    expect(form).not.toBeNull();
-    expect(form.querySelectorAll('.filters-primary > label').length).toBe(3);
-    expect(form.querySelectorAll('.filters-quick .quick-chip').length).toBe(5);
-    expect(form.querySelector('.filters-toolbar .filter-actions')).not.toBeNull();
-
-    const padel = form.querySelectorAll<HTMLButtonElement>('.quick-chip')[3];
-    padel.click();
-    fixture.detectChanges();
-    expect(component.sport).toBe('Padel');
-    expect(padel.getAttribute('aria-pressed')).toBe('true');
+  it('counts active filters and searches on its own when the sport changes', fakeAsync(() => {
+    component.availableOnly = true;
+    component.skillLevel = 'INTERMEDIATE';
+    expect(component.activeFilterCount()).toBe(2);
+    component.sport = 'Padel';
+    component.queueSearch();
+    tick(600);
     expect(sessionService.discover.calls.mostRecent().args[0]?.sport).toBe('Padel');
-    padel.click();
-    fixture.detectChanges();
-    expect(component.sport).toBe('');
-    expect(padel.getAttribute('aria-pressed')).toBe('false');
-  });
+  }));
 
   it('applies real search date boundaries and toggles quick dates off', () => {
     component.applyQuickDate('today');

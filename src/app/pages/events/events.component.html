@@ -12,116 +12,52 @@
       </div>
     </header>
 
-    <section class="nearby-panel" [class.active]="nearbyActive">
-      <div>
-        <strong>{{ nearbyActive ? ('events.nearbyActive' | t) : ('events.nearbyQuestion' | t) }}</strong>
-        <p>
-          @if (nearbyActive) {
-            {{ 'events.nearbyShowing' | t:{ radius: radiusKm } }}
-          } @else {
-            {{ 'events.nearbyHint' | t }}
-          }
-        </p>
+    <form class="filters jynlo-session-filters ev-compact" (ngSubmit)="loadSessions()">
+      <!-- Results come first: one search row, quick chips, and the rest behind "Filtros". -->
+      <div class="ev-bar">
+        <label class="ev-field">
+          <input type="text" name="sport" list="sport-options" [(ngModel)]="sport" (ngModelChange)="queueSearch()"
+            autocomplete="off" [placeholder]="'events.sportPlaceholder' | t" [attr.aria-label]="'events.sport' | t">
+          <datalist id="sport-options">
+            @for (sportOption of searchableSports; track sportOption) { <option [value]="sportOption"></option> }
+          </datalist>
+        </label>
+        <label class="ev-field">
+          <input type="text" name="city" list="city-options" [(ngModel)]="city" (ngModelChange)="queueSearch()"
+            autocomplete="address-level2" [placeholder]="'events.cityPlaceholder' | t" [attr.aria-label]="'common.location' | t">
+          <datalist id="city-options">
+            @for (cityOption of citySuggestions; track cityOption) { <option [value]="cityOption"></option> }
+          </datalist>
+        </label>
+        <label class="ev-sort">
+          <select name="sort" [(ngModel)]="sort" (ngModelChange)="loadSessions()" [attr.aria-label]="'events.sortBy' | t">
+            @if (nearbyActive) { <option value="distance">{{ 'events.distance' | t }}</option> }
+            <option value="date">{{ 'mySessions.date' | t }}</option>
+            <option value="vacancies">{{ 'events.moreVacancies' | t }}</option>
+            <option value="price">{{ 'mySessions.price' | t }}</option>
+          </select>
+        </label>
+        <button type="button" class="ev-filters-button jynlo-action jynlo-action--neutral" [attr.aria-expanded]="showAdvancedFilters"
+          aria-controls="ev-filter-panel" (click)="toggleAdvancedFilters()">
+          {{ 'Filtros' | t }}@if (activeFilterCount() > 0) { <span class="ev-count">{{ activeFilterCount() }}</span> }
+        </button>
       </div>
-
-      <div class="nearby-radar" aria-hidden="true">
-        <span class="nearby-radar__target">⌖</span>
-      </div>
-
-      <div class="nearby-actions">
-        @if (nearbyActive) {
-          <label>
-            <span>{{ 'events.radius' | t }}</span>
-            <select [(ngModel)]="radiusKm" name="radiusKm" (change)="loadSessions()">
-              <option [ngValue]="5">{{ '5 km' | t }}</option>
-              <option [ngValue]="10">{{ '10 km' | t }}</option>
-              <option [ngValue]="25">{{ '25 km' | t }}</option>
-              <option [ngValue]="50">{{ '50 km' | t }}</option>
-              <option [ngValue]="100">{{ '100 km' | t }}</option>
-            </select>
-          </label>
-          <button type="button" class="ghost-button jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" (click)="disableNearby()">{{ 'events.disable' | t }}</button>
-        } @else {
-          <button class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" type="button" [disabled]="locating" (click)="useCurrentLocation()">
-            {{ locating ? ('events.locating' | t) : ('events.useLocation' | t) }}
-          </button>
+      <div class="ev-chips" role="group" [attr.aria-label]="'events.quickFilters' | t">
+        <button type="button" class="quick-chip" [attr.aria-pressed]="nearbyActive" [class.is-active]="nearbyActive" [disabled]="locating"
+          (click)="nearbyActive ? disableNearby() : useCurrentLocation()">📍 {{ (locating ? 'events.locating' : 'Perto de mim') | t }}</button>
+        <button type="button" class="quick-chip" [attr.aria-pressed]="quickDate === 'today'"
+          [class.is-active]="quickDate === 'today'" (click)="applyQuickDate('today')">{{ 'events.quickToday' | t }}</button>
+        <button type="button" class="quick-chip" [attr.aria-pressed]="quickDate === 'week'"
+          [class.is-active]="quickDate === 'week'" (click)="applyQuickDate('week')">{{ 'events.quickWeek' | t }}</button>
+        <button type="button" class="quick-chip" [attr.aria-pressed]="quickDate === 'weekend'"
+          [class.is-active]="quickDate === 'weekend'" (click)="applyQuickDate('weekend')">{{ 'events.quickWeekend' | t }}</button>
+        @if (activeFilterCount() > 0 || sport || city) {
+          <button type="button" class="ev-clear" (click)="clearFilters()">{{ 'events.clear' | t }}</button>
         }
       </div>
-    </section>
-
-    @if (locationError) {
-      <div class="location-error">{{ locationError }}</div>
-    }
-
-    <form class="filters jynlo-session-filters" (ngSubmit)="loadSessions()">
-      <div class="filters-intro">
-        <span class="filters-intro__icon" aria-hidden="true">☷</span>
-        <div>
-          <strong>{{ 'events.searchFiltersTitle' | t }}</strong>
-          <p>{{ 'events.searchFiltersHint' | t }}</p>
-        </div>
-      </div>
-      <div class="filters-primary">
-      <label>
-        <span>{{ 'events.sport' | t }}</span>
-        <input
-          type="text"
-          name="sport"
-          list="sport-options"
-          [(ngModel)]="sport"
-          autocomplete="off"
-          [placeholder]="'events.sportPlaceholder' | t">
-        <datalist id="sport-options">
-          @for (sportOption of searchableSports; track sportOption) {
-            <option [value]="sportOption"></option>
-          }
-        </datalist>
-      </label>
-
-      <label>
-        <span>{{ 'common.location' | t }}</span>
-        <input
-          type="text"
-          name="city"
-          list="city-options"
-          [(ngModel)]="city"
-          autocomplete="address-level2"
-          [placeholder]="'events.cityPlaceholder' | t">
-        <datalist id="city-options">
-          @for (cityOption of citySuggestions; track cityOption) {
-            <option [value]="cityOption"></option>
-          }
-        </datalist>
-      </label>
-
-      <label>
-        <span>{{ 'events.sortBy' | t }}</span>
-        <select name="sort" [(ngModel)]="sort">
-          @if (nearbyActive) {
-            <option value="distance">{{ 'events.distance' | t }}</option>
-          }
-          <option value="date">{{ 'mySessions.date' | t }}</option>
-          <option value="vacancies">{{ 'events.moreVacancies' | t }}</option>
-          <option value="price">{{ 'mySessions.price' | t }}</option>
-        </select>
-      </label>
-      </div>
-
-      <div class="filters-quick">
-        <div class="filters-quick__chips">
-          <span class="filters-quick__caption">{{ 'events.quickFilters' | t }}</span>
-          <button type="button" class="quick-chip" [attr.aria-pressed]="quickDate === 'today'"
-            [class.is-active]="quickDate === 'today'" (click)="applyQuickDate('today')">{{ 'events.quickToday' | t }}</button>
-          <button type="button" class="quick-chip" [attr.aria-pressed]="quickDate === 'week'"
-            [class.is-active]="quickDate === 'week'" (click)="applyQuickDate('week')">{{ 'events.quickWeek' | t }}</button>
-          <button type="button" class="quick-chip" [attr.aria-pressed]="quickDate === 'weekend'"
-            [class.is-active]="quickDate === 'weekend'" (click)="applyQuickDate('weekend')">{{ 'events.quickWeekend' | t }}</button>
-          <button type="button" class="quick-chip" [attr.aria-pressed]="sport === 'Padel'"
-            [class.is-active]="sport === 'Padel'" (click)="applyQuickSport('Padel')">Padel</button>
-          <button type="button" class="quick-chip" [attr.aria-pressed]="sport === 'Futebol'"
-            [class.is-active]="sport === 'Futebol'" (click)="applyQuickSport('Futebol')">{{ 'Futebol' | t }}</button>
-        </div>
-        <div class="filters-quick__checks">
+      @if (showAdvancedFilters) {
+        <div class="ev-panel" id="ev-filter-panel">
+          <div class="ev-panel__checks">
       <label class="check-filter">
         <input type="checkbox" name="availableOnly" [(ngModel)]="availableOnly">
         <span>{{ 'events.availableOnly' | t }}</span>
@@ -139,11 +75,20 @@
           }
         </select>
       </label>
-        </div>
-      </div>
-
-      @if (showAdvancedFilters) {
-        <div class="advanced-filters">
+          </div>
+          @if (nearbyActive) {
+            <label class="ev-radius">
+              <span>{{ 'events.radius' | t }}</span>
+              <select [(ngModel)]="radiusKm" name="radiusKm" (change)="loadSessions()">
+                <option [ngValue]="5">{{ '5 km' | t }}</option>
+                <option [ngValue]="10">{{ '10 km' | t }}</option>
+                <option [ngValue]="25">{{ '25 km' | t }}</option>
+                <option [ngValue]="50">{{ '50 km' | t }}</option>
+                <option [ngValue]="100">{{ '100 km' | t }}</option>
+              </select>
+            </label>
+          }
+          <div class="advanced-filters">
           <label>
             <span>{{ 'events.fromDateTime' | t }}</span>
             <input
@@ -185,19 +130,17 @@
               [disabled]="freeOnly"
               placeholder="20">
           </label>
+          </div>
+          <div class="ev-panel__actions">
+            <button type="button" class="ghost-button jynlo-action jynlo-action--neutral" (click)="clearFilters()">{{ 'events.clear' | t }}</button>
+            <button class="jynlo-action jynlo-action--primary" type="submit" (click)="showAdvancedFilters = false">{{ 'Ver resultados' | t }}</button>
+          </div>
         </div>
       }
-
-      <div class="filters-toolbar">
-      <button type="button" class="advanced-toggle jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small" (click)="toggleAdvancedFilters()">
-        {{ showAdvancedFilters ? ('events.lessFilters' | t) : ('events.moreFilters' | t) }}
-      </button>
-      <div class="filter-actions">
-        <button class="jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary" type="submit">{{ 'common.search' | t }}</button>
-        <button type="button" class="ghost-button jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" (click)="clearFilters()">{{ 'events.clear' | t }}</button>
-      </div>
-      </div>
     </form>
+    @if (locationError) {
+      <div class="location-error">{{ locationError }}</div>
+    }
 
     @if (loading) {
       <div class="state-card">{{ 'events.loading' | t }}</div>

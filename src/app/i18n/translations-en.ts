@@ -8771,4 +8771,6 @@ export const EN: Record<string, string> = {
   "Encontrar um jogo esta semana": "Find a game this week",
   "Ainda ninguém abriu jogos para esta semana.": "Nobody has opened games for this week yet.",
   "Sê o primeiro: cria um jogo em 1 minuto": "Be the first: create a game in a minute",
+  "Perto de mim": "Near me",
+  "Ver resultados": "Show results",
 };

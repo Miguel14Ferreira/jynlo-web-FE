@@ -712,3 +712,17 @@ h1 {
 .session-level-tag { color: #a9ffee; font-weight: 700; }
 
 .session-vacancies strong.session-missing { color:#fcd34d; }
+
+/* Compact search: one row, quick chips and a "Filtros" panel, so the games show up straight away. */
+.ev-compact { display:grid; gap:10px; padding:12px !important; }
+.ev-bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.ev-field { flex:1 1 200px; margin:0; }
+.ev-field input, .ev-sort select { width:100%; min-height:44px; }
+.ev-sort { flex:0 0 auto; margin:0; }
+.ev-filters-button { min-height:44px; display:inline-flex; align-items:center; gap:6px; }
+.ev-count { min-width:20px; height:20px; line-height:20px; border-radius:10px; background:#62e6c4; color:#06231c; font-size:12px; font-weight:800; text-align:center; padding:0 5px; }
+.ev-chips { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.ev-clear { background:none; border:0; color:#62e6c4; font-weight:700; min-height:36px; cursor:pointer; }
+.ev-panel { display:grid; gap:12px; padding:12px; border-radius:14px; border:1px solid rgba(96,176,182,.3); background:rgba(10,41,55,.6); }
+.ev-panel__checks { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+.ev-panel__actions { display:flex; justify-content:flex-end; gap:8px; }
