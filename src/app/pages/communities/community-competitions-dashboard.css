@@ -18,10 +18,10 @@
 .competition-dashboard-stats { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .85rem; margin: 1rem 0; }
 .competition-stat { display: grid; align-content: center; gap: .35rem; min-width: 0; padding: 1rem 1.15rem; border: 1px solid rgba(113, 198, 209, .2); border-radius: .85rem; background: rgba(17, 51, 65, .72); }
 .competition-stat strong { color: #eafffb; font-size: clamp(1.55rem,3vw,2rem); line-height: 1.15; font-variant-numeric: tabular-nums; }
-.competition-stat span { color: #afd1d6; font-size: .83rem; }
+.competition-stat span { color: #afd1d6; font-size: .875rem; }
 .competition-dashboard-tabs { display: flex; flex-wrap: wrap; gap: .5rem; padding: .3rem; margin: .25rem 0 1rem; border: 1px solid rgba(160, 212, 214, .14); border-radius: .85rem; background: #0a2432; }
 .competition-dashboard-tab { display: inline-flex; align-items: center; justify-content: center; gap: .55rem; flex: 1 1 170px; padding: .8rem 1rem; color: #c2d6dc; background: transparent; border: 1px solid transparent; border-radius: .6rem; font: inherit; font-weight: 750; cursor: pointer; }
-.competition-dashboard-tab span { padding: .15rem .4rem; color: #b5d7d8; background: #ffffff13; border-radius: 999px; font-size: .74rem; }
+.competition-dashboard-tab span { padding: .15rem .4rem; color: #b5d7d8; background: #ffffff13; border-radius: 999px; font-size: .875rem; }
 .competition-dashboard-tab:hover, .competition-dashboard-tab:focus-visible { color: #fff; background: #ffffff0a; }
 .competition-dashboard-tab.is-active { color: #83f3dc; background: rgba(33, 182, 167, .13); border-color: rgba(57, 215, 189, .36); }
 .competition-choice { padding: clamp(1rem,2vw,1.4rem); margin: 0 0 1rem; border: 1px solid rgba(46, 213, 188, .32); border-radius: 1rem; background: #0b2938; }
@@ -32,7 +32,7 @@
 .competition-choice-card:hover { border-color: #36ddc1; background: #143a48; }
 .competition-choice-card:focus-visible,.competition-dashboard-tab:focus-visible { outline: 2px solid #43e1cc; outline-offset: 2px; }
 .competition-choice-card strong { color: #f6fffd; font-size: 1.06rem; }
-.competition-choice-card > span:last-child { line-height: 1.55; font-size: .85rem; }
+.competition-choice-card > span:last-child { line-height: 1.55; font-size: .875rem; }
 .competition-choice-symbol { font-size: 1.6rem; }
 .tournament-browser[hidden] { display: none !important; }
 .tournaments > .create-tournament { margin: 0 0 1rem; }
@@ -41,7 +41,7 @@
 @media(max-width: 620px) {
   .competition-dashboard-stats { gap: .4rem; }
   .competition-stat { padding: .8rem .55rem; }
-  .competition-stat span { font-size: .72rem; }
+  .competition-stat span { font-size: .875rem; }
   .competition-choice-grid { grid-template-columns: 1fr; }
 }
 @media(prefers-reduced-motion:reduce){ .competition-choice-card{ transition:none; } }
@@ -165,7 +165,7 @@
   margin-bottom: .7rem;
 }
 :host .jynlo-season-team-heading strong { font-size: 1.08rem; color: #eafffa; }
-:host .jynlo-season-team-heading span { font-size: .8rem; color: #a6d4cf; }
+:host .jynlo-season-team-heading span { font-size: .875rem; color: #a6d4cf; }
 :host .jynlo-team-roster { display: grid; gap: .4rem; margin: .6rem 0; }
 :host .jynlo-roster-player { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .75rem; padding: .6rem .7rem; background: rgba(11, 65, 73, .4); border-radius: .6rem; }
 :host .jynlo-roster-player small { color: #a8d4d2; }
@@ -204,7 +204,7 @@
 }
 :host .jynlo-goal-form select { flex: 1 1 165px; }
 :host .jynlo-goal-form input[type="number"] { width: 5.6rem; }
-:host .jynlo-goal-form label { font-size: .79rem; }
+:host .jynlo-goal-form label { font-size: .875rem; }
 
 :host .jynlo-season-panel { min-width: 0; }
 :host .jynlo-season-panel > summary {
@@ -265,7 +265,7 @@
 }
 :host .jynlo-owned-league-scroll thead th {
   color: #a7d6d0;
-  font-size: .74rem;
+  font-size: .875rem;
   font-weight: 750;
 }
 :host .jynlo-owned-league-scroll tbody th { color: #e9fff8; font-weight: 700; }
@@ -343,7 +343,7 @@
   letter-spacing:-.035em;line-height:1.2;
 }
 :host .tournaments .competition-dashboard-header p:last-child{
-  max-width:60ch;font-size:.87rem;line-height:1.45;
+  max-width:60ch;font-size:.875rem;line-height:1.45;
 }
 :host .tournaments .competition-dashboard-stats{
   grid-template-columns:repeat(3,minmax(0,1fr));
@@ -369,7 +369,7 @@
 }
 :host .tournaments .competition-dashboard-tab{
   flex:1 0 max-content;min-height:44px;padding:10px 16px;
-  white-space:nowrap;border-radius:10px;font-size:.85rem;
+  white-space:nowrap;border-radius:10px;font-size:.875rem;
 }
 :host .tournaments .competition-dashboard-tab.is-active{
   background:#1CCFB4;color:#052F32;border-color:#4CE5C8;
@@ -436,7 +436,7 @@
   }
   :host .tournaments .standings-table {
     min-width:34rem;
-    font-size:.79rem;
+    font-size:.875rem;
   }
   :host .tournaments .standings-table th,
   :host .tournaments .standings-table td {
@@ -457,6 +457,6 @@
     gap:5px;
   }
   :host .tournaments .team-fixture-matchup>strong {
-    font-size:.78rem;
+    font-size:.875rem;
   }
 }

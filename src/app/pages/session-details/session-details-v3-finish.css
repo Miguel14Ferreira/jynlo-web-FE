@@ -134,7 +134,7 @@
 }
 :host .session-cancelled-share strong{font-size:1.05rem;color:#ffebeb;}
 :host .session-cancelled-share p{margin:0;line-height:1.55;overflow-wrap:anywhere;}
-:host .session-cancelled-share label{font-size:.83rem;font-weight:700;}
+:host .session-cancelled-share label{font-size:.875rem;font-weight:700;}
 :host .session-cancelled-share textarea{
   width:100%;box-sizing:border-box;min-height:88px;padding:11px;
   border:1px solid rgba(248,163,163,.45);border-radius:10px;

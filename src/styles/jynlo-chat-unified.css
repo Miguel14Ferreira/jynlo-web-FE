@@ -5,7 +5,7 @@
 .jc-toolbar .jc-grow {flex:1 1 auto;min-width:0;}
 .jc-toolbar textarea {width:100%;box-sizing:border-box;min-height:46px;height:46px;max-height:124px;resize:vertical;
   border:1px solid rgba(48,184,196,.36)!important;background:#092c3d!important;color:#f1fffc;border-radius:13px!important;
-  padding:11px 9px!important;font-size:.86rem;line-height:1.4;}
+  padding:11px 9px!important;font-size:.875rem;line-height:1.4;}
 .jc-toolbar textarea:focus-visible {outline:none;}
 .jc-actions {display:flex;align-items:center;gap:5px;flex:0 0 auto;flex-wrap:nowrap;}
 .jc-icon {width:36px;min-width:36px;height:36px;padding:0!important;display:grid;place-items:center;cursor:pointer;
@@ -19,7 +19,7 @@
 .jc-send:hover:not(:disabled) {background:#6dffda!important;}
 .jc-send:disabled {opacity:.5;box-shadow:none!important;cursor:default;}
 .jc-bottom {display:flex;justify-content:flex-end;margin-top:4px;}
-.jc-bottom span {font-size:.72rem;color:#8eafb9;}
+.jc-bottom span {font-size:.875rem;color:#8eafb9;}
 .jc-bubble {position:relative;max-width:min(72%,545px);min-width:130px;border:1px solid #355e70!important;
   border-radius:17px 17px 17px 6px!important;padding:13px 16px 12px!important;
   background:linear-gradient(130deg,#1a3d52,#16394c)!important;box-shadow:0 5px 16px #00172332;}

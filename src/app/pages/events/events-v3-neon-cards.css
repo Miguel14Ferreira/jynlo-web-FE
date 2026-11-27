@@ -127,7 +127,7 @@
   min-width:0;
 }
 :host .jynlo-activities-v3 .filters-primary > label {min-width:0;}
-:host .jynlo-activities-v3 .filters-primary label > span {color:#bddfe1;font-size:.78rem;}
+:host .jynlo-activities-v3 .filters-primary label > span {color:#bddfe1;font-size:.875rem;}
 :host .jynlo-activities-v3 .filters-primary :is(input,select),
 :host .jynlo-activities-v3 .advanced-filters :is(input,select) {
   width:100%;
@@ -221,7 +221,7 @@
   background:rgba(32,213,203,.15);
   border:1px solid rgba(39,212,202,.28);
   color:#b2fff0;
-  font-size:.81rem;
+  font-size:.875rem;
   font-variant-numeric:tabular-nums;
 }
 :host .jynlo-activities-v3 .session-list {
@@ -274,7 +274,7 @@
   border-radius:9px;
   background:rgba(26,190,189,.17);
   color:#78fbe1;
-  font-size:.73rem;
+  font-size:.875rem;
   text-transform:none;
   letter-spacing:.02em;
   overflow-wrap:anywhere;
@@ -297,7 +297,7 @@
   align-content:start;
   gap:5px;
 }
-:host .jynlo-activities-v3 .session-fact > span {color:#9fc3cf;font-size:.73rem;}
+:host .jynlo-activities-v3 .session-fact > span {color:#9fc3cf;font-size:.875rem;}
 :host .jynlo-activities-v3 .session-fact strong {
   color:#ecfffa;
   font-size:.88rem;
@@ -440,7 +440,7 @@
     line-height: 1.4;
   }
   :host .jynlo-activities-v3 .nearby-panel p {
-    font-size: .87rem;
+    font-size: .875rem;
     line-height: 1.5;
   }
   :host .jynlo-activities-v3 .nearby-radar {

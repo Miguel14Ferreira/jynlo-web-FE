@@ -107,7 +107,7 @@
 }
 @media(max-width:520px){
   :host .jynlo-sessions-premium .session-view-tabs{gap:4px;padding:5px;}
-  :host .jynlo-sessions-premium .session-view-tabs button{flex-direction:column;gap:5px;padding:8px 3px;font-size:.76rem;}
+  :host .jynlo-sessions-premium .session-view-tabs button{flex-direction:column;gap:5px;padding:8px 3px;font-size:.875rem;}
   :host .jynlo-sessions-premium .upcoming-meta{grid-template-columns:minmax(0,1fr);}
   :host .jynlo-sessions-premium .card-actions>:is(a,button){flex:1 1 130px;}
 }

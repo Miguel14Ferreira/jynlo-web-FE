@@ -74,9 +74,9 @@ h1 {
   background: rgba(15,23,42,.85); padding: 1rem;
   display: flex; flex-direction: column; min-height: 142px; gap: .35rem;
 }
-.overview-card span { color: #cbd5e1; font-size: .82rem; font-weight: 700; }
+.overview-card span { color: #cbd5e1; font-size: .875rem; font-weight: 700; }
 .overview-card strong { font-size: clamp(1.7rem, 3vw, 2.25rem); font-variant-numeric: tabular-nums; line-height: 1.2; }
-.overview-card small { font-size: .75rem; line-height: 1.35; color: #94a3b8; }
+.overview-card small { font-size: .875rem; line-height: 1.35; color: #94a3b8; }
 .overview-card--unavailable { border-style: dashed; }
 .overview-error { margin: 1rem 0; color: #fecaca; }
 @media (max-width: 540px) { .overview-heading button { width: 100%; } }
@@ -85,18 +85,18 @@ h1 {
 .growth-trends { margin-top: 1.9rem; padding-top: 1.3rem; border-top: 1px solid rgba(255,255,255,.12); }
 .growth-trends-heading { display: flex; align-items: start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 .growth-trends-heading h3 { margin: 0 0 .35rem; font-size: 1.1rem; }
-.growth-trends-heading p { margin: 0; color: #cbd5e1; font-size: .85rem; line-height: 1.5; }
-.growth-tz { color: #94a3b8; font-size: .75rem; white-space: nowrap; }
+.growth-trends-heading p { margin: 0; color: #cbd5e1; font-size: .875rem; line-height: 1.5; }
+.growth-tz { color: #94a3b8; font-size: .875rem; white-space: nowrap; }
 .growth-charts { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .85rem; margin-top: 1rem; }
 .growth-chart { min-width: 0; padding: 1rem; border: 1px solid rgba(255,255,255,.1);
   border-radius: .8rem; background: rgba(15,23,42,.82); }
 .growth-chart-title { display: flex; align-items: flex-start; flex-direction: column; gap: .3rem; }
 .growth-chart-title strong { color: #f1f5f9; font-size: .94rem; }
-.growth-chart-title span { color: #a5b4fc; font-size: .78rem; font-weight: 700; }
+.growth-chart-title span { color: #a5b4fc; font-size: .875rem; font-weight: 700; }
 .growth-plot { display: grid; grid-template-columns: repeat(8, minmax(0,1fr));
   gap: .35rem; margin-top: 1.2rem; }
 .growth-point { display: flex; flex-direction: column; align-items: stretch; gap: .35rem; min-width: 0; }
-.growth-value, .growth-week { font-size: .72rem; font-variant-numeric: tabular-nums;
+.growth-value, .growth-week { font-size: .875rem; font-variant-numeric: tabular-nums;
   text-align: center; overflow-wrap: anywhere; }
 .growth-value { color: #e2e8f0; font-weight: 700; }
 .growth-week { color: #94a3b8; }
@@ -107,7 +107,7 @@ h1 {
 .growth-bar--communities { background: #38bdf8; }
 @media (max-width: 900px) { .growth-charts { grid-template-columns: 1fr; } }
 @media (max-width: 450px) { .growth-chart { padding: .8rem; }
-  .growth-plot { gap: .18rem; } .growth-week, .growth-value { font-size: .72rem; } }
+  .growth-plot { gap: .18rem; } .growth-week, .growth-value { font-size: .875rem; } }
 
 /* Optional admin-only venue quality diagnostics; overflow stays within the panel. */
 .venue-quality { margin-top: 1.9rem; padding-top: 1.3rem; border-top: 1px solid rgba(255,255,255,.12); }
@@ -116,8 +116,8 @@ h1 {
 .venue-quality-table-wrap { width: 100%; overflow-x: auto; }
 .venue-quality-table { width: 100%; border-collapse: collapse; min-width: 650px; font-variant-numeric: tabular-nums; }
 .venue-quality-table th, .venue-quality-table td { text-align: left; padding: .7rem .8rem; border-bottom: 1px solid rgba(255,255,255,.1); }
-.venue-quality-table th { font-size: .8rem; color: #e2e8f0; }
-.venue-quality-table td { font-size: .86rem; color: #cbd5e1; }
+.venue-quality-table th { font-size: .875rem; color: #e2e8f0; }
+.venue-quality-table td { font-size: .875rem; color: #cbd5e1; }
 
 /* Administrator-only missing-GPS review, nested in existing quality panel. */
 .venue-gps-review{margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid rgba(255,255,255,.12)}
@@ -125,10 +125,10 @@ h1 {
 .venue-gps-review-filter select{min-width:180px;max-width:100%;padding:.65rem;border:1px solid rgba(255,255,255,.25);border-radius:.65rem;background:#102f46;color:#f8fafc}
 .venue-gps-review-table td{vertical-align:middle}
 .venue-gps-review-table td strong,.venue-gps-review-table td small{display:block;max-width:360px;overflow-wrap:anywhere}
-.venue-gps-review-table td small{font-size:.76rem;color:#94a3b8;margin-top:.25rem}
+.venue-gps-review-table td small{font-size:.875rem;color:#94a3b8;margin-top:.25rem}
 .venue-gps-review-table td a{display:inline-block;text-decoration:none;white-space:nowrap}
 .venue-gps-review-pages{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;margin-top:1rem}
 .venue-gps-research{margin-top:.7rem;padding:.65rem;border:1px solid rgba(148,163,184,.22);border-radius:.65rem;display:flex;flex-direction:column;align-items:flex-start;gap:.35rem;max-width:360px}
-.venue-gps-research strong{color:#e2e8f0;font-size:.79rem}
+.venue-gps-research strong{color:#e2e8f0;font-size:.875rem}
 .venue-gps-research small{overflow-wrap:anywhere}
 .venue-gps-research a{white-space:normal;overflow-wrap:anywhere;max-width:100%}

@@ -9,8 +9,8 @@ p { margin:0;color:#cbd5e1;line-height:1.5; }
   background: rgba(16,185,129,.08);
 }
 .classification-profile strong { font-size: .96rem; color: #bbf7d0; }
-.classification-profile p { font-size: .84rem; color: #dbeafe; line-height: 1.55; }
-.classification-profile small { color: #a7f3d0; font-size: .75rem; }
+.classification-profile p { font-size: .875rem; color: #dbeafe; line-height: 1.55; }
+.classification-profile small { color: #a7f3d0; font-size: .875rem; }
 .classification-profile.classification-notice {
   background: rgba(234,179,8,.07);
   border-color: rgba(234,179,8,.34);
@@ -33,4 +33,4 @@ p { margin:0;color:#cbd5e1;line-height:1.5; }
   border-radius: .65rem;
   font-weight: 800;
 }
-.classification-fixed-points p { font-size: .77rem; color: #b8d4e6; }
+.classification-fixed-points p { font-size: .875rem; color: #b8d4e6; }

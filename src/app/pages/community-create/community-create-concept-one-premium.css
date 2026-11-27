@@ -138,7 +138,7 @@
 }
 .jynlo-community-create-premium .community-photo-copy > p {
   margin: 4px 0 12px;
-  font-size: .82rem;
+  font-size: .875rem;
   line-height: 1.45;
   color: #b6d3d7;
 }
@@ -161,7 +161,7 @@
   border: 1px solid rgba(83, 194, 185, .42);
   background: rgba(30, 100, 102, .19);
   color: #d9fff6;
-  font-size: .81rem;
+  font-size: .875rem;
   font-weight: 700;
   cursor: pointer;
 }
@@ -191,7 +191,7 @@
 .jynlo-community-create-premium .community-photo-actions > button {
   min-height: 38px;
   padding: 8px 12px;
-  font-size: .81rem;
+  font-size: .875rem;
 }
 .jynlo-community-create-premium .create-panel > .creation-note {
   background: rgba(30, 116, 112, .065);

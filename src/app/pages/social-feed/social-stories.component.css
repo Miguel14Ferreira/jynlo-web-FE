@@ -7,8 +7,8 @@
 }
 .stories-heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
 .stories-heading h2 { margin: .2rem 0; font-size: 1.2rem; }
-.stories-heading p, .stories-empty { font-size: .85rem; color: #b8ceda; margin: .1rem 0; }
-.stories-eyebrow { color: #7dd3fc; letter-spacing: .15em; text-transform: uppercase; font-size: .72rem; font-weight: 700; }
+.stories-heading p, .stories-empty { font-size: .875rem; color: #b8ceda; margin: .1rem 0; }
+.stories-eyebrow { color: #7dd3fc; letter-spacing: .15em; text-transform: uppercase; font-size: .75rem; font-weight: 700; }
 /* Reuse the shared Concept One action system instead of orange one-off CTAs. */
 .story-add-action span { font-size: 1.3rem; margin-right: .15rem; }
 .story-rail { display: flex; align-items: start; gap: .85rem; overflow-x: auto; padding: 1.15rem 0 .2rem; min-height: 8rem; }
@@ -16,12 +16,12 @@
 .story-ring { display: flex; align-items: center; justify-content: center; width: 68px; height: 68px; padding: 3px; border: 2px solid #de8145; border-radius: 50%; }
 .story-ring img, .story-placeholder { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 .story-placeholder { display: flex; justify-content: center; align-items: center; background: #31556b; font-size: 1.5rem; font-weight: 700; }
-.story-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; font-size: .8rem; }
-.story-bubble small { color: #9db6c7; font-size: .72rem; }
+.story-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; font-size: .875rem; }
+.story-bubble small { color: #9db6c7; font-size: .875rem; }
 .story-bubble:focus-visible, .story-add-action:focus-visible { outline: 2px solid #7dd3fc; outline-offset: 3px; }
 .story-composer { display: grid; gap: .65rem; margin-top: .85rem; padding: 1rem; border-radius: .9rem; background: rgba(3, 13, 26, .48); }
 .story-field { display: grid; gap: .45rem; }
-.story-composer label { font-size: .85rem; font-weight: 650; }
+.story-composer label { font-size: .875rem; font-weight: 650; }
 .story-composer select, .story-composer textarea { width: 100%; border: 1px solid #57778b; border-radius: .65rem; padding: .65rem; background: #0c2031; color: #fff; }
 .story-file {
   position: relative; width: fit-content; max-width: 100%; display: inline-flex;
@@ -44,14 +44,14 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 @media (max-width: 600px) {
   .stories-panel { padding: .8rem; }
   .stories-heading { align-items: flex-start; }
-  .story-add-action { font-size: .78rem; }
+  .story-add-action { font-size: .875rem; }
   .story-rail { gap: .3rem; }
   .story-bubble { flex-basis: 72px; width: 72px; }
   .story-ring { width: 58px; height: 58px; }
 }
 
 .story-header-actions { display: flex; gap: .55rem; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-.story-retry { cursor: pointer; padding: .55rem .7rem; background: transparent; color: #c2e1f1; border: 1px solid #567b91; border-radius: .7rem; font-size: .8rem; }
+.story-retry { cursor: pointer; padding: .55rem .7rem; background: transparent; color: #c2e1f1; border: 1px solid #567b91; border-radius: .7rem; font-size: .875rem; }
 .story-retry:hover { background: rgba(125, 211, 252, .13); }
 
 /* Story player – immersive, native-player-free composition. */
@@ -68,7 +68,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .story-overlay .story-author { display: flex; align-items: center; min-width: 0; gap: 10px; }
 .story-overlay .story-author-avatar { width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center; overflow: hidden; border-radius: 50%; border: 1.5px solid #00efb4; font-size: .95rem; font-weight: 750; background: #0d252a; }
 .story-overlay .story-author-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.story-overlay .story-author strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .87rem; letter-spacing: -.01em; font-weight: 730; color: #fff; }
+.story-overlay .story-author strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .875rem; letter-spacing: -.01em; font-weight: 730; color: #fff; }
 .story-overlay .story-top-actions { display: flex; align-items: center; gap: 1px; flex: 0 0 auto; position: relative; }
 .story-overlay .story-icon-button { border: 0; padding: 7px; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: transparent; color: #fff; cursor: pointer; }
 .story-overlay .story-icon-button:hover { background: rgba(255,255,255,.17); }
@@ -76,7 +76,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .story-overlay .story-icon-button svg circle { fill: currentColor; stroke: none; }
 .story-overlay .story-close-button { border: 1px solid rgba(255,255,255,.13); background: rgba(10,32,44,.36); }
 .story-overlay .story-options-menu { position: absolute; top: 40px; right: 0; min-width: 142px; overflow: hidden; border: 1px solid rgba(135,180,191,.36); border-radius: 13px; background: rgba(8,26,35,.98); box-shadow: 0 12px 36px #0009; display: grid; padding: 5px; }
-.story-overlay .story-options-menu button { cursor: pointer; border: 0; border-radius: 8px; padding: 10px 12px; background: transparent; color: #fff; font-size: .82rem; text-align: left; }
+.story-overlay .story-options-menu button { cursor: pointer; border: 0; border-radius: 8px; padding: 10px 12px; background: transparent; color: #fff; font-size: .875rem; text-align: left; }
 .story-overlay .story-options-menu button:hover { background: rgba(255,255,255,.1); }
 .story-overlay .story-options-menu .story-danger-action { color: #ff9e9e; }
 .story-overlay .story-tap-target { position: absolute; top: 95px; bottom: 96px; width: 28%; z-index: 2; border: 0; background: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -88,7 +88,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .story-overlay .story-autoplay-retry { position: absolute; z-index: 5; top: 50%; left: 50%; transform: translate(-50%,-50%); border: 1px solid rgba(0,239,180,.6); border-radius: 30px; background: #0a232ce6; color: #fff; padding: 12px 18px; cursor: pointer; }
 .story-overlay .story-bottom { position: absolute; bottom: 0; left: 0; right: 0; z-index: 6; padding: 23px 15px 16px; }
 .story-overlay .story-reply-row { display: flex; align-items: center; gap: 8px; margin: 0; width: 100%; }
-.story-overlay .story-reply-row input { flex: 1; min-width: 0; height: 44px; border-radius: 30px; border: 1px solid rgba(175,234,231,.55); background: rgba(3,22,29,.73); color: #fff; padding: 10px 14px; font-size: .84rem; outline: none; }
+.story-overlay .story-reply-row input { flex: 1; min-width: 0; height: 44px; border-radius: 30px; border: 1px solid rgba(175,234,231,.55); background: rgba(3,22,29,.73); color: #fff; padding: 10px 14px; font-size: .875rem; outline: none; }
 .story-overlay .story-reply-row input::placeholder { color: #b0c7d0; }
 .story-overlay .story-reply-row input:focus { border-color: #06efb3; background: rgba(4,31,39,.93); }
 .story-overlay .story-send-button, .story-overlay .story-reaction-button, .story-overlay .story-share-icon, .story-overlay .story-owner-share { display: grid; place-items: center; flex: 0 0 auto; width: 39px; height: 39px; padding: 8px; border: 1px solid rgba(121,230,208,.38); border-radius: 50%; background: rgba(3,22,29,.72); color: #fff; cursor: pointer; }
@@ -100,9 +100,9 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .story-overlay .story-reaction-button.is-reacted:disabled { opacity: 1; }
 
 .story-overlay .story-reply-row svg, .story-overlay .story-owner-share svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
-.story-overlay .story-owner-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: #c4dcde; font-size: .8rem; }
+.story-overlay .story-owner-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: #c4dcde; font-size: .875rem; }
 .story-overlay .story-owner-share { display: inline-flex; gap: 8px; width: auto; height: 40px; padding: 8px 16px; border-radius: 30px; font-weight: 700; }
-.story-overlay .story-feedback { margin: 0 0 8px; width: fit-content; max-width: 100%; padding: 8px 12px; border: 1px solid rgba(0,236,175,.44); border-radius: 12px; background: rgba(3,39,36,.9); font-size: .76rem; color: #ddfff6; }
+.story-overlay .story-feedback { margin: 0 0 8px; width: fit-content; max-width: 100%; padding: 8px 12px; border: 1px solid rgba(0,236,175,.44); border-radius: 12px; background: rgba(3,39,36,.9); font-size: .875rem; color: #ddfff6; }
 @media (max-width: 620px) {
  .story-overlay { padding: 0; }
  .story-overlay .story-dialog { width: 100%; height: 100dvh; min-height: 0; border-radius: 0; border: 0; }
@@ -140,7 +140,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   margin: 0 0 22px; font-size: .88rem; line-height: 1.55; color: #bcd0db;
 }
 .story-overlay .story-confirm-dialog .story-confirm-error {
-  margin: 0 0 15px; padding: 9px; font-size: .82rem;
+  margin: 0 0 15px; padding: 9px; font-size: .875rem;
   border-radius: 9px; color: #fecaca; background: rgba(220, 38, 38, .1);
 }
 .story-overlay .story-confirm-actions { display: flex; gap: 10px; }
@@ -218,7 +218,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   border-radius: 12px;
   background: rgba(248, 113, 113, .065);
   color: #ffd1d1;
-  font-size: .85rem;
+  font-size: .875rem;
   line-height: 1.45;
 }
 @media (min-width: 901px) {
@@ -242,7 +242,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .stories-panel .story-bubble.story-add-action { border: 0; background: transparent; box-shadow: none; color: #f0fdfa; }
 .stories-panel .story-bubble.story-add-action .story-create-ring { border: 2px dashed #2dd4bf; background: #103b46; }
 .stories-panel .story-create-circle-plus { display: grid; place-items: center; width: 100%; height: 100%; color: #2dd4bf; font-size: 2.3rem; line-height: 1; font-weight: 700; }
-.stories-panel .story-bubble .story-name { font-size: .76rem; line-height: 1.3; color: #e2e8f0; }
+.stories-panel .story-bubble .story-name { font-size: .875rem; line-height: 1.3; color: #e2e8f0; }
 
 /* Classic compact circular story rail, not a highlighted rectangular tile. */
 .stories-panel .story-rail,
@@ -265,7 +265,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   border:2px dashed #2dd4bf; border-radius:50%; background:#103b46;
 }
 .stories-panel .story-create-circle-plus {font-size:2rem;margin:0;line-height:1;}
-.stories-panel .story-name { width:100%; text-align:center; white-space:normal; overflow-wrap:anywhere; font-size:.73rem; }
+.stories-panel .story-name { width:100%; text-align:center; white-space:normal; overflow-wrap:anywhere; font-size:.875rem; }
 .stories-panel .stories-empty { align-self:center; margin-left:.3rem; }
 
 /* Original Stories layout: circular author avatars only in the rail,
@@ -285,7 +285,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .stories-panel .story-rail .story-ring img,.stories-panel .story-rail .story-placeholder {border-radius:50%;}
 @media (max-width:540px) {
  .stories-panel .stories-heading {align-items:flex-start;}
- .stories-panel .story-header-create {font-size:.76rem;padding:.5rem .65rem;}
+ .stories-panel .story-header-create {font-size:.875rem;padding:.5rem .65rem;}
 }
 
 /* Closing a Story is a bare X, never a circular icon background. */
@@ -307,12 +307,12 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .story-dialog .story-audience-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .story-dialog .story-audience-header strong{font-size:1.03rem}
 .story-dialog .story-audience-header button{min-width:44px;min-height:44px;background:transparent;color:#fff;border:0;font-size:1.15rem;cursor:pointer}
-.story-dialog .story-audience-panel p{font-size:.85rem;color:#aed1d4;margin:8px 0}
+.story-dialog .story-audience-panel p{font-size:.875rem;color:#aed1d4;margin:8px 0}
 .story-dialog .story-audience-people{display:flex;flex-direction:column;max-height:45dvh;overflow:auto}
 .story-dialog .story-audience-people a{min-height:50px;display:flex;align-items:center;justify-content:space-between;gap:10px;
  padding:9px 3px;color:#f0fdfa;text-decoration:none;border-bottom:1px solid #ffffff24}
 .story-dialog .story-audience-people a:hover{background:#155064}
-.story-dialog .story-audience-people small{color:#a8c4cb;font-size:.75rem}
+.story-dialog .story-audience-people small{color:#a8c4cb;font-size:.875rem}
 
 
 /* Compact social-first rail: show people instead of a large empty dashboard panel. */
@@ -324,8 +324,8 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 }
 :host .stories-heading {align-items:center;gap:15px;}
 :host .stories-heading h2 {font-size:1.14rem;letter-spacing:-.025em;margin:3px 0;}
-:host .stories-heading p {font-size:.8rem;line-height:1.4;}
-:host .stories-eyebrow {color:#44ecd0;font-size:.72rem;letter-spacing:.15em;}
+:host .stories-heading p {font-size:.875rem;line-height:1.4;}
+:host .stories-eyebrow {color:#44ecd0;font-size:.75rem;letter-spacing:.15em;}
 :host .story-rail {
   min-height:0;gap:12px;padding:13px 0 3px;
   align-items:flex-start;scrollbar-width:thin;scrollbar-color:#296d71 transparent;
@@ -345,12 +345,12 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 }
 :host .story-rail .story-placeholder {background:linear-gradient(140deg,#134450,#0b6665);font-size:1.4rem;}
 :host .story-rail .story-name {
-  display:block;width:100%;font-size:.73rem;line-height:1.2;font-weight:700;
+  display:block;width:100%;font-size:.875rem;line-height:1.2;font-weight:700;
   text-overflow:ellipsis;overflow:hidden;white-space:nowrap;
 }
-:host .story-rail .story-bubble small {font-size:.72rem;}
+:host .story-rail .story-bubble small {font-size:.875rem;}
 :host .story-rail .stories-empty {
-  min-height:0;margin:4px 0 9px;color:#acd3d4;font-size:.82rem;
+  min-height:0;margin:4px 0 9px;color:#acd3d4;font-size:.875rem;
 }
 :host .stories-panel .story-header-create {
   min-height:38px;border-radius:11px;background:#104f4a;border-color:#35e7c7;

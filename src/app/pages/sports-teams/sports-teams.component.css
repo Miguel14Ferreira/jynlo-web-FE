@@ -2,7 +2,7 @@
 .teams-page{min-height:100vh;padding:6.5rem 1.25rem 4rem;color:#f5fafb;background:linear-gradient(145deg,#07111f,#0b293b)}
 .teams-shell{width:min(1180px,100%);margin:auto;display:grid;gap:1.3rem}
 .teams-hero{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(320px,.82fr);gap:2.5rem;align-items:center;padding:clamp(1.5rem,4vw,2.65rem);background:linear-gradient(115deg,#06313d,#082331 60%,#062b38);border:1px solid #1b819064;border-radius:20px;box-shadow:0 20px 55px #0002}
-.eyebrow{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;font-weight:850;color:#61f4da;margin:0 0 .7rem}
+.eyebrow{font-size:.75rem;letter-spacing:.13em;text-transform:uppercase;font-weight:850;color:#61f4da;margin:0 0 .7rem}
 .teams-hero h1{font-size:clamp(2.1rem,4.2vw,3.4rem);letter-spacing:-.045em;line-height:1.08;margin:0 0 .95rem;font-weight:900}
 .teams-hero h1 span{color:#93fff1}
 .hero-description{color:#bdd8e0;max-width:56ch;line-height:1.65;margin:0 0 1.5rem}
@@ -14,7 +14,7 @@
 .action:disabled{opacity:.55;cursor:not-allowed}
 .hero-benefits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}
 .hero-benefits>div{display:grid;align-content:start;gap:.4rem;min-height:128px;padding:1rem;background:#0a3142c9;border:1px solid #38839461;border-radius:15px}
-.hero-benefits span{font-size:1.3rem}.hero-benefits strong{font-size:.87rem}.hero-benefits small{line-height:1.5;color:#b7d8df}
+.hero-benefits span{font-size:1.3rem}.hero-benefits strong{font-size:.875rem}.hero-benefits small{line-height:1.5;color:#b7d8df}
 .teams-section{background:#092636c8;border:1px solid #38798b55;border-radius:18px;padding:clamp(1rem,3vw,1.5rem);min-width:0}
 .section-heading{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem}
 .section-heading h2{font-size:clamp(1.35rem,2.5vw,1.7rem);margin:0 0 .35rem}
@@ -24,14 +24,14 @@
 .team-card:hover{transform:translateY(-3px);border-color:#4ce8c7}
 .team-card-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
 .team-emblem{display:grid;place-items:center;width:54px;height:54px;border-radius:15px;background:linear-gradient(135deg,#16caba,#177b8b);font-size:1.5rem;font-weight:900;color:#04242e}
-.team-role{font-size:.7rem;border:1px solid #2ec7a066;background:#16b9981e;border-radius:50px;padding:.3rem .6rem;color:#8ffbe1}
+.team-role{font-size:.875rem;border:1px solid #2ec7a066;background:#16b9981e;border-radius:50px;padding:.3rem .6rem;color:#8ffbe1}
 .team-card h3{margin:.35rem 0 0;font-size:1.25rem;overflow-wrap:anywhere}.team-card p{color:#bdd0da;margin:0}
-.team-card small{color:#a2c3ce;line-height:1.55}.card-link{font-size:.86rem;color:#5cf3d5;font-weight:800;margin-top:auto;padding-top:.6rem}
+.team-card small{color:#a2c3ce;line-height:1.55}.card-link{font-size:.875rem;color:#5cf3d5;font-weight:800;margin-top:auto;padding-top:.6rem}
 .empty-state{display:grid;justify-items:center;text-align:center;gap:.45rem;padding:2rem 1rem;background:#0e354350;border:1px dashed #41818a;border-radius:15px}
 .empty-state h3{margin:.2rem 0;font-size:1.2rem}.empty-state p{max-width:48ch;color:#bdd0da;line-height:1.6}.empty-icon{font-size:2rem}
 .search-row{display:flex;gap:.7rem}.search-row input{flex:1;min-width:0}
 .create-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.9rem}
-.create-form label{display:grid;align-content:start;gap:.4rem;font-size:.85rem;font-weight:700}
+.create-form label{display:grid;align-content:start;gap:.4rem;font-size:.875rem;font-weight:700}
 .create-form .full,.form-footer{grid-column:1/-1}
 input,textarea{width:100%;min-width:0;box-sizing:border-box;border:1px solid #257a88;border-radius:11px;color:#eefefa;background:#082b39;padding:.85rem;font:inherit}
 input:focus-visible,textarea:focus-visible{outline:2px solid #52e2c8;outline-offset:1px}
@@ -162,7 +162,7 @@ textarea{min-height:105px;resize:vertical}
   padding:11px;background:#062d3b8c;border-color:#56c6ae3d;border-radius:12px;
 }
 .hero-benefits>div span {font-size:1.05rem;}
-.hero-benefits>div strong {font-size:.76rem;line-height:1.35;}
+.hero-benefits>div strong {font-size:.875rem;line-height:1.35;}
 .hero-benefits>div small {display:none;}
 .teams-section {border-color:#41c6b43e;border-radius:19px;background:linear-gradient(140deg,#082c39,#05202d);}
 .teams-grid,#explorar-equipas .teams-grid {
@@ -188,7 +188,7 @@ textarea{min-height:105px;resize:vertical}
 }
 .team-card h3 {font-size:clamp(1.12rem,1.55vw,1.4rem);line-height:1.25;margin:3px 0 0;}
 .team-card .team-role {color:#a4ffe7;border-color:#4bdfb14f;background:#08685143;}
-.team-card .card-link {color:#74f4d7;font-size:.82rem;}
+.team-card .card-link {color:#74f4d7;font-size:.875rem;}
 .team-card:is(:hover,:focus-visible),#explorar-equipas .team-card:is(:hover,:focus-visible) {
   border-color:#58e8cb;box-shadow:0 18px 39px #0006;transform:translateY(-2px);
 }

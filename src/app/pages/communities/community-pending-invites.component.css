@@ -18,7 +18,7 @@ h2{margin:0;}
   border-bottom:1px solid rgba(255,255,255,.07);
 }
 .invite-row > div:first-child{display:grid;gap:.2rem;}
-.invite-row span{color:#94a3b8;font-size:.85rem;}
+.invite-row span{color:#94a3b8;font-size:.875rem;}
 .invite-row--targeted {
   border: 1px solid rgba(52, 211, 153, .7);
   border-radius: .75rem;
@@ -30,7 +30,7 @@ h2{margin:0;}
 }
 .primary-action{border:0;background:#f8fafc;color:#0f172a;}
 .secondary-action{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;}
-.small{padding:.5rem .7rem;font-size:.82rem;}
+.small{padding:.5rem .7rem;font-size:.875rem;}
 @media(max-width:800px){.invite-row{align-items:stretch;flex-direction:column;}}
 
 

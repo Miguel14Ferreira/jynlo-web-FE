@@ -5,16 +5,16 @@
 .pt-login{color:#062018;background:#3fd8b4;font-weight:800;text-decoration:none;padding:9px 16px;border-radius:999px;font-size:.9rem}
 .pt-hero{display:grid;gap:6px;padding:6px 2px}
 .pt-hero h1{margin:0;font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.15}
-.pt-status{justify-self:start;font-size:.75rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.1)}
+.pt-status{justify-self:start;font-size:.875rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.1)}
 .pt-status.is-live{background:rgba(63,216,180,.2);color:#6ff0d4}
 .pt-champion{margin:4px 0 0;font-size:1.1rem;font-weight:900;color:#ffd27a}
 .pt-muted{margin:0;color:#a9c9c4;font-size:.92rem}
 .pt-card{background:rgba(7,40,49,.72);border:1px solid rgba(63,216,180,.22);border-radius:18px;padding:16px;display:grid;gap:10px}
 .pt-card h2{margin:0;font-size:1.1rem}
-.pt-card h3{margin:10px 0 2px;font-size:.82rem;color:#a9c9c4;text-transform:uppercase;letter-spacing:.05em}
+.pt-card h3{margin:10px 0 2px;font-size:.875rem;color:#a9c9c4;text-transform:uppercase;letter-spacing:.05em}
 .pt-table-wrap{overflow-x:auto}
 .pt-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:.92rem}
-.pt-table th{font-size:.75rem;color:#a9c9c4;font-weight:800;padding:6px 4px;text-align:center}
+.pt-table th{font-size:.875rem;color:#a9c9c4;font-weight:800;padding:6px 4px;text-align:center}
 .pt-table td{padding:9px 4px;text-align:center;border-top:1px solid rgba(255,255,255,.07)}
 .pt-table .pt-name{text-align:left;max-width:12rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
 .pt-table .pt-points{font-weight:900;color:#6ff0d4}

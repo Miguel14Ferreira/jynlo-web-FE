@@ -33,7 +33,7 @@
 .create-mode-option:disabled {cursor:wait;opacity:.65}
 .create-mode-feedback {
   padding:11px 13px;border-radius:10px;border:1px solid rgba(65,193,168,.3);
-  color:#b3e6d9;background:rgba(12,75,72,.25);line-height:1.5;font-size:.86rem
+  color:#b3e6d9;background:rgba(12,75,72,.25);line-height:1.5;font-size:.875rem
 }
 .create-share-panel {margin-top:0}
 .create-share-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}

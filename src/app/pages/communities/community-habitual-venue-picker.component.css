@@ -12,7 +12,7 @@
 .community-venue-cancel:disabled{opacity:.5;cursor:not-allowed}
 .community-venue-search-row{display:flex;align-items:end;flex-wrap:wrap;gap:12px;margin:0}
 .community-venue-search-field{display:grid;flex:1 1 260px;max-width:520px;gap:7px;min-width:0}
-.community-venue-search-field>span{font-size:.86rem;color:#d5eced;font-weight:750}
+.community-venue-search-field>span{font-size:.875rem;color:#d5eced;font-weight:750}
 .community-venue-search-field input{box-sizing:border-box;width:100%;min-height:46px;border:1px solid #387080;background:#082638;border-radius:12px;color:#f1fffc;padding:10px 13px;font:inherit}
 .community-venue-search-button,.community-venue-confirm {box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-height:46px;border:1px solid #30d9bb;background:#116358;border-radius:12px;color:#effffb;padding:10px 22px;font:inherit;font-weight:800;white-space:normal;cursor:pointer;transition:background .15s,border-color .15s}
 .community-venue-search-button:hover:not(:disabled),.community-venue-confirm:hover:not(:disabled){background:#187e6f}
@@ -23,14 +23,14 @@
 .community-venue-result:hover,.community-venue-result:focus-visible,.community-venue-result.selected{border-color:#32dfc0;background:#154d50}
 .community-venue-result-name{font-weight:800;overflow-wrap:anywhere}
 .community-venue-result-place{color:#b4d4de;font-size:.88rem}
-.community-venue-result-action{color:#8ff5db;font-weight:800;font-size:.83rem;margin-top:auto}
+.community-venue-result-action{color:#8ff5db;font-weight:800;font-size:.875rem;margin-top:auto}
 .community-venue-detail{border:1px solid #39b9a9;border-radius:16px;background:linear-gradient(135deg,#123e4a,#0b2c40);padding:clamp(14px,2vw,22px);display:grid;gap:17px}
 .community-venue-detail-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:start;gap:10px}
 .community-venue-detail-head h4{margin:5px 0 0;font-size:1.25rem;overflow-wrap:anywhere}
 .community-venue-detail-city{color:#bde4e4}
 .community-venue-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:15px;margin:0}
 .community-venue-detail-grid div{min-width:0}
-.community-venue-detail-grid dt{color:#a4c6d0;font-size:.8rem;font-weight:750;margin-bottom:5px}
+.community-venue-detail-grid dt{color:#a4c6d0;font-size:.875rem;font-weight:750;margin-bottom:5px}
 .community-venue-detail-grid dd{margin:0;color:#f1fffc;overflow-wrap:anywhere}
 .community-venue-detail-actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
 .community-venue-detail-link{color:#a4f8e3;text-decoration:underline;text-underline-offset:3px}

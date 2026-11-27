@@ -95,7 +95,7 @@ h1 {
 
 .toolbar > span {
   color: #94a3b8;
-  font-size: .8rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 
@@ -148,7 +148,7 @@ h1 {
 
 .sport {
   color: #a5b4fc;
-  font-size: .78rem;
+  font-size: .875rem;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: .1em;
@@ -195,7 +195,7 @@ h1 {
   display: block;
   margin-bottom: .3rem;
   color: #94a3b8;
-  font-size: .75rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 
@@ -241,7 +241,7 @@ h1 {
 
 .resolved-at {
   color: #94a3b8;
-  font-size: .8rem;
+  font-size: .875rem;
 }
 
 @media (max-width: 700px) {

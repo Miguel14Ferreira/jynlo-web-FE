@@ -138,7 +138,7 @@
   color:#f0fffb;font-size:clamp(.85rem,1.6vw,1rem);
 }
 :host .detail-page.jynlo-session-detail-premium .detail-grid > div span {
-  color:#bad5dc;font-size:.77rem;
+  color:#bad5dc;font-size:.875rem;
 }
 :host .detail-page.jynlo-session-detail-premium :is(
   .session-participants-header,.organizer-preparation-heading,
@@ -256,7 +256,7 @@
   background: rgba(6, 78, 81, .45);
   color: #8cffe5;
   font: inherit;
-  font-size: .76rem;
+  font-size: .875rem;
   font-weight: 750;
   cursor: pointer;
 }
@@ -284,7 +284,7 @@
   flex-wrap: wrap;
 }
 .session-inline-chat-heading h2 { margin: 0 0 5px; font-size: 1.15rem; color: #f2fffd; }
-.session-inline-chat-heading p { margin: 0; color: #bcd7dc; font-size: .86rem; }
+.session-inline-chat-heading p { margin: 0; color: #bcd7dc; font-size: .875rem; }
 .session-inline-chat-actions { justify-content: flex-end; }
 .session-inline-chat-messages {
   min-height: 180px;
@@ -298,7 +298,7 @@
   flex-direction: column;
   gap: 10px;
 }
-.session-inline-chat-day { align-self: center; color: #acced6; font-size: .75rem; }
+.session-inline-chat-day { align-self: center; color: #acced6; font-size: .875rem; }
 .session-inline-chat-message {
   align-self: flex-start;
   max-width: min(90%, 570px);
@@ -315,7 +315,7 @@
   border-radius: 13px 13px 3px 13px;
   background: #0d5254;
 }
-.session-inline-chat-message strong { font-size: .78rem; color: #8ce8d7; }
+.session-inline-chat-message strong { font-size: .875rem; color: #8ce8d7; }
 .session-inline-chat-message p { margin: 5px 0; color: #f2fcfd; white-space: pre-wrap; line-height: 1.5; }
 .session-inline-chat-message blockquote {
   margin: 6px 0;
@@ -326,7 +326,7 @@
 }
 .session-inline-chat-message footer {
   display: flex; align-items: center; justify-content: flex-end;
-  gap: 12px; font-size: .72rem; color: #b4d3db;
+  gap: 12px; font-size: .875rem; color: #b4d3db;
 }
 .session-inline-chat-message footer button {
   padding: 3px 0;
@@ -365,11 +365,11 @@
 .session-capacity-edit-action {
   display: inline-flex; align-items: center; margin-top: .45rem;
   padding: .2rem .1rem; border: 0; background: none;
-  color: #7ff6df; font: inherit; font-size: .83rem; font-weight: 700;
+  color: #7ff6df; font: inherit; font-size: .875rem; font-weight: 700;
   text-decoration: underline; text-underline-offset: .2rem; cursor: pointer;
 }
 .session-capacity-editor { display: grid; gap: .65rem; margin-top: .7rem; min-width: 0; }
-.session-capacity-editor label { color: #e4faf6; font-size: .84rem; }
+.session-capacity-editor label { color: #e4faf6; font-size: .875rem; }
 .session-capacity-editor input {
   width: min(160px, 100%); min-height: 42px; box-sizing: border-box;
   border: 1px solid rgba(112, 239, 210, .5); border-radius: 10px;
@@ -394,7 +394,7 @@
 .session-details-editor h2 { margin:0; color:#f6fffd; font-size:1.25rem; }
 .session-details-editor p { margin:0; color:#bad9df; line-height:1.5; }
 .session-details-editor-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
-.session-details-editor-fields label { display:grid; gap:.4rem; min-width:0; font-size:.85rem; color:#e6fcf8; font-weight:650; }
+.session-details-editor-fields label { display:grid; gap:.4rem; min-width:0; font-size:.875rem; color:#e6fcf8; font-weight:650; }
 .session-details-editor-fields input,
 .session-details-editor-fields select {
   box-sizing:border-box; min-width:0; width:100%; min-height:42px;
@@ -445,7 +445,7 @@
   background: rgba(17, 50, 68, .8);
   color: #d6f5f0;
   font: inherit;
-  font-size: .76rem;
+  font-size: .875rem;
   font-weight: 750;
 }
 :host .detail-page.jynlo-session-detail-premium .session-player-card__contact-toggle::-webkit-details-marker {
@@ -473,10 +473,10 @@
 :host .detail-page.jynlo-session-detail-premium .session-player-card__contact-actions > button {
   min-height: 34px;
   padding: 6px 10px;
-  font-size: .76rem;
+  font-size: .875rem;
 }
 @media (max-width: 480px) {
-  :host .detail-page.jynlo-session-detail-premium .session-player-card__badge {font-size: .72rem;}
+  :host .detail-page.jynlo-session-detail-premium .session-player-card__badge {font-size: .75rem;}
   :host .detail-page.jynlo-session-detail-premium .session-player-card__contact-actions[open] > button {
     flex: 1 1 auto;
   }
@@ -513,7 +513,7 @@
 :host .detail-page.jynlo-session-detail-premium .session-cancelled-banner p {
   margin: 4px 0 0;
   color: #f7c8d0;
-  font-size: .86rem;
+  font-size: .875rem;
   line-height: 1.5;
 }
 :host .detail-page.jynlo-session-detail-premium .session-status-cancelled {

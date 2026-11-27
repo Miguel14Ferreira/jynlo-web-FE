@@ -2,24 +2,24 @@
 :host { border-bottom:1px solid #365c69; padding:15px 22px; background:#102936;
   display:flex; flex-direction:column; gap:10px; }
 .inbox-history-search-form { display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap; }
-.inbox-history-search-form label { color:#b8ebdf; font-size:.78rem; font-weight:750; width:100%; }
+.inbox-history-search-form label { color:#b8ebdf; font-size:.875rem; font-weight:750; width:100%; }
 .inbox-history-search-form input { flex:1; min-width:180px; padding:10px 12px; border:1px solid #517687;
-  background:#09202d; color:#f1ffff; border-radius:11px; font:inherit; font-size:.83rem; }
+  background:#09202d; color:#f1ffff; border-radius:11px; font:inherit; font-size:.875rem; }
 .inbox-history-search-form input:focus-visible { outline:2px solid #70e8d1; }
 .inbox-history-search-form button { min-height:40px; }
-.inbox-history-search-status { font-size:.8rem; color:#bcd6df; margin:0; }
+.inbox-history-search-status { font-size:.875rem; color:#bcd6df; margin:0; }
 .inbox-history-search-results { display:flex; flex-direction:column; gap:7px;
   max-height:230px; overflow-y:auto; }
 .inbox-history-search-result { background:#193c4d; border:1px solid #3c6670; border-radius:10px;
   padding:9px 12px; }
 .inbox-history-search-meta { display:flex; gap:12px; flex-wrap:wrap; justify-content:space-between;
-  font-size:.72rem; color:#a4e9d9; }
+  font-size:.875rem; color:#a4e9d9; }
 .inbox-history-search-meta time { color:#c0d8dd; }
 .inbox-history-search-result p { margin:5px 0; color:#f0ffff; white-space:pre-wrap;
-  overflow-wrap:anywhere; font-size:.82rem; }
+  overflow-wrap:anywhere; font-size:.875rem; }
 .inbox-search-result-reply,.inbox-search-more,.inbox-search-result-open { border:1px solid #53877e; border-radius:8px;
   background:#133e46; color:#b6f8e5; padding:6px 10px; cursor:pointer;
-  font:inherit; font-size:.76rem; }
+  font:inherit; font-size:.875rem; }
 .inbox-search-result-reply:hover,.inbox-search-more:hover,.inbox-search-result-open:hover { background:#236057; }
 .inbox-search-result-reply:focus-visible, .inbox-search-more:focus-visible { outline:2px solid #8cf5dc; }
 .inbox-search-more { align-self:flex-start; }
@@ -30,4 +30,4 @@
 .inbox-search-result-open { margin-right:7px; }
 .inbox-search-result-open:focus-visible { outline:2px solid #8cf5dc; outline-offset:2px; }
 
-.inbox-history-search-note { color:#c2e8e2!important; font-size:.76rem!important; }
+.inbox-history-search-note { color:#c2e8e2!important; font-size:.875rem!important; }

@@ -258,7 +258,7 @@
   min-height:36px;
   cursor:pointer;
   color:#c9e8eb;
-  font-size:.83rem;
+  font-size:.875rem;
   font-weight:750;
   list-style:none;
 }
@@ -320,7 +320,7 @@
   margin:5px 0;
 }
 :host .community-page.profile-page-open .profile-publications-header p{
-  font-size:.82rem;
+  font-size:.875rem;
   color:#c1dce3;
   margin:0;
   line-height:1.55;
@@ -379,7 +379,7 @@
   margin-top:auto;
   padding:13px 14px;
   color:#a9cdd6;
-  font-size:.73rem;
+  font-size:.875rem;
 }
 :host .community-page.profile-page-open .profile-publications-state{
   padding:15px;
@@ -444,7 +444,7 @@
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
   justify-self:end;min-height:40px;padding:9px 15px;border:1px solid rgba(77,220,199,.45);
   border-radius:999px;background:rgba(15,72,82,.75);color:#e7fffb;cursor:pointer;
-  font-size:.82rem;font-weight:750;
+  font-size:.875rem;font-weight:750;
 }
 :host .community-page.profile-page-open .profile-share-action:hover{
   background:rgba(32,118,116,.8);border-color:#48dfc9;
@@ -454,7 +454,7 @@
 }
 :host .community-page.profile-page-open .profile-share-action:disabled{opacity:.6;cursor:wait}
 :host .community-page.profile-page-open .profile-share-feedback{
-  justify-self:end;color:#9cfff0;font-size:.78rem;
+  justify-self:end;color:#9cfff0;font-size:.875rem;
 }
 /* Default favorite cards show at most three sports; others appear only on demand. */
 :host .community-page.profile-page-open .profile-meta-card:has(app-venue-sports-badges){
@@ -526,7 +526,7 @@
   font-size:1.01rem!important;line-height:1.45;
 }
 :host .community-page.jynlo-social.profile-page-open .profile-identity .eyebrow {
-  font-size:.72rem;letter-spacing:.15em;margin-bottom:8px;
+  font-size:.75rem;letter-spacing:.15em;margin-bottom:8px;
 }
 :host .community-page.jynlo-social.profile-page-open .social-summary {
   gap:7px;margin-top:17px;
@@ -541,7 +541,7 @@
   font-size:1.25rem;line-height:1.25;color:white;
 }
 :host .community-page.jynlo-social.profile-page-open .social-summary button span {
-  font-size:.75rem;line-height:1.3;color:#bddfd9;
+  font-size:.875rem;line-height:1.3;color:#bddfd9;
 }
 :host .community-page.jynlo-social.profile-page-open .profile-publications-grid {
   gap:clamp(8px,1.2vw,14px);
@@ -615,7 +615,7 @@
   margin:5px 0;font-size:1.12rem;color:#e6fff7;
 }
 :host .community-page.profile-page-open .profile-individual-titles-heading p{
-  margin:0;color:#a6d0d2;font-size:.83rem;
+  margin:0;color:#a6d0d2;font-size:.875rem;
 }
 :host .community-page.profile-page-open .profile-individual-titles-grid{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:11px;
@@ -635,7 +635,7 @@
 :host .community-page.profile-page-open .profile-individual-title-card strong{font-size:.94rem}
 :host .community-page.profile-page-open .profile-individual-title-card span:not(.profile-individual-title-icon),
 :host .community-page.profile-page-open .profile-individual-title-card small{
-  font-size:.78rem;color:#abcfd1;
+  font-size:.875rem;color:#abcfd1;
 }
 
 
@@ -662,13 +662,13 @@
   display:grid;gap:5px;min-width:0;
 }
 :host .community-page.profile-page-open .profile-competition-participation-status{
-  justify-items:end;text-align:right;flex-shrink:0;font-size:.8rem;color:#b1d4d7;
+  justify-items:end;text-align:right;flex-shrink:0;font-size:.875rem;color:#b1d4d7;
 }
 :host .community-page.profile-page-open .profile-competition-participation-main strong{
   font-size:.91rem;overflow-wrap:anywhere;
 }
 :host .community-page.profile-page-open .profile-competition-participation small{
-  color:#a3cbd0;font-size:.76rem;
+  color:#a3cbd0;font-size:.875rem;
 }
 :host .community-page.profile-page-open .profile-competition-winner{
   color:#dcfff0;font-weight:800;

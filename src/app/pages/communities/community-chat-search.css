@@ -6,7 +6,7 @@
 .community-chat-search button { min-width: 38px; min-height: 38px; border-radius: .5rem; border: 1px solid rgba(148,163,184,.3); background: rgba(11,35,47,.85); color: #e6fffa; cursor: pointer; }
 .community-chat-search button:disabled { opacity: .4; cursor: default; }
 .community-chat-search button:focus-visible, .community-chat-reply-jump:focus-visible { outline: 2px solid #34d399; outline-offset: 2px; }
-.community-chat-search-navigation { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem; font-size: .84rem; color: #cbd5e1; }
+.community-chat-search-navigation { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem; font-size: .875rem; color: #cbd5e1; }
 .community-chat-search-navigation span { margin-right: auto; }
 .community-chat-search-navigation .jynlo-action { flex: 1 1 170px; }
 .community-chat-bubble.community-chat-search-active { outline: 2px solid #34d399; outline-offset: 2px; background: rgba(16,185,129,.12); }

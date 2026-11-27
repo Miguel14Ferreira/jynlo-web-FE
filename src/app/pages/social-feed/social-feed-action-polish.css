@@ -71,7 +71,7 @@
   border-radius:4px !important;
   background:transparent !important;
   color:#61e9d5 !important;
-  font-size:.76rem;font-weight:790;
+  font-size:.875rem;font-weight:790;
   line-height:1.3;white-space:nowrap;text-decoration:none;
 }
 :host .feed-v3-shell .feed-v3-post-heading > a.feed-inline-link:hover,
@@ -254,7 +254,7 @@
   }
 }
 
-.feed-likers-action{border:0;background:transparent;color:#83edda;text-decoration:underline;text-underline-offset:3px;font-size:.75rem;cursor:pointer}
+.feed-likers-action{border:0;background:transparent;color:#83edda;text-decoration:underline;text-underline-offset:3px;font-size:.875rem;cursor:pointer}
 .feed-likers-overlay{position:fixed;inset:0;z-index:1200;background:#00101bd9;display:grid;place-items:center;padding:1rem}
 .feed-likers-dialog{width:min(440px,100%);max-height:75vh;overflow:auto;padding:1.25rem;border:1px solid #25d5c555;border-radius:1rem;background:#0a2d3c;color:#eefefb}
 .feed-likers-dialog header{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem}
@@ -265,11 +265,11 @@
 .feed-liker-person:hover,.feed-liker-person:focus-visible{border-color:#1edcbb}
 
 /* Natural, quiet liked-by sentence instead of a standalone utility link. */
-.feed-likers-action,.feed-likers-private{display:inline-flex;align-items:center;font-size:.8rem;line-height:1.4;color:#d7e9e8}
+.feed-likers-action,.feed-likers-private{display:inline-flex;align-items:center;font-size:.875rem;line-height:1.4;color:#d7e9e8}
 .feed-likers-action{border:0;background:transparent;padding:.25rem .15rem;cursor:pointer;text-align:left;text-decoration:none}
 .feed-likers-action:hover{color:#6ce4cd;text-decoration:underline;text-underline-offset:3px}
 .feed-likers-private{padding:.25rem .15rem;color:#9ebabe}
-.feed-likers-privacy{border:0;background:transparent;color:#97b7bb;font-size:.7rem;cursor:pointer;padding:.25rem .3rem}
+.feed-likers-privacy{border:0;background:transparent;color:#97b7bb;font-size:.875rem;cursor:pointer;padding:.25rem .3rem}
 .feed-likers-privacy:hover{color:#ecfffb}
 .feed-likers-privacy:disabled{opacity:.5;cursor:wait}
 .feed-likers-action:focus-visible,.feed-likers-privacy:focus-visible{outline:2px solid #30dcc2;outline-offset:2px;border-radius:4px}
@@ -301,9 +301,9 @@
 }
 .feed-attendance-summary{display:grid;gap:3px;flex:1 1 200px;min-width:0}
 .feed-attendance-summary strong{color:#ecfffb;font-size:.9rem}
-.feed-attendance-summary span{color:#b8d5da;font-size:.78rem;line-height:1.5}
+.feed-attendance-summary span{color:#b8d5da;font-size:.875rem;line-height:1.5}
 .feed-attendance-link,.feed-attendance-hide{
-  background:transparent;border:0;color:#7be9d6;font-size:.8rem;
+  background:transparent;border:0;color:#7be9d6;font-size:.875rem;
   font-weight:700;text-decoration:none;cursor:pointer;
 }
 .feed-attendance-hide{color:#a9c6cc;font-weight:500}
@@ -321,7 +321,7 @@
   width:100%;min-height:40px;padding:.55rem .9rem;
   border:0;border-top:1px solid rgba(102,200,201,.15);
   background:rgba(18,69,77,.25);color:#8bf0dd;
-  font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;
+  font:inherit;font-size:.875rem;font-weight:700;cursor:pointer;
 }
 .feed-attendance-expand:hover { background:rgba(28,109,105,.25); }
 .feed-attendance-expand:focus-visible { outline:2px solid #8bf0dd;outline-offset:-3px; }
@@ -337,7 +337,7 @@
   background: rgba(18,64,77,.28);
   color: #bad6d5;
   font: inherit;
-  font-size: .77rem;
+  font-size: .875rem;
   font-weight: 650;
   cursor: pointer;
 }
@@ -362,7 +362,7 @@
   border-radius: 11px;
   background: rgba(13,67,70,.32);
   color: #dcfff7;
-  font-size: .82rem;
+  font-size: .875rem;
 }
 .feed-hide-feedback > button {
   border: 0;
@@ -379,7 +379,7 @@
   outline-offset: 2px;
 }
 @media (max-width: 540px) {
-  .feed-hide-post { padding: 6px 8px; font-size: .73rem; }
+  .feed-hide-post { padding: 6px 8px; font-size: .875rem; }
 }
 
 /* Organiser's cancellation receipt: readable, selectable notice for external
@@ -394,7 +394,7 @@
 .feed-cancelled-notice > div { min-width:0;display:grid;gap:7px; }
 .feed-cancelled-notice strong { font-size:.94rem;color:#effffb; }
 .feed-cancelled-notice p { margin:0;line-height:1.45;overflow-wrap:anywhere; }
-.feed-cancelled-notice label { font-size:.76rem;font-weight:700;color:#b1dcd6; }
+.feed-cancelled-notice label { font-size:.875rem;font-weight:700;color:#b1dcd6; }
 .feed-cancelled-notice textarea {
   box-sizing:border-box;width:100%;min-height:82px;padding:10px 12px;
   border:1px solid rgba(121,215,201,.35);border-radius:10px;

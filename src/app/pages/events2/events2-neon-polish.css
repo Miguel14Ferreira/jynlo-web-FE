@@ -60,7 +60,7 @@
   padding:clamp(15px,1.8vw,20px);
 }
 :host .create-page.jynlo-games .section-kicker {
-  color:#54efd8;letter-spacing:.09em;font-size:.73rem;
+  color:#54efd8;letter-spacing:.09em;font-size:.75rem;
 }
 :host .create-page.jynlo-games :is(.create-mode-intro,.create-preset-heading,.create-share-panel > div:first-child) h2 {
   margin:0;color:#f2fffd;

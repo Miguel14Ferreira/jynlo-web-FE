@@ -5,21 +5,21 @@
 .inbox-share-picker-head button { background:transparent;border:0;color:#ecfffa;
   font-size:1.5rem;cursor:pointer; }
 .inbox-share-tabs { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px; }
-.inbox-share-tabs button { padding:9px 3px;color:#b7d0d0;font:inherit;font-size:.73rem;
+.inbox-share-tabs button { padding:9px 3px;color:#b7d0d0;font:inherit;font-size:.875rem;
   border:0;border-bottom:2px solid transparent;background:transparent;cursor:pointer; }
 .inbox-share-tabs button.active { color:#f0fffa;border-color:#50d9a5; }
 .inbox-share-filter { border:1px solid #427873;background:#0a232e;color:#f2fffa;
-  padding:10px;border-radius:9px;width:100%;font:inherit;font-size:.81rem; }
+  padding:10px;border-radius:9px;width:100%;font:inherit;font-size:.875rem; }
 .inbox-share-results { overflow-y:auto;max-height:285px;min-height:90px;display:grid;
   align-content:start;gap:5px; }
-.inbox-share-results p { color:#b8d2d4;font-size:.8rem;margin:10px 2px; }
+.inbox-share-results p { color:#b8d2d4;font-size:.875rem;margin:10px 2px; }
 .inbox-share-option { display:grid;gap:4px;text-align:left;border:1px solid #345663;
   color:#effffb;background:#1b3944;border-radius:9px;padding:10px;cursor:pointer;
   font:inherit;min-width:0; }
 .inbox-share-option:hover { background:#245958;border-color:#54cbb4; }
-.inbox-share-option strong { font-size:.81rem;overflow-wrap:anywhere; }
-.inbox-share-option small { color:#b6d3d6;font-size:.73rem;overflow-wrap:anywhere; }
-.inbox-share-privacy { display:block;color:#adc9cd;line-height:1.4;font-size:.7rem; }
+.inbox-share-option strong { font-size:.875rem;overflow-wrap:anywhere; }
+.inbox-share-option small { color:#b6d3d6;font-size:.875rem;overflow-wrap:anywhere; }
+.inbox-share-privacy { display:block;color:#adc9cd;line-height:1.4;font-size:.875rem; }
 
 :host button:focus-visible,:host input:focus-visible{outline:2px solid #62eabb;outline-offset:2px;}
 @media(max-width:600px){:host{right:-50px;max-height:55vh;}.inbox-share-results{max-height:220px;}}

@@ -160,7 +160,7 @@
 }
 
 .venue-create-amenities-summary span {
-  font-size: .85rem;
+  font-size: .875rem;
   color: #cbd5e1;
 }
 
@@ -305,7 +305,7 @@
 
 .venue-create-district-hint {
   color: #cbd5e1;
-  font-size: .82rem;
+  font-size: .875rem;
   font-weight: 400;
 }
 
@@ -332,7 +332,7 @@
   margin-bottom: 11px;
 }
 .venue-create-essential-progress-heading span {
-  font-size: .83rem;
+  font-size: .875rem;
   font-weight: 400;
   opacity: .78;
 }

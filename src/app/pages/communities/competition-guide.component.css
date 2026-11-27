@@ -2,8 +2,8 @@
 h4,p { margin:0; }
 h4 { font-size:1.08rem; }
 p { color:#cbd5e1; line-height:1.5; }
-.tournament-eyebrow { font-size:.74rem;letter-spacing:.11em;text-transform:uppercase;font-weight:800;color:#86efac !important; }
-.t-btn { min-height:42px;box-sizing:border-box;display:inline-flex;justify-content:center;align-items:center;border-radius:.7rem;border:1px solid transparent;padding:.65rem 1rem;font:inherit;font-size:.86rem;font-weight:800;cursor:pointer;transition:background .15s,border-color .15s; }
+.tournament-eyebrow { font-size:.75rem;letter-spacing:.11em;text-transform:uppercase;font-weight:800;color:#86efac !important; }
+.t-btn { min-height:42px;box-sizing:border-box;display:inline-flex;justify-content:center;align-items:center;border-radius:.7rem;border:1px solid transparent;padding:.65rem 1rem;font:inherit;font-size:.875rem;font-weight:800;cursor:pointer;transition:background .15s,border-color .15s; }
 .t-btn-primary { background:#00cf71;color:#032016; }
 .t-btn-primary:hover:not(:disabled) { background:#55e8a1; }
 .t-btn-secondary { background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16);color:#f1f5f9; }
@@ -15,12 +15,12 @@ p { color:#cbd5e1; line-height:1.5; }
 .guide-option { display: grid; align-content: start; gap: .8rem; padding: 1rem; border-radius: .9rem; border: 1px solid rgba(148,163,184,.2); background: rgba(148,163,184,.05); }
 .guide-option-top { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
 .guide-option-top strong { font-size: 1.05rem; }
-.guide-tag { margin-left: auto; padding: .25rem .5rem; border-radius: 1rem; font-size: .72rem; color: #a7f3d0; background: rgba(16,185,129,.12); }
+.guide-tag { margin-left: auto; padding: .25rem .5rem; border-radius: 1rem; font-size: .875rem; color: #a7f3d0; background: rgba(16,185,129,.12); }
 .guide-tag-pending { color: #cbd5e1; background: rgba(148,163,184,.12); }
 .guide-option p, .guide-intro p { color: #cbd5e1; font-size: .88rem; }
-.guide-example, .guide-coming { font-size: .77rem !important; }
+.guide-example, .guide-coming { font-size: .875rem !important; }
 .guide-community-note { display: grid; gap: .35rem; padding: .9rem; border-radius: .75rem; border: 1px solid rgba(125,211,252,.25); background: rgba(14,116,144,.10); }
-.guide-community-note p { font-size: .85rem; }
+.guide-community-note p { font-size: .875rem; }
 .competition-guide > .t-btn { justify-self: start; }
 @media (max-width:750px) { .guide-options { grid-template-columns:1fr; } }
 
@@ -28,6 +28,6 @@ p { color:#cbd5e1; line-height:1.5; }
 .guide-sport-picker { display: grid; gap: .45rem; max-width: 30rem; color: #e8fcf7; font-weight: 750; }
 .guide-sport-picker select { width: 100%; min-width: 0; border-radius: .65rem; border: 1px solid #4ddac088; background: #0e353d; color: #f1fffb; padding: .75rem .85rem; font: inherit; }
 .guide-sport-picker select:focus-visible { outline: 2px solid #53e0c7; outline-offset: 2px; }
-.guide-sport-picker small { color: #a9cdd2; font-size: .77rem; font-weight: 400; line-height: 1.5; }
+.guide-sport-picker small { color: #a9cdd2; font-size: .875rem; font-weight: 400; line-height: 1.5; }
 .guide-option .guide-tag-pending { color: #a3b8c4; background: #ffffff14; }
 .guide-option .guide-example { border-left: 2px solid #35d1b4; padding-left: .65rem; }

@@ -43,7 +43,7 @@
 
 .trophy-card span {
   color: #cbd5e1;
-  font-size: .77rem;
+  font-size: .875rem;
 }
 @media(max-width:900px){.trophies-grid{grid-template-columns:1fr;}}
 
@@ -59,7 +59,7 @@
   overflow-wrap:anywhere;line-height:1.42;
 }
 .trophy-card strong{color:#ffeaba;font-size:.94rem;}
-.trophy-card span{color:#cde6e4;font-size:.79rem;}
+.trophy-card span{color:#cde6e4;font-size:.875rem;}
 .trophy-icon{flex:0 0 auto;line-height:1.15;}
 @media(min-width:1080px){
   .trophies-grid{gap:12px;}

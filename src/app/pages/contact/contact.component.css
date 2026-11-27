@@ -100,7 +100,7 @@ label {
 
 label > span {
   color: #cbd5e1;
-  font-size: .8rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 
@@ -196,7 +196,7 @@ small {
 .field-error {
   justify-self: start;
   color: #fca5a5;
-  font-size: .76rem;
+  font-size: .875rem;
   line-height: 1.35;
 }
 
@@ -231,7 +231,7 @@ small {
 }
 .contact-attachment-heading > div { flex: 1 1 260px; }
 .contact-attachment-heading strong { color: #f0fffb; font-size: .93rem; }
-.contact-attachment-heading p { margin: .35rem 0 0; color: #b8d8dc; line-height: 1.5; font-size: .82rem; }
+.contact-attachment-heading p { margin: .35rem 0 0; color: #b8d8dc; line-height: 1.5; font-size: .875rem; }
 .contact-attachment-picker,
 .contact-attachment-meta button {
   box-sizing: border-box;
@@ -246,7 +246,7 @@ small {
   background: rgba(37, 125, 112, .2);
   font: inherit;
   font-weight: 700;
-  font-size: .83rem;
+  font-size: .875rem;
   cursor: pointer;
 }
 .contact-attachment-picker:focus-within,
@@ -261,7 +261,7 @@ small {
   opacity: 0;
   pointer-events: none;
 }
-.contact-attachment-error { color: #fecaca; margin: 0; font-size: .85rem; }
+.contact-attachment-error { color: #fecaca; margin: 0; font-size: .875rem; }
 .contact-attachment-preview { display: grid; gap: .65rem; min-width: 0; }
 .contact-attachment-preview img {
   width: 100%;
@@ -273,7 +273,7 @@ small {
   background: rgba(3, 23, 36, .65);
 }
 .contact-attachment-meta { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
-.contact-attachment-meta span { font-size: .8rem; color: #c2e2e5; overflow-wrap: anywhere; }
+.contact-attachment-meta span { font-size: .875rem; color: #c2e2e5; overflow-wrap: anywhere; }
 .contact-attachment-meta button:disabled { opacity: .45; cursor: not-allowed; }
 @media (max-width: 540px) {
   .contact-attachment-picker { width: 100%; }

@@ -56,7 +56,7 @@
   border-radius: .7rem;
   padding: .55rem .75rem;
   color: #cbd5e1;
-  font-size: .86rem;
+  font-size: .875rem;
   font-weight: 800;
   text-decoration: none;
 }
@@ -77,7 +77,7 @@
   background: transparent;
   color: #cbd5e1;
   font: inherit;
-  font-size: .86rem;
+  font-size: .875rem;
   font-weight: 800;
   cursor: pointer;
 }
@@ -151,13 +151,13 @@
 
   .site-nav__links a {
     padding: .5rem .6rem;
-    font-size: .8rem;
+    font-size: .875rem;
   }
 
 
   .site-nav__links .logout-action {
     padding: .5rem .6rem;
-    font-size: .8rem;
+    font-size: .875rem;
   }
 }
 
@@ -178,7 +178,7 @@
   padding: .25rem .35rem;
   background: transparent;
   color: #94a3b8;
-  font-size: .78rem;
+  font-size: .875rem;
   font-weight: 900;
   cursor: pointer;
 }
@@ -213,7 +213,7 @@
   border-radius: 999px;
   background: #7dd3fc;
   color: #082033;
-  font-size: .68rem;
+  font-size: .75rem;
   font-weight: 900;
 }
 
@@ -318,12 +318,12 @@
 .jynlo-chat-toast__content strong {
   display: block;
   overflow-wrap: anywhere;
-  font-size: .85rem;
+  font-size: .875rem;
 }
 .jynlo-chat-toast__content p {
   margin: .3rem 0 .45rem;
   color: #cbd5e1;
-  font-size: .82rem;
+  font-size: .875rem;
   line-height: 1.45;
   overflow-wrap: anywhere;
   display: -webkit-box;
@@ -337,7 +337,7 @@
   background: transparent;
   color: #7dd3fc;
   font: inherit;
-  font-size: .79rem;
+  font-size: .875rem;
   font-weight: 800;
   cursor: pointer;
 }
@@ -413,7 +413,7 @@
 .account-identity-avatar--large { width:49px;height:49px;font-size:1.02rem; }
 .account-identity-copy { min-width:0;display:grid;gap:1px;text-align:left; }
 .account-identity-copy small {
-  color: #7fe9c1; font-size:.58rem;font-weight:850;
+  color: #7fe9c1; font-size:.75rem;font-weight:850;
   letter-spacing:.04em;text-transform:uppercase;
 }
 .account-identity-copy strong {
@@ -445,10 +445,10 @@
   color:#aecbd0;font-size:.77rem;overflow-wrap:anywhere;
 }
 .account-menu__status {
-  color:#64eaba;font-size:.66rem;font-weight:850;
+  color:#64eaba;font-size:.75rem;font-weight:850;
   text-transform:uppercase;letter-spacing:.055em;
 }
-.account-menu__status span { margin-right:.15rem;font-size:.56rem; }
+.account-menu__status span { margin-right:.15rem;font-size:.75rem; }
 .account-menu__divider { margin:.32rem 0;border-top:1px solid rgba(127,200,183,.17); }
 .account-menu__panel a {
   display:flex;align-items:center;
@@ -601,7 +601,7 @@
     min-height: 54px;
     padding: .3rem .15rem;
     border-radius: .8rem;
-    font-size: .68rem;
+    font-size: .875rem;
     font-weight: 800;
     line-height: 1.1;
     text-align: center;
@@ -667,7 +667,7 @@
 }
 @media (min-width: 901px) and (max-width: 1060px) {
   .brand__wordmark { display: none; }
-  .site-nav__links > a { padding: .5rem .45rem; font-size: .82rem; }
+  .site-nav__links > a { padding: .5rem .45rem; font-size: .875rem; }
 }
 
 /* Phones, signed out: "Sobre" and "Contacto" are in the footer, so the bar keeps
@@ -676,7 +676,7 @@
   .site-nav__links .nav-public-secondary { display: none; }
 }
 
-.nav-managed-badge { display:inline-grid; place-items:center; min-width:1.25rem; height:1.25rem; margin-left:.4rem; padding:0 .3rem; border-radius:999px; background:#62e6c4; color:#04212b; font-size:.72rem; font-weight:800; }
+.nav-managed-badge { display:inline-grid; place-items:center; min-width:1.25rem; height:1.25rem; margin-left:.4rem; padding:0 .3rem; border-radius:999px; background:#62e6c4; color:#04212b; font-size:.75rem; font-weight:800; }
 
 .account-menu__customize { display:block; width:100%; text-align:left; padding:.6rem .8rem; border:0; border-radius:10px; background:none;
   color:#62e6c4; font:inherit; font-weight:800; cursor:pointer; }
@@ -702,7 +702,7 @@
 .create-menu a { display:grid; gap:2px; padding:.65rem .8rem; border-radius:12px; color:#eaf6f6; text-decoration:none; }
 .create-menu a:hover, .create-menu a:focus-visible { background:rgba(98,230,196,.1); outline:none; }
 .create-menu a strong { font-size:.95rem; }
-.create-menu a span { font-size:.8rem; color:#a9c7cf; }
+.create-menu a span { font-size:.875rem; color:#a9c7cf; }
 .create-menu a.create-menu__main { background:#2ee6d0; color:#03242a; margin-bottom:4px; }
 .create-menu a.create-menu__main span { color:#0a3b3f; }
 .create-menu a.create-menu__main:hover { background:#5ff0dd; }
@@ -714,7 +714,7 @@
 .nav-messages-badge { background:#ff4d6d !important; color:#fff !important; }
 .jynlo-chat-toast__actions { display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
 .jynlo-chat-toast__list { margin:6px 0 4px; padding:0 0 0 18px; display:grid; gap:4px; max-height:220px; overflow-y:auto;
-  color:#d5ecf1; font-size:.86rem; line-height:1.35; }
+  color:#d5ecf1; font-size:.875rem; line-height:1.35; }
 .jynlo-chat-toast__list li { overflow-wrap:anywhere; }
 /* Only shown in the computer sidebar (see styles/jynlo-desktop-layout.css). */
 .site-nav__links .nav-sidebar-extra, .nav-sidebar-text { display: none; }

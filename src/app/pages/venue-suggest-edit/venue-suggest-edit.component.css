@@ -2,12 +2,12 @@
 .venue-edit-shell{max-width:980px;margin:auto}
 .venue-edit-back{color:#bde6dd;text-decoration:none}
 .venue-edit-header{margin:20px 0 26px}
-.venue-edit-header>span{color:#42edc0;font-size:.76rem;text-transform:uppercase;font-weight:700;letter-spacing:.13em}
+.venue-edit-header>span{color:#42edc0;font-size:.875rem;text-transform:uppercase;font-weight:700;letter-spacing:.13em}
 .venue-edit-header h1{font-size:clamp(1.8rem,3vw,2.5rem);margin:7px 0}
 .venue-edit-header p{color:#b4d0db;line-height:1.55}
 .venue-edit-venue,.venue-edit-status,.venue-edit-state,.venue-edit-success,.venue-edit-form{border:1px solid #34586a;border-radius:18px;background:#102b3b;padding:22px;margin-top:18px}
 .venue-edit-venue{display:flex;gap:8px;flex-direction:column}
-.venue-edit-venue span{color:#bad4dd;font-size:.85rem}
+.venue-edit-venue span{color:#bad4dd;font-size:.875rem}
 .venue-edit-status{border-color:#2c947b}
 .venue-edit-status p{margin-bottom:0;color:#cbe9e7}
 .venue-edit-success{border-color:#2c947b;color:#80f8d5}
@@ -20,7 +20,7 @@
 .venue-edit-sports{margin:24px 0;padding:18px;border:1px solid #2b4d5d;border-radius:14px}
 .venue-edit-sports h3{font-size:1rem;margin:0 0 12px}
 .venue-edit-tags,.venue-edit-sport-results{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.venue-edit-tags button,.venue-edit-sport-results button{cursor:pointer;background:#1b4552;border:1px solid #497080;border-radius:20px;padding:8px 12px;color:#e3fcf6;font-size:.83rem}
+.venue-edit-tags button,.venue-edit-sport-results button{cursor:pointer;background:#1b4552;border:1px solid #497080;border-radius:20px;padding:8px 12px;color:#e3fcf6;font-size:.875rem}
 .venue-edit-tags button{border-color:#25ae91}
 .venue-edit-reason{margin-top:18px}
 .venue-edit-error{color:#ffb5c0;font-weight:600}
@@ -28,7 +28,7 @@
 .venue-edit-actions>span{color:#b8d4dd}
 .venue-edit-actions button:disabled{opacity:.4;cursor:not-allowed}
 @media(max-width:640px){.venue-edit-grid{grid-template-columns:1fr}.venue-edit-page{padding:22px 14px 38px}.venue-edit-form{padding:17px}}
-.venue-edit-contact-hint{color:#b0cbd5;font-size:.79rem;line-height:1.45;font-weight:400}
+.venue-edit-contact-hint{color:#b0cbd5;font-size:.875rem;line-height:1.45;font-weight:400}
 
 .venue-edit-source{display:flex;flex-direction:column;gap:8px;margin-top:16px}
 .venue-edit-source input{width:100%;box-sizing:border-box}

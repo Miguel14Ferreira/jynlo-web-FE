@@ -105,7 +105,7 @@
   border:1px solid rgba(91,185,195,.29);
   color:#cbe5e7;
   background:rgba(12,62,76,.49);
-  font-size:.78rem;
+  font-size:.875rem;
 }
 :host .sessions-page.jynlo-games .filters .quick-chip:is(.is-active,[aria-pressed="true"]) {
   color:#012d33;background:#2be7cb;border-color:#2be7cb;

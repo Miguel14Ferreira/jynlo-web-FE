@@ -180,7 +180,7 @@ h1 {
 
 .sport {
   color: #7dd3fc;
-  font-size: .8rem;
+  font-size: .875rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -203,7 +203,7 @@ h1 {
 .compact-meta span,
 .attendance-date {
   color: #94a3b8;
-  font-size: .8rem;
+  font-size: .875rem;
 }
 
 .meta-grid strong {
@@ -353,7 +353,7 @@ h1 {
 
 .dispute-reason > span {
   color: #cbd5e1;
-  font-size: .8rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 

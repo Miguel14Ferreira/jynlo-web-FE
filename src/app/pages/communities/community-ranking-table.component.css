@@ -23,7 +23,7 @@
 
 .ranking-table th {
   color: #94a3b8;
-  font-size: .72rem;
+  font-size: .875rem;
   text-transform: uppercase;
   letter-spacing: .04em;
 }
@@ -37,7 +37,7 @@
   background: rgba(125,211,252,.035);
 }
 .ranking-player {display:grid;gap:.08rem;}
-.ranking-player span{color:#64748b;font-size:.72rem;}
+.ranking-player span{color:#64748b;font-size:.875rem;}
 
 .points-cell {
   color: #bae6fd;
@@ -73,7 +73,7 @@
   transition: background .15s, border-color .15s, color .15s;
 }
 .ranking-player--interactive strong { white-space: normal; overflow-wrap: anywhere; }
-.ranking-player--interactive span { color: #92aebe; font-size: .72rem; }
+.ranking-player--interactive span { color: #92aebe; font-size: .875rem; }
 .ranking-player--interactive:hover {
   color: #95f5df;
   border-color: rgba(40, 222, 191, .3);
@@ -104,7 +104,7 @@
 }
 .ranking-player__identity {display:grid;gap:3px;min-width:0;text-align:left;}
 .ranking-player__identity strong {line-height:1.25;color:#f3fffa;}
-.ranking-player__identity > span {color:#a9c8d0;font-size:.72rem;white-space:normal;}
+.ranking-player__identity > span {color:#a9c8d0;font-size:.875rem;white-space:normal;}
 .ranking-player--interactive:hover .ranking-player__avatar {
   border-color:#7bf5d8;box-shadow:0 0 0 3px rgba(70,220,190,.13);
 }
@@ -133,7 +133,7 @@
 }
 :host .ranking-table th {
   padding:12px 10px;line-height:1.4;
-  color:#b8dce2;font-size:.73rem;
+  color:#b8dce2;font-size:.875rem;
   border-bottom:1px solid rgba(73,194,197,.26);
 }
 :host .ranking-table td {

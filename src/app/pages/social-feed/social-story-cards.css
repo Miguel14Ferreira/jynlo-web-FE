@@ -30,9 +30,9 @@
 .stories-panel .story-bubble .story-name {
   display: block; flex: 0 0 auto; width: calc(100% - 12px); padding: .25rem .35rem .1rem;
   overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: center;
-  color: #e2e8f0; font-size: .78rem; font-weight: 700;
+  color: #e2e8f0; font-size: .875rem; font-weight: 700;
 }
-.stories-panel .story-bubble small { font-size: .72rem; margin-top: -.2rem; }
+.stories-panel .story-bubble small { font-size: .875rem; margin-top: -.2rem; }
 .stories-panel .story-bubble.story-add-action {
   padding: 0; border: 1px solid rgba(94,234,212,.36);
   background: #143646; box-shadow: none; color: #f8fafc;

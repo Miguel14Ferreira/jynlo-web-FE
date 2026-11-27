@@ -58,7 +58,7 @@
 }
 .login-card label > span {
   color: #bedce3;
-  font-size: .8rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 .login-card input {
@@ -132,7 +132,7 @@
 }
 .login-links a {
   color: var(--d24-accent-soft);
-  font-size: .85rem;
+  font-size: .875rem;
   font-weight: 700;
   text-decoration: none;
 }
@@ -160,7 +160,7 @@
   background: transparent;
   color: #fecaca;
   font: inherit;
-  font-size: .85rem;
+  font-size: .875rem;
   font-weight: 800;
   cursor: pointer;
 }
@@ -180,7 +180,7 @@
   border-radius: .8rem;
   background: rgba(125,211,252,.06);
   color: #bedce3;
-  font-size: .85rem;
+  font-size: .875rem;
 }
 
 .confirmation-resend {
@@ -194,7 +194,7 @@
   padding: .8rem .9rem;
   background: rgba(125,211,252,.06);
   color: #bedce3;
-  font-size: .85rem;
+  font-size: .875rem;
 }
 
 .login-divider {
@@ -203,7 +203,7 @@
   gap: .8rem;
   margin: 1rem 0;
   color: #64748b;
-  font-size: .8rem;
+  font-size: .875rem;
   font-weight: 800;
   text-transform: uppercase;
 }
@@ -226,7 +226,7 @@
 }
 .google-status {
   color: #a5c5ce;
-  font-size: .82rem;
+  font-size: .875rem;
 }
 
 .google-auth-area {

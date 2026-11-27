@@ -148,7 +148,7 @@
 
 /* Compact multi-file composer and authenticated chat attachment gallery. */
 .inbox-multi-draft { display:grid; gap:8px; margin:8px 0; }
-.inbox-multi-draft > small {color:var(--text-secondary,#a9b5c2);font-size:.78rem;}
+.inbox-multi-draft > small {color:var(--text-secondary,#a9b5c2);font-size:.875rem;}
 .inbox-attachment-gallery {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,175px),1fr));gap:10px;margin:8px 0;}
 .inbox-extra-attachment {min-width:0;display:grid;gap:6px;align-content:start;}
 .inbox-extra-attachment img,.inbox-extra-attachment video {max-width:100%;width:100%;max-height:230px;object-fit:contain;border-radius:9px;background:#122a34;}
@@ -176,16 +176,16 @@
 @media(max-width:600px){.inbox-callup-picker{position:fixed;left:12px;right:12px;width:auto;bottom:150px;max-height:55vh}}
 .inbox-callup-picker-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .inbox-callup-picker-head button{min-width:36px;min-height:36px;border:0;border-radius:50%;background:#ffffff14;color:#e8fff7;cursor:pointer}
-.inbox-callup-picker p{margin:0;color:#bfe0dc;font-size:.86rem;line-height:1.4}
+.inbox-callup-picker p{margin:0;color:#bfe0dc;font-size:.875rem;line-height:1.4}
 .inbox-callup-choices{list-style:none;margin:0;padding:0;display:grid;gap:8px;max-height:260px;overflow:auto}
 .inbox-callup-choices button{width:100%;display:grid;gap:2px;text-align:left;padding:10px 12px;min-height:48px;border:1px solid #3fd8b440;border-radius:12px;background:#0a3340;color:#e8fff7;cursor:pointer}
 .inbox-callup-choices button:hover,.inbox-callup-choices button:focus-visible{border-color:#6ff0d4;outline:none}
-.inbox-callup-choices span{font-size:.82rem;color:#bfe0dc}
+.inbox-callup-choices span{font-size:.875rem;color:#bfe0dc}
 .inbox-callup-create{justify-self:start;color:#6ff0d4;font-weight:800;text-decoration:none}
-.inbox-callup-alone{margin:4px 0 0;color:#ffd79a;font-size:.84rem}
+.inbox-callup-alone{margin:4px 0 0;color:#ffd79a;font-size:.875rem}
 
 /* Sondagem editor */
-.inbox-poll-field{display:grid;gap:4px;font-size:.82rem;color:#bfe0dc}
+.inbox-poll-field{display:grid;gap:4px;font-size:.875rem;color:#bfe0dc}
 .inbox-poll-editor input{width:100%;font-size:.95rem;font-weight:400;box-sizing:border-box;min-height:42px;padding:8px 10px;border:1px solid #3fd8b455;border-radius:10px;background:#0a3340;color:#effffb;font-family:inherit}
 .inbox-poll-editor input:focus-visible{outline:none;border-color:#6ff0d4}
 .inbox-poll-option-row{display:flex;gap:6px;align-items:center}
@@ -195,5 +195,5 @@
 .inbox-poll-draft-edit{border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;padding:0;flex:1}
 
 .inbox-poll-templates{display:flex;flex-wrap:wrap;gap:6px}
-.inbox-poll-templates button{border:1px solid #2f6573;background:#0d3341;color:#cfeee8;border-radius:999px;padding:5px 10px;font:inherit;font-size:.78rem;cursor:pointer}
-.inbox-poll-visible{margin:0;font-size:.74rem;opacity:.7}
+.inbox-poll-templates button{border:1px solid #2f6573;background:#0d3341;color:#cfeee8;border-radius:999px;padding:5px 10px;font:inherit;font-size:.875rem;cursor:pointer}
+.inbox-poll-visible{margin:0;font-size:.875rem;opacity:.7}

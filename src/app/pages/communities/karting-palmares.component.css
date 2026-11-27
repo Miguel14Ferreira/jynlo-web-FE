@@ -1,7 +1,7 @@
 :host { display:block; min-width:0; }
 h5, p { margin: 0; }
 p { color:#cbd5e1; line-height:1.5; }
-.t-muted { padding:.5rem 0; font-size:.85rem; color:#94a3b8 !important; }
+.t-muted { padding:.5rem 0; font-size:.875rem; color:#94a3b8 !important; }
 /* Karting palmarès remains in the tournament sidebar. */
 .karting-palmares {
   display: grid; gap: .55rem; margin-top: .85rem; padding-top: .85rem;
@@ -9,8 +9,8 @@ p { color:#cbd5e1; line-height:1.5; }
 }
 .karting-palmares-heading { display: flex; align-items: flex-start; gap: .55rem; }
 .karting-palmares-heading > span { font-size: 1.4rem; line-height: 1.3; }
-.karting-palmares-heading h5 { font-size: .87rem; color: #f8fafc; }
-.karting-palmares-heading p { font-size: .7rem; color: #b6c7d7; }
+.karting-palmares-heading h5 { font-size: .875rem; color: #f8fafc; }
+.karting-palmares-heading p { font-size: .875rem; color: #b6c7d7; }
 .karting-palmares-item {
   display: grid; gap: .15rem; text-align: left; min-width: 0;
   padding: .75rem .8rem; border-radius: .7rem;
@@ -23,6 +23,6 @@ p { color:#cbd5e1; line-height:1.5; }
 }
 .karting-palmares-item:focus-visible { outline: 2px solid #86efac; outline-offset: 2px; }
 .karting-palmares-name, .karting-palmares-winner { overflow-wrap: anywhere; }
-.karting-palmares-name { font-size: .79rem; font-weight: 800; }
-.karting-palmares-winner { font-size: .74rem; color: #a7f3d0; }
-.karting-palmares-item small, .karting-palmares-more { color: #a7b9cb; font-size: .72rem; }
+.karting-palmares-name { font-size: .875rem; font-weight: 800; }
+.karting-palmares-winner { font-size: .875rem; color: #a7f3d0; }
+.karting-palmares-item small, .karting-palmares-more { color: #a7b9cb; font-size: .875rem; }

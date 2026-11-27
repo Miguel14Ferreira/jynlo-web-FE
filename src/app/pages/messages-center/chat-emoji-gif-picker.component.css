@@ -10,7 +10,7 @@
 .inbox-picker-tabs { display:flex;align-items:center;gap:5px;flex:none;padding:10px 13px 6px;
   border-bottom:1px solid #365960;background:#142934; }
 .inbox-picker-tabs button { border:0;background:transparent;color:#aed1d1;
-  font:inherit;font-size:.83rem;font-weight:780;padding:9px 14px;
+  font:inherit;font-size:.875rem;font-weight:780;padding:9px 14px;
   border-bottom:3px solid transparent;cursor:pointer; }
 .inbox-picker-tabs button.active { border-bottom-color:#46e1a9;color:#f2fff9; }
 .inbox-picker-tabs button:hover { color:#fff; }
@@ -26,7 +26,7 @@
   border:2px solid #34d4a2;border-radius:25px;background:#0b1c24; }
 .inbox-picker-gif-search span { font-size:1.6rem;color:#aec9c8; }
 .inbox-picker-gif-search input { min-width:0;flex:1;outline:none;border:0;background:transparent;
-  color:#f2fffa;font:inherit;font-size:.84rem;padding:8px 0; }
+  color:#f2fffa;font:inherit;font-size:.875rem;padding:8px 0; }
 .inbox-picker-gif-search input::placeholder { color:#a2bfbd; }
 .inbox-picker-gif-search input:disabled { opacity:.65; }
 .inbox-picker-categories { display:flex;justify-content:space-around;gap:5px;
@@ -45,18 +45,18 @@
 .inbox-picker-gif-grid button:disabled { opacity:.7;cursor:wait; }
 .inbox-picker-gif-grid img { display:block;width:100%;height:100%;object-fit:cover; }
 .inbox-picker-selecting { position:absolute;inset:0;display:grid;place-items:center;
-  background:#102d37c9;color:white;font-size:.76rem;font-weight:800; }
+  background:#102d37c9;color:white;font-size:.875rem;font-weight:800; }
 .inbox-picker-feedback { color:#c7dfe1;margin:8px 16px 15px;
-  line-height:1.5;font-size:.82rem; }
+  line-height:1.5;font-size:.875rem; }
 .inbox-picker-error { color:#ffd4b6; }
 .inbox-picker-more { margin:4px 14px 10px;border:1px solid #397e74;border-radius:9px;
   padding:8px;background:#234e50;color:#f0fcf7;font:inherit;cursor:pointer; }
 .inbox-picker-footer { display:flex;align-items:center;justify-content:space-between;
   flex:none;gap:12px;border-top:1px solid #365960;padding:10px 14px;background:#142934; }
 .inbox-picker-footer button { border:1px solid #4d8986;border-radius:9px;padding:7px 10px;
-  background:#215450;color:#ecfffa;font:inherit;font-size:.75rem;cursor:pointer; }
+  background:#215450;color:#ecfffa;font:inherit;font-size:.875rem;cursor:pointer; }
 .inbox-picker-footer button:disabled { opacity:.5;cursor:not-allowed; }
-.inbox-picker-footer a { color:#91dcca;text-decoration:none;font-size:.74rem; }
+.inbox-picker-footer a { color:#91dcca;text-decoration:none;font-size:.875rem; }
 @media (max-width:600px) {
   .inbox-picker-panel { right:-6px;width:min(420px,calc(100vw - 24px));max-height:55vh; }
   .inbox-picker-gif-grid { grid-auto-rows:90px;gap:5px; }

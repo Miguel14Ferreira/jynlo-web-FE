@@ -190,8 +190,8 @@
   content:'▸';color:#61ead2;font-size:1rem;
 }
 :host details[open] > .round-card-details-toggle::before { content:'▾'; }
-:host .round-card-details-toggle small {color:#d4eaef;font-size:.85rem;font-weight:600}
-:host .round-card-details-hint {margin-left:auto;font-size:.85rem;white-space:normal}
+:host .round-card-details-toggle small {color:#d4eaef;font-size:.875rem;font-weight:600}
+:host .round-card-details-hint {margin-left:auto;font-size:.875rem;white-space:normal}
 :host .round-card-details-toggle:hover {background:rgba(19,102,111,.42)}
 :host .round-card-details-toggle:focus-visible {outline:2px solid #68eddc;outline-offset:2px}
 :host .round-card-details > :not(summary) {margin-top:.7rem}
@@ -214,11 +214,11 @@
 /* The community feed stays synchronized without a redundant manual refresh button. */
 .community-feed-auto-sync {
   display:inline-flex;align-items:center;gap:.45rem;align-self:center;
-  color:#a8e8d9;font-size:.8rem;font-weight:750;white-space:nowrap;
+  color:#a8e8d9;font-size:.875rem;font-weight:750;white-space:nowrap;
 }
-.community-feed-auto-sync > span {color:#4de0b9;font-size:.7rem}
+.community-feed-auto-sync > span {color:#4de0b9;font-size:.875rem}
 @media(max-width:600px) {
-  .community-feed-auto-sync {white-space:normal;font-size:.75rem}
+  .community-feed-auto-sync {white-space:normal;font-size:.875rem}
 }
 
 /* Following is a public subscription; it does not confer group membership. */
@@ -227,7 +227,7 @@
 .community-follow-count strong{color:#5ceabc;font-weight:900;font-size:1rem}
 .community-follow-control button{border:1px solid #56bfa5;border-radius:11px;
   padding:9px 14px;background:#14665c;color:#f0fff8;font:inherit;
-  font-size:.8rem;font-weight:850;cursor:pointer}
+  font-size:.875rem;font-weight:850;cursor:pointer}
 .community-follow-control button[aria-pressed=true]{background:#153f4d;border-color:#518d8d}
 .community-follow-control button:disabled{opacity:.5;cursor:wait}
 .community-follow-control button:focus-visible{outline:3px solid #9bffdf;outline-offset:2px}
@@ -238,7 +238,7 @@
  width:min(390px,100%);max-height:290px;overflow-y:auto;display:grid;gap:2px;
  padding:6px;background:#122e3b;border:1px solid #426e7b;border-radius:13px;
  box-shadow:0 14px 38px #0009;text-align:left}
-.community-feed-mention-heading{padding:9px 12px;color:#aacdd2;font-size:.76rem;font-weight:850}
+.community-feed-mention-heading{padding:9px 12px;color:#aacdd2;font-size:.875rem;font-weight:850}
 .community-feed-mention-heading>span{display:inline-grid;place-items:center;width:23px;height:23px;
  margin-right:7px;border-radius:7px;background:#1b706b;color:#b8ffe8}
 .community-feed-mentions button{display:flex;align-items:center;gap:11px;width:100%;min-height:54px;
@@ -250,9 +250,9 @@
 .community-feed-mention-avatar{position:relative;overflow:hidden}
 .community-feed-mention-avatar img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover}
 .community-feed-mention-person{display:grid;min-width:0;gap:2px}
-.community-feed-mention-person strong{font-size:.87rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.community-feed-mention-person small{font-size:.77rem;color:#9fc4ce}
-.community-feed-mention-status{padding:9px 12px;color:#b8d5d8;font-size:.78rem}
+.community-feed-mention-person strong{font-size:.875rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.community-feed-mention-person small{font-size:.875rem;color:#9fc4ce}
+.community-feed-mention-status{padding:9px 12px;color:#b8d5d8;font-size:.875rem}
 .community-feed-mention-link{color:#75f4d8;font-weight:800}
 .community-feed-mentions button small{color:#b1d8d8}
 .community-feed-mentions button:hover,.community-feed-mentions button:focus-visible{background:#175364;outline:2px solid #7cebd8}

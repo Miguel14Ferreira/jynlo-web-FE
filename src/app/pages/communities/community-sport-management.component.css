@@ -3,7 +3,7 @@
 .management-block{margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,.08);}
 .management-block p{color:#94a3b8;}
 .section-heading{display:flex;align-items:center;justify-content:space-between;gap:1rem;}
-.section-kicker{margin:0 0 .2rem;color:#7dd3fc;font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;}
+.section-kicker{margin:0 0 .2rem;color:#7dd3fc;font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;}
 h3{margin:0;}
 input{width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,.16);border-radius:.75rem;padding:.8rem .9rem;background:rgba(255,255,255,.06);color:#fff;font:inherit;}
 .primary-action,.secondary-action{border-radius:.75rem;padding:.75rem 1rem;font:inherit;font-weight:900;cursor:pointer;}
@@ -11,16 +11,16 @@ input{width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,.16);bo
 .secondary-action{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;}
 .sport-management { display: grid; gap: .7rem; margin-top: 1rem; }
 .sport-management .section-heading { display: flex; align-items: center; justify-content: space-between; gap: .8rem; flex-wrap: wrap; }
-.sport-management .section-heading p { color: #cbd5e1; font-size: .85rem; margin-top: .4rem; }
+.sport-management .section-heading p { color: #cbd5e1; font-size: .875rem; margin-top: .4rem; }
 .sport-tags { display: flex; gap: .45rem; flex-wrap: wrap; }
 .sport-tag { display: inline-flex; align-items: center; gap: .65rem; background: rgba(16,185,129,.13);
   border: 1px solid rgba(16,185,129,.3); color: #d1fae5; padding: .4rem .65rem .4rem .85rem;
-  border-radius: 999px; font-size: .86rem; }
+  border-radius: 999px; font-size: .875rem; }
 .sport-tag button { cursor: pointer; background: rgba(255,255,255,.12); color: inherit;
   border: 0; border-radius: 50%; min-width: 30px; min-height: 30px; }
-.sport-blank { color: #94a3b8; font-size: .85rem; }
+.sport-blank { color: #94a3b8; font-size: .875rem; }
 .sport-edit { display: grid; gap: .65rem; width: 100%; max-width: 660px; }
-.sport-edit > label { color: #e2e8f0; font-weight: 700; font-size: .82rem; }
+.sport-edit > label { color: #e2e8f0; font-weight: 700; font-size: .875rem; }
 .sport-edit > input { min-height: 44px; }
 .sport-suggestions { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: .45rem; }
 .sport-suggestions > button { cursor: pointer; min-height: 42px; border-radius: .65rem;

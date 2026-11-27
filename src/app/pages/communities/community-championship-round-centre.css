@@ -25,7 +25,7 @@
   color: #f1fff9;
 }
 :host .tournaments .jynlo-round-progress-heading small {
-  font-size: .8rem;
+  font-size: .875rem;
   color: #b7d9d9;
   line-height: 1.4;
 }
@@ -66,7 +66,7 @@
   background: rgba(8, 49, 63, .6);
   color: #deeeec;
   font: inherit;
-  font-size: .81rem;
+  font-size: .875rem;
   font-weight: 700;
   cursor: pointer;
 }

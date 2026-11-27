@@ -137,7 +137,7 @@
 :host .create-steps li { flex: 1; }
 :host .create-steps button { width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 8px;
   border-radius: 12px; border: 1px solid #24485a; background: #0d2230; color: #b9d4d6; font-weight: 700; cursor: pointer; }
-:host .create-steps button span { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: #1d3644; font-size: 13px; }
+:host .create-steps button span { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: #1d3644; font-size: .875rem; }
 :host .create-steps li.is-current button { border-color: #62e6c4; color: #eafff9; }
 :host .create-steps li.is-current button span, :host .create-steps li.is-done button span { background: #62e6c4; color: #06231c; }
 :host .create-steps button:disabled { opacity: .55; cursor: default; }

@@ -156,7 +156,7 @@ select:not([multiple]):not([size]):disabled {opacity:.62;cursor:not-allowed;}
   background: var(--jynlo-action-bg);
   color: var(--jynlo-action-text);
   font: inherit;
-  font-size: .84rem;
+  font-size: .875rem;
   font-weight: 750;
   line-height: 1.2;
   text-align: center;
@@ -215,7 +215,7 @@ select:not([multiple]):not([size]):disabled {opacity:.62;cursor:not-allowed;}
   border-radius: 999px !important;
   background: var(--jynlo-action-bg) !important;
   color: var(--jynlo-action-text) !important;
-  font-size: .84rem !important;
+  font-size: .875rem !important;
   font-weight: 750 !important;
   line-height: 1.2 !important;
   text-decoration: none !important;
@@ -244,7 +244,7 @@ select:not([multiple]):not([size]):disabled {opacity:.62;cursor:not-allowed;}
 .jynlo-action--compact:is(button, a, label) {
   min-height: 32px !important;
   padding: .35rem .7rem !important;
-  font-size: .76rem !important;
+  font-size: .875rem !important;
 }
 
 @media (max-width: 600px) {
@@ -262,17 +262,17 @@ select:not([multiple]):not([size]):disabled {opacity:.62;cursor:not-allowed;}
   background: rgba(5, 23, 32, .45); padding: 9px 12px; margin: 6px 0 10px;
 }
 .jynlo-chat-quote strong, .jynlo-chat-reply-banner strong {
-  color: #8df4df; font-size: .76rem; line-height: 1.4;
+  color: #8df4df; font-size: .875rem; line-height: 1.4;
 }
 .jynlo-chat-quote span, .jynlo-chat-reply-banner span {
-  color: #e0f1f3; font-size: .8rem; line-height: 1.4;
+  color: #e0f1f3; font-size: .875rem; line-height: 1.4;
   white-space: pre-wrap; overflow-wrap: anywhere; overflow: hidden;
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
 }
 .jynlo-chat-reply-action {
   display: block; border: 0; background: transparent; color: #8df4df;
   margin: 7px 0 0 auto; padding: 4px 5px; border-radius: 6px;
-  font: inherit; font-size: .75rem; cursor: pointer;
+  font: inherit; font-size: .875rem; cursor: pointer;
 }
 .jynlo-chat-reply-action:hover:not(:disabled) { text-decoration: underline; }
 .jynlo-chat-reply-action:disabled { opacity: .4; cursor: not-allowed; }
@@ -284,7 +284,7 @@ select:not([multiple]):not([size]):disabled {opacity:.62;cursor:not-allowed;}
 .jynlo-chat-reply-banner button {
   flex: 0 0 auto; border: 1px solid #539a88; border-radius: 9px;
   color: #c1fbea; background: #183944; padding: 7px 9px;
-  font: inherit; font-size: .76rem; cursor: pointer;
+  font: inherit; font-size: .875rem; cursor: pointer;
 }
 .jynlo-chat-reply-banner button:disabled { opacity: .5; cursor: not-allowed; }
 
@@ -373,7 +373,7 @@ select.jynlo-native-select--open:focus-visible {
   background: #081f2b;
   color: #f4fffb;
   font: inherit;
-  font-size: .85rem;
+  font-size: .875rem;
 }
 .jynlo-native-select__search::placeholder { color: #97b7bd; }
 .jynlo-native-select__search:focus-visible {
@@ -404,7 +404,7 @@ select.jynlo-native-select--open:focus-visible {
   background: transparent;
   color: #def4f0;
   font: inherit;
-  font-size: .87rem;
+  font-size: .875rem;
   font-weight: 650;
   line-height: 1.35;
   text-align: left;
@@ -433,14 +433,14 @@ select.jynlo-native-select--open:focus-visible {
   padding: .55rem .7rem .25rem;
   text-transform: uppercase;
   letter-spacing: .08em;
-  font-size: .72rem;
+  font-size: .875rem;
   font-weight: 850;
 }
 .jynlo-native-select__empty {
   padding: .7rem .8rem;
   text-align: center;
   color: #aacbd0;
-  font-size: .83rem;
+  font-size: .875rem;
 }
 @keyframes jynlo-native-select-appear {
   from { opacity: 0; transform: translateY(-5px); }
@@ -470,7 +470,7 @@ select.jynlo-native-select--open:focus-visible {
 .reset-page .subtitle{margin:.7rem 0 1.2rem;color:#bedce3;line-height:1.55;}
 .reset-page form{display:grid;gap:1rem;}
 .reset-page label{display:grid;gap:.4rem;min-width:0;}
-.reset-page label>span{color:#bedce3;font-size:.8rem;font-weight:800;}
+.reset-page label>span{color:#bedce3;font-size:.875rem;font-weight:800;}
 .reset-page input{
   box-sizing:border-box;width:100%;min-width:0;min-height:49px;
   border:1px solid rgba(51,192,200,.34);border-radius:.75rem;
@@ -608,7 +608,7 @@ button:is([aria-label^="Fechar " i],[aria-label^="Close " i],
   font: inherit;
 }
 .session-details-preset small { color: #afced2; line-height: 1.45; }
-.session-details-preset p { margin: 0; color: #5eead4; font-size: .82rem; }
+.session-details-preset p { margin: 0; color: #5eead4; font-size: .875rem; }
 
 /* Mobile page headers: several pages give the header's text block a desktop
    flex-basis (300-370px). When the header stacks as a column on phones, that
@@ -678,7 +678,7 @@ img[data-zoomable], :has(> img[data-zoomable]) { cursor: zoom-in; }
 .venue-book__suggest { display: inline-flex; align-items: center; min-height: 44px; padding: 0 .3rem; color: #7ae5c5; font-size: .88rem; font-weight: 700; }
 /* Session lists: the organiser marked the court as booked. */
 .court-booked-badge { display: inline-flex; align-items: center; width: fit-content; padding: .1rem .5rem; border-radius: 999px;
-  background: rgba(94,230,200,.14); color: #7ae5c5; font-size: .74rem; font-weight: 800; white-space: nowrap; }
+  background: rgba(94,230,200,.14); color: #7ae5c5; font-size: .75rem; font-weight: 800; white-space: nowrap; }
 
 /* Phone tab bar: "Criar"/"Create" must never break mid-word (".jynlo-action" allows overflow-wrap:anywhere). */
 @media (max-width: 900px) {
@@ -744,11 +744,11 @@ app-venue-details .venue-detail-page .venue-route-planner { padding: 14px 16px !
 }
 /* Messages: empty inbox for someone new — explain where chats come from, with ways in. */
 app-messages-center .inbox-empty-side { display: grid; gap: .35rem; }
-app-messages-center .inbox-empty-side .inbox-empty-hint { color: #a9c7cf; font-size: .82rem; margin: 0 0 .3rem; }
+app-messages-center .inbox-empty-side .inbox-empty-hint { color: #a9c7cf; font-size: .875rem; margin: 0 0 .3rem; }
 app-messages-center .inbox-empty-side a { display: inline-flex; align-items: center; min-height: 40px; }
 /* Edit profile: the email field is read-only (changed via "Mudar email"). */
 app-alterardados input.email-locked { opacity: .62; cursor: not-allowed; background: rgba(255,255,255,.03) !important; }
-app-alterardados .email-locked-hint { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; color: #a9c7cf; font-size: .8rem; margin-top: .3rem; }
+app-alterardados .email-locked-hint { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; color: #a9c7cf; font-size: .875rem; margin-top: .3rem; }
 app-alterardados .email-locked-link { min-height: 36px; padding: 0 .2rem; border: 0; background: none; color: #7ae5c5; font-weight: 800; cursor: pointer; text-decoration: underline; }
 /* Account boxes: same fields as the rest of "Editar perfil". */
 .account-box__form label > span { color: #cbd5e1; font-size: .8rem; font-weight: 800; }

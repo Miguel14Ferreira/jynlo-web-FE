@@ -10,7 +10,7 @@
 
 
 label{display:grid;gap:.35rem;}
-label span{color:#cbd5e1;font-size:.8rem;font-weight:800;}
+label span{color:#cbd5e1;font-size:.875rem;font-weight:800;}
 input{
   width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,.16);
   border-radius:.75rem;padding:.8rem .9rem;background:rgba(255,255,255,.06);

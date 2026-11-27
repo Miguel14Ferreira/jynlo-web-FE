@@ -100,7 +100,7 @@ label {
 
 label > span {
   color: #e2e8f0;
-  font-size: .82rem;
+  font-size: .875rem;
   font-weight: 900;
 }
 
@@ -251,7 +251,7 @@ label small {
 .field-group > label {
   display: block;
   color: #e2e8f0;
-  font-size: .82rem;
+  font-size: .875rem;
   font-weight: 900;
 }
 
@@ -266,7 +266,7 @@ label small {
   margin: 0;
   color: #94a3b8;
   line-height: 1.35rem;
-  font-size: .8rem;
+  font-size: .875rem;
 }
 
 .field-help--empty {
@@ -342,7 +342,7 @@ label small {
 .sport-tag { display: inline-flex; align-items: center; gap: .65rem;
   padding: .38rem .45rem .38rem .85rem; border-radius: 999px;
   background: rgba(34,197,94,.13); border: 1px solid rgba(34,197,94,.35);
-  color: #d1fae5; font-size: .86rem; }
+  color: #d1fae5; font-size: .875rem; }
 .sport-tag button { color: inherit; border: 0; border-radius: 999px;
   background: rgba(255,255,255,.11); width: 30px; height: 30px; cursor: pointer; }
 .sport-suggestions { display: grid; grid-template-columns: repeat(auto-fit,minmax(145px,1fr)); gap: .35rem; }

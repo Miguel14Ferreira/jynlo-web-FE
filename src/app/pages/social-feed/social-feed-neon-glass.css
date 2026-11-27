@@ -53,7 +53,7 @@
 :host .feed-v3-shell .feed-rail-create {
   display:flex;align-items:center;justify-content:center;gap:7px;
   margin-top:5px;min-height:45px;padding:8px 9px;
-  color:#032f32;text-decoration:none;font-size:.82rem;font-weight:900;
+  color:#032f32;text-decoration:none;font-size:.875rem;font-weight:900;
   background:linear-gradient(115deg,#15e8d4,#32f6c5);
   border-radius:14px;box-shadow:0 0 22px #11e3c232;
 }
@@ -81,10 +81,10 @@
 }
 :host .feed-v3-shell .feed-v3-welcome h1 {font-size:clamp(1.8rem,3vw,2.65rem);line-height:1.09;letter-spacing:-.045em;color:#f8fffc;max-width:13ch;}
 :host .feed-v3-shell .feed-v3-welcome .subtitle {color:#c3dfe6;max-width:34ch;font-size:.92rem;}
-:host .feed-v3-shell .feed-v3-greeting {display:block;color:#62f1db;font-weight:780;font-size:.82rem;margin-bottom:.55rem;}
+:host .feed-v3-shell .feed-v3-greeting {display:block;color:#62f1db;font-weight:780;font-size:.875rem;margin-bottom:.55rem;}
 :host .feed-v3-shell .feed-v3-welcome .feed-hero-cta {
   align-self:flex-end;min-height:40px;padding:.6rem .85rem;border-radius:12px;
-  background:#26edcf;color:#032c32;border-color:#24e5cd;font-size:.8rem;
+  background:#26edcf;color:#032c32;border-color:#24e5cd;font-size:.875rem;
 }
 /* The real story component owns its player; only its feed rail gets the new look. */
 :host .feed-v3-shell .week-hub,
@@ -101,7 +101,7 @@
 :host .feed-v3-shell .week-hub-heading h2 {font-size:1.1rem;letter-spacing:-.01em;}
 :host .feed-v3-shell .week-hub-heading .week-hub-eyebrow {display:none;}
 :host .feed-v3-shell .week-hub-heading p:not(.week-hub-eyebrow) {display:none;}
-:host .feed-v3-shell .week-hub-create {min-height:44px;padding:9px 12px;font-size:.84rem;white-space:normal;}
+:host .feed-v3-shell .week-hub-create {min-height:44px;padding:9px 12px;font-size:.875rem;white-space:normal;}
 /* This section renders two cards, so never reserve a vacant third grid track. */
 :host .feed-v3-shell .week-hub-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:11px;}
 :host .feed-v3-shell .week-hub-card {border:1px solid #13cecb33;border-radius:13px;padding:12px 10px;min-width:0;background:#032b3ca8;box-shadow:none;}
@@ -110,8 +110,8 @@
 :host .feed-v3-shell .week-card-heading h3 {font-size:.91rem;line-height:1.4;color:#d0fff2;}
 :host .feed-v3-shell .week-item {padding:7px 0;gap:2px;}
 :host .feed-v3-shell .week-item strong {font-size:.875rem;display:block;overflow-wrap:anywhere;}
-:host .feed-v3-shell .week-item>span {font-size:.8125rem;line-height:1.4;overflow-wrap:anywhere;}
-:host .feed-v3-shell .week-item small {font-size:.8125rem;}
+:host .feed-v3-shell .week-item>span {font-size:.875rem;line-height:1.4;overflow-wrap:anywhere;}
+:host .feed-v3-shell .week-item small {font-size:.875rem;}
 :host .feed-v3-shell .week-card-link {font-size:.875rem;padding-top:9px;min-height:44px;display:flex;align-items:center;color:#7affdf;}
 :host .feed-v3-shell .week-muted {font-size:.875rem;line-height:1.5;color:#c9e3e9;}
 :host .feed-v3-shell .feed-v3-post-heading,
@@ -119,14 +119,14 @@
 :host .feed-v3-shell .feed-v3-post-heading {padding:10px 2px 0;}
 :host .feed-v3-shell .feed-v3-post-heading h2 {margin:0;font-size:1.08rem;}
 :host .feed-v3-shell .feed-v3-post-heading a,
-:host .feed-v3-shell .feed-v3-side-heading a {text-decoration:none;color:#40eed5;font-size:.75rem;font-weight:800;white-space:nowrap;}
+:host .feed-v3-shell .feed-v3-side-heading a {text-decoration:none;color:#40eed5;font-size:.875rem;font-weight:800;white-space:nowrap;}
 :host .feed-v3-shell .composer {padding:14px;}
 :host .feed-v3-shell .composer textarea {
   min-height:65px;background:#0731449c;border:1px solid #248e9766;border-radius:12px;
   padding:12px 14px;resize:vertical;
 }
 :host .feed-v3-shell .composer .composer-actions {gap:7px;}
-:host .feed-v3-shell .composer .image-picker {min-height:38px;border-radius:10px;font-size:.78rem;}
+:host .feed-v3-shell .composer .image-picker {min-height:38px;border-radius:10px;font-size:.875rem;}
 :host .feed-v3-shell .composer button.jynlo-action--primary {background:#19ead0;color:#023339;}
 :host .feed-v3-shell .feed-card {padding:clamp(12px,1.5vw,18px);border-color:#15ceca40;}
 :host .feed-v3-shell .post-image,:host .feed-v3-shell .post-video {max-height:590px;border-radius:13px;}
@@ -140,26 +140,26 @@
 :host .feed-v3-shell .feed-suggested-details strong {color:#e8fdf9;}
 :host .feed-v3-shell .feed-suggested-person {border-color:#06c8c233;border-radius:12px;background:#06334477;}
 :host .feed-v3-shell .feed-suggested-person-details {min-width:0;}
-:host .feed-v3-shell .feed-sidebar-link {font-size:.77rem;min-height:34px;}
+:host .feed-v3-shell .feed-sidebar-link {font-size:.875rem;min-height:34px;}
 :host .feed-v3-shell .feed-v3-community-row {display:flex;align-items:center;gap:10px;text-decoration:none;color:#f0fffe;padding:9px 0;border-bottom:1px solid #c2faf31d;}
 :host .feed-v3-shell .feed-v3-community-avatar {width:38px;height:38px;display:grid;place-items:center;flex:0 0 38px;border-radius:50%;border:1px solid #17ceca90;background:#0c4d58;color:#b0ffeb;font-weight:900;}
 :host .feed-v3-shell .feed-v3-community-row>span:nth-child(2) {display:grid;gap:2px;flex:1;min-width:0;}
-:host .feed-v3-shell .feed-v3-community-row strong {font-size:.81rem;overflow-wrap:anywhere;}
-:host .feed-v3-shell .feed-v3-community-row small {font-size:.71rem;color:#9fbdca;}
+:host .feed-v3-shell .feed-v3-community-row strong {font-size:.875rem;overflow-wrap:anywhere;}
+:host .feed-v3-shell .feed-v3-community-row small {font-size:.875rem;color:#9fbdca;}
 :host .feed-v3-shell .feed-v3-community-chevron {color:#39e8ce;}
-:host .feed-v3-shell .feed-v3-side-empty {font-size:.82rem;color:#b4d4d9;line-height:1.5;}
+:host .feed-v3-shell .feed-v3-side-empty {font-size:.875rem;color:#b4d4d9;line-height:1.5;}
 :host .feed-v3-shell .feed-v3-side-button {display:flex;justify-content:center;text-decoration:none;color:#89f7de;}
 :host .feed-v3-shell .feed-v3-join-card {text-align:center;padding:20px 15px;border:1px solid #0fd4c985;border-radius:17px;background:radial-gradient(circle at 50% 16%,#0bb4aa40,transparent 55%),linear-gradient(145deg,#043444,#031b2e);display:grid;justify-items:center;gap:9px;}
 :host .feed-v3-shell .feed-v3-join-card img {display:block;border-radius:16px;object-fit:contain;}
 :host .feed-v3-shell .feed-v3-join-card h2 {margin:0;font-size:1.12rem;color:#fff;max-width:20ch;}
-:host .feed-v3-shell .feed-v3-join-card p {font-size:.8rem;line-height:1.5;color:#b7d5dc;margin:0;}
+:host .feed-v3-shell .feed-v3-join-card p {font-size:.875rem;line-height:1.5;color:#b7d5dc;margin:0;}
 :host .feed-v3-shell .feed-v3-join-card a {display:block;width:100%;padding:11px;border-radius:12px;background:#27ead0;color:#032f34;font-weight:900;text-decoration:none;}
 :host .feed-v3-shell :is(a,button,input,textarea):focus-visible {outline:2px solid #94ffe8;outline-offset:2px;}
 @media(max-width:1120px) {
   :host .feed-page .feed-shell.feed-v3-shell {grid-template-columns:160px minmax(0,1fr);gap:10px;}
   :host .feed-v3-shell .feed-layout {grid-template-columns:minmax(0,1fr) minmax(205px,245px);gap:9px;}
   :host .feed-v3-shell .feed-left-rail {padding-inline:6px;}
-  :host .feed-v3-shell .feed-rail-links a {font-size:.79rem;gap:8px;padding-inline:7px;}
+  :host .feed-v3-shell .feed-rail-links a {font-size:.875rem;gap:8px;padding-inline:7px;}
 }
 @media(max-width:990px) {
   :host .feed-page .feed-shell.feed-v3-shell {display:block;max-width:900px;}
@@ -231,7 +231,7 @@
   background:rgba(30,89,105,.34);
   border:1px solid rgba(83,193,203,.21);
   border-radius:10px;
-  font-size:.7rem;
+  font-size:.875rem;
   line-height:1.2;
   font-weight:750;
   color:#6ff4dc;
@@ -290,8 +290,8 @@
   white-space:nowrap;
   line-height:1.3;
 }
-:host .feed-page .feed-v3-shell .feed-v3-community-row strong {font-size:.79rem;}
-:host .feed-page .feed-v3-shell .feed-v3-community-row small {font-size:.71rem;font-weight:500;}
+:host .feed-page .feed-v3-shell .feed-v3-community-row strong {font-size:.875rem;}
+:host .feed-page .feed-v3-shell .feed-v3-community-row small {font-size:.875rem;font-weight:500;}
 :host .feed-page .feed-v3-shell .feed-v3-community-chevron {
   justify-self:end;
   font-size:1rem;

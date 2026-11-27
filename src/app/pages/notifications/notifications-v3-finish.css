@@ -165,7 +165,7 @@
   border:1px solid rgba(96,243,217,.28);border-radius:16px;background:linear-gradient(145deg,rgba(9,47,63,.95),rgba(5,29,46,.95))}
 .computer-alerts__copy{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1 1 280px}
 .computer-alerts__copy strong{color:#f2fffc;font-size:.95rem}
-.computer-alerts__copy span{color:#a9c8cf;font-size:.85rem;line-height:1.45}
+.computer-alerts__copy span{color:#a9c8cf;font-size:.875rem;line-height:1.45}
 .computer-alerts__actions{display:flex;gap:8px;flex-wrap:wrap}
 
 /* Compact notification centre: filters, day groups, icon per type, two-line preview, delete per row. */
@@ -177,7 +177,7 @@
 :host .nc-filter__badge{display:inline-block;min-width:20px;height:20px;line-height:20px;border-radius:10px;background:#f2b84b;color:#231500;font-size:12px;font-weight:800;margin-left:4px;padding:0 5px;}
 :host .nc-link{margin-left:auto;background:none;border:0;color:#62e6c4;font-weight:700;cursor:pointer;min-height:36px;}
 :host .nc-empty{color:#8fb3bc;font-size:.9rem;margin:8px 0;}
-:host .nc-section{margin:10px 0 4px;color:#8fb3bc;font-size:.72rem;font-weight:800;letter-spacing:.06em;}
+:host .nc-section{margin:10px 0 4px;color:#8fb3bc;font-size:.875rem;font-weight:800;letter-spacing:.06em;}
 :host .nc-row{position:relative;display:flex;align-items:stretch;border-radius:12px;}
 :host .nc-row.is-unread{background:#0b1d2b;}
 :host .nc-row.is-active{outline:1px solid #62e6c4;}
@@ -193,7 +193,7 @@
 :host .nc-top strong{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.9rem;font-weight:600;color:#d7ecee;}
 :host .nc-row.is-unread .nc-top strong{font-weight:800;color:#f4fffb;}
 :host .nc-time{flex:none;color:#8fb3bc;font-size:.75rem;}
-:host .nc-preview{color:#8fb3bc;font-size:.84rem;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+:host .nc-preview{color:#8fb3bc;font-size:.875rem;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 :host .nc-row.is-unread .nc-preview{color:#c9e3e6;}
 :host .nc-dot{flex:none;width:9px;height:9px;border-radius:50%;background:#62e6c4;margin-top:6px;}
 :host .nc-delete{flex:none;width:40px;display:flex;align-items:center;justify-content:center;background:none;border:0;color:#8fb3bc;cursor:pointer;opacity:0;border-radius:10px;}

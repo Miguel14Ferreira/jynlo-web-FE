@@ -121,7 +121,7 @@ body .sessions-page.jynlo-c1 .sport-label {
 }
 body .sessions-page.jynlo-c1 .session-fact span {
   color: var(--jynlo-ui-subtle);
-  font-size: .78rem;
+  font-size: .875rem;
 }
 body .sessions-page.jynlo-c1 .session-fact strong {
   color: #eaf5fc;
@@ -297,7 +297,7 @@ body .my-sessions-page.jynlo-c1 .attendance-card {
 
 /* Session level picker on the session page (organizer). */
 body .session-level-edit { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 4px 0 8px; }
-body .session-level-edit label { display: flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 700; color: #bfe9df; }
+body .session-level-edit label { display: flex; align-items: center; gap: 8px; font-size: .875rem; font-weight: 700; color: #bfe9df; }
 body .session-level-edit select { min-height: 38px; padding: 0 10px; border-radius: 10px; border: 1px solid rgba(63,216,180,.35); background: #0a3340; color: #effffb; font: inherit; font-weight: 600; color-scheme: dark; }
 body .session-level-edit small { color: #ffb4b4; }
 body .session-level-edit input[type=number] { width: 72px; min-height: 38px; padding: 0 10px; border-radius: 10px; border: 1px solid rgba(63,216,180,.35); background: #0a3340; color: #effffb; font: inherit; font-weight: 600; color-scheme: dark; }

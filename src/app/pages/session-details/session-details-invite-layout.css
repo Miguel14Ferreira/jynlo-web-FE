@@ -14,7 +14,7 @@
 .session-player-search-heading h3,
 .session-friend-invite-heading h4 {margin:0;color:#f1fffb;font-size:1.02rem;line-height:1.35}
 .session-player-search-heading p,
-.session-friend-invite-heading p {margin:0;color:#b6d9df;line-height:1.5;font-size:.87rem}
+.session-friend-invite-heading p {margin:0;color:#b6d9df;line-height:1.5;font-size:.875rem}
 .session-player-search-header > a {flex:0 0 auto;min-height:44px;text-decoration:none}
 .session-friend-invite-section {
   display:grid; gap:14px; padding-top:18px; min-width:0;

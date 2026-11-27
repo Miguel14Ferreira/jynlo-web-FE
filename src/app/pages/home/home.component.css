@@ -90,7 +90,7 @@
   gap: .45rem;
   margin-top: 1.35rem;
   color: var(--d24-accent-soft);
-  font-size: .8rem;
+  font-size: .875rem;
   font-weight: 850;
 }
 
@@ -130,7 +130,7 @@
   border-radius: 50%;
   background: rgba(0,230,118,.11);
   color: var(--d24-accent);
-  font-size: .72rem;
+  font-size: .875rem;
   font-weight: 900;
 }
 
@@ -174,7 +174,7 @@
 .pillar-grid p {
   margin: 0 0 .15rem;
   color: #7dd3fc;
-  font-size: .72rem;
+  font-size: .875rem;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -184,7 +184,7 @@
 
 .pillar-grid article > div > span {
   color: #94a3b8;
-  font-size: .78rem;
+  font-size: .875rem;
   line-height: 1.45;
 }
 
@@ -255,7 +255,7 @@
 /* Bootstrap labels carry a default .5rem bottom margin, which leaves
    the buttons lower than the neighbouring search inputs. */
 .preview-search label { display: grid; min-width: 0; gap: .4rem; margin-bottom: 0; }
-.preview-search label > span { color: #cbd5e1; font-size: .85rem; font-weight: 700; }
+.preview-search label > span { color: #cbd5e1; font-size: .875rem; font-weight: 700; }
 .preview-search input {
   width: 100%;
   min-width: 0;
@@ -295,9 +295,9 @@
 a.preview-item:hover, a.preview-item:focus-visible { border-color: var(--d24-accent); }
 a.preview-venue { cursor: pointer; transition: border-color .16s ease, box-shadow .16s ease; }
 a.preview-venue:hover, a.preview-venue:focus-visible { box-shadow: 0 0 0 1px rgba(63,231,198,.23), 0 8px 26px rgba(0,12,22,.3); }
-a.preview-venue .preview-venue-action { font-size: .76rem; color: #83ebd5; font-weight: 750; justify-self: start; }
+a.preview-venue .preview-venue-action { font-size: .875rem; color: #83ebd5; font-weight: 750; justify-self: start; }
 @media (prefers-reduced-motion: reduce) { a.preview-venue { transition: none; } }
-.preview-item span { color: #cbd5e1; font-size: .84rem; overflow-wrap: anywhere; }
+.preview-item span { color: #cbd5e1; font-size: .875rem; overflow-wrap: anywhere; }
 .preview-item small { color: var(--d24-accent-soft); font-weight: 800; }
 .preview-item .preview-availability {
   display: inline-flex;
@@ -307,7 +307,7 @@ a.preview-venue .preview-venue-action { font-size: .76rem; color: #83ebd5; font-
   padding: .3rem .55rem;
   background: rgba(0,230,118,.11);
   color: #86efac;
-  font-size: .8rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 .preview-item .preview-availability--full {

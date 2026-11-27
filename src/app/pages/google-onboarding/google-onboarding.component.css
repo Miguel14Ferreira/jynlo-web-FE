@@ -79,7 +79,7 @@ h1 {
 }
 .verified-label {
   color: #86efac;
-  font-size: .75rem;
+  font-size: .875rem;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: .06em;
@@ -99,7 +99,7 @@ label {
 label > span,
 .field-label {
   color: #bedce3;
-  font-size: .8rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 .full-width {

@@ -216,3 +216,12 @@
   /* Pages were spaced for the 64 px top bar, which is now a column on the left. */
   body:has(.site-nav--authed) app-root > router-outlet + * { margin-top: -44px; }
 }
+
+/* Phase 5: readable text. Component styles were raised to at least 14 px at the source;
+   these few come from shorthand or browser defaults. */
+body .jynlo-c1 small, body app-footer small,
+body .venue-sports-chip, body .sessions-page .status, body .story-header-create, body .inbox-unread-note {
+  font-size: .875rem !important;
+}
+/* Example text inside fields was too faint on the dark green inputs (about 3:1); now above 4.5:1. */
+body input::placeholder, body textarea::placeholder { color: #9fb8c0 !important; opacity: 1 !important; }

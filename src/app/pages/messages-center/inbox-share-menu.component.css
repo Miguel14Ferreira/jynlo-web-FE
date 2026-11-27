@@ -1,6 +1,6 @@
 :host{position:absolute;right:0;bottom:calc(100% + 10px);z-index:35;background:#152e38;
   border:1px solid #4e8584;border-radius:14px;color:#effffb;box-shadow:0 20px 48px #000a;width:230px;padding:7px;display:grid;gap:5px;}
 :host button{border:0;border-radius:9px;background:transparent;color:inherit;text-align:left;
-  font:inherit;font-size:.84rem;padding:11px;cursor:pointer;}
+  font:inherit;font-size:.875rem;padding:11px;cursor:pointer;}
 :host button:hover{background:#245658;}
 :host button:focus-visible{outline:2px solid #62eabb;outline-offset:2px;}

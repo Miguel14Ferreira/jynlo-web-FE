@@ -1,7 +1,7 @@
 :host { display:block; min-width:0; }
 p { margin:0;color:#cbd5e1;line-height:1.5; }
 h6 { margin:0; }
-.t-muted { padding:.5rem 0;font-size:.85rem;color:#94a3b8 !important; }
+.t-muted { padding:.5rem 0;font-size:.875rem;color:#94a3b8 !important; }
 .race-standings-section {
   padding: 1rem;
   border: 1px solid rgba(148, 163, 184, .22);
@@ -16,7 +16,7 @@ h6 { margin:0; }
   padding: .7rem .55rem; text-align: left;
   border-bottom: 1px solid rgba(148,163,184,.19);
 }
-.race-standings-section th { color: #bcd1df; font-size: .77rem; }
+.race-standings-section th { color: #bcd1df; font-size: .875rem; }
 .race-standings-section td strong { color: #a7f3d0; }
 
 /* The API owns final positions: never derive medals from table row order. */

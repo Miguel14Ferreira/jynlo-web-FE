@@ -1,7 +1,7 @@
 :host { display:block; min-width:0; }
 h3 { margin:0; }
 .section-heading { display:flex;align-items:center;justify-content:space-between;gap:1rem; }
-.section-kicker { margin:0 0 .2rem;color:#7dd3fc;font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em; }
+.section-kicker { margin:0 0 .2rem;color:#7dd3fc;font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em; }
 .records-section,
 .performance-section,
 .compare-section {
@@ -29,7 +29,7 @@ h3 { margin:0; }
 .record-card > span,
 .record-card small {
   color: #94a3b8;
-  font-size: .76rem;
+  font-size: .875rem;
 }
 
 .points-chart {
@@ -55,7 +55,7 @@ h3 { margin:0; }
 .points-chart-label span {
   flex: 0 0 auto;
   color: #94a3b8;
-  font-size: .75rem;
+  font-size: .875rem;
 }
 
 .points-chart-track {
@@ -83,7 +83,7 @@ h3 { margin:0; }
 .versus {
   padding-bottom: 1rem;
   color: #64748b;
-  font-size: .75rem;
+  font-size: .875rem;
   font-weight: 950;
 }
 
@@ -111,7 +111,7 @@ h3 { margin:0; }
 
 .compare-table > div > span {
   color: #94a3b8;
-  font-size: .72rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 

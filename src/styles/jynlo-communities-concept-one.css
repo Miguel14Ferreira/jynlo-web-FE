@@ -444,7 +444,7 @@ body .communities-page.jynlo-c1 .community-discovery-results-heading h3 {
 body .communities-page.jynlo-c1 .community-discovery-results-heading > p {
   color: var(--jynlo-ui-muted);
   margin: 0;
-  font-size: .87rem;
+  font-size: .875rem;
 }
 body .communities-page.jynlo-c1:not(.community-detail-page) .community-discovery .community-discovery-grid {
   display: grid;
@@ -528,7 +528,7 @@ body .communities-page.jynlo-c1 .community-discovery-grid .community-discovery-c
   display: inline-flex;
   align-items: center;
   gap: .35rem;
-  font-size: .82rem;
+  font-size: .875rem;
   font-weight: 800;
   color: var(--jynlo-ui-brand);
 }
@@ -545,7 +545,7 @@ body .communities-page.jynlo-c1 .community-discovery-pagination {
 }
 body .communities-page.jynlo-c1 .community-discovery-pagination > span {
   color: var(--jynlo-ui-muted);
-  font-size: .85rem;
+  font-size: .875rem;
 }
 body .communities-page.jynlo-c1 .community-discovery-empty {
   margin: 1.5rem 0 0;
@@ -603,7 +603,7 @@ body .communities-page.jynlo-c1 .season-management-heading h4 {
 body .communities-page.jynlo-c1 .season-management-heading p {
   margin: .3rem 0 1rem;
   color: var(--jynlo-ui-muted);
-  font-size: .83rem;
+  font-size: .875rem;
 }
 body .communities-page.jynlo-c1 .season-management-row {
   display: flex;
@@ -624,7 +624,7 @@ body .communities-page.jynlo-c1 .season-management-identity strong {
 }
 body .communities-page.jynlo-c1 .season-management-identity span {
   color: var(--jynlo-ui-muted);
-  font-size: .77rem;
+  font-size: .875rem;
 }
 body .communities-page.jynlo-c1 .season-management-actions,
 body .communities-page.jynlo-c1 .season-management-confirm .row-actions,
@@ -650,7 +650,7 @@ body .communities-page.jynlo-c1 .season-management-editor input {
 body .communities-page.jynlo-c1 .season-management-confirm p {
   color: var(--jynlo-ui-muted);
   margin: 0;
-  font-size: .85rem;
+  font-size: .875rem;
   line-height: 1.5;
 }
 body .communities-page.jynlo-c1 .season-management-error {
@@ -702,12 +702,12 @@ body .communities-page.jynlo-c1 .round-matchup-side-head h4 {
 body .communities-page.jynlo-c1 .round-matchup-side-head small,
 body .communities-page.jynlo-c1 .round-matchup-kicker {
   color: #9ab2c6;
-  font-size: .72rem;
+  font-size: .75rem;
   font-weight: 650;
 }
 body .communities-page.jynlo-c1 .round-matchup-kicker {
   color: #72e6cd;
-  font-size: .72rem;
+  font-size: .75rem;
   letter-spacing: .12em;
   font-weight: 850;
 }
@@ -729,19 +729,19 @@ body .communities-page.jynlo-c1 .round-matchup-player-name {
   min-width: 0;
 }
 body .communities-page.jynlo-c1 .round-matchup-player-name strong {
-  font-size: .87rem;
+  font-size: .875rem;
   overflow-wrap: anywhere;
 }
 body .communities-page.jynlo-c1 .round-matchup-player-name small {
   color: #9ab2c6;
-  font-size: .7rem;
+  font-size: .875rem;
 }
 body .communities-page.jynlo-c1 .round-matchup-player-stats {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: .35rem;
-  font-size: .73rem;
+  font-size: .875rem;
   color: #c6d9e9;
 }
 body .communities-page.jynlo-c1 .round-matchup-vs {
@@ -753,13 +753,13 @@ body .communities-page.jynlo-c1 .round-matchup-vs {
   background: #17364b;
   border: 1px solid rgba(125, 211, 252, .3);
   color: #d3f5fd;
-  font-size: .75rem;
+  font-size: .875rem;
   font-weight: 950;
 }
 body .communities-page.jynlo-c1 .round-matchup-inferred {
   margin: .75rem .1rem 0;
   color: #94a3b8;
-  font-size: .74rem;
+  font-size: .875rem;
   line-height: 1.45;
 }
 body .communities-page.jynlo-c1 .season-delete-acknowledge {
@@ -768,7 +768,7 @@ body .communities-page.jynlo-c1 .season-delete-acknowledge {
   gap: .6rem;
   color: #f2d8db;
   cursor: pointer;
-  font-size: .83rem;
+  font-size: .875rem;
 }
 body .communities-page.jynlo-c1 .season-delete-acknowledge input {
   width: 18px;
@@ -837,16 +837,16 @@ body .communities-page.jynlo-c1 .race-round-entry > div {
 body .communities-page.jynlo-c1 .race-round-entry strong { overflow-wrap: anywhere; }
 body .communities-page.jynlo-c1 .race-round-entry small {
   color: #9db5c5;
-  font-size: .72rem;
+  font-size: .875rem;
 }
 body .communities-page.jynlo-c1 .round-sport-tag {
   color: #91ebcf;
-  font-size: .7rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 body .communities-page.jynlo-c1 .round-sport-guidance {
   margin: .65rem 0;
-  font-size: .79rem;
+  font-size: .875rem;
   color: #a6cfe5;
 }
 @media (max-width: 670px) {
@@ -872,11 +872,11 @@ body .communities-page.jynlo-c1 .round-generic-format {
   border-radius: 999px;
   color: #c9f6fc;
   background: rgba(125,211,252,.07);
-  font-size: .76rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 body .communities-page.jynlo-c1 .round-generic-context small {
-  font-size: .73rem;
+  font-size: .875rem;
   line-height: 1.45;
 }
 body .communities-page.jynlo-c1 .round-results .round-result-row {
@@ -892,7 +892,7 @@ body .communities-page.jynlo-c1 .race-round-metrics {
   gap: .4rem .7rem;
   color: #c4deec;
   font-variant-numeric: tabular-nums;
-  font-size: .8rem;
+  font-size: .875rem;
 }
 body .communities-page.jynlo-c1 .race-round-position {
   min-width: 3.5rem;
@@ -905,7 +905,7 @@ body .communities-page.jynlo-c1 .race-round-position {
   font-weight: 900;
 }
 body .communities-page.jynlo-c1 .race-round-unranked {
-  font-size: .75rem;
+  font-size: .875rem;
   color: #91aabc;
 }
 @media (max-width: 750px) {
@@ -944,7 +944,7 @@ body .communities-page.jynlo-c1 .racket-sets-header > span,
 body .communities-page.jynlo-c1 .racket-round-editor > p,
 body .communities-page.jynlo-c1 .racket-result-header > span {
   color: #9cb8c9;
-  font-size: .78rem;
+  font-size: .875rem;
 }
 body .communities-page.jynlo-c1 .racket-set-editor {
   display: flex;
@@ -985,7 +985,7 @@ body .communities-page.jynlo-c1 .racket-result-side strong {
 body .communities-page.jynlo-c1 .racket-result-vs {
   text-align: center;
   font-weight: 900;
-  font-size: .77rem;
+  font-size: .875rem;
   color: #a7dce4;
 }
 body .communities-page.jynlo-c1 .racket-result-sets {
@@ -1027,7 +1027,7 @@ body .communities-page.jynlo-c1 .racket-standings-explainer,
 body .communities-page.jynlo-c1 .racket-standings-footnote {
   margin: .55rem 0 1.1rem;
   color: #a4bfd0;
-  font-size: .81rem;
+  font-size: .875rem;
   line-height: 1.5;
 }
 body .communities-page.jynlo-c1 .racket-standings-group {
@@ -1058,7 +1058,7 @@ body .communities-page.jynlo-c1 .racket-standings-table {
   border-collapse: collapse;
   width: 100%;
   min-width: 740px;
-  font-size: .78rem;
+  font-size: .875rem;
   font-variant-numeric: tabular-nums;
 }
 body .communities-page.jynlo-c1 .racket-standings-table th,
@@ -1069,7 +1069,7 @@ body .communities-page.jynlo-c1 .racket-standings-table td {
   white-space: nowrap;
 }
 body .communities-page.jynlo-c1 .racket-standings-table thead th {
-  font-size: .72rem;
+  font-size: .875rem;
   text-transform: uppercase;
   letter-spacing: .045em;
   color: #a4c0d2;
@@ -1100,7 +1100,7 @@ body .communities-page.jynlo-c1 .racket-standings-positive {
 /* Per-season racket championship scoring. */
 body .communities-page.jynlo-c1 .racket-standings-rule-description {
   color: #9cdbcb;
-  font-size: .76rem;
+  font-size: .875rem;
   margin: .3rem 0 1rem;
   line-height: 1.5;
 }
@@ -1119,7 +1119,7 @@ body .communities-page.jynlo-c1 .racket-rule-editor > label {
   display: grid;
   gap: .35rem;
   color: #c9dfeb;
-  font-size: .8rem;
+  font-size: .875rem;
 }
 body .communities-page.jynlo-c1 .racket-rule-editor input {
   width: 120px;
@@ -1135,7 +1135,7 @@ body .communities-page.jynlo-c1 .racket-rule-actions {
 
 /* Race championship configuration & per-entry penalties — Concept One */
 body .communities-page.jynlo-c1 .race-penalty-chip {
-  font-size: .73rem;
+  font-size: .875rem;
   font-weight: 800;
   padding: .25rem .5rem;
   border: 1px solid rgba(251,191,36,.36);
@@ -1157,7 +1157,7 @@ body .communities-page.jynlo-c1 .race-penalty-editor {
 body .communities-page.jynlo-c1 .race-penalty-editor label {
   display: grid;
   gap: .3rem;
-  font-size: .75rem;
+  font-size: .875rem;
   min-width: 100px;
 }
 body .communities-page.jynlo-c1 .race-penalty-editor input[type="number"] {
@@ -1182,7 +1182,7 @@ body .communities-page.jynlo-c1 .race-decision-dsq {
   border: 1px solid rgba(248,113,113,.38);
   background: rgba(185,28,28,.15);
   color: #fecaca;
-  font-size: .73rem;
+  font-size: .875rem;
   font-weight: 900;
 }
 body .communities-page.jynlo-c1 .race-adjusted-time {
@@ -1194,7 +1194,7 @@ body .communities-page.jynlo-c1 .race-penalty-editor .race-dsq-field {
   display: inline-flex;
   align-items: center;
   gap: .4rem;
-  font-size: .78rem;
+  font-size: .875rem;
 }
 body .communities-page.jynlo-c1 .race-penalty-editor .race-dsq-field input {
   width: 1rem;
@@ -1213,7 +1213,7 @@ body .communities-page.jynlo-c1 .round-wave-editor label { flex: 1 1 120px; }
 body .communities-page.jynlo-c1 .round-surf-scores small {
   color: #afd6e5;
   font-variant-numeric: tabular-nums;
-  font-size: .74rem;
+  font-size: .875rem;
 }
 body .communities-page.jynlo-c1 .round-performance-mark--surf {
   color: #a2e3ff;
@@ -1249,7 +1249,7 @@ body .communities-page.jynlo-c1 .round-breaking-decision {
   color: #c5d5e1;
   border-radius: 999px;
   padding: .28rem .65rem;
-  font-size: .77rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 body .communities-page.jynlo-c1 .round-breaking-decision--winner {
@@ -1444,12 +1444,12 @@ body .communities-page.jynlo-c1 .round-performance-mark {
 }
 body .communities-page.jynlo-c1 .round-performance-rank {
   color: #afd6e5;
-  font-size: .78rem;
+  font-size: .875rem;
   font-weight: 700;
 }
 body .communities-page.jynlo-c1 .round-performance-unscored {
   color: #9cb6c5;
-  font-size: .78rem;
+  font-size: .875rem;
 }
 
 /* Guided history import: understandable choices before uploading an Excel file. */
@@ -1489,7 +1489,7 @@ section.import-panel.import-wizard {
   border-radius: 11px;
   background: rgba(255, 255, 255, .025);
   color: #a7bfca;
-  font-size: .82rem;
+  font-size: .875rem;
   font-weight: 700;
 }
 .import-wizard-step.is-active { border-color: rgba(91, 222, 191, .63); background: rgba(51, 191, 166, .11); color: #eafff9; }
@@ -1501,7 +1501,7 @@ section.import-panel.import-wizard {
   flex: none;
   border-radius: 50%;
   border: 1px solid currentColor;
-  font-size: .76rem;
+  font-size: .875rem;
 }
 .import-wizard-step.is-active .import-wizard-step-number { background: #6ce5cb; border-color: #6ce5cb; color: #083636; }
 .import-wizard-section { margin-top: 22px; }
@@ -1510,13 +1510,13 @@ section.import-panel.import-wizard {
 .import-wizard-section-number {
   flex: none;
   padding-top: 4px;
-  font-size: .75rem;
+  font-size: .875rem;
   font-weight: 900;
   color: #65d9c5;
   letter-spacing: .1em;
 }
 .import-wizard-section-heading h4 { margin: 0 0 4px; font-size: 1.05rem; color: #f1fbff; }
-.import-wizard-section-heading p { margin: 0; font-size: .85rem; color: #adc6d4; line-height: 1.5; }
+.import-wizard-section-heading p { margin: 0; font-size: .875rem; color: #adc6d4; line-height: 1.5; }
 .import-wizard-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .import-wizard-option {
   display: flex;
@@ -1542,11 +1542,11 @@ section.import-panel.import-wizard {
 .import-wizard-option.is-selected { border-color: #63dec4; background: rgba(48, 157, 141, .14); box-shadow: inset 0 0 0 1px rgba(99, 222, 196, .2); }
 .import-wizard-option-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
 .import-wizard-option-icon { font-size: 1.35rem; line-height: 1; }
-.import-wizard-option-check { display: grid; place-items: center; width: 23px; height: 23px; border-radius: 50%; color: #063b36; font-size: .82rem; font-weight: 900; }
+.import-wizard-option-check { display: grid; place-items: center; width: 23px; height: 23px; border-radius: 50%; color: #063b36; font-size: .875rem; font-weight: 900; }
 .import-wizard-option.is-selected .import-wizard-option-check { background: #75e5c9; }
 .import-wizard-option strong { font-size: 1rem; line-height: 1.3; }
-.import-wizard-option-description { font-size: .86rem; color: #d0e1ea; line-height: 1.5; flex: 1; }
-.import-wizard-option-example { font-size: .76rem; color: #aec8d6; line-height: 1.45; }
+.import-wizard-option-description { font-size: .875rem; color: #d0e1ea; line-height: 1.5; flex: 1; }
+.import-wizard-option-example { font-size: .875rem; color: #aec8d6; line-height: 1.45; }
 .import-wizard-option-impact {
   display: inline-flex;
   border: 1px solid rgba(111, 205, 195, .27);
@@ -1554,7 +1554,7 @@ section.import-panel.import-wizard {
   padding: 6px 8px;
   background: rgba(62, 135, 130, .1);
   color: #b0efdf;
-  font-size: .75rem;
+  font-size: .875rem;
   font-weight: 800;
   line-height: 1.4;
 }
@@ -1568,7 +1568,7 @@ section.import-panel.import-wizard {
   padding: 12px 14px;
   margin-top: 14px;
   color: #dceef5;
-  font-size: .85rem;
+  font-size: .875rem;
   line-height: 1.5;
 }
 .import-wizard-context > span:first-child { font-size: 1.05rem; color: #75e5c9; }
@@ -1594,7 +1594,7 @@ section.import-panel.import-wizard {
 }
 .import-wizard-upload-body { display: grid; min-width: 0; gap: 3px; flex: 1; }
 .import-wizard-upload-body strong { overflow-wrap: anywhere; font-size: .89rem; color: #f0fbff; }
-.import-wizard-upload-body span { color: #a8c1ce; font-size: .77rem; }
+.import-wizard-upload-body span { color: #a8c1ce; font-size: .875rem; }
 .import-wizard .import-file-picker { margin: 0; flex: none; }
 .import-wizard-review-heading { margin: 24px 0 4px; padding-top: 23px; border-top: 1px solid rgba(150, 180, 196, .17); }
 .import-wizard .import-preview { margin-top: 16px; }
@@ -1603,12 +1603,12 @@ section.import-panel.import-wizard {
   .import-wizard-options { grid-template-columns: 1fr; }
   .import-wizard-option { gap: 7px; }
   .import-wizard-steps { gap: 5px; }
-  .import-wizard-step { padding: 9px 7px; font-size: .74rem; }
+  .import-wizard-step { padding: 9px 7px; font-size: .875rem; }
 }
 @media (max-width: 580px) {
   .import-wizard-header-icon { display: none; }
   .import-wizard-steps { grid-template-columns: 1fr; }
-  .import-wizard-step { font-size: .8rem; }
+  .import-wizard-step { font-size: .875rem; }
   .import-wizard-upload { flex-wrap: wrap; }
   .import-wizard-upload .import-file-picker { width: 100%; text-align: center; }
 }
@@ -1658,7 +1658,7 @@ body .communities-page.jynlo-c1 .community-feed-composer-head strong {
 }
 body .communities-page.jynlo-c1 .community-feed-composer-head > span {
   color: #a4bbc8;
-  font-size: .75rem;
+  font-size: .875rem;
   font-variant-numeric: tabular-nums;
 }
 body .communities-page.jynlo-c1 .community-feed-text-label {
@@ -1697,7 +1697,7 @@ body .communities-page.jynlo-c1 .community-feed-composer-actions {
 }
 body .communities-page.jynlo-c1 .community-feed-composer-note {
   color: #a1b8c8;
-  font-size: .77rem;
+  font-size: .875rem;
   line-height: 1.5;
 }
 body .communities-page.jynlo-c1 .community-feed-composer-note > span {
@@ -1764,7 +1764,7 @@ body .communities-page.jynlo-c1 .community-feed-author-copy strong {
 }
 body .communities-page.jynlo-c1 .community-feed-author-copy small {
   color: #9ab4c5;
-  font-size: .73rem;
+  font-size: .875rem;
   line-height: 1.45;
   overflow-wrap: anywhere;
 }
@@ -1780,7 +1780,7 @@ body .communities-page.jynlo-c1 .community-feed-author-link:focus-visible {
 body .communities-page.jynlo-c1 .community-feed-delete {
   flex-shrink: 0;
   margin-left: auto;
-  font-size: .76rem;
+  font-size: .875rem;
 }
 body .communities-page.jynlo-c1 .community-feed-card .community-feed-body {
   margin: 1rem 0 0;
@@ -1877,7 +1877,7 @@ body .communities-page.jynlo-c1 .community-feed-file-picker {
   gap: .45rem;
   width: auto;
   cursor: pointer;
-  font-size: .84rem;
+  font-size: .875rem;
   line-height: 1.2;
 }
 body .communities-page.jynlo-c1 .community-feed-file-picker input {
@@ -1970,7 +1970,7 @@ body .communities-page.jynlo-c1 .historical-import-choice strong {
   font-size: .92rem;
 }
 body .communities-page.jynlo-c1 .historical-import-choice span {
-  font-size: .79rem;
+  font-size: .875rem;
   line-height: 1.5;
 }
 body .communities-page.jynlo-c1 .historical-import-choice.is-selected {
@@ -2030,7 +2030,7 @@ body .communities-page.jynlo-c1 .historical-outcome-copy strong {
 body .communities-page.jynlo-c1 .historical-outcome-copy p {
   margin: 0;
   color: #aec5d3;
-  font-size: .82rem;
+  font-size: .875rem;
   line-height: 1.55;
 }
 
@@ -2053,7 +2053,7 @@ body .communities-page.jynlo-c1 .historical-match-review-flag {
   border-radius: .55rem;
   background: rgba(183, 113, 39, .14);
   color: #f7d6a6;
-  font-size: .76rem;
+  font-size: .875rem;
   line-height: 1.4;
   font-weight: 550;
   overflow-wrap: anywhere;
@@ -2074,13 +2074,13 @@ body .communities-page.jynlo-c1 .historical-source-group th {
 body .communities-page.jynlo-c1 .historical-source-group-kind {
   margin-right: .65rem;
   color: #91b9c9;
-  font-size: .75rem;
+  font-size: .875rem;
   font-weight: 500;
 }
 body .communities-page.jynlo-c1 .historical-source-group-count {
   margin-left: .75rem;
   color: #91b9c9;
-  font-size: .74rem;
+  font-size: .75rem;
 }
 @media (max-width: 650px) {
   body .communities-page.jynlo-c1 .historical-source-group th { padding: .7rem; }
@@ -2130,7 +2130,7 @@ body .communities-page.jynlo-c1 .historical-phase-card-count {
 }
 body .communities-page.jynlo-c1 .historical-phase-card-status {
   margin: 0;
-  font-size: .82rem;
+  font-size: .875rem;
   line-height: 1.4;
   color: #b7d1da;
 }
@@ -2139,7 +2139,7 @@ body .communities-page.jynlo-c1 .historical-phase-card--review .historical-phase
 }
 body .communities-page.jynlo-c1 .historical-phase-card-labels {
   overflow-wrap: anywhere;
-  font-size: .76rem;
+  font-size: .875rem;
   color: #92b8c7;
   line-height: 1.45;
   margin: 0;
@@ -2160,7 +2160,7 @@ body .communities-page.jynlo-c1 .historical-phase-review-count {
 body .communities-page.jynlo-c1 .historical-phase-review-jump {
   padding: .4rem .7rem;
   border-color: rgba(242, 180, 97, .5);
-  font-size: .8rem;
+  font-size: .875rem;
   max-width: 100%;
   white-space: normal;
   text-align: left;
@@ -2168,7 +2168,7 @@ body .communities-page.jynlo-c1 .historical-phase-review-jump {
 body .communities-page.jynlo-c1 .historical-phase-jump {
   align-self: flex-start;
   margin-top: auto;
-  font-size: .8rem;
+  font-size: .875rem;
   padding: .35rem .7rem;
 }
 body .communities-page.jynlo-c1 .historical-phase-legend {
@@ -2425,7 +2425,7 @@ body .communities-page .community-photo-editor-modes button {
   border-radius: 9px;
   color: #bfd9e2;
   font: inherit;
-  font-size: .85rem;
+  font-size: .875rem;
   font-weight: 700;
   background: transparent;
   cursor: pointer;

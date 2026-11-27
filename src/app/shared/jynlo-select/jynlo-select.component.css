@@ -27,7 +27,7 @@
   animation:jynlo-select-appear .13s ease-out; }
 .jynlo-select__search {display:block;box-sizing:border-box;width:100%;min-height:42px;
   background:#071b28;color:#f8fafc;border:1px solid #395b6a;border-radius:.67rem;
-  padding:.57rem .7rem;font:inherit;font-size:.85rem;}
+  padding:.57rem .7rem;font:inherit;font-size:.875rem;}
 .jynlo-select__search::placeholder {color:#91b2bf;}
  .jynlo-select__options {display:grid;gap:2px;min-height:0;max-height:min(310px,48vh);overflow-y:auto;
   overscroll-behavior:contain;scrollbar-color:#4c7680 #112e3c;scrollbar-width:thin;
@@ -35,7 +35,7 @@
 .jynlo-select__option {display:flex;align-items:center;gap:.65rem;min-height:40px;
   width:100%;padding:.53rem .72rem;border-radius:.62rem;
   border:1px solid transparent;background:transparent;
-  color:#e8f5f8;text-align:left;cursor:pointer;font:inherit;font-size:.87rem;font-weight:650;}
+  color:#e8f5f8;text-align:left;cursor:pointer;font:inherit;font-size:.875rem;font-weight:650;}
 .jynlo-select__option:hover,.jynlo-select__option:focus-visible {
   background:rgba(var(--pick-glow),.14);border-color:rgba(var(--pick-glow),.27);}
 .jynlo-select__option--active {background:rgba(var(--pick-glow),.18);
@@ -55,7 +55,7 @@
 /* Optional two-line search suggestions, shared by server-backed selects. */
 .jynlo-select__option-text {min-width:0;flex:1;display:grid;gap:3px;}
 .jynlo-select__option-description {
-  display:block;min-width:0;color:#a8c7d0;font-size:.75rem;font-weight:500;
+  display:block;min-width:0;color:#a8c7d0;font-size:.875rem;font-weight:500;
   line-height:1.4;overflow-wrap:anywhere;
 }
 .jynlo-select__option:has(.jynlo-select__option-description) {

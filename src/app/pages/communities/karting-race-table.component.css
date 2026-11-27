@@ -9,14 +9,14 @@
 }
 .karting-race-table {
   width: 100%; min-width: 44rem;
-  border-collapse: collapse; font-size: .8rem;
+  border-collapse: collapse; font-size: .875rem;
 }
 .karting-race-table th, .karting-race-table td {
   text-align: left; padding: .8rem .65rem;
   border-bottom: 1px solid rgba(148,163,184,.15); vertical-align: middle;
 }
 .karting-race-table th {
-  background: rgba(10, 28, 44, .93); font-size: .72rem;
+  background: rgba(10, 28, 44, .93); font-size: .875rem;
   color: #a7b9cb; text-transform: uppercase;
   letter-spacing: .045em; font-weight: 850;
 }
@@ -39,7 +39,7 @@
 .karting-race-driver strong { color: #f8fafc; }
 .karting-race-driver small, .karting-race-clock small {
   display: block; margin-top: .25rem; color: #9eb2c7;
-  font-size: .72rem; line-height: 1.4;
+  font-size: .875rem; line-height: 1.4;
 }
 .karting-race-driver .karting-race-penalty { color: #fbbf24; }
 .karting-race-clock { white-space: nowrap; font-variant-numeric: tabular-nums; }

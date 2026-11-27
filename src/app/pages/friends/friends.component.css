@@ -71,7 +71,7 @@ h1 {
 
 .friend-filter span {
   color: #cbd5e1;
-  font-size: .8rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 
@@ -147,7 +147,7 @@ h1 {
   border-radius: .7rem;
   padding: .58rem .7rem;
   font: inherit;
-  font-size: .76rem;
+  font-size: .875rem;
   font-weight: 850;
   text-decoration: none;
   cursor: pointer;
@@ -201,7 +201,7 @@ h1 {
   background: transparent;
   color: #e2e8f0;
   font: inherit;
-  font-size: .78rem;
+  font-size: .875rem;
   font-weight: 800;
   text-align: left;
   cursor: pointer;
@@ -224,7 +224,7 @@ h1 {
 .remove-confirmation {
   margin: .15rem .35rem;
   color: #cbd5e1;
-  font-size: .72rem;
+  font-size: .875rem;
   line-height: 1.35;
 }
 
@@ -233,7 +233,7 @@ h1 {
   padding: .35rem .55rem;
   background: rgba(248,113,113,.1);
   color: #fecaca;
-  font-size: .72rem;
+  font-size: .75rem;
   font-weight: 800;
 }
 

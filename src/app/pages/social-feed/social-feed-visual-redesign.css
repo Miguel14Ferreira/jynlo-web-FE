@@ -35,7 +35,7 @@
   text-wrap:balance;color:#fff;
 }
 :host .feed-v3-shell .feed-v3-welcome .subtitle {max-width:48ch;font-size:clamp(.89rem,1.16vw,1.03rem);line-height:1.55;margin:12px 0 0;}
-:host .feed-v3-shell .feed-v3-greeting {letter-spacing:.16em;font-size:.72rem;font-weight:850;margin-bottom:12px;}
+:host .feed-v3-shell .feed-v3-greeting {letter-spacing:.16em;font-size:.875rem;font-weight:850;margin-bottom:12px;}
 :host .feed-v3-shell .feed-hero-actions {display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:23px;}
 :host .feed-v3-shell .feed-hero-actions .feed-hero-cta.jynlo-premium-btn {
   align-self:auto;min-height:46px;padding:11px 19px;border:0;border-radius:13px;
@@ -45,7 +45,7 @@
 :host .feed-v3-shell .feed-hero-discover {
   display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:10px 16px;
   border:1px solid #9ff4de75;border-radius:13px;background:#001a2299;color:#ecfffa;
-  text-decoration:none;font-weight:750;font-size:.86rem;
+  text-decoration:none;font-weight:750;font-size:.875rem;
 }
 :host .feed-v3-shell .feed-hero-discover:is(:hover,:focus-visible) {background:#135049;color:#fff;}
 :host .feed-v3-shell .feed-hero-art {
@@ -59,7 +59,7 @@
   border-radius:50%;box-shadow:0 0 0 27px #13d6c00b,0 0 0 55px #13d6c009;
 }
 :host .feed-v3-shell .feed-hero-art span {font-size:clamp(1.9rem,3vw,3.1rem);font-weight:950;letter-spacing:.07em;color:#63ffe1;z-index:1;}
-:host .feed-v3-shell .feed-hero-art small {font-size:.72rem;letter-spacing:.14em;white-space:nowrap;color:#b6ffed;z-index:1;}
+:host .feed-v3-shell .feed-hero-art small {font-size:.875rem;letter-spacing:.14em;white-space:nowrap;color:#b6ffed;z-index:1;}
 :host .feed-v3-shell .jynlo-feed-quick-actions {
   display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:11px;margin:0;
 }
@@ -68,7 +68,7 @@
   min-height:104px;padding:13px 7px;min-width:0;text-align:center;
   border:1px solid #1c8e9460;border-radius:17px;
   background:linear-gradient(155deg,#0a3341,#052331);color:#e6fffa;
-  font-weight:800;font-size:.82rem;text-decoration:none;
+  font-weight:800;font-size:.875rem;text-decoration:none;
   box-shadow:0 9px 25px #0002;transition:transform .18s ease,border-color .18s ease,background .18s ease;
 }
 :host .feed-v3-shell .jynlo-quick-action .jynlo-quick-icon {
@@ -117,7 +117,7 @@
   :host .feed-v3-shell .feed-hero-art {display:none;}
   :host .feed-v3-shell .feed-hero-actions {gap:9px;}
   :host .feed-v3-shell .jynlo-feed-quick-actions {grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;}
-  :host .feed-v3-shell .jynlo-quick-action {flex-direction:column;min-height:86px;font-size:.73rem;border-radius:13px;}
+  :host .feed-v3-shell .jynlo-quick-action {flex-direction:column;min-height:86px;font-size:.875rem;border-radius:13px;}
   :host .feed-v3-shell .jynlo-quick-action .jynlo-quick-icon {font-size:1.15rem;width:28px;height:28px;}
   :host .feed-page .feed-v3-shell .feed-sidebar {grid-template-columns:1fr;}
 }
@@ -149,18 +149,18 @@
   display:grid;gap:3px;min-width:0;flex:1;
 }
 :host .feed-v3-shell .feed-session-spotlight .feed-suggested-details strong {
-  color:#f0fff9;font-size:.87rem;line-height:1.3;
+  color:#f0fff9;font-size:.875rem;line-height:1.3;
 }
 :host .feed-v3-shell .feed-session-spotlight .feed-suggested-details span {
-  color:#b8d9d9;font-size:.74rem;line-height:1.4;overflow-wrap:anywhere;
+  color:#b8d9d9;font-size:.875rem;line-height:1.4;overflow-wrap:anywhere;
 }
 :host .feed-v3-shell .feed-session-chevron {color:#89fce7;font-size:1.1rem;font-weight:800;}
 :host .feed-v3-shell .feed-session-occupancy {
   display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
-  gap:5px;color:#aacbce;font-size:.72rem;
+  gap:5px;color:#aacbce;font-size:.875rem;
 }
 :host .feed-v3-shell .feed-session-occupancy strong {
-  font-size:.7rem;font-weight:800;color:#67edcc;
+  font-size:.875rem;font-weight:800;color:#67edcc;
 }
 :host .feed-v3-shell .feed-session-capacity-track {
   height:5px;width:100%;display:block;border-radius:8px;overflow:hidden;
@@ -171,7 +171,7 @@
   background:linear-gradient(90deg,#11b8b7,#28efd0);
 }
 :host .feed-v3-shell .feed-session-spotlight .feed-suggested-link-label {
-  font-size:.76rem;font-weight:800;color:#83ffe1;
+  font-size:.875rem;font-weight:800;color:#83ffe1;
   align-self:flex-start;
 }
 @media(max-width:580px) {
@@ -193,7 +193,7 @@
   color:#f4fffb;font-size:clamp(1rem,1.4vw,1.17rem);line-height:1.35;
 }
 :host .feed-v3-shell .feed-live-heading span {
-  color:#bad9d9;font-size:.82rem;line-height:1.45;
+  color:#bad9d9;font-size:.875rem;line-height:1.45;
 }
 :host .feed-v3-shell .feed-live-list {
   display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));
@@ -212,14 +212,14 @@
   color:#f2fffb;font-size:.94rem;line-height:1.4;overflow-wrap:anywhere;
 }
 :host .feed-v3-shell .feed-live-entry small {
-  color:#b9dad7;font-size:.78rem;overflow-wrap:anywhere;
+  color:#b9dad7;font-size:.875rem;overflow-wrap:anywhere;
 }
 :host .feed-v3-shell .feed-live-entry > a,
 :host .feed-v3-shell .feed-live-entry > button {
   display:inline-flex;align-items:center;justify-content:center;align-self:flex-start;
   min-height:44px;max-width:100%;padding:10px 16px;
   border:1px solid #46efd0;border-radius:12px;
-  background:#18d9b7;color:#032c2b;font-size:.84rem;font-weight:800;
+  background:#18d9b7;color:#032c2b;font-size:.875rem;font-weight:800;
   line-height:1.3;text-align:center;text-decoration:none;cursor:pointer;
 }
 :host .feed-v3-shell .feed-live-entry > :is(a,button):is(:hover,:focus-visible) {
@@ -253,9 +253,9 @@
 :host .feed-v3-shell .feed-live-avatar img { width:100%; height:100%; border-radius:50%; object-fit:cover; border:2px solid #062833; }
 :host .feed-v3-shell .feed-live-text { flex:1; min-width:0; display:grid; gap:2px; }
 :host .feed-v3-shell .feed-live-text strong { font-size:.92rem; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-:host .feed-v3-shell .feed-live-text small { font-size:.76rem; color:#b9dad7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-:host .feed-v3-shell .feed-live-badge { justify-self:start; padding:1px 6px; border-radius:4px; background:#e11d48; color:#fff; font-size:.62rem; font-weight:900; letter-spacing:.06em; }
-:host .feed-v3-shell .feed-live-watch { flex:none; padding:8px 12px; border-radius:10px; background:#18d9b7; color:#032c2b; font-size:.8rem; font-weight:800; }
+:host .feed-v3-shell .feed-live-text small { font-size:.875rem; color:#b9dad7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+:host .feed-v3-shell .feed-live-badge { justify-self:start; padding:1px 6px; border-radius:4px; background:#e11d48; color:#fff; font-size:.75rem; font-weight:900; letter-spacing:.06em; }
+:host .feed-v3-shell .feed-live-watch { flex:none; padding:8px 12px; border-radius:10px; background:#18d9b7; color:#032c2b; font-size:.875rem; font-weight:800; }
 
 :host .week-empty-action{display:inline-flex;align-items:center;min-height:40px;color:#62e6c4;font-weight:800;text-decoration:none;}
 :host .week-empty-action:hover{text-decoration:underline;}

@@ -23,7 +23,7 @@
 .community-pitch-eyebrow {
   margin: 0 0 .85rem;
   color: #86efac;
-  font-size: .74rem;
+  font-size: .75rem;
   font-weight: 850;
   letter-spacing: .085em;
   text-transform: uppercase;
@@ -45,7 +45,7 @@
 .community-pitch-promise { margin: 0; color: #86efac; font-weight: 750; line-height: 1.5; }
 .community-pitch-actions { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.35rem; }
 .community-pitch-actions .jynlo-action { min-height: 44px; text-align: center; justify-content: center; }
-.community-pitch-onboarding { margin: .85rem 0 0; color: #a9bac8; font-size: .83rem; line-height: 1.5; }
+.community-pitch-onboarding { margin: .85rem 0 0; color: #a9bac8; font-size: .875rem; line-height: 1.5; }
 .community-pitch-benefits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 .community-pitch-benefit {
   display: flex;
@@ -60,7 +60,7 @@
 }
 .community-pitch-benefit-icon { font-size: 1.35rem; line-height: 1; }
 .community-pitch-benefit h3 { font-size: .95rem; font-weight: 800; margin: 0 0 .3rem; }
-.community-pitch-benefit p { margin: 0; color: #b8c8d5; font-size: .85rem; line-height: 1.5; }
+.community-pitch-benefit p { margin: 0; color: #b8c8d5; font-size: .875rem; line-height: 1.5; }
 @media (max-width: 860px) {
   .community-pitch { grid-template-columns: minmax(0, 1fr); }
   .community-pitch h2 { max-width: 22ch; }
@@ -107,7 +107,7 @@
     border-color:rgba(43,206,205,.25);
     background:linear-gradient(155deg,rgba(10,66,75,.35),rgba(6,31,48,.48));
   }
-  .community-pitch-benefit p {font-size:.78rem;line-height:1.43;}
+  .community-pitch-benefit p {font-size:.875rem;line-height:1.43;}
   .community-pitch-benefit-icon {font-size:1.23rem;}
 }
 .community-pitch {

@@ -111,7 +111,7 @@
 }
 :host .jynlo-explore-v3 .search-fields label > span {
   color: #b8d9df;
-  font-size: .78rem;
+  font-size: .875rem;
   line-height: 1.35;
   font-weight: 750;
 }
@@ -213,7 +213,7 @@
   border-radius: 11px;
   background: transparent;
   color: #b6d7dc;
-  font-size: .85rem;
+  font-size: .875rem;
   font-weight: 750;
   white-space: nowrap;
 }
@@ -559,7 +559,7 @@
 :host .jynlo-explore-v3 .session-card .session-time b {
   color: #f1fefb; font-size: 1.1rem; line-height: 1.1; letter-spacing: -.02em;
 }
-:host .jynlo-explore-v3 .session-card .session-time small { color: #b8d6dc; font-size: .7rem; }
+:host .jynlo-explore-v3 .session-card .session-time small { color: #b8d6dc; font-size: .75rem; }
 :host .jynlo-explore-v3 .session-card .session-main strong { white-space: normal; }
 :host .jynlo-explore-v3 .session-card .session-entry-hint { min-height: 36px; }
 

@@ -75,7 +75,7 @@ h1 {
 }
 .recruit-confirmed > span, .recruit-remaining > span {
   color: #cbd5e1;
-  font-size: .85rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 .recruit-confirmed small, .recruit-remaining small {
@@ -136,7 +136,7 @@ h1 {
 .form-grid label > span,
 .nested-field > span {
   color: #cbd5e1;
-  font-size: .8rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 
@@ -427,7 +427,7 @@ input[type='datetime-local'],
 
 .section-kicker {
   color: #7dd3fc;
-  font-size: .7rem;
+  font-size: .75rem;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -442,7 +442,7 @@ input[type='datetime-local'],
 .venue-select-field > span,
 .venue-create-grid label > span {
   color: #cbd5e1;
-  font-size: .8rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 
@@ -478,7 +478,7 @@ input[type='datetime-local'],
 
 .venue-preview > div:first-child span {
   color: #94a3b8;
-  font-size: .78rem;
+  font-size: .875rem;
 }
 
 .venue-tags,
@@ -493,7 +493,7 @@ input[type='datetime-local'],
   padding: .28rem .5rem;
   background: rgba(74,222,128,.09);
   color: #bbf7d0;
-  font-size: .7rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 
@@ -516,7 +516,7 @@ input[type='datetime-local'],
   border-radius: .7rem;
   padding: .55rem .65rem;
   color: #cbd5e1;
-  font-size: .8rem;
+  font-size: .875rem;
 }
 
 .venue-amenities input {
@@ -546,7 +546,7 @@ input[type='datetime-local'],
 .gps-accuracy {
   margin: .5rem 0 0;
   color: #cbd5e1;
-  font-size: .82rem;
+  font-size: .875rem;
   line-height: 1.45;
 }
 
@@ -561,12 +561,12 @@ input[type='datetime-local'],
 
 /* Community members can start their next game directly in the group's sport. */
 .community-sport-choices { display: grid; gap: .55rem; grid-column: 1 / -1; min-width: 0; }
-.community-sport-label { color: #e2e8f0; font-size: .85rem; font-weight: 700; }
-.community-sport-choices > small { color: #94a3b8; font-size: .78rem; }
+.community-sport-label { color: #e2e8f0; font-size: .875rem; font-weight: 700; }
+.community-sport-choices > small { color: #94a3b8; font-size: .875rem; }
 .community-sport-options { display: flex; flex-wrap: wrap; gap: .5rem; }
 .community-sport-option { min-height: 42px; border: 1px solid rgba(255,255,255,.18);
   border-radius: 999px; background: rgba(255,255,255,.07); color: #e2e8f0;
-  font: inherit; font-size: .84rem; padding: .5rem .85rem; cursor: pointer; }
+  font: inherit; font-size: .875rem; padding: .5rem .85rem; cursor: pointer; }
 .community-sport-option.active { border-color: #4ade80; background: rgba(74,222,128,.14);
   color: #bbf7d0; }
 .community-sport-option:focus-visible { outline: 2px solid #86efac; outline-offset: 3px; }
@@ -578,7 +578,7 @@ input[type='datetime-local'],
   display: block;
   margin-top: 6px;
   color: var(--text-muted, #64748b);
-  font-size: 0.83rem;
+  font-size: .875rem;
   line-height: 1.45;
 }
 
@@ -659,7 +659,7 @@ input[type='datetime-local'],
 .venue-result-main > span,
 .venue-result-details > span {
   color: #94a3b8;
-  font-size: .74rem;
+  font-size: .875rem;
   line-height: 1.4;
 }
 

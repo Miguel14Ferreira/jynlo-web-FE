@@ -22,7 +22,7 @@
   background:var(--jynlo-btn-bg) !important;
   color:var(--jynlo-btn-fg) !important;
   font:inherit;
-  font-size:.84rem !important;
+  font-size:.875rem !important;
   font-weight:740 !important;
   line-height:1.35 !important;
   text-align:center;
@@ -63,7 +63,7 @@
 .jynlo-premium-btn.jynlo-premium-btn--small:is(a,button,label) {
   min-height:36px !important;
   padding:.4rem .75rem !important;
-  font-size:.76rem !important;
+  font-size:.875rem !important;
   border-radius:10px !important;
 }
 .jynlo-premium-btn.jynlo-premium-btn--icon:is(a,button,label) {

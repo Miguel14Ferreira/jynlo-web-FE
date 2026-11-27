@@ -12,7 +12,7 @@
 .community-feed-carousel-dots button.active { background: #37dfa9; transform: scale(1.2); }
 .community-feed-carousel button:focus-visible,.community-feed-gallery-controls button:focus-visible { outline: 2px solid #34d399; outline-offset: 3px; }
 .community-feed-gallery-controls { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; justify-content: center; }
-.community-feed-gallery-controls strong { font-size: .75rem; color: #36e2ad; }
+.community-feed-gallery-controls strong { font-size: .875rem; color: #36e2ad; }
 .community-feed-gallery-controls button { min-width: 34px; min-height: 34px; border: 1px solid rgba(148,163,184,.3); border-radius: .5rem; background: rgba(11,35,47,.8); color: #e0f2f1; cursor: pointer; }
 .community-feed-gallery-controls button:disabled { opacity: .4; cursor: default; }
 @media(max-width:600px) {

@@ -3,7 +3,7 @@
 .availability h3 { margin: 0; font-size: 1.1rem; }
 .availability__card { display: grid; gap: 10px; padding: 14px; border-radius: 16px; border: 1px solid var(--jynlo-border, rgba(255,255,255,.16)); background: rgba(255,255,255,.03); }
 .availability__label { font-weight: 800; }
-.availability__meta { margin: 0; font-size: .85rem; opacity: .8; }
+.availability__meta { margin: 0; font-size: .875rem; opacity: .8; }
 .availability__note { margin: 0; }
 .availability__row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .availability__slot { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid var(--jynlo-border, rgba(255,255,255,.12)); }
@@ -16,4 +16,4 @@
 .availability button:focus-visible { outline: 2px solid var(--jynlo-mint, #7AE5C5); outline-offset: 2px; }
 .availability__remove { border: 0; background: transparent; color: #F2A19B; font-size: 1.4rem; cursor: pointer; min-width: 40px; min-height: 40px; }
 .availability__error { margin: 0; color: #F2A19B; }
-.availability__hint{margin:.35rem 0 0;color:#a9c7cf;font-size:.85rem;line-height:1.45;}
+.availability__hint{margin:.35rem 0 0;color:#a9c7cf;font-size:.875rem;line-height:1.45;}

@@ -11,9 +11,9 @@ p { margin: 0; color: #cbd5e1; line-height: 1.5; }
 }
 .karting-podium-heading { display: grid; gap: .35rem; }
 .karting-podium-heading h5 { font-size: 1.18rem; font-weight: 850; }
-.karting-podium-heading p { font-size: .82rem; color: #cbd5e1; }
+.karting-podium-heading p { font-size: .875rem; color: #cbd5e1; }
 .karting-podium-kicker {
-  color: #fcd34d; font-size: .72rem; font-weight: 850; letter-spacing: .12em;
+  color: #fcd34d; font-size: .75rem; font-weight: 850; letter-spacing: .12em;
   text-transform: uppercase;
 }
 .karting-podium-grid {
@@ -34,15 +34,15 @@ p { margin: 0; color: #cbd5e1; line-height: 1.5; }
 .karting-podium-place.is-second { border-color: rgba(203,213,225,.38); }
 .karting-podium-place.is-third { border-color: rgba(217,119,6,.33); }
 .karting-podium-medal { font-size: 2rem; line-height: 1.25; }
-.karting-podium-rank { font-size: .78rem; font-weight: 850; color: #e2e8f0; }
+.karting-podium-rank { font-size: .875rem; font-weight: 850; color: #e2e8f0; }
 .karting-podium-place strong {
   font-size: clamp(.8rem,1.4vw,1rem); color: #fff;
   overflow-wrap: anywhere; line-height: 1.35;
 }
 .karting-podium-points { font-size: .89rem; font-weight: 850; color: #a7f3d0; }
-.karting-podium-place small { font-size: .72rem; color: #cbd5e1; }
+.karting-podium-place small { font-size: .875rem; color: #cbd5e1; }
 .karting-shared-title {
-  color: #fde68a !important; font-size: .83rem; line-height: 1.5;
+  color: #fde68a !important; font-size: .875rem; line-height: 1.5;
 }
 
 @media (max-width: 660px) {

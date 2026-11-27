@@ -3,16 +3,16 @@
 .er-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:flex-start}
 .er-title{margin:0 0 6px;font-size:1.15rem;font-weight:900;color:#f4fffb}
 .er-head p{margin:0;line-height:1.5}
-.er-points{margin:0;font-size:.85rem;line-height:1.6}
+.er-points{margin:0;font-size:.875rem;line-height:1.6}
 .er-link{border:0;background:none;color:#6ff0d4;font-weight:800;cursor:pointer;padding:0 4px;font:inherit;font-weight:800}
 .er-kind,.er-form{display:grid;gap:10px;padding:14px;border-radius:14px;border:1px solid rgba(63,216,180,.3);background:rgba(63,216,180,.05)}
 .er-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .er-grow{flex:1 1 14rem}
-.er-form label{display:grid;gap:4px;font-size:.85rem;font-weight:700}
+.er-form label{display:grid;gap:4px;font-size:.875rem;font-weight:700}
 .er-form input[type=text],.er-form input[type=date]{min-height:42px;padding:0 10px;border-radius:10px;border:1px solid rgba(63,216,180,.35);background:#0a3340;color:#effffb;font:inherit;font-weight:400;color-scheme:dark}
 .er-roster{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 /* Buttons: the parent's .t-btn styles do not reach this encapsulated component. */
-.t-btn{min-height:42px;box-sizing:border-box;display:inline-flex;justify-content:center;align-items:center;border-radius:.7rem;border:1px solid transparent;padding:.6rem 1rem;font:inherit;font-size:.86rem;font-weight:800;cursor:pointer}
+.t-btn{min-height:42px;box-sizing:border-box;display:inline-flex;justify-content:center;align-items:center;border-radius:.7rem;border:1px solid transparent;padding:.6rem 1rem;font:inherit;font-size:.875rem;font-weight:800;cursor:pointer}
 .t-btn-primary{background:#00cf71;color:#032016}
 .t-btn-primary:hover:not(:disabled){background:#55e8a1}
 .t-btn-secondary{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16);color:#f1f5f9}
@@ -22,7 +22,7 @@
 /* Table */
 .er-table{width:100%;border-collapse:collapse;table-layout:auto}
 .er-table th,.er-table td{padding:10px 6px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left;vertical-align:middle}
-.er-table thead th{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#98e6d6;font-weight:800}
+.er-table thead th{font-size:.875rem;letter-spacing:.06em;text-transform:uppercase;color:#98e6d6;font-weight:800}
 .er-table tbody th{font-weight:700;min-width:0}
 .er-pos{width:2.4rem}
 .er-num{text-align:right!important;width:3.5rem;font-variant-numeric:tabular-nums}
@@ -31,9 +31,9 @@
 .er-badge{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:#135e59;color:#a0ffe3;font-weight:900}
 .is-leader .er-badge{background:#8a6a1f;color:#fff3c4}
 .er-athlete{display:block;color:#f4fffb;overflow-wrap:anywhere}
-.er-meta{display:block;margin-top:2px;color:#a9c8cf;font-weight:500;font-size:.75rem;line-height:1.5}
+.er-meta{display:block;margin-top:2px;color:#a9c8cf;font-weight:500;font-size:.875rem;line-height:1.5}
 .er-meta span{white-space:nowrap}
-.er-best{margin-top:2px;color:#d8f3ee;font-weight:600;font-size:.8rem;font-variant-numeric:tabular-nums}
+.er-best{margin-top:2px;color:#d8f3ee;font-weight:600;font-size:.875rem;font-variant-numeric:tabular-nums}
 .er-narrow{display:none}
 .er-entries{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .er-entries li{display:grid;grid-template-columns:minmax(0,1fr) minmax(6rem,9rem) auto;gap:8px;align-items:center}
@@ -47,7 +47,7 @@
 .er-results li{display:grid;grid-template-columns:2.4rem minmax(0,1fr) 4.2rem;gap:8px;align-items:center;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.03);font-variant-numeric:tabular-nums}
 .er-place{font-weight:900;color:#a0ffe3}
 .er-result-name{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 10px;font-weight:700;overflow-wrap:anywhere;min-width:0}
-.er-result-name small{font-weight:500;color:#c5dcdf;font-size:.85rem;font-variant-numeric:tabular-nums}
+.er-result-name small{font-weight:500;color:#c5dcdf;font-size:.875rem;font-variant-numeric:tabular-nums}
 .er-pts{text-align:right;color:#6ff0d4;font-weight:800}
 @media (max-width:560px){
   .er-wide{display:none}

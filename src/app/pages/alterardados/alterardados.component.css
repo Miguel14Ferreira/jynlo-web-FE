@@ -104,7 +104,7 @@ h1 { margin: 0; font-size: clamp(2.1rem, 5vw, 3.5rem); }
 }
 
 .form-grid label { display: grid; gap: .4rem; }
-.form-grid label > span { color: #cbd5e1; font-size: .8rem; font-weight: 800; }
+.form-grid label > span { color: #cbd5e1; font-size: .875rem; font-weight: 800; }
 .full-width { grid-column: 1 / -1; }
 
 input, select, textarea {
@@ -328,7 +328,7 @@ textarea { resize: vertical; }
   display: grid;
   gap: .4rem;
   color: #94a3b8;
-  font-size: .85rem;
+  font-size: .875rem;
 }
 
 .mfa-manual-key code {
@@ -347,7 +347,7 @@ textarea { resize: vertical; }
 
 .mfa-code-field > span {
   color: #cbd5e1;
-  font-size: .82rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 
@@ -373,7 +373,7 @@ textarea { resize: vertical; }
 
 .field-label {
   color: #cbd5e1;
-  font-size: .8rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 
@@ -392,7 +392,7 @@ textarea { resize: vertical; }
   background: rgba(125,211,252,.08);
   color: #e0f2fe;
   font: inherit;
-  font-size: .82rem;
+  font-size: .875rem;
   font-weight: 800;
   cursor: pointer;
 }
@@ -446,14 +446,14 @@ textarea { resize: vertical; }
 .character-count {
   justify-self: end;
   color: #64748b;
-  font-size: .74rem;
+  font-size: .75rem;
 }
 
 
 .field-error {
   justify-self: start;
   color: #fca5a5;
-  font-size: .76rem;
+  font-size: .875rem;
   line-height: 1.35;
 }
 
@@ -520,7 +520,7 @@ textarea { resize: vertical; }
 .profile-completion-card p {
   margin: 0;
   color: #94a3b8;
-  font-size: .78rem;
+  font-size: .875rem;
   line-height: 1.45;
 }
 
@@ -535,7 +535,7 @@ textarea { resize: vertical; }
   padding: .3rem .5rem;
   background: rgba(255,255,255,.05);
   color: #cbd5e1;
-  font-size: .7rem;
+  font-size: .875rem;
   font-weight: 750;
 }
 
@@ -608,9 +608,9 @@ textarea { resize: vertical; }
 }
 .device-sessions__header { display: flex; justify-content: space-between; align-items: start; gap: 1rem; }
 .device-sessions__header h2 { margin: .2rem 0 .35rem; font-size: 1.15rem; }
-.device-sessions__header p { margin: 0; color: #cbd5e1; font-size: .86rem; line-height: 1.5; }
+.device-sessions__header p { margin: 0; color: #cbd5e1; font-size: .875rem; line-height: 1.5; }
 .device-sessions__state { color: #cbd5e1; font-size: .88rem; }
-.device-sessions__error { color: #fca5a5; font-size: .85rem; }
+.device-sessions__error { color: #fca5a5; font-size: .875rem; }
 .device-sessions__list { display: grid; gap: .7rem; margin-top: 1rem; }
 .device-session {
   display: flex;
@@ -632,7 +632,7 @@ textarea { resize: vertical; }
   border: 1px solid rgba(125,211,252,.3);
   color: #bae6fd;
   background: rgba(125,211,252,.08);
-  font-size: .7rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 .device-session__confirm { display: grid; gap: .55rem; }
@@ -669,7 +669,7 @@ textarea { resize: vertical; }
   margin: .1rem 0; padding: .65rem .85rem;
   border: 1px solid rgba(41, 227, 195, .38);
   border-radius: 10px; background: rgba(41, 227, 195, .09);
-  color: #c7fff3; font-size: .81rem; line-height: 1.5;
+  color: #c7fff3; font-size: .875rem; line-height: 1.5;
 }
 .sport-chips { min-width: 0; }
 .sport-chip { max-width: 100%; overflow-wrap: anywhere; }

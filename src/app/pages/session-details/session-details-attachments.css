@@ -14,7 +14,7 @@
   width: min(100%, 15rem);
   max-width: 100%;
   font: inherit;
-  font-size: .78rem;
+  font-size: .875rem;
 }
 .session-chat-attachment-compose small {
   flex-basis: 100%;
@@ -23,7 +23,7 @@
 .session-chat-attachment-name {
   min-width: 0;
   overflow-wrap: anywhere;
-  font-size: .85rem;
+  font-size: .875rem;
   font-weight: 600;
 }
 .session-chat-attachment-download {
@@ -56,10 +56,10 @@
 }
 .session-chat-attachment-feedback {
   color: #ffb7ad;
-  font-size: .85rem;
+  font-size: .875rem;
 }
 .session-chat-attachment-help {
-  font-size: .85rem;
+  font-size: .875rem;
   opacity: .8;
 }
 

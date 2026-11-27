@@ -159,7 +159,7 @@ h1 {
 
 .form-grid label > span {
   color: #cbd5e1;
-  font-size: .8rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 
@@ -191,7 +191,7 @@ textarea {
 
 .password-field { position: relative; }
 .password-field input { padding-right: 5.8rem; }
-.registration-hint { display:block; color:#cbd5e1; font-size:.78rem; line-height:1.4; }
+.registration-hint { display:block; color:#cbd5e1; font-size:.875rem; line-height:1.4; }
 
 .password-field input,
 .password-field button,
@@ -321,7 +321,7 @@ textarea {
 
 .field-label {
   color: #cbd5e1;
-  font-size: .8rem;
+  font-size: .875rem;
   font-weight: 800;
 }
 
@@ -340,7 +340,7 @@ textarea {
   background: rgba(0,230,118,.08);
   color: var(--d24-accent-soft);
   font: inherit;
-  font-size: .82rem;
+  font-size: .875rem;
   font-weight: 800;
   cursor: pointer;
 }

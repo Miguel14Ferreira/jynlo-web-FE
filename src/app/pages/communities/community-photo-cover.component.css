@@ -24,7 +24,7 @@
 .community-photo-action{
   display:inline-flex;align-items:center;justify-content:center;min-height:38px;box-sizing:border-box;
   border:1px solid rgba(255,255,255,.16);border-radius:.65rem;padding:.55rem .7rem;
-  background:rgba(255,255,255,.045);color:#e2e8f0;font:inherit;font-size:.76rem;
+  background:rgba(255,255,255,.045);color:#e2e8f0;font:inherit;font-size:.875rem;
   font-weight:800;line-height:1;cursor:pointer;
 }
 .community-photo-action:hover:not(:disabled) {
@@ -43,5 +43,5 @@
 :host {width:100%;min-width:0;max-width:290px;flex:0 1 290px;align-self:start;}
 .community-avatar {aspect-ratio:4/3;}
 .community-photo-actions {gap:8px;margin-top:18px;}
-.community-photo-action {min-height:34px;padding:7px 9px;font-size:.72rem;line-height:1.3;}
+.community-photo-action {min-height:34px;padding:7px 9px;font-size:.875rem;line-height:1.3;}
 @media(max-width:760px) {:host {width:min(100%,290px);max-width:100%;}}

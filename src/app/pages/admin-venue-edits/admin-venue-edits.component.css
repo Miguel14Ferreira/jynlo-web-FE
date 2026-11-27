@@ -2,7 +2,7 @@
 .admin-edit-shell{max-width:1100px;margin:auto}
 .admin-edit-back{color:#bde8db;text-decoration:none}
 .admin-edit-shell header{margin:20px 0 28px}
-.admin-edit-shell header>span{color:#43efc1;text-transform:uppercase;letter-spacing:.12em;font-size:.77rem}
+.admin-edit-shell header>span{color:#43efc1;text-transform:uppercase;letter-spacing:.12em;font-size:.875rem}
 .admin-edit-shell h1{font-size:2.1rem;margin:6px 0 10px}
 .admin-edit-shell header p{color:#b2cbd6}
 .admin-edit-list{display:grid;gap:11px}
@@ -25,7 +25,7 @@
 .admin-edit-change{border:1px solid #315666;border-radius:13px;padding:14px;background:#153749}
 .admin-edit-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:10px}
 .admin-edit-values>div{min-width:0;overflow-wrap:anywhere}
-.admin-edit-values span{color:#a8d0d6;font-size:.75rem}
+.admin-edit-values span{color:#a8d0d6;font-size:.875rem}
 .admin-edit-values p{margin:6px 0 0;white-space:pre-wrap}
 .admin-edit-reason{margin-top:20px;background:#153749;border-radius:13px;padding:15px}
 .admin-edit-reason p{white-space:pre-wrap;color:#d9f0f0}
