@@ -253,8 +253,60 @@
           </div>
 
           <div class="detail-actions jynlo-action-cluster profile-actions-panel">
-            <!-- Relationship states are secondary to the actions a player can take. -->
             <div class="profile-relationship-row">
+              @if (isOwnProfile(selectedProfile)) {
+                <a class="profile-edit-action jynlo-action jynlo-action--primary"
+                   routerLink="/menu/edit-profile">
+                  <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
+                       stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                       stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4Z"></path>
+                  </svg>
+                  {{ 'profile.edit.title' | t }}
+                </a>
+              } @else if (selectedBlocked) {
+                <span class="profile-relation-note">{{ 'community.blockedStatus' | t }}</span>
+              } @else if (!friendshipLoading && !friendshipError && isFriend(selectedProfile)) {
+                <span class="friend-status profile-friend-badge" role="status">
+                  <span aria-hidden="true" class="profile-friend-check">✓</span>
+                  {{ 'friends.title' | t }}
+                </span>
+              }
+            </div>
+            <!-- Two main actions for playing together; the rest lives in the "⋯" menu. -->
+            <div class="profile-primary-actions">
+              @if (!isOwnProfile(selectedProfile) && !selectedBlocked) {
+                <button type="button" class="profile-invite-trigger jynlo-action jynlo-action--primary"
+                  [attr.aria-expanded]="invitePanelOpen"
+                  [attr.aria-controls]="'profile-invitation-panel'"
+                  (click)="toggleInvitePanel()">
+                  <span aria-hidden="true">＋</span>
+                  {{ 'profileInvite.cta' | t }}
+                </button>
+                @if (friendshipLoading || friendshipError) {
+                  <!-- Do not show an unverified friendship action. -->
+                } @else if (isFriend(selectedProfile)) {
+                  <a
+                    class="profile-chat-action jynlo-action jynlo-action--neutral"
+                    routerLink="/menu/messages"
+                    [queryParams]="{ kind: 'direct', id: selectedProfile.username }">
+                    <svg class="profile-cta-icon" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true" focusable="false">
+                      <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5 8 8 0 0 1-3.2-.7L4 20l1.7-5.3A8 8 0 0 1 5 11.5a7.5 7.5 0 0 1 15 0Z"></path>
+                      <path d="M9 11.5h6"></path>
+                    </svg>
+                    {{ 'friends.openChat' | t }}
+                  </a>
+                } @else {
+                  <app-profile-message-action [username]="selectedProfile.username"></app-profile-message-action>
+                }
+              }
+            </div>
+              <details class="profile-more">
+                <summary class="jynlo-action jynlo-action--neutral" [attr.aria-label]="'Mais ações' | t">⋯</summary>
+                <div class="profile-more__menu">
               @if (!isOwnProfile(selectedProfile) && !selectedBlocked) {
                 <button
                   type="button"
@@ -276,61 +328,10 @@
                   }
                 </button>
               }
-              @if (isOwnProfile(selectedProfile)) {
-                <a class="profile-edit-action jynlo-action jynlo-action--primary"
-                   routerLink="/menu/edit-profile">
-                  <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
-                       stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                       stroke-linejoin="round" aria-hidden="true" focusable="false">
-                    <path d="M12 20h9"></path>
-                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4Z"></path>
-                  </svg>
-                  {{ 'profile.edit.title' | t }}
-                </a>
-              } @else if (selectedBlocked) {
-                <span class="profile-relation-note">{{ 'community.blockedStatus' | t }}</span>
-              } @else if (!friendshipLoading && !friendshipError && isFriend(selectedProfile)) {
-                <span class="friend-status profile-friend-badge" role="status">
-                  <span aria-hidden="true" class="profile-friend-check">✓</span>
-                  {{ 'friends.title' | t }}
-                </span>
-              }
-            </div>
-            <button type="button" class="profile-share-action jynlo-action jynlo-action--neutral"
-                    [disabled]="profileShareBusy"
-                    (click)="shareProfile(selectedProfile)">
-              <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
-                   stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                   stroke-linejoin="round" aria-hidden="true">
-                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-                <path d="m8.7 10.7 6.6-4.4m-6.6 8 6.6 4.4"/>
-              </svg>
-              {{ profileShareBusy ? ('A partilhar…' | t) : ('Partilhar perfil' | t) }}
-            </button>
-            @if (profileShareMessage) {
-              <span class="profile-share-feedback" role="status" aria-live="polite">{{ profileShareMessage }}</span>
-            }
-            <div class="profile-primary-actions">
-              @if (!isOwnProfile(selectedProfile) && !selectedBlocked) {
-                @if (friendshipLoading || friendshipError) {
-                  <!-- Do not show an unverified friendship action. -->
-                } @else if (isFriend(selectedProfile)) {
-                  <a
-                    class="primary-action profile-chat-action jynlo-action jynlo-action--primary"
-                    routerLink="/menu/messages"
-                    [queryParams]="{ kind: 'direct', id: selectedProfile.username }">
-                    <svg class="profile-cta-icon" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                         stroke-linejoin="round" aria-hidden="true" focusable="false">
-                      <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5 8 8 0 0 1-3.2-.7L4 20l1.7-5.3A8 8 0 0 1 5 11.5a7.5 7.5 0 0 1 15 0Z"></path>
-                      <path d="M9 11.5h6"></path>
-                    </svg>
-                    {{ 'friends.openChat' | t }}
-                  </a>
-                } @else {
+                  @if (!isOwnProfile(selectedProfile) && !selectedBlocked && !friendshipLoading && !friendshipError && !isFriend(selectedProfile)) {
                   <button
                     type="button"
-                    class="primary-action profile-request-action jynlo-action jynlo-action--primary"
+                    class="profile-request-action jynlo-action jynlo-action--neutral"
                     [class.profile-request-pending]="friendRequestPending(selectedProfile)"
                     [class.profile-request-confirm]="confirmCancelFor === selectedProfile.username"
                     [disabled]="actionLoading"
@@ -345,17 +346,26 @@
                   @if (confirmCancelFor === selectedProfile.username && friendRequestPending(selectedProfile)) {
                     <button type="button" class="jynlo-action jynlo-action--neutral" (click)="confirmCancelFor = null">{{ 'Manter pedido' | t }}</button>
                   }
-                  <app-profile-message-action [username]="selectedProfile.username"></app-profile-message-action>
-                }
-                <button type="button" class="profile-invite-trigger jynlo-action jynlo-action--neutral"
-                  [attr.aria-expanded]="invitePanelOpen"
-                  [attr.aria-controls]="'profile-invitation-panel'"
-                  (click)="toggleInvitePanel()">
-                  <span aria-hidden="true">＋</span>
-                  {{ 'profileInvite.cta' | t }}
-                </button>
-              }
-            </div>
+                    @if (confirmCancelFor === selectedProfile.username && friendRequestPending(selectedProfile)) {
+                      <button type="button" class="jynlo-action jynlo-action--neutral" (click)="confirmCancelFor = null">{{ 'Manter pedido' | t }}</button>
+                    }
+                  }
+            <button type="button" class="profile-share-action jynlo-action jynlo-action--neutral"
+                    [disabled]="profileShareBusy"
+                    (click)="shareProfile(selectedProfile)">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
+                   stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                   stroke-linejoin="round" aria-hidden="true">
+                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                <path d="m8.7 10.7 6.6-4.4m-6.6 8 6.6 4.4"/>
+              </svg>
+              {{ profileShareBusy ? ('A partilhar…' | t) : ('Partilhar perfil' | t) }}
+            </button>
+            @if (profileShareMessage) {
+              <span class="profile-share-feedback" role="status" aria-live="polite">{{ profileShareMessage }}</span>
+            }
+                </div>
+              </details>
           </div>
           <app-player-stats [username]="selectedProfile.username"></app-player-stats>
           @if (friendshipLoading) {

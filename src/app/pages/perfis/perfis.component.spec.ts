@@ -910,7 +910,8 @@ describe('PerfisComponent', () => {
     const relation = panel?.querySelector<HTMLElement>('.profile-relationship-row');
     const actions = panel?.querySelector<HTMLElement>('.profile-primary-actions');
     const badge = relation?.querySelector<HTMLElement>('.profile-friend-badge');
-    const following = relation?.querySelector<HTMLButtonElement>('.profile-follow-toggle');
+    // Follow, friendship and share live in the "⋯" menu.
+    const following = panel?.querySelector<HTMLButtonElement>('.profile-more .profile-follow-toggle');
     const chat = actions?.querySelector<HTMLAnchorElement>('.profile-chat-action');
     const invite = actions?.querySelector<HTMLButtonElement>('.profile-invite-trigger');
 
@@ -944,14 +945,14 @@ describe('PerfisComponent', () => {
     expect(fixture.nativeElement.querySelector('.profile-chat-action')).toBeTruthy();
   });
 
-  it('places a friend request next to invite without showing a false friendship badge', () => {
+  it('keeps invite and message as the two main actions and the friend request in the menu', () => {
     routeParams.next(convertToParamMap({ username: 'ana' }));
     fixture.detectChanges();
     const actions = fixture.nativeElement.querySelector('.profile-primary-actions') as HTMLElement | null;
-    expect(actions?.querySelector('button.profile-request-action')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.profile-more button.profile-request-action')).toBeTruthy();
     expect(actions?.querySelector('button.profile-invite-trigger')).toBeTruthy();
-    // Friend request, message (request) and invite.
-    expect(actions?.children.length).toBe(3);
+    // Invite and message (request).
+    expect(actions?.children.length).toBe(2);
     expect(actions?.querySelector('app-profile-message-action')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('.profile-friend-badge')).toBeNull();
     expect(fixture.nativeElement.querySelector('.profile-chat-action')).toBeNull();
@@ -1218,7 +1219,7 @@ describe('PerfisComponent', () => {
     fixture.detectChanges();
 
     expect(component.friendRequestPending(profile)).toBeTrue();
-    const request: HTMLButtonElement = fixture.nativeElement.querySelector('.detail-actions button.primary-action');
+    const request: HTMLButtonElement = fixture.nativeElement.querySelector('.detail-actions button.profile-request-action');
     // A pending request is no longer a dead button: clicking it withdraws the request.
     expect(request.disabled).toBeFalse();
     expect(request.classList.contains('profile-request-pending')).toBeTrue();
