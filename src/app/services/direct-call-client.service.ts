@@ -133,6 +133,8 @@ export class DirectCallClientService implements OnDestroy {
   /** Suppress transient track-loss diagnostics while LiveKit restores transport. */
   private transportReconnecting = false;
   private generation = 0;
+  /** The recipient of a video call chooses whether their camera starts on answer. */
+  private joinWithCamera = true;
   private checking = false;
   private recoveringPending = false;
   private pendingTimer?: ReturnType<typeof setInterval>;
@@ -300,6 +302,7 @@ export class DirectCallClientService implements OnDestroy {
   }
 
   async start(peer: string, media: CallMedia): Promise<void> {
+    this.joinWithCamera=true;
     if (this.state$.value || !this.available$.value || !peer) return;
     // Unlock Web Audio while the outgoing call click still has user activation;
     // the HTTP response and subsequent LiveKit connect are asynchronous.
@@ -329,9 +332,11 @@ export class DirectCallClientService implements OnDestroy {
     }
   }
 
-  async accept(): Promise<void> {
+  /** withCamera=false answers a video call with the camera off; it can be turned on later. */
+  async accept(withCamera = true): Promise<void> {
     const call=this.state$.value;
     if (!call || call.phase !== 'incoming') return;
+    this.joinWithCamera=withCamera;
     const version=++this.generation;
     this.clearRingTimer();
     this.state$.next({...call,phase:'connecting'});
@@ -1071,7 +1076,7 @@ export class DirectCallClientService implements OnDestroy {
       if (version===this.generation) this.update({error:microphoneError});
     }
     if (version!==this.generation) {void room.disconnect();return;}
-    if (session.media==='video') {
+    if (session.media==='video' && this.joinWithCamera) {
       // Reuse the same safe fallback and browser-specific diagnostics as the
       // in-call Retry camera control, instead of a separate fragile path.
       this.update({micEnabled});

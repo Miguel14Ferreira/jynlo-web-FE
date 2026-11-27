@@ -861,6 +861,36 @@ describe('Direct calls gated by authenticated realtime and backend availability'
     http.expectOne(r => r.url.endsWith('/api/calls/direct/call-media/end')).flush(null);
   });
 
+  it('answers an incoming video call with the camera off when the recipient chooses so', async () => {
+    http.expectOne(r => r.url.endsWith('/api/calls/direct/availability')).flush({enabled:true});
+    const room = {
+      on: jasmine.createSpy('on').and.callFake(() => room),
+      connect: jasmine.createSpy('connect').and.resolveTo(),
+      disconnect: jasmine.createSpy('disconnect').and.resolveTo(),
+      remoteParticipants: new Map(),
+      localParticipant: {
+        setMicrophoneEnabled: jasmine.createSpy('microphone').and.resolveTo(),
+        setCameraEnabled: jasmine.createSpy('camera').and.resolveTo()
+      }
+    };
+    spyOn(calls as any, 'createRoom').and.returnValue(room);
+    events.next({callId:'cam-off',caller:'bea',peer:'ana',media:'video',
+      status:'RINGING',actor:'bea',expiresAt:new Date(Date.now()+60000).toISOString()});
+    expect(calls.state$.value?.phase).toBe('incoming');
+    const answering=calls.accept(false);
+    http.expectOne(r => r.url.endsWith('/api/calls/direct/cam-off/accept'))
+      .flush({callId:'cam-off',peer:'bea',media:'video',
+        serverUrl:'wss://livekit.example.test',token:'fixture',
+        expiresAt:new Date(Date.now()+60_000).toISOString()});
+    await answering;
+    expect(room.localParticipant.setMicrophoneEnabled).toHaveBeenCalledWith(true);
+    expect(room.localParticipant.setCameraEnabled).not.toHaveBeenCalled();
+    expect(calls.state$.value?.cameraEnabled).toBeFalse();
+    expect(calls.state$.value?.micEnabled).toBeTrue();
+    calls.end();
+    http.expectOne(r => r.url.endsWith('/api/calls/direct/cam-off/end')).flush(null);
+  });
+
   it('keeps an unexpected LiveKit disconnect visible instead of silently closing', async () => {
     http.expectOne(r => r.url.endsWith('/api/calls/direct/availability')).flush({enabled:true});
     const listeners = new Map<string, () => void>();

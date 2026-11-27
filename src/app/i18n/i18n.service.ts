@@ -5363,6 +5363,8 @@ const PT: Dictionary = {
   'calls.connecting': 'A estabelecer ligação…',
   'calls.connected': 'Chamada em curso',
   'calls.accept': 'Atender',
+  'calls.acceptCameraOff': 'Atender sem câmara',
+  'calls.acceptWithVideo': 'Atender com vídeo',
   'calls.decline': 'Rejeitar',
   'calls.hangUp': 'Desligar',
   'calls.close': 'Fechar',

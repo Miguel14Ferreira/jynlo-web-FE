@@ -5362,6 +5362,8 @@ export const EN: Record<string, string> = {
   'calls.connecting': 'Connecting…',
   'calls.connected': 'Call in progress',
   'calls.accept': 'Answer',
+  'calls.acceptCameraOff': 'Answer with camera off',
+  'calls.acceptWithVideo': 'Answer with video',
   'calls.decline': 'Decline',
   'calls.hangUp': 'Hang up',
   'calls.close': 'Close',

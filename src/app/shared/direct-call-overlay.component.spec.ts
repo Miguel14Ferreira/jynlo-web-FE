@@ -293,7 +293,10 @@ describe('Global incoming call popup', () => {
     expect(popup.getAttribute('aria-modal')).toBe('false');
     expect(popup.textContent).toContain('beatriz');
     expect(popup.textContent).toContain('Videochamada');
-    expect(popup.querySelectorAll('.call-incoming-actions button').length).toBe(2);
+    expect(popup.querySelectorAll('.call-incoming-actions button').length).toBe(3);
+    // A video call can be answered with the camera off (privacy) or with video.
+    expect(popup.textContent).toContain('Atender sem câmara');
+    expect(popup.textContent).toContain('Atender com vídeo');
     expect(fixture.nativeElement.querySelector('.call-backdrop')).toBeNull();
   });
 

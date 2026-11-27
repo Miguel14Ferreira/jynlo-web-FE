@@ -59,11 +59,24 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
                 (click)="calls.decline()">
                 <span aria-hidden="true">✕</span> {{ 'calls.decline' | t }}
               </button>
-              <button type="button" class="call-incoming-accept"
-                (click)="calls.accept()">
-                <span aria-hidden="true">{{ call.media === 'video' ? '▣' : '✓' }}</span>
-                {{ 'calls.accept' | t }}
-              </button>
+              @if (call.media === 'video') {
+                <button type="button" class="call-incoming-accept call-incoming-accept--audio"
+                  (click)="calls.accept(false)">
+                  <span aria-hidden="true">✓</span>
+                  {{ 'calls.acceptCameraOff' | t }}
+                </button>
+                <button type="button" class="call-incoming-accept"
+                  (click)="calls.accept(true)">
+                  <span aria-hidden="true">▣</span>
+                  {{ 'calls.acceptWithVideo' | t }}
+                </button>
+              } @else {
+                <button type="button" class="call-incoming-accept"
+                  (click)="calls.accept()">
+                  <span aria-hidden="true">✓</span>
+                  {{ 'calls.accept' | t }}
+                </button>
+              }
             </div>
           </div>
         </section>
@@ -705,6 +718,7 @@ import { DirectCallClientService } from '../services/direct-call-client.service'
     }
     .call-incoming-decline { background: #803d48; border-color: #bf6b76 !important; }
     .call-incoming-accept { background: #147d5c; border-color: #35e2aa !important; }
+    .call-incoming-accept--audio { background: transparent; }
     .call-incoming-actions button:hover { filter: brightness(1.14); }
     .call-incoming-actions button:focus-visible,
     .call-incoming-audio button:focus-visible { outline: 3px solid #83ffdf; outline-offset: 3px; }
