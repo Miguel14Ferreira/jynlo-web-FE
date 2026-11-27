@@ -170,6 +170,8 @@ export class AlterardadosComponent implements OnInit {
       .subscribe({
         next: profile => {
           this.profile = { ...profile };
+          // No code saved yet: start on Portugal (+351), not the first country of the list.
+          if (!this.profile.indicativePhone) this.profile.indicativePhone = '351';
           if (!this.profile.indicativePhone) {
             const matchingCountry = this.countryOptions.find(
               item => this.countryName(item.label) === this.profile?.country

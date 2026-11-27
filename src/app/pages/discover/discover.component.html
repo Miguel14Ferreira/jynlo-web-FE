@@ -76,7 +76,7 @@
         (click)="setCategory('all')">{{ 'discover.explore.all' | t }}</button>
       <button type="button" [class.is-active]="activeTab === 'venues'" [attr.aria-pressed]="activeTab === 'venues'"
         (click)="setCategory('venues')">{{ 'discover.explore.venues' | t }}
-        @if (initialized && !loadingVenues && !venuesLoadError) {
+        @if (initialized && !loadingVenues && !venuesLoadError && venues.length > 0) {
           <span class="explore-tab-count" [attr.title]="venuesHasMore ? ('discover.where.moreResults' | t) : null">
             {{ venues.length }}{{ venuesHasMore ? '+' : '' }}
           </span>
@@ -84,11 +84,11 @@
       </button>
       <button type="button" [class.is-active]="activeTab === 'sessions'" [attr.aria-pressed]="activeTab === 'sessions'"
         (click)="setCategory('sessions')">{{ 'discover.explore.sessions' | t }}
-        @if (initialized && !loadingSessions && !sessionsLoadError) { <span class="explore-tab-count">{{ sessions.length }}</span> }
+        @if (initialized && !loadingSessions && !sessionsLoadError && sessions.length > 0) { <span class="explore-tab-count">{{ sessions.length }}</span> }
       </button>
       <button type="button" [class.is-active]="activeTab === 'people'" [attr.aria-pressed]="activeTab === 'people'"
         (click)="setCategory('people')">{{ 'discover.explore.people' | t }}
-        @if (initialized && !loadingDiscoveryPeople && !peopleLoadError) { <span class="explore-tab-count">{{ people.length }}</span> }
+        @if (initialized && !loadingDiscoveryPeople && !peopleLoadError && people.length > 0) { <span class="explore-tab-count">{{ people.length }}</span> }
       </button>
       <button type="button" [class.is-active]="activeTab === 'communities'" [attr.aria-pressed]="activeTab === 'communities'"
         (click)="setCategory('communities')">{{ 'discover.explore.communities' | t }}</button>
