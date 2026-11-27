@@ -12,6 +12,8 @@
       </div>
     </header>
 
+    <div class="ev-layout" [class.ev-layout--wide]="wideScreen">
+    <aside class="ev-side">
     <form class="filters jynlo-session-filters ev-compact" (ngSubmit)="loadSessions()">
       <!-- Results come first: one search row, quick chips, and the rest behind "Filtros". -->
       <div class="ev-bar">
@@ -55,7 +57,7 @@
           <button type="button" class="ev-clear" (click)="clearFilters()">{{ 'events.clear' | t }}</button>
         }
       </div>
-      @if (showAdvancedFilters) {
+      @if (showAdvancedFilters || wideScreen) {
         <div class="ev-panel" id="ev-filter-panel">
           <div class="ev-panel__checks">
       <label class="check-filter">
@@ -138,6 +140,8 @@
         </div>
       }
     </form>
+    </aside>
+    <div class="ev-main">
     @if (locationError) {
       <div class="location-error">{{ locationError }}</div>
     }
@@ -250,5 +254,7 @@
         }
       </div>
     }
+    </div>
+    </div>
   </div>
 </section>

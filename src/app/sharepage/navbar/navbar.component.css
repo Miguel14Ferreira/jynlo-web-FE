@@ -716,3 +716,5 @@
 .jynlo-chat-toast__list { margin:6px 0 4px; padding:0 0 0 18px; display:grid; gap:4px; max-height:220px; overflow-y:auto;
   color:#d5ecf1; font-size:.86rem; line-height:1.35; }
 .jynlo-chat-toast__list li { overflow-wrap:anywhere; }
+/* Only shown in the computer sidebar (see styles/jynlo-desktop-layout.css). */
+.site-nav__links .nav-sidebar-extra, .nav-sidebar-text { display: none; }

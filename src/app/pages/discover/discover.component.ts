@@ -1,5 +1,6 @@
+import { isWideScreen } from '../../shared/wide-screen';
 import { venueCatalogueDisplayLabel } from '../../shared/venue-catalogue-display';
-import { ChangeDetectionStrategy, Component, OnInit, Optional } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, OnInit, Optional } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, catchError, finalize, map, of, retry, timeout } from 'rxjs';
@@ -28,6 +29,13 @@ type ExploreCategory = 'all' | 'venues' | 'sessions' | 'people' | 'communities';
 export class DiscoverComponent implements OnInit {
   activeTab: ExploreCategory = 'all';
   sessionView: 'map' | 'list' = 'list';
+  /** On a computer the Sessões tab shows the map beside the list instead of one or the other. */
+  wideScreen = isWideScreen();
+
+  @HostListener('window:resize')
+  onResize(): void { this.wideScreen = isWideScreen(); }
+
+  get splitSessions(): boolean { return this.wideScreen && this.activeTab === 'sessions'; }
   mapSearchPosition: { latitude: number; longitude: number } | null = null;
   mapSearchRadiusKm = 25;
   searchMapArea(area: {latitude: number; longitude: number; radiusKm: number}): void {

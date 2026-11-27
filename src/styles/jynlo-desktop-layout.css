@@ -24,6 +24,29 @@
   }
   body .jynlo-c1 .page-header::before,
   body .jynlo-c1 .page-header::after { display: none !important; }
+  /* Explorar and Recintos use their own banner class; same compact treatment. */
+  body .jynlo-c1 :is(.discover-header, .venue-directory-hero) {
+    min-height: 0 !important;
+    margin-bottom: 14px !important;
+    padding: 4px 0 12px !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(96, 176, 182, .18) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    align-items: center !important;
+  }
+  body .jynlo-c1 :is(.discover-header, .venue-directory-hero)::before,
+  body .jynlo-c1 :is(.discover-header, .venue-directory-hero)::after { display: none !important; }
+  body .jynlo-c1 :is(.discover-header, .venue-directory-hero) :is(h1, .discover-intro) { max-width: none !important; }
+  body .jynlo-c1 :is(.discover-header, .venue-directory-hero) h1 {
+    margin: 0 !important;
+    font-size: clamp(1.5rem, 1.5vw, 1.85rem) !important;
+    line-height: 1.2 !important;
+    letter-spacing: normal !important;
+  }
+  body .jynlo-c1 :is(.discover-header, .venue-directory-hero) :is(p, .subtitle) { margin: 4px 0 0 !important; font-size: .95rem !important; }
+  body .jynlo-c1 .venue-directory-eyebrow { display: none !important; }
   body .jynlo-c1 .page-header h1 {
     margin: 0 !important;
     font-size: clamp(1.5rem, 1.5vw, 1.85rem) !important;
@@ -35,4 +58,161 @@
     max-width: 70ch;
   }
   body .jynlo-c1 .page-header :is(.eyebrow, .kicker, .section-kicker) { display: none !important; }
+}
+
+/*
+ * Computer layout (phase 2): filters in a column beside the results (Sessões) and the map beside the list (Explorar → Sessões).
+ * The components only add the --wide classes from 1200 px (see shared/wide-screen.ts).
+ */
+@media (min-width: 1200px) {
+  body .jynlo-c1 .page-header > div:first-child { flex: 1 1 auto !important; }
+
+  /* Sessões: filters on the left, kept in view while scrolling the results. */
+  body .sessions-page .ev-layout--wide {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+  body .sessions-page .ev-layout--wide .ev-side {
+    position: sticky;
+    top: 84px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  body .sessions-page .ev-layout--wide .ev-compact { margin: 0 !important; width: auto !important; max-width: none !important; }
+  body .sessions-page .ev-layout--wide .ev-bar { display: grid; grid-template-columns: 1fr; }
+  body .sessions-page .ev-layout--wide .ev-bar > * { width: 100% !important; min-width: 0 !important; flex: none !important; }
+  body .sessions-page .ev-layout--wide .ev-filters-button { display: none !important; }
+  body .sessions-page .ev-layout--wide .ev-panel { padding: 12px 0 0; border: 0; border-top: 1px solid rgba(96, 176, 182, .2); border-radius: 0; background: none; }
+  body .sessions-page .ev-layout--wide .ev-panel__checks { flex-direction: column; align-items: stretch; }
+  body .sessions-page .ev-layout--wide .ev-panel :is(.advanced-filters, .price-filters) { display: grid !important; grid-template-columns: 1fr !important; gap: 10px; }
+  body .sessions-page .ev-layout--wide .ev-panel label { width: 100% !important; min-width: 0 !important; }
+  body .sessions-page .ev-layout--wide .ev-panel__actions { justify-content: stretch; }
+  body .sessions-page .ev-layout--wide .ev-panel__actions > * { flex: 1 1 0; }
+  body .sessions-page .ev-layout--wide .ev-main > .state-card:first-child,
+  body .sessions-page .ev-layout--wide .ev-main > .session-list:first-child { margin-top: 0 !important; }
+
+  /* Recintos: search fields in a column on the left, results on the right. */
+  body .venue-directory-page .venue-directory-shell {
+    display: grid !important;
+    grid-template-columns: 280px minmax(0, 1fr);
+    column-gap: 20px;
+    align-items: start;
+  }
+  body .venue-directory-page .venue-directory-shell > * { grid-column: 2; min-width: 0; }
+  body .venue-directory-page .venue-directory-shell > .venue-directory-hero { grid-column: 1 / -1; }
+  body .venue-directory-page .venue-directory-shell > .venue-directory-filters {
+    grid-column: 1;
+    grid-row: 2 / span 40;
+    position: sticky;
+    top: 84px;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    margin: 0 !important;
+  }
+  body .venue-directory-page .venue-directory-filters > label { width: 100% !important; min-width: 0 !important; grid-column: auto !important; }
+  body .venue-directory-page .venue-directory-actions { grid-column: auto !important; justify-content: stretch !important; border-top: 0 !important; padding-top: 0 !important; }
+  body .venue-directory-page .venue-directory-actions > * { flex: 1 1 auto; width: 100%; }
+  body .venue-directory-page .venue-directory-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important; }
+
+  /* Explorar → Sessões: map and list side by side. */
+  body .discover-page .session-results--split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+  }
+  body .discover-page .session-results--split .session-results__map { position: sticky; top: 84px; }
+  body .discover-page .session-results--split .session-results__list .result-list { grid-template-columns: 1fr !important; }
+  body .sessions-page .ev-layout--wide .session-list { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important; }
+}
+@media (min-width: 1100px) {
+  body .jynlo-c1 .page-header h1 { max-width: none !important; }
+}
+
+/*
+ * Computer layout (phase 3): the bar becomes a fixed column on the left, with every section, from 1280 px.
+ * Below that (and on phones) the top bar / bottom tab bar stay as they were.
+ */
+@media (min-width: 1280px) {
+  body:has(.site-nav--authed) { padding-left: 232px; }
+  body .site-nav.site-nav--authed {
+    inset: 0 auto 0 0 !important;
+    width: 232px !important;
+    height: 100vh !important;
+    border-bottom: 0 !important;
+    border-right: 1px solid rgba(255, 255, 255, .08) !important;
+    background: #061522 !important;
+  }
+  body .site-nav--authed .site-nav__shell {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 18px !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 18px 12px 14px !important;
+    box-sizing: border-box;
+  }
+  body .site-nav--authed .site-nav__shell > .brand { visibility: visible !important; width: auto !important; pointer-events: auto !important; padding: 0 .5rem; }
+  body .site-nav--authed .site-nav__links {
+    flex: 1 1 auto !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 2px !important;
+    width: 100% !important;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  body .site-nav--authed .site-nav__links > a {
+    display: flex !important;
+    align-items: center !important;
+    gap: .7rem !important;
+    width: 100% !important;
+    min-height: 44px;
+    padding: .6rem .8rem !important;
+    border: 0 !important;
+    border-radius: 12px !important;
+    font-size: .95rem !important;
+    box-sizing: border-box;
+  }
+  body .site-nav--authed .site-nav__links > a .nav-label-full,
+  body .site-nav--authed .site-nav__links > a .nav-text,
+  body .site-nav--authed .nav-sidebar-text { display: inline !important; }
+  body .site-nav--authed .site-nav__links > a .nav-label-short { display: none !important; }
+  body .site-nav--authed .site-nav__links > .nav-tab--create {
+    order: -1;
+    justify-content: center !important;
+    margin-bottom: 10px;
+    border: 1px solid rgba(46, 230, 208, .45) !important;
+  }
+  body .site-nav--authed .site-nav__links > .feed-v3-top-search { display: none !important; }
+  body .site-nav--authed .site-nav__links > .nav-managed-badge,
+  body .site-nav--authed .site-nav__links > a .nav-managed-badge,
+  body .site-nav--authed .site-nav__links > a .notification-badge { margin-left: auto !important; position: static !important; }
+  body .site-nav--authed .account-menu { margin-top: auto; width: 100%; }
+  body .site-nav--authed .account-identity-trigger { width: 100% !important; justify-content: flex-start !important; }
+  body .site-nav--authed .account-identity-copy { display: inline !important; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  body .site-nav--authed .account-identity-chevron { margin-left: auto; transform: rotate(180deg); }
+  body .site-nav--authed .account-menu__panel { top: auto !important; bottom: calc(100% + .5rem) !important; left: 0 !important; right: auto !important; width: 100%; min-width: 0 !important; box-sizing: border-box; }
+  /* The sections already in the column are not repeated in the account menu. */
+  body .site-nav--authed .account-menu__panel > a.mobile-only-link,
+  body .site-nav--authed .account-menu__panel > a:not(.mobile-only-link):is([href="/menu/discover"], [href="/menu/messages"], [href="/menu/events"], [href="/menu/my-sessions"], [href="/menu/communities"], [href="/menu/teams"], [href="/menu/teams/competitions"], [href="/menu/venues"]) { display: none !important; }
+  body .site-nav--authed .nav-sidebar-extra { display: flex !important; }
+  /* Toasts that sat under the top bar now sit at the top of the page area. */
+  body:has(.site-nav--authed) .jynlo-chat-toast { left: auto; }
+}
+@media (min-width: 1280px) {
+  /* Pages were spaced for the 64 px top bar, which is now a column on the left. */
+  body:has(.site-nav--authed) app-root > router-outlet + * { margin-top: -44px; }
 }

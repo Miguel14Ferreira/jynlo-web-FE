@@ -323,13 +323,17 @@
           @if (loadingSessions) {
             <div class="state-card" role="status">{{ 'discover.loading' | t }}</div>
           } @else {
+          @if (!splitSessions) {
           <div class="jynlo-session-view-toggle" role="group" [attr.aria-label]="'Visualização das sessões' | t">
             <button type="button" [class.is-selected]="sessionView === 'map'"
               [attr.aria-pressed]="sessionView === 'map'" (click)="setSessionView('map')">{{ '⌖ Mapa' | t }}</button>
             <button type="button" [class.is-selected]="sessionView === 'list'"
               [attr.aria-pressed]="sessionView === 'list'" (click)="setSessionView('list')">{{ '☷ Lista' | t }}</button>
           </div>
-          @if (sessionView === 'map') {
+          }
+          <div class="session-results" [class.session-results--split]="splitSessions">
+          @if (sessionView === 'map' || splitSessions) {
+            <div class="session-results__map">
             <app-session-discovery-map [sessions]="sessions" (searchArea)="searchMapArea($event)"></app-session-discovery-map>
             @if (mapSearchPosition) {
               <div class="jynlo-map-search-status" role="status">
@@ -337,7 +341,10 @@
                 <button type="button" (click)="clearMapSearch()">{{ 'Limpar pesquisa no mapa' | t }}</button>
               </div>
             }
-          } @else {
+            </div>
+          }
+          @if (sessionView !== 'map' || splitSessions) {
+            <div class="session-results__list">
           @if (topSessions.length === 0) {
             <div class="pillar-empty session-empty">
               <strong>{{ 'discover.when.emptyTitle' | t }}</strong>
@@ -398,10 +405,11 @@
               }
             </div>
           }
-
+            </div>
           }
+          </div>
 
-          @if (sessionView === 'list' && sessions.length > topSessionResults.length) {
+          @if ((sessionView === 'list' || splitSessions) && sessions.length > topSessionResults.length) {
             <button type="button" class="jynlo-action jynlo-action--neutral"
               [attr.aria-expanded]="showAllSessions"
               (click)="toggleAllSessions()">

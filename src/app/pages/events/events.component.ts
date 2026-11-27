@@ -1,7 +1,8 @@
 import { appTranslate } from '../../i18n/i18n.service';
 import { playersMissingForGame } from '../../shared/session-minimum-players';
 import { AuthenticationService } from '../../services/authethication.service';
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { isWideScreen } from '../../shared/wide-screen';
 import { inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { finalize, retry, Subscription, timeout } from 'rxjs';
@@ -45,6 +46,11 @@ export class EventsComponent implements OnInit, OnDestroy {
   sort = 'date';
 
   showAdvancedFilters = false;
+  /** On a computer the filters sit in a column beside the results and stay open. */
+  wideScreen = isWideScreen();
+
+  @HostListener('window:resize')
+  onResize(): void { this.wideScreen = isWideScreen(); }
   quickDate: 'today' | 'week' | 'weekend' | '' = '';
   fromDateTime = '';
   toDateTime = '';

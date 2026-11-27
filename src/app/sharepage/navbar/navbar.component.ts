@@ -108,8 +108,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const phone = typeof window !== 'undefined' && window.innerWidth <= 900;
     if (button && !phone) {
       const width = 340;
-      this.createMenuTop = Math.round(button.bottom + 8);
-      this.createMenuLeft = Math.round(Math.max(12, Math.min(window.innerWidth - width - 12, button.left + button.width / 2 - width / 2)));
+      if (window.innerWidth >= 1280) {
+        // Computer: the bar is a column on the left, so the menu opens beside the button.
+        this.createMenuTop = Math.round(Math.max(12, button.top));
+        this.createMenuLeft = Math.round(button.right + 10);
+      } else {
+        this.createMenuTop = Math.round(button.bottom + 8);
+        this.createMenuLeft = Math.round(Math.max(12, Math.min(window.innerWidth - width - 12, button.left + button.width / 2 - width / 2)));
+      }
     } else {
       this.createMenuTop = null;
       this.createMenuLeft = null;
