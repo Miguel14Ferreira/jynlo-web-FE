@@ -8724,4 +8724,10 @@ export const EN: Record<string, string> = {
   "{{name}} vai": "{{name}} is going",
   "{{name}} e mais 1 amigo vão": "{{name}} and 1 more friend are going",
   "{{name}} e mais {{n}} amigos vão": "{{name}} and {{n}} more friends are going",
+  "Diretos agora": "Live now",
+  "Assistir ao direto de @{{u}}: {{title}}": "Watch @{{u}}'s live: {{title}}",
+  "AO VIVO": "LIVE",
+  "agora mesmo": "just now",
+  "há {{n}} min": "{{n}} min ago",
+  "há {{n}} h": "{{n}} h ago",
 };

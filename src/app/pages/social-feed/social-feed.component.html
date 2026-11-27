@@ -30,14 +30,22 @@
 
     @if (personalLiveEvents.length) {
       <section class="feed-live-community" [attr.aria-label]="'Diretos pessoais na Jynlo' | t">
-        <div class="feed-live-heading"><strong>{{ '● Diretos das pessoas' | t }}</strong>
-          <span>{{ 'Transmissões sem comunidade' | t }}</span></div>
+        <div class="feed-live-heading"><strong><span class="feed-live-dot" aria-hidden="true"></span>{{ 'Diretos agora' | t }}</strong></div>
         <div class="feed-live-list">
           @for (stream of personalLiveEvents; track stream.id) {
-            <article class="feed-live-entry">
-              <div><strong>{{ stream.title }}</strong><small>@{{ stream.username }}</small></div>
-              <button type="button" (click)="watchPersonalLive(stream)">{{ 'Assistir ao direto' | t }}</button>
-            </article>
+            <button type="button" class="feed-live-entry feed-live-entry--person" (click)="watchPersonalLive(stream)"
+              [attr.aria-label]="('Assistir ao direto de @{{u}}: {{title}}' | t:{ u: stream.username, title: stream.title })">
+              <span class="feed-live-avatar" aria-hidden="true">
+                @if (stream.avatarUrl) { <img [src]="stream.avatarUrl" alt="" referrerpolicy="no-referrer"> }
+                @else { {{ stream.username.charAt(0).toUpperCase() }} }
+              </span>
+              <span class="feed-live-text">
+                <span class="feed-live-badge">{{ 'AO VIVO' | t }}</span>
+                <strong>{{ stream.title }}</strong>
+                <small>&#64;{{ stream.username }} · {{ liveSince(stream.startedAt) }}</small>
+              </span>
+              <span class="feed-live-watch" aria-hidden="true">{{ 'Ver' | t }} ▶</span>
+            </button>
           }
         </div>
       </section>

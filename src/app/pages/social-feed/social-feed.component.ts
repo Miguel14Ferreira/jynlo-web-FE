@@ -372,6 +372,14 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   liveMode: 'PERSONAL' | 'COMMUNITY' = 'PERSONAL';
+  /** "há 12 min" for a live that started at this time. */
+  liveSince(startedAt: string): string {
+    const ms = Date.now() - Date.parse(startedAt);
+    if (!Number.isFinite(ms) || ms < 60000) return appTranslate('agora mesmo');
+    const min = Math.floor(ms / 60000);
+    if (min < 60) return appTranslate('há {{n}} min', { n: min });
+    return appTranslate('há {{n}} h', { n: Math.floor(min / 60) });
+  }
   personalLiveEvents: PersonalLiveEvent[] = [];
   personalLiveRoom: PersonalLiveEvent | null = null;
   private requestedPersonalLiveId: number | null = null;
