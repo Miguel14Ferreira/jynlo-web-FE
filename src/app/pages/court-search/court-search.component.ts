@@ -98,7 +98,7 @@ interface PickedSlot { venue: VenueAvailability; court: CourtSlots; slot: Bookin
         <article class="cs__card cs__venue">
           <div class="cs__venue-head">
             <a [routerLink]="[loggedIn ? '/menu/venues' : '/venues', v.venueId]"><strong>{{ v.name }}</strong></a>
-            <span class="cs__muted">{{ v.city }}@if (v.paymentMethod === 'MBWAY') { · {{ 'Aceita MB WAY' | t }} }</span>
+            <span class="cs__muted">{{ v.city }}@if (v.paymentMethod === 'MBWAY') { · {{ 'Aceita MB WAY' | t }} } @else if (v.paymentMethod === 'ONLINE') { · {{ 'Pagamento na app' | t }} }</span>
           </div>
           @for (c of v.courts; track c.courtId) {
             <div class="cs__court">
@@ -117,7 +117,7 @@ interface PickedSlot { venue: VenueAvailability; court: CourtSlots; slot: Bookin
                       <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy" (click)="request()">{{ busy ? ('A enviar…' | t) : ('Pedir reserva' | t) }}</button>
                       <button type="button" class="jynlo-action jynlo-action--neutral" (click)="picked = null">{{ 'Cancelar' | t }}</button>
                     </div>
-                    <span class="cs__muted">{{ v.paymentMethod === 'MBWAY' ? ('Depois de o recinto confirmar, pagas por MB WAY.' | t) : ('Pagas no recinto.' | t) }}</span>
+                    <span class="cs__muted">{{ v.paymentMethod === 'MBWAY' ? ('Depois de o recinto confirmar, pagas por MB WAY.' | t) : v.paymentMethod === 'ONLINE' ? ('Depois de o recinto confirmar, pagas na app (MB WAY ou cartão).' | t) : ('Pagas no recinto.' | t) }}</span>
                   } @else {
                     <a class="jynlo-action jynlo-action--primary" routerLink="/login">{{ 'Entra para pedir a reserva' | t }}</a>
                   }

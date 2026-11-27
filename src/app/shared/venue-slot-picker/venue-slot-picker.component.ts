@@ -15,7 +15,7 @@ export interface PickedVenueSlot {
   start: string;
   end: string;
   priceCents: number | null;
-  paymentMethod: 'MBWAY' | 'IN_PERSON' | null;
+  paymentMethod: 'MBWAY' | 'IN_PERSON' | 'ONLINE' | null;
 }
 
 /** Same Lisbon "YYYY-MM-DDTHH:mm" the game form's date field holds. */

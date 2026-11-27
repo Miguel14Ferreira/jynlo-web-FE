@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { appTranslate as t } from '../../i18n/i18n.service';
@@ -19,7 +19,7 @@ import { phoneLabel } from '../../shared/tournament-payments-panel/tournament-pa
       <header>
         <span class="vb__kicker">{{ 'Reservas de campos' | t }}</span>
         <h1>{{ 'As minhas reservas' | t }}</h1>
-        <p class="vb__muted">{{ 'Pedidos feitos na Jynlo. Recintos com o selo “Aceita reservas na Jynlo” confirmam aqui; pagas no local.' | t }}</p>
+        <p class="vb__muted">{{ 'Pedidos feitos na Jynlo. Recintos com o selo “Aceita reservas na Jynlo” confirmam aqui.' | t }}</p>
       </header>
 
       @if (managed.length) {
@@ -60,17 +60,31 @@ import { phoneLabel } from '../../shared/tournament-payments-panel/tournament-pa
                 @if (b.paidConfirmedAt) {
                   <span class="vb__ok">✅ {{ 'O recinto confirmou o teu pagamento.' | t }}</span>
                 } @else {
-                  @if (b.paymentMethod === 'MBWAY' && b.mbwayPhone) {
-                    <span>{{ 'Paga por MB WAY ao recinto:' | t }} <strong>{{ phone(b.mbwayPhone) }}</strong>@if (price(b.priceCents); as p) { · {{ p }} }</span>
-                    <button type="button" class="jynlo-action" (click)="copy(b.mbwayPhone)">{{ (copied === b.id ? 'payments.copied' : 'payments.copy') | t }}</button>
+                  @if (b.paymentMethod === 'ONLINE') {
+                    @if (confirming === b.id) {
+                      <span class="vb__muted" role="status">⏳ {{ 'A confirmar o pagamento…' | t }}</span>
+                    } @else {
+                      <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy" (click)="pay(b)">
+                        {{ 'Pagar agora (MB WAY ou cartão)' | t }}@if (price(b.priceCents); as p) { · {{ p }} }</button>
+                      <span class="vb__muted">{{ 'Fica pago automaticamente, sem teres de avisar o recinto.' | t }}</span>
+                    }
                   } @else {
-                    <span class="vb__muted">{{ 'Pagas no recinto.' | t }}</span>
-                  }
-                  @if (b.paidClaimedAt) {
-                    <span class="vb__muted">⏳ {{ 'Disseste que já pagaste. Falta o recinto confirmar.' | t }}</span>
-                    <button type="button" class="jynlo-action" [disabled]="busy" (click)="markPaid(b, false)">{{ 'payments.undoClaim' | t }}</button>
-                  } @else {
-                    <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy" (click)="markPaid(b, true)">{{ 'payments.claim' | t }}</button>
+                    @if (b.paymentMethod === 'MBWAY' && b.mbwayPhone) {
+                      <span>{{ 'Paga por MB WAY ao recinto:' | t }} <strong>{{ phone(b.mbwayPhone) }}</strong>@if (price(b.priceCents); as p) { · {{ p }} }</span>
+                      <button type="button" class="jynlo-action" (click)="copy(b)">{{ (copied === b.id ? 'payments.copied' : 'payments.copy') | t }}</button>
+                    } @else {
+                      <span class="vb__muted">{{ 'Pagas no recinto.' | t }}</span>
+                    }
+                    @if (b.paidClaimedAt) {
+                      <span class="vb__muted">⏳ {{ 'Disseste que já pagaste. Falta o recinto confirmar.' | t }}</span>
+                      <button type="button" class="jynlo-action" [disabled]="busy" (click)="markPaid(b, false)">{{ 'payments.undoClaim' | t }}</button>
+                    } @else if (askPaid === b.id) {
+                      <span class="vb__ask" role="status">{{ 'payments.askPaid' | t:{ amount: price(b.priceCents) ?? '' } }}</span>
+                      <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy" (click)="markPaid(b, true)">{{ 'payments.askPaidYes' | t }}</button>
+                      <button type="button" class="jynlo-action" (click)="askPaid = 0">{{ 'payments.askPaidNo' | t }}</button>
+                    } @else {
+                      <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy" (click)="markPaid(b, true)">{{ 'payments.claim' | t }}</button>
+                    }
                   }
                 }
               </div>
@@ -111,6 +125,7 @@ import { phoneLabel } from '../../shared/tournament-payments-panel/tournament-pa
     .vb__error { margin:0; color:#ffb4b4; }
     .vb__pay { grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
     .vb__ok { color:#7ae5c5; font-weight:800; }
+    .vb__ask { font-weight:700; color:#fde68a; }
   `]
 })
 export class VenueBookingsComponent implements OnInit {
@@ -120,21 +135,55 @@ export class VenueBookingsComponent implements OnInit {
   busy = false;
   error = '';
   copied = 0;
+  /** Booking whose MB WAY number was just copied: ask "Já pagaste?" instead of a plain button. */
+  askPaid = 0;
+  /** Booking paid online that we are waiting on Stripe to confirm. */
+  confirming = 0;
 
   private readonly api = inject(VenueBookingService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly route = inject(ActivatedRoute);
 
   bookingsOpen = false;
 
   ngOnInit(): void {
     this.api.accepting().subscribe(ids => { this.bookingsOpen = ids.length > 0; this.cdr.markForCheck(); });
+    this.load();
+    if (this.route.snapshot.queryParamMap.get('pagamento') === 'ok') this.waitForOnlinePayment(0);
+    this.api.managed().subscribe({
+      next: list => { this.managed = list; this.cdr.markForCheck(); },
+      error: () => { /* optional section */ }
+    });
+  }
+
+  private load(): void {
     this.api.mine().pipe(finalize(() => { this.loading = false; this.cdr.markForCheck(); })).subscribe({
       next: list => { this.bookings = list; },
       error: e => { this.error = bookingError(e, 'Não foi possível carregar as tuas reservas.'); }
     });
-    this.api.managed().subscribe({
-      next: list => { this.managed = list; this.cdr.markForCheck(); },
-      error: () => { /* optional section */ }
+  }
+
+  /** Back from Stripe: the webhook may take a few seconds, so look again a handful of times. */
+  private waitForOnlinePayment(attempt: number): void {
+    const unpaid = this.bookings.find(b => b.status === 'CONFIRMED' && b.paymentMethod === 'ONLINE' && !b.paidConfirmedAt);
+    if (attempt > 0 && this.bookings.length && !unpaid) { this.confirming = 0; this.cdr.markForCheck(); return; }
+    if (attempt >= 6) { this.confirming = 0; this.cdr.markForCheck(); return; }
+    this.confirming = unpaid?.id ?? -1;
+    setTimeout(() => {
+      this.api.mine().subscribe({
+        next: list => { this.bookings = list; this.cdr.markForCheck(); this.waitForOnlinePayment(attempt + 1); },
+        error: () => this.waitForOnlinePayment(attempt + 1)
+      });
+    }, 2500);
+  }
+
+  pay(b: VenueBooking): void {
+    if (this.busy) return;
+    this.busy = true;
+    this.error = '';
+    this.api.checkout(b.id).pipe(finalize(() => { this.busy = false; this.cdr.markForCheck(); })).subscribe({
+      next: link => { if (link?.url?.startsWith('https://')) window.location.href = link.url; },
+      error: e => { this.error = bookingError(e, 'Não foi possível abrir o pagamento. Tenta outra vez.'); }
     });
   }
 
@@ -150,9 +199,11 @@ export class VenueBookingsComponent implements OnInit {
 
   phone(value: string): string { return phoneLabel(value); }
 
-  copy(phone: string | null | undefined): void {
+  copy(b: VenueBooking): void {
+    const phone = b.mbwayPhone;
     if (!phone) return;
-    const id = this.bookings.find(b => b.mbwayPhone === phone)?.id ?? 0;
+    const id = b.id;
+    this.askPaid = id;
     try {
       void navigator.clipboard?.writeText(phone).then(() => {
         this.copied = id; this.cdr.markForCheck();
@@ -166,7 +217,7 @@ export class VenueBookingsComponent implements OnInit {
     this.busy = true;
     this.error = '';
     this.api.markPaid(b.id, paid).pipe(finalize(() => { this.busy = false; this.cdr.markForCheck(); })).subscribe({
-      next: updated => { this.bookings = this.bookings.map(x => x.id === updated.id ? updated : x); },
+      next: updated => { this.askPaid = 0; this.bookings = this.bookings.map(x => x.id === updated.id ? updated : x); },
       error: e => { this.error = bookingError(e, 'Não foi possível guardar. Tenta outra vez.'); }
     });
   }

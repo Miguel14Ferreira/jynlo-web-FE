@@ -74,6 +74,9 @@ export function currentLang(): 'pt' | 'en' {
             @if (offer?.paymentMethod === 'MBWAY') {
               <span class="vjb__muted">📱 {{ 'Depois de o recinto confirmar, pagas por MB WAY ao recinto.' | t }}</span>
             }
+            @if (offer?.paymentMethod === 'ONLINE') {
+              <span class="vjb__muted">⚡ {{ 'Depois de o recinto confirmar, pagas na app (MB WAY ou cartão).' | t }}</span>
+            }
             @if (loggedIn) {
               <label class="vjb__field">
                 <span>{{ 'Mensagem para o recinto (opcional)' | t }}</span>
@@ -285,7 +288,7 @@ export class VenueJynloBookingComponent implements OnChanges {
 
   priceLine(court: CourtSlots): string {
     const price = formatPrice(court.priceCents, currentLang());
-    if (this.offer?.paymentMethod === 'MBWAY') return price ?? t('Preço no recinto');
+    if (this.offer?.paymentMethod === 'MBWAY' || this.offer?.paymentMethod === 'ONLINE') return price ?? t('Preço no recinto');
     return price ? t('{{price}} · pagas no recinto', { price }) : t('Preço no recinto');
   }
 

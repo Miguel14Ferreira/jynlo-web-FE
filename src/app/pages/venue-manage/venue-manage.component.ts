@@ -5,8 +5,7 @@ import { finalize } from 'rxjs';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { appTranslate as t } from '../../i18n/i18n.service';
 import {
-  BookingHours, BookingOffer, VenueBooking, VenueBookingService, formatPrice, lisbonDateTime, lisbonTime
-} from '../../services/venue-booking.service';
+  BookingHours, BookingOffer, VenueBooking, VenueBookingService, formatPrice, lisbonDateTime, lisbonTime, VenuePayMethod, VenueOnlineStatus } from '../../services/venue-booking.service';
 import { VenueService } from '../../services/venue.service';
 import { bookingError, currentLang } from '../../shared/venue-jynlo-booking/venue-jynlo-booking.component';
 
@@ -103,13 +102,29 @@ export const WEEKDAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sáb
 
       <section class="vm__card" aria-labelledby="vm-payment">
         <h2 id="vm-payment">{{ 'Pagamento das reservas' | t }}</h2>
-        <p class="vm__muted">{{ 'Recebe por MB WAY no teu número ou no local. A Jynlo não recebe nem guarda dinheiro.' | t }}</p>
+        <p class="vm__muted">{{ 'Como queres receber as reservas? A Jynlo não cobra nada e não recebe nem guarda dinheiro.' | t }}</p>
         <div class="vm__actions" role="radiogroup" [attr.aria-label]="'Pagamento das reservas' | t">
           <button type="button" class="jynlo-action" role="radio" [attr.aria-checked]="payMethod === 'MBWAY'"
             [class.jynlo-action--primary]="payMethod === 'MBWAY'" (click)="payMethod = 'MBWAY'">📱 {{ 'MB WAY' | t }}</button>
           <button type="button" class="jynlo-action" role="radio" [attr.aria-checked]="payMethod === 'IN_PERSON'"
             [class.jynlo-action--primary]="payMethod === 'IN_PERSON'" (click)="payMethod = 'IN_PERSON'">🤝 {{ 'No local' | t }}</button>
+          @if (online?.available) {
+            <button type="button" class="jynlo-action" role="radio" [attr.aria-checked]="payMethod === 'ONLINE'"
+              [class.jynlo-action--primary]="payMethod === 'ONLINE'" (click)="payMethod = 'ONLINE'">⚡ {{ 'Automático' | t }}</button>
+          }
         </div>
+        @if (payMethod === 'ONLINE') {
+          <p class="vm__muted">{{ 'O jogador paga na app por MB WAY ou cartão e a reserva fica paga sozinha. O dinheiro vai direto para a conta Stripe do recinto. A Stripe desconta a comissão dela (cerca de 1,5% + 0,25 € por pagamento); a Jynlo não cobra nada.' | t }}</p>
+          @if (online?.chargesEnabled) {
+            <p class="vm__ok">✅ {{ 'A conta Stripe do recinto está ativa.' | t }}</p>
+          } @else if (adminSetup) {
+            <p class="vm__muted">{{ 'Só quem gere o recinto pode ligar a conta Stripe da empresa.' | t }}</p>
+          } @else {
+            <p class="vm__muted">{{ online?.connected ? ('Falta acabar o registo na Stripe.' | t) : ('Primeiro liga a conta Stripe do recinto. Os dados da empresa e o IBAN ficam na Stripe, não na Jynlo.' | t) }}</p>
+            <button type="button" class="jynlo-action" [disabled]="onboarding" (click)="startOnboarding()">
+              {{ (onboarding ? 'A abrir…' : (online?.connected ? 'Continuar na Stripe' : 'Ligar conta Stripe do recinto')) | t }}</button>
+          }
+        }
         @if (payMethod === 'MBWAY') {
           <label class="vm__field"><span>{{ 'Número MB WAY do recinto' | t }}</span>
             <input type="tel" inputmode="tel" maxlength="20" placeholder="912 345 678" [(ngModel)]="payPhone"></label>
@@ -212,7 +227,9 @@ export class VenueManageComponent implements OnInit {
   savingCourts = false;
   savingHours = false;
   savingPayment = false;
-  payMethod: 'MBWAY' | 'IN_PERSON' | null = null;
+  payMethod: VenuePayMethod | null = null;
+  online: VenueOnlineStatus | null = null;
+  onboarding = false;
   payPhone = '';
   paymentMessage = '';
   paymentError = '';
@@ -251,6 +268,20 @@ export class VenueManageComponent implements OnInit {
       error: () => { /* the page still works for managers */ }
     });
     this.loadRequests();
+    this.api.onlineStatus(this.venueId).subscribe({
+      next: status => { this.online = status; this.cdr.markForCheck(); },
+      error: () => { /* automatic payments stay hidden */ }
+    });
+  }
+
+  startOnboarding(): void {
+    if (this.onboarding) return;
+    this.onboarding = true;
+    this.paymentError = '';
+    this.api.onlineOnboarding(this.venueId).pipe(finalize(() => { this.onboarding = false; this.cdr.markForCheck(); })).subscribe({
+      next: link => { if (link?.url?.startsWith('https://')) window.location.href = link.url; },
+      error: e => { this.paymentError = bookingError(e, 'Não foi possível abrir a Stripe. Tenta outra vez.'); }
+    });
   }
 
   /** 24-hour times every 30 minutes (plus the saved value if it is off the grid). */
