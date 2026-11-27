@@ -126,6 +126,14 @@ import { OnlinePaymentStatus, SessionPayments, SessionPaymentService } from '../
               <p class="session-payments__muted">{{ 'payments.noMbway' | t }}</p>
             }
             @if (data.method === 'ONLINE') {
+            } @else if (askPaid && !data.me?.claimedAt) {
+              <div class="session-payments__ask" role="status">
+                <strong>{{ 'payments.askPaid' | t:{ amount: amountLabel() } }}</strong>
+                <div class="session-payments__row">
+                  <button type="button" class="jynlo-action jynlo-action--primary" [disabled]="busy" (click)="claim(true)">{{ 'payments.askPaidYes' | t }}</button>
+                  <button type="button" class="jynlo-action" [disabled]="busy" (click)="askPaid = false">{{ 'payments.askPaidNo' | t }}</button>
+                </div>
+              </div>
             } @else if (data.me?.claimedAt) {
               <p class="session-payments__muted">⏳ {{ 'payments.youClaimed' | t }}</p>
               <button type="button" class="jynlo-action" [disabled]="busy" (click)="claim(false)">{{ 'payments.undoClaim' | t }}</button>
@@ -155,6 +163,7 @@ import { OnlinePaymentStatus, SessionPayments, SessionPaymentService } from '../
     .session-payments__state.is-claimed{color:#ffd27a;opacity:1}
     .session-payments__phone{font-size:1.2rem;letter-spacing:.04em}
     .session-payments__muted{opacity:.75;font-size:.82rem;margin:0}
+    .session-payments__ask{display:grid;gap:.5rem;padding:.8rem;border-radius:14px;background:rgba(111,240,212,.12);border:1px solid rgba(111,240,212,.4)}
     .session-payments__ok{color:#6ff0d4;font-weight:800;margin:0}
     .session-payments__error{color:#ffb4a8;margin:0}
     .session-payments p{margin:0}
@@ -169,6 +178,8 @@ export class SessionPaymentsPanelComponent implements OnChanges, OnDestroy {
   busy = false;
   error = '';
   copied = false;
+  /** After copying the MB WAY number: once they come back, ask "Já pagaste?" with a one-tap answer. */
+  askPaid = false;
   phoneDraft = '';
   methodDraft: 'MBWAY' | 'IN_PERSON' | 'ONLINE' | null = null;
   online: OnlinePaymentStatus | null = null;
@@ -249,6 +260,7 @@ export class SessionPaymentsPanelComponent implements OnChanges, OnDestroy {
   }
 
   copyPhone(phone: string): void {
+    this.askPaid = true;
     const done = () => { this.copied = true; this.cdr.markForCheck(); setTimeout(() => { this.copied = false; this.cdr.markForCheck(); }, 2000); };
     try { void navigator.clipboard?.writeText(phone).then(done, () => {}); } catch { /* clipboard unavailable */ }
   }

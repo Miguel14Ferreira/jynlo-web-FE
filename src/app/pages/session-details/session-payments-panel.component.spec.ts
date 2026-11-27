@@ -83,6 +83,15 @@ describe('SessionPaymentsPanelComponent', () => {
     expect(el.textContent).toContain('Ativar pagamentos na app');
   });
 
+  it('asks "Já pagaste?" after copying the MB WAY number', () => {
+    const { fixture, service, el } = create(base);
+    Array.from(el.querySelectorAll('button')).find(b => b.textContent?.includes('Copiar'))!.click();
+    fixture.detectChanges();
+    expect(el.textContent).toContain('Já pagaste 4,00 € no MB WAY?');
+    Array.from(el.querySelectorAll('button')).find(b => b.textContent?.includes('Sim, já paguei'))!.click();
+    expect(service.claim).toHaveBeenCalledWith(903, true);
+  });
+
   it('lets players pay in the app without a "Já paguei" button', () => {
     const { el } = create({ ...base, method: 'ONLINE', mbwayPhone: null });
     expect(el.textContent).toContain('Pagar 4,00 € na app');
