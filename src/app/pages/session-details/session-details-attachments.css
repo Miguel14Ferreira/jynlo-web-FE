@@ -124,3 +124,23 @@ input:focus-visible + .session-chat-attach, .session-chat-attach:focus-within { 
 .session-after-game h2{margin:0;font-size:1.15rem;color:#f2fffc}
 .session-after-game p{margin:0;color:#c3dfe2}
 .session-after-game app-community-public-ranking-share{display:block;width:100%}
+
+/* Teams panel: one clear column instead of five squeezed ones.
+   Title + choices on top, the two teams side by side, then the confirm action. */
+.participation-panel:has(.team-generator){display:grid !important;grid-template-columns:minmax(0,1fr) !important;gap:16px;align-items:start}
+.participation-panel:has(.team-generator) > *{min-width:0;max-width:none}
+.participation-panel .team-generator{display:grid;gap:12px;padding:16px;border:1px solid rgba(97,174,190,.28);border-radius:16px;background:rgba(5,30,46,.55)}
+.participation-panel .team-generator strong{font-size:1.05rem;color:#f2fffc}
+.participation-panel .team-generator p{margin:4px 0 0;color:#b9d4d6;max-width:60ch}
+.participation-panel .team-generator-actions{display:flex !important;flex-wrap:wrap;gap:8px;width:100%}
+.participation-panel .team-generator-actions .jynlo-action{width:auto !important;min-width:0;white-space:nowrap;writing-mode:horizontal-tb;padding:9px 16px;border-radius:999px}
+.participation-panel .team-suggestion{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:12px;width:100%}
+.participation-panel .team-card{display:grid;gap:6px;align-content:start;padding:14px;border-radius:16px;min-width:0}
+.participation-panel .team-card h3{display:flex;justify-content:space-between;align-items:center;margin:0 0 4px;font-size:1rem}
+.participation-panel .team-player{display:flex !important;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0;border-top:1px solid rgba(97,174,190,.14)}
+.participation-panel .team-player > :is(a,span){flex:1 1 auto;min-width:0;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.participation-panel .team-player small{flex-basis:100%;order:3;color:#9fc3c7}
+.participation-panel .team-player .session-manual-team-move{flex:none;width:auto;min-height:32px;padding:4px 12px;border-radius:999px;white-space:nowrap;font-size:.8125rem}
+.participation-panel:has(.team-generator) > .primary-action,.participation-panel:has(.team-generator) > .team-stats-note{justify-self:start}
+.participation-panel:has(.team-generator) .jynlo-action--primary{width:auto;white-space:nowrap}
+@media (max-width:560px){.participation-panel .team-suggestion{grid-template-columns:minmax(0,1fr) !important}}

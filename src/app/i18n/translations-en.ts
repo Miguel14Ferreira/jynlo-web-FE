@@ -8810,4 +8810,6 @@ export const EN: Record<string, string> = {
   "Correu bem? Marca já o próximo.": "Went well? Schedule the next one now.",
   "Fica com as mesmas definições e podes convidar os mesmos jogadores.": "It keeps the same settings and you can invite the same players.",
   "Marcar o próximo jogo": "Schedule the next game",
+  "Equilibrar pela classificação": "Balance using the standings",
+  "Equilibrar pela pontuação do Excel": "Balance using the Excel points",
 };

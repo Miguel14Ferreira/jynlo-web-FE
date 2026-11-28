@@ -1298,7 +1298,7 @@
                       [disabled]="teamsLoading || teamsConfirming"
                       [attr.aria-pressed]="teamsScoreSource === 'AUTO'"
                       (click)="generateTeams('AUTO')">
-                      {{ 'Equipas equilibradas · classificação da comunidade' | t }}
+                      {{ 'Equilibrar pela classificação' | t }}
                     </button>
                     <button
                       type="button"
@@ -1306,7 +1306,7 @@
                       [disabled]="teamsLoading || teamsConfirming"
                       [attr.aria-pressed]="teamsScoreSource === 'EXCEL_POINTS'"
                       (click)="generateTeams('EXCEL_POINTS')">
-                      {{ 'Equipas equilibradas · pontuação Excel' | t }}
+                      {{ 'Equilibrar pela pontuação do Excel' | t }}
                     </button>
                     }
                     <button
@@ -1335,8 +1335,9 @@
                           } @else {
                             <a class="session-profile-link" [routerLink]="['/menu/profiles',player.username]">{{ '@' + player.username }}</a>
                           }
-                          @if (teamsScoreSource === 'RANDOM' || teamsScoreSource === 'MANUAL') {
-                            <small>{{ (teamsScoreSource === 'MANUAL' ? 'sessionDetail.manualTeamsPlayer' : 'sessionDetail.randomTeamsNoRanking') | t }}</small>
+                          @if (teamsScoreSource === 'RANDOM') {
+                            <small>{{ 'sessionDetail.randomTeamsNoRanking' | t }}</small>
+                          } @else if (teamsScoreSource === 'MANUAL') {
                           } @else if (teamsScoreSource === 'EXCEL_POINTS') {
                             <small>{{ player.statsAvailable
                               ? ('sessionDetail.excelPlayerPoints' | t:{ points: player.strengthScore })
@@ -1349,8 +1350,10 @@
                           @if (teamsScoreSource === 'MANUAL') {
                             <button type="button" class="session-manual-team-move"
                               [disabled]="teamsConfirming"
+                              [attr.aria-label]="('sessionDetail.moveToTeamB' | t) + ': ' + (player.guest ? player.displayName : player.username)"
+                              [title]="'sessionDetail.moveToTeamB' | t"
                               (click)="moveSuggestedPlayer(player.username, 'A')">
-                              {{ 'sessionDetail.moveToTeamB' | t }}
+                              <span aria-hidden="true">→</span> B
                             </button>
                           }
                         </div>
@@ -1366,8 +1369,9 @@
                           } @else {
                             <a class="session-profile-link" [routerLink]="['/menu/profiles',player.username]">{{ '@' + player.username }}</a>
                           }
-                          @if (teamsScoreSource === 'RANDOM' || teamsScoreSource === 'MANUAL') {
-                            <small>{{ (teamsScoreSource === 'MANUAL' ? 'sessionDetail.manualTeamsPlayer' : 'sessionDetail.randomTeamsNoRanking') | t }}</small>
+                          @if (teamsScoreSource === 'RANDOM') {
+                            <small>{{ 'sessionDetail.randomTeamsNoRanking' | t }}</small>
+                          } @else if (teamsScoreSource === 'MANUAL') {
                           } @else if (teamsScoreSource === 'EXCEL_POINTS') {
                             <small>{{ player.statsAvailable
                               ? ('sessionDetail.excelPlayerPoints' | t:{ points: player.strengthScore })
@@ -1380,8 +1384,10 @@
                           @if (teamsScoreSource === 'MANUAL') {
                             <button type="button" class="session-manual-team-move"
                               [disabled]="teamsConfirming"
+                              [attr.aria-label]="('sessionDetail.moveToTeamA' | t) + ': ' + (player.guest ? player.displayName : player.username)"
+                              [title]="'sessionDetail.moveToTeamA' | t"
                               (click)="moveSuggestedPlayer(player.username, 'B')">
-                              {{ 'sessionDetail.moveToTeamA' | t }}
+                              <span aria-hidden="true">←</span> A
                             </button>
                           }
                         </div>

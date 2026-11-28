@@ -5776,7 +5776,7 @@ const PT: Dictionary = {
   'sessionDetail.addressLocked': 'A morada exata fica disponível depois de entrares no jogo.',
   'sessionDetail.waitlistText': 'Estás na lista de espera',
   'sessionDetail.position': 'na posição {{position}}',
-  'sessionDetail.ownTitle': 'Este jogo é tua',
+  'sessionDetail.ownTitle': 'Este jogo é teu',
   'sessionDetail.ownTextStart': 'Como criador já contas como participante. Podes gerir e cancelar este jogo em',
   'sessionDetail.teamsTitle': 'Equipas equilibradas',
     'sessionDetail.randomTeams': 'Equipas aleatórias',
