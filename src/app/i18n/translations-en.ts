@@ -7384,7 +7384,7 @@ export const EN: Record<string, string> = {
   "Não foi possível verificar os convites para equipas.": "Couldn't check the team invitations.",
   "Não foram encontrados locais verificados. Experimenta escrever o nome completo.": "No verified places found. Try typing the full name.",
   "Não tens permissão para publicar nesta comunidade.": "You don't have permission to post in this community.",
-  "Não tens permissão para publicar nesta comunidade. Verifica o jogo e a tua participação.": "You don't have permission to post in this community. Check your game and your participation.",
+  "Não tens permissão para publicar nesta comunidade. Verifica a sessão e a tua participação.": "You don't have permission to post in this community. Check your session and your participation.",
   "Não tens permissões para eliminar este campeonato. Contacta um organizador da comunidade.": "You don't have permission to delete this championship. Contact a community organiser.",
   "Não é possível eliminar esta equipa porque tem jogadores, convites, publicações, mensagens ou ligações históricas. Estes dados ficam protegidos.": "This team can't be deleted because it has players, invitations, posts, messages or historical links. This data stays protected.",
   "Não é possível eliminar este campeonato: já existem resultados, acontecimentos ou torneios independentes associados. Os dados históricos estão protegidos.": "This championship can't be deleted: there are already results, match events or linked independent tournaments. The historical data is protected.",
