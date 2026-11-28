@@ -12,6 +12,11 @@ export interface InboxListFormatters {
 }
 
 /** Scrollable read-only conversation list with a single selection intention. */
+const SENT_OPEN_KEY = 'jynlo.inbox.sentRequestsOpen';
+function readSentOpen(): boolean {
+  try { return localStorage.getItem(SENT_OPEN_KEY) === '1'; } catch { return false; }
+}
+
 @Component({
   selector: 'app-inbox-conversation-list',
   standalone: true,
@@ -30,4 +35,11 @@ export class InboxConversationListComponent {
   /** Message requests this account sent and that are still waiting (Instagram style, at the top). */
   @Input() sentRequests: readonly { id: number; username: string; profilePicUrl: string | null; text: string }[] = [];
   @Output() sentSelected = new EventEmitter<string>();
+  /** Requests you sent to people you do not know yet stay folded away until you open them. */
+  sentOpen = readSentOpen();
+
+  toggleSent(): void {
+    this.sentOpen = !this.sentOpen;
+    try { localStorage.setItem(SENT_OPEN_KEY, this.sentOpen ? '1' : '0'); } catch { /* private mode */ }
+  }
 }

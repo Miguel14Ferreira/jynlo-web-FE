@@ -77,3 +77,16 @@
    surface used for text/emoji fallbacks, preserving row spacing. */
 .inbox-avatar {overflow:hidden;position:relative}
 .inbox-avatar-image {display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
+
+/* "Pedidos que enviaste": folded by default so people you do not know yet do not crowd your chats. */
+.inbox-sent-toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 44px;
+  padding: 0 14px; border: 0; border-bottom: 1px solid rgba(96, 176, 182, .16); background: none;
+  color: #b9d4d6; font: inherit; font-size: .875rem; font-weight: 800; text-align: left; cursor: pointer;
+}
+.inbox-sent-toggle:hover { color: #e7fffa; }
+.inbox-sent-toggle:focus-visible { outline: 2px solid #7df4d9; outline-offset: -2px; }
+.inbox-sent-toggle svg { transition: transform .15s; flex: none; }
+.inbox-sent-toggle svg.is-open { transform: rotate(180deg); }
+.inbox-sent-count { display: inline-block; min-width: 20px; margin-left: 6px; padding: 0 6px; border-radius: 10px;
+  background: rgba(94, 230, 200, .14); color: #9ff2dc; font-size: .75rem; line-height: 20px; text-align: center; }

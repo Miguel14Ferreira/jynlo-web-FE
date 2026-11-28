@@ -8805,4 +8805,5 @@ export const EN: Record<string, string> = {
   "Mapa": "Map",
   "Não foi possível carregar os jogos. Tenta novamente.": "Could not load the games. Try again.",
   "Outras coisas": "Other things",
+  "Pedidos que enviaste": "Requests you sent",
 };

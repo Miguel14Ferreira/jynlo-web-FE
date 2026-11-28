@@ -259,3 +259,10 @@
 
 :host .week-empty-action{display:inline-flex;align-items:center;min-height:40px;color:#62e6c4;font-weight:800;text-decoration:none;}
 :host .week-empty-action:hover{text-decoration:underline;}
+
+/* The right rail starts level with "A minha semana desportiva": an empty first-steps prompt takes no gap,
+   and on wide screens (side navigation, no top bar) the sticky offset no longer pushes the rail down. */
+:host .feed-page .feed-main > app-first-steps-prompt:empty { display: none; }
+@media (min-width: 1280px) {
+  :host .feed-page .feed-v3-shell .feed-sidebar { top: 16px; }
+}
