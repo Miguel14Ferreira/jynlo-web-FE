@@ -205,10 +205,6 @@
   body .site-nav--authed .account-identity-copy { display: inline !important; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   body .site-nav--authed .account-identity-chevron { margin-left: auto; transform: rotate(180deg); }
   body .site-nav--authed .account-menu__panel { top: auto !important; bottom: calc(100% + .5rem) !important; left: 0 !important; right: auto !important; width: 100%; min-width: 0 !important; box-sizing: border-box; }
-  /* The sections already in the column are not repeated in the account menu. */
-  body .site-nav--authed .account-menu__panel > a.mobile-only-link,
-  body .site-nav--authed .account-menu__panel > a:not(.mobile-only-link):is([href="/menu/discover"], [href="/menu/messages"], [href="/menu/events"], [href="/menu/my-sessions"], [href="/menu/communities"], [href="/menu/teams"], [href="/menu/teams/competitions"], [href="/menu/venues"]) { display: none !important; }
-  body .site-nav--authed .nav-sidebar-extra { display: flex !important; }
   /* Toasts that sat under the top bar now sit at the top of the page area. */
   body:has(.site-nav--authed) .jynlo-chat-toast { left: auto; }
 }

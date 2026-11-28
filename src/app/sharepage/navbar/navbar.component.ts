@@ -24,7 +24,6 @@ import { GroupChatToast, allowsGroupChatToast, confirmsGroupUnread, recentGroupC
 import { ConversationMuteService, isConversationMuted } from 'src/app/services/conversation-mute.service';
 import { MessageAlertService } from 'src/app/services/message-alert.service';
 
-import { NAV_SLOTS, NavTab, PHONE_SLOTS, availableNavTabs, navTab, readNavTabs, resolveNavTabs, setNavSlot, writeNavTabs } from './nav-tabs';
 @Component({
     selector: 'app-navbar',
     templateUrl: './navbar.component.html',
@@ -71,30 +70,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
   get managedPending(): number { return this.managedVenues.reduce((n, v) => n + (v.pendingRequests || 0), 0); }
 
-  /** The sections each person keeps in the bar (see nav-tabs.ts). */
-  private navTabsCache: { user: string; saved: unknown } | null = null;
-  private navSaved(): unknown {
-    const user = this.activeAccountUsername.toLowerCase();
-    if (!this.navTabsCache || this.navTabsCache.user !== user) this.navTabsCache = { user, saved: readNavTabs(user) };
-    return this.navTabsCache.saved;
-  }
-  get navTabs(): NavTab[] {
-    return resolveNavTabs(this.navSaved(), this.managedVenues.length > 0, this.bookingsOpen).map(id => navTab(id)!).filter(Boolean);
-  }
-  /** Sections not in the bar go in the account menu; slots 3 and 4 only show on a computer. */
-  get menuNavTabs(): { tab: NavTab; phoneOnly: boolean }[] {
-    const ids = resolveNavTabs(this.navSaved(), this.managedVenues.length > 0, this.bookingsOpen);
-    return availableNavTabs(this.managedVenues.length > 0, this.bookingsOpen)
-      .filter(tab => tab.id !== 'my-venues' && tab.id !== 'my-bookings')
-      .filter(tab => ids.indexOf(tab.id) < 0 || ids.indexOf(tab.id) >= PHONE_SLOTS)
-      .map(tab => ({ tab, phoneOnly: ids.includes(tab.id) }));
-  }
-  navRoute(tab: NavTab): string | (string | number)[] {
-    return tab.id === 'my-venues' ? this.managedVenuesLink : tab.route;
-  }
-  readonly navSlots = Array.from({ length: NAV_SLOTS }, (_, i) => i);
-  readonly phoneSlots = PHONE_SLOTS;
-  navEditing = false;
+  /**
+   * The same five places on every screen, site and app: Início, Jogar, Criar, Comunidades, Mensagens.
+   * Notifications and the account sit beside them; everything else is in the account menu.
+   */
+  readonly mainTabs: { id: string; label: string; route: string; icon: 'home' | 'play' | 'communities' | 'messages' }[] = [
+    { id: 'home', label: 'Início', route: '/menu/feed', icon: 'home' },
+    { id: 'play', label: 'Jogar', route: '/menu/events', icon: 'play' },
+    { id: 'communities', label: 'nav.communities', route: '/menu/communities', icon: 'communities' },
+    { id: 'messages', label: 'nav.messages', route: '/menu/messages', icon: 'messages' },
+  ];
   /** "Criar" opens a small menu instead of a separate page (like the app's + sheet). */
   createMenuOpen = false;
   createMenuTop: number | null = null;
@@ -122,21 +107,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
     this.createMenuOpen = true;
   }
-  navDraft: string[] = [];
-  get navChoices(): NavTab[] { return availableNavTabs(this.managedVenues.length > 0, this.bookingsOpen); }
-
-  openNavEditor(): void {
-    this.closeAccountMenu();
-    this.navDraft = resolveNavTabs(this.navSaved(), this.managedVenues.length > 0, this.bookingsOpen);
-    this.navEditing = true;
-  }
-  pickNavSlot(slot: number, id: string): void { this.navDraft = setNavSlot(this.navDraft, slot, id); }
-  saveNavTabs(ids: string[] | null): void {
-    writeNavTabs(this.activeAccountUsername, ids);
-    this.navTabsCache = { user: this.activeAccountUsername.toLowerCase(), saved: ids };
-    this.navEditing = false;
-  }
-
   private readonly messageAlert: MessageAlertService | null = (() => {
     try { return inject(MessageAlertService); } catch { return null; }
   })();
@@ -663,7 +633,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     @HostListener('document:keydown.escape')
     closeAccountMenuOnEscape(): void {
-      this.navEditing = false;
       this.createMenuOpen = false;
       this.closeAccountMenu();
     }

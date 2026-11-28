@@ -337,46 +337,26 @@ describe('NavbarComponent', () => {
     }
   }));
 
-  it('keeps the essential actions in the main nav and secondary actions in the menu', () => {
+  it('shows the same five places everywhere and the rest in the account menu', () => {
     (authService as any).loggedInPerfilname = 'bea';
     component.authenticated = true;
     fixture.detectChanges();
 
     const nav: HTMLElement = fixture.nativeElement.querySelector('.site-nav__links');
-    const primaryLinks = Array.from(nav.querySelectorAll<HTMLAnchorElement>(
-      ':scope > a.desktop-primary-link'
-    )).map(anchor => anchor.getAttribute('href'));
-    expect(primaryLinks).toEqual(['/menu/feed', '/menu/create']);
-    expect(nav.querySelector('a[href="/menu/discover"]')).toBeTruthy();
-    expect(nav.querySelector(':scope > a.nav-custom-link--activities[href="/menu/events"]')).toBeTruthy();
+    const tabs = Array.from(nav.querySelectorAll<HTMLAnchorElement>(':scope > a.nav-tab')).map(a => a.getAttribute('href'));
+    // Início, Jogar, Criar (in the middle), Comunidades, Mensagens.
+    expect(tabs).toEqual(['/menu/feed', '/menu/events', '/menu/create', '/menu/communities', '/menu/messages']);
+    expect(nav.querySelector('a.notification-link[href="/menu/notifications"]')).toBeTruthy();
     expect(nav.querySelector('.feed-v3-top-search')).toBeNull();
-    expect(nav.querySelector(':scope > a.nav-custom-link--communities[href="/menu/communities"]')).toBeTruthy();
-    expect(nav.querySelector('a[href="/menu/notifications"]')).toBeTruthy();
 
     const menu = nav.querySelector('details.account-menu');
     expect(menu?.querySelector('a[href="/menu/my-sessions"]')).toBeTruthy();
-    // On phones the bottom tab bar keeps five destinations; Communities moves to the menu (mobile only).
-    expect(menu?.querySelector('a.mobile-only-link[href="/menu/communities"]')).toBeTruthy();
-    expect(menu?.querySelector('a[href="/menu/teams"]:not(.mobile-only-link)')).toBeTruthy();
-    expect(menu?.querySelector('.account-menu__customize')).toBeTruthy();
-    expect(nav.querySelectorAll(':scope > a.nav-tab').length).toBe(5);
-    expect(nav.querySelector(':scope > a.nav-custom-link--messages.nav-tab[href="/menu/messages"]')).toBeTruthy();
+    expect(menu?.querySelector('a[href="/menu/teams"]')).toBeTruthy();
+    expect(menu?.querySelector('.account-menu__customize')).toBeNull();
+    expect(menu?.querySelector('a[href="/menu/communities"]')).toBeNull();
     expect(menu?.querySelector('.account-menu__panel a[href="/menu/profiles/bea"]')).toBeTruthy();
     expect(menu?.querySelector('.language-switch')).toBeTruthy();
     expect(menu?.querySelector('.logout-action')).toBeTruthy();
-  });
-
-  it('shows Communities once in the bar and keeps a phone-only copy in the menu', () => {
-    component.authenticated = true;
-    fixture.detectChanges();
-
-    const nav: HTMLElement = fixture.nativeElement.querySelector('.site-nav__links');
-    const links = Array.from(nav.querySelectorAll<HTMLAnchorElement>('a[href="/menu/communities"]'));
-    expect(links.length).toBe(2);
-    expect(links[0].classList.contains('nav-custom-link--communities')).toBeTrue();
-    expect(links[1].classList.contains('mobile-only-link')).toBeTrue();
-    expect(links[0].closest('.account-menu')).toBeNull();
-    expect(links[1].closest('.account-menu')).not.toBeNull();
   });
 
   it('uses the shared pill shape for the account menu without losing toggle behaviour', () => {

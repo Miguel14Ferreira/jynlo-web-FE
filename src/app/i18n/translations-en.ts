@@ -8797,4 +8797,8 @@ export const EN: Record<string, string> = {
   "Outros desportos em {{city}}": "Other sports in {{city}}",
   "Jogos por cidade": "Games by city",
   "1 vaga": "1 spot",
+  "Início": "Home",
+  "Jogar": "Play",
+  "Equipas e torneios": "Teams and tournaments",
+  "Recintos que giro": "Venues I manage",
 };
