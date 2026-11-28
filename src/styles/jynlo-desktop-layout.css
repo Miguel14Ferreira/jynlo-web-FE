@@ -231,3 +231,10 @@ body .sessions-page .sessions-shell > app-play-tabs { grid-column: 1 / -1; }
 .create-other__links a { display: inline-flex; align-items: center; min-height: 42px; padding: 0 16px; border-radius: 999px;
   border: 1px solid rgba(96, 176, 182, .35); color: #e7f4f5; font-size: .95rem; font-weight: 700; text-decoration: none; }
 .create-other__links a:hover, .create-other__links a:focus-visible { border-color: #5ee6c8; outline: none; }
+
+/* Community standings: "O teu nome na classificação" with a self-service unlink. */
+.historical-identity{display:grid;gap:8px;margin:10px 0;padding:12px 14px;border-radius:14px;border:1px solid rgba(97,174,190,.3);background:rgba(5,30,46,.5)}
+.historical-identity__row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.historical-identity__row small{display:block;color:#a9c7cb}
+.historical-identity__confirm{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.historical-identity__error{color:#ffb4a8}

@@ -8812,4 +8812,10 @@ export const EN: Record<string, string> = {
   "Marcar o próximo jogo": "Schedule the next game",
   "Equilibrar pela classificação": "Balance using the standings",
   "Equilibrar pela pontuação do Excel": "Balance using the Excel points",
+  "O teu nome na classificação": "Your name in the standings",
+  "Ligado à tua conta": "Linked to your account",
+  "À espera de confirmação": "Waiting for confirmation",
+  "Os resultados continuam na classificação. Só deixam de estar ligados à tua conta.": "The results stay in the standings. They are just no longer linked to your account.",
+  "Desassociar": "Unlink",
+  "Não sou eu · desassociar": "Not me · unlink",
 };

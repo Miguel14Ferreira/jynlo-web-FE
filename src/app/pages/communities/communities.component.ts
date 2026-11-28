@@ -1308,6 +1308,8 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   historicalClaimsLoading = false;
   historicalClaimsError = '';
   historicalReleaseId: number | null = null;
+  /** Inline "are you sure?" step before unlinking a name (no browser dialogs). */
+  historicalReleaseConfirmId: number | null = null;
   rankingHistoricalRow?: CommunityStanding;
   /** Stats belong to the historical player, not to an account. Claiming is optional. */
   rankingHistoricalClaimExpanded = false;

@@ -5144,6 +5144,35 @@
                     </div>
                   </div>
 
+                  @if (selected?.myRole && historicalClaims.length) {
+                    <div class="historical-identity" aria-live="polite">
+                      <strong>{{ 'O teu nome na classificação' | t }}</strong>
+                      @for (link of historicalClaims; track link.id) {
+                        @if (link.status !== 'REJECTED') {
+                          <div class="historical-identity__row">
+                            <span><b>{{ link.historicalName }}</b>
+                              <small>{{ (link.status === 'ACCEPTED' ? 'Ligado à tua conta' : 'À espera de confirmação') | t }}</small></span>
+                            @if (link.status === 'ACCEPTED') {
+                              @if (historicalReleaseConfirmId === link.id) {
+                                <span class="historical-identity__confirm">
+                                  <small>{{ 'Os resultados continuam na classificação. Só deixam de estar ligados à tua conta.' | t }}</small>
+                                  <button type="button" class="jynlo-action jynlo-action--danger jynlo-action--compact"
+                                    [disabled]="historicalReleaseId !== null" (click)="releaseHistoricalName(link); historicalReleaseConfirmId = null">{{ 'Desassociar' | t }}</button>
+                                  <button type="button" class="jynlo-action jynlo-action--neutral jynlo-action--compact"
+                                    (click)="historicalReleaseConfirmId = null">{{ 'Cancelar' | t }}</button>
+                                </span>
+                              } @else {
+                                <button type="button" class="jynlo-action jynlo-action--neutral jynlo-action--compact"
+                                  (click)="historicalReleaseConfirmId = link.id">{{ 'Não sou eu · desassociar' | t }}</button>
+                              }
+                            }
+                          </div>
+                        }
+                      }
+                      @if (historicalClaimMessage) { <small role="status">{{ historicalClaimMessage }}</small> }
+                      @if (historicalClaimsError) { <small role="alert" class="historical-identity__error">{{ historicalClaimsError }}</small> }
+                    </div>
+                  }
                   @if (selected?.id) {
                     <app-community-public-ranking-share [communityId]="selected!.id" [canManage]="canManage()"></app-community-public-ranking-share>
                   }
