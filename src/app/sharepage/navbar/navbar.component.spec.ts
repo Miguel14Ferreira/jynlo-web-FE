@@ -345,7 +345,7 @@ describe('NavbarComponent', () => {
     const nav: HTMLElement = fixture.nativeElement.querySelector('.site-nav__links');
     const tabs = Array.from(nav.querySelectorAll<HTMLAnchorElement>(':scope > a.nav-tab')).map(a => a.getAttribute('href'));
     // Início, Jogar, Criar (in the middle), Comunidades, Mensagens.
-    expect(tabs).toEqual(['/menu/feed', '/menu/events', '/menu/create', '/menu/communities', '/menu/messages']);
+    expect(tabs).toEqual(['/menu/feed', '/menu/events', '/menu/createEvent', '/menu/communities', '/menu/messages']);
     expect(nav.querySelector('a.notification-link[href="/menu/notifications"]')).toBeTruthy();
     expect(nav.querySelector('.feed-v3-top-search')).toBeNull();
 
@@ -751,18 +751,11 @@ describe('NavbarComponent', () => {
 
 
 
-  it('opens the Criar menu in place instead of leaving the page', () => {
+  it('opens "Criar jogo" straight away; the other things are on that page', () => {
     component.authenticated = true;
     fixture.detectChanges();
-    const create = fixture.nativeElement.querySelector('a.nav-create-action') as HTMLAnchorElement;
-    create.click();
-    fixture.detectChanges();
-    const menu = fixture.nativeElement.querySelector('.create-menu');
-    expect(menu).not.toBeNull();
-    expect(menu.querySelector('a[href="/menu/createEvent"]')).not.toBeNull();
-    expect(menu.querySelector('a[href="/menu/venues/new"]')).not.toBeNull();
-    create.click();
-    fixture.detectChanges();
+    const create = fixture.nativeElement.querySelector('.nav-tab--create') as HTMLAnchorElement;
+    expect(create.getAttribute('href')).toBe('/menu/createEvent');
     expect(fixture.nativeElement.querySelector('.create-menu')).toBeNull();
   });
 });

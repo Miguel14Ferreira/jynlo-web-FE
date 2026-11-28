@@ -223,3 +223,11 @@ body .venue-sports-chip, body .sessions-page .status, body .story-header-create,
 body input::placeholder, body textarea::placeholder { color: #9fb8c0 !important; opacity: 1 !important; }
 /* Jogar header spans the whole page width on Jogos (the shell there is a two-column grid). */
 body .sessions-page .sessions-shell > app-play-tabs { grid-column: 1 / -1; }
+
+/* Criar jogo: the other things you can create, at the bottom of the page. */
+.create-other { margin: 28px 0 8px; padding-top: 16px; border-top: 1px solid rgba(96, 176, 182, .2); }
+.create-other h2 { margin: 0 0 10px; color: #b9d4d6; font-size: .95rem; font-weight: 800; }
+.create-other__links { display: flex; flex-wrap: wrap; gap: 8px; }
+.create-other__links a { display: inline-flex; align-items: center; min-height: 42px; padding: 0 16px; border-radius: 999px;
+  border: 1px solid rgba(96, 176, 182, .35); color: #e7f4f5; font-size: .95rem; font-weight: 700; text-decoration: none; }
+.create-other__links a:hover, .create-other__links a:focus-visible { border-color: #5ee6c8; outline: none; }

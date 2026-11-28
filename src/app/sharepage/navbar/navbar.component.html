@@ -29,7 +29,7 @@
           <span class="nav-label-full">{{ tab.label | t }}</span><span class="nav-label-short">{{ tab.label | t }}</span>@if (tab.id === 'messages' && unreadMessages > 0) { <span class="nav-managed-badge nav-messages-badge" [attr.aria-label]="('{{n}} mensagens por ler' | t:{n: unreadMessages})">{{ unreadMessages > 99 ? '99+' : unreadMessages }}</span> }
         </a>
         } }
-        <a class="desktop-primary-link nav-tab nav-tab--create nav-create-action jynlo-action jynlo-action--accent" href="/menu/create" [class.active-link]="createMenuOpen" aria-haspopup="menu" [attr.aria-expanded]="createMenuOpen" (click)="toggleCreateMenu($event)"><svg class="jynlo-nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> <span class="nav-label-full">{{ 'nav.create' | t }}</span><span class="nav-label-short">{{ 'nav.create' | t }}</span></a>
+        <a class="desktop-primary-link nav-tab nav-tab--create nav-create-action jynlo-action jynlo-action--accent" routerLink="/menu/createEvent" routerLinkActive="active-link"><svg class="jynlo-nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> <span class="nav-label-full">{{ 'Criar jogo' | t }}</span><span class="nav-label-short">{{ 'nav.create' | t }}</span></a>
         @for (tab of mainTabs; track tab.id) { @if ($index >= 2) {
         <a [class]="'nav-tab nav-main-link nav-main-link--' + tab.id" [class.active-link]="tab.id === 'play' && playActive" [routerLink]="tab.route" routerLinkActive="active-link">
           <ng-container *ngTemplateOutlet="navIcon; context: {$implicit: tab.icon}"></ng-container>
@@ -183,16 +183,4 @@
       [attr.aria-label]="'chat.toastDismiss' | t" (click)="dismissGroupToast()">×</button>
   </aside>
 }
-@if (createMenuOpen) {
-  <div class="create-menu-backdrop" (click)="createMenuOpen = false"></div>
-  <nav class="create-menu" role="menu" [attr.aria-label]="'O que vamos criar?' | t" [style.top.px]="createMenuTop" [style.left.px]="createMenuLeft">
-    <a role="menuitem" class="create-menu__main" routerLink="/menu/createEvent" (click)="createMenuOpen = false">
-      <strong>{{ 'Criar jogo' | t }}</strong><span>{{ 'Marca um jogo, convida pessoas e gere as equipas.' | t }}</span>
-    </a>
-    <a role="menuitem" routerLink="/menu/feed" [queryParams]="{compose: 'post'}" (click)="createMenuOpen = false"><strong>{{ 'Publicação' | t }}</strong><span>{{ 'Partilha um momento' | t }}</span></a>
-    <a role="menuitem" routerLink="/menu/communities/create" (click)="createMenuOpen = false"><strong>{{ 'Comunidade' | t }}</strong><span>{{ 'Junta a tua malta' | t }}</span></a>
-    <a role="menuitem" routerLink="/menu/teams" [queryParams]="{create: '1'}" (click)="createMenuOpen = false"><strong>{{ 'Equipa' | t }}</strong><span>{{ 'Cria a tua equipa' | t }}</span></a>
-    <a role="menuitem" routerLink="/menu/communities" (click)="createMenuOpen = false"><strong>{{ 'Torneio' | t }}</strong><span>{{ 'Organiza-o numa das tuas comunidades' | t }}</span></a>
-    <a role="menuitem" routerLink="/menu/venues/new" (click)="createMenuOpen = false"><strong>{{ 'Recinto' | t }}</strong><span>{{ 'Sugere um campo ou regista o teu' | t }}</span></a>
-  </nav>
-}
+

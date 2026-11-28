@@ -1218,5 +1218,15 @@
         </button>
       </div>
     </form>
+    <nav class="create-other" [attr.aria-label]="'Outras coisas' | t">
+      <h2>{{ 'Outras coisas' | t }}</h2>
+      <div class="create-other__links">
+        <a routerLink="/menu/feed" [queryParams]="{compose: 'post'}">{{ 'Publicação' | t }}</a>
+        <a routerLink="/menu/communities/create">{{ 'Comunidade' | t }}</a>
+        <a routerLink="/menu/teams" [queryParams]="{create: '1'}">{{ 'Equipa' | t }}</a>
+        <a routerLink="/menu/communities">{{ 'Torneio' | t }}</a>
+        <a routerLink="/menu/venues/new">{{ 'Recinto' | t }}</a>
+      </div>
+    </nav>
   </div>
 </section>
