@@ -3726,7 +3726,7 @@ describe('SessionDetailsComponent', () => {
     expect(component.participants.length).toBe(1);
   });
 
-  it('offers the Excel team balancer to a community organiser who does not take a playing slot', () => {
+  it('offers one Equilibrar equipas button (previous group results) to an organiser who does not take a slot', () => {
     (component as any).currentUsername = 'creator-user';
     component.session = {
       ...session, creatorUsername: 'creator-user', joined: false, waitlisted: false,
@@ -3736,10 +3736,12 @@ describe('SessionDetailsComponent', () => {
     fixture.detectChanges();
     const panel: HTMLElement = fixture.nativeElement.querySelector('.team-generator');
     expect(panel).toBeTruthy();
-    const excel: HTMLButtonElement | null = panel.querySelector('.team-generator-excel-action');
-    expect(excel).toBeTruthy();
-    excel!.click();
-    expect(sessionService.teamSuggestion).toHaveBeenCalledWith(7, 'EXCEL_POINTS');
+    expect(panel.querySelector('.team-generator-excel-action')).toBeNull();
+    const balance = Array.from(panel.querySelectorAll<HTMLButtonElement>('button'))
+      .find(button => button.textContent?.includes('Equilibrar equipas'));
+    expect(balance).toBeTruthy();
+    balance!.click();
+    expect(sessionService.teamSuggestion).toHaveBeenCalledWith(7, 'AUTO');
     expect(component.teamSuggestionPendingConfirmation).toBeTrue();
   });
 
@@ -3895,7 +3897,6 @@ describe('SessionDetailsComponent', () => {
     expect(component.teamsScoreSource).toBe('EXCEL_POINTS');
     expect(component.teamSuggestionPendingConfirmation).toBeTrue();
     const shell: HTMLElement = fixture.nativeElement;
-    expect(shell.querySelector('.team-generator-excel-action')).toBeTruthy();
     expect(shell.querySelector('.team-suggestion')?.textContent).toContain('20');
     expect(shell.querySelector('.team-suggestion')?.textContent).toContain('Sem pontuação associada');
   });
