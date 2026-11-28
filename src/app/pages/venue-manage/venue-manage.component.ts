@@ -459,7 +459,8 @@ export class VenueManageComponent implements OnInit {
   }
 
   private applyPayment(offer: BookingOffer): void {
-    this.payMethod = offer.paymentMethod ?? null;
+    // MB WAY comes pre-selected until the venue saves its choice.
+    this.payMethod = offer.paymentMethod ?? 'MBWAY';
     this.payPhone = offer.mbwayPhone ? offer.mbwayPhone.replace(/^(\d{3})(\d{3})(\d{3})$/, '$1 $2 $3') : this.payPhone;
   }
 
