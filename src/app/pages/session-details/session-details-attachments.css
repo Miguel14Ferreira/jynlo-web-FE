@@ -144,3 +144,8 @@ input:focus-visible + .session-chat-attach, .session-chat-attach:focus-within { 
 .participation-panel:has(.team-generator) > .primary-action,.participation-panel:has(.team-generator) > .team-stats-note{justify-self:start}
 .participation-panel:has(.team-generator) .jynlo-action--primary{width:auto;white-space:nowrap}
 @media (max-width:560px){.participation-panel .team-suggestion{grid-template-columns:minmax(0,1fr) !important}}
+
+/* Edit game: every field starts at the same line and has the same height, notes go underneath. */
+.session-details-editor-fields{align-items:start !important}
+.session-details-editor-fields > label{display:grid !important;align-content:start !important;gap:6px}
+.session-details-editor-fields > label > :is(input,select){height:48px;min-height:48px;box-sizing:border-box;margin:0}
