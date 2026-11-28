@@ -85,33 +85,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const url = (this.router?.url || '').split('?')[0];
     return /^\/menu\/(events(?!\/\d)|venues(?!\/\d+\/manage)|jogar|book-court|discover|search)/.test(url);
   }
-  /** "Criar" opens a small menu instead of a separate page (like the app's + sheet). */
-  createMenuOpen = false;
-  createMenuTop: number | null = null;
-  createMenuLeft: number | null = null;
-  toggleCreateMenu(event: MouseEvent): void {
-    if (event.ctrlKey || event.metaKey || event.shiftKey || event.button === 1) return;
-    event.preventDefault();
-    this.closeAccountMenu();
-    if (this.createMenuOpen) { this.createMenuOpen = false; return; }
-    const button = (event.currentTarget as HTMLElement | null)?.getBoundingClientRect();
-    const phone = typeof window !== 'undefined' && window.innerWidth <= 900;
-    if (button && !phone) {
-      const width = 340;
-      if (window.innerWidth >= 1280) {
-        // Computer: the bar is a column on the left, so the menu opens beside the button.
-        this.createMenuTop = Math.round(Math.max(12, button.top));
-        this.createMenuLeft = Math.round(button.right + 10);
-      } else {
-        this.createMenuTop = Math.round(button.bottom + 8);
-        this.createMenuLeft = Math.round(Math.max(12, Math.min(window.innerWidth - width - 12, button.left + button.width / 2 - width / 2)));
-      }
-    } else {
-      this.createMenuTop = null;
-      this.createMenuLeft = null;
-    }
-    this.createMenuOpen = true;
-  }
   private readonly messageAlert: MessageAlertService | null = (() => {
     try { return inject(MessageAlertService); } catch { return null; }
   })();
@@ -638,7 +611,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     @HostListener('document:keydown.escape')
     closeAccountMenuOnEscape(): void {
-      this.createMenuOpen = false;
       this.closeAccountMenu();
     }
 

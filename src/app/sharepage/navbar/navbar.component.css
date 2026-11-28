@@ -696,21 +696,6 @@
   .site-nav--authed .site-nav__links > .nav-custom-link .nav-managed-badge { position:absolute; top:.15rem; right:22%; margin:0; }
 }
 
-.create-menu-backdrop { position:fixed; inset:0; z-index:2400; background:transparent; }
-.create-menu { position:fixed; z-index:2500; width:340px; display:grid; gap:4px; padding:8px; border-radius:18px;
-  border:1px solid rgba(140,195,203,.25); background:#0a1d27; box-shadow:0 18px 50px rgba(0,0,0,.5); }
-.create-menu a { display:grid; gap:2px; padding:.65rem .8rem; border-radius:12px; color:#eaf6f6; text-decoration:none; }
-.create-menu a:hover, .create-menu a:focus-visible { background:rgba(98,230,196,.1); outline:none; }
-.create-menu a strong { font-size:.95rem; }
-.create-menu a span { font-size:.875rem; color:#a9c7cf; }
-.create-menu a.create-menu__main { background:#2ee6d0; color:#03242a; margin-bottom:4px; }
-.create-menu a.create-menu__main span { color:#0a3b3f; }
-.create-menu a.create-menu__main:hover { background:#5ff0dd; }
-@media (max-width: 900px) {
-  .create-menu-backdrop { background:rgba(2,10,14,.6); }
-  .create-menu { top:auto !important; left:8px !important; right:8px; width:auto;
-    bottom:calc(76px + env(safe-area-inset-bottom)); }
-}
 .nav-messages-badge { background:#ff4d6d !important; color:#fff !important; }
 .jynlo-chat-toast__actions { display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
 .jynlo-chat-toast__list { margin:6px 0 4px; padding:0 0 0 18px; display:grid; gap:4px; max-height:220px; overflow-y:auto;
