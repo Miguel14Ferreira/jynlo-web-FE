@@ -4,6 +4,78 @@
       <div class="feed-main">
 
     <app-first-steps-prompt></app-first-steps-prompt>
+    <section class="week-hub jynlo-premium-week" [attr.aria-label]="'week.title' | t">
+      <div class="week-hub-heading">
+        <div>
+          <p class="week-hub-eyebrow">{{ 'week.eyebrow' | t }}</p>
+          <h2>{{ 'week.title' | t }}</h2>
+          <p>{{ 'week.subtitle' | t }}</p>
+        </div>
+        <a class="jynlo-action jynlo-action--neutral week-hub-create jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small"
+           routerLink="/menu/my-sessions">{{ 'week.allMyGames' | t }} <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="week-hub-grid">
+        <article class="week-hub-card" [attr.aria-label]="'Os teus próximos jogos' | t">
+          <div class="week-card-heading"><span aria-hidden="true">▦</span><h3>{{ 'week.upcoming' | t }}</h3></div>
+          @if (myWeekGamesLoading) {
+            <p class="week-muted" role="status">{{ 'week.loading' | t }}</p>
+          } @else if (myWeekGamesError) {
+            <p class="week-muted" role="alert">{{ 'week.unavailable' | t }}</p>
+          } @else if (myWeekGames.length === 0 && myWeekWaitlist.length === 0) {
+            <p class="week-muted">{{ 'week.noUpcoming' | t }}</p>
+            <a class="week-empty-action" routerLink="/menu/events">{{ 'Encontrar um jogo esta semana' | t }} →</a>
+          } @else {
+            @for (session of myWeekGames; track session.id) {
+              <a class="week-item" [routerLink]="['/menu/events', session.id]">
+                <strong>{{ session.sport | sportName }} <span aria-hidden="true">↗</span></strong>
+                <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
+                <small>{{ 'week.confirmed' | t }}</small>
+              </a>
+              @if (canPromoteWeekGame(session)) {
+                <a class="week-share-action jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small"
+                   [routerLink]="['/menu/events', session.id]"
+                   [queryParams]="{ promote: '1' }">
+                  {{ 'week.promoteVacancies' | t:{
+                    count: session.maxParticipants - session.participantCount
+                  } }}
+                  <span aria-hidden="true">↗</span>
+                </a>
+              }
+            }
+            @for (session of myWeekWaitlist; track session.id) {
+              <a class="week-item" [routerLink]="['/menu/events', session.id]">
+                <strong>{{ session.sport | sportName }} <span aria-hidden="true">↗</span></strong>
+                <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
+                <small class="week-waitlist">{{ 'week.waitlist' | t }}</small>
+              </a>
+            }
+          }
+          <a class="week-card-link" routerLink="/menu/my-sessions">{{ 'week.allMyGames' | t }} →</a>
+        </article>
+        <article class="week-hub-card" [attr.aria-label]="'Jogos a precisar de jogadores' | t">
+          <div class="week-card-heading"><span aria-hidden="true">✦</span><h3>{{ 'week.openSlots' | t }}</h3></div>
+          @if ((loadingSessions || myWeekGamesLoading) && myWeekOffers.length === 0) {
+            <p class="week-muted" role="status">{{ 'week.loading' | t }}</p>
+          } @else if ((sessionSearchError || myWeekGamesError) && myWeekOffers.length === 0) {
+            <p class="week-muted" role="alert">{{ 'week.unavailable' | t }}</p>
+          } @else if (myWeekOffers.length === 0) {
+            <p class="week-muted">{{ 'Ainda ninguém abriu jogos para esta semana.' | t }}</p>
+            <a class="week-empty-action" routerLink="/menu/createEvent">{{ 'Sê o primeiro: cria um jogo em 1 minuto' | t }} →</a>
+          } @else {
+            @for (session of myWeekOffers; track session.id) {
+              <a class="week-item" [routerLink]="['/menu/events', session.id]"
+                 [queryParams]="{ join: '1' }">
+                <strong>{{ session.sport | sportName }} <span aria-hidden="true">↗</span></strong>
+                <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
+                <small>{{ 'week.needs' | t }} {{ session.maxParticipants - session.participantCount }}
+                  {{ (session.maxParticipants - session.participantCount) === 1 ? ('week.player' | t) : ('week.players' | t) }}</small>
+              </a>
+            }
+          }
+          <a class="week-card-link" routerLink="/menu/discover">{{ 'week.discover' | t }} →</a>
+        </article>
+      </div>
+    </section>
     <app-social-stories></app-social-stories>
 
     @if (personalLiveNotice) {
@@ -578,78 +650,7 @@
       }
     </section>
 
-    <section class="week-hub jynlo-premium-week" [attr.aria-label]="'week.title' | t">
-      <div class="week-hub-heading">
-        <div>
-          <p class="week-hub-eyebrow">{{ 'week.eyebrow' | t }}</p>
-          <h2>{{ 'week.title' | t }}</h2>
-          <p>{{ 'week.subtitle' | t }}</p>
-        </div>
-        <a class="jynlo-action jynlo-action--neutral week-hub-create jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small"
-           routerLink="/menu/my-sessions">{{ 'week.allMyGames' | t }} <span aria-hidden="true">↗</span></a>
-      </div>
-      <div class="week-hub-grid">
-        <article class="week-hub-card" [attr.aria-label]="'Os teus próximos jogos' | t">
-          <div class="week-card-heading"><span aria-hidden="true">▦</span><h3>{{ 'week.upcoming' | t }}</h3></div>
-          @if (myWeekGamesLoading) {
-            <p class="week-muted" role="status">{{ 'week.loading' | t }}</p>
-          } @else if (myWeekGamesError) {
-            <p class="week-muted" role="alert">{{ 'week.unavailable' | t }}</p>
-          } @else if (myWeekGames.length === 0 && myWeekWaitlist.length === 0) {
-            <p class="week-muted">{{ 'week.noUpcoming' | t }}</p>
-            <a class="week-empty-action" routerLink="/menu/events">{{ 'Encontrar um jogo esta semana' | t }} →</a>
-          } @else {
-            @for (session of myWeekGames; track session.id) {
-              <a class="week-item" [routerLink]="['/menu/events', session.id]">
-                <strong>{{ session.sport | sportName }} <span aria-hidden="true">↗</span></strong>
-                <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
-                <small>{{ 'week.confirmed' | t }}</small>
-              </a>
-              @if (canPromoteWeekGame(session)) {
-                <a class="week-share-action jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small"
-                   [routerLink]="['/menu/events', session.id]"
-                   [queryParams]="{ promote: '1' }">
-                  {{ 'week.promoteVacancies' | t:{
-                    count: session.maxParticipants - session.participantCount
-                  } }}
-                  <span aria-hidden="true">↗</span>
-                </a>
-              }
-            }
-            @for (session of myWeekWaitlist; track session.id) {
-              <a class="week-item" [routerLink]="['/menu/events', session.id]">
-                <strong>{{ session.sport | sportName }} <span aria-hidden="true">↗</span></strong>
-                <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
-                <small class="week-waitlist">{{ 'week.waitlist' | t }}</small>
-              </a>
-            }
-          }
-          <a class="week-card-link" routerLink="/menu/my-sessions">{{ 'week.allMyGames' | t }} →</a>
-        </article>
-        <article class="week-hub-card" [attr.aria-label]="'Jogos a precisar de jogadores' | t">
-          <div class="week-card-heading"><span aria-hidden="true">✦</span><h3>{{ 'week.openSlots' | t }}</h3></div>
-          @if ((loadingSessions || myWeekGamesLoading) && myWeekOffers.length === 0) {
-            <p class="week-muted" role="status">{{ 'week.loading' | t }}</p>
-          } @else if ((sessionSearchError || myWeekGamesError) && myWeekOffers.length === 0) {
-            <p class="week-muted" role="alert">{{ 'week.unavailable' | t }}</p>
-          } @else if (myWeekOffers.length === 0) {
-            <p class="week-muted">{{ 'Ainda ninguém abriu jogos para esta semana.' | t }}</p>
-            <a class="week-empty-action" routerLink="/menu/createEvent">{{ 'Sê o primeiro: cria um jogo em 1 minuto' | t }} →</a>
-          } @else {
-            @for (session of myWeekOffers; track session.id) {
-              <a class="week-item" [routerLink]="['/menu/events', session.id]"
-                 [queryParams]="{ join: '1' }">
-                <strong>{{ session.sport | sportName }} <span aria-hidden="true">↗</span></strong>
-                <span>{{ session.city }} · {{ session.gameDate | date:'dd/MM HH:mm' }}</span>
-                <small>{{ 'week.needs' | t }} {{ session.maxParticipants - session.participantCount }}
-                  {{ (session.maxParticipants - session.participantCount) === 1 ? ('week.player' | t) : ('week.players' | t) }}</small>
-              </a>
-            }
-          }
-          <a class="week-card-link" routerLink="/menu/discover">{{ 'week.discover' | t }} →</a>
-        </article>
-      </div>
-    </section>
+
 
     <app-community-suggestions></app-community-suggestions>
 

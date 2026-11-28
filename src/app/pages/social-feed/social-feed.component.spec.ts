@@ -626,7 +626,8 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(quickEntry).not.toBeNull();
     expect(week).not.toBeNull();
     expect(storyRail.compareDocumentPosition(quickEntry) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(quickEntry.compareDocumentPosition(week) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // Início opens with the games (próximos jogos e jogos com vagas); Stories and posting come after.
+    expect(week.compareDocumentPosition(storyRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(component.postComposerOpen).toBeFalse();
     (root.querySelector('.feed-create-prompt') as HTMLButtonElement).click();
     fixture.detectChanges();
