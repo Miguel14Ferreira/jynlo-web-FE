@@ -7476,7 +7476,7 @@ export const EN: Record<string, string> = {
   "Sem resultados": "No results",
   "Jogo associado ao desafio.": "Game linked to the challenge.",
   "Jogo de {{sport}} na Jynlo.": "{{sport}} game on Jynlo.",
-  "Jogo inválida": "Invalid game",
+  "Jogo inválido": "Invalid game",
   "Sets ganhos": "Sets won",
   "Sets ganhos de": "Sets won by",
   "Sets perdidos": "Sets lost",

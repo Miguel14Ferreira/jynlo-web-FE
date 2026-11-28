@@ -22,7 +22,7 @@ export class SocialFeedService {
   /** Opt-in posts associated with a public game; privacy enforced on the API. */
   sessionMemories(sessionId: number): Observable<FeedItem[]> {
     if (!Number.isSafeInteger(sessionId) || sessionId <= 0) {
-      throw new Error(appTranslate('Jogo inválida'));
+      throw new Error(appTranslate('Jogo inválido'));
     }
     return this.http.get<FeedItem[]>(this.baseUrl + '/sessions/' + sessionId + '/memories');
   }
