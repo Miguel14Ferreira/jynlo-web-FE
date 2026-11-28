@@ -5,6 +5,8 @@ import { environment } from 'src/environment/environment';
 
 export interface SessionPaymentPlayer {
   username: string; profilePicUrl: string | null; claimedAt: string | null; confirmedAt: string | null;
+  /** Set for players who confirmed through the WhatsApp link (no account): username is "guest:<id>". */
+  displayName?: string | null; guest?: boolean;
 }
 export interface SessionPayments {
   priceAmount: number | null;

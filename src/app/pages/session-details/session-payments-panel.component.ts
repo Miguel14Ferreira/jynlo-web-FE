@@ -73,7 +73,7 @@ import { OnlinePaymentStatus, SessionPayments, SessionPaymentService } from '../
             <ul class="session-payments__list">
               @for (player of data.players; track player.username) {
                 <li>
-                  <span class="session-payments__name">{{ player.username }}</span>
+                  <span class="session-payments__name">{{ player.guest ? (player.displayName || player.username) : '@' + player.username }}</span>
                   <span class="session-payments__state" [class.is-paid]="player.confirmedAt" [class.is-claimed]="!player.confirmedAt && player.claimedAt">
                     {{ (player.confirmedAt ? 'payments.stateConfirmed' : player.claimedAt ? 'payments.stateClaimed' : 'payments.stateUnpaid') | t }}
                   </span>
