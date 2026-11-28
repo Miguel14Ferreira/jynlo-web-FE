@@ -92,3 +92,29 @@
   object-fit: contain;
   background: rgba(5, 18, 25, .4);
 }
+
+/* Same composer as Mensagens: one rounded bar with the clip, the text and the send button. */
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.session-inline-chat .session-inline-chat-compose {
+  flex-direction: row !important; align-items: flex-end !important; gap: 8px;
+  padding: 6px 7px 6px 8px; border: 1px solid #2e7080; border-radius: 22px; background: rgba(5, 30, 47, .85);
+}
+.session-inline-chat .session-inline-chat-compose:focus-within { border-color: #55bda9; box-shadow: 0 0 0 2px #1b9e8a22; }
+.session-inline-chat .session-inline-chat-compose textarea {
+  border: 0 !important; background: transparent !important; box-shadow: none !important; outline: none;
+  min-height: 40px; max-height: 160px; padding: 9px 4px; resize: none; border-radius: 0;
+}
+.session-inline-chat .session-inline-chat-compose > .jynlo-action { min-height: 40px; border-radius: 20px; }
+.session-chat-attach {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px;
+  border-radius: 20px; color: #9fd9cf; cursor: pointer;
+}
+.session-chat-attach:hover { background: rgba(94, 230, 200, .1); color: #e7fffa; }
+input:focus-visible + .session-chat-attach, .session-chat-attach:focus-within { outline: 2px solid #7df4d9; outline-offset: 2px; }
+.session-chat-attachment-chip {
+  display: flex; align-items: center; gap: 8px; margin: 0 0 8px; padding: 6px 8px 6px 12px;
+  border: 1px solid #2e7080; border-radius: 14px; background: rgba(5, 30, 47, .7); color: #e7f4f5;
+}
+.session-chat-attachment-chip .session-chat-attachment-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.session-chat-chip-remove { width: 32px; height: 32px; border: 0; border-radius: 16px; background: none; color: #cfe3e5; font-size: 1.2rem; cursor: pointer; }
+.session-chat-chip-remove:hover { background: rgba(255, 255, 255, .08); }

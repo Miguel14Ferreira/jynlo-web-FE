@@ -394,25 +394,29 @@
                 @if (attachmentChecking) {
                   <p class="session-chat-attachment-help" role="status">{{ 'A verificar se os anexos privados estão disponíveis…' | t }}</p>
                 }
-                @if (attachmentAvailable) {
-                  <div class="session-chat-attachment-compose">
-                    <label class="jynlo-action jynlo-action--neutral" for="session-chat-attachment-file">{{ '📎 Anexar ficheiro' | t }}</label>
-                    <input id="session-chat-attachment-file" type="file"
+                @if (attachmentFile) {
+                  <div class="session-chat-attachment-chip">
+                    <span aria-hidden="true">📎</span>
+                    <span class="session-chat-attachment-name">{{ attachmentFile.name }}</span>
+                    <button type="button" class="session-chat-chip-remove" [disabled]="attachmentSending"
+                      (click)="clearSessionAttachment()" [attr.aria-label]="'Remover' | t">×</button>
+                    <button type="button" class="jynlo-action jynlo-action--primary"
                       [disabled]="attachmentSending || messageSending || chatDeliveryUncertain"
-                      accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,audio/webm,audio/ogg"
-                      (change)="chooseSessionAttachment($event)" [attr.aria-label]="'Escolher anexo privado' | t">
-                    @if (attachmentFile) {
-                      <span class="session-chat-attachment-name">{{ attachmentFile.name }}</span>
-                      <button type="button" class="jynlo-action jynlo-action--neutral"
-                        [disabled]="attachmentSending" (click)="clearSessionAttachment()">{{ 'Remover' | t }}</button>
-                      <button type="button" class="jynlo-action jynlo-action--primary"
-                        [disabled]="attachmentSending || messageSending || chatDeliveryUncertain"
-                        (click)="sendSessionAttachment()">{{ attachmentSending ? ('A enviar…' | t) : ('Enviar anexo' | t) }}</button>
-                    }
-                    <small>{{ 'Imagens, PDF e áudio até 5 MB · privado entre participantes · também podes colar uma imagem na mensagem.' | t }}</small>
+                      (click)="sendSessionAttachment()">{{ attachmentSending ? ('A enviar…' | t) : ('Enviar anexo' | t) }}</button>
                   </div>
                 }
                 <div class="session-inline-chat-compose">
+                  @if (attachmentAvailable) {
+                    <label class="session-chat-attach" for="session-chat-attachment-file"
+                      [title]="'Imagens, PDF e áudio até 5 MB · privado entre participantes · também podes colar uma imagem na mensagem.' | t">
+                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.4 11.1-8.5 8.5a5.5 5.5 0 0 1-7.8-7.8l8.5-8.5a3.7 3.7 0 0 1 5.2 5.2l-8.5 8.5a1.8 1.8 0 0 1-2.6-2.6l7.8-7.8"/></svg>
+                      <span class="visually-hidden">{{ 'Anexar ficheiro' | t }}</span>
+                    </label>
+                    <input id="session-chat-attachment-file" class="visually-hidden" type="file"
+                      [disabled]="attachmentSending || messageSending || chatDeliveryUncertain"
+                      accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,audio/webm,audio/ogg"
+                      (change)="chooseSessionAttachment($event)" [attr.aria-label]="'Escolher anexo privado' | t">
+                  }
                   <textarea #sessionComposer rows="2" maxlength="2000"
                     [placeholder]="'sessionDetail.chatPlaceholder' | t"
                     [(ngModel)]="messageBody" (ngModelChange)="onTypingInput()"
