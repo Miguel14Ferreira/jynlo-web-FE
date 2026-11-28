@@ -70,7 +70,7 @@ describe('CreateaccountComponent', () => {
     expect(component.hasSharedSessionInvitation).toBeTrue();
     const message = fixture.nativeElement.querySelector('.invitation-context') as HTMLElement;
     expect(message).not.toBeNull();
-    expect(message.textContent).toContain('sessão desportiva partilhada');
+    expect(message.textContent).toContain('jogo partilhado');
     expect(message.textContent).toContain('confirmares o email');
   });
 

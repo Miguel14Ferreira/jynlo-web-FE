@@ -11,8 +11,8 @@ describe('Home community banner copy', () => {
 
   it('explains sessions, community tournaments, results, rankings and statistics in PT/EN', () => {
     const terms = {
-      pt: ['sessões', 'torneios', 'resultados', 'classificações', 'estatísticas'],
-      en: ['sessions', 'tournaments', 'results', 'standings', 'statistics']
+      pt: ['jogos', 'torneios', 'resultados', 'classificações', 'estatísticas'],
+      en: ['games', 'tournaments', 'results', 'standings', 'statistics']
     };
     for (const language of ['pt', 'en'] as const) {
       localStorage.setItem('d24-language', language);

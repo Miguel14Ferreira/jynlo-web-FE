@@ -21,7 +21,7 @@ describe('public session cancellation notices', () => {
     const notice = sessionCancellationNotice({
       sport: '', gameDate: 'invalid-date', city: null
     });
-    expect(notice).toContain('Sessão cancelada — desporto');
+    expect(notice).toContain('Jogo cancelado — desporto');
     expect(notice).not.toContain('Invalid Date');
     expect(notice).not.toContain('undefined');
   });

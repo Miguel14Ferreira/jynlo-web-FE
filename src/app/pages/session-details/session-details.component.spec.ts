@@ -393,7 +393,7 @@ describe('SessionDetailsComponent', () => {
     fixture.detectChanges();
     const back = fixture.nativeElement.querySelector('.back-link') as HTMLAnchorElement;
     expect(back.getAttribute('href')).toBe('/menu/events');
-    expect(back.textContent).toContain('Voltar às sessões');
+    expect(back.textContent).toContain('Voltar aos jogos');
     expect(sessionService.join).not.toHaveBeenCalled();
   });
 
@@ -2225,7 +2225,7 @@ describe('SessionDetailsComponent', () => {
 
     const panel = fixture.nativeElement.querySelector('.organizer-preparation') as HTMLElement;
     expect(panel.textContent).toContain('3/4');
-    expect(panel.textContent).toContain('marcada como cheia');
+    expect(panel.textContent).toContain('marcado como cheio');
     expect(panel.textContent).not.toContain('Faltam 1 jogadores');
     // A full game must not invite more players, but its creator can inspect the roster.
     expect(panel.querySelector('button')?.textContent).toContain('Quem vai');
@@ -2987,7 +2987,7 @@ describe('SessionDetailsComponent', () => {
     const editor = root.querySelector('.session-details-editor') as HTMLElement;
     expect(editor.textContent).toContain('Desporto');
     expect(editor.textContent).toContain('Instruções de chegada');
-    expect(editor.textContent).toContain('Descrição da sessão');
+    expect(editor.textContent).toContain('Descrição do jogo');
     expect(editor.textContent).not.toContain('sessionDetail.sportLabel');
     expect(editor.textContent).not.toContain('sessionDetail.meetingPoint');
     component.detailsDraft.maxParticipants = 6;
@@ -3447,7 +3447,7 @@ describe('SessionDetailsComponent', () => {
     };
     realtimeConnected.next(true);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('Chat da sessão');
+    expect(fixture.nativeElement.textContent).toContain('Chat do jogo');
     expect(fixture.nativeElement.querySelector('.chat-panel')).toBeNull();
     realtimeConnected.next(false);
     fixture.detectChanges();
@@ -4867,7 +4867,7 @@ describe('SessionDetailsComponent', () => {
     component.session={...session,id:9,canSharePublicly:false};
     delayed.next([{
       type:'POST',postId:31,authorUsername:'athlete',authorDisplayName:'Athlete',
-      authorProfilePicUrl:null,content:'Outra sessão',imageUrl:null,
+      authorProfilePicUrl:null,content:'Outro jogo',imageUrl:null,
       createdAt:new Date().toISOString(),sessionId:7,sport:null,city:null,
       gameDate:null,likeCount:0,likedByMe:false,commentCount:0
     }]);

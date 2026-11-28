@@ -872,12 +872,12 @@ describe('Events2Component', () => {
 
     expect(frequency.closest('label')?.textContent).toContain('Frequência dos jogos');
     expect(component.recurrenceChoices[1].label).toContain('Todas as semanas');
-    expect(weekly.closest('label')?.textContent).toContain('Sessões por semana');
+    expect(weekly.closest('label')?.textContent).toContain('Jogos por semana');
     expect(weeks.closest('label')?.textContent).toContain('Semanas com jogo');
     expect(form.querySelector('.recurrence-plan-summary')?.textContent)
-      .toContain('1 por semana durante 4 semanas = 4 sessões');
+      .toContain('1 por semana durante 4 semanas = 4 jogos');
     expect(form.querySelectorAll('.recurrence-plan-summary')[1]?.textContent)
-      .toContain('as inscrições das 4 sessões abrem todas');
+      .toContain('as inscrições dos 4 jogos abrem todas');
 
     component.registrationOpeningMode = 'MANUAL';
     fixture.detectChanges();
@@ -906,11 +906,11 @@ describe('Events2Component', () => {
     const form = fixture.nativeElement as HTMLElement;
     const extras = form.querySelectorAll('input.weekly-game-date');
     expect(extras.length).toBe(2);
-    expect(form.textContent).toContain('3 por semana durante 4 semanas = 12 sessões');
+    expect(form.textContent).toContain('3 por semana durante 4 semanas = 12 jogos');
     component.additionalWeeklyGameDates = ['2099-10-16T19:00', '2099-10-17T20:00'];
     component.registrationOpeningMode = 'MANUAL';
     fixture.detectChanges();
-    expect(form.textContent).toContain('As 12 sessões ficam fechadas');
+    expect(form.textContent).toContain('Os 12 jogos ficam fechados');
 
     component.createSession();
     expect(sessionService.create).toHaveBeenCalledWith(
@@ -947,7 +947,7 @@ describe('Events2Component', () => {
     component.additionalWeeklyGameDates = ['2099-10-17T18:00'];
     component.recurrenceOccurrences = 27;
     component.createSession();
-    expect(component.errorMessage).toContain('no máximo 52 sessões');
+    expect(component.errorMessage).toContain('no máximo 52 jogos');
     expect(sessionService.create).not.toHaveBeenCalled();
   });
 
@@ -1004,9 +1004,9 @@ describe('Events2Component', () => {
 
     const form = fixture.nativeElement as HTMLElement;
     expect(form.querySelector('input[name="recurrenceOccurrences"]')?.closest('label')?.textContent)
-      .toContain('Sessões de 2 em 2 semanas');
+      .toContain('Jogos de 2 em 2 semanas');
     expect(form.querySelector('.recurrence-plan-summary')?.textContent)
-      .toContain('4 sessões, uma de 2 em 2 semanas');
+      .toContain('4 jogos, uma de 2 em 2 semanas');
     expect(form.textContent).toContain('as seguintes de 2 em 2 semanas');
   });
 
@@ -1320,7 +1320,7 @@ describe('Events2Component', () => {
   it('keeps the normal session-creation flow unchanged', () => {
     expect(component.findPlayersMode).toBeFalse();
     expect(fixture.nativeElement.querySelector('.page-header h1')?.textContent)
-      .toContain('Criar uma sessão');
+      .toContain('Criar um jogo');
     expect(fixture.nativeElement.querySelector('input[name="privateGame"]')).not.toBeNull();
   });
 
@@ -1333,7 +1333,7 @@ describe('Events2Component', () => {
 
     expect(component.findPlayersMode).toBeTrue();
     expect(fixture.nativeElement.querySelector('.page-header h1')?.textContent)
-      .toContain('Criar uma sessão');
+      .toContain('Criar um jogo');
     expect(fixture.nativeElement.querySelector('.create-mode-feedback')?.textContent)
       .toContain('confirmados');
     expect(fixture.nativeElement.querySelector('input[name="privateGame"]')).toBeNull();

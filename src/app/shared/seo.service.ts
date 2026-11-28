@@ -12,11 +12,11 @@ export const SEO_DEFAULT_IMAGE = `${SEO_SITE_URL}/assets/og-default.png`;
 
 /** Tab titles for signed-in screens (kept out of search results), longest path first. */
 const PRIVATE_TITLES: [RegExp, string][] = [
-  [/^\/menu\/events\/\d+/, 'Jogo'], [/^\/menu\/events/, 'Sessões'], [/^\/menu\/my-sessions/, 'Os meus jogos'],
+  [/^\/menu\/events\/\d+/, 'Jogo'], [/^\/menu\/events/, 'Jogos'], [/^\/menu\/my-sessions/, 'Os meus jogos'],
   [/^\/menu\/feed/, 'Feed'], [/^\/menu\/discover/, 'Explorar'], [/^\/menu\/venues\/new/, 'Sugerir recinto'],
   [/^\/menu\/venues\/\d+\/manage/, 'Gerir recinto'], [/^\/menu\/venues\/\d+/, 'Recinto'], [/^\/menu\/venues/, 'Recintos'],
   [/^\/menu\/book-court/, 'Reservar campo'], [/^\/menu\/venue-bookings/, 'As minhas reservas'],
-  [/^\/menu\/createEvent/, 'Criar sessão'], [/^\/menu\/create/, 'Criar'], [/^\/menu\/edit-profile/, 'Editar perfil'],
+  [/^\/menu\/createEvent/, 'Criar jogo'], [/^\/menu\/create/, 'Criar'], [/^\/menu\/edit-profile/, 'Editar perfil'],
   [/^\/menu\/change-password/, 'Alterar palavra-passe'], [/^\/menu\/profiles\/[^/]+/, 'Perfil'], [/^\/menu\/profiles/, 'Jogadores'],
   [/^\/menu\/friendList/, 'Amigos'], [/^\/menu\/first-steps/, 'Primeiros passos'], [/^\/menu\/search/, 'Pesquisar'],
   [/^\/menu\/messages/, 'Mensagens'], [/^\/menu\/groups/, 'Grupos'], [/^\/menu\/notifications/, 'Notificações'],

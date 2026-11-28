@@ -188,7 +188,7 @@
   <div class="create-menu-backdrop" (click)="createMenuOpen = false"></div>
   <nav class="create-menu" role="menu" [attr.aria-label]="'O que vamos criar?' | t" [style.top.px]="createMenuTop" [style.left.px]="createMenuLeft">
     <a role="menuitem" class="create-menu__main" routerLink="/menu/createEvent" (click)="createMenuOpen = false">
-      <strong>{{ 'Criar sessão' | t }}</strong><span>{{ 'Marca um jogo, convida pessoas e gere as equipas.' | t }}</span>
+      <strong>{{ 'Criar jogo' | t }}</strong><span>{{ 'Marca um jogo, convida pessoas e gere as equipas.' | t }}</span>
     </a>
     <a role="menuitem" routerLink="/menu/feed" [queryParams]="{compose: 'post'}" (click)="createMenuOpen = false"><strong>{{ 'Publicação' | t }}</strong><span>{{ 'Partilha um momento' | t }}</span></a>
     <a role="menuitem" routerLink="/menu/communities/create" (click)="createMenuOpen = false"><strong>{{ 'Comunidade' | t }}</strong><span>{{ 'Junta a tua malta' | t }}</span></a>

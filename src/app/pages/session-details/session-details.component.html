@@ -37,11 +37,11 @@
 
         <div class="detail-content">
           @if (session.status === 'CANCELLED') {
-            <section class="session-cancelled-banner" role="status" [attr.aria-label]="'Sessão cancelada' | t">
+            <section class="session-cancelled-banner" role="status" [attr.aria-label]="'Jogo cancelado' | t">
               <span class="session-cancelled-cross" aria-hidden="true">×</span>
               <div>
                 <strong>{{ 'mySessions.statusCancelled' | t }}</strong>
-                <p>{{ 'Esta sessão foi cancelada. Já não é possível confirmar presença ou juntar novos participantes.' | t }}</p>
+                <p>{{ 'Este jogo foi cancelado. Já não é possível confirmar presença ou juntar novos participantes.' | t }}</p>
                 @if (isCreator()) {
                   <p>{{ 'Os participantes inscritos e em lista de espera são avisados automaticamente pela Jynlo, conforme as suas preferências. Os convidados externos que não usam a Jynlo têm de ser informados pelo canal de convite.' | t }}</p>
                 }
@@ -75,7 +75,7 @@
                   <label for="session-share-url">{{ 'sessionDetail.sessionLink' | t }}</label>
                   <div class="manual-share-controls">
                     <input id="session-share-url" #shareLinkInput type="text" [value]="manualShareUrl"
-                           readonly [attr.aria-label]="'Ligação pública da sessão para copiar' | t">
+                           readonly [attr.aria-label]="'Ligação pública do jogo para copiar' | t">
                     <button class="jynlo-action jynlo-action--neutral" type="button"
                             (click)="shareLinkInput.select()">{{ 'Selecionar ligação' | t }}</button>
                   </div>
@@ -269,7 +269,7 @@
             @if (canShareSession() && !canOpenOrganizerShare()) {
               <button type="button" class="share-session-action jynlo-action jynlo-action--neutral"
                       [disabled]="sharingSession" (click)="shareSession()">
-                {{ sharingSession ? ('A partilhar...' | t) : ('Partilhar sessão' | t) }}
+                {{ sharingSession ? ('A partilhar...' | t) : ('Partilhar jogo' | t) }}
               </button>
               @if (shareFeedback && !showCreationSharePanel()) {
                 <span class="share-feedback" role="status">{{ shareFeedback }}</span>
@@ -280,7 +280,7 @@
                   <div class="manual-share-controls">
                     <input id="session-share-url" #shareLinkInput type="text"
                            [value]="manualShareUrl" readonly
-                           [attr.aria-label]="'Ligação pública da sessão para copiar' | t">
+                           [attr.aria-label]="'Ligação pública do jogo para copiar' | t">
                     <button class="jynlo-action jynlo-action--neutral" type="button" (click)="shareLinkInput.select()">{{ 'Selecionar ligação' | t }}</button>
                   </div>
                 </div>
@@ -694,7 +694,7 @@
                   <input type="text" maxlength="255" [(ngModel)]="detailsDraft.address"
                     [disabled]="detailsSaving || !!session.venue">
                 </label>
-                <label class="session-details-editor-wide">{{ 'Descrição da sessão (opcional)' | t }}
+                <label class="session-details-editor-wide">{{ 'Descrição do jogo (opcional)' | t }}
                   <textarea maxlength="1000" rows="4"
                     [(ngModel)]="detailsDraft.description" [disabled]="detailsSaving"
                     [placeholder]="'Ex.: Jogo amigável, todos os níveis são bem-vindos.' | t"></textarea>
@@ -726,7 +726,7 @@
           }
           @if (session.description) {
             <section class="session-description-panel" aria-labelledby="session-description-heading">
-              <h2 id="session-description-heading">{{ 'Sobre esta sessão' | t }}</h2>
+              <h2 id="session-description-heading">{{ 'Sobre este jogo' | t }}</h2>
               <p>{{ session.description }}</p>
             </section>
           }
@@ -1126,13 +1126,13 @@
                 </div>
               </div>
               @if (needsExactPlace() && canEditCapacity()) {
-                <p class="session-location-nudge" role="note">{{ 'Este local só tem um nome, sem morada nem link do Google Maps, por isso não mostramos mapa. Acrescenta o link do Google Maps ao editar a sessão para os jogadores irem ao sítio certo.' | t }}</p>
+                <p class="session-location-nudge" role="note">{{ 'Este local só tem um nome, sem morada nem link do Google Maps, por isso não mostramos mapa. Acrescenta o link do Google Maps ao editar o jogo para os jogadores irem ao sítio certo.' | t }}</p>
               }
               @if (exactEmbeddedMapUrl(); as embeddedMap) {
                 <div class="session-embedded-map">
-                  <iframe [src]="embeddedMap" [title]="'Mapa com a localização do recinto desta sessão' | t"
+                  <iframe [src]="embeddedMap" [title]="'Mapa com a localização do recinto deste jogo' | t"
                           loading="lazy" referrerpolicy="no-referrer"
-                          [attr.aria-label]="'Mapa de referência para a localização da sessão' | t"></iframe>
+                          [attr.aria-label]="'Mapa de referência para a localização do jogo' | t"></iframe>
                   <small>{{ hasVenueMapCoordinates()
                     ? ('O mapa mostra o ponto GPS registado para o recinto. Confirma o ponto de encontro com o organizador.' | t)
                     : ('Mapa aproximado pela morada. Para o ponto exato, usa o link Google Maps escolhido pelo organizador.' | t) }}</small>
@@ -1168,7 +1168,7 @@
                     <button type="button" class="jynlo-action jynlo-action--neutral"
                             (click)="beginGoogleMapsEdit()">{{ 'Corrigir localização no Google Maps' | t }}</button>
                   } @else {
-                    <label for="session-google-maps-url">{{ 'Link exato Google Maps da sessão' | t }}</label>
+                    <label for="session-google-maps-url">{{ 'Link exato Google Maps do jogo' | t }}</label>
                     <input id="session-google-maps-url" type="url"
                            [ngModel]="googleMapsDraft" (ngModelChange)="googleMapsDraft = $event"
                            [disabled]="googleMapsSaving" maxlength="512"
@@ -2068,10 +2068,10 @@
           @if (session.canSharePublicly === true && currentUsername) {
             <section class="session-memories" aria-labelledby="session-memories-heading">
               @if (shareableOfficialScore) {
-                <div class="session-social-result" [attr.aria-label]="'Resultado oficial desta sessão' | t">
+                <div class="session-social-result" [attr.aria-label]="'Resultado oficial deste jogo' | t">
                   <div><span class="section-kicker">{{ 'MARCADOR OFICIAL' | t }}</span>
                     <strong>{{ 'Equipa A {{scoreA}} — {{scoreB}} Equipa B' | t:{scoreA: (officialSocialScore!.scoreA), scoreB: (officialSocialScore!.scoreB)} }}</strong>
-                    <small>{{ 'Marcador confirmado para esta sessão pública' | t }}</small>
+                    <small>{{ 'Marcador confirmado para este jogo público' | t }}</small>
                   </div>
                   <button type="button" class="jynlo-action jynlo-action--primary"
                     (click)="shareOfficialSocialScore()">{{ 'Partilhar resultado' | t }}</button>

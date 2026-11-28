@@ -508,12 +508,12 @@ describe('PublicSessionPreviewComponent', () => {
     const photo = page.querySelector('.session-photo') as HTMLImageElement;
 
     expect(photo).not.toBeNull();
-    expect(photo.getAttribute('alt')).toBe('Session photo: Padel');
+    expect(photo.getAttribute('alt')).toBe('Game photo: Padel');
     expect(photo.getAttribute('src')).toContain('/uploads/padel.jpg');
 
     i18n.setLanguage('pt');
     fixture.detectChanges();
-    expect(photo.getAttribute('alt')).toBe('Fotografia da sessão: Padel');
+    expect(photo.getAttribute('alt')).toBe('Fotografia do jogo: Padel');
   });
 
   it('uses a translated photo description when the sport is not specified', () => {
@@ -522,11 +522,11 @@ describe('PublicSessionPreviewComponent', () => {
     const page = render({ gamePhoto: '/uploads/fixture.jpg', sport: null });
     const photo = page.querySelector('.session-photo') as HTMLImageElement;
 
-    expect(photo.getAttribute('alt')).toBe('Session photo: Sports session');
+    expect(photo.getAttribute('alt')).toBe('Game photo: Sports game');
 
     i18n.setLanguage('pt');
     fixture.detectChanges();
-    expect(photo.getAttribute('alt')).toBe('Fotografia da sessão: Sessão desportiva');
+    expect(photo.getAttribute('alt')).toBe('Fotografia do jogo: Jogo');
   });
 
   it('renders malformed or missing dates without crashing or promising participation', () => {
@@ -581,7 +581,7 @@ describe('PublicSessionPreviewComponent', () => {
     const share = page.querySelector('.share-session-action') as HTMLButtonElement;
 
     expect(share).not.toBeNull();
-    expect(share.textContent?.trim()).toBe('Partilhar sessão');
+    expect(share.textContent?.trim()).toBe('Partilhar jogo');
     expect(fixture.componentInstance.publicShareUrl())
       .toBe('https://jynlosports.com/sessions/42');
   });
@@ -727,12 +727,12 @@ describe('PublicSessionPreviewComponent', () => {
     const page = render();
 
     expect(page.querySelector('.brand')?.getAttribute('aria-label')).toBe('Jynlo — home');
-    expect(page.querySelector('.eyebrow')?.textContent?.trim()).toBe('Public session · Jynlo');
+    expect(page.querySelector('.eyebrow')?.textContent?.trim()).toBe('Public game · Jynlo');
     expect(page.querySelector('.session-main h1')?.textContent?.trim()).toBe('Padel');
     expect(page.querySelector('.intro')?.textContent?.trim())
       .toBe('Discover this activity and join others who love playing sports.');
     expect(page.querySelector('.privacy-note')?.textContent?.trim())
-      .toBe('This preview only shows public session information. Participation details are available after signing in to Jynlo.');
+      .toBe('This preview only shows public game information. Participation details are available after signing in to Jynlo.');
   });
 
   it('translates the missing sport title and public introduction when language changes', () => {
@@ -740,17 +740,17 @@ describe('PublicSessionPreviewComponent', () => {
     i18n.setLanguage('en');
     const page = render({ sport: null });
 
-    expect(page.querySelector('.session-main h1')?.textContent?.trim()).toBe('Sports session');
+    expect(page.querySelector('.session-main h1')?.textContent?.trim()).toBe('Sports game');
 
     i18n.setLanguage('pt');
     fixture.detectChanges();
 
-    expect(page.querySelector('.session-main h1')?.textContent?.trim()).toBe('Sessão desportiva');
-    expect(page.querySelector('.eyebrow')?.textContent?.trim()).toBe('Sessão pública · Jynlo');
+    expect(page.querySelector('.session-main h1')?.textContent?.trim()).toBe('Jogo');
+    expect(page.querySelector('.eyebrow')?.textContent?.trim()).toBe('Jogo público · Jynlo');
     expect(page.querySelector('.intro')?.textContent?.trim())
-      .toBe('Descobre esta atividade e junta-te a quem quer praticar desporto.');
+      .toBe('Descobre este jogo e junta-te a quem quer praticar desporto.');
     expect(page.querySelector('.privacy-note')?.textContent?.trim())
-      .toContain('informações públicas da sessão');
+      .toContain('informações públicas do jogo');
   });
 
   it('translates public session facts into English without changing session data', () => {
@@ -865,11 +865,11 @@ describe('PublicSessionPreviewComponent', () => {
 
     const primary = () => page.querySelector('.join-panel .primary-action') as HTMLAnchorElement;
     expect(page.querySelector('.header-login')?.textContent?.trim()).toBe('Open in Jynlo');
-    expect(primary().textContent?.trim()).toBe('View session and join');
+    expect(primary().textContent?.trim()).toBe('View game and join');
 
     fixture.componentInstance.session!.status = 'FULL';
     fixture.detectChanges();
-    expect(primary().textContent?.trim()).toBe('View session and waitlist');
+    expect(primary().textContent?.trim()).toBe('View game and waitlist');
 
     fixture.componentInstance.session!.status = 'CANCELLED';
     fixture.detectChanges();
@@ -886,15 +886,15 @@ describe('PublicSessionPreviewComponent', () => {
 
     fixture.componentInstance.session!.status = 'FULL';
     fixture.detectChanges();
-    expect(label()).toBe('Session full');
+    expect(label()).toBe('Game full');
 
     fixture.componentInstance.session!.status = 'CANCELLED';
     fixture.detectChanges();
-    expect(label()).toBe('Session cancelled');
+    expect(label()).toBe('Game cancelled');
 
     fixture.componentInstance.session!.status = 'COMPLETED';
     fixture.detectChanges();
-    expect(label()).toBe('Session completed');
+    expect(label()).toBe('Game completed');
   });
 
   it('translates closed and unknown statuses without changing participation rules', () => {
@@ -908,11 +908,11 @@ describe('PublicSessionPreviewComponent', () => {
 
     fixture.componentInstance.session!.status = null;
     fixture.detectChanges();
-    expect(label()).toBe('Sports session');
+    expect(label()).toBe('Sports game');
 
     i18n.setLanguage('pt');
     fixture.detectChanges();
-    expect(label()).toBe('Sessão desportiva');
+    expect(label()).toBe('Jogo');
   });
 
   it('explains how to join an open session in English for guests and players', () => {
@@ -922,14 +922,14 @@ describe('PublicSessionPreviewComponent', () => {
     const description = () => page.querySelector('.join-panel p')?.textContent?.trim();
 
     expect(heading()).toBe('Your next game starts here.');
-    expect(description()).toBe('Create a free account to see all the details and join this session.');
+    expect(description()).toBe('Create a free account to see all the details and join this game.');
 
     authenticationService.isLoggedIn.and.returnValue(true);
     fixture.componentInstance.isAuthenticated = true;
     fixture.detectChanges();
 
     expect(heading()).toBe('Your next game starts here.');
-    expect(description()).toBe('Open the session details to join.');
+    expect(description()).toBe('Open the game details to join.');
     expect(page.querySelector('.join-panel .primary-action')?.getAttribute('href'))
       .toBe('/menu/events/42?join=1');
   });
@@ -949,14 +949,14 @@ describe('PublicSessionPreviewComponent', () => {
 
     fixture.componentInstance.session!.status = 'CANCELLED';
     fixture.detectChanges();
-    expect(heading()).toBe('This session is no longer accepting registrations.');
+    expect(heading()).toBe('This game is no longer accepting registrations.');
     expect(description()).toContain('cannot join this game');
     expect(page.querySelector('.join-panel .primary-action')?.textContent?.trim())
       .toBe('View details');
 
     i18n.setLanguage('pt');
     fixture.detectChanges();
-    expect(heading()).toBe('Esta sessão já não aceita inscrições.');
+    expect(heading()).toBe('Este jogo já não aceita inscrições.');
   });
 
   it('shows a translated invalid-link error without calling the preview API', () => {
@@ -965,8 +965,8 @@ describe('PublicSessionPreviewComponent', () => {
     fixture.detectChanges();
     const page = fixture.nativeElement as HTMLElement;
 
-    expect(page.querySelector('.error-state h1')?.textContent?.trim()).toBe('Session unavailable');
-    expect(page.querySelector('.error-state p')?.textContent?.trim()).toBe('This session link is invalid.');
+    expect(page.querySelector('.error-state h1')?.textContent?.trim()).toBe('Game unavailable');
+    expect(page.querySelector('.error-state p')?.textContent?.trim()).toBe('This game link is invalid.');
     expect(page.querySelector('.retry-action')).toBeNull();
     expect(page.querySelector('.error-state a')?.textContent?.trim()).toBe('Back to home');
     expect(http.get).not.toHaveBeenCalled();
@@ -979,7 +979,7 @@ describe('PublicSessionPreviewComponent', () => {
     const page = fixture.nativeElement as HTMLElement;
 
     expect(page.querySelector('.error-state p')?.textContent?.trim())
-      .toBe('Could not load the session. Check your connection and try again.');
+      .toBe('Could not load the game. Check your connection and try again.');
     const retry = page.querySelector('.retry-action') as HTMLButtonElement;
     expect(retry.textContent?.trim()).toBe('Try again');
 
@@ -1003,7 +1003,7 @@ describe('PublicSessionPreviewComponent', () => {
     const page = fixture.nativeElement as HTMLElement;
 
     expect(page.querySelector('.error-state p')?.textContent?.trim())
-      .toBe('This session is not available for public viewing.');
+      .toBe('This game is not available for public viewing.');
     expect(page.querySelector('.retry-action')).toBeNull();
   });
 
@@ -1016,7 +1016,7 @@ describe('PublicSessionPreviewComponent', () => {
       invalidFixture.detectChanges();
 
       const page = invalidFixture.nativeElement as HTMLElement;
-      expect(page.textContent).withContext(id).toContain('Esta ligação de sessão não é válida');
+      expect(page.textContent).withContext(id).toContain('Esta ligação de jogo não é válida');
       expect(http.get).withContext(id).not.toHaveBeenCalled();
       expect(invalidFixture.componentInstance.returnUrl).withContext(id).toBeNull();
       invalidFixture.destroy();
@@ -1032,7 +1032,7 @@ describe('PublicSessionPreviewComponent', () => {
     expect(fixture.componentInstance.returnUrl).toBe('/menu/events/42');
     expect(page.querySelector('.join-panel')).toBeNull();
     expect(page.querySelector('.error-state p')?.textContent)
-      .toContain('Esta sessão não está disponível para consulta pública');
+      .toContain('Este jogo não está disponível para consulta pública');
     expect(page.querySelector('.retry-action')).toBeNull();
   });
 
@@ -1154,7 +1154,7 @@ describe('PublicSessionPreviewComponent', () => {
     expect(parseFloat(getComputedStyle(home!).minHeight)).toBeGreaterThanOrEqual(44);
     expect(parseFloat(getComputedStyle(retry!).minHeight)).toBeGreaterThanOrEqual(44);
     expect(panel?.querySelector('.error-description')?.textContent)
-      .toContain('Não foi possível carregar a sessão');
+      .toContain('Não foi possível carregar o jogo');
   });
 
   it('keeps the return-home action properly spaced when retry is not allowed', () => {
@@ -1207,7 +1207,7 @@ describe('PublicSessionPreviewComponent', () => {
     fixture.detectChanges();
     const page = fixture.nativeElement as HTMLElement;
 
-    expect(page.textContent).toContain('Esta sessão não está disponível para consulta pública');
+    expect(page.textContent).toContain('Este jogo não está disponível para consulta pública');
     expect(page.querySelector('.retry-action')).toBeNull();
     expect(page.querySelector('.error-state a')).not.toBeNull();
   });
@@ -1240,7 +1240,7 @@ describe('PublicSessionPreviewComponent', () => {
     const action = page.querySelector('.join-panel .primary-action') as HTMLAnchorElement;
     expect(action).not.toBeNull();
     expect(action.getAttribute('href')).toBe('/menu/events/42?join=1');
-    expect(page.textContent).toContain('Ver sessão e inscrever-me');
+    expect(page.textContent).toContain('Ver jogo e inscrever-me');
     expect(page.textContent).not.toContain('Criar conta');
     expect(page.textContent).not.toContain('Já tenho conta');
   });
@@ -1251,7 +1251,7 @@ describe('PublicSessionPreviewComponent', () => {
 
     const action = page.querySelector('.join-panel .primary-action') as HTMLAnchorElement;
     expect(action.getAttribute('href')).toBe('/menu/events/42?join=1');
-    expect(page.textContent).toContain('Ver sessão e lista de espera');
+    expect(page.textContent).toContain('Ver jogo e lista de espera');
   });
 
   it('keeps closed shared session details accessible without a login prompt', () => {
@@ -1282,14 +1282,14 @@ describe('PublicSessionPreviewComponent', () => {
     const page = render({ status: 'CANCELLED' });
     expect(page.querySelector('.join-panel .primary-action')).toBeNull();
     expect(page.querySelector('.join-panel .status.closed')).not.toBeNull();
-    expect(page.textContent).toContain('Esta sessão já não aceita inscrições');
+    expect(page.textContent).toContain('Este jogo já não aceita inscrições');
     expect(page.querySelector('.join-panel .secondary-action')).not.toBeNull();
   });
 
   it('does not invite registration for a completed session', () => {
     const page = render({ status: 'COMPLETED' });
     expect(page.querySelector('.join-panel .primary-action')).toBeNull();
-    expect(page.textContent).toContain('Sessão concluída');
+    expect(page.textContent).toContain('Jogo concluído');
   });
 
   it('closes registrations when an open session has already started', () => {

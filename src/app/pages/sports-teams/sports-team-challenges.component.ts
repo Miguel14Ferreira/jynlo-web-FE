@@ -21,7 +21,7 @@ import { SportsTeamChallengesService, TeamChallenge } from '../../services/sport
       <div>
         <p class="eyebrow">{{ 'JYNLO · RIVALIDADES' | t }}</p>
         <h2>{{ 'Desafios entre equipas' | t }}</h2>
-        <p>{{ 'Desafia outra equipa. A sessão só é associada após a aceitação, sem inscrever ninguém automaticamente.' | t }}</p>
+        <p>{{ 'Desafia outra equipa. O jogo só é associado após a aceitação, sem inscrever ninguém automaticamente.' | t }}</p>
       </div>
       <button type="button" [disabled]="busy" (click)="refresh()">{{ 'Verificar desafios' | t }}</button>
     </div>
@@ -50,25 +50,25 @@ import { SportsTeamChallengesService, TeamChallenge } from '../../services/sport
             <button type="button" *ngIf="challenge.status==='PENDING'&&challenge.challengerTeamId===teamId"
               [disabled]="busy" (click)="cancel(challenge)">{{ 'Cancelar convite' | t }}</button>
             <ng-container *ngIf="challenge.status==='ACCEPTED'&&!challenge.sessionId">
-              <p class="hint">{{ 'Cria uma sessão pública normalmente e associa-a aqui. A organização do jogo e as inscrições mantêm as regras habituais.' | t }}</p>
+              <p class="hint">{{ 'Cria um jogo público normalmente e associa-a aqui. A organização do jogo e as inscrições mantêm as regras habituais.' | t }}</p>
               <label [attr.for]="'challenge-session-'+challenge.id">{{ 'Escolher um jogo público criado por ti' | t }}</label>
               <div class="link-form">
                 <select [id]="'challenge-session-'+challenge.id" [disabled]="busy||sessionsLoading||!sessionsVerified"
                   [(ngModel)]="sessionInputs[challenge.id]">
-                  <option value="">{{ 'Escolher sessão' | t }}</option>
+                  <option value="">{{ 'Escolher jogo' | t }}</option>
                   <option *ngFor="let game of availableSessions" [value]="game.id">
                     {{game.sport}} · {{game.city}} · {{game.gameDate | date:('dd/MM/yyyy HH:mm' | t)}}
                   </option>
                 </select>
                 <button type="button" class="primary" [disabled]="busy||!validSession(challenge.id)"
-                  (click)="linkSession(challenge)">{{ 'Associar sessão' | t }}</button>
+                  (click)="linkSession(challenge)">{{ 'Associar jogo' | t }}</button>
               </div>
-              <p class="hint" *ngIf="sessionsLoading">{{ 'A consultar as tuas sessões…' | t }}</p>
+              <p class="hint" *ngIf="sessionsLoading">{{ 'A consultar os teus jogos…' | t }}</p>
               <p class="hint" *ngIf="sessionsError" role="alert">{{sessionsError}}</p>
               <p class="hint" *ngIf="sessionsVerified&&!availableSessions.length">
-                {{ 'Ainda não tens uma sessão pública elegível. Cria uma antes de associares o jogo.' | t }}
+                {{ 'Ainda não tens um jogo público elegível. Cria uma antes de associares o jogo.' | t }}
               </p>
-              <a routerLink="/menu/createEvent">{{ 'Criar uma sessão' | t }}</a>
+              <a routerLink="/menu/createEvent">{{ 'Criar um jogo' | t }}</a>
             </ng-container>
           </div>
           <a *ngIf="challenge.sessionId" [routerLink]="['/menu/events',challenge.sessionId]">
@@ -202,7 +202,7 @@ export class SportsTeamChallengesComponent implements OnInit,OnDestroy {
       error:()=>{
         if(this.destroyed||version!==this.sessionsVersion)return;
         this.sessionsVerified=false;this.sessionsLoading=false;this.sessionsRequested=false;
-        this.sessionsError=appTranslate('Não foi possível consultar as tuas sessões. Tenta verificar novamente.');this.render();
+        this.sessionsError=appTranslate('Não foi possível consultar os teus jogos. Tenta verificar novamente.');this.render();
       }
     });
   }
@@ -236,13 +236,13 @@ export class SportsTeamChallengesComponent implements OnInit,OnDestroy {
     request.pipe(timeout(12000)).subscribe({
       next:()=>{if(this.destroyed)return;this.busy=false;this.feedback=success;this.refresh();},
       error:(e:HttpErrorResponse)=>{if(this.destroyed)return;this.busy=false;
-        this.error=e.status===409?appTranslate('Este desafio foi alterado noutra sessão. Verifica o estado antes de repetir.'):
+        this.error=e.status===409?appTranslate('Este desafio foi alterado noutra jogo. Verifica o estado antes de repetir.'):
           appTranslate('Não foi possível confirmar a alteração. Consulta novamente os desafios.');this.refresh();}
     });
   }
   respond(item:TeamChallenge,accept:boolean):void {
     if(!this.isOwner||item.challengedTeamId!==this.teamId||item.status!=='PENDING')return;
-    this.mutate(this.api.respond(item.id,accept),accept?appTranslate('Desafio aceite. Podem organizar a sessão.'):'Desafio recusado.');
+    this.mutate(this.api.respond(item.id,accept),accept?appTranslate('Desafio aceite. Podem organizar o jogo.'):'Desafio recusado.');
   }
   cancel(item:TeamChallenge):void {
     if(!this.isOwner||item.challengerTeamId!==this.teamId||item.status!=='PENDING')return;
@@ -251,6 +251,6 @@ export class SportsTeamChallengesComponent implements OnInit,OnDestroy {
   linkSession(item:TeamChallenge):void {
     if(!this.isOwner||item.status!=='ACCEPTED'||item.sessionId||!this.validSession(item.id))return;
     this.mutate(this.api.linkSession(item.id,Number(this.sessionInputs[item.id])),
-      appTranslate('Sessão associada ao desafio.'));
+      appTranslate('Jogo associado ao desafio.'));
   }
 }

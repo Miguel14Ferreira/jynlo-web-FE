@@ -23,7 +23,7 @@ interface SportSuggestion {
         <div>
           <p class="eyebrow">Administração · Modalidades</p>
           <h1>Desportos sugeridos pela comunidade</h1>
-          <p>Ordenados por utilização em sessões independentes. A revisão não ativa
+          <p>Ordenados por utilização em jogos independentes. A revisão não ativa
             automaticamente regras de torneios ou classificações.</p>
         </div>
         <a routerLink="/menu/admin" href="/menu/admin">Voltar à administração</a>
@@ -47,7 +47,7 @@ interface SportSuggestion {
           <article>
             <div>
               <strong>{{item.name}}</strong>
-              <p>{{item.usageCount}} {{item.usageCount === 1 ? 'sessão criada' : 'sessões criadas'}}
+              <p>{{item.usageCount}} {{item.usageCount === 1 ? 'jogo criado' : 'jogos criados'}}
                 · Última utilização: {{item.lastRequestedAt | date:'dd/MM/yyyy'}}</p>
               <small>Estado: {{item.status === 'PENDING' ? 'Por rever'
                 : item.status === 'REVIEWED' ? 'Revista' : 'Rejeitada'}}</small>

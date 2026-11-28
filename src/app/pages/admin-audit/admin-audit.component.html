@@ -64,7 +64,7 @@
           </article>
         </div>
 
-        <h3>Sessões desportivas</h3>
+        <h3>Jogos</h3>
         <div class="overview-grid">
           <article class="overview-card">
             <span>Agendadas para o futuro</span>
@@ -74,22 +74,22 @@
           <article class="overview-card">
             <span>Nos próximos 7 dias</span>
             <strong>{{ stats.sessionsNext7Days | number }}</strong>
-            <small>Sessões a realizar durante esta semana</small>
+            <small>Jogos a realizar durante esta semana</small>
           </article>
           <article class="overview-card">
-            <span>Total de sessões</span>
+            <span>Total de jogos</span>
             <strong>{{ stats.totalSessions | number }}</strong>
             <small>Histórico de todos os estados</small>
           </article>
           <article class="overview-card">
             <span>Concluídas</span>
             <strong>{{ stats.completedSessions | number }}</strong>
-            <small>Sessões marcadas como concluídas</small>
+            <small>Jogos marcados como concluídas</small>
           </article>
           <article class="overview-card">
             <span>Canceladas</span>
             <strong>{{ stats.cancelledSessions | number }}</strong>
-            <small>Sessões marcadas como canceladas</small>
+            <small>Jogos marcados como cancelados</small>
           </article>
         </div>
 
@@ -402,7 +402,7 @@
         <div class="growth-trends-heading">
           <div>
             <h3>Evolução nas últimas 8 semanas</h3>
-            <p>Novos registos, sessões e comunidades criadas por semana — não são totais acumulados.</p>
+            <p>Novos registos, jogos e comunidades criadas por semana — não são totais acumulados.</p>
           </div>
           <span *ngIf="growth" class="growth-tz">Semanas de segunda a domingo · UTC</span>
         </div>

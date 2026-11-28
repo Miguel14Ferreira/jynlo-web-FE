@@ -56,7 +56,7 @@ export function tournamentClassificationProfile(
       appTranslate('Golfe, bowling e outras modalidades por marca têm regras diferentes entre si. As provas já suportadas nas jornadas devem continuar a utilizar o seu formato próprio.'),
       appTranslate('Resultado da prova · Classificação')],
     activity: [appTranslate('Atividade sem classificação competitiva definida'),
-      appTranslate('Esta modalidade não tem um formato oficial de competição individual definido neste ecrã. Podes continuar a criar sessões e jornadas.'),
+      appTranslate('Esta modalidade não tem um formato oficial de competição individual definido neste ecrã. Podes continuar a criar jogos e jornadas.'),
       appTranslate('Participação / atividade')],
     unknown: [appTranslate('Modalidade sem regras de torneio verificadas'),
       appTranslate('Não foi definido um modelo de resultados para esta modalidade. Não vamos aplicar automaticamente futebol.'),

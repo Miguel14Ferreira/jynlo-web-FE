@@ -142,7 +142,7 @@ describe('MySessionsComponent', () => {
     expect(sessionService.mine).toHaveBeenCalledTimes(1);
     expect(component.data.created[0].status).toBe('CANCELLED');
     expect(component.pendingCancelId).toBeNull();
-    expect(component.actionMessage).toContain('cancelada');
+    expect(component.actionMessage).toContain('cancelado');
   });
 
   it('should leave a waitlisted session without a page reload', () => {
@@ -293,13 +293,13 @@ describe('MySessionsComponent', () => {
 
   it('should dispute a no-show and update its local state', () => {
     component.requestDispute(component.attendanceHistory[0]);
-    component.disputeReason = 'Estive presente nesta sessão.';
+    component.disputeReason = 'Estive presente neste jogo.';
 
     component.confirmDispute();
 
     expect(reliabilityService.createDispute).toHaveBeenCalledWith(
       20,
-      'Estive presente nesta sessão.'
+      'Estive presente neste jogo.'
     );
     expect(component.attendanceHistory[0].disputeStatus).toBe('OPEN');
     expect(component.attendanceHistory[0].canDispute).toBeFalse();

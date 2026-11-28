@@ -124,7 +124,7 @@ describe('LoginComponent', () => {
     expect(component.loginContextKey).toBe('login.viewSession');
     const message = fixture.nativeElement.querySelector('.login-context') as HTMLElement;
     expect(message).not.toBeNull();
-    expect(message.textContent).toContain('sessão desportiva');
+    expect(message.textContent).toContain('jogo');
     expect(message.textContent).toContain('inscrever-te');
   });
 

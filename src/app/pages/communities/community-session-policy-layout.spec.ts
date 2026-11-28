@@ -15,7 +15,7 @@ import { CommunitySportManagementComponent } from './community-sport-management.
       <app-community-sport-management [sports]="['Futsal']"></app-community-sport-management>
       <section class="community-session-policy">
       <fieldset class="community-session-policy-options">
-        <legend>Permitir criar sessões a</legend>
+        <legend>Permitir criar jogos a</legend>
         <div class="community-session-policy-choice-grid">
           <label class="selected">
             <input type="radio" name="sessionPolicyQA" value="everyone" checked>

@@ -578,11 +578,11 @@
           <nav class="profile-discovery-links" [attr.aria-label]="'Explorar desporto na Jynlo' | t">
             <div class="profile-discovery-intro">
               <strong>{{ 'Continuar a descobrir' | t }}</strong>
-              <span>{{ 'Encontra sessões, equipas e comunidades na Jynlo.' | t }}</span>
+              <span>{{ 'Encontra jogos, equipas e comunidades na Jynlo.' | t }}</span>
             </div>
             <div class="profile-discovery-actions">
               <a routerLink="/menu/discover" [queryParams]="{ sport: selectedProfile.favoriteSports?.split(',')[0]?.trim() || null, city: selectedProfile.location || null }">
-                <span aria-hidden="true">⌖</span> {{ 'Procurar sessões' | t }}
+                <span aria-hidden="true">⌖</span> {{ 'Procurar jogos' | t }}
               </a>
               <a routerLink="/menu/teams"><span aria-hidden="true">♜</span> {{ 'Explorar equipas' | t }}</a>
               <a routerLink="/menu/communities"><span aria-hidden="true">♧</span> {{ 'Explorar comunidades' | t }}</a>

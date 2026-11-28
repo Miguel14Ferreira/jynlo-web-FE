@@ -14,12 +14,12 @@
         <span class="native-app-banner-icon" aria-hidden="true">J</span>
         <div class="native-app-banner-copy">
           <strong>Jynlo</strong>
-          <span>{{ 'Já tens a aplicação? Abre o detalhe da sessão na Jynlo.' | t }}</span>
+          <span>{{ 'Já tens a aplicação? Abre o detalhe do jogo na Jynlo.' | t }}</span>
           @if (guestToken) {
             <small>{{ 'Para confirmar presença sem conta, continua nesta página e mantém o convite.' | t }}</small>
           }
         </div>
-        <a class="native-app-banner-open" [href]="nativeAppUrl()" [attr.aria-label]="'Abrir detalhe da sessão na aplicação Jynlo' | t">
+        <a class="native-app-banner-open" [href]="nativeAppUrl()" [attr.aria-label]="'Abrir detalhe do jogo na aplicação Jynlo' | t">
           {{ 'Abrir app' | t }}
         </a>
         <button class="native-app-banner-dismiss" type="button" [attr.aria-label]="'Dispensar sugestão da app' | t"

@@ -168,9 +168,9 @@
         <section class="feed-confirm-dialog" role="alertdialog" aria-modal="true"
                  aria-labelledby="feed-cancel-session-title" aria-describedby="feed-cancel-session-description"
                  (click)="$event.stopPropagation()">
-          <h3 id="feed-cancel-session-title">{{ 'Cancelar sessão?' | t }}</h3>
+          <h3 id="feed-cancel-session-title">{{ 'Cancelar jogo?' | t }}</h3>
           <p id="feed-cancel-session-description">
-            {{ 'Vais cancelar a tua sessão de {{sport}}' | t:{sport: ((sessionToCancel.sport | sportName) || 'desporto')} }}
+            {{ 'Vais cancelar o teu jogo de {{sport}}' | t:{sport: ((sessionToCancel.sport | sportName) || 'desporto')} }}
             @if (sessionToCancel.gameDate) { de {{ sessionToCancel.gameDate | date:'dd/MM/yyyy' }} }.
             Os participantes deixarão de poder inscrever-se. Esta ação não pode ser anulada.
           </p>
@@ -180,7 +180,7 @@
                     (click)="dismissCancelSession()">{{ 'Manter sessão' | t }}</button>
             <button type="button" class="feed-confirm-danger" [disabled]="cancellingSessionId !== null"
                     (click)="confirmCancelSession(sessionToCancel)">
-              {{ cancellingSessionId !== null ? ('A cancelar…' | t) : ('Sim, cancelar sessão' | t) }}
+              {{ cancellingSessionId !== null ? ('A cancelar…' | t) : ('Sim, cancelar jogo' | t) }}
             </button>
           </div>
         </section>
@@ -681,7 +681,7 @@
 
     @if (!loading && !errorMessage && items.length > 0) {
       @if (attendanceGroups.length > 0) {
-        <section class="feed-attendance-digest" [attr.aria-label]="'Atividade de sessões' | t">
+        <section class="feed-attendance-digest" [attr.aria-label]="'Atividade de jogos' | t">
           @for (group of displayedAttendanceGroups; track group.sessionId) {
             <div class="feed-attendance-row">
               <span class="feed-attendance-icon" aria-hidden="true">✓</span>
@@ -725,9 +725,9 @@
         </section>
       }
       @if (recentlyCancelledSession) {
-        <section class="feed-hide-feedback feed-cancelled-notice" role="status" [attr.aria-label]="'Cancelamento da sessão confirmado' | t">
+        <section class="feed-hide-feedback feed-cancelled-notice" role="status" [attr.aria-label]="'Cancelamento do jogo confirmado' | t">
           <div>
-            <strong>{{ 'Sessão cancelada com sucesso.' | t }}</strong>
+            <strong>{{ 'Jogo cancelado com sucesso.' | t }}</strong>
             <p>{{ cancellationShareNotice }}</p>
             <label for="feed-cancelled-session-message">{{ 'Aviso para participantes externos (WhatsApp ou SMS)' | t }}</label>
             <textarea id="feed-cancelled-session-message" readonly rows="3"
@@ -1341,8 +1341,8 @@
                       class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet jynlo-premium-btn--small"
                       [disabled]="checkingCancelSessionId !== null || cancellingSessionId !== null"
                       (click)="requestCancelSession(item)"
-                      [attr.aria-label]="('Cancelar a minha sessão de {{sport}}' | t:{sport: (item.sport || 'desporto')})">
-                      {{ checkingCancelSessionId === item.sessionId ? ('A verificar…' | t) : ('Cancelar sessão' | t) }}
+                      [attr.aria-label]="('Cancelar o meu jogo de {{sport}}' | t:{sport: (item.sport || 'desporto')})">
+                      {{ checkingCancelSessionId === item.sessionId ? ('A verificar…' | t) : ('Cancelar jogo' | t) }}
                     </button>
                   }
                 </div>

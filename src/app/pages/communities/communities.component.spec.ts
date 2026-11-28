@@ -1385,7 +1385,7 @@ describe('CommunitiesComponent public session eligibility', () => {
     const previous = localStorage.getItem('d24-language');
     try {
       localStorage.setItem('d24-language', 'pt');
-      expect(t('communities.chatViewSessions')).toBe('Ver sessões');
+      expect(t('communities.chatViewSessions')).toBe('Ver jogos');
       expect(t('communities.sessionsViewChat')).toBe('Abrir chat');
     } finally {
       if (previous === null) localStorage.removeItem('d24-language');

@@ -29,7 +29,7 @@ describe('Lazy English translations', () => {
   });
 
   it('renders Portuguese synchronously before loading the English chunk', () => {
-    expect(appTranslate('session.join')).toBe('Juntar-me à sessão');
+    expect(appTranslate('session.join')).toBe('Juntar-me ao jogo');
     expect(appTranslate('missing.localization.key')).toBe('missing.localization.key');
   });
 
@@ -37,7 +37,7 @@ describe('Lazy English translations', () => {
     localStorage.setItem('d24-language', 'en');
     await prepareInitialTranslations();
 
-    expect(appTranslate('session.join')).toBe('Join session');
+    expect(appTranslate('session.join')).toBe('Join game');
     expect(appTranslate('missing.localization.key')).toBe('missing.localization.key');
   });
 
@@ -47,12 +47,12 @@ describe('Lazy English translations', () => {
 
     const service = new I18nService();
     expect(service.currentLanguage).toBe('en');
-    expect(service.translate('session.join')).toBe('Join session');
-    expect(appTranslate('session.join')).toBe('Join session');
+    expect(service.translate('session.join')).toBe('Join game');
+    expect(appTranslate('session.join')).toBe('Join game');
 
     service.setLanguage('pt');
     expect(service.currentLanguage).toBe('pt');
-    expect(service.translate('session.join')).toBe('Juntar-me à sessão');
+    expect(service.translate('session.join')).toBe('Juntar-me ao jogo');
   });
 
   it('activates English after a user changes language at runtime', async () => {
@@ -64,7 +64,7 @@ describe('Lazy English translations', () => {
     await Promise.resolve();
 
     expect(service.currentLanguage).toBe('en');
-    expect(service.translate('session.join')).toBe('Join session');
+    expect(service.translate('session.join')).toBe('Join game');
     expect(localStorage.getItem('d24-language')).toBe('en');
     expect(document.documentElement.lang).toBe('en');
   });
@@ -89,7 +89,7 @@ describe('Lazy English translations', () => {
   it('does not preload English for a Portuguese visitor', async () => {
     await prepareInitialTranslations();
     expect(localStorage.getItem('d24-language')).toBe('pt');
-    expect(appTranslate('session.join')).toBe('Juntar-me à sessão');
+    expect(appTranslate('session.join')).toBe('Juntar-me ao jogo');
   });
 
   it('distinguishes a season game from rankings in both languages', async () => {
@@ -119,7 +119,7 @@ describe('Lazy English translations', () => {
       const service = new I18nService();
       service.setLanguage(language);
       expect(service.translate('sessionDetail.findPlayers.title'))
-        .toBe(language === 'pt' ? 'Encontrar jogadores para a sessão' : 'Find players for this session');
+        .toBe(language === 'pt' ? 'Encontrar jogadores para o jogo' : 'Find players for this game');
       expect(service.translate('sessionDetail.findPlayers.oneMissing'))
         .toContain(language === 'pt' ? '1 jogador' : '1 more player');
       expect(service.translate('sessionDetail.findPlayers.sendInvite'))

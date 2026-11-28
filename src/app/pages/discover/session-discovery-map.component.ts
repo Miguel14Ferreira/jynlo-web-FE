@@ -58,7 +58,7 @@ type MapArea = 'mainland' | 'azores' | 'madeira';
         </div>
       }
       @if (pins.length === 0) {
-        <p class="jynlo-session-map-empty">{{ 'Não há sessões com localização pública nesta área. Experimenta outra região ou consulta a lista.' | t }}</p>
+        <p class="jynlo-session-map-empty">{{ 'Não há jogos com localização pública nesta área. Experimenta outra região ou consulta a lista.' | t }}</p>
       }
     </div>
   `,

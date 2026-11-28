@@ -134,7 +134,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       error:()=>{
         if(generation!==this.sessionMemoriesVersion||this.session?.id!==id)return;
         if(!silent)this.sessionMemories=[];
-        if(!silent)this.sessionMemoriesError=appTranslate('Não foi possível carregar os momentos desta sessão.');
+        if(!silent)this.sessionMemoriesError=appTranslate('Não foi possível carregar os momentos deste jogo.');
         this.sessionMemoriesPending=false;
         if(!silent)this.sessionMemoriesLoading=false;
       }
@@ -3186,7 +3186,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       if (typeof navigator.share === 'function') {
         try {
           await navigator.share({
-            title: 'Sessão de ' + this.session!.sport + ' na Jynlo',
+            title: 'Jogo de ' + this.session!.sport + ' na Jynlo',
             text: this.compactShareText(),
             url
           });
@@ -3372,7 +3372,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   private calendarTitle(): string {
-    return `Jynlo — ${this.session?.sport ?? 'Sessão'}`;
+    return `Jynlo — ${this.session?.sport ?? 'Jogo'}`;
   }
 
   private calendarDescription(): string {
@@ -3380,7 +3380,7 @@ export class SessionDetailsComponent implements OnInit, OnDestroy, AfterViewChec
       ? ' ' + appTranslate('Criada por {{user}}.', {user: this.session.creatorUsername})
       : '';
 
-    return appTranslate('Sessão de {{sport}} na Jynlo.', {sport: venueCatalogueDisplayLabel(this.session?.sport, 'sport') || appTranslate('desporto')}) + creator;
+    return appTranslate('Jogo de {{sport}} na Jynlo.', {sport: venueCatalogueDisplayLabel(this.session?.sport, 'sport') || appTranslate('desporto')}) + creator;
   }
 
   /** The session endpoint supplies profile photos only to authorised attendees. */

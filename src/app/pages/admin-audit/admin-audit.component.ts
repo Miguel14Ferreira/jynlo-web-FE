@@ -442,7 +442,7 @@ export class AdminAuditComponent implements OnInit, OnDestroy {
     }
     if (error instanceof HttpErrorResponse) {
       if (error.status === 401 || error.status === 403) {
-        return 'A sessão não tem acesso às estatísticas. Verifica a autenticação e as permissões de administrador.';
+        return 'O jogo não tem acesso às estatísticas. Verifica a autenticação e as permissões de administrador.';
       }
       if (error.status === 0) {
         return 'Não foi possível estabelecer ligação à API. Verifica a ligação e tenta novamente.';

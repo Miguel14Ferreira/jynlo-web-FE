@@ -26,5 +26,5 @@ export function sessionCancellationNotice(item: PublicSessionCancellation): stri
   const description = [
     publicLabel(item.sport, 'desporto'), when, publicLabel(item.city)
   ].filter(Boolean).join(' · ');
-  return appTranslate('⚠️ Sessão cancelada — {{description}}. O organizador cancelou esta sessão e o jogo não se vai realizar. Por favor, não te desloques ao recinto.', {description});
+  return appTranslate('⚠️ Jogo cancelado — {{description}}. O organizador cancelou este jogo e o jogo não se vai realizar. Por favor, não te desloques ao recinto.', {description});
 }

@@ -115,11 +115,11 @@ describe('SocialFeedComponent discovery sidebar', () => {
     fixture.detectChanges();
     tick(351);
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.querySelector('[aria-label="Cancelar a minha sessão de Futsal"]')).not.toBeNull();
+    expect(root.querySelector('[aria-label="Cancelar o meu jogo de Futsal"]')).not.toBeNull();
     expect(sessions.cancel).not.toHaveBeenCalled();
     component.requestCancelSession(ownedSessionActivity);
     fixture.detectChanges();
-    expect(root.querySelector('#feed-cancel-session-title')?.textContent).toContain('Cancelar sessão');
+    expect(root.querySelector('#feed-cancel-session-title')?.textContent).toContain('Cancelar jogo');
     component.dismissCancelSession();
     expect(sessions.cancel).not.toHaveBeenCalled();
     fixture.destroy();
@@ -130,7 +130,7 @@ describe('SocialFeedComponent discovery sidebar', () => {
     feed.feed.and.returnValue(of([other]));
     fixture.detectChanges();
     tick(351);
-    expect((fixture.nativeElement as HTMLElement).querySelector('[aria-label^="Cancelar a minha sessão"]')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[aria-label^="Cancelar o meu jogo"]')).toBeNull();
     component.requestCancelSession(other);
     expect(sessions.detail).not.toHaveBeenCalled();
     expect(sessions.cancel).not.toHaveBeenCalled();
@@ -347,8 +347,8 @@ describe('SocialFeedComponent discovery sidebar', () => {
     expect(root.querySelectorAll('.feed-attendance-row').length).toBe(2);
     const summaries = Array.from(root.querySelectorAll('.feed-attendance-summary strong'))
       .map(element => element.textContent?.trim());
-    expect(summaries).toContain('miguel e mais 1 participaram numa sessão de Futebol');
-    expect(summaries).toContain('joao participou numa sessão de Futebol');
+    expect(summaries).toContain('miguel e mais 1 participaram num jogo de Futebol');
+    expect(summaries).toContain('joao participou num jogo de Futebol');
     expect(root.querySelectorAll('.feed-list .feed-card').length).toBe(1);
   }));
 

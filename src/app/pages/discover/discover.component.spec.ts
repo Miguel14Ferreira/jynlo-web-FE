@@ -97,7 +97,7 @@ describe('DiscoverComponent', () => {
     const error = fixture.nativeElement.querySelector('.discover-error') as HTMLElement;
     expect(error.textContent).toContain('Recintos indisponíveis.');
     expect(error.textContent).toContain('Jogadores indisponíveis.');
-    expect(error.textContent).not.toContain('Sessões indisponíveis.');
+    expect(error.textContent).not.toContain('Jogos indisponíveis.');
   });
 
   it('should create', () => {
@@ -749,7 +749,7 @@ describe('DiscoverComponent', () => {
     const createLink: HTMLAnchorElement | null =
       fixture.nativeElement.querySelector('.session-empty-create');
     expect(createLink?.getAttribute('href')).toBe('/menu/createEvent?sport=Padel&city=Lisboa');
-    expect(createLink?.textContent).toContain('Criar uma sessão');
+    expect(createLink?.textContent).toContain('Criar um jogo');
   });
 
   it('passes the manually selected sport and locality to session creation', () => {
