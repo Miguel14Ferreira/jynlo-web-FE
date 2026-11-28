@@ -1,0 +1,77 @@
+<main class="sport-city">
+  @if (hub) {
+    <header class="sport-city__head">
+      <h1>{{ 'Jogos por desporto e cidade' | t }}</h1>
+      <p>{{ 'Escolhe um desporto e uma cidade para veres os jogos marcados e os recintos onde se joga.' | t }}</p>
+    </header>
+    @if (!index.length) { <p class="sport-city__empty">{{ 'A carregar…' | t }}</p> }
+    @for (group of groups; track group.s) {
+      <section class="sport-city__group">
+        <h2>{{ group.sport }}</h2>
+        <ul class="sport-city__links">
+          @for (entry of group.cities; track entry.c) {
+            <li><a [routerLink]="['/jogos', entry.s, entry.c]">{{ entry.city }}</a></li>
+          }
+        </ul>
+      </section>
+    }
+  } @else {
+    <header class="sport-city__head">
+      <a class="sport-city__back" routerLink="/jogos">← {{ 'Todos os desportos e cidades' | t }}</a>
+      <h1>{{ 'Jogos de {{sport}} em {{city}}' | t:{sport: sport, city: city} }}</h1>
+      <p>{{ 'Vê os jogos marcados com vagas, os recintos onde se joga e cria o teu jogo em 1 minuto.' | t }}</p>
+      <div class="sport-city__actions">
+        <a class="jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary" routerLink="/menu/createEvent" [queryParams]="{ sport: sport, city: city }">{{ 'Criar jogo de {{sport}}' | t:{sport: sport} }}</a>
+        <a class="jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" routerLink="/menu/events" [queryParams]="{ sport: sport, city: city }">{{ 'Ver todos os jogos' | t }}</a>
+      </div>
+    </header>
+
+    <section class="sport-city__section">
+      <h2>{{ 'Próximos jogos' | t }}</h2>
+      @if (loadingSessions) {
+        <p class="sport-city__empty">{{ 'A carregar…' | t }}</p>
+      } @else if (!sessions.length) {
+        <p class="sport-city__empty">{{ 'Ainda não há jogos marcados. Cria o primeiro e convida quem joga perto de ti.' | t }}</p>
+      } @else {
+        <ul class="sport-city__cards">
+          @for (session of sessions; track session.id) {
+            <li><a [routerLink]="sessionLink(session.id)">
+              <strong>{{ session.gameDate | date:'dd/MM · HH:mm' }}</strong>
+              <span>{{ session.city }}</span>
+              <span>{{ session.status?.toUpperCase() === 'FULL' ? ('Completo' | t) : (vacancies(session) === 1 ? ('1 vaga' | t) : ('{{n}} vagas' | t:{n: vacancies(session)})) }}
+                · {{ session.priceAmount > 0 ? (session.priceAmount | number:'1.2-2') + ' €' : ('Grátis' | t) }}</span>
+            </a></li>
+          }
+        </ul>
+      }
+    </section>
+
+    @if (venues.length) {
+      <section class="sport-city__section">
+        <h2>{{ 'Recintos com {{sport}} em {{city}}' | t:{sport: sport, city: city} }}</h2>
+        <ul class="sport-city__cards">
+          @for (venue of venues; track venue.id) {
+            <li><a [routerLink]="['/venues', venue.id]"><strong>{{ venue.name }}</strong><span>{{ venue.city }}</span></a></li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (otherCities.length) {
+      <section class="sport-city__section">
+        <h2>{{ '{{sport}} noutras cidades' | t:{sport: sport} }}</h2>
+        <ul class="sport-city__links">
+          @for (entry of otherCities; track entry.c) { <li><a [routerLink]="['/jogos', entry.s, entry.c]">{{ entry.city }}</a></li> }
+        </ul>
+      </section>
+    }
+    @if (otherSports.length) {
+      <section class="sport-city__section">
+        <h2>{{ 'Outros desportos em {{city}}' | t:{city: city} }}</h2>
+        <ul class="sport-city__links">
+          @for (entry of otherSports; track entry.s) { <li><a [routerLink]="['/jogos', entry.s, entry.c]">{{ entry.sport }}</a></li> }
+        </ul>
+      </section>
+    }
+  }
+</main>

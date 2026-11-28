@@ -59,6 +59,53 @@ function venuePage(v){
  page({title,description,path:`/venues/${v.id}`,jsonLd,body});
 }
 
+// Same rule as src/app/shared/sport-city-slug.ts.
+const slug=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+/** Sport and city pairs with at least MIN venues become "Jogos de <desporto> em <cidade>" pages. */
+const MIN_VENUES=2,MAX_PAIRS=4000;
+function sportCityPairs(venues){
+ const pairs=new Map(),names=new Map();
+ const vote=(key,name)=>{const m=names.get(key)||new Map();m.set(name,(m.get(name)||0)+1);names.set(key,m);};
+ const best=key=>[...(names.get(key)||new Map()).entries()].sort((a,b)=>b[1]-a[1])[0]?.[0]||key;
+ for(const v of venues){
+  const city=String(v.city||'').trim();const c=slug(city);if(!c)continue;vote('c:'+c,city);
+  for(const sport of new Set(sportsOf(v))){
+   const s=slug(sport);if(!s)continue;vote('s:'+s,sport.charAt(0).toUpperCase()+sport.slice(1));
+   const key=s+'/'+c;const p=pairs.get(key)||{s,c,list:[]};p.list.push(v);pairs.set(key,p);
+  }
+ }
+ return [...pairs.values()].filter(p=>p.list.length>=MIN_VENUES)
+  .map(p=>({s:p.s,c:p.c,sport:best('s:'+p.s),city:best('c:'+p.c),venues:p.list.length,list:p.list}))
+  .sort((a,b)=>b.venues-a.venues).slice(0,MAX_PAIRS);
+}
+function sportCityPage(p,all){
+ const title=`Jogos de ${p.sport} em ${p.city} · Jynlo`;
+ const description=clip(`Jogos de ${p.sport} em ${p.city} com vagas, ${p.venues} recintos onde se joga e como criar o teu jogo na Jynlo.`,158);
+ const venuesHtml=p.list.slice(0,20).map(v=>`<li><a href="/venues/${v.id}">${esc(v.name)}</a></li>`).join('');
+ const others=all.filter(o=>o.s===p.s&&o.c!==p.c).slice(0,12).map(o=>`<li><a href="/jogos/${o.s}/${o.c}">${esc(o.sport)} em ${esc(o.city)}</a></li>`).join('');
+ const sports=all.filter(o=>o.c===p.c&&o.s!==p.s).slice(0,12).map(o=>`<li><a href="/jogos/${o.s}/${o.c}">${esc(o.sport)} em ${esc(o.city)}</a></li>`).join('');
+ const body=`<main class="prerender-page"><h1>Jogos de ${esc(p.sport)} em ${esc(p.city)}</h1>`+
+  `<p>Encontra jogos de ${esc(p.sport)} com vagas em ${esc(p.city)} ou cria o teu e convida quem joga perto de ti.</p>`+
+  `<h2>Recintos com ${esc(p.sport)} em ${esc(p.city)}</h2><ul>${venuesHtml}</ul>`+
+  (others?`<h2>${esc(p.sport)} noutras cidades</h2><ul>${others}</ul>`:'')+
+  (sports?`<h2>Outros desportos em ${esc(p.city)}</h2><ul>${sports}</ul>`:'')+
+  `<p><a href="/jogos">Todos os desportos e cidades</a></p></main>`;
+ const jsonLd={'@context':'https://schema.org','@type':'CollectionPage',name:`Jogos de ${p.sport} em ${p.city}`,url:`${SITE}/jogos/${p.s}/${p.c}`,
+  about:{'@type':'Place',name:p.city,address:{'@type':'PostalAddress',addressLocality:p.city,addressCountry:'PT'}}};
+ page({title,description,path:`/jogos/${p.s}/${p.c}`,jsonLd,body});
+}
+function sportCityHub(pairs){
+ const bySport=new Map();for(const p of pairs){bySport.set(p.s,[...(bySport.get(p.s)||[]),p]);}
+ const groups=[...bySport.values()].sort((a,b)=>b.length-a.length)
+  .map(list=>`<h2>${esc(list[0].sport)}</h2><ul>${list.map(p=>`<li><a href="/jogos/${p.s}/${p.c}">${esc(p.city)}</a></li>`).join('')}</ul>`).join('');
+ page({title:'Jogos por desporto e cidade · Jynlo',description:'Encontra jogos de padel, futebol, ténis e outros desportos na tua cidade, e os recintos onde se joga.',path:'/jogos',
+  body:`<main class="prerender-page"><h1>Jogos por desporto e cidade</h1>${groups}</main>`});
+ writeFileSync(resolve(dist,'assets/jogos-index.json'),JSON.stringify(pairs.map(({s,c,sport,city,venues})=>({s,c,sport,city,venues}))));
+ const today=new Date().toISOString().slice(0,10);
+ writeFileSync(resolve(dist,'sitemap-jogos.xml'),'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+
+  [`/jogos`,...pairs.map(p=>`/jogos/${p.s}/${p.c}`)].map(u=>`  <url><loc>${SITE}${u}</loc><lastmod>${today}</lastmod><changefreq>daily</changefreq><priority>${u==='/jogos'?'0.7':'0.6'}</priority></url>`).join('\n')+'\n</urlset>\n');
+}
+
 const STATIC=[
  {path:'/for-venues',title:'Para recintos: recebe reservas sem custos · Jynlo',description:'Mostra os horários do teu recinto e recebe pedidos de reserva na Jynlo, sem custos nem comissões. Configura em minutos.',h1:'Para recintos'},
  {path:'/about',title:'Sobre a Jynlo',description:'A Jynlo ajuda-te a descobrir onde, quando e com quem jogar: recintos, jogos com vagas, comunidades e torneios.',h1:'Sobre a Jynlo'},
@@ -83,6 +130,9 @@ async function main(){
   if(!Number.isSafeInteger(v?.id)||v.id<=0||!v.name)continue;
   venuePage(v);n++;
  }
- console.log(`Páginas prontas para o Google: ${n} recintos e ${STATIC.length} páginas públicas.`);
+ const pairs=sportCityPairs(Array.isArray(venues)?venues.filter(v=>Number.isSafeInteger(v?.id)&&v.id>0&&v.name):[]);
+ for(const p of pairs)sportCityPage(p,pairs);
+ sportCityHub(pairs);
+ console.log(`Páginas prontas para o Google: ${n} recintos, ${pairs.length} páginas de desporto e cidade e ${STATIC.length} páginas públicas.`);
 }
 await main();

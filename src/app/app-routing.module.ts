@@ -30,6 +30,8 @@ const routes: Routes = [
   {path:'auth/facebook/callback',loadComponent:() => import('./pages/facebook-callback/facebook-callback.component').then(m => m.FacebookCallbackComponent),data:{seo:{title:'Facebook',index:false}}},
   {path:'delete-account',component:LegalPageComponent,data:{document:'delete',seo:{title:'Eliminar conta',index:false,description:'Como eliminar a tua conta Jynlo e os dados associados.'}}},
   // Sessions are short-lived, so they are not indexed; they still need a share title.
+  {path:'jogos',loadComponent:() => import('./pages/sport-city/sport-city.component').then(m => m.SportCityComponent),data:{seo:{title:'Jogos por desporto e cidade',index:true}}},
+  {path:'jogos/:sport/:city',loadComponent:() => import('./pages/sport-city/sport-city.component').then(m => m.SportCityComponent),data:{seo:{index:true}}},
   {path:'sessions/:id',loadComponent:() => import('./pages/public-session-preview/public-session-preview.component').then(m => m.PublicSessionPreviewComponent),data:{seo:{index:false}}},
   // Opt-in shareable tournament table and results, readable without an account.
   {path:'rankings/:id',loadComponent:() => import('./pages/public-ranking/public-ranking.component').then(m => m.PublicRankingComponent),data:{seo:{index:false}}},
