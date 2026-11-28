@@ -92,7 +92,7 @@ describe('HomeComponent public discovery', () => {
     expect(exploreLink).not.toBeNull();
     expect(publicResults).not.toBeNull();
     expect(communitySection?.querySelector('h2')?.textContent?.trim()).toBeTruthy();
-    expect(communityCta?.getAttribute('href')).toBe('/login/registerNewUser');
+    expect(communityCta?.getAttribute('href')).toBe('/login/registerNewUser?returnUrl=%2Fmenu%2Fcommunities%2Fcreate');
     expect(root.querySelectorAll('.hero-actions a[href="/login/registerNewUser"]').length).toBe(1);
     // Preserve this optional joining action while improving visual layout elsewhere.
     expect(root.querySelector<HTMLAnchorElement>('.preview-cta')?.getAttribute('href'))
