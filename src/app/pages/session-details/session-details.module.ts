@@ -1,3 +1,4 @@
+import { CommunityPublicRankingShareComponent } from '../communities/community-public-ranking-share.component';
 import { JynloDateInputDirective } from '../../shared/date-input.directive';
 import { FriendsGoingComponent } from '../../shared/friends-going/friends-going.component';
 import { CommonModule } from '@angular/common';
@@ -19,6 +20,6 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [SessionDetailsComponent],
-  imports: [JynloDateInputDirective, SportNamePipe, CommonModule, FormsModule, ReactiveFormsModule, RouterModule.forChild(routes), TranslatePipe, ChatReactionsComponent, SessionPaymentsPanelComponent, PreviousUnpaidWarningComponent, SessionCourtBookingComponent, FriendsGoingComponent]
+  imports: [CommunityPublicRankingShareComponent, JynloDateInputDirective, SportNamePipe, CommonModule, FormsModule, ReactiveFormsModule, RouterModule.forChild(routes), TranslatePipe, ChatReactionsComponent, SessionPaymentsPanelComponent, PreviousUnpaidWarningComponent, SessionCourtBookingComponent, FriendsGoingComponent]
 })
 export class SessionDetailsModule {}

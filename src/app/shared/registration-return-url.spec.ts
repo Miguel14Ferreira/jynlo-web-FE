@@ -98,4 +98,11 @@ describe('registration invitation return URLs', () => {
     }));
     expect(takeRegistrationDestination()).toBeNull();
   });
+
+  it('brings someone who tapped "Criar comunidade" back to the form after signing up', () => {
+    rememberRegistrationDestination('/menu/communities/create');
+    expect(takeRegistrationDestination()).toBe('/menu/communities/create');
+    rememberRegistrationDestination('/menu/communities/create?x=https://evil.example');
+    expect(takeRegistrationDestination()).toBeNull();
+  });
 });

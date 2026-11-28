@@ -8806,4 +8806,8 @@ export const EN: Record<string, string> = {
   "Não foi possível carregar os jogos. Tenta novamente.": "Could not load the games. Try again.",
   "Outras coisas": "Other things",
   "Pedidos de mensagem que enviaste": "Message requests you sent",
+  "DEPOIS DO JOGO": "AFTER THE GAME",
+  "Correu bem? Marca já o próximo.": "Went well? Schedule the next one now.",
+  "Fica com as mesmas definições e podes convidar os mesmos jogadores.": "It keeps the same settings and you can invite the same players.",
+  "Marcar o próximo jogo": "Schedule the next game",
 };

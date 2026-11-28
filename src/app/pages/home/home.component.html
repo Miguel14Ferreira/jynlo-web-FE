@@ -69,7 +69,7 @@
         <p>{{ 'home.groups.description' | t }}</p>
       </div>
       <a class="secondary-action jynlo-action jynlo-action--neutral community-teaser-cta"
-         routerLink="/login/registerNewUser">{{ 'home.groups.cta' | t }}</a>
+         routerLink="/login/registerNewUser" [queryParams]="{returnUrl: '/menu/communities/create'}">{{ 'home.groups.cta' | t }}</a>
     </section>
 
     <section class="community-teaser venue-teaser jynlo-premium-surface" aria-labelledby="home-venues-title">

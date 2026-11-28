@@ -118,3 +118,9 @@ input:focus-visible + .session-chat-attach, .session-chat-attach:focus-within { 
 .session-chat-attachment-chip .session-chat-attachment-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .session-chat-chip-remove { width: 32px; height: 32px; border: 0; border-radius: 16px; background: none; color: #cfe3e5; font-size: 1.2rem; cursor: pointer; }
 .session-chat-chip-remove:hover { background: rgba(255, 255, 255, .08); }
+
+/* "Depois do jogo": the organiser schedules the next one (and shares the table) straight away. */
+.session-after-game{display:grid;gap:8px;justify-items:start;margin:0 0 18px;padding:16px 18px;border:1px solid rgba(63,216,180,.32);border-radius:18px;background:linear-gradient(144deg,rgba(10,49,64,.96),rgba(5,30,46,.98))}
+.session-after-game h2{margin:0;font-size:1.15rem;color:#f2fffc}
+.session-after-game p{margin:0;color:#c3dfe2}
+.session-after-game app-community-public-ranking-share{display:block;width:100%}

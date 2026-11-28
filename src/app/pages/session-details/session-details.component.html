@@ -159,6 +159,19 @@
             </div>
           }
 
+          @if (session.status === 'COMPLETED' && isCreator()) {
+            <section class="session-after-game" aria-labelledby="session-after-game-title">
+              <span class="section-kicker">{{ 'DEPOIS DO JOGO' | t }}</span>
+              <h2 id="session-after-game-title">{{ 'Correu bem? Marca já o próximo.' | t }}</h2>
+              <p>{{ 'Fica com as mesmas definições e podes convidar os mesmos jogadores.' | t }}</p>
+              <a class="jynlo-action jynlo-action--primary" routerLink="/menu/createEvent"
+                [queryParams]="repeatParams()">{{ 'Marcar o próximo jogo' | t }}</a>
+              @if (session.communityId) {
+                <app-community-public-ranking-share [communityId]="session.communityId" [canManage]="true"></app-community-public-ranking-share>
+              }
+            </section>
+          }
+
           @if (postGameCommunities.length > 0) {
             <section class="session-post-game-community" aria-labelledby="post-game-community-title">
               <div class="session-post-game-community-heading">
