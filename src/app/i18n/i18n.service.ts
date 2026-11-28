@@ -5789,7 +5789,7 @@ const PT: Dictionary = {
   'sessionDetail.excelPlayerUnranked': 'Sem pontuação associada · média estimada {{points}}',
   'sessionDetail.teamsExcelUsed': 'Pontuação Excel associada a {{known}} de {{total}} jogadores confirmados.',
   'sessionDetail.teamsExcelPrivacy': 'Apenas o organizador consulta esta sugestão. Os jogadores são divididos em duas equipas, sem publicar pontuações individuais.',
-  'sessionDetail.teamsText': 'Escolhe o histórico dos jogos ou os pontos da classificação individual Excel mais recente. A sugestão usa apenas jogadores confirmados e só é guardada após confirmares.',
+  'sessionDetail.teamsText': 'A Jynlo divide os jogadores com base nos resultados anteriores do grupo. Também podes fazer equipas aleatórias ou escolher à mão. Só fica guardado quando confirmares.',
   'sessionDetail.generateTeams': 'Gerar equipas',
   'sessionDetail.regenerateTeams': 'Gerar novas equipas',
   'sessionDetail.generatingTeams': 'A gerar equipas...',

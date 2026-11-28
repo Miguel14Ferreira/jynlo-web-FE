@@ -149,3 +149,4 @@ input:focus-visible + .session-chat-attach, .session-chat-attach:focus-within { 
 .session-details-editor-fields{align-items:start !important}
 .session-details-editor-fields > label{display:grid !important;align-content:start !important;gap:6px}
 .session-details-editor-fields > label > :is(input,select){height:48px;min-height:48px;box-sizing:border-box;margin:0}
+.participation-panel .team-generator-actions .jynlo-action--primary{order:-1}

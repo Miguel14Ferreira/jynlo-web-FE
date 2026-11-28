@@ -5787,7 +5787,7 @@ export const EN: Record<string, string> = {
   'sessionDetail.excelPlayerUnranked': 'No linked ranking · estimated average {{points}}',
   'sessionDetail.teamsExcelUsed': 'Excel points linked for {{known}} of {{total}} confirmed players.',
   'sessionDetail.teamsExcelPrivacy': 'Only the organiser can preview this suggestion. Players are split into two teams without publishing individual scores.',
-  'sessionDetail.teamsText': 'Choose match history or the latest imported individual Excel standings. Only confirmed players are considered, and the suggestion is saved only after your confirmation.',
+  'sessionDetail.teamsText': 'Jynlo splits the players using the group\'s previous results. You can also make random teams or pick them yourself. Nothing is saved until you confirm.',
   'sessionDetail.generateTeams': 'Generate teams',
   'sessionDetail.regenerateTeams': 'Generate new teams',
   'sessionDetail.generatingTeams': 'Generating teams...',
@@ -8818,4 +8818,6 @@ export const EN: Record<string, string> = {
   "Os resultados continuam na classificação. Só deixam de estar ligados à tua conta.": "The results stay in the standings. They are just no longer linked to your account.",
   "Desassociar": "Unlink",
   "Não sou eu · desassociar": "Not me · unlink",
+  "Equilibrar equipas": "Balance teams",
+  "Com base nos resultados anteriores do grupo": "Based on the group's previous results",
 };

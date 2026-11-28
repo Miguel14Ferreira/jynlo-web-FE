@@ -1294,19 +1294,12 @@
                     @if (session.teamBalanceSupported) {
                     <button
                       type="button"
-                      class="secondary-action jynlo-action jynlo-action--neutral"
+                      class="secondary-action jynlo-action jynlo-action--primary"
                       [disabled]="teamsLoading || teamsConfirming"
                       [attr.aria-pressed]="teamsScoreSource === 'AUTO'"
+                      [title]="'Com base nos resultados anteriores do grupo' | t"
                       (click)="generateTeams('AUTO')">
-                      {{ 'Equilibrar pela classificação' | t }}
-                    </button>
-                    <button
-                      type="button"
-                      class="secondary-action jynlo-action jynlo-action--neutral team-generator-excel-action"
-                      [disabled]="teamsLoading || teamsConfirming"
-                      [attr.aria-pressed]="teamsScoreSource === 'EXCEL_POINTS'"
-                      (click)="generateTeams('EXCEL_POINTS')">
-                      {{ 'Equilibrar pela pontuação do Excel' | t }}
+                      {{ 'Equilibrar equipas' | t }}
                     </button>
                     }
                     <button
