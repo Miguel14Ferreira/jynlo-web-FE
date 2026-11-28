@@ -1,13 +1,8 @@
 <section class="venue-directory-page jynlo-c1 jynlo-social">
   <div class="venue-directory-shell">
-    <header class="venue-directory-hero">
-      <div>
-        <span class="venue-directory-eyebrow">{{ 'venue.catalog.kicker' | t }}</span>
-        <h1>{{ 'venue.catalog.title' | t }}</h1>
-        <p>{{ 'venue.catalog.description' | t }}</p>
-      </div>
+    <app-play-tabs class="venue-directory-play" active="venues">
       <a class="venue-directory-add" routerLink="/menu/venues/new">{{ 'venue.catalog.add' | t }} <span aria-hidden="true">↗</span></a>
-    </header>
+    </app-play-tabs>
 
     <form class="venue-directory-filters" (ngSubmit)="search(0)">
       <label>

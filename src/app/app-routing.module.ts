@@ -52,6 +52,7 @@ const routes: Routes = [
   {path:'menu/book-court',loadComponent:() => import('./pages/court-search/court-search.component').then(m => m.CourtSearchComponent),data:{publicBrowse:true}},
   {path:'menu/venue-bookings',loadComponent:() => import('./pages/venue-bookings/venue-bookings.component').then(m => m.VenueBookingsComponent),canActivate:[AuthenticationGuard]},
   {path:'menu/venues/:id',loadChildren:() => import('./pages/venue-details/venue-details.module').then(m => m.VenueDetailsModule),canActivate:[AuthenticationGuard]},
+  {path:'menu/jogar/mapa',loadComponent:() => import('./pages/play-map/play-map.component').then(m => m.PlayMapComponent),data:{publicBrowse:true}},
   {path:'menu/events',loadChildren:() => import('./pages/events/events.module').then(m => m.EventsModule),data:{publicBrowse:true}},
   {path:'menu/login',redirectTo:'/login', pathMatch:'full'},
   {path:'login',component:LoginComponent},

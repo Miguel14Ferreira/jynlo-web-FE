@@ -1,3 +1,4 @@
+import { PlayTabsComponent } from '../shared/play-tabs/play-tabs.component';
 import { JynloDateInputDirective } from '../shared/date-input.directive';
 import { SportNamePipe } from '../i18n/sport-name.pipe';
 import { Provider } from '@angular/core';
@@ -46,6 +47,7 @@ const activatedRouteMock = {
 };
 
 export const TEST_IMPORTS = [
+  PlayTabsComponent,
   JynloDateInputDirective,
   SportNamePipe,
   FormsModule,

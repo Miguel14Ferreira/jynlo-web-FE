@@ -103,7 +103,7 @@
     align-items: start;
   }
   body .venue-directory-page .venue-directory-shell > * { grid-column: 2; min-width: 0; }
-  body .venue-directory-page .venue-directory-shell > .venue-directory-hero { grid-column: 1 / -1; }
+  body .venue-directory-page .venue-directory-shell > :is(.venue-directory-hero, .venue-directory-play) { grid-column: 1 / -1; }
   body .venue-directory-page .venue-directory-shell > .venue-directory-filters {
     grid-column: 1;
     grid-row: 2 / span 40;
@@ -221,3 +221,5 @@ body .venue-sports-chip, body .sessions-page .status, body .story-header-create,
 }
 /* Example text inside fields was too faint on the dark green inputs (about 3:1); now above 4.5:1. */
 body input::placeholder, body textarea::placeholder { color: #9fb8c0 !important; opacity: 1 !important; }
+/* Jogar header spans the whole page width on Jogos (the shell there is a two-column grid). */
+body .sessions-page .sessions-shell > app-play-tabs { grid-column: 1 / -1; }

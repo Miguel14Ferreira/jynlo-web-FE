@@ -1,16 +1,8 @@
 <section class="sessions-page jynlo-c1 jynlo-games jynlo-activities-v3">
   <div class="sessions-shell">
-    <header class="page-header">
-      <div>
-        <h1>{{ 'events.title' | t }}</h1>
-        <p class="subtitle">{{ 'events.subtitle' | t }}</p>
-      </div>
-
-      <div class="header-actions">
-        <a class="primary-action jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary" routerLink="/menu/createEvent">{{ 'mySessions.create' | t }}</a>
-        <a class="secondary-action jynlo-action jynlo-action--neutral jynlo-premium-btn jynlo-premium-btn--quiet" routerLink="/menu/my-sessions">{{ 'mySessions.title' | t }}</a>
-      </div>
-    </header>
+    <app-play-tabs active="games">
+      <a class="primary-action jynlo-action jynlo-action--primary jynlo-premium-btn jynlo-premium-btn--primary" routerLink="/menu/createEvent">{{ 'mySessions.create' | t }}</a>
+    </app-play-tabs>
 
     <div class="ev-layout" [class.ev-layout--wide]="wideScreen">
     <aside class="ev-side">

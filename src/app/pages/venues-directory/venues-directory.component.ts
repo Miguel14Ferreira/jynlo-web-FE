@@ -1,3 +1,4 @@
+import { PlayTabsComponent } from '../../shared/play-tabs/play-tabs.component';
 import { VenueBookingService } from '../../services/venue-booking.service';
 import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { CommonModule } from '@angular/common';
@@ -17,7 +18,7 @@ import { VenueSportsBadgesComponent } from '../../shared/venue-sports-badges/ven
 @Component({
   selector: 'app-venues-directory',
   standalone: true,
-  imports: [SportNamePipe, CommonModule, FormsModule, RouterLink, TranslatePipe, VenueSportsBadgesComponent],
+  imports: [PlayTabsComponent, SportNamePipe, CommonModule, FormsModule, RouterLink, TranslatePipe, VenueSportsBadgesComponent],
   templateUrl: './venues-directory.component.html',
   styleUrls: ['./venues-directory.component.css', './venues-directory-v3-finish.css']
 })

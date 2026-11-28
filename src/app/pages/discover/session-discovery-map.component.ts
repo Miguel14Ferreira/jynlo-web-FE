@@ -1,3 +1,6 @@
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { AfterViewInit, Component, EventEmitter, HostListener, Input, OnChanges, Output } from '@angular/core';
 import { SessionSummary } from '../model/session-summary';
 
@@ -13,7 +16,8 @@ type MapArea = 'mainland' | 'azores' | 'madeira';
  */
 @Component({
   selector: 'app-session-discovery-map',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, RouterLink, TranslatePipe],
   template: `
     <div class="jynlo-session-map">
       <div class="jynlo-session-map-toolbar" [attr.aria-label]="'Navegar no mapa de Portugal' | t">

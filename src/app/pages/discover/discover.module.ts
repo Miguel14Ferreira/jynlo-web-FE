@@ -10,8 +10,8 @@ import { SportNamePipe } from '../../i18n/sport-name.pipe';
 
 // Load this screen only when its route is opened, not on the public home page.
 @NgModule({
-  declarations: [DiscoverComponent, SessionDiscoveryMapComponent],
-  imports: [SportNamePipe, FriendsGoingComponent, 
+  declarations: [DiscoverComponent],
+  imports: [SessionDiscoveryMapComponent, SportNamePipe, FriendsGoingComponent, 
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

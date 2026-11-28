@@ -8800,4 +8800,8 @@ export const EN: Record<string, string> = {
   "Jogar": "Play",
   "Equipas e torneios": "Teams and tournaments",
   "Recintos que giro": "Venues I manage",
+  "Desporto, cidade, recinto ou pessoa": "Sport, city, venue or person",
+  "Procurar": "Search",
+  "Mapa": "Map",
+  "Não foi possível carregar os jogos. Tenta novamente.": "Could not load the games. Try again.",
 };

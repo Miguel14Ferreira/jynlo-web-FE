@@ -53,9 +53,10 @@ describe('EventsComponent', () => {
 
   it('keeps action semantics and a compact search with a Filtros panel', () => {
     const root = fixture.nativeElement as HTMLElement;
-    const header = root.querySelector('.sessions-page .page-header')!;
+    // The page opens with the shared "Jogar" header (search + Jogos/Recintos/Mapa) and the main action beside it.
+    const header = root.querySelector('.sessions-page app-play-tabs')!;
     expect(header.querySelector('a[href="/menu/createEvent"]')?.classList.contains('jynlo-premium-btn--primary')).toBeTrue();
-    expect(header.querySelector('a[href="/menu/my-sessions"]')?.classList.contains('jynlo-premium-btn--quiet')).toBeTrue();
+    expect(header.querySelector('.play-tabs a[href="/menu/venues"]')).toBeTruthy();
     const form = root.querySelector('.jynlo-session-filters') as HTMLFormElement;
     expect(form.querySelector('input[name="sport"]')).not.toBeNull();
     expect(form.querySelector('input[name="city"]')).not.toBeNull();

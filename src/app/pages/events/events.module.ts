@@ -1,3 +1,4 @@
+import { PlayTabsComponent } from '../../shared/play-tabs/play-tabs.component';
 import { JynloDateInputDirective } from '../../shared/date-input.directive';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
@@ -11,7 +12,7 @@ import { FriendsGoingComponent } from '../../shared/friends-going/friends-going.
 // Keep this feature out of the public application's initial JavaScript bundle.
 @NgModule({
   declarations: [EventsComponent],
-  imports: [JynloDateInputDirective, SportNamePipe, FriendsGoingComponent, 
+  imports: [PlayTabsComponent, JynloDateInputDirective, SportNamePipe, FriendsGoingComponent, 
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

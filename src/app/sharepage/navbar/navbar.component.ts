@@ -80,6 +80,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
     { id: 'communities', label: 'nav.communities', route: '/menu/communities', icon: 'communities' },
     { id: 'messages', label: 'nav.messages', route: '/menu/messages', icon: 'messages' },
   ];
+  /** Jogar covers games, venues, the map, court booking and search. */
+  get playActive(): boolean {
+    const url = (this.router?.url || '').split('?')[0];
+    return /^\/menu\/(events(?!\/\d)|venues(?!\/\d+\/manage)|jogar|book-court|discover|search)/.test(url);
+  }
   /** "Criar" opens a small menu instead of a separate page (like the app's + sheet). */
   createMenuOpen = false;
   createMenuTop: number | null = null;
