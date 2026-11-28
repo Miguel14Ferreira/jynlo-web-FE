@@ -1,3 +1,4 @@
+import { JynloDateInputDirective } from '../../shared/date-input.directive';
 import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
@@ -16,6 +17,6 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [Events2Component],
-  imports: [SportNamePipe, CommonModule, FormsModule, RouterModule.forChild(routes), TranslatePipe, LocationMethodSelectorComponent, JynloSelectComponent, VenueSlotPickerComponent]
+  imports: [JynloDateInputDirective, SportNamePipe, CommonModule, FormsModule, RouterModule.forChild(routes), TranslatePipe, LocationMethodSelectorComponent, JynloSelectComponent, VenueSlotPickerComponent]
 })
 export class CreateEventModule {}

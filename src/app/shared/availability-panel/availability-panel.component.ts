@@ -1,3 +1,4 @@
+import { JynloDateInputDirective } from '../date-input.directive';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnChanges, inject } from '@angular/core';
@@ -39,7 +40,7 @@ export function localDateTimeValue(date: Date): string {
 @Component({
   selector: 'app-availability-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe],
+  imports: [JynloDateInputDirective, CommonModule, FormsModule, TranslatePipe],
   templateUrl: './availability-panel.component.html',
   styleUrls: ['./availability-panel.component.css'],
 })

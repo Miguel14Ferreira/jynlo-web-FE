@@ -1,3 +1,4 @@
+import { JynloDateInputDirective } from '../../shared/date-input.directive';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -20,7 +21,7 @@ import { registrationSessionId, registrationCommunityId, rememberRegistrationDes
   styleUrls: ['./createaccount.component.css'],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, JynloSelectComponent]
+  imports: [JynloDateInputDirective, CommonModule, FormsModule, RouterLink, TranslatePipe, JynloSelectComponent]
 })
 export class CreateaccountComponent {
   username = '';

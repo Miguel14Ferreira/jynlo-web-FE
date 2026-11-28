@@ -1,3 +1,4 @@
+import { JynloDateInputDirective } from '../shared/date-input.directive';
 import { SportNamePipe } from '../i18n/sport-name.pipe';
 import { Provider } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -45,6 +46,7 @@ const activatedRouteMock = {
 };
 
 export const TEST_IMPORTS = [
+  JynloDateInputDirective,
   SportNamePipe,
   FormsModule,
   ReactiveFormsModule,

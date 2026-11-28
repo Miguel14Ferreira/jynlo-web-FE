@@ -170,3 +170,18 @@ body :is(input, select, textarea):is(
     box-shadow: none !important;
   }
 }
+
+/* Hidden browser date field that only shows its calendar under our dd/mm/aaaa field (shared/date-input.directive.ts). */
+.jynlo-date-picker-proxy {
+  position: fixed !important; height: 0 !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important;
+  border: 0 !important; opacity: 0 !important; pointer-events: none !important; overflow: hidden !important;
+}
+/* dd/mm/aaaa fields: calendar icon on the right opens the calendar. */
+input[data-date-kind] {
+  padding-right: 44px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%237ae5c5' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='2'/%3E%3Cpath d='M7 3v4m10-4v4M3 10h18'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 20px 20px !important;
+}
+input[data-date-kind]:not(:disabled) { cursor: text; }

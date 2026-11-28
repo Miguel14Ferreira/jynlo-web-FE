@@ -1,3 +1,4 @@
+import { JynloDateInputDirective } from '../../shared/date-input.directive';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -9,7 +10,7 @@ import { SportNamePipe } from '../../i18n/sport-name.pipe';
 // Keep this feature out of the public application's initial JavaScript bundle.
 @NgModule({
   declarations: [MySessionsComponent],
-  imports: [SportNamePipe, 
+  imports: [JynloDateInputDirective, SportNamePipe, 
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

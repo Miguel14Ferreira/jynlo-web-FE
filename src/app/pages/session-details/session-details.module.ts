@@ -1,3 +1,4 @@
+import { JynloDateInputDirective } from '../../shared/date-input.directive';
 import { FriendsGoingComponent } from '../../shared/friends-going/friends-going.component';
 import { CommonModule } from '@angular/common';
 import { SessionCourtBookingComponent } from './session-court-booking.component';
@@ -18,6 +19,6 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [SessionDetailsComponent],
-  imports: [SportNamePipe, CommonModule, FormsModule, ReactiveFormsModule, RouterModule.forChild(routes), TranslatePipe, ChatReactionsComponent, SessionPaymentsPanelComponent, PreviousUnpaidWarningComponent, SessionCourtBookingComponent, FriendsGoingComponent]
+  imports: [JynloDateInputDirective, SportNamePipe, CommonModule, FormsModule, ReactiveFormsModule, RouterModule.forChild(routes), TranslatePipe, ChatReactionsComponent, SessionPaymentsPanelComponent, PreviousUnpaidWarningComponent, SessionCourtBookingComponent, FriendsGoingComponent]
 })
 export class SessionDetailsModule {}

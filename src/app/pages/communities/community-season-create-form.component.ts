@@ -1,3 +1,4 @@
+import { JynloDateInputDirective } from '../../shared/date-input.directive';
 import { SportNamePipe } from '../../i18n/sport-name.pipe';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -7,7 +8,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
 @Component({
   selector: 'app-community-season-create-form',
   standalone: true,
-  imports: [SportNamePipe, FormsModule, TranslatePipe],
+  imports: [JynloDateInputDirective, SportNamePipe, FormsModule, TranslatePipe],
   templateUrl: './community-season-create-form.component.html',
   styleUrls: ['./community-season-create-form.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

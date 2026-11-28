@@ -1,3 +1,4 @@
+import { JynloDateInputDirective } from '../../shared/date-input.directive';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -38,7 +39,7 @@ export function formatEventValue(value: number | null, kind: EventRankingKind): 
 @Component({
   selector: 'app-event-ranking-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe],
+  imports: [JynloDateInputDirective, CommonModule, FormsModule, TranslatePipe],
   templateUrl: './event-ranking-panel.component.html',
   styleUrls: ['./event-ranking-panel.component.css']
 })

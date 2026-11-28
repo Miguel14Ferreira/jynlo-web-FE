@@ -1,3 +1,4 @@
+import { JynloDateInputDirective } from '../../shared/date-input.directive';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -12,7 +13,7 @@ import { AccountBlockedPeopleComponent } from '../account-security/account-block
 // Load this screen only when its route is opened, not on the public home page.
 @NgModule({
   declarations: [AlterardadosComponent],
-  imports: [SportNamePipe, 
+  imports: [JynloDateInputDirective, SportNamePipe, 
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

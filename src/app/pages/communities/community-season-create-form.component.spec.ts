@@ -16,11 +16,12 @@ describe('CommunitySeasonCreateFormComponent', () => {
   }
   it('keeps date/time input, draft name and the native creation button', async () => {
     const root=(await render()).nativeElement as HTMLElement;
-    const inputs=root.querySelectorAll<HTMLInputElement>('input');
+    const inputs=root.querySelectorAll<HTMLInputElement>('input:not(.jynlo-date-picker-proxy)');
     expect(inputs.length).toBe(2);
     expect(inputs[0].value).toBe('Época 2026');
-    expect(inputs[1].type).toBe('datetime-local');
-    expect(inputs[1].value).toBe('2026-10-26T19:00');
+    // Shown as dd/mm/aaaa hh:mm on every browser; the stored value stays 2026-10-26T19:00.
+    expect(inputs[1].getAttribute('data-date-kind')).toBe('datetime-local');
+    expect(inputs[1].value).toBe('26/10/2026 19:00');
     expect(root.querySelector('button')?.getAttribute('type')).toBe('button');
   });
   it('emits draft changes separately without creating a season by itself', async () => {
