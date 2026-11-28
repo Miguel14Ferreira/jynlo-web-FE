@@ -343,7 +343,8 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
   communitySessions: SessionSummary[] = [];
   recordedCommunitySessionIds = new Set<number>();
   sessionResultSession?: SessionSummary;
-  sessionResultPlayers: Array<{ username: string; included: boolean; team: 'A' | 'B' | '' }> = [];
+  /** label: @handle for accounts, the table name for players who confirmed through the WhatsApp link. */
+  sessionResultPlayers: Array<{ username: string; label: string; included: boolean; team: 'A' | 'B' | '' }> = [];
   sessionResultWinner: 'A' | 'B' | 'DRAW' | '' = '';
   sessionResultLoading = false;
   sessionResultSaving = false;
@@ -3622,7 +3623,9 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewChecked
             .filter(p => p.attendanceStatus !== 'NO_SHOW' && p.attendanceStatus !== 'LATE_CANCELLED')
             .map(p => ({
               username: p.username,
-              included: p.attendanceStatus === 'ATTENDED',
+              label: p.guest ? (p.displayName || p.username) : '@' + p.username,
+              // Players without an account have no attendance check-in: they played if they were in a team.
+              included: p.attendanceStatus === 'ATTENDED' || (!!p.guest && (p.teamCode === 'A' || p.teamCode === 'B')),
               team: p.teamCode === 'A' || p.teamCode === 'B' ? p.teamCode : '' as const
             }));
         },

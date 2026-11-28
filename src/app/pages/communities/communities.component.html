@@ -1323,11 +1323,11 @@
                                     <label class="community-session-result-attendance">
                                       <input type="checkbox" [(ngModel)]="player.included"
                                         [disabled]="sessionResultSaving">
-                                      <span>{{ player.username }}</span>
+                                      <span>{{ player.label }}</span>
                                     </label>
                                     <select [(ngModel)]="player.team"
                                       [disabled]="!player.included || sessionResultSaving"
-                                      [attr.aria-label]="player.username + ' — ' + ('communities.sessionResult.team' | t)">
+                                      [attr.aria-label]="player.label + ' — ' + ('communities.sessionResult.team' | t)">
                                       <option value="">{{ 'communities.sessionResult.selectTeam' | t }}</option>
                                       <option value="A">{{ 'communities.sessionResult.teamA' | t }}</option>
                                       <option value="B">{{ 'communities.sessionResult.teamB' | t }}</option>

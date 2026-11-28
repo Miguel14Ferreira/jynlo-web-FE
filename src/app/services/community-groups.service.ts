@@ -378,16 +378,20 @@ export class CommunityGroupsService {
   }
 
   sessionResultRoster(id: number, sessionId: number): Observable<Array<{
-    id: number;
+    id: number | null;
     username: string;
-    attendanceStatus: 'PENDING' | 'ATTENDED' | 'NO_SHOW' | 'LATE_CANCELLED';
+    attendanceStatus: 'PENDING' | 'ATTENDED' | 'NO_SHOW' | 'LATE_CANCELLED' | null;
     teamCode?: 'A' | 'B' | null;
+    displayName?: string | null;
+    guest?: boolean;
   }>> {
     return this.http.get<Array<{
-      id: number;
+      id: number | null;
       username: string;
-      attendanceStatus: 'PENDING' | 'ATTENDED' | 'NO_SHOW' | 'LATE_CANCELLED';
+      attendanceStatus: 'PENDING' | 'ATTENDED' | 'NO_SHOW' | 'LATE_CANCELLED' | null;
       teamCode?: 'A' | 'B' | null;
+      displayName?: string | null;
+      guest?: boolean;
     }>>(this.url + '/' + id + '/sessions/' + sessionId + '/competition-result/roster');
   }
 
