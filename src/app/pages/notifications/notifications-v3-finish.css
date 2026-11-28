@@ -105,9 +105,9 @@
 }
 :host .notifications-page.jynlo-secondary .close-detail{
   display:inline-grid;place-items:center;min-width:40px;height:40px;
-  border:1px solid rgba(53,179,193,.3);border-radius:11px;
-  background:#0d4050;color:#d9f5f0;
+  border:0;border-radius:50%;background:transparent;color:#d9f5f0;
 }
+:host .notifications-page.jynlo-secondary .close-detail:hover{background:rgba(125,244,217,.1);}
 :host .notifications-page.jynlo-secondary :is(.notification-preferences,.session-invites-inbox,.state-card){
   border:1px solid var(--notice-v3-line);border-radius:18px;
   background:linear-gradient(144deg,rgba(10,49,64,.96),rgba(5,30,46,.98));

@@ -1,7 +1,7 @@
 <div class="inbox-entries">
             @if (sentRequests.length) {
               <button type="button" class="inbox-sent-toggle" [attr.aria-expanded]="sentOpen" (click)="toggleSent()">
-                <span>{{ 'Pedidos que enviaste' | t }} <span class="inbox-sent-count">{{ sentRequests.length }}</span></span>
+                <span>{{ 'Pedidos de mensagem que enviaste' | t }} <span class="inbox-sent-count">{{ sentRequests.length }}</span></span>
                 <svg [class.is-open]="sentOpen" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
               </button>
             }
